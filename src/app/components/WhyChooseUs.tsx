@@ -112,7 +112,7 @@ export default function WhyChooseUs() {
             </p>
 
             <div className="relative">
-              <div className="absolute left-6 top-6 bottom-6 w-px bg-gradient-to-b from-[#00c389]/25 via-[#00c389]/10 to-transparent" />
+              <div className="absolute left-[23px] top-6 bottom-6 w-px bg-gradient-to-b from-[#00c389]/25 via-[#00c389]/10 to-transparent" />
 
               <div className="space-y-2.5">
                 {features.map((feature, index) => (
@@ -186,13 +186,11 @@ export default function WhyChooseUs() {
 
               <motion.div
                 className="absolute top-7 right-7 bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white rounded-[24px] px-6 py-4 shadow-[0_20px_50px_rgba(0,195,137,0.25)]"
-                initial={{ opacity: 0, y: -12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                animate={{ y: [0, -6, 0] }}
+                animate={{ y: [0, -5, 0] }}
                 transition={{
                   duration: 4,
                   repeat: Infinity,
+                  ease: "easeInOut",
                 }}
               >
                 <div className="flex items-center gap-3.5">
@@ -212,13 +210,11 @@ export default function WhyChooseUs() {
 
               <motion.div
                 className="absolute bottom-7 left-7 bg-white/92 backdrop-blur-xl rounded-[24px] px-6 py-4 border border-white shadow-[0_20px_40px_rgba(15,23,42,0.12)]"
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                animate={{ y: [0, 6, 0] }}
+                animate={{ y: [0, 5, 0] }}
                 transition={{
                   duration: 4,
                   repeat: Infinity,
+                  ease: "easeInOut",
                   delay: 1,
                 }}
               >
@@ -239,10 +235,13 @@ export default function WhyChooseUs() {
 
               <motion.div
                 className="absolute bottom-7 right-7 px-5 py-3 rounded-full bg-[#0f172a]/92 text-white shadow-[0_16px_40px_rgba(15,23,42,0.18)]"
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.6 }}
+                animate={{ y: [0, -4, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 2,
+                }}
               >
                 <span className="text-sm font-semibold">
                   Európai élmények gondtalanul

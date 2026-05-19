@@ -13,7 +13,7 @@ Premium Mediterranean travel brand design system - Editorial magazine aesthetic 
 - Magazine-style typography hierarchy
 
 ### 2. **Premium Spacing System**
-- Section padding: `py-40` (instead of py-24/py-32)
+- Section padding: `py-20` (instead of py-24/py-32)
 - Container max-width: `1500px` (more spacious)
 - Grid gaps: `gap-8` to `gap-24` (generous spacing)
 - Padding: `px-20` on desktop (wider margins)
@@ -79,7 +79,7 @@ Labels: 0.875rem uppercase, tracking 0.05-0.1em
 ### **How It Works**
 - Connected journey timeline
 - Premium glassmorphism cards
-- Editorial spacing (py-40)
+- Editorial spacing (py-20)
 - Floating accent icons
 - Animated path between steps
 

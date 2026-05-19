@@ -113,21 +113,6 @@ const offers: TravelOffer[] = [
     tripType: "Pároknak ajánlott",
     tripTypeIcon: <Heart className="w-3.5 h-3.5" strokeWidth={2} />,
   },
-  {
-    id: "6",
-    title: "Horvátország - Isztria",
-    subtitle: "Tengerparti pihenés a Kék Adrián",
-    image:
-      "https://images.unsplash.com/photo-1766744406414-cd34a1512eea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90",
-    departureDate: "július 12",
-    additionalDates: true,
-    transport: ["bus"],
-    accommodation: "Apartman",
-    meals: "Önellátó",
-    price: "159.900 Ft",
-    tripType: "Családbarát",
-    tripTypeIcon: <Baby className="w-3.5 h-3.5" strokeWidth={2} />,
-  },
 ];
 
 const filters = [
@@ -159,13 +144,13 @@ export default function FeaturedOffers() {
   };
 
   return (
-    <section className="relative pt-14 pb-20 bg-white overflow-hidden">
+    <section className="relative pt-10 pb-14 bg-white overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#00c389]/5 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-[#00c389]/5 to-transparent rounded-full blur-3xl" />
 
       <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-6"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -191,7 +176,7 @@ export default function FeaturedOffers() {
         </motion.div>
 
         <motion.div
-          className="flex flex-wrap justify-center gap-2 mb-10"
+          className="flex flex-wrap justify-center gap-2 mb-7"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -216,7 +201,7 @@ export default function FeaturedOffers() {
           ))}
         </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
   {offers.map((offer, index) => {
     const isFeatured = index === 0;
 
@@ -242,7 +227,7 @@ export default function FeaturedOffers() {
         >
           <div
             className={`relative overflow-hidden ${
-              isFeatured ? "h-64" : "h-64"
+              isFeatured ? "h-56" : "h-52"
             }`}
           >
             <motion.img
@@ -293,7 +278,7 @@ export default function FeaturedOffers() {
             )}
           </div>
 
-          <div className={`${isFeatured ? "p-7" : "p-5"}`}>
+          <div className={`${isFeatured ? "p-6" : "p-5"}`}>
             <h3
               className={`text-gray-900 font-bold leading-tight tracking-[-0.02em] mb-2 ${
                 isFeatured ? "text-[1.8rem]" : "text-[1.35rem]"
@@ -395,7 +380,7 @@ export default function FeaturedOffers() {
 </div>
 
         <motion.div
-          className="text-center mt-12"
+          className="text-center mt-8"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

@@ -16,7 +16,7 @@ export default function EmotionalStory() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[78vh] min-h-[620px] overflow-hidden"
+      className="relative h-[68vh] min-h-[540px] overflow-hidden"
     >
     
 
@@ -81,7 +81,7 @@ export default function EmotionalStory() {
         <div className="max-w-5xl mx-auto px-8 md:px-12 text-center">
           {/* Headline */}
           <motion.h2
-            className="text-white mb-8"
+            className="text-white mb-6"
             style={{
               fontSize: "clamp(2.2rem, 5vw, 4rem)",
               fontWeight: 700,
@@ -107,7 +107,7 @@ export default function EmotionalStory() {
 
           {/* Divider */}
           <motion.div
-            className="w-24 h-[2px] bg-gradient-to-r from-transparent via-[#00c389] to-transparent mx-auto mb-10 opacity-80"
+            className="w-24 h-[2px] bg-gradient-to-r from-transparent via-[#00c389] to-transparent mx-auto mb-7 opacity-80"
             initial={{ scaleX: 0, opacity: 0 }}
             whileInView={{ scaleX: 1, opacity: 0.8 }}
             viewport={{ once: true }}
@@ -116,7 +116,7 @@ export default function EmotionalStory() {
 
           {/* Description */}
           <motion.p
-            className="text-white/85 max-w-3xl mx-auto mb-12"
+            className="text-white/85 max-w-3xl mx-auto mb-8"
             style={{
               fontSize: "clamp(1rem, 1.8vw, 1.35rem)",
               lineHeight: 1.7,
@@ -197,7 +197,7 @@ export default function EmotionalStory() {
 
           {/* Footer Quote */}
           <motion.div
-            className="mt-10 flex items-center justify-center gap-6 relative z-30"
+            className="mt-8 flex items-center justify-center gap-6 relative z-30"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -218,7 +218,7 @@ export default function EmotionalStory() {
       </div>
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white via-white/70 to-transparent z-10" />
+      <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-white via-white/70 to-transparent z-10" />
     </section>
   );
 }

@@ -9,7 +9,7 @@
 ✅ Eliminated harsh section breaks - continuous storytelling
 
 ### 2. Spacing Consistency
-✅ All major sections now use `py-40` for vertical padding
+✅ All major sections now use `py-20` for vertical padding
 ✅ All containers use `max-w-[1500px]` for consistent width
 ✅ Consistent horizontal padding: `px-8 md:px-12 lg:px-20`
 ✅ Grid gaps standardized to `gap-5` or `gap-8`

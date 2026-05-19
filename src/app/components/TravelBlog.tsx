@@ -48,17 +48,6 @@ const articles: BlogArticle[] = [
     date: "2026. május 8",
     readingTime: "6 perc",
   },
-  {
-    id: "4",
-    title: "Az olasz konyha titkai: mit kóstoljunk meg?",
-    excerpt:
-      "Autentikus olasz ételek, amelyeket minden utazónak meg kell kóstolnia.",
-    image:
-      "https://images.unsplash.com/photo-1595295333158-4742f28fbd85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1000&q=90",
-    category: "Gasztronómia",
-    date: "2026. május 5",
-    readingTime: "7 perc",
-  },
 ];
 
 const getCategoryColor = (category: string) => {

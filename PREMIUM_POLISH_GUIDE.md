@@ -1,7 +1,7 @@
 # Premium Polish Guidelines
 
 ## Section Spacing
-- All major sections: `py-40`
+- All major sections: `py-20`
 - Container max-width: `max-w-[1500px]`
 - Container padding: `px-8 md:px-12 lg:px-20`
 

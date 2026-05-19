@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 
 export default function ExperienceSection() {
   return (
-    <section className="relative py-40 bg-white overflow-hidden">
+    <section className="relative py-20 bg-white overflow-hidden">
       {/* Premium Editorial Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-[#f8fafc] to-white" />
 
