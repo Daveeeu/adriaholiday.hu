@@ -160,7 +160,7 @@ export default function TrustSection() {
   }, []);
 
   return (
-    <section className="relative py-32 bg-gradient-to-b from-white via-[#f8fafc] to-white overflow-hidden">
+    <section className="relative py-20 bg-gradient-to-b from-white via-[#f8fafc] to-white overflow-hidden">
       {/* Background accents */}
       <div className="absolute top-20 left-[10%] w-[420px] h-[420px] bg-gradient-to-br from-[#00c389]/6 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-10 right-[10%] w-[420px] h-[420px] bg-gradient-to-tl from-[#16b8ff]/6 to-transparent rounded-full blur-3xl" />
@@ -168,7 +168,7 @@ export default function TrustSection() {
       <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
         {/* Header */}
         <motion.div
-          className="flex flex-col items-center mb-20"
+          className="flex flex-col items-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -177,7 +177,7 @@ export default function TrustSection() {
           <GoogleRatingBadge />
 
           <motion.div
-            className="flex flex-wrap items-center justify-center gap-5 mt-8"
+            className="flex flex-wrap items-center justify-center gap-5 mt-5"
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -212,7 +212,7 @@ export default function TrustSection() {
 
         {/* PREMIUM STATS */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-28"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -220,7 +220,7 @@ export default function TrustSection() {
           {stats.map((stat, index) => (
             <motion.div
               key={index}
-              className="group relative bg-white/90 backdrop-blur-xl rounded-[30px] p-8 border border-gray-100 overflow-hidden shadow-[0_10px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_60px_rgba(0,195,137,0.14)] transition-all duration-500"
+              className="group relative bg-white/90 backdrop-blur-xl rounded-[28px] p-6 border border-gray-100 overflow-hidden shadow-[0_10px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_60px_rgba(0,195,137,0.14)] transition-all duration-500"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -234,7 +234,7 @@ export default function TrustSection() {
 
               {/* Icon */}
               <motion.div
-                className="relative inline-flex items-center justify-center w-16 h-16 rounded-[22px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 mb-7 border border-[#00c389]/10"
+                className="relative inline-flex items-center justify-center w-14 h-14 rounded-[20px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 mb-5 border border-[#00c389]/10"
                 animate={{
                   scale: hoveredStat === index ? 1.08 : 1,
                   rotate: hoveredStat === index ? 4 : 0,
@@ -251,7 +251,7 @@ export default function TrustSection() {
               </motion.div>
 
               {/* Counter */}
-              <div className="mb-4">
+              <div className="mb-3">
                 <AnimatedCounter
                   value={stat.value}
                   suffix={stat.suffix}
@@ -259,7 +259,7 @@ export default function TrustSection() {
               </div>
 
               {/* Label */}
-              <h3 className="text-[#0f172a] text-xl font-bold mb-3">
+              <h3 className="text-[#0f172a] text-lg font-bold mb-2">
                 {stat.label}
               </h3>
 
@@ -287,7 +287,7 @@ export default function TrustSection() {
 
         {/* Testimonials Header */}
         <motion.div
-          className="text-center mb-14"
+          className="text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -340,7 +340,7 @@ export default function TrustSection() {
                     </div>
 
                     {/* Profile */}
-                    <div className="flex items-center gap-5 mb-8">
+                    <div className="flex items-center gap-5 mb-6">
                       <img
                         src={review.image}
                         alt={review.name}
@@ -370,7 +370,7 @@ export default function TrustSection() {
                     </div>
 
                     {/* Divider */}
-                    <div className="w-20 h-[2px] bg-gradient-to-r from-[#00c389] to-transparent opacity-50 mb-8" />
+                    <div className="w-20 h-[2px] bg-gradient-to-r from-[#00c389] to-transparent opacity-50 mb-6" />
 
                     {/* Text */}
                     <p className="text-gray-700 text-xl leading-relaxed">
@@ -383,7 +383,7 @@ export default function TrustSection() {
           </div>
 
           {/* Dots */}
-          <div className="flex justify-center gap-2 mt-10">
+          <div className="flex justify-center gap-2 mt-7">
             {reviews.map((_, index) => (
               <button
                 key={index}

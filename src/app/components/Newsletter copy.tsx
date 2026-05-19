@@ -27,7 +27,7 @@ export default function Newsletter() {
   ];
 
   return (
-    <section className="relative py-28 bg-gradient-to-b from-white via-[#f8fafc] to-white overflow-hidden">
+    <section className="relative py-18 md:py-20 bg-gradient-to-b from-white via-[#f8fafc] to-white overflow-hidden">
       <div className="absolute top-0 left-[8%] w-[520px] h-[520px] bg-gradient-to-br from-[#00c389]/8 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-[8%] w-[520px] h-[520px] bg-gradient-to-tl from-[#16b8ff]/8 to-transparent rounded-full blur-3xl" />
 
@@ -51,10 +51,10 @@ export default function Newsletter() {
             <Lottie animationData={worldMapAnimation} loop className="w-full h-full" />
           </motion.div>
 
-          <div className="relative grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 items-center p-8 md:p-12 lg:p-16">
+          <div className="relative grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-8 items-center p-7 md:p-10 lg:p-12">
             <div>
               <motion.div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00c389]/8 text-[#00a878] font-semibold text-sm mb-6"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00c389]/8 text-[#00a878] font-semibold text-sm mb-4"
                 initial={{ opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -65,7 +65,7 @@ export default function Newsletter() {
               </motion.div>
 
               <motion.h2
-                className="text-[#0f172a] mb-5"
+                className="text-[#0f172a] mb-4"
                 style={{
                   fontSize: "clamp(2.25rem, 4.5vw, 4rem)",
                   fontWeight: 750,
@@ -84,7 +84,7 @@ export default function Newsletter() {
               </motion.h2>
 
               <motion.p
-                className="text-gray-600 text-lg leading-relaxed max-w-2xl mb-8"
+                className="text-gray-600 text-lg leading-relaxed max-w-2xl mb-6"
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -95,7 +95,7 @@ export default function Newsletter() {
               </motion.p>
 
               <motion.div
-                className="relative max-w-2xl mb-5"
+                className="relative max-w-2xl mb-4"
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -149,7 +149,7 @@ export default function Newsletter() {
             </div>
 
             <motion.div
-              className="grid grid-cols-1 gap-4"
+              className="grid grid-cols-1 gap-3"
               initial={{ opacity: 0, x: 28 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -158,7 +158,7 @@ export default function Newsletter() {
               {benefits.map((benefit, index) => (
                 <motion.div
                   key={benefit.title}
-                  className="group relative bg-white/85 backdrop-blur-xl rounded-[26px] p-6 border border-gray-100 shadow-[0_10px_34px_rgba(15,23,42,0.06)] hover:shadow-[0_18px_48px_rgba(0,195,137,0.13)] transition-all duration-500 overflow-hidden"
+                  className="group relative bg-white/85 backdrop-blur-xl rounded-[24px] p-5 border border-gray-100 shadow-[0_10px_34px_rgba(15,23,42,0.06)] hover:shadow-[0_18px_48px_rgba(0,195,137,0.13)] transition-all duration-500 overflow-hidden"
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}

@@ -1,129 +1,284 @@
 import { motion } from "motion/react";
-import { Users, MapPin, Bus, Shield, Calendar, Award } from "lucide-react";
+import Lottie from "lottie-react";
+import {
+  Users,
+  MapPin,
+  Bus,
+  Shield,
+  Calendar,
+  Award,
+  Heart,
+  Star,
+  Camera,
+  ArrowRight,
+} from "lucide-react";
+
+import worldMapAnimation from "../../imports/world map animation.json";
 
 const features = [
   {
-    icon: <Award className="w-6 h-6" strokeWidth={2} />,
+    icon: <Award className="w-5 h-5" strokeWidth={2} />,
     title: "Saját szervezésű utak",
-    description: "Minden utazást mi tervezünk meg gondosan",
+    description: "Minden utazást gondosan megtervezünk.",
   },
   {
-    icon: <Users className="w-6 h-6" strokeWidth={2} />,
-    title: "Magyar idegenvezetők",
-    description: "Profi kísérők magyarul végig az úton",
-  },
-  {
-    icon: <Bus className="w-6 h-6" strokeWidth={2} />,
+    icon: <Bus className="w-5 h-5" strokeWidth={2} />,
     title: "Kényelmes buszok",
-    description: "Modern, klimatizált járművek WiFi-vel",
+    description: "Modern, klimatizált járművek, kényelmes utazás.",
   },
   {
-    icon: <Shield className="w-6 h-6" strokeWidth={2} />,
-    title: "Garantált indulások",
-    description: "Biztosan elutazhatsz, nem kell aggódni",
+    icon: <Users className="w-5 h-5" strokeWidth={2} />,
+    title: "Magyar idegenvezetők",
+    description: "Tapasztalt kísérők segítenek az út során.",
   },
   {
-    icon: <MapPin className="w-6 h-6" strokeWidth={2} />,
+    icon: <MapPin className="w-5 h-5" strokeWidth={2} />,
     title: "Több felszállási pont",
-    description: "Budapestről és vidékről is indulunk",
+    description: "Budapestről és vidékről is indulunk.",
   },
   {
-    icon: <Calendar className="w-6 h-6" strokeWidth={2} />,
+    icon: <Shield className="w-5 h-5" strokeWidth={2} />,
+    title: "Garantált indulások",
+    description: "Biztonságos, kiszámítható utazások.",
+  },
+  {
+    icon: <Calendar className="w-5 h-5" strokeWidth={2} />,
     title: "15 év tapasztalat",
-    description: "Megbízhatóság és szakértelem",
+    description: "Megbízható háttér és szakértelem.",
+  },
+];
+
+const bottomValues = [
+  {
+    icon: <Heart className="w-5 h-5" strokeWidth={2} />,
+    title: "Utazás szívvel-lélekkel",
+    text: "Mert mi magunk is szeretünk utazni",
+  },
+  {
+    icon: <Star className="w-5 h-5" strokeWidth={2} />,
+    title: "Több mint egy utazás",
+    text: "Élmények, barátságok, emlékek",
+  },
+  {
+    icon: <Users className="w-5 h-5" strokeWidth={2} />,
+    title: "Közösség és gondoskodás",
+    text: "Velünk nem vagy egyedül",
+  },
+  {
+    icon: <Camera className="w-5 h-5" strokeWidth={2} />,
+    title: "A pillanatok, amik megmaradnak",
+    text: "Ezért utazunk",
   },
 ];
 
 export default function WhyChooseUs() {
   return (
-    <section className="relative py-40 bg-white overflow-hidden">
-      {/* Background accents */}
-      <div className="absolute top-0 left-[10%] w-96 h-96 bg-gradient-to-br from-[#00c389]/5 to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-[10%] w-96 h-96 bg-gradient-to-tl from-blue-500/5 to-transparent rounded-full blur-3xl" />
+    <section className="relative pt-12 pb-14 bg-white overflow-hidden">
+      <div className="absolute top-0 left-[8%] w-[420px] h-[420px] bg-gradient-to-br from-[#00c389]/10 to-transparent rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-[8%] w-[420px] h-[420px] bg-gradient-to-tl from-[#16b8ff]/10 to-transparent rounded-full blur-3xl" />
 
-      <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
-        {/* Header */}
+      <div className="relative max-w-[1450px] mx-auto px-6 md:px-10 lg:px-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.92fr_1fr] gap-10 lg:gap-14 items-start">
+          {/* LEFT CONTENT */}
+          <motion.div
+            initial={{ opacity: 0, x: -28 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#00c389]/8 text-[#00a878] font-semibold text-sm mb-4">
+              <span className="w-2 h-2 rounded-full bg-[#00c389]" />
+              MIÉRT AZ ADRIA HOLIDAY
+            </div>
+
+            <h2
+              className="text-[#0f172a] mb-4"
+              style={{
+                fontSize: "clamp(2.2rem, 4vw, 3.8rem)",
+                fontWeight: 750,
+                letterSpacing: "-0.045em",
+                lineHeight: 1.02,
+              }}
+            >
+              Miért{" "}
+              <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
+                utazz velünk?
+              </span>
+            </h2>
+
+            <p className="text-gray-600 text-[1.02rem] leading-relaxed max-w-2xl mb-6">
+              Kényelmes buszok, gondos szervezés és olyan élmények, amelyekre
+              évekkel később is emlékezni fogsz.
+            </p>
+
+            <div className="relative">
+              <div className="absolute left-6 top-6 bottom-6 w-px bg-gradient-to-b from-[#00c389]/25 via-[#00c389]/10 to-transparent" />
+
+              <div className="space-y-2.5">
+                {features.map((feature, index) => (
+                  <motion.div
+                    key={feature.title}
+                    className="relative grid grid-cols-[52px_1fr] gap-4 items-center"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <div className="relative z-10 w-12 h-12 rounded-full bg-white border border-gray-100 shadow-[0_8px_24px_rgba(15,23,42,0.06)] flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff] flex items-center justify-center text-white text-[11px] font-bold">
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
+                    </div>
+
+                    <motion.div
+                      className="group bg-white rounded-[20px] border border-gray-100 p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.045)] hover:shadow-[0_14px_36px_rgba(0,195,137,0.12)] transition-all duration-500"
+                      whileHover={{ x: 5 }}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-11 h-11 rounded-[15px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 text-[#00c389] flex items-center justify-center shrink-0">
+                            {feature.icon}
+                          </div>
+
+                          <div>
+                            <h3 className="text-[#0f172a] text-base font-bold mb-0.5">
+                              {feature.title}
+                            </h3>
+
+                            <p className="text-gray-600 text-sm leading-snug">
+                              {feature.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        <ArrowRight className="w-4 h-4 text-[#00c389] opacity-35 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* RIGHT VISUAL */}
+          <motion.div
+            initial={{ opacity: 0, x: 28 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="relative h-[520px] rounded-[34px] overflow-hidden border border-white/70 bg-gradient-to-br from-[#f7fffc] via-white to-[#f3faff] shadow-[0_24px_70px_rgba(15,23,42,0.11)]">
+              <div className="absolute top-[-100px] left-[-100px] w-[260px] h-[260px] bg-[#00c389]/10 blur-3xl rounded-full" />
+              <div className="absolute bottom-[-100px] right-[-100px] w-[260px] h-[260px] bg-[#16b8ff]/10 blur-3xl rounded-full" />
+
+              <Lottie
+                animationData={worldMapAnimation}
+                loop
+                autoplay
+                className="absolute inset-0 w-full h-full"
+                style={{
+                  transform: "scale(1.18)",
+                  opacity: 0.92,
+                }}
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/32 pointer-events-none" />
+
+              <motion.div
+                className="absolute top-7 right-7 bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white rounded-[24px] px-6 py-4 shadow-[0_20px_50px_rgba(0,195,137,0.25)]"
+                initial={{ opacity: 0, y: -12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                animate={{ y: [0, -6, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                }}
+              >
+                <div className="flex items-center gap-3.5">
+                  <Users className="w-7 h-7" />
+
+                  <div>
+                    <div className="text-2xl font-bold leading-none">
+                      10 000+
+                    </div>
+
+                    <div className="text-sm text-white/85 mt-1">
+                      elégedett utas
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="absolute bottom-7 left-7 bg-white/92 backdrop-blur-xl rounded-[24px] px-6 py-4 border border-white shadow-[0_20px_40px_rgba(15,23,42,0.12)]"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                animate={{ y: [0, 6, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  delay: 1,
+                }}
+              >
+                <div className="flex items-center gap-3.5">
+                  <Award className="w-7 h-7 text-[#00c389]" />
+
+                  <div>
+                    <div className="text-2xl font-bold text-[#00c389] leading-none">
+                      15 év
+                    </div>
+
+                    <div className="text-sm text-gray-600 mt-1">
+                      tapasztalat
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="absolute bottom-7 right-7 px-5 py-3 rounded-full bg-[#0f172a]/92 text-white shadow-[0_16px_40px_rgba(15,23,42,0.18)]"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 }}
+              >
+                <span className="text-sm font-semibold">
+                  Európai élmények gondtalanul
+                </span>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+
         <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
+          className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 rounded-[26px] bg-white/92 border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.06)] overflow-hidden"
+          initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2
-            className="text-gray-900 mb-4"
-            style={{
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Miért az{" "}
-            <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-              Adria Holiday?
-            </span>
-          </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Gondtalan utazás, professzionális szervezés, felejthetetlen élmények
-          </p>
-        </motion.div>
-
-        {/* Feature Cards - More Spacious */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className="group relative bg-white/85 backdrop-blur-sm rounded-[24px] p-8 border border-gray-100/70 shadow-[0_2px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,195,128,0.15)] transition-all duration-500"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -6 }}
+          {bottomValues.map((item) => (
+            <div
+              key={item.title}
+              className="relative p-5 flex items-center gap-4 border-b md:border-b-0 lg:border-r border-gray-100 last:border-r-0"
             >
-              {/* Icon with luxury animation */}
-              <motion.div
-                className="relative inline-flex items-center justify-center w-14 h-14 rounded-[18px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 mb-5 overflow-hidden"
-                whileHover={{ scale: 1.15, rotate: 8 }}
-                transition={{ type: "spring", stiffness: 500, damping: 25 }}
-              >
-                {/* Subtle shimmer effect on hover */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  initial={{ x: "-100%" }}
-                  whileHover={{ x: "200%" }}
-                  transition={{ duration: 0.8 }}
-                />
-                <div className="text-[#00c389] relative z-10">{feature.icon}</div>
-              </motion.div>
+              <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 text-[#00c389] flex items-center justify-center shrink-0">
+                {item.icon}
+              </div>
 
-              {/* Title */}
-              <h3
-                className="text-gray-900 mb-3"
-                style={{ fontSize: "1.125rem", fontWeight: 700 }}
-              >
-                {feature.title}
-              </h3>
+              <div>
+                <h4 className="text-[#0f172a] font-bold text-sm mb-1">
+                  {item.title}
+                </h4>
 
-              {/* Description */}
-              <p className="text-gray-600 leading-relaxed text-[15px]">
-                {feature.description}
-              </p>
-
-              {/* Subtle bottom accent */}
-              <div className="absolute bottom-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-[#00c389]/30 to-transparent" />
-
-              {/* Hover glow */}
-              <motion.div
-                className="absolute inset-0 rounded-[24px] pointer-events-none"
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                style={{
-                  boxShadow: "inset 0 0 0 1.5px rgba(0, 195, 128, 0.12)",
-                }}
-              />
-            </motion.div>
+                <p className="text-gray-500 text-xs leading-relaxed">
+                  {item.text}
+                </p>
+              </div>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

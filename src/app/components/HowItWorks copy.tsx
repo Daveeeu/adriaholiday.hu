@@ -38,7 +38,7 @@ export default function HowItWorks() {
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
   return (
-    <section className="relative py-32 bg-gradient-to-b from-white via-[#f8fafc] to-white overflow-hidden">
+    <section className="relative py-20 bg-gradient-to-b from-white via-[#f8fafc] to-white overflow-hidden">
       {/* Cinematic Atmospheric Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Subtle world map texture */}
@@ -111,14 +111,14 @@ export default function HowItWorks() {
       <div className="relative max-w-[1300px] mx-auto px-8 md:px-12 lg:px-20">
         {/* Premium Header */}
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
           <motion.h2
-            className="text-gray-900 mb-5"
+            className="text-gray-900 mb-3"
             style={{
               fontSize: "clamp(2rem, 4.5vw, 3.25rem)",
               fontWeight: 600,
@@ -221,7 +221,7 @@ export default function HowItWorks() {
           </svg>
 
           {/* Steps */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {steps.map((step, index) => (
               <motion.div
                 key={index}
@@ -235,7 +235,7 @@ export default function HowItWorks() {
               >
                 {/* Premium Glassmorphism Card */}
                 <motion.div
-                  className="relative bg-white/70 backdrop-blur-3xl rounded-[32px] p-10 border border-white/50 shadow-[0_12px_48px_rgba(0,0,0,0.08)] overflow-hidden"
+                  className="relative bg-white/70 backdrop-blur-3xl rounded-[30px] p-7 border border-white/50 shadow-[0_12px_48px_rgba(0,0,0,0.08)] overflow-hidden"
                   whileHover={{ y: -10, scale: 1.03 }}
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 >
@@ -262,7 +262,7 @@ export default function HowItWorks() {
                   {/* Large Number Background */}
                   <div
                     className={`absolute -top-6 -right-6 font-bold bg-gradient-to-br ${step.color} bg-clip-text text-transparent opacity-[0.08] pointer-events-none select-none`}
-                    style={{ fontSize: "180px", lineHeight: 1, fontWeight: 800 }}
+                    style={{ fontSize: "145px", lineHeight: 1, fontWeight: 800 }}
                   >
                     {step.number}
                   </div>
@@ -270,7 +270,7 @@ export default function HowItWorks() {
                   <div className="relative">
                     {/* Lottie Animation Container */}
                     <motion.div
-                      className="relative mb-8 inline-block"
+                      className="relative mb-5 inline-block"
                       animate={{
                         scale: hoveredStep === index ? 1.08 : 1,
                         y: hoveredStep === index ? -5 : 0,
@@ -279,13 +279,13 @@ export default function HowItWorks() {
                     >
                       {/* Main Lottie container */}
                       <div
-                        className="relative w-32 h-32 rounded-[28px] bg-gradient-to-br from-white/80 to-white/50 backdrop-blur-xl flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-white/60 overflow-hidden"
+                        className="relative w-28 h-28 rounded-[26px] bg-gradient-to-br from-white/80 to-white/50 backdrop-blur-xl flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-white/60 overflow-hidden"
                       >
                         {/* Soft gradient overlay */}
                         <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-10`} />
 
                         {/* Lottie Animation */}
-                        <div className="relative w-20 h-20">
+                        <div className="relative w-16 h-16">
                           <Lottie
                             animationData={step.lottieAnimation}
                             loop={true}
@@ -329,7 +329,7 @@ export default function HowItWorks() {
 
                     {/* Step Number Badge - Larger and more premium */}
                     <motion.div
-                      className="inline-block mb-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-2xl border border-white/60 shadow-lg"
+                      className="inline-block mb-4 px-4 py-2 bg-white/90 backdrop-blur-md rounded-2xl border border-white/60 shadow-lg"
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}
@@ -345,9 +345,9 @@ export default function HowItWorks() {
 
                     {/* Title - Larger */}
                     <h3
-                      className="text-gray-900 mb-5"
+                      className="text-gray-900 mb-3"
                       style={{
-                        fontSize: "1.75rem",
+                        fontSize: "1.55rem",
                         fontWeight: 700,
                         letterSpacing: "-0.025em",
                         lineHeight: 1.2,
@@ -357,7 +357,7 @@ export default function HowItWorks() {
                     </h3>
 
                     {/* Description - More prominent */}
-                    <p className="text-gray-600 leading-relaxed" style={{ fontSize: "1.0625rem", lineHeight: 1.7 }}>
+                    <p className="text-gray-600 leading-relaxed" style={{ fontSize: "0.98rem", lineHeight: 1.55 }}>
                       {step.description}
                     </p>
 
@@ -378,7 +378,7 @@ export default function HowItWorks() {
 
         {/* Premium CTA */}
         <motion.div
-          className="text-center mt-20"
+          className="text-center mt-12"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

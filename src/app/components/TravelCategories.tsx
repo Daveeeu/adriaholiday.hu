@@ -69,14 +69,14 @@ export default function TravelCategories() {
   };
 
   return (
-    <section className="relative py-40 bg-white overflow-hidden">
+    <section className="relative pt-16 pb-28 bg-white overflow-hidden">
       {/* Premium Editorial Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-[#f8fafc] to-white opacity-60" />
 
       <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
         {/* Premium Editorial Header */}
         <motion.div
-          className="text-center mb-24"
+          className="text-center mb-14"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -121,7 +121,7 @@ export default function TravelCategories() {
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
               >
                 {/* Cinematic Image */}
-                <div className="relative h-80 overflow-hidden">
+                <div className="relative h-72 overflow-hidden">
                   <motion.img
                     src={category.image}
                     alt={category.title}

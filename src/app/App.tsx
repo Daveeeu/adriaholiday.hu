@@ -12,7 +12,6 @@ import TravelBlog from "./components/TravelBlog";
 import ExperienceSection from "./components/ExperienceSection";
 import WhyChooseUs from "./components/WhyChooseUs";
 import HowItWorks from "./components/HowItWorks";
-import LiveActivity from "./components/LiveActivity";
 import StickyMobileCTA from "./components/StickyMobileCTA";
 import FloatingParticles from "./components/FloatingParticles";
 import EmotionalStory from "./components/EmotionalStory";
@@ -28,26 +27,17 @@ export default function App() {
       <CursorGlow />
       <MobileNav />
       <CinematicHero />
-      <SectionDivider variant="subtle" />
       <TravelCategories />
-      <SectionDivider variant="subtle" />
       <FeaturedOffers />
       <EmotionalStory />
-      <SectionDivider variant="subtle" />
       <ExperienceSection />
-      <SectionDivider variant="subtle" />
       <WhyChooseUs />
-      <SectionDivider variant="subtle" />
       <TravelBlog />
-      <SectionDivider variant="gradient" />
       <HowItWorks />
-      <SectionDivider variant="subtle" />
       <TrustSection />
-      <SectionDivider variant="subtle" />
       <FAQ />
       <Newsletter />
       <Footer />
-      <LiveActivity />
       <StickyMobileCTA />
     </div>
   );
