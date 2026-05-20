@@ -33,85 +33,89 @@ interface TravelOffer {
 const offers: TravelOffer[] = [
   {
     id: "1",
-    title: "Horvátország - Dalmácia",
-    subtitle: "Kristálytiszta tenger és mediterrán élmények",
+    title: "Liguria gyöngyszemei",
+    subtitle: "Portofino-öböl és a mesés Cinque Terre",
     image:
-      "https://images.unsplash.com/photo-1764956607632-0aeeaae38e1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90",
-    departureDate: "június 15",
+      "https://adriaholiday.hu/cache/images/uploads/gallery/154953_5c5bfecca11c8/1209600_5da5d0e3278a86.94515698.jpg%3Bop%28%3B1155x675%3B%29.jpg",
+    departureDate: "2026.05.21 - 25.",
     additionalDates: true,
     transport: ["bus"],
-    accommodation: "3* szálloda",
-    meals: "Félpanzió",
-    price: "189.900 Ft",
+    accommodation: "Hotel***",
+    meals: "Reggeli",
+    price: "179.800 Ft",
     badge: "Legnépszerűbb",
-    seatsLeft: 8,
-    tripType: "Kristálytiszta tenger",
-    tripTypeIcon: <Sun className="w-3.5 h-3.5" strokeWidth={2} />,
+    seatsLeft: 6,
+    tripType: "Cinque Terre",
+    tripTypeIcon: <Heart className="w-3.5 h-3.5" strokeWidth={2} />,
   },
+
   {
     id: "2",
-    title: "Velence & Verona",
-    subtitle: "Romantikus olasz városok hangulata",
+    title: "Napfényes Itália",
+    subtitle: "5 nap tengerparti üdülés városlátogatásokkal",
     image:
-      "https://images.unsplash.com/photo-1551801319-ca06060f3fcc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90",
-    departureDate: "május 24",
+      "https://adriaholiday.hu/cache/images/uploads/gallery/155127_5c768e92caefc/1209600_5c7699d5b96b68.76122659.jpg%3Bop%28%3B555x675%3B%29.jpg",
+    departureDate: "2026.05.25 - 29.",
     additionalDates: true,
     transport: ["bus"],
-    accommodation: "3* szálloda",
-    meals: "Reggelivel",
-    price: "149.900 Ft",
+    accommodation: "Apartman",
+    meals: "Önellátás",
+    price: "59.900 Ft",
     badge: "Last Minute",
-    originalPrice: "179.900 Ft",
+    originalPrice: "79.900 Ft",
     seatsLeft: 4,
-    tripType: "Pároknak ajánlott",
-    tripTypeIcon: <Heart className="w-3.5 h-3.5" strokeWidth={2} />,
-  },
-  {
-    id: "3",
-    title: "Bled-tó & Ljubljana",
-    subtitle: "Alpesi csodák és természeti szépség",
-    image:
-      "https://images.unsplash.com/photo-1478088913771-e3a36f50bb63?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90",
-    departureDate: "június 8",
-    transport: ["bus"],
-    accommodation: "3* szálloda",
-    meals: "Félpanzió",
-    price: "119.900 Ft",
-    badge: "Új",
-    tripType: "Családbarát",
-    tripTypeIcon: <Baby className="w-3.5 h-3.5" strokeWidth={2} />,
-  },
-  {
-    id: "4",
-    title: "Görögország - Chalkidiki",
-    subtitle: "Smaragdzöld tenger és fehér homok",
-    image:
-      "https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90",
-    departureDate: "július 5",
-    additionalDates: true,
-    transport: ["plane", "bus"],
-    accommodation: "4* szálloda",
-    meals: "Félpanzió",
-    price: "249.900 Ft",
-    badge: "Már csak pár hely",
-    seatsLeft: 6,
-    tripType: "Naplemente élmény",
+    tripType: "Tengerpart",
     tripTypeIcon: <Sun className="w-3.5 h-3.5" strokeWidth={2} />,
   },
+
+  {
+    id: "3",
+    title: "Róma - Pompei - Vezúv",
+    subtitle: "Olaszország ikonikus történelmi városai",
+    image:
+      "https://adriaholiday.hu/cache/images/uploads/gallery/177097_698efbf08d2d0/1209600_698efc4469ea56.32688726.jpg%3Bop%28%3B555x675%3B%29.jpg",
+    departureDate: "2026.06.17 - 22.",
+    transport: ["bus"],
+    accommodation: "Hotel***",
+    meals: "Reggeli",
+    price: "207.700 Ft",
+    badge: "Új",
+    tripType: "Kulturális út",
+    tripTypeIcon: <Users className="w-3.5 h-3.5" strokeWidth={2} />,
+  },
+
+  {
+    id: "4",
+    title: "Kirándulás a Plitvicei-tavakhoz",
+    subtitle: "Horvátország természeti csodája",
+    image:
+      "https://adriaholiday.hu/cache/images/uploads/gallery/158952_5ebe408e8b3c5/1209600_5ebe40c8eea9a1.83414887.jpg%3Bop%28%3B555x450%3B%29.jpg",
+    departureDate: "2026.05.23 - 24.",
+    additionalDates: true,
+    transport: ["bus"],
+    accommodation: "Hotel***",
+    meals: "Reggeli",
+    price: "68.900 Ft",
+    badge: "Legnépszerűbb",
+    tripType: "Nemzeti park",
+    tripTypeIcon: <Sun className="w-3.5 h-3.5" strokeWidth={2} />,
+  },
+
   {
     id: "5",
-    title: "Amalfi-part",
-    subtitle: "Dél-Olaszország gyöngyszeme",
+    title: "Andalúzia ékkövei",
+    subtitle: "Spanyolország legszebb városai repülővel",
     image:
-      "https://images.unsplash.com/photo-1681844931449-e0992a27d157?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90",
-    departureDate: "június 22",
-    transport: ["bus"],
-    accommodation: "4* szálloda",
-    meals: "Reggeli + vacsora",
-    price: "219.900 Ft",
-    badge: "Legnépszerűbb",
-    tripType: "Pároknak ajánlott",
-    tripTypeIcon: <Heart className="w-3.5 h-3.5" strokeWidth={2} />,
+      "https://adriaholiday.hu/cache/images/uploads/gallery/177323_69b178f2c52aa/1209600_69b179411ec525.17426506.jpg%3Bop%28%3B555x450%3B%29.jpg",
+    departureDate: "2026.10.09 - 16.",
+    transport: ["plane"],
+    accommodation: "Hotel***",
+    meals: "Félpanzió",
+    price: "249.800 Ft",
+    badge: "Már csak pár hely",
+    seatsLeft: 3,
+    tripType: "Repülős körút",
+    tripTypeIcon: <Plane className="w-3.5 h-3.5" strokeWidth={2} />,
   },
 ];
 
@@ -144,13 +148,13 @@ export default function FeaturedOffers() {
   };
 
   return (
-    <section className="relative pt-10 pb-14 bg-white overflow-hidden">
+    <section className="relative pt-14 pb-16 bg-gradient-to-b from-[#f7fbff] via-white to-white overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#00c389]/5 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-[#00c389]/5 to-transparent rounded-full blur-3xl" />
 
       <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
         <motion.div
-          className="text-center mb-6"
+          className="text-center mb-7"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -176,7 +180,7 @@ export default function FeaturedOffers() {
         </motion.div>
 
         <motion.div
-          className="flex flex-wrap justify-center gap-2 mb-7"
+          className="flex flex-wrap justify-center gap-2 mb-8"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

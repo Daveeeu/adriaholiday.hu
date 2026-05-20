@@ -8,6 +8,7 @@ import {
   MessageCircle,
   ShieldCheck,
   Clock,
+  Sparkles,
 } from "lucide-react";
 
 interface FAQItem {
@@ -52,70 +53,89 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="relative py-24 bg-[#071426] overflow-hidden">
-      <div className="absolute top-0 left-0 w-[520px] h-[520px] bg-[#00c389]/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-[520px] h-[520px] bg-[#16b8ff]/10 rounded-full blur-3xl" />
+    <section className="relative py-16 md:py-20 bg-[#071426] overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-160px] left-[-120px] w-[620px] h-[620px] bg-[#00c389]/12 rounded-full blur-3xl" />
+        <div className="absolute bottom-[-180px] right-[-100px] w-[620px] h-[620px] bg-[#16b8ff]/12 rounded-full blur-3xl" />
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, rgba(255,255,255,.5) 1px, transparent 0)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+      </div>
 
       <div className="relative max-w-[1400px] mx-auto px-6 md:px-10 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.82fr_1.18fr] gap-9 lg:gap-14 items-start">
           <motion.div
-            className="sticky top-24 rounded-[34px] bg-white/8 border border-white/10 backdrop-blur-2xl p-8 md:p-10 text-white shadow-[0_24px_80px_rgba(0,0,0,0.25)]"
+            className="lg:sticky lg:top-24 rounded-[34px] bg-white/8 border border-white/10 backdrop-blur-2xl p-7 md:p-9 text-white shadow-[0_24px_80px_rgba(0,0,0,0.25)] overflow-hidden"
             initial={{ opacity: 0, x: -28 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <div className="w-14 h-14 rounded-[18px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] flex items-center justify-center mb-7 shadow-[0_12px_36px_rgba(0,195,137,0.28)]">
-              <HelpCircle className="w-7 h-7" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#00c389]/14 to-[#16b8ff]/8 rounded-full blur-3xl" />
+
+            <div className="relative">
+              <div className="w-14 h-14 rounded-[18px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] flex items-center justify-center mb-6 shadow-[0_12px_36px_rgba(0,195,137,0.28)]">
+                <HelpCircle className="w-7 h-7" />
+              </div>
+
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/8 text-[#60ffd0] text-xs font-bold mb-5">
+                <Sparkles className="w-3.5 h-3.5" />
+                GYORS SEGÍTSÉG
+              </div>
+
+              <h2
+                className="mb-5"
+                style={{
+                  fontSize: "clamp(2rem, 4vw, 3.35rem)",
+                  fontWeight: 760,
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.045em",
+                }}
+              >
+                Kérdésed van az{" "}
+                <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
+                  utazás előtt?
+                </span>
+              </h2>
+
+              <p className="text-white/68 leading-relaxed mb-7">
+                Összegyűjtöttük a legfontosabb tudnivalókat, hogy magabiztosan
+                foglalhass.
+              </p>
+
+              <div className="space-y-3.5 mb-7">
+                <div className="flex items-center gap-3 text-white/80">
+                  <ShieldCheck className="w-5 h-5 text-[#00c389]" />
+                  <span>Biztonságos foglalás</span>
+                </div>
+                <div className="flex items-center gap-3 text-white/80">
+                  <Clock className="w-5 h-5 text-[#00c389]" />
+                  <span>Gyors ügyintézés</span>
+                </div>
+                <div className="flex items-center gap-3 text-white/80">
+                  <Phone className="w-5 h-5 text-[#00c389]" />
+                  <span>Segítőkész ügyfélszolgálat</span>
+                </div>
+              </div>
+
+              <motion.button
+                className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_12px_32px_rgba(0,195,137,0.25)] flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <MessageCircle className="w-5 h-5" />
+                Írj nekünk
+              </motion.button>
             </div>
-
-            <h2
-              className="mb-5"
-              style={{
-                fontSize: "clamp(2rem, 4vw, 3.5rem)",
-                fontWeight: 750,
-                lineHeight: 1.05,
-                letterSpacing: "-0.045em",
-              }}
-            >
-              Kérdésed van az{" "}
-              <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-                utazás előtt?
-              </span>
-            </h2>
-
-            <p className="text-white/70 leading-relaxed mb-8">
-              Összegyűjtöttük a legfontosabb tudnivalókat, hogy magabiztosan
-              foglalhass.
-            </p>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center gap-3 text-white/80">
-                <ShieldCheck className="w-5 h-5 text-[#00c389]" />
-                <span>Biztonságos foglalás</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/80">
-                <Clock className="w-5 h-5 text-[#00c389]" />
-                <span>Gyors ügyintézés</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/80">
-                <Phone className="w-5 h-5 text-[#00c389]" />
-                <span>Segítőkész ügyfélszolgálat</span>
-              </div>
-            </div>
-
-            <motion.button
-              className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_12px_32px_rgba(0,195,137,0.25)] flex items-center justify-center gap-2"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <MessageCircle className="w-5 h-5" />
-              Írj nekünk
-            </motion.button>
           </motion.div>
 
           <div>
             <motion.div
-              className="mb-8"
+              className="mb-7"
               initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -129,19 +149,19 @@ export default function FAQ() {
                 Gyakran ismételt kérdések
               </h3>
 
-              <p className="text-white/60 text-lg">
+              <p className="text-white/58 text-lg">
                 Minden, amit tudni kell az Adria Holiday utazásairól.
               </p>
             </motion.div>
 
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               {faqs.map((faq, index) => {
                 const isOpen = openIndex === index;
 
                 return (
                   <motion.div
                     key={faq.question}
-                    className={`rounded-[24px] overflow-hidden border transition-all ${
+                    className={`rounded-[22px] overflow-hidden border transition-all ${
                       isOpen
                         ? "bg-white border-white shadow-[0_20px_60px_rgba(0,195,137,0.14)]"
                         : "bg-white/8 border-white/10 hover:bg-white/12"
@@ -149,16 +169,16 @@ export default function FAQ() {
                     initial={{ opacity: 0, y: 18 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: index * 0.045 }}
                   >
                     <button
-                      className="w-full px-6 py-5 flex items-center justify-between text-left gap-5"
+                      className="w-full px-5 md:px-6 py-4.5 md:py-5 flex items-center justify-between text-left gap-5"
                       onClick={() => setOpenIndex(isOpen ? null : index)}
                     >
                       <span
                         className={isOpen ? "text-[#0f172a]" : "text-white"}
                         style={{
-                          fontSize: "1.05rem",
+                          fontSize: "1.02rem",
                           fontWeight: 700,
                           lineHeight: 1.4,
                         }}
@@ -188,9 +208,9 @@ export default function FAQ() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
+                          transition={{ duration: 0.28 }}
                         >
-                          <div className="px-6 pb-6">
+                          <div className="px-5 md:px-6 pb-5 md:pb-6">
                             <div className="w-12 h-[2px] bg-gradient-to-r from-[#00c389] to-transparent mb-4" />
                             <p className="text-gray-600 leading-relaxed text-[0.95rem]">
                               {faq.answer}

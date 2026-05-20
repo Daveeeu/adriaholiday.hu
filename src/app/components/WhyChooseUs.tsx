@@ -73,7 +73,7 @@ const bottomValues = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="relative pt-12 pb-14 bg-white overflow-hidden">
+    <section className="relative pt-14 pb-16 bg-gradient-to-b from-[#f7fbff] via-white to-[#f5fffb] overflow-hidden">
       <div className="absolute top-0 left-[8%] w-[420px] h-[420px] bg-gradient-to-br from-[#00c389]/10 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-[8%] w-[420px] h-[420px] bg-gradient-to-tl from-[#16b8ff]/10 to-transparent rounded-full blur-3xl" />
 
@@ -162,12 +162,13 @@ export default function WhyChooseUs() {
 
           {/* RIGHT VISUAL */}
           <motion.div
+            className="lg:pt-[158px]"
             initial={{ opacity: 0, x: 28 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="relative h-[520px] rounded-[34px] overflow-hidden border border-white/70 bg-gradient-to-br from-[#f7fffc] via-white to-[#f3faff] shadow-[0_24px_70px_rgba(15,23,42,0.11)]">
+            <div className="relative h-[430px] rounded-[34px] overflow-hidden border border-white/70 bg-gradient-to-br from-[#f7fffc] via-white to-[#f3faff] shadow-[0_24px_70px_rgba(15,23,42,0.11)]">
               <div className="absolute top-[-100px] left-[-100px] w-[260px] h-[260px] bg-[#00c389]/10 blur-3xl rounded-full" />
               <div className="absolute bottom-[-100px] right-[-100px] w-[260px] h-[260px] bg-[#16b8ff]/10 blur-3xl rounded-full" />
 

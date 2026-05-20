@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { MapPin, CheckCircle, Sparkles } from "lucide-react";
+import { MapPin, CheckCircle, Sparkles, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import Lottie from "lottie-react";
 
@@ -13,6 +13,7 @@ const steps = [
     number: "01",
     lottieAnimation: loadingAnimation,
     iconAccent: <MapPin className="w-4 h-4" strokeWidth={2} />,
+    eyebrow: "Felfedezés",
     title: "Válassz utat",
     description:
       "Böngéssz gondosan összeállított utazásaink között, és találd meg a hozzád illő úti célt.",
@@ -22,6 +23,7 @@ const steps = [
     number: "02",
     lottieAnimation: onlinePlaneAnimation,
     iconAccent: <CheckCircle className="w-4 h-4" strokeWidth={2} />,
+    eyebrow: "Foglalás",
     title: "Foglalj online",
     description:
       "Foglalj gyorsan, átláthatóan és biztonságosan néhány kattintással.",
@@ -31,6 +33,7 @@ const steps = [
     number: "03",
     lottieAnimation: earthPlaneAnimation,
     iconAccent: <Sparkles className="w-4 h-4" strokeWidth={2} />,
+    eyebrow: "Utazás",
     title: "Indulj velünk",
     description:
       "Dőlj hátra, mi intézzük a részleteket — neked csak az élmény marad.",
@@ -42,28 +45,39 @@ export default function HowItWorks() {
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
   return (
-    <section className="relative py-28 overflow-hidden bg-gradient-to-b from-white via-[#f8fafc] to-white">
-      {/* Ambient background */}
+    <section className="relative py-20 md:py-24 overflow-hidden bg-gradient-to-b from-white via-[#f3fbff] to-[#f5fffb]">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-10 left-10 w-[340px] h-[340px] bg-[#00c389]/8 blur-3xl rounded-full" />
-        <div className="absolute bottom-10 right-10 w-[340px] h-[340px] bg-[#16b8ff]/8 blur-3xl rounded-full" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[420px] bg-[#00c389]/6 blur-3xl rounded-full" />
+        <div className="absolute bottom-0 right-[-120px] w-[520px] h-[520px] bg-[#16b8ff]/7 blur-3xl rounded-full" />
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(0,195,137,.55) 1px, transparent 1px), linear-gradient(90deg, rgba(22,184,255,.45) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+          }}
+        />
       </div>
 
-      <div className="relative max-w-[1250px] mx-auto px-6 md:px-10 lg:px-16">
-        {/* Header */}
+      <div className="relative max-w-[1280px] mx-auto px-6 md:px-10 lg:px-16">
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-12 md:mb-14"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
         >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-[#00c389]/15 text-[#00a878] text-sm font-bold mb-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+            <span className="w-2 h-2 rounded-full bg-[#00c389]" />
+            EGYSZERŰ FOLYAMAT
+          </div>
+
           <h2
-            className="text-gray-900 mb-4"
+            className="text-[#0f172a] mb-4"
             style={{
-              fontSize: "clamp(2.2rem, 5vw, 4rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.04em",
+              fontSize: "clamp(2.25rem, 5vw, 3.7rem)",
+              fontWeight: 760,
+              letterSpacing: "-0.045em",
               lineHeight: 1.05,
             }}
           >
@@ -73,106 +87,70 @@ export default function HowItWorks() {
             </span>
           </h2>
 
-          <p
-            className="text-gray-900 mb-3"
-            style={{
-              fontSize: "1.35rem",
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-            }}
-          >
+          <p className="text-gray-900 mb-2 text-lg md:text-xl font-semibold tracking-[-0.02em]">
             3 egyszerű lépés a következő élményedig
           </p>
 
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Gyors foglalás, gondos szervezés és felejthetetlen utazások.
           </p>
         </motion.div>
 
-        {/* Cards */}
         <div className="relative">
-          {/* Connection line */}
-          <div className="hidden lg:block absolute top-[145px] left-[20%] right-[20%] h-[2px] bg-gradient-to-r from-[#00c389]/20 via-[#16b8ff]/30 to-[#00c389]/20" />
+          <div className="hidden lg:block absolute top-[98px] left-[17%] right-[17%] h-px bg-gradient-to-r from-transparent via-[#16b8ff]/35 to-transparent" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {steps.map((step, index) => (
-              <motion.div
-                key={step.number}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  duration: 0.7,
-                  delay: index * 0.15,
-                }}
-                onMouseEnter={() => setHoveredStep(index)}
-                onMouseLeave={() => setHoveredStep(null)}
-              >
-                <motion.div
-                  className="group relative min-h-[390px] rounded-[34px] bg-white border border-gray-100 shadow-[0_20px_60px_rgba(15,23,42,0.08)] p-9 overflow-hidden"
-                  whileHover={{
-                    y: -8,
-                    scale: 1.015,
-                  }}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 items-stretch">
+            {steps.map((step, index) => {
+              const isHovered = hoveredStep === index;
+
+              return (
+                <motion.article
+                  key={step.number}
+                  className="group relative min-h-[405px] rounded-[34px] bg-white/86 backdrop-blur-xl border border-white shadow-[0_18px_60px_rgba(15,23,42,0.08)] p-7 md:p-8 overflow-hidden"
+                  initial={{ opacity: 0, y: 34 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
                   transition={{
-                    type: "spring",
-                    stiffness: 320,
-                    damping: 24,
+                    duration: 0.65,
+                    delay: index * 0.1,
+                    ease: [0.16, 1, 0.3, 1],
                   }}
+                  whileHover={{ y: -6 }}
+                  onMouseEnter={() => setHoveredStep(index)}
+                  onMouseLeave={() => setHoveredStep(null)}
                 >
-                  {/* Gradient hover */}
-                  <motion.div
-                    className={`absolute inset-0 bg-gradient-to-br ${step.color}`}
-                    animate={{
-                      opacity: hoveredStep === index ? 0.05 : 0,
-                    }}
-                    transition={{ duration: 0.35 }}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-0 group-hover:opacity-[0.045] transition-opacity duration-500`}
                   />
 
-                  {/* Large background number */}
                   <div
-                    className={`absolute top-2 right-2 text-[150px] font-black leading-none bg-gradient-to-br ${step.color} bg-clip-text text-transparent opacity-[0.05] pointer-events-none select-none`}
+                    className={`absolute top-4 right-5 text-[118px] font-black leading-none bg-gradient-to-br ${step.color} bg-clip-text text-transparent opacity-[0.055] pointer-events-none select-none`}
                   >
                     {step.number}
                   </div>
 
-                  <div className="relative z-10">
-                    {/* Lottie block */}
+                  <div className="relative z-10 flex flex-col h-full">
                     <motion.div
-                      className="relative mb-8"
+                      className="relative mb-7"
                       animate={{
-                        y: hoveredStep === index ? -4 : 0,
-                        scale: hoveredStep === index ? 1.04 : 1,
+                        y: isHovered ? -4 : 0,
                       }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 20,
-                      }}
+                      transition={{ type: "spring", stiffness: 360, damping: 26 }}
                     >
-                      <div className="relative w-[145px] h-[145px] rounded-[30px] bg-gradient-to-br from-[#f4fffb] to-[#eef8ff] border border-white shadow-[0_15px_40px_rgba(15,23,42,0.08)] flex items-center justify-center overflow-hidden">
-                        <div
-                          className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-[0.08]`}
-                        />
+                      <div className="relative w-[138px] h-[138px] rounded-[30px] bg-gradient-to-br from-[#f4fffb] to-[#eef8ff] border border-white shadow-[0_15px_42px_rgba(15,23,42,0.08)] flex items-center justify-center overflow-hidden">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-[0.08]`} />
 
-                        {/* Bigger animation */}
                         <div className="relative w-28 h-28">
-                          <Lottie
-                            animationData={step.lottieAnimation}
-                            loop
-                            autoplay
-                          />
+                          <Lottie animationData={step.lottieAnimation} loop autoplay />
                         </div>
 
-                        {/* Floating accent */}
                         <motion.div
                           className={`absolute top-3 right-3 w-10 h-10 rounded-full bg-gradient-to-br ${step.color} text-white flex items-center justify-center shadow-lg`}
-                          animate={{
-                            rotate: hoveredStep === index ? [0, 8, -8, 0] : 0,
-                          }}
+                          animate={{ rotate: isHovered ? [0, 6, -6, 0] : 0 }}
                           transition={{
-                            duration: 2,
-                            repeat: hoveredStep === index ? Infinity : 0,
+                            duration: 2.2,
+                            repeat: isHovered ? Infinity : 0,
+                            ease: "easeInOut",
                           }}
                         >
                           {step.iconAccent}
@@ -180,99 +158,68 @@ export default function HowItWorks() {
                       </div>
                     </motion.div>
 
-                    {/* Number badge */}
-                    <div className="inline-flex items-center justify-center px-4 py-2 rounded-2xl bg-[#f8fafc] shadow-sm mb-6">
-                      <span
-                        className={`bg-gradient-to-r ${step.color} bg-clip-text text-transparent`}
-                        style={{
-                          fontWeight: 800,
-                          fontSize: "1.1rem",
-                          letterSpacing: "0.04em",
-                        }}
-                      >
-                        {step.number}
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="inline-flex items-center justify-center px-4 py-2 rounded-2xl bg-[#f8fafc] shadow-sm">
+                        <span className={`bg-gradient-to-r ${step.color} bg-clip-text text-transparent text-base font-black tracking-[0.08em]`}>
+                          {step.number}
+                        </span>
+                      </div>
+
+                      <span className="text-sm font-semibold text-gray-500">
+                        {step.eyebrow}
                       </span>
                     </div>
 
-                    {/* Title */}
-                    <h3
-                      className="text-gray-900 mb-5"
-                      style={{
-                        fontSize: "2rem",
-                        fontWeight: 700,
-                        letterSpacing: "-0.03em",
-                        lineHeight: 1.1,
-                      }}
-                    >
+                    <h3 className="text-[#0f172a] text-[1.8rem] font-bold tracking-[-0.035em] leading-tight mb-4">
                       {step.title}
                     </h3>
 
-                    {/* Description */}
-                    <p
-                      className="text-gray-600"
-                      style={{
-                        fontSize: "1.06rem",
-                        lineHeight: 1.8,
-                      }}
-                    >
+                    <p className="text-gray-600 text-base leading-relaxed mb-8">
                       {step.description}
                     </p>
 
-                    {/* Bottom accent */}
-                    <motion.div
-                      className={`absolute bottom-0 left-9 right-9 h-[4px] rounded-full bg-gradient-to-r ${step.color}`}
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      viewport={{ once: true }}
-                      transition={{
-                        duration: 0.9,
-                        delay: index * 0.15 + 0.4,
-                      }}
-                      style={{
-                        transformOrigin: "left",
-                      }}
-                    />
+                    <div className="mt-auto">
+                      <div className={`h-[4px] w-full rounded-full bg-gradient-to-r ${step.color} opacity-75`} />
+                    </div>
                   </div>
-                </motion.div>
-              </motion.div>
-            ))}
+
+                  <motion.div
+                    className="absolute inset-0 rounded-[34px] pointer-events-none"
+                    animate={{
+                      boxShadow: isHovered
+                        ? "inset 0 0 0 1.5px rgba(0,195,137,0.16)"
+                        : "inset 0 0 0 0px rgba(0,195,137,0)",
+                    }}
+                    transition={{ duration: 0.25 }}
+                  />
+                </motion.article>
+              );
+            })}
           </div>
         </div>
 
-        {/* CTA */}
         <motion.div
           className="text-center mt-10"
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 22 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.35, duration: 0.6 }}
         >
           <motion.button
-            className="group relative px-10 py-5 rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white shadow-[0_15px_45px_rgba(0,195,137,0.28)] overflow-hidden"
-            whileHover={{
-              scale: 1.03,
-              y: -2,
-            }}
+            className="group relative px-8 py-4 rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white shadow-[0_14px_42px_rgba(0,195,137,0.27)] overflow-hidden"
+            whileHover={{ scale: 1.025, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent"
               initial={{ x: "-100%" }}
               whileHover={{ x: "200%" }}
-              transition={{ duration: 0.9 }}
+              transition={{ duration: 0.8 }}
             />
 
-            <span className="relative flex items-center gap-2 text-lg font-semibold">
+            <span className="relative flex items-center gap-2 text-base font-semibold">
               Kezdjük el
-              <motion.span
-                animate={{ x: [0, 4, 0] }}
-                transition={{
-                  duration: 1.6,
-                  repeat: Infinity,
-                }}
-              >
-                →
-              </motion.span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
           </motion.button>
         </motion.div>

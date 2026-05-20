@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { useState } from "react";
-import { ArrowRight, Clock, Calendar } from "lucide-react";
+import { ArrowRight, Clock, Calendar, Sparkles } from "lucide-react";
 
 interface BlogArticle {
   id: string;
@@ -16,37 +16,51 @@ interface BlogArticle {
 const articles: BlogArticle[] = [
   {
     id: "1",
-    title: "10 rejtett kincs a horvát tengerparton",
+    title: "Horvátország 10 legszebb strandja",
     excerpt:
-      "Fedezd fel Dalmácia legelbűvölőbb zugait, amelyeket a turisták ritkán látogatnak meg.",
+      "Kristálytiszta víz, rejtett öblök és mediterrán hangulat — fedezd fel Horvátország legszebb tengerpartjait.",
     image:
-      "https://images.unsplash.com/photo-1764956607632-0aeeaae38e1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1400&q=90",
+      "https://adriaholiday.hu/framework/img.php?p=files/brela.jpeg&op=;1200x900;",
     category: "Tengerpartok",
-    date: "2026. május 12",
+    date: "2026. január 25",
     readingTime: "5 perc",
     featured: true,
   },
+
   {
     id: "2",
-    title: "Hogyan csomagoljunk egy egyhetes körutazásra?",
+    title: "Karneváli maszkok Velencében",
     excerpt:
-      "Praktikus tippek a hatékony csomagoláshoz és a súlykorlát betartásához.",
+      "A velencei karnevál története, legendás maszkjai és a város különleges hangulata.",
     image:
-      "https://images.unsplash.com/photo-1544124499-58912cbddaad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1000&q=90",
-    category: "Utazási tippek",
-    date: "2026. május 10",
+      "https://adriaholiday.hu/framework/img.php?p=files/carnival_venice_italy031-2.jpg&op=;800x720;",
+    category: "Városnézés",
+    date: "2026. január 19",
     readingTime: "4 perc",
   },
+
   {
     id: "3",
-    title: "Velence tavasszal: a legjobb látnivalók",
+    title: "Érdekes szobrok a nagyvilágban",
     excerpt:
-      "Miért érdemes tavasszal látogatni a lagúnák városát és mit ne hagyj ki.",
+      "Különleges és ikonikus szobrok, amelyek mellett utazás közben egyszer mindenképp érdemes megállni.",
     image:
-      "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1000&q=90",
-    category: "Városnézés",
-    date: "2026. május 8",
+      "https://adriaholiday.hu/framework/img.php?p=files/28279603_1824636157580731_3729580786296626111_n.jpg&op=;800x720;",
+    category: "Világ érdekességei",
+    date: "2026. április 12",
     readingTime: "6 perc",
+  },
+
+  {
+    id: "4",
+    title: "Miért ismert világszerte a kubai szivar?",
+    excerpt:
+      "Hagyomány, kézművesség és kubai kultúra — ezért vált legendává a kubai szivar.",
+    image:
+      "https://adriaholiday.hu/framework/img.php?p=files/shutterstock_301377860%20%28002%29.jpg&op=;800x720;",
+    category: "Gasztronómia",
+    date: "2026. november 25",
+    readingTime: "5 perc",
   },
 ];
 
@@ -74,38 +88,61 @@ export default function TravelBlog() {
   const regularArticles = articles.filter((a) => !a.featured);
 
   return (
-    <section className="relative pt-20 bg-white overflow-hidden">
+    <section className="relative py-16 md:py-20 bg-gradient-to-b from-[#f5fffb] via-[#f7fbff] to-white overflow-hidden">
       <div className="absolute top-0 left-[6%] w-[420px] h-[420px] bg-gradient-to-br from-[#00c389]/8 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-[8%] w-[420px] h-[420px] bg-gradient-to-tl from-[#16b8ff]/8 to-transparent rounded-full blur-3xl" />
 
-      <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-        >
-          <h2
-            className="text-gray-900 mb-3"
-            style={{
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-            }}
+      <div className="relative max-w-[1450px] mx-auto px-6 md:px-10 lg:px-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-8 lg:gap-12 items-end mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
           >
-            Utazó{" "}
-            <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-              Blog
-            </span>
-          </h2>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-[#00c389]/15 text-[#00a878] text-sm font-bold mb-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+              <Sparkles className="w-4 h-4" />
+              ÚTI INSPIRÁCIÓK
+            </div>
 
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Inspirációk, tippek és élmények a világ minden tájáról
-          </p>
-        </motion.div>
+            <h2
+              className="text-[#0f172a] mb-4"
+              style={{
+                fontSize: "clamp(2.2rem, 4.4vw, 3.6rem)",
+                fontWeight: 760,
+                letterSpacing: "-0.045em",
+                lineHeight: 1.05,
+              }}
+            >
+              Utazó{" "}
+              <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
+                Blog
+              </span>
+            </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+            <p className="text-gray-600 text-lg max-w-2xl leading-relaxed">
+              Inspirációk, tippek és élmények a világ minden tájáról — röviden,
+              hasznosan, utazásra hangolva.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="hidden lg:block rounded-[28px] bg-[#071426] p-7 text-white shadow-[0_20px_70px_rgba(7,20,38,0.18)]"
+            initial={{ opacity: 0, x: 26 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-white/60 text-sm mb-3">Adria Holiday tipp</p>
+            <h3 className="text-2xl font-bold tracking-[-0.03em] mb-3">
+              Utazás előtt 5 perc inspiráció is elég.
+            </h3>
+            <p className="text-white/62 leading-relaxed">
+              Cikkek, amik segítenek választani, csomagolni és még jobban megélni az utazást.
+            </p>
+          </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 items-stretch">
           {featuredArticle && (
             <motion.div
               className="lg:col-span-3"
@@ -117,7 +154,7 @@ export default function TravelBlog() {
               onMouseLeave={() => setHoveredId(null)}
             >
               <motion.article
-                className="group relative h-[560px] rounded-[32px] overflow-hidden shadow-[0_10px_40px_rgba(15,23,42,0.10)] hover:shadow-[0_18px_60px_rgba(0,195,137,0.18)] transition-all duration-700"
+                className="group relative h-[520px] md:h-[560px] rounded-[34px] overflow-hidden shadow-[0_18px_65px_rgba(15,23,42,0.14)] hover:shadow-[0_24px_80px_rgba(0,195,137,0.18)] transition-all duration-700"
                 whileHover={{ y: -6 }}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               >
@@ -125,19 +162,15 @@ export default function TravelBlog() {
                   src={featuredArticle.image}
                   alt={featuredArticle.title}
                   className="absolute inset-0 w-full h-full object-cover"
-                  animate={{
-                    scale: hoveredId === featuredArticle.id ? 1.05 : 1,
-                  }}
+                  animate={{ scale: hoveredId === featuredArticle.id ? 1.05 : 1 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/88 via-[#0f172a]/35 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/35 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071426]/92 via-[#071426]/38 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#071426]/38 via-transparent to-transparent" />
 
                 <motion.div
-                  className={`absolute top-7 left-7 px-4 py-2 bg-gradient-to-r ${getCategoryColor(
-                    featuredArticle.category
-                  )} rounded-xl shadow-lg`}
+                  className={`absolute top-6 left-6 px-4 py-2 bg-gradient-to-r ${getCategoryColor(featuredArticle.category)} rounded-xl shadow-lg`}
                   initial={{ opacity: 0, x: -18 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -149,7 +182,7 @@ export default function TravelBlog() {
                 </motion.div>
 
                 <motion.div
-                  className="absolute top-7 right-7 px-3.5 py-2 bg-white/16 backdrop-blur-lg rounded-xl border border-white/25"
+                  className="absolute top-6 right-6 px-3.5 py-2 bg-white/16 backdrop-blur-lg rounded-xl border border-white/25"
                   initial={{ opacity: 0, x: 18 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -163,7 +196,7 @@ export default function TravelBlog() {
                   </div>
                 </motion.div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
+                <div className="absolute bottom-0 left-0 right-0 p-7 md:p-10">
                   <motion.div
                     className="flex items-center gap-2 text-white/80 mb-4"
                     initial={{ opacity: 0, y: 18 }}
@@ -172,17 +205,15 @@ export default function TravelBlog() {
                     transition={{ delay: 0.25 }}
                   >
                     <Calendar className="w-4 h-4" strokeWidth={2} />
-                    <span className="text-sm tracking-wide">
-                      {featuredArticle.date}
-                    </span>
+                    <span className="text-sm tracking-wide">{featuredArticle.date}</span>
                   </motion.div>
 
                   <motion.h3
                     className="text-white mb-4"
                     style={{
                       fontSize: "clamp(1.8rem, 3.2vw, 2.55rem)",
-                      fontWeight: 750,
-                      letterSpacing: "-0.035em",
+                      fontWeight: 760,
+                      letterSpacing: "-0.04em",
                       lineHeight: 1.08,
                       textShadow: "0 2px 12px rgba(0,0,0,0.35)",
                     }}
@@ -228,160 +259,100 @@ export default function TravelBlog() {
                   >
                     <span className="flex items-center gap-2 text-base font-semibold">
                       Elolvasom
-                      <motion.div
-                        animate={{
-                          x: hoveredId === featuredArticle.id ? 3 : 0,
-                        }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                        }}
-                      >
-                        <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
-                      </motion.div>
+                      <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" strokeWidth={2.5} />
                     </span>
                   </motion.button>
                 </div>
-
-                <motion.div
-                  className="absolute inset-0 rounded-[32px] pointer-events-none"
-                  animate={{
-                    boxShadow:
-                      hoveredId === featuredArticle.id
-                        ? "inset 0 0 0 2px rgba(0,195,137,0.16)"
-                        : "inset 0 0 0 0px rgba(0,195,137,0)",
-                  }}
-                  transition={{ duration: 0.3 }}
-                />
               </motion.article>
             </motion.div>
           )}
 
-          <div className="lg:col-span-2 space-y-5">
+          <div className="lg:col-span-2 grid grid-cols-1 gap-5">
             {regularArticles.map((article, index) => (
-              <motion.div
+              <motion.article
                 key={article.id}
+                className="group relative bg-white/92 backdrop-blur-xl rounded-[26px] overflow-hidden border border-gray-100 shadow-[0_10px_34px_rgba(15,23,42,0.07)] hover:shadow-[0_18px_48px_rgba(0,195,137,0.15)] transition-all duration-500"
                 initial={{ opacity: 0, x: 26 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.55, delay: index * 0.08 }}
+                whileHover={{ y: -4 }}
                 onMouseEnter={() => setHoveredId(article.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                <motion.article
-                  className="group relative bg-white rounded-[24px] overflow-hidden border border-gray-100 shadow-[0_6px_24px_rgba(15,23,42,0.06)] hover:shadow-[0_12px_36px_rgba(0,195,137,0.14)] transition-all duration-500"
-                  whileHover={{ y: -4 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-[190px_1fr] lg:grid-cols-1 xl:grid-cols-[190px_1fr]">
-                    <div className="relative h-48 md:h-full lg:h-44 xl:h-full overflow-hidden">
-                      <motion.img
-                        src={article.image}
-                        alt={article.title}
-                        className="w-full h-full object-cover"
-                        animate={{
-                          scale: hoveredId === article.id ? 1.08 : 1,
-                        }}
-                        transition={{
-                          duration: 0.7,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                      />
+                <div className="grid grid-cols-1 sm:grid-cols-[190px_1fr] lg:grid-cols-1 xl:grid-cols-[190px_1fr]">
+                  <div className="relative h-48 sm:h-full lg:h-44 xl:h-full overflow-hidden">
+                    <motion.img
+                      src={article.image}
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                      animate={{ scale: hoveredId === article.id ? 1.08 : 1 }}
+                      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    />
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 via-transparent to-transparent" />
 
-                      <motion.div
-                        className={`absolute top-3 left-3 px-3 py-1.5 bg-gradient-to-r ${getCategoryColor(
-                          article.category
-                        )} rounded-lg shadow-md`}
-                        initial={{ opacity: 0, scale: 0.85 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.08 + 0.15 }}
-                      >
-                        <span className="text-white text-xs font-semibold">
-                          {article.category}
-                        </span>
-                      </motion.div>
-                    </div>
-
-                    <div className="p-5">
-                      <div className="flex flex-wrap items-center gap-3 text-gray-500 mb-3 text-[0.8125rem]">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar
-                            className="w-3.5 h-3.5 text-[#00c389]"
-                            strokeWidth={2}
-                          />
-                          <span>{article.date}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5">
-                          <Clock
-                            className="w-3.5 h-3.5 text-[#00c389]"
-                            strokeWidth={2}
-                          />
-                          <span>{article.readingTime} olvasás</span>
-                        </div>
-                      </div>
-
-                      <h3 className="text-gray-900 mb-2 text-[1.08rem] font-bold tracking-[-0.015em] leading-snug">
-                        {article.title}
-                      </h3>
-
-                      <p className="text-gray-600 leading-relaxed mb-4 line-clamp-2 text-sm">
-                        {article.excerpt}
-                      </p>
-
-                      <div className="w-12 h-[2px] bg-gradient-to-r from-[#00c389] to-transparent mb-4 opacity-30" />
-
-                      <motion.button
-                        className="inline-flex items-center gap-2 text-[#00c389]"
-                        whileHover={{ x: 2 }}
-                      >
-                        <span className="text-sm font-semibold">Tovább</span>
-
-                        <motion.div
-                          animate={{
-                            x: hoveredId === article.id ? 3 : 0,
-                          }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 30,
-                          }}
-                        >
-                          <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-                        </motion.div>
-                      </motion.button>
-                    </div>
+                    <motion.div
+                      className={`absolute top-3 left-3 px-3 py-1.5 bg-gradient-to-r ${getCategoryColor(article.category)} rounded-lg shadow-md`}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.08 + 0.15 }}
+                    >
+                      <span className="text-white text-xs font-semibold">
+                        {article.category}
+                      </span>
+                    </motion.div>
                   </div>
 
-                  <motion.div
-                    className="absolute inset-0 rounded-[24px] pointer-events-none"
-                    animate={{
-                      boxShadow:
-                        hoveredId === article.id
-                          ? "inset 0 0 0 2px rgba(0,195,137,0.12)"
-                          : "inset 0 0 0 0px rgba(0,195,137,0)",
-                    }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </motion.article>
-              </motion.div>
+                  <div className="p-5">
+                    <div className="flex flex-wrap items-center gap-3 text-gray-500 mb-3 text-[0.8125rem]">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-[#00c389]" strokeWidth={2} />
+                        <span>{article.date}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#00c389]" strokeWidth={2} />
+                        <span>{article.readingTime} olvasás</span>
+                      </div>
+                    </div>
+
+                    <h3 className="text-[#0f172a] mb-2 text-[1.08rem] font-bold tracking-[-0.015em] leading-snug">
+                      {article.title}
+                    </h3>
+
+                    <p className="text-gray-600 leading-relaxed mb-4 line-clamp-2 text-sm">
+                      {article.excerpt}
+                    </p>
+
+                    <div className="w-12 h-[2px] bg-gradient-to-r from-[#00c389] to-transparent mb-4 opacity-30" />
+
+                    <motion.button className="inline-flex items-center gap-2 text-[#00c389]" whileHover={{ x: 2 }}>
+                      <span className="text-sm font-semibold">Tovább</span>
+                      <motion.div
+                        animate={{ x: hoveredId === article.id ? 3 : 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      >
+                        <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+                      </motion.div>
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.article>
             ))}
           </div>
         </div>
 
         <motion.div
-          className="text-center mt-14"
+          className="text-center mt-12"
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
         >
           <motion.button
-            className="group px-9 py-4 bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-md hover:border-[#00c389] hover:shadow-xl transition-all"
+            className="group px-8 py-4 bg-white/90 text-[#0f172a] rounded-2xl border border-gray-200 shadow-md hover:border-[#00c389] hover:shadow-xl transition-all"
             whileHover={{ scale: 1.03, y: -2 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}

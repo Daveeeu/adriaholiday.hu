@@ -14,51 +14,40 @@ interface Trip {
   featured?: boolean;
 }
 
-const trips: Trip[] = [
+export const trips = [
   {
-    id: "1",
-    destination: "Horvátország",
-    country: "Adriai tengerpart",
-    image: "https://images.unsplash.com/photo-1764956642463-d8dbf9face3c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-    date: "2026. máj. 24",
-    duration: "5 nap",
-    price: "189.900 Ft",
-    seatsLeft: 12,
-    featured: true,
+    title: "Liguria gyöngyszemei",
+    subtitle: "Portofino-öböl és Cinque Terre",
+    price: "179.800 Ft-tól",
+    date: "2026. május 21–25.",
+    image: "https://adriaholiday.hu/framework/img.php?p=files/manarola-6200837_1920.jpg&op=;1920x800;",
+    href: "/korutazasok/liguria-gyongyszemei-portofino-felsziget-es-a-cinque-terre",
   },
   {
-    id: "2",
-    destination: "Olaszország",
-    country: "Velence & Verona",
-    image: "https://images.unsplash.com/photo-1551801319-ca06060f3fcc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-    date: "2026. máj. 28",
-    duration: "4 nap",
-    price: "229.900 Ft",
-    seatsLeft: 8,
-    featured: true,
+    title: "Andalúzia - mór örökségek nyomában",
+    price: "308.600 Ft-tól",
+    date: "2026. szeptember 23–28.",
+    image: "https://adriaholiday.hu/framework/img.php?p=files/alhambra-967024_1920.jpg&op=;1920x800;",
+    href: "/korutazasok/andaluzia-csodai",
   },
   {
-    id: "3",
-    destination: "Szlovénia",
-    country: "Bled-tó & Ljubljana",
-    image: "https://images.unsplash.com/photo-1478088913771-e3a36f50bb63?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-    date: "2026. jún. 5",
-    duration: "3 nap",
-    price: "149.900 Ft",
-    seatsLeft: 15,
+    title: "Montenegró, a mediterrán csoda",
+    price: "259.900 Ft-tól",
+    date: "2026. június 13–20.",
+    image: "https://adriaholiday.hu/framework/img.php?p=files/to-4627352_1920.jpg&op=;1920x800;",
+    href: "/korutazasok/montenegro-a-mediterran-csoda-felpanzioval",
   },
   {
-    id: "4",
-    destination: "Adriai körutak",
-    country: "Horvátország & Szlovénia",
-    image: "https://images.unsplash.com/photo-1764955949954-9024cbf6bd36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-    date: "2026. jún. 12",
-    duration: "7 nap",
-    price: "269.900 Ft",
-    seatsLeft: 6,
-    featured: true,
+    title: "Kirándulás a Plitvicei-tavakhoz",
+    price: "68.900 Ft-tól",
+    date: "2026. május 23–24.",
+    image: "https://adriaholiday.hu/framework/img.php?p=files/1111.jpg&op=;1920x800;",
+    href: "/korutazasok/kirandulas-a-plitvicei-tavakhoz",
   },
 ];
+
+
+
 
 export default function FeaturedTrips() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);

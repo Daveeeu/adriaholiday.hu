@@ -7,6 +7,7 @@ interface Category {
   title: string;
   image: string;
   tripsCount: number;
+  href: string;
   badge?: "Népszerű" | "Új" | "Legkedveltebb";
 }
 
@@ -14,41 +15,53 @@ const categories: Category[] = [
   {
     id: "1",
     title: "Körutazások",
-    image: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-    tripsCount: 24,
+    image:
+      "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;800x450;",
+    tripsCount: 91,
+    href: "https://adriaholiday.hu/korutazasok/csoport/korutazas",
     badge: "Népszerű",
   },
   {
     id: "2",
     title: "Repülős körutazások",
-    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+    image:
+      "https://adriaholiday.hu/framework/img.php?p=files/aeroplane-16749_1280.jpg&op=;800x450;",
     tripsCount: 12,
+    href: "https://adriaholiday.hu/korutazasok/regio/repulos-utak",
   },
   {
     id: "3",
-    title: "Tengerparti ajánlatok",
-    image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-    tripsCount: 18,
+    title: "Tengerparti ajánlatok autóbusszal",
+    image:
+      "https://adriaholiday.hu/framework/img.php?p=files/sea-4768869_1920.jpg&op=;800x450;",
+    tripsCount: 11,
+    href: "https://adriaholiday.hu/korutazasok/regio/tengerparti-ajanlataink-autobusszal",
     badge: "Legkedveltebb",
   },
   {
     id: "4",
-    title: "Tengerparti szállások",
-    image: "https://images.unsplash.com/photo-1540541338287-41700207dee6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-    tripsCount: 32,
+    title: "Tengerparti szállások Olaszországban",
+    image:
+      "https://adriaholiday.hu/framework/img.php?p=files/yellow-3521730_1920.jpg&op=;800x450;",
+    tripsCount: 202,
+    href: "https://adriaholiday.hu/apartmanok/veneto/bibione",
   },
   {
     id: "5",
     title: "Különlegességek",
-    image: "https://images.unsplash.com/photo-1478088913771-e3a36f50bb63?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+    image:
+      "https://adriaholiday.hu/framework/img.php?p=files/shutterstock_2495541347.jpg&op=;800x450;",
     tripsCount: 15,
+    href: "https://adriaholiday.hu/korutazasok/regio/legujabb-ajanlataink",
     badge: "Új",
   },
   {
     id: "6",
-    title: "Egzotikus utak",
-    image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+    title: "Egzotikus üdülések",
+    image:
+      "https://adriaholiday.hu/framework/img.php?p=files/trip-2203682_1920.jpg&op=;800x450;",
     tripsCount: 9,
+    href: "https://legjobbutak.hu/",
   },
 ];
 
@@ -69,14 +82,12 @@ export default function TravelCategories() {
   };
 
   return (
-    <section className="relative pt-16 pb-28 bg-white overflow-hidden">
-      {/* Premium Editorial Background */}
+    <section className="relative pt-14 pb-20 bg-gradient-to-b from-white via-[#fbfdff] to-[#f7fbff] overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-white via-[#f8fafc] to-white opacity-60" />
 
       <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
-        {/* Premium Editorial Header */}
         <motion.div
-          className="text-center mb-14"
+          className="text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -97,17 +108,18 @@ export default function TravelCategories() {
               kedvenc úti célod
             </span>
           </h2>
+
           <p className="text-[#64748b] text-lg max-w-2xl mx-auto leading-relaxed">
-            Európa legszebb helyeire induló utazások
+            Valós Adria Holiday kategóriák, aktuális utazási kínálattal.
           </p>
         </motion.div>
 
-        {/* Editorial Magazine Grid - More Spacious */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7">
           {categories.map((category, index) => (
-            <motion.div
+            <motion.a
               key={category.id}
-              className="group"
+              href={category.href}
+              className="group block"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -120,7 +132,6 @@ export default function TravelCategories() {
                 whileHover={{ y: -8 }}
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
               >
-                {/* Cinematic Image */}
                 <div className="relative h-72 overflow-hidden">
                   <motion.img
                     src={category.image}
@@ -132,10 +143,8 @@ export default function TravelCategories() {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                   />
 
-                  {/* Stronger cinematic overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/70 via-[#0f172a]/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/75 via-[#0f172a]/25 to-transparent" />
 
-                  {/* Small elegant badge */}
                   {category.badge && (
                     <motion.div
                       className={`absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-r ${getBadgeColor(
@@ -146,18 +155,17 @@ export default function TravelCategories() {
                       viewport={{ once: true }}
                       transition={{ delay: index * 0.08 + 0.2 }}
                     >
-                      <span className="text-white text-xs" style={{ fontWeight: 600 }}>
+                      <span className="text-white text-xs font-semibold">
                         {category.badge}
                       </span>
                     </motion.div>
                   )}
 
-                  {/* Title and metadata at bottom */}
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <h3
                       className="text-white mb-2"
                       style={{
-                        fontSize: "1.5rem",
+                        fontSize: "1.45rem",
                         fontWeight: 700,
                         letterSpacing: "-0.02em",
                         lineHeight: 1.2,
@@ -166,28 +174,31 @@ export default function TravelCategories() {
                       {category.title}
                     </h3>
 
-                    {/* Elegant metadata */}
                     <div className="flex items-center justify-between">
-                      <div className="text-white/80 text-sm" style={{ fontWeight: 500 }}>
-                        {category.tripsCount} elérhető út
+                      <div className="text-white/80 text-sm font-medium">
+                        {category.tripsCount} elérhető ajánlat
                       </div>
 
-                      {/* Refined arrow */}
                       <motion.div
                         className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center"
                         animate={{
                           x: hoveredId === category.id ? 4 : 0,
-                          backgroundColor: hoveredId === category.id ? "rgba(0, 195, 137, 0.9)" : "rgba(255, 255, 255, 0.15)",
+                          backgroundColor:
+                            hoveredId === category.id
+                              ? "rgba(0, 195, 137, 0.9)"
+                              : "rgba(255, 255, 255, 0.15)",
                         }}
                         transition={{ duration: 0.3 }}
                       >
-                        <ArrowRight className="w-4 h-4 text-white" strokeWidth={2.5} />
+                        <ArrowRight
+                          className="w-4 h-4 text-white"
+                          strokeWidth={2.5}
+                        />
                       </motion.div>
                     </div>
                   </div>
                 </div>
 
-                {/* Elegant hover glow */}
                 <motion.div
                   className="absolute inset-0 rounded-[24px] pointer-events-none"
                   animate={{
@@ -199,7 +210,7 @@ export default function TravelCategories() {
                   transition={{ duration: 0.3 }}
                 />
               </motion.div>
-            </motion.div>
+            </motion.a>
           ))}
         </div>
       </div>

@@ -2,12 +2,12 @@ import { motion } from "motion/react";
 
 export default function ExperienceSection() {
   return (
-    <section className="relative py-20 bg-white overflow-hidden">
+    <section className="relative py-16 md:py-20 bg-gradient-to-b from-white via-[#fbfffd] to-[#f7fbff] overflow-hidden">
       {/* Premium Editorial Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-[#f8fafc] to-white" />
 
       <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-24 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-18 items-center">
           {/* Left - Editorial Magazine-Style Image */}
           <motion.div
             className="relative"
@@ -17,7 +17,7 @@ export default function ExperienceSection() {
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Main Hero Image - Full Bleed Editorial Style */}
-            <div className="relative h-[700px] -ml-8 lg:-ml-20">
+            <div className="relative h-[560px] md:h-[620px] -ml-8 lg:-ml-20">
               <motion.div
                 className="relative h-full rounded-r-[40px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -73,23 +73,43 @@ export default function ExperienceSection() {
                 transition={{ delay: 0.8, type: "spring" }}
               >
                 <div className="flex items-start gap-4">
-                  <img
-                    src="https://i.pravatar.cc/150?img=5"
-                    alt="Elégedett utas"
-                    className="w-14 h-14 rounded-full border-2 border-[#00c389]/20"
-                  />
-                  <div className="flex-1">
-                    <p className="text-gray-700 italic mb-3" style={{ fontSize: "0.9375rem", lineHeight: 1.6 }}>
-                      "Életünk legszebb nyaralása volt. Az Adria csodálatos!"
-                    </p>
-                    <div>
-                      <p className="text-gray-900" style={{ fontSize: "0.875rem", fontWeight: 600 }}>
-                        Kovács Anna
-                      </p>
-                      <p className="text-gray-500 text-xs">Budapest</p>
-                    </div>
-                  </div>
-                </div>
+
+<div className="flex items-start gap-4">
+  <img
+    src="https://i.pravatar.cc/150?img=47"
+    alt="B. Istvánné"
+    className="w-14 h-14 rounded-full border-2 border-[#00c389]/20"
+  />
+
+  <div className="flex-1">
+    <p
+      className="text-gray-700 italic mb-3"
+      style={{
+        fontSize: "0.9375rem",
+        lineHeight: 1.6,
+      }}
+    >
+      "Felejthetetlen csodás napokat töltöttünk el az Önök jóvoltából."
+    </p>
+
+    <div>
+      <p
+        className="text-gray-900"
+        style={{
+          fontSize: "0.875rem",
+          fontWeight: 700,
+        }}
+      >
+        B. Istvánné
+      </p>
+
+      <p className="text-gray-500 text-xs">
+        Bosznia körutazás
+      </p>
+    </div>
+  </div>
+</div>
+</div>
               </motion.div>
             </div>
           </motion.div>
