@@ -1,14 +1,25 @@
 import { Link } from "react-router";
+import Seo from "../seo/Seo";
 
 export default function StaticPage({
   title,
   children,
+  canonicalPath,
+  noIndex,
 }: {
   title: string;
   children?: React.ReactNode;
+  canonicalPath?: string;
+  noIndex?: boolean;
 }) {
   return (
     <div className="min-h-screen bg-white">
+      <Seo
+        title={title}
+        description={`${title} – Adria Holiday`}
+        canonicalPath={canonicalPath ?? "/"}
+        noIndex={noIndex}
+      />
       <div className="max-w-4xl mx-auto px-8 md:px-12 lg:px-20 py-16">
         <h1 className="text-4xl font-bold text-[#0f172a] tracking-tight">
           {title}
@@ -28,4 +39,3 @@ export default function StaticPage({
     </div>
   );
 }
-

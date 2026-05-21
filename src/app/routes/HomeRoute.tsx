@@ -15,12 +15,43 @@ import TrustSection from "../components/TrustSection";
 import WhyChooseUs from "../components/WhyChooseUs";
 import FeaturedOffers from "../components/FeaturedOffers";
 import { useNavigate } from "react-router";
+import Seo from "../seo/Seo";
 
-export default function HomeRoute() {
+export default function HomeRoute({
+  canonicalPath = "/",
+  title = "Prémium utazások",
+  description = "Prémium buszos és repülős utazások Európa legszebb úti céljaihoz.",
+}: {
+  canonicalPath?: string;
+  title?: string;
+  description?: string;
+}) {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
+      <Seo
+        title={title}
+        description={description}
+        canonicalPath={canonicalPath}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Adria Holiday",
+            url: "https://adriaholiday.hu/",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Adria Holiday",
+            url: "https://adriaholiday.hu/",
+          },
+        ]}
+      />
+      <h1 className="sr-only">
+        Adria Holiday – Prémium buszos és repülős utazások
+      </h1>
       <AmbientBackground />
       <FloatingParticles />
       <ScrollProgress />
@@ -48,4 +79,3 @@ export default function HomeRoute() {
     </div>
   );
 }
-

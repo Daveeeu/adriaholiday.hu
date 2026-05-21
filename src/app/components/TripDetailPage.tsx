@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
+import { Link } from "react-router";
+import { offers as allOffers } from "../data/offers";
 import {
   ArrowLeft,
   ArrowRight,
@@ -238,7 +240,12 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="col-span-2 row-span-2 rounded-[32px] overflow-hidden h-[420px]">
-                    <img src={trip.image} className="w-full h-full object-cover" />
+                    <img
+                      src={trip.image}
+                      alt={trip.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
                   </div>
 
                   {[trip.image, trip.image, trip.image].map((img, i) => (
@@ -246,7 +253,12 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
                       key={i}
                       className="rounded-[28px] overflow-hidden h-[200px]"
                     >
-                      <img src={img} className="w-full h-full object-cover" />
+                      <img
+                        src={img}
+                        alt={`${trip.title} – galéria ${i + 2}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
                     </div>
                   ))}
                 </div>
@@ -597,27 +609,16 @@ function IncludedCard({ title, items, positive }: any) {
 }
 
 function SimilarTrips({ currentTrip }: any) {
-  const items = [
-    {
-      title: "Montenegrói üdülés, Albánia kincseivel",
-      country: "Albánia",
-      price: "189.900 Ft",
-      image: currentTrip.image,
-    },
-    {
-      title: "Bosznia egzotikus világa",
-      country: "Bosznia-Hercegovina",
-      price: "118.600 Ft",
-      image:
-        "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;1200x750;",
-    },
-    {
-      title: "Görögországi nyaralás Paralián",
-      country: "Görögország",
-      price: "254.400 Ft",
-      image: currentTrip.image,
-    },
-  ];
+  const items = allOffers
+    .filter((offer) => offer.slug !== currentTrip.slug)
+    .slice(0, 3)
+    .map((offer) => ({
+      slug: offer.slug,
+      title: offer.title,
+      country: offer.country,
+      price: offer.price,
+      image: offer.image,
+    }));
 
   return (
     <section className="mb-24">
@@ -638,7 +639,12 @@ function SimilarTrips({ currentTrip }: any) {
             className="rounded-[30px] bg-white border border-gray-100 overflow-hidden shadow-[0_12px_42px_rgba(15,23,42,0.05)]"
           >
             <div className="relative h-[190px]">
-              <img src={item.image} className="w-full h-full object-cover" />
+              <img
+                src={item.image}
+                alt={item.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
 
               <div className="absolute left-5 bottom-5 text-white">
@@ -655,9 +661,13 @@ function SimilarTrips({ currentTrip }: any) {
                 <div className="text-2xl font-bold text-[#00a878]">{item.price}</div>
               </div>
 
-              <button className="w-11 h-11 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white flex items-center justify-center">
+              <Link
+                to={item.slug ? `/ajanlat/${item.slug}` : "/utazasok"}
+                aria-label={`${item.title} – részletek`}
+                className="w-11 h-11 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white flex items-center justify-center"
+              >
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Link>
             </div>
           </div>
         ))}
