@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import CinematicHero from "./components/CinematicHero";
 import TrustSection from "./components/TrustSection";
 import Footer from "./components/Footer";
@@ -15,19 +17,60 @@ import HowItWorks from "./components/HowItWorks";
 import StickyMobileCTA from "./components/StickyMobileCTA";
 import FloatingParticles from "./components/FloatingParticles";
 import EmotionalStory from "./components/EmotionalStory";
-import SectionDivider from "./components/SectionDivider";
 import AmbientBackground from "./components/AmbientBackground";
 
+import CategoryOffersPage from "./components/CategoryOffersPage";
+import TripDetailPage from "./components/TripDetailPage";
+
 export default function App() {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedTrip, setSelectedTrip] = useState<any | null>(null);
+
+  if (selectedTrip) {
+    return (
+      <TripDetailPage
+        trip={selectedTrip}
+        onBack={() => {
+          setSelectedTrip(null);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
+    );
+  }
+
+  if (selectedCategory) {
+    return (
+      <CategoryOffersPage
+        category={selectedCategory}
+        onBack={() => {
+          setSelectedCategory(null);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        onOfferSelect={(offer) => {
+          setSelectedTrip(offer);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <AmbientBackground />
       <FloatingParticles />
       <ScrollProgress />
       <CursorGlow />
+
       <MobileNav />
       <CinematicHero />
-      <TravelCategories />
+
+      <TravelCategories
+        onCategorySelect={(category) => {
+          setSelectedCategory(category);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
+
       <FeaturedOffers />
       <EmotionalStory />
       <ExperienceSection />

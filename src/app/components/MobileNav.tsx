@@ -1,10 +1,12 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import { Menu, X, Phone, Calendar } from "lucide-react";
+import { Link, useLocation } from "react-router";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,6 +16,10 @@ export default function MobileNav() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   return (
     <>
@@ -54,14 +60,13 @@ export default function MobileNav() {
             >
               <nav className="mt-16 space-y-6">
                 {[
-                  "Utazások",
-                  "Úti célok",
-                  "Rólunk",
-                  "Kapcsolat",
+                  { label: "Utazások", to: "/utazasok" },
+                  { label: "Úti célok", to: "/utazasok" },
+                  { label: "Rólunk", to: "/rolunk" },
+                  { label: "Kapcsolat", to: "/kapcsolat" },
                 ].map((item, index) => (
-                  <motion.a
-                    key={item}
-                    href="#"
+                  <motion.div
+                    key={item.label}
                     className="block text-white hover:text-cyan-400 transition-colors"
                     style={{ fontSize: "1.25rem", fontWeight: 600 }}
                     initial={{ opacity: 0, x: 20 }}
@@ -69,19 +74,20 @@ export default function MobileNav() {
                     transition={{ delay: index * 0.1 }}
                     whileHover={{ x: 4 }}
                   >
-                    {item}
-                  </motion.a>
+                    <Link to={item.to}>{item.label}</Link>
+                  </motion.div>
                 ))}
               </nav>
 
               <div className="mt-12 space-y-4">
-                <motion.button
-                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl shadow-lg"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Foglalás
-                </motion.button>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    to="/kapcsolat"
+                    className="block w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl shadow-lg text-center font-semibold"
+                  >
+                    Foglalás
+                  </Link>
+                </motion.div>
                 <motion.a
                   href="tel:+36123456789"
                   className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 text-white rounded-xl"
@@ -108,13 +114,15 @@ export default function MobileNav() {
           >
             <div className="bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-3 shadow-2xl">
               <div className="flex items-center gap-3">
-                <motion.button
-                  className="flex-1 py-3 bg-white text-cyan-600 rounded-xl flex items-center justify-center gap-2"
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Calendar className="w-5 h-5" />
-                  <span style={{ fontWeight: 600 }}>Foglalj most</span>
-                </motion.button>
+                <motion.div whileTap={{ scale: 0.98 }} className="flex-1">
+                  <Link
+                    to="/kapcsolat"
+                    className="w-full py-3 bg-white text-cyan-600 rounded-xl flex items-center justify-center gap-2 font-semibold"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    Foglalj most
+                  </Link>
+                </motion.div>
                 <motion.a
                   href="tel:+36123456789"
                   className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white"

@@ -1,20 +1,17 @@
 import { motion } from "motion/react";
 import { Phone, Calendar, MessageCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 export default function StickyMobileCTA() {
   const [isVisible, setIsVisible] = useState(false);
 
-  // Show CTA after scrolling a bit
-  if (typeof window !== "undefined") {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    });
-  }
+  useEffect(() => {
+    const onScroll = () => setIsVisible(window.scrollY > 300);
+    onScroll();
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <>
@@ -41,19 +38,28 @@ export default function StickyMobileCTA() {
             className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-[18px] bg-gradient-to-br from-[#00c389] to-[#16b8ff] text-white"
             whileTap={{ scale: 0.95 }}
           >
-            <Calendar className="w-5 h-5" strokeWidth={2} />
-            <span className="text-xs font-semibold">Foglalás</span>
+            <Link
+              to="/kapcsolat"
+              className="flex flex-col items-center justify-center gap-1.5"
+            >
+              <Calendar className="w-5 h-5" strokeWidth={2} />
+              <span className="text-xs font-semibold">Foglalás</span>
+            </Link>
           </motion.button>
 
           {/* Message button */}
-          <motion.a
-            href="#"
+          <motion.div
             className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-[18px] bg-gradient-to-br from-[#00c389] to-[#16b8ff] text-white"
             whileTap={{ scale: 0.95 }}
           >
-            <MessageCircle className="w-5 h-5" strokeWidth={2} />
-            <span className="text-xs font-semibold">Üzenet</span>
-          </motion.a>
+            <Link
+              to="/kapcsolat"
+              className="flex flex-col items-center justify-center gap-1.5"
+            >
+              <MessageCircle className="w-5 h-5" strokeWidth={2} />
+              <span className="text-xs font-semibold">Üzenet</span>
+            </Link>
+          </motion.div>
         </div>
       </motion.div>
 

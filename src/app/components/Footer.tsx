@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { Link } from "react-router";
 
 export default function Footer() {
   return (
@@ -61,21 +62,22 @@ export default function Footer() {
             {/* Social Icons */}
             <div className="flex gap-3">
               {[
-                { icon: Facebook, href: "#", label: "Facebook" },
-                { icon: Instagram, href: "#", label: "Instagram" },
-                { icon: Mail, href: "#", label: "Email" },
+                { icon: Facebook, to: "/kapcsolat", label: "Facebook" },
+                { icon: Instagram, to: "/kapcsolat", label: "Instagram" },
+                { icon: Mail, to: "/kapcsolat", label: "Email" },
               ].map((social, index) => (
-                <motion.a
+                <motion.div
                   key={index}
-                  href={social.href}
                   aria-label={social.label}
                   className="w-11 h-11 rounded-xl bg-white/10 hover:bg-gradient-to-br hover:from-[#00c389] hover:to-[#16b8ff] flex items-center justify-center transition-all duration-300 border border-white/10"
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 >
-                  <social.icon className="w-5 h-5" strokeWidth={2} />
-                </motion.a>
+                  <Link to={social.to} aria-label={social.label}>
+                    <social.icon className="w-5 h-5" strokeWidth={2} />
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </motion.div>
@@ -94,14 +96,20 @@ export default function Footer() {
               Gyors linkek
             </h4>
             <ul className="space-y-3">
-              {["Utazások", "Rólunk", "Kapcsolat", "ÁSZF", "Adatvédelem"].map((link) => (
-                <motion.li key={link} whileHover={{ x: 4 }}>
-                  <a
-                    href="#"
+              {[
+                { label: "Utazások", to: "/utazasok" },
+                { label: "Rólunk", to: "/rolunk" },
+                { label: "Kapcsolat", to: "/kapcsolat" },
+                { label: "ÁSZF", to: "/aszf" },
+                { label: "Adatvédelem", to: "/adatvedelem" },
+              ].map((link) => (
+                <motion.li key={link.label} whileHover={{ x: 4 }}>
+                  <Link
+                    to={link.to}
                     className="text-white/70 hover:text-[#00c389] transition-colors duration-300 text-[15px]"
                   >
-                    {link}
-                  </a>
+                    {link.label}
+                  </Link>
                 </motion.li>
               ))}
             </ul>
@@ -166,20 +174,18 @@ export default function Footer() {
             © 2026 Adria Holiday. Minden jog fenntartva.
           </p>
           <div className="flex gap-6 text-sm text-white/50">
-            <motion.a
-              href="#"
+            <motion.div
               className="hover:text-[#00c389] transition-colors"
               whileHover={{ y: -2 }}
             >
-              Impresszum
-            </motion.a>
-            <motion.a
-              href="#"
+              <Link to="/impresszum">Impresszum</Link>
+            </motion.div>
+            <motion.div
               className="hover:text-[#00c389] transition-colors"
               whileHover={{ y: -2 }}
             >
-              Süti kezelés
-            </motion.a>
+              <Link to="/sutik">Süti kezelés</Link>
+            </motion.div>
           </div>
         </motion.div>
       </div>

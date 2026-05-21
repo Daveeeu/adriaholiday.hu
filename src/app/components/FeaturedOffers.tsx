@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   Bus,
@@ -8,12 +8,13 @@ import {
   Calendar,
   Users,
   Sun,
-  Heart,
-  Baby,
 } from "lucide-react";
+import { useNavigate } from "react-router";
+import { offers as allOffers } from "../data/offers";
 
 interface TravelOffer {
   id: string;
+  slug: string;
   title: string;
   subtitle: string;
   image: string;
@@ -30,95 +31,6 @@ interface TravelOffer {
   tripTypeIcon?: React.ReactNode;
 }
 
-const offers: TravelOffer[] = [
-  {
-    id: "1",
-    title: "Liguria gyöngyszemei",
-    subtitle: "Portofino-öböl és a mesés Cinque Terre",
-    image:
-      "https://adriaholiday.hu/cache/images/uploads/gallery/154953_5c5bfecca11c8/1209600_5da5d0e3278a86.94515698.jpg%3Bop%28%3B1155x675%3B%29.jpg",
-    departureDate: "2026.05.21 - 25.",
-    additionalDates: true,
-    transport: ["bus"],
-    accommodation: "Hotel***",
-    meals: "Reggeli",
-    price: "179.800 Ft",
-    badge: "Legnépszerűbb",
-    seatsLeft: 6,
-    tripType: "Cinque Terre",
-    tripTypeIcon: <Heart className="w-3.5 h-3.5" strokeWidth={2} />,
-  },
-
-  {
-    id: "2",
-    title: "Napfényes Itália",
-    subtitle: "5 nap tengerparti üdülés városlátogatásokkal",
-    image:
-      "https://adriaholiday.hu/cache/images/uploads/gallery/155127_5c768e92caefc/1209600_5c7699d5b96b68.76122659.jpg%3Bop%28%3B555x675%3B%29.jpg",
-    departureDate: "2026.05.25 - 29.",
-    additionalDates: true,
-    transport: ["bus"],
-    accommodation: "Apartman",
-    meals: "Önellátás",
-    price: "59.900 Ft",
-    badge: "Last Minute",
-    originalPrice: "79.900 Ft",
-    seatsLeft: 4,
-    tripType: "Tengerpart",
-    tripTypeIcon: <Sun className="w-3.5 h-3.5" strokeWidth={2} />,
-  },
-
-  {
-    id: "3",
-    title: "Róma - Pompei - Vezúv",
-    subtitle: "Olaszország ikonikus történelmi városai",
-    image:
-      "https://adriaholiday.hu/cache/images/uploads/gallery/177097_698efbf08d2d0/1209600_698efc4469ea56.32688726.jpg%3Bop%28%3B555x675%3B%29.jpg",
-    departureDate: "2026.06.17 - 22.",
-    transport: ["bus"],
-    accommodation: "Hotel***",
-    meals: "Reggeli",
-    price: "207.700 Ft",
-    badge: "Új",
-    tripType: "Kulturális út",
-    tripTypeIcon: <Users className="w-3.5 h-3.5" strokeWidth={2} />,
-  },
-
-  {
-    id: "4",
-    title: "Kirándulás a Plitvicei-tavakhoz",
-    subtitle: "Horvátország természeti csodája",
-    image:
-      "https://adriaholiday.hu/cache/images/uploads/gallery/158952_5ebe408e8b3c5/1209600_5ebe40c8eea9a1.83414887.jpg%3Bop%28%3B555x450%3B%29.jpg",
-    departureDate: "2026.05.23 - 24.",
-    additionalDates: true,
-    transport: ["bus"],
-    accommodation: "Hotel***",
-    meals: "Reggeli",
-    price: "68.900 Ft",
-    badge: "Legnépszerűbb",
-    tripType: "Nemzeti park",
-    tripTypeIcon: <Sun className="w-3.5 h-3.5" strokeWidth={2} />,
-  },
-
-  {
-    id: "5",
-    title: "Andalúzia ékkövei",
-    subtitle: "Spanyolország legszebb városai repülővel",
-    image:
-      "https://adriaholiday.hu/cache/images/uploads/gallery/177323_69b178f2c52aa/1209600_69b179411ec525.17426506.jpg%3Bop%28%3B555x450%3B%29.jpg",
-    departureDate: "2026.10.09 - 16.",
-    transport: ["plane"],
-    accommodation: "Hotel***",
-    meals: "Félpanzió",
-    price: "249.800 Ft",
-    badge: "Már csak pár hely",
-    seatsLeft: 3,
-    tripType: "Repülős körút",
-    tripTypeIcon: <Plane className="w-3.5 h-3.5" strokeWidth={2} />,
-  },
-];
-
 const filters = [
   "Összes ajánlat",
   "Buszos utak",
@@ -129,8 +41,37 @@ const filters = [
 ];
 
 export default function FeaturedOffers() {
+  const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState("Összes ajánlat");
+
+  const offers: TravelOffer[] = useMemo(() => {
+    return allOffers.slice(0, 6).map((offer) => {
+      const isPlane = offer.transport === "plane";
+
+      return {
+        id: offer.id,
+        slug: offer.slug,
+        title: offer.title,
+        subtitle: offer.shortDescription ?? `${offer.country} | ${offer.duration ?? ""}`.trim(),
+        image: offer.image,
+        departureDate: offer.departure,
+        additionalDates: offer.additionalDates,
+        transport: [offer.transport],
+        accommodation: offer.hotel,
+        meals: offer.meals ?? "—",
+        price: offer.price,
+        badge: isPlane ? "Új" : offer.badge ? "Legnépszerűbb" : undefined,
+        seatsLeft: offer.seatsLeft,
+        tripType: isPlane ? "Repülős körút" : "Buszos út",
+        tripTypeIcon: isPlane ? (
+          <Plane className="w-3.5 h-3.5" strokeWidth={2} />
+        ) : (
+          <Bus className="w-3.5 h-3.5" strokeWidth={2} />
+        ),
+      };
+    });
+  }, []);
 
   const getBadgeColor = (badge?: string) => {
     switch (badge) {
@@ -361,6 +302,7 @@ export default function FeaturedOffers() {
                 boxShadow: "0 0 20px rgba(0,195,137,0.25)",
               }}
               whileTap={{ scale: 0.99 }}
+              onClick={() => navigate(`/ajanlat/${offer.slug}`)}
             >
               <span className="relative flex items-center justify-center gap-2 text-sm font-semibold">
                 Részletek
@@ -394,6 +336,7 @@ export default function FeaturedOffers() {
             className="group px-8 py-4 bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-md hover:border-[#00c389] hover:shadow-lg transition-all"
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/utazasok")}
           >
             <span className="flex items-center gap-2 text-base font-semibold">
               Összes ajánlat megtekintése

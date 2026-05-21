@@ -1,71 +1,17 @@
+// TravelCategories.tsx
+
 import { motion } from "motion/react";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { categories } from "../data/categories";
 
-interface Category {
-  id: string;
-  title: string;
-  image: string;
-  tripsCount: number;
-  href: string;
-  badge?: "Népszerű" | "Új" | "Legkedveltebb";
+interface TravelCategoriesProps {
+  onCategorySelect: (category: string) => void;
 }
 
-const categories: Category[] = [
-  {
-    id: "1",
-    title: "Körutazások",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;800x450;",
-    tripsCount: 91,
-    href: "https://adriaholiday.hu/korutazasok/csoport/korutazas",
-    badge: "Népszerű",
-  },
-  {
-    id: "2",
-    title: "Repülős körutazások",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/aeroplane-16749_1280.jpg&op=;800x450;",
-    tripsCount: 12,
-    href: "https://adriaholiday.hu/korutazasok/regio/repulos-utak",
-  },
-  {
-    id: "3",
-    title: "Tengerparti ajánlatok autóbusszal",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/sea-4768869_1920.jpg&op=;800x450;",
-    tripsCount: 11,
-    href: "https://adriaholiday.hu/korutazasok/regio/tengerparti-ajanlataink-autobusszal",
-    badge: "Legkedveltebb",
-  },
-  {
-    id: "4",
-    title: "Tengerparti szállások Olaszországban",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/yellow-3521730_1920.jpg&op=;800x450;",
-    tripsCount: 202,
-    href: "https://adriaholiday.hu/apartmanok/veneto/bibione",
-  },
-  {
-    id: "5",
-    title: "Különlegességek",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/shutterstock_2495541347.jpg&op=;800x450;",
-    tripsCount: 15,
-    href: "https://adriaholiday.hu/korutazasok/regio/legujabb-ajanlataink",
-    badge: "Új",
-  },
-  {
-    id: "6",
-    title: "Egzotikus üdülések",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/trip-2203682_1920.jpg&op=;800x450;",
-    tripsCount: 9,
-    href: "https://legjobbutak.hu/",
-  },
-];
-
-export default function TravelCategories() {
+export default function TravelCategories({
+  onCategorySelect,
+}: TravelCategoriesProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const getBadgeColor = (badge: string | undefined) => {
@@ -86,6 +32,7 @@ export default function TravelCategories() {
       <div className="absolute inset-0 bg-gradient-to-b from-white via-[#f8fafc] to-white opacity-60" />
 
       <div className="relative max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
+        {/* HEADER */}
         <motion.div
           className="text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
@@ -114,12 +61,13 @@ export default function TravelCategories() {
           </p>
         </motion.div>
 
+        {/* GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7">
           {categories.map((category, index) => (
-            <motion.a
+            <motion.button
               key={category.id}
-              href={category.href}
-              className="group block"
+              onClick={() => onCategorySelect(category.slug)}
+              className="group block text-left"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -140,11 +88,15 @@ export default function TravelCategories() {
                     animate={{
                       scale: hoveredId === category.id ? 1.08 : 1,
                     }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{
+                      duration: 0.8,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
                   />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/75 via-[#0f172a]/25 to-transparent" />
 
+                  {/* BADGE */}
                   {category.badge && (
                     <motion.div
                       className={`absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-r ${getBadgeColor(
@@ -161,6 +113,7 @@ export default function TravelCategories() {
                     </motion.div>
                   )}
 
+                  {/* CONTENT */}
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <h3
                       className="text-white mb-2"
@@ -199,6 +152,7 @@ export default function TravelCategories() {
                   </div>
                 </div>
 
+                {/* GLOW */}
                 <motion.div
                   className="absolute inset-0 rounded-[24px] pointer-events-none"
                   animate={{
@@ -210,7 +164,7 @@ export default function TravelCategories() {
                   transition={{ duration: 0.3 }}
                 />
               </motion.div>
-            </motion.a>
+            </motion.button>
           ))}
         </div>
       </div>
