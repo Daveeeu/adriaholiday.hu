@@ -1,0 +1,14 @@
+services:
+  adriaholiday-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: adriaholiday-web:local
+    restart: unless-stopped
+    networks:
+      - platform
+
+networks:
+  platform:
+    external: true
+

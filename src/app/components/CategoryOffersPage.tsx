@@ -80,12 +80,18 @@ export default function CategoryOffersPage({
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [activeSort, setActiveSort] = useState("Legnépszerűbb");
   const [visibleCount, setVisibleCount] = useState(12);
+  const [isAutoLoading, setIsAutoLoading] = useState(false);
 
   const featuredRef = useRef<HTMLDivElement | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const featuredInView = useInView(featuredRef, {
     once: true,
     amount: 0.45,
+  });
+
+  const loadMoreInView = useInView(loadMoreRef, {
+    amount: 0.2,
   });
 
   useEffect(() => {
@@ -207,6 +213,18 @@ export default function CategoryOffersPage({
       }
     );
   }, [categorySlug, offers.length]);
+
+  useEffect(() => {
+    if (!hasMore) return;
+    if (!loadMoreInView) return;
+    if (isAutoLoading) return;
+
+    setIsAutoLoading(true);
+    setVisibleCount((prev) => Math.min(prev + 9, filteredOffers.length));
+
+    const t = window.setTimeout(() => setIsAutoLoading(false), 250);
+    return () => window.clearTimeout(t);
+  }, [hasMore, loadMoreInView, isAutoLoading, filteredOffers.length]);
 
   return (
     <div className="min-h-screen bg-[#f5f9fc]">
@@ -568,14 +586,10 @@ export default function CategoryOffersPage({
             </>
           </AnimatePresence>
 
-          {hasMore && (
-            <div className="text-center mt-14">
-              <button
-                onClick={() => setVisibleCount((prev) => prev + 9)}
-                className="px-8 py-4 rounded-2xl bg-white border border-gray-200 text-[#0f172a] font-semibold shadow-[0_10px_30px_rgba(15,23,42,0.06)] hover:border-[#00c389]/40 transition-all"
-              >
-                További ajánlatok betöltése
-              </button>
+          <div ref={loadMoreRef} className="h-1" />
+          {hasMore && isAutoLoading && (
+            <div className="text-center mt-12 text-sm text-gray-500">
+              További ajánlatok betöltése…
             </div>
           )}
         </div>

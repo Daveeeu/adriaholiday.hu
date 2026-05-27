@@ -68,7 +68,7 @@ export default function Newsletter() {
 
           {/* Background Lottie */}
           <motion.div
-            className="absolute -right-44 top-[-120px] w-[650px] h-[650px] opacity-[0.13]"
+            className="absolute -right-44 top-[-120px] w-[650px] h-[650px] opacity-[9.53]"
             initial={{ scale: 0.96 }}
             whileInView={{ scale: 1 }}
             viewport={{ once: true }}

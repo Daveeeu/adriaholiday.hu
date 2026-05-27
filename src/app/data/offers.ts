@@ -1,4 +1,4 @@
-import { slugify } from "../lib/slug";
+import scraped from "./offers.scraped.json";
 
 type Transport = "bus" | "plane";
 
@@ -29,128 +29,89 @@ export interface Offer {
   shortDescription?: string;
 }
 
-const rawOffers: Omit<Offer, "id" | "slug">[] = [
-  {
-    title: "Albánia, a Balkán Riviérája",
-    country: "Albánia",
-    departure: "2026.09.25. - 10.01.",
-    transport: "bus",
-    hotel: "Hotel***",
-    meals: "Félpanzió",
-    price: "269.600 Ft",
-    priceNumber: 269600,
-    temperature: "29°C",
-    duration: "7 nap / 6 éj",
-    badge: "Népszerű",
-    guaranteed: true,
-    seatsLeft: 7,
-    additionalDates: false,
-    shortDescription:
-      "Albánia különleges tengerparti és balkáni hangulata egy kényelmes buszos körutazáson.",
-    tags: ["tengerpart", "buszos", "meleg", "termeszet", "varosnezes"],
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/sea-4768869_1920.jpg&op=;1200x750;",
-  },
-  {
-    title: "Montenegrói üdülés, Albánia kincseivel fűszerezve",
-    country: "Albánia",
-    departure: "2026.06.08. - 14.",
-    transport: "bus",
-    hotel: "Hotel***",
-    meals: "Reggeli",
-    price: "189.900 Ft",
-    priceNumber: 189900,
-    temperature: "30°C",
-    duration: "7 nap / 6 éj",
-    badge: "Családbarát",
-    additionalDates: true,
-    shortDescription:
-      "Tengerparti pihenés montenegrói hangulattal és albán kirándulási lehetőségekkel.",
-    tags: ["tengerpart", "buszos", "meleg"],
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;1200x750;",
-  },
-  {
-    title: "Brugge - London - Párizs",
-    country: "Anglia",
-    departure: "2026.09.20. - 27.",
-    transport: "bus",
-    hotel: "4 éj holiday home, 3 éj hotel*/**",
-    meals: "Önellátás",
-    price: "273.600 Ft",
-    priceNumber: 273600,
-    temperature: "21°C",
-    duration: "8 nap / 7 éj",
-    badge: "Népszerű",
-    shortDescription:
-      "Három ikonikus európai város egy látványos, nagy ívű körutazásban.",
-    tags: ["varosnezes", "buszos"],
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/aeroplane-16749_1280.jpg&op=;1200x750;",
-  },
-  {
-    title: "London a királyok városa",
-    country: "Anglia",
-    departure: "2026.10.04. - 10.",
-    transport: "bus",
-    hotel: "4 éj holiday home, 2 éj Hotel*/**",
-    meals: "Önellátás",
-    price: "239.600 Ft",
-    priceNumber: 239600,
-    temperature: "20°C",
-    duration: "7 nap / 6 éj",
-    additionalDates: false,
-    shortDescription:
-      "Klasszikus londoni városnézés történelmi látnivalókkal és királyi hangulattal.",
-    tags: ["varosnezes", "buszos"],
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/aeroplane-16749_1280.jpg&op=;1200x750;",
-  },
-  {
-    title: "Vidéki csodák Angliában",
-    country: "Anglia",
-    departure: "2026.09.20. - 26.",
-    transport: "bus",
-    hotel: "4 éj holiday home, 2 éj hotel*/**",
-    meals: "Önellátás",
-    price: "244.800 Ft",
-    priceNumber: 244800,
-    temperature: "21°C",
-    duration: "7 nap / 6 éj",
-    badge: "Új ajánlat",
-    shortDescription:
-      "Anglia vidéki arcát bemutató körutazás hangulatos városokkal és történelmi helyszínekkel.",
-    tags: ["varosnezes", "termeszet", "buszos"],
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/trip-2203682_1920.jpg&op=;1200x750;",
-  },
-  {
-    title: "Hét nap alatt London körül",
-    country: "Anglia",
-    departure: "2026.05.31. - 06.06.",
-    transport: "bus",
-    hotel: "2 éj hotel*/**, 4 éj családoknál",
-    meals: "Családoknál teljes ellátás",
-    price: "296.600 Ft",
-    priceNumber: 296600,
-    temperature: "20°C",
-    duration: "7 nap / 6 éj",
-    additionalDates: true,
-    shortDescription:
-      "London és környéke egy tartalmas, élményekben gazdag buszos programban.",
-    tags: ["varosnezes", "buszos"],
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/aeroplane-16749_1280.jpg&op=;1200x750;",
-  },
-];
+function clean(value: string) {
+  return value.replace(/\s+/g, " ").trim();
+}
 
-export const offers: Offer[] = rawOffers.map((offer, index) => {
-  const base = slugify(offer.title);
-  const slug = `${base}-${index + 1}`;
+function getSlugFromDetailUrl(detailUrl: string) {
+  try {
+    const url = new URL(detailUrl);
+    const parts = url.pathname.split("/").filter(Boolean);
+    const idx = parts.indexOf("korutazasok");
+    const slug = idx >= 0 ? parts[idx + 1] : parts[parts.length - 1];
+    return slug || detailUrl;
+  } catch {
+    return detailUrl;
+  }
+}
+
+function inferTransport(value: string | null | undefined): Transport {
+  const v = (value || "").toLowerCase();
+  if (v.includes("rep") || v.includes("plane")) return "plane";
+  return "bus";
+}
+
+function inferTags(offer: { transport: Transport; description?: string | null; title: string }) {
+  const tags = new Set<string>();
+  tags.add(offer.transport === "plane" ? "repulos" : "buszos");
+
+  const hay = `${offer.title} ${offer.description || ""}`.toLowerCase();
+  if (hay.includes("tenger")) tags.add("tengerpart");
+  if (hay.includes("város") || hay.includes("varos") || hay.includes("prág") || hay.includes("prag")) {
+    tags.add("varosnezes");
+  }
+  if (hay.includes("hegy") || hay.includes("alp") || hay.includes("természet") || hay.includes("termeszet")) {
+    tags.add("termeszet");
+  }
+
+  return [...tags];
+}
+
+function titleCaseHun(slug: string) {
+  const map: Record<string, string> = {
+    albania: "Albánia",
+    ausztria: "Ausztria",
+    "bosznia-hercegovina": "Bosznia-Hercegovina",
+    csehorszag: "Csehország",
+    erdely: "Erdély",
+    franciaorszag: "Franciaország",
+    gruzia: "Grúzia",
+    hollandia: "Hollandia",
+    horvatorszag: "Horvátország",
+  };
+
+  if (map[slug]) return map[slug];
+  return slug
+    .split("-")
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(" ");
+}
+
+export const offers: Offer[] = (scraped as any).results.map((row: any, index: number) => {
+  const slug = getSlugFromDetailUrl(row.detailUrl);
+  const transport = inferTransport(row.transport);
+  const description = row.detail?.description ?? null;
+  const sourceCountrySlug = String(row.sourceUrl || "")
+    .split("/")
+    .filter(Boolean)
+    .pop();
+  const country = sourceCountrySlug ? titleCaseHun(sourceCountrySlug) : "Utazás";
+
   return {
-    ...offer,
-    id: `offer-${index + 1}`,
+    id: row.detailUrl || `offer-${index + 1}`,
     slug,
+    title: clean(row.title),
+    country,
+    departure: row.dateText || "Érdeklődjön",
+    transport,
+    hotel: row.hotel || "Szállás információ később",
+    meals: row.meals || "Információ később",
+    price: row.priceText || "Ár hamarosan",
+    priceNumber: row.priceNumber || 0,
+    tags: inferTags({ transport, description, title: row.title }),
+    image: row.detail?.heroImage || row.image,
+    shortDescription: description,
+    additionalDates: row.dateText?.toLowerCase().includes("további") || false,
   };
 });
 
@@ -158,4 +119,3 @@ export function getOfferBySlug(slug: string | undefined) {
   if (!slug) return undefined;
   return offers.find((o) => o.slug === slug);
 }
-

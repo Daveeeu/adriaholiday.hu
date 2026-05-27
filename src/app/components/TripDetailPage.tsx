@@ -401,7 +401,7 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
             </div>
 
             <aside className="space-y-6">
-              <div className="sticky top-6 rounded-[34px] bg-white border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.08)] p-6">
+              <div className="sticky top-[92px] rounded-[34px] bg-white border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.08)] p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-[#00c389]/10 text-[#00c389] flex items-center justify-center">
                     <ShieldCheck className="w-6 h-6" />
@@ -476,24 +476,6 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
                 </button>
               </div>
 
-              <div className="rounded-[30px] bg-gradient-to-br from-[#07111f] to-[#0d2240] p-6 text-white">
-                <h3 className="text-3xl font-bold mb-3">Kérdésed van?</h3>
-                <p className="text-white/70 mb-6">
-                  Segítünk kiválasztani a hozzád illő utazást.
-                </p>
-
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-[#00c389]" />
-                    +36 1 234 5678
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-[#00c389]" />
-                    info@adriaholiday.hu
-                  </div>
-                </div>
-              </div>
             </aside>
           </div>
         </div>
@@ -690,7 +672,7 @@ function BottomBookingSection({ selectedDate, trip }: any) {
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   return (
-    <section id="foglalas" className="scroll-mt-10">
+    <section id="foglalas" className="scroll-mt-[92px]">
       <div className="relative overflow-hidden rounded-[40px] bg-[#07111f] p-5 md:p-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,195,137,0.18),transparent_30%),radial-gradient(circle_at_80%_10%,rgba(22,184,255,0.15),transparent_30%)]" />
 

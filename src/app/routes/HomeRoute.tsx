@@ -16,6 +16,7 @@ import WhyChooseUs from "../components/WhyChooseUs";
 import FeaturedOffers from "../components/FeaturedOffers";
 import { useNavigate } from "react-router";
 import Seo from "../seo/Seo";
+import { useEffect } from "react";
 
 export default function HomeRoute({
   canonicalPath = "/",
@@ -27,6 +28,15 @@ export default function HomeRoute({
   description?: string;
 }) {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.documentElement.classList.add("ah-snap");
+    document.body.classList.add("ah-snap");
+    return () => {
+      document.documentElement.classList.remove("ah-snap");
+      document.body.classList.remove("ah-snap");
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
@@ -57,24 +67,46 @@ export default function HomeRoute({
       <ScrollProgress />
       <CursorGlow />
 
-      <CinematicHero />
+      <section className="ah-snap-section">
+        <CinematicHero />
+      </section>
 
-      <TravelCategories
-        onCategorySelect={(categorySlug) => {
-          navigate(`/kategoriak/${categorySlug}`);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-      />
+      <section className="ah-snap-section">
+        <TravelCategories
+          onCategorySelect={(categorySlug) => {
+            navigate(`/kategoriak/${categorySlug}`);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
+      </section>
 
-      <FeaturedOffers />
-      <EmotionalStory />
-      <ExperienceSection />
-      <WhyChooseUs />
-      <TravelBlog />
-      <HowItWorks />
-      <TrustSection />
-      <FAQ />
-      <Newsletter />
+      <section className="ah-snap-section">
+        <FeaturedOffers />
+      </section>
+      <section className="ah-snap-section">
+        <EmotionalStory />
+      </section>
+      <section className="ah-snap-section">
+        <ExperienceSection />
+      </section>
+      <section className="ah-snap-section">
+        <WhyChooseUs />
+      </section>
+      <section className="ah-snap-section">
+        <TravelBlog />
+      </section>
+      <section className="ah-snap-section">
+        <HowItWorks />
+      </section>
+      <section className="ah-snap-section">
+        <TrustSection />
+      </section>
+      <section className="ah-snap-section">
+        <FAQ />
+      </section>
+      <section className="ah-snap-section">
+        <Newsletter />
+      </section>
       <StickyMobileCTA />
     </div>
   );

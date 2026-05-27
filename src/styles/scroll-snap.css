@@ -1,0 +1,14 @@
+html.ah-snap,
+body.ah-snap {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+body.ah-snap {
+  scroll-padding-top: 84px;
+}
+
+.ah-snap-section {
+  scroll-snap-align: start;
+  scroll-margin-top: 84px;
+}
