@@ -1,0 +1,34 @@
+[
+  {
+    "id": "gu_001",
+    "name": "Anna Kovacs",
+    "email": "anna.kovacs@example.com",
+    "phone": "+36 30 123 4567",
+    "country": "Hungary",
+    "preferredProperty": "Villa Mare Blu"
+  },
+  {
+    "id": "gu_002",
+    "name": "Lukas Steiner",
+    "email": "lukas.steiner@example.com",
+    "phone": "+43 664 123 9876",
+    "country": "Austria",
+    "preferredProperty": "Seaview Apartment 4"
+  },
+  {
+    "id": "gu_003",
+    "name": "Sofia Ricci",
+    "email": "sofia.ricci@example.com",
+    "phone": "+39 348 555 2211",
+    "country": "Italy",
+    "preferredProperty": "Harbor Loft"
+  },
+  {
+    "id": "gu_004",
+    "name": "Clara Meier",
+    "email": "clara.meier@example.com",
+    "phone": "+49 171 444 8080",
+    "country": "Germany",
+    "preferredProperty": "Sunset Suite"
+  }
+]

@@ -1,0 +1,2 @@
+export * from './tours.types';
+

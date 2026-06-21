@@ -1,0 +1,52 @@
+[
+  {
+    "id": "bk_001",
+    "guestName": "Anna Kovacs",
+    "email": "anna.kovacs@example.com",
+    "propertyName": "Villa Mare Blu",
+    "checkIn": "2026-06-08",
+    "checkOut": "2026-06-13",
+    "status": "completed",
+    "totalAmount": 1450
+  },
+  {
+    "id": "bk_002",
+    "guestName": "Lukas Steiner",
+    "email": "lukas.steiner@example.com",
+    "propertyName": "Seaview Apartment 4",
+    "checkIn": "2026-06-08",
+    "checkOut": "2026-06-11",
+    "status": "confirmed",
+    "totalAmount": 980
+  },
+  {
+    "id": "bk_003",
+    "guestName": "Sofia Ricci",
+    "email": "sofia.ricci@example.com",
+    "propertyName": "Harbor Loft",
+    "checkIn": "2026-06-10",
+    "checkOut": "2026-06-15",
+    "status": "pending",
+    "totalAmount": 480
+  },
+  {
+    "id": "bk_004",
+    "guestName": "Martin Novak",
+    "email": "martin.novak@example.com",
+    "propertyName": "Villa Mare Blu",
+    "checkIn": "2026-06-12",
+    "checkOut": "2026-06-19",
+    "status": "confirmed",
+    "totalAmount": 1720
+  },
+  {
+    "id": "bk_005",
+    "guestName": "Clara Meier",
+    "email": "clara.meier@example.com",
+    "propertyName": "Sunset Suite",
+    "checkIn": "2026-06-14",
+    "checkOut": "2026-06-18",
+    "status": "confirmed",
+    "totalAmount": 1210
+  }
+]

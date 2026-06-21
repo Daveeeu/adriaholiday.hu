@@ -1,0 +1,2 @@
+export { ToursToolbar } from './ToursToolbar';
+
