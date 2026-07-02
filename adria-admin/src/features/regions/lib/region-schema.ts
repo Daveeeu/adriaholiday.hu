@@ -12,8 +12,13 @@ export const regionFormSchema = z.object({
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
       t('validation.region.slug'),
-    ),
+  ),
   status: z.enum(['active', 'inactive']),
+  heroImageUrl: z.string().trim().max(2048).optional().nullable(),
+  portfolioFeatured: z.boolean().default(false),
+  portfolioSortOrder: z.number().int().min(0).default(0),
+  portfolioImageUrl: z.string().trim().max(2048).optional().nullable(),
+  portfolioShortDescription: z.string().trim().optional().nullable(),
 });
 
 export type RegionFormValues = z.infer<typeof regionFormSchema>;
@@ -23,6 +28,11 @@ export function getRegionFormDefaults(region?: Region): RegionFormValues {
     name: region?.name ?? '',
     slug: region?.slug ?? '',
     status: region?.isActive ? 'active' : 'inactive',
+    heroImageUrl: region?.heroImageUrl ?? '',
+    portfolioFeatured: region?.portfolioFeatured ?? false,
+    portfolioSortOrder: region?.portfolioSortOrder ?? 0,
+    portfolioImageUrl: region?.portfolioImageUrl ?? region?.heroImageUrl ?? '',
+    portfolioShortDescription: region?.portfolioShortDescription ?? region?.summary ?? '',
   };
 }
 

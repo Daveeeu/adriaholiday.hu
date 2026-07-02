@@ -1,9 +1,8 @@
 // TripDetailPage.tsx
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Link } from "react-router";
-import { offers as allOffers } from "../data/offers";
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,110 +15,77 @@ import {
   Check,
   X,
   ShieldCheck,
+  TrendingUp,
   Users,
   Phone,
   Mail,
   Flame,
-  TrendingUp,
-  MapPin,
-  Camera,
-  Waves,
-  Building2,
 } from "lucide-react";
+import OfferGallerySection from "./OfferGallerySection";
+import OfferProgramTimeline from "./OfferProgramTimeline";
+import OfferContentSection from "./OfferContentSection";
+import { useAnalytics } from "../analytics/useAnalytics";
+import type { PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
+import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
+import OfferCard from "./OfferCard";
 
 interface TripDetailPageProps {
   trip: any;
+  relatedTrips?: Array<{
+    seoName?: string;
+    name: string;
+    country?: string | null;
+    displayedPrice?: string | null;
+    image?: { url?: string | null; thumbnailUrl?: string | null } | null;
+    link?: string | null;
+  }>;
   onBack: () => void;
 }
 
-const program = [
-  {
-    day: "1. nap",
-    title: "Indulás és utazás a Balkán felé",
-    text: "Kora reggeli indulás, folyamatos utazás rövid pihenőkkel. Érkezés a szálláshelyre az esti órákban.",
-    mood: "Utazás",
-    icon: Bus,
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/aeroplane-16749_1280.jpg&op=;800x600;",
-  },
-  {
-    day: "2. nap",
-    title: "Tengerparti hangulat és városnézés",
-    text: "Ismerkedés Albánia különleges hangulatával, tengerparti sétával és helyi látnivalókkal.",
-    mood: "Tengerpart",
-    icon: Waves,
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/sea-4768869_1920.jpg&op=;800x600;",
-  },
-  {
-    day: "3. nap",
-    title: "Kirándulás történelmi helyszíneken",
-    text: "Városnézés, kulturális programok és látványos panorámák a Balkán egyik legizgalmasabb vidékén.",
-    mood: "Kultúra",
-    icon: Building2,
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;800x600;",
-  },
-  {
-    day: "4. nap",
-    title: "Pihenés és fakultatív programok",
-    text: "Szabadprogram, pihenés a tengerparton vagy fakultatív kirándulási lehetőség.",
-    mood: "Szabadidő",
-    icon: Star,
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/sea-4768869_1920.jpg&op=;800x600;",
-  },
-  {
-    day: "5. nap",
-    title: "Albán riviéra felfedezése",
-    text: "Tengerparti élmények, fotómegállók és hangulatos települések felfedezése.",
-    mood: "Fotómegálló",
-    icon: Camera,
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/trip-2203682_1920.jpg&op=;800x600;",
-  },
-  {
-    day: "6. nap",
-    title: "Búcsú Albániától",
-    text: "Utolsó programok, vásárlási lehetőség, majd felkészülés a hazautazásra.",
-    mood: "Élmények",
-    icon: MapPin,
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/yellow-3521730_1920.jpg&op=;800x600;",
-  },
-  {
-    day: "7. nap",
-    title: "Hazautazás",
-    text: "Hazautazás rövid pihenőkkel, érkezés Magyarországra az esti órákban.",
-    mood: "Hazautazás",
-    icon: Bus,
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/aeroplane-16749_1280.jpg&op=;800x600;",
-  },
-];
+function hasText(value?: string | null) {
+  return typeof value === "string" && value.trim() !== "";
+}
 
-export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
+function mergePriceBoxes(
+  base?: PortfolioPriceBox | null,
+  override?: PortfolioPriceBox | null,
+): PortfolioPriceBox | null {
+  const merged = { ...(base ?? {}) } as PortfolioPriceBox;
+
+  if (override) {
+    Object.entries(override).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== "") {
+        (merged as Record<string, unknown>)[key] = value;
+      }
+    });
+  }
+
+  const hasValue = Object.values(merged).some((value) => {
+    if (value === null || value === undefined) {
+      return false;
+    }
+
+    if (typeof value === "string") {
+      return value.trim() !== "";
+    }
+
+    return true;
+  });
+
+  return hasValue ? merged : null;
+}
+
+export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: TripDetailPageProps) {
+  const { trackEvent } = useAnalytics();
   const dateOptions = trip.dateOptions || [
     {
       id: "default",
-      label: trip.departure || trip.date,
+      label: trip.departure || trip.date || "Érdeklődjön",
       status: trip.guaranteed ? "Garantált indulás" : "Elérhető",
-      seatsLeft: trip.seatsLeft || 10,
-      price: trip.priceNumber || trip.price || 0,
-    },
-    {
-      id: "second",
-      label: "2026.10.09. - 10.15.",
-      status: "Elérhető",
-      seatsLeft: 14,
-      price: trip.priceNumber || trip.price || 0,
-    },
-    {
-      id: "third",
-      label: "2026.10.23. - 10.29.",
-      status: "Kevés hely",
-      seatsLeft: 3,
-      price: (trip.priceNumber || trip.price || 0) + 10000,
+      seatsLeft: trip.seatsLeft ?? null,
+      price: trip.priceBox?.price ?? null,
+      displayedPrice: trip.priceBox?.displayedPrice ?? null,
+      priceBox: trip.priceBox ?? null,
     },
   ];
 
@@ -129,7 +95,25 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
     dateOptions.find((item: any) => item.id === selectedDateId) ||
     dateOptions[0];
 
-  const originalPrice = Math.round(selectedDate.price / 0.9);
+  const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
+  const selectedSeats = priceBox?.availableSeats ?? selectedDate.seatsLeft ?? null;
+
+  useEffect(() => {
+    if (!priceBox) {
+      return;
+    }
+
+    trackEvent("pricebox_view", {
+      entity: {
+        type: "tour",
+        slug: trip.slug,
+      },
+      metadata: {
+        price: priceBox.price,
+        displayed_price: priceBox.displayedPrice,
+      },
+    });
+  }, [priceBox?.displayedPrice, priceBox?.price, trackEvent, trip.slug]);
 
   return (
     <div className="min-h-screen bg-[#f5f9fc]">
@@ -155,10 +139,12 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
           <div className="flex flex-wrap gap-3 mb-6">
             <Pill>{trip.country}</Pill>
             {trip.badge && <Pill active>{trip.badge}</Pill>}
-            <Pill>
-              <Star className="w-4 h-4 text-[#00c389]" />
-              4.9/5 értékelés
-            </Pill>
+            {priceBox?.ratingText ? (
+              <Pill>
+                <Star className="w-4 h-4 text-[#00c389]" />
+                {priceBox.ratingText}
+              </Pill>
+            ) : null}
           </div>
 
           <h1
@@ -204,11 +190,13 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
                   label="Indulás státusza"
                   value={selectedDate.status}
                 />
-                <InfoBox
-                  icon={<Users />}
-                  label="Szabad helyek"
-                  value={`${selectedDate.seatsLeft} hely`}
-                />
+                {selectedSeats !== null ? (
+                  <InfoBox
+                    icon={<Users />}
+                    label="Szabad helyek"
+                    value={`Még ${selectedSeats} szabad hely`}
+                  />
+                ) : null}
                 <InfoBox icon={<Hotel />} label="Szállás" value={trip.hotel} />
                 <InfoBox
                   icon={<Calendar />}
@@ -217,7 +205,21 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
                 />
               </div>
 
-              <PriceBox originalPrice={originalPrice} price={selectedDate.price} />
+              <PriceBox
+                priceBox={priceBox}
+                onBookClick={() => {
+                  trackEvent("booking_anchor_click", {
+                    entity: {
+                      type: "tour",
+                      slug: trip.slug,
+                    },
+                    metadata: {
+                      placement: "hero_pricebox",
+                    },
+                  });
+                  document.getElementById("foglalas")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              />
             </div>
           </div>
         </div>
@@ -227,177 +229,42 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
         <div className="max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-10">
             <div>
-              <div className="mb-20">
-                <SectionEyebrow title="GALÉRIA" />
+              <OfferGallerySection
+                title={trip.galleryTitle}
+                subtitle={trip.gallerySubtitle}
+                gallery={trip.gallery}
+              />
 
-                <h2 className="text-5xl font-bold text-[#0f172a] mb-4 tracking-tight">
-                  Képek az utazás hangulatából
-                </h2>
+              <OfferProgramTimeline
+                programDays={trip.programDays}
+                intro={trip.programBefore}
+              />
 
-                <p className="text-gray-500 text-lg mb-10">
-                  Tengerpart, városnézés és balkáni élmények egy helyen.
-                </p>
+              <OfferContentSection
+                title="Kiegészítő / fizető programok"
+                content={trip.paymentProgram}
+              />
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="col-span-2 row-span-2 rounded-[32px] overflow-hidden h-[420px]">
-                    <img
-                      src={trip.image}
-                      alt={trip.title}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
+              <OfferContentSection
+                title="További szolgáltatási információk"
+                content={trip.inclusions}
+              />
 
-                  {[trip.image, trip.image, trip.image].map((img, i) => (
-                    <div
-                      key={i}
-                      className="rounded-[28px] overflow-hidden h-[200px]"
-                    >
-                      <img
-                        src={img}
-                        alt={`${trip.title} – galéria ${i + 2}`}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <OfferContentSection title="Árak" content={trip.prices} />
 
-              <div className="mb-20">
-                <SectionEyebrow title="PROGRAM" />
+              <OfferContentSection title="Kedvezmények" content={trip.discounts} />
 
-                <h2 className="text-5xl font-bold text-[#0f172a] mb-4 tracking-tight">
-                  Részletes program
-                </h2>
+              <OfferContentSection title="Jegyzet / egyéb" content={trip.notes} />
 
-                <p className="text-gray-500 text-lg mb-14">
-                  Napokra bontott áttekintés az utazás főbb élményeiről.
-                </p>
+              <PriceInformationSection priceInformation={trip.priceInformation} />
 
-                <div className="relative">
-                  <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-[#00c389] via-[#16b8ff] to-transparent" />
+              <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
 
-                  <div className="space-y-7">
-                    {program.map((item, index) => {
-                      const Icon = item.icon;
-
-                      return (
-                        <motion.div
-                          key={item.day}
-                          className="relative pl-20"
-                          initial={{ opacity: 0, y: 24 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, amount: 0.25 }}
-                          transition={{ delay: index * 0.06 }}
-                        >
-                          <div className="absolute left-0 top-8 w-12 h-12 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white flex items-center justify-center text-sm font-bold shadow-[0_12px_30px_rgba(0,195,137,0.25)]">
-                            {index + 1}
-                          </div>
-
-                          <div className="group relative overflow-hidden rounded-[34px] bg-white border border-gray-100 shadow-[0_12px_42px_rgba(15,23,42,0.05)]">
-                            <div className="absolute top-0 right-0 w-56 h-56 bg-[#00c389]/8 blur-3xl rounded-full" />
-
-                            <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-6 p-7 md:p-8">
-                              <div>
-                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00c389]/8 text-[#00a878] text-xs font-bold mb-4">
-                                  <MapPin className="w-3.5 h-3.5" />
-                                  {item.day}
-                                </div>
-
-                                <h3 className="text-2xl md:text-3xl font-bold text-[#0f172a] mb-3">
-                                  {item.title}
-                                </h3>
-
-                                <p className="text-gray-600 leading-relaxed max-w-3xl">
-                                  {item.text}
-                                </p>
-
-                                <div className="flex flex-wrap gap-2 mt-6">
-                                  {["Városnézés", "Fotómegálló", "Szabadidő"]
-                                    .slice(0, (index % 3) + 1)
-                                    .map((tag) => (
-                                      <span
-                                        key={tag}
-                                        className="px-3 py-1.5 rounded-full bg-[#f5f9fc] text-gray-600 text-xs font-semibold"
-                                      >
-                                        {tag}
-                                      </span>
-                                    ))}
-                                </div>
-                              </div>
-
-                              <div className="relative overflow-hidden rounded-[26px] min-h-[190px] p-5 flex flex-col justify-between group/preview">
-                                <img
-                                  src={item.image}
-                                  alt={item.mood}
-                                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/preview:scale-110"
-                                />
-
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#07111f]/78 via-[#07111f]/45 to-[#00c389]/30" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#07111f]/85 via-transparent to-transparent" />
-
-                                <div className="relative w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md text-[#00f0a8] flex items-center justify-center border border-white/10">
-                                  <Icon className="w-6 h-6" />
-                                </div>
-
-                                <div className="relative">
-                                  <div className="text-white/65 text-xs mb-1">
-                                    Élmény típusa
-                                  </div>
-                                  <div className="text-white text-xl font-bold">
-                                    {item.mood}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-20">
-                <SectionEyebrow title="ÁRINFORMÁCIÓ" />
-
-                <h2 className="text-5xl font-bold text-[#0f172a] mb-4 tracking-tight">
-                  Mit tartalmaz az ár?
-                </h2>
-
-                <p className="text-gray-500 text-lg mb-10">
-                  Átlátható információk a foglalás előtt.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <IncludedCard
-                    title="Az ár tartalmazza"
-                    items={[
-                      "Utazás kényelmes autóbusszal",
-                      "Szállás Hotel*** kategóriában",
-                      "Félpanziós ellátás",
-                      "Magyar idegenvezetés",
-                      "Szervezési díj",
-                    ]}
-                    positive
-                  />
-
-                  <IncludedCard
-                    title="Az ár nem tartalmazza"
-                    items={[
-                      "Belépők és fakultatív programok",
-                      "Utasbiztosítás",
-                      "Egyéni kiadások",
-                      "Helyszínen fizetendő díjak",
-                    ]}
-                  />
-                </div>
-              </div>
-
-              <SimilarTrips currentTrip={trip} />
-
-              <BottomBookingSection selectedDate={selectedDate} trip={trip} />
+              <BottomBookingSection
+                selectedDate={selectedDate}
+                trip={trip}
+                priceBox={priceBox}
+              />
             </div>
 
             <aside className="space-y-6">
@@ -429,7 +296,21 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
                       return (
                         <button
                           key={date.id}
-                          onClick={() => setSelectedDateId(date.id)}
+                          onClick={() => {
+                            setSelectedDateId(date.id);
+                            trackEvent("date_select", {
+                              entity: {
+                                type: "tour_date",
+                                id: date.id,
+                                slug: trip.slug,
+                              },
+                              metadata: {
+                                label: date.label,
+                                status: date.status,
+                                price: date.price,
+                              },
+                            });
+                          }}
                           className={`w-full text-left rounded-2xl p-4 border transition-all ${
                             active
                               ? "border-[#00c389] bg-[#00c389]/8 shadow-[0_10px_26px_rgba(0,195,137,0.12)]"
@@ -452,12 +333,22 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
                             <span className="px-2.5 py-1 rounded-full bg-white text-[#00a878] font-bold">
                               {date.status}
                             </span>
-                            <span className="px-2.5 py-1 rounded-full bg-white text-gray-500 font-semibold">
-                              {date.seatsLeft} hely
-                            </span>
-                            <span className="px-2.5 py-1 rounded-full bg-white text-gray-900 font-bold">
-                              {date.price.toLocaleString("hu-HU")} Ft
-                            </span>
+                            {date.priceBox?.availableSeats !== null &&
+                            date.priceBox?.availableSeats !== undefined ? (
+                              <span className="px-2.5 py-1 rounded-full bg-white text-gray-500 font-semibold">
+                                Még {date.priceBox.availableSeats} szabad hely
+                              </span>
+                            ) : date.seatsLeft !== null &&
+                              date.seatsLeft !== undefined ? (
+                              <span className="px-2.5 py-1 rounded-full bg-white text-gray-500 font-semibold">
+                                Még {date.seatsLeft} szabad hely
+                              </span>
+                            ) : null}
+                            {date.displayedPrice || date.priceBox?.displayedPrice ? (
+                              <span className="px-2.5 py-1 rounded-full bg-white text-gray-900 font-bold">
+                                {date.displayedPrice || date.priceBox?.displayedPrice}
+                              </span>
+                            ) : null}
                           </div>
                         </button>
                       );
@@ -466,14 +357,42 @@ export default function TripDetailPage({ trip, onBack }: TripDetailPageProps) {
                 </div>
 
                 <div className="space-y-3 mb-6">
-                  <SidebarInfo icon={<Users />} text="18 fő az elmúlt 72 órában" />
-                  <SidebarInfo icon={<Star />} text="4.9/5 utasértékelés" />
-                  <SidebarInfo icon={<Flame />} text="Előfoglalási kedvezmény" />
+                  {priceBox?.urgencyText ? (
+                    <SidebarInfo icon={<Users />} text={priceBox.urgencyText} />
+                  ) : null}
+
+                  {priceBox?.ratingText ? (
+                    <SidebarInfo icon={<Star />} text={priceBox.ratingText} />
+                  ) : null}
+
+                  {priceBox?.discountText ? (
+                    <SidebarInfo icon={<Flame />} text={priceBox.discountText} />
+                  ) : null}
                 </div>
 
-                <button className="w-full h-14 rounded-2xl bg-[#f5f9fc] text-[#0f172a] font-bold border border-gray-200 hover:border-[#00c389]/40 transition-all">
-                  Ajánlatot kérek
-                </button>
+                {(priceBox?.ctaPrimaryLabel ?? priceBox?.ctaSecondaryLabel) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      trackEvent("booking_anchor_click", {
+                        entity: {
+                          type: "tour",
+                          slug: trip.slug,
+                        },
+                        metadata: {
+                          placement: "sidebar_pricebox",
+                        },
+                      });
+                      document
+                        .getElementById("foglalas")
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className="w-full h-14 rounded-2xl bg-[#f5f9fc] text-[#0f172a] font-bold border border-gray-200 hover:border-[#00c389]/40 transition-all"
+                  >
+                    {priceBox?.ctaPrimaryLabel ?? priceBox?.ctaSecondaryLabel}
+                  </button>
+                ) : null}
+
               </div>
 
             </aside>
@@ -498,32 +417,107 @@ function Pill({ children, active = false }: any) {
   );
 }
 
-function PriceBox({ originalPrice, price }: any) {
+function parseDiscountPercent(discountBadge?: string | null): number | null {
+  if (!discountBadge) {
+    return null;
+  }
+
+  const match = discountBadge.match(/(-?\d+(?:[.,]\d+)?)\s*%/);
+  if (!match) {
+    return null;
+  }
+
+  const value = Number(match[1].replace(',', '.'));
+  if (!Number.isFinite(value) || value === 0) {
+    return null;
+  }
+
+  return Math.abs(value);
+}
+
+function formatDiscountedDisplayedPrice(
+  basePrice: number,
+  displayedPrice?: string | null,
+  priceSuffix?: string | null,
+): string {
+  const formattedAmount = `${new Intl.NumberFormat("hu-HU").format(
+    Math.round(basePrice),
+  )},-`;
+
+  if (displayedPrice) {
+    const match = displayedPrice.match(/^([^\d]*)([\d\s.,-]+)(.*)$/);
+    if (match) {
+      const [, prefix, , suffix] = match;
+      return `${prefix}${formattedAmount}${suffix}`;
+    }
+  }
+
+  if (priceSuffix) {
+    return `${formattedAmount} Ft${priceSuffix.startsWith("/") ? "" : " "}${priceSuffix}`;
+  }
+
+  return `${formattedAmount} Ft`;
+}
+
+function PriceBox({
+  priceBox,
+  onBookClick,
+}: {
+  priceBox?: PortfolioPriceBox | null;
+  onBookClick: () => void;
+}) {
+  if (!priceBox) {
+    return null;
+  }
+
+  const discountPercent = parseDiscountPercent(priceBox.discountBadge);
+  const discountedPrice =
+    discountPercent !== null && priceBox.price !== null && priceBox.price !== undefined
+      ? priceBox.price * (1 - discountPercent / 100)
+      : null;
+  const discountedDisplayedPrice =
+    discountedPrice !== null
+      ? formatDiscountedDisplayedPrice(
+          discountedPrice,
+          priceBox.displayedPrice,
+          priceBox.priceSuffix,
+        )
+      : null;
+  const hasDiscount = Boolean(priceBox.discountBadge && discountedDisplayedPrice);
+  const priceLabel = hasDiscount ? "Akciós ár" : "Ár";
+
   return (
-    <div className="rounded-[30px] bg-gradient-to-br from-[#07111f] to-[#0d2240] p-6 text-white">
-      <div className="text-white/50 text-sm mb-2">Akciós ár</div>
+    <div className="rounded-[30px] bg-gradient-to-br from-[#07111f] to-[#0d2240] p-6 text-white shadow-[0_24px_60px_rgba(7,17,31,0.24)]">
+      <div className="text-white/50 text-sm mb-2">{priceLabel}</div>
 
-      <div className="flex items-center gap-3 mb-2">
-        <div className="relative text-white/35 text-3xl font-bold">
-          {originalPrice.toLocaleString("hu-HU")} Ft
-          <div className="absolute left-0 right-0 top-1/2 h-[3px] bg-red-500 rounded-full" />
+      {hasDiscount ? (
+        <div className="flex items-center gap-3 mb-2">
+          <div className="relative text-white/35 text-3xl font-bold">
+            {priceBox.displayedPrice}
+            <div className="absolute left-0 right-0 top-1/2 h-[3px] rounded-full bg-red-500" />
+          </div>
+          <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-xs font-bold">
+            {priceBox.discountBadge}
+          </div>
         </div>
-
-        <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-xs font-bold">
-          -10%
-        </div>
-      </div>
+      ) : null}
 
       <div className="text-5xl font-bold tracking-tight">
-        {price.toLocaleString("hu-HU")} Ft
+        {discountedDisplayedPrice ?? priceBox.displayedPrice}
       </div>
 
-      <a
-        href="#foglalas"
-        className="w-full mt-6 h-14 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-bold text-lg shadow-[0_20px_40px_rgba(0,195,137,0.25)] flex items-center justify-center"
-      >
-        Lefoglalom az utat
-      </a>
+      {(priceBox.ctaPrimaryLabel ?? priceBox.ctaSecondaryLabel) ? (
+        <a
+          href="#foglalas"
+          onClick={(event) => {
+            event.preventDefault();
+            onBookClick();
+          }}
+          className="w-full mt-6 h-14 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-bold text-lg shadow-[0_20px_40px_rgba(0,195,137,0.25)] flex items-center justify-center"
+        >
+          {priceBox.ctaPrimaryLabel ?? priceBox.ctaSecondaryLabel}
+        </a>
+      ) : null}
     </div>
   );
 }
@@ -566,14 +560,54 @@ function SidebarInfo({ icon, text }: any) {
   );
 }
 
-function IncludedCard({ title, items, positive }: any) {
+function PriceInformationSection({ priceInformation }: { priceInformation?: { included?: Array<{ id: string; text: string }>; excluded?: Array<{ id: string; text: string }>; } | null }) {
+  const included = priceInformation?.included ?? [];
+  const excluded = priceInformation?.excluded ?? [];
+
+  if (included.length === 0 && excluded.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mb-20">
+      <SectionEyebrow title="ÁRINFORMÁCIÓ" />
+
+      <h2 className="mb-4 text-5xl font-bold tracking-tight text-[#0f172a]">
+        Mit tartalmaz az ár?
+      </h2>
+
+      <p className="mb-10 text-lg text-gray-500">
+        Átlátható információk a foglalás előtt.
+      </p>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {included.length > 0 ? (
+          <PriceInformationCard
+            title="Az ár tartalmazza"
+            items={included}
+            positive
+          />
+        ) : null}
+
+        {excluded.length > 0 ? (
+          <PriceInformationCard
+            title="Az ár nem tartalmazza"
+            items={excluded}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function PriceInformationCard({ title, items, positive = false }: { title: string; items: Array<{ id: string; text: string }>; positive?: boolean; }) {
   return (
     <div className="bg-white rounded-[30px] border border-gray-100 p-8">
       <h3 className="text-2xl font-bold text-[#0f172a] mb-6">{title}</h3>
 
       <div className="space-y-4">
-        {items.map((item: string) => (
-          <div key={item} className="flex items-center gap-3">
+        {items.map((item) => (
+          <div key={item.id} className="flex items-center gap-3">
             <div
               className={`w-6 h-6 rounded-full flex items-center justify-center ${
                 positive ? "bg-[#00c389]/10 text-[#00c389]" : "bg-red-50 text-red-500"
@@ -582,7 +616,7 @@ function IncludedCard({ title, items, positive }: any) {
               {positive ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
             </div>
 
-            <span className="text-gray-700">{item}</span>
+            <span className="text-gray-700">{item.text}</span>
           </div>
         ))}
       </div>
@@ -590,17 +624,15 @@ function IncludedCard({ title, items, positive }: any) {
   );
 }
 
-function SimilarTrips({ currentTrip }: any) {
-  const items = allOffers
-    .filter((offer) => offer.slug !== currentTrip.slug)
+function SimilarTrips({ currentTrip, relatedTrips }: any) {
+  const items = (relatedTrips ?? [])
+    .filter((offer: any) => offer.seoName !== currentTrip.slug)
     .slice(0, 3)
-    .map((offer) => ({
-      slug: offer.slug,
-      title: offer.title,
-      country: offer.country,
-      price: offer.price,
-      image: offer.image,
-    }));
+    .map((offer: any) => toUnifiedOfferCardModel(offer));
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <section className="mb-24">
@@ -614,51 +646,16 @@ function SimilarTrips({ currentTrip }: any) {
         Hasonló hangulatú, tengerparti és városnézős ajánlatok.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {items.map((item) => (
-          <div
-            key={item.title}
-            className="rounded-[30px] bg-white border border-gray-100 overflow-hidden shadow-[0_12px_42px_rgba(15,23,42,0.05)]"
-          >
-            <div className="relative h-[190px]">
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
-
-              <div className="absolute left-5 bottom-5 text-white">
-                <div className="text-xs font-bold opacity-80 mb-1">
-                  {item.country}
-                </div>
-                <h3 className="text-lg font-bold leading-tight">{item.title}</h3>
-              </div>
-            </div>
-
-            <div className="p-5 flex items-center justify-between">
-              <div>
-                <div className="text-xs text-gray-500 mb-1">Induló ár</div>
-                <div className="text-2xl font-bold text-[#00a878]">{item.price}</div>
-              </div>
-
-              <Link
-                to={item.slug ? `/ajanlat/${item.slug}` : "/utazasok"}
-                aria-label={`${item.title} – részletek`}
-                className="w-11 h-11 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white flex items-center justify-center"
-              >
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
+          <OfferCard key={item.id} offer={item} />
         ))}
       </div>
     </section>
   );
 }
 
-function BottomBookingSection({ selectedDate, trip }: any) {
+function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
   const [step, setStep] = useState(1);
 
   const steps = [
@@ -739,7 +736,7 @@ function BottomBookingSection({ selectedDate, trip }: any) {
                     <FormReadonly label="Szállás" value={trip.hotel || "-"} />
                     <FormReadonly
                       label="Részvételi díj"
-                      value={`${selectedDate.price.toLocaleString("hu-HU")} Ft`}
+                      value={priceBox?.displayedPrice ?? ""}
                     />
                   </div>
                 </StepPanel>
@@ -799,9 +796,11 @@ function BottomBookingSection({ selectedDate, trip }: any) {
               <div className="mt-8 border-t border-gray-100 pt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <div className="text-sm text-gray-500">Összesen</div>
-                  <div className="text-3xl font-extrabold text-[#00a878]">
-                    {selectedDate.price.toLocaleString("hu-HU")} Ft
-                  </div>
+                  {priceBox?.displayedPrice ? (
+                    <div className="text-3xl font-extrabold text-[#00a878]">
+                      {priceBox.displayedPrice}
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="flex gap-3">
@@ -836,9 +835,20 @@ function BottomBookingSection({ selectedDate, trip }: any) {
       <div className="flex flex-wrap gap-2 mt-4">
         <SummaryChip label="Időpont" value={selectedDate.label} />
         <SummaryChip label="Státusz" value={selectedDate.status} />
-        <SummaryChip label="Szabad hely" value={`${selectedDate.seatsLeft} hely`} />
-        <SummaryChip label="Ellátás" value={trip.meals || "-"} />
-        <SummaryChip label="Szállás" value={trip.hotel || "-"} />
+        <SummaryChip
+          label="Szabad hely"
+          value={
+            priceBox?.availableSeats !== null &&
+            priceBox?.availableSeats !== undefined
+              ? `Még ${priceBox.availableSeats} szabad hely`
+              : selectedDate.seatsLeft !== null &&
+                  selectedDate.seatsLeft !== undefined
+                ? `Még ${selectedDate.seatsLeft} szabad hely`
+                : null
+          }
+        />
+        <SummaryChip label="Ellátás" value={trip.meals || null} />
+        <SummaryChip label="Szállás" value={trip.hotel || null} />
       </div>
     </div>
 
@@ -846,7 +856,7 @@ function BottomBookingSection({ selectedDate, trip }: any) {
       <div className="text-white/50 text-sm mb-1">Teljes összeg</div>
 
       <div className="text-4xl md:text-5xl font-extrabold text-[#00c389] whitespace-nowrap">
-        {selectedDate.price.toLocaleString("hu-HU")} Ft
+        {priceBox?.displayedPrice}
       </div>
     </div>
   </div>
@@ -971,8 +981,12 @@ function SummaryChip({
   value,
 }: {
   label: string;
-  value: string;
+  value?: string | null;
 }) {
+  if (!hasText(value)) {
+    return null;
+  }
+
   return (
     <div className="inline-flex items-center gap-2 rounded-full bg-white/8 border border-white/10 px-4 py-2">
       <span className="text-white/45 text-xs">{label}</span>

@@ -1,47 +1,50 @@
 import { motion, useInView } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import {
-  Users,
   Award,
-  MapPin,
   Star,
   Quote,
   Shield,
 } from "lucide-react";
+
 import GoogleRatingBadge from "./GoogleRatingBadge";
+import { EditableMedia } from "../content/EditableFields";
+import { renderContentIcon } from "../content/icon-map";
+import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+import { usePortfolioContent } from "../content/PortfolioContentProvider";
 
 interface Stat {
-  icon: React.ReactNode;
+  icon: string;
   value: number;
   suffix: string;
   label: string;
   description: string;
 }
 
-const stats: Stat[] = [
+const statsFallback: Stat[] = [
   {
-    icon: <Users className="w-6 h-6" />,
+    icon: "users",
     value: 10000,
     suffix: "+",
     label: "Elégedett utas",
     description: "Akik már velünk utaztak Európa legszebb helyeire.",
   },
   {
-    icon: <Award className="w-6 h-6" />,
+    icon: "award",
     value: 15,
     suffix: " év",
     label: "Tapasztalat",
     description: "Több mint egy évtizede szervezünk utazásokat.",
   },
   {
-    icon: <MapPin className="w-6 h-6" />,
+    icon: "mapPin",
     value: 100,
     suffix: "+",
     label: "Utazás évente",
     description: "Folyamatos indulások egész évben.",
   },
   {
-    icon: <Star className="w-6 h-6" />,
+    icon: "star",
     value: 4.9,
     suffix: "/5",
     label: "Értékelés",
@@ -58,7 +61,7 @@ interface Review {
   image: string;
 }
 
-const reviews: Review[] = [
+const reviewsFallback: Review[] = [
   {
     id: "1",
     name: "B. Angéla",
@@ -141,8 +144,19 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
 }
 
 export default function TrustSection() {
+  const { getValue } = usePortfolioContent();
   const [currentReview, setCurrentReview] = useState(0);
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
+
+  const stats = getValue("home.trust.stats", statsFallback) as Stat[];
+  const reviews = getValue("home.trust.reviews", reviewsFallback) as Review[];
+  const reviewMedia = reviewsFallback.map((review, index) =>
+    getValue(`home.trust.review.${index + 1}.image`, {
+      url: review.image,
+      alt: review.name,
+      title: review.name,
+    }) as { url?: string; alt?: string; title?: string },
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -150,7 +164,7 @@ export default function TrustSection() {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [reviews.length]);
 
   return (
     <section className="relative py-16 md:py-20 bg-gradient-to-b from-[#f5fffb] via-[#fbfdff] to-white overflow-hidden">
@@ -223,7 +237,7 @@ export default function TrustSection() {
                   }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
-                  <div className="text-[#00c389]">{stat.icon}</div>
+                  <div className="text-[#00c389]">{renderContentIcon(stat.icon, "w-6 h-6")}</div>
                 </motion.div>
 
                 <span className="text-[11px] font-bold tracking-[0.2em] text-gray-300">
@@ -260,20 +274,24 @@ export default function TrustSection() {
               UTASVÉLEMÉNYEK
             </div>
 
-            <h2
-              className="text-[#0f172a] mb-4"
-              style={{
-                fontSize: "clamp(2rem,4vw,3rem)",
-                fontWeight: 760,
-                letterSpacing: "-0.04em",
-                lineHeight: 1.08,
-              }}
-            >
-              Mit mondanak{" "}
-              <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-                utasaink?
-              </span>
-            </h2>
+            <div className="mb-4">
+              <EditablePortfolioHeading
+                fieldKey="home.trust.titleParts"
+                fallbackParts={[
+                  { text: "Mit mondanak" },
+                  { text: "utasaink?", variant: "gradient" },
+                ]}
+                as="h2"
+                mode="inline"
+                className="m-0 text-[#0f172a]"
+                style={{
+                  fontSize: "clamp(2rem,4vw,3rem)",
+                  fontWeight: 760,
+                  letterSpacing: "-0.04em",
+                  lineHeight: 1.08,
+                }}
+              />
+            </div>
 
             <p className="text-gray-600 text-lg leading-relaxed max-w-md mx-auto lg:mx-0">
               Valódi élmények valódi utazóktól — a bizalom nálunk nem csak ígéret.
@@ -286,8 +304,8 @@ export default function TrustSection() {
               animate={{ x: `-${currentReview * 100}%` }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              {reviews.map((review) => (
-                <div key={review.id} className="min-w-full px-1 md:px-4">
+              {reviews.map((review, index) => (
+                <div key={`${review.name}-${index}`} className="min-w-full px-1 md:px-4">
                   <motion.div
                     className="relative bg-white/92 backdrop-blur-xl rounded-[32px] p-8 md:p-10 border border-gray-100 shadow-[0_12px_44px_rgba(15,23,42,0.08)]"
                     whileHover={{ y: -4 }}
@@ -297,10 +315,15 @@ export default function TrustSection() {
                     </div>
 
                     <div className="flex items-center gap-5 mb-6 pr-16">
-                      <img
-                        src={review.image}
-                        alt={review.name}
-                        className="w-16 h-16 rounded-full border-4 border-[#00c389]/15"
+                      <EditableMedia
+                        fieldKey={`home.trust.review.${index + 1}.image`}
+                        fallback={{
+                          url: reviewMedia[index]?.url ?? review.image,
+                          alt: reviewMedia[index]?.alt ?? review.name,
+                          title: reviewMedia[index]?.title ?? review.name,
+                        }}
+                        className="shrink-0"
+                        mediaClassName="w-16 h-16 rounded-full border-4 border-[#00c389]/15 object-cover"
                       />
 
                       <div>

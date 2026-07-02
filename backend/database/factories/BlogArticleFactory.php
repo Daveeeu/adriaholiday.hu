@@ -21,6 +21,8 @@ class BlogArticleFactory extends Factory
             'active' => true,
             'published_at' => now(),
             'show_on_homepage' => fake()->boolean(),
+            'portfolio_featured' => fake()->boolean(20),
+            'portfolio_sort_order' => fake()->numberBetween(0, 20),
             'image' => fake()->imageUrl(1280, 720, 'travel', true),
             'image_title' => fake()->words(3, true),
             'views' => fake()->numberBetween(0, 1000),

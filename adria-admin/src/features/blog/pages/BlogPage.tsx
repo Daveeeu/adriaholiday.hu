@@ -202,6 +202,19 @@ export function BlogPage() {
         ),
       },
       {
+        accessorKey: 'portfolioFeatured',
+        header: 'Portfólió',
+        cell: ({ row }) => (
+          <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-semibold">
+            {row.original.portfolioFeatured ? 'Kiemelt' : 'Nem'}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'portfolioSortOrder',
+        header: 'Portfólió sorrend',
+      },
+      {
         accessorKey: 'views',
         header: ({ column }) => (
           <Button

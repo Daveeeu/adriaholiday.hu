@@ -105,3 +105,13 @@
     @apply min-h-screen;
   }
 }
+
+@layer components {
+  .tiptap p.is-editor-empty:first-child::before {
+    color: var(--muted-foreground);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+}

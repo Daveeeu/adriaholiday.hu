@@ -2,76 +2,86 @@ import { motion } from "motion/react";
 import Lottie from "lottie-react";
 import {
   Users,
-  MapPin,
-  Bus,
-  Shield,
-  Calendar,
   Award,
-  Heart,
-  Star,
-  Camera,
   ArrowRight,
 } from "lucide-react";
 
 import worldMapAnimation from "../../imports/world map animation.json";
+import { usePortfolioContent } from "../content/PortfolioContentProvider";
+import { renderContentIcon } from "../content/icon-map";
+import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 
-const features = [
+const featuresFallback = [
   {
-    icon: <Award className="w-5 h-5" strokeWidth={2} />,
+    icon: "award",
     title: "Saját szervezésű utak",
     description: "Minden utazást gondosan megtervezünk.",
   },
   {
-    icon: <Bus className="w-5 h-5" strokeWidth={2} />,
+    icon: "bus",
     title: "Kényelmes buszok",
     description: "Modern, klimatizált járművek, kényelmes utazás.",
   },
   {
-    icon: <Users className="w-5 h-5" strokeWidth={2} />,
+    icon: "users",
     title: "Magyar idegenvezetők",
     description: "Tapasztalt kísérők segítenek az út során.",
   },
   {
-    icon: <MapPin className="w-5 h-5" strokeWidth={2} />,
+    icon: "mapPin",
     title: "Több felszállási pont",
     description: "Budapestről és vidékről is indulunk.",
   },
   {
-    icon: <Shield className="w-5 h-5" strokeWidth={2} />,
+    icon: "shield",
     title: "Garantált indulások",
     description: "Biztonságos, kiszámítható utazások.",
   },
   {
-    icon: <Calendar className="w-5 h-5" strokeWidth={2} />,
+    icon: "calendar",
     title: "15 év tapasztalat",
     description: "Megbízható háttér és szakértelem.",
   },
 ];
 
-const bottomValues = [
+const bottomValuesFallback = [
   {
-    icon: <Heart className="w-5 h-5" strokeWidth={2} />,
+    icon: "heart",
     title: "Utazás szívvel-lélekkel",
     text: "Mert mi magunk is szeretünk utazni",
   },
   {
-    icon: <Star className="w-5 h-5" strokeWidth={2} />,
+    icon: "star",
     title: "Több mint egy utazás",
     text: "Élmények, barátságok, emlékek",
   },
   {
-    icon: <Users className="w-5 h-5" strokeWidth={2} />,
+    icon: "users",
     title: "Közösség és gondoskodás",
     text: "Velünk nem vagy egyedül",
   },
   {
-    icon: <Camera className="w-5 h-5" strokeWidth={2} />,
+    icon: "camera",
     title: "A pillanatok, amik megmaradnak",
     text: "Ezért utazunk",
   },
 ];
 
 export default function WhyChooseUs() {
+  const { getValue } = usePortfolioContent();
+
+  const badge = String(
+    getValue("home.whyChooseUs.eyebrow", "MIÉRT AZ ADRIA HOLIDAY"),
+  );
+  const description = String(
+    getValue(
+      "home.whyChooseUs.description",
+      "Kényelmes buszok, gondos szervezés és olyan élmények, amelyekre évekkel később is emlékezni fogsz.",
+    ),
+  );
+  const features = getValue("home.whyChooseUs.features", featuresFallback) as typeof featuresFallback;
+  const bottomValues = getValue("home.whyChooseUs.values", bottomValuesFallback) as typeof bottomValuesFallback;
+
   return (
     <section className="relative pt-14 pb-16 bg-gradient-to-b from-[#f7fbff] via-white to-[#f5fffb] overflow-hidden">
       <div className="absolute top-0 left-[8%] w-[420px] h-[420px] bg-gradient-to-br from-[#00c389]/10 to-transparent rounded-full blur-3xl" />
@@ -79,7 +89,6 @@ export default function WhyChooseUs() {
 
       <div className="relative max-w-[1450px] mx-auto px-6 md:px-10 lg:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-[0.92fr_1fr] gap-10 lg:gap-14 items-start">
-          {/* LEFT CONTENT */}
           <motion.div
             initial={{ opacity: 0, x: -28 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -88,27 +97,30 @@ export default function WhyChooseUs() {
           >
             <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#00c389]/8 text-[#00a878] font-semibold text-sm mb-4">
               <span className="w-2 h-2 rounded-full bg-[#00c389]" />
-              MIÉRT AZ ADRIA HOLIDAY
+              {badge}
             </div>
 
-            <h2
-              className="text-[#0f172a] mb-4"
-              style={{
-                fontSize: "clamp(2.2rem, 4vw, 3.8rem)",
-                fontWeight: 750,
-                letterSpacing: "-0.045em",
-                lineHeight: 1.02,
-              }}
-            >
-              Miért{" "}
-              <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-                utazz velünk?
-              </span>
-            </h2>
+            <div className="mb-4">
+              <EditablePortfolioHeading
+                fieldKey="home.whyChooseUs.titleParts"
+                fallbackParts={[
+                  { text: "Miért utazz" },
+                  { text: "velünk?", variant: "gradient" },
+                ]}
+                as="h2"
+                mode="inline"
+                className="m-0 text-[#0f172a]"
+                style={{
+                  fontSize: "clamp(2.2rem, 4vw, 3.8rem)",
+                  fontWeight: 750,
+                  letterSpacing: "-0.045em",
+                  lineHeight: 1.02,
+                }}
+              />
+            </div>
 
             <p className="text-gray-600 text-[1.02rem] leading-relaxed max-w-2xl mb-6">
-              Kényelmes buszok, gondos szervezés és olyan élmények, amelyekre
-              évekkel később is emlékezni fogsz.
+              {description}
             </p>
 
             <div className="relative">
@@ -137,7 +149,7 @@ export default function WhyChooseUs() {
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3.5">
                           <div className="w-11 h-11 rounded-[15px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 text-[#00c389] flex items-center justify-center shrink-0">
-                            {feature.icon}
+                            {renderContentIcon(feature.icon, "w-5 h-5")}
                           </div>
 
                           <div>
@@ -160,7 +172,6 @@ export default function WhyChooseUs() {
             </div>
           </motion.div>
 
-          {/* RIGHT VISUAL */}
           <motion.div
             className="lg:pt-[158px]"
             initial={{ opacity: 0, x: 28 }}
@@ -264,7 +275,7 @@ export default function WhyChooseUs() {
               className="relative p-5 flex items-center gap-4 border-b md:border-b-0 lg:border-r border-gray-100 last:border-r-0"
             >
               <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 text-[#00c389] flex items-center justify-center shrink-0">
-                {item.icon}
+                {renderContentIcon(item.icon, "w-5 h-5")}
               </div>
 
               <div>

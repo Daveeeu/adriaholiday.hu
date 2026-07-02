@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import { Menu, X, Phone, Calendar } from "lucide-react";
 import { Link, useLocation } from "react-router";
+import { trackEvent } from "../analytics/trackEvent";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,6 +62,7 @@ export default function MobileNav() {
               <nav className="mt-16 space-y-6">
                 {[
                   { label: "Utazások", to: "/utazasok" },
+                  { label: "Blog", to: "/blog" },
                   { label: "Úti célok", to: "/utazasok" },
                   { label: "Rólunk", to: "/rolunk" },
                   { label: "Kapcsolat", to: "/kapcsolat" },
@@ -83,6 +85,14 @@ export default function MobileNav() {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link
                     to="/kapcsolat"
+                    onClick={() =>
+                      trackEvent("cta_click", {
+                        metadata: {
+                          cta_name: "Foglalás",
+                          placement: "mobile_menu",
+                        },
+                      })
+                    }
                     className="block w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl shadow-lg text-center font-semibold"
                   >
                     Foglalás
@@ -90,6 +100,13 @@ export default function MobileNav() {
                 </motion.div>
                 <motion.a
                   href="tel:+36123456789"
+                  onClick={() =>
+                    trackEvent("phone_click", {
+                      metadata: {
+                        placement: "mobile_menu",
+                      },
+                    })
+                  }
                   className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 text-white rounded-xl"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -117,6 +134,14 @@ export default function MobileNav() {
                 <motion.div whileTap={{ scale: 0.98 }} className="flex-1">
                   <Link
                     to="/kapcsolat"
+                    onClick={() =>
+                      trackEvent("cta_click", {
+                        metadata: {
+                          cta_name: "Foglalj most",
+                          placement: "mobile_bottom_bar",
+                        },
+                      })
+                    }
                     className="w-full py-3 bg-white text-cyan-600 rounded-xl flex items-center justify-center gap-2 font-semibold"
                   >
                     <Calendar className="w-5 h-5" />
@@ -125,6 +150,13 @@ export default function MobileNav() {
                 </motion.div>
                 <motion.a
                   href="tel:+36123456789"
+                  onClick={() =>
+                    trackEvent("phone_click", {
+                      metadata: {
+                        placement: "mobile_bottom_bar",
+                      },
+                    })
+                  }
                   className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white"
                   whileTap={{ scale: 0.9 }}
                 >

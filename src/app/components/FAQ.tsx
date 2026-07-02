@@ -4,19 +4,26 @@ import {
   Plus,
   Minus,
   HelpCircle,
-  Phone,
   MessageCircle,
-  ShieldCheck,
-  Clock,
   Sparkles,
 } from "lucide-react";
+
+import { EditableButton, EditableList, EditableText } from "../content/EditableFields";
+import { renderContentIcon } from "../content/icon-map";
+import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+import { usePortfolioContent } from "../content/PortfolioContentProvider";
 
 interface FAQItem {
   question: string;
   answer: string;
 }
 
-const faqs: FAQItem[] = [
+interface FAQHelpItem {
+  text: string;
+  icon: string;
+}
+
+const faqsFallback: FAQItem[] = [
   {
     question: "Mikor kell fizetnem az utazás árát?",
     answer:
@@ -50,7 +57,9 @@ const faqs: FAQItem[] = [
 ];
 
 export default function FAQ() {
+  const { getValue } = usePortfolioContent();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const faqs = getValue("home.faq.items", faqsFallback) as FAQItem[];
 
   return (
     <section className="relative py-16 md:py-20 bg-[#071426] overflow-hidden">
@@ -87,49 +96,67 @@ export default function FAQ() {
                 GYORS SEGÍTSÉG
               </div>
 
-              <h2
-                className="mb-5"
-                style={{
-                  fontSize: "clamp(2rem, 4vw, 3.35rem)",
-                  fontWeight: 760,
-                  lineHeight: 1.05,
-                  letterSpacing: "-0.045em",
-                }}
-              >
-                Kérdésed van az{" "}
-                <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-                  utazás előtt?
-                </span>
-              </h2>
-
-              <p className="text-white/68 leading-relaxed mb-7">
-                Összegyűjtöttük a legfontosabb tudnivalókat, hogy magabiztosan
-                foglalhass.
-              </p>
-
-              <div className="space-y-3.5 mb-7">
-                <div className="flex items-center gap-3 text-white/80">
-                  <ShieldCheck className="w-5 h-5 text-[#00c389]" />
-                  <span>Biztonságos foglalás</span>
-                </div>
-                <div className="flex items-center gap-3 text-white/80">
-                  <Clock className="w-5 h-5 text-[#00c389]" />
-                  <span>Gyors ügyintézés</span>
-                </div>
-                <div className="flex items-center gap-3 text-white/80">
-                  <Phone className="w-5 h-5 text-[#00c389]" />
-                  <span>Segítőkész ügyfélszolgálat</span>
-                </div>
+              <div className="mb-5">
+                <EditablePortfolioHeading
+                  fieldKey="home.faq.helpTitleParts"
+                  fallbackParts={[
+                    { text: "Kérdésed van" },
+                    { text: "az utazás előtt?", variant: "gradient" },
+                  ]}
+                  as="h2"
+                  mode="inline"
+                  className="m-0"
+                  style={{
+                    fontSize: "clamp(2rem, 4vw, 3.35rem)",
+                    fontWeight: 760,
+                    lineHeight: 1.05,
+                    letterSpacing: "-0.045em",
+                  }}
+                />
               </div>
 
-              <motion.button
-                className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_12px_32px_rgba(0,195,137,0.25)] flex items-center justify-center gap-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <EditableText
+                fieldKey="home.faq.helpDescription"
+                fallback="Összegyűjtöttük a legfontosabb tudnivalókat, hogy magabiztosan foglalhass."
+                as="p"
+                className="text-white/68 leading-relaxed mb-7"
+              />
+
+              <EditableList
+                fieldKey="home.faq.helpItems"
+                fallback={[
+                  { text: "Biztonságos foglalás", icon: "shieldCheck" },
+                  { text: "Gyors ügyintézés", icon: "messageCircle" },
+                  { text: "Segítőkész ügyfélszolgálat", icon: "sparkles" },
+                ]}
+                className="space-y-3.5 mb-7"
+                renderItem={(item: FAQHelpItem) => (
+                  <div className="flex items-center gap-3 text-white/80">
+                    <div className="text-[#00c389]">{renderContentIcon(item.icon, "w-5 h-5")}</div>
+                    <span>{item.text}</span>
+                  </div>
+                )}
+              />
+
+              <EditableButton
+                fieldKey="home.faq.button.url"
+                labelKey="home.faq.button.label"
+                fallback="Írj nekünk"
+                hrefFallback="/kapcsolat"
+                className="block"
               >
-                <MessageCircle className="w-5 h-5" />
-                Írj nekünk
-              </motion.button>
+                <motion.div
+                  className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_12px_32px_rgba(0,195,137,0.25)] flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  <EditableText
+                    fieldKey="home.faq.button.label"
+                    fallback="Írj nekünk"
+                    as="span"
+                  />
+                </motion.div>
+              </EditableButton>
             </div>
           </motion.div>
 
@@ -142,16 +169,32 @@ export default function FAQ() {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/8 text-[#00c389] text-sm font-semibold mb-5">
                 <span className="w-2 h-2 rounded-full bg-[#00c389]" />
-                FAQ
+                <EditableText
+                  fieldKey="home.faq.eyebrow"
+                  fallback="FAQ"
+                  as="span"
+                />
               </div>
 
-              <h3 className="text-white text-3xl md:text-4xl font-bold tracking-[-0.03em] mb-3">
-                Gyakran ismételt kérdések
-              </h3>
+              <div className="mb-3">
+                <EditablePortfolioHeading
+                  fieldKey="home.faq.titleParts"
+                  fallbackParts={[
+                    { text: "Gyakran ismételt" },
+                    { text: "kérdések", variant: "gradient" },
+                  ]}
+                  as="h3"
+                  mode="inline"
+                  className="m-0 text-white text-3xl md:text-4xl font-bold tracking-[-0.03em]"
+                />
+              </div>
 
-              <p className="text-white/58 text-lg">
-                Minden, amit tudni kell az Adria Holiday utazásairól.
-              </p>
+              <EditableText
+                fieldKey="home.faq.description"
+                fallback="Minden, amit tudni kell az Adria Holiday utazásairól."
+                as="p"
+                className="text-white/58 text-lg"
+              />
             </motion.div>
 
             <div className="space-y-3.5">

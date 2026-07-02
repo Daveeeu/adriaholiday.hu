@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Phone, Calendar, MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { trackEvent } from "../analytics/trackEvent";
 
 export default function StickyMobileCTA() {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,6 +27,13 @@ export default function StickyMobileCTA() {
           {/* Call button */}
           <motion.a
             href="tel:+36123456789"
+            onClick={() =>
+              trackEvent("phone_click", {
+                metadata: {
+                  placement: "sticky_mobile_cta",
+                },
+              })
+            }
             className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-[18px] bg-gradient-to-br from-blue-500 to-cyan-500 text-white"
             whileTap={{ scale: 0.95 }}
           >
@@ -40,6 +48,14 @@ export default function StickyMobileCTA() {
           >
             <Link
               to="/kapcsolat"
+              onClick={() =>
+                trackEvent("cta_click", {
+                  metadata: {
+                    cta_name: "Foglalás",
+                    placement: "sticky_mobile_cta",
+                  },
+                })
+              }
               className="flex flex-col items-center justify-center gap-1.5"
             >
               <Calendar className="w-5 h-5" strokeWidth={2} />
@@ -54,6 +70,14 @@ export default function StickyMobileCTA() {
           >
             <Link
               to="/kapcsolat"
+              onClick={() =>
+                trackEvent("cta_click", {
+                  metadata: {
+                    cta_name: "Üzenet",
+                    placement: "sticky_mobile_cta",
+                  },
+                })
+              }
               className="flex flex-col items-center justify-center gap-1.5"
             >
               <MessageCircle className="w-5 h-5" strokeWidth={2} />
@@ -74,6 +98,13 @@ export default function StickyMobileCTA() {
           href="https://wa.me/36123456789"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() =>
+            trackEvent("whatsapp_click", {
+              metadata: {
+                placement: "floating_whatsapp",
+              },
+            })
+          }
           className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white shadow-[0_4px_20px_rgba(34,197,94,0.4)]"
           whileHover={{
             scale: 1.1,

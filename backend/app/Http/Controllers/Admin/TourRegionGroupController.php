@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\Tour\UpdateTourRegionGroupRequest;
 use App\Http\Requests\Admin\Tour\UpdateTourRegionGroupStatusRequest;
 use App\Http\Resources\TourRegionGroupResource;
 use App\Models\TourRegionGroup;
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -61,7 +62,11 @@ class TourRegionGroupController extends Controller
 
     public function store(StoreTourRegionGroupRequest $request)
     {
-        $group = DB::transaction(fn () => TourRegionGroup::create($request->validated()));
+        $validated = $request->validated();
+        $validated['description'] = RichTextSanitizer::sanitize($validated['description'] ?? null);
+        $validated['list_below_text'] = RichTextSanitizer::sanitize($validated['list_below_text'] ?? null);
+
+        $group = DB::transaction(fn () => TourRegionGroup::create($validated));
 
         return new TourRegionGroupResource($group->load(['gallery'])->loadCount('tours'));
     }
@@ -73,7 +78,11 @@ class TourRegionGroupController extends Controller
 
     public function update(UpdateTourRegionGroupRequest $request, TourRegionGroup $tourRegionGroup)
     {
-        $tourRegionGroup->update($request->validated());
+        $validated = $request->validated();
+        $validated['description'] = RichTextSanitizer::sanitize($validated['description'] ?? null);
+        $validated['list_below_text'] = RichTextSanitizer::sanitize($validated['list_below_text'] ?? null);
+
+        $tourRegionGroup->update($validated);
 
         return new TourRegionGroupResource($tourRegionGroup->refresh()->load(['gallery'])->loadCount('tours'));
     }

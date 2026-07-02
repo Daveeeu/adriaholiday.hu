@@ -1,11 +1,59 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/admin/{any?}', function (Request $request) {
+    if (
+        $request->is('admin/assets/*')
+        || $request->is('admin/favicon.ico')
+        || $request->is('admin/robots.txt')
+        || $request->is('admin/manifest*')
+    ) {
+        abort(404);
+    }
 
-Route::get('/admin/{any?}', function () {
     return response()->file(public_path('admin/index.html'));
+})->where('any', '.*');
+
+Route::get('/media/{any?}', function (Request $request) {
+    if (
+        $request->is('admin/assets/*')
+        || $request->is('admin/favicon.ico')
+        || $request->is('admin/robots.txt')
+        || $request->is('admin/manifest*')
+    ) {
+        abort(404);
+    }
+
+    return response()->file(public_path('admin/index.html'));
+})->where('any', '.*');
+
+Route::get('/gallery/{any?}', function (Request $request) {
+    if (
+        $request->is('admin/assets/*')
+        || $request->is('admin/favicon.ico')
+        || $request->is('admin/robots.txt')
+        || $request->is('admin/manifest*')
+    ) {
+        abort(404);
+    }
+
+    return response()->file(public_path('admin/index.html'));
+})->where('any', '.*');
+
+Route::get('/{any?}', function (Request $request) {
+    if (
+        $request->is('api/*')
+        || $request->is('admin/assets/*')
+        || $request->is('portfolio/assets/*')
+        || $request->is('storage/*')
+        || $request->is('favicon.ico')
+        || $request->is('robots.txt')
+        || $request->is('sitemap.xml')
+    ) {
+        abort(404);
+    }
+
+    return response()->file(public_path('portfolio/index.html'));
 })->where('any', '.*');

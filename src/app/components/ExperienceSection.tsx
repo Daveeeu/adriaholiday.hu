@@ -1,6 +1,42 @@
 import { motion } from "motion/react";
+import { usePortfolioContent } from "../content/PortfolioContentProvider";
+import { EditableMedia } from "../content/EditableFields";
+import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 
 export default function ExperienceSection() {
+  const { getValue } = usePortfolioContent();
+  const image = getValue("home.experience.image", {
+    url: "https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90",
+    alt: "Tengerpart az Adrián",
+  }) as { url?: string; alt?: string };
+  const quoteImage = getValue("home.experience.quote.image", {
+    url: "https://i.pravatar.cc/150?img=47",
+    alt: "B. Istvánné",
+  }) as { url?: string; alt?: string; title?: string };
+  const overlayEyebrow = String(
+    getValue("home.experience.overlay.eyebrow", "Dalmácia • Horvátország"),
+  );
+  const badge = String(
+    getValue("home.experience.badge", "MIÉRT AZ ADRIA HOLIDAY"),
+  );
+  const descriptionOne = String(
+    getValue(
+      "home.experience.description.one",
+      "Naplementék az Adrián, mediterrán városok hangulata, autentikus élmények és gondtalan utazások.",
+    ),
+  );
+  const descriptionTwo = String(
+    getValue(
+      "home.experience.description.two",
+      "Minden út gondosan megtervezett, minden részlet átgondolt — te csak élvezd a pillanatot. Családok, párok, barátok — mindenkinek megtaláljuk a tökéletes utat.",
+    ),
+  );
+  const stats = getValue("home.experience.stats", [
+    { value: "10K+", label: "Elégedett utas" },
+    { value: "15", label: "Év tapasztalat" },
+    { value: "4.9", label: "Értékelés" },
+  ]) as Array<{ value: string; label: string }>;
+  const cta = String(getValue("home.experience.cta.label", "Ismerj meg minket"));
   return (
     <section className="relative py-16 md:py-20 bg-gradient-to-b from-white via-[#fbfffd] to-[#f7fbff] overflow-hidden">
       {/* Premium Editorial Background */}
@@ -26,13 +62,22 @@ export default function ExperienceSection() {
                 transition={{ delay: 0.2, duration: 1.2 }}
               >
                 {/* Editorial Image */}
-                <motion.img
-                  src="https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90"
-                  alt="Tengerpart az Adrián"
-                  className="w-full h-full object-cover"
+                <motion.div
+                  className="w-full h-full"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                />
+                >
+                  <EditableMedia
+                    fieldKey="home.experience.image"
+                    fallback={{
+                      url: image.url ?? "",
+                      alt: image.alt ?? "Tengerpart az Adrián",
+                      title: image.alt ?? "Tengerpart az Adrián",
+                    }}
+                    className="w-full h-full"
+                    mediaClassName="w-full h-full object-cover"
+                  />
+                </motion.div>
 
                 {/* Cinematic Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/40 via-transparent to-transparent" />
@@ -46,19 +91,26 @@ export default function ExperienceSection() {
                     transition={{ delay: 0.6 }}
                   >
                     <p className="text-white/80 mb-3" style={{ fontSize: "0.875rem", fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                      Dalmácia • Horvátország
+                      {overlayEyebrow}
                     </p>
-                    <h3
-                      className="mb-4"
-                      style={{
-                        fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
-                        fontWeight: 700,
-                        letterSpacing: "-0.02em",
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      Smaragdzöld víz és mediterrán szigetek
-                    </h3>
+                    <div className="mb-4">
+                      <EditablePortfolioHeading
+                        fieldKey="home.experience.overlay.titleParts"
+                        fallbackParts={[
+                          { text: "Smaragdzöld víz" },
+                          { text: "és mediterrán szigetek", variant: "gradient" },
+                        ]}
+                        as="h3"
+                        mode="inline"
+                        className="m-0"
+                        style={{
+                          fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
+                          fontWeight: 700,
+                          letterSpacing: "-0.02em",
+                          lineHeight: 1.2,
+                        }}
+                      />
+                    </div>
                     <div className="w-20 h-[2px] bg-gradient-to-r from-[#00c389] to-transparent" />
                   </motion.div>
                 </div>
@@ -73,43 +125,45 @@ export default function ExperienceSection() {
                 transition={{ delay: 0.8, type: "spring" }}
               >
                 <div className="flex items-start gap-4">
+                  <EditableMedia
+                    fieldKey="home.experience.quote.image"
+                    fallback={{
+                      url: quoteImage.url ?? "https://i.pravatar.cc/150?img=47",
+                      alt: quoteImage.alt ?? "B. Istvánné",
+                      title: quoteImage.title ?? "B. Istvánné",
+                    }}
+                    className="shrink-0"
+                    mediaClassName="w-14 h-14 rounded-full border-2 border-[#00c389]/20 object-cover"
+                  />
 
-<div className="flex items-start gap-4">
-  <img
-    src="https://i.pravatar.cc/150?img=47"
-    alt="B. Istvánné"
-    className="w-14 h-14 rounded-full border-2 border-[#00c389]/20"
-  />
+                  <div className="flex-1">
+                    <p
+                      className="text-gray-700 italic mb-3"
+                      style={{
+                        fontSize: "0.9375rem",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      "Felejthetetlen csodás napokat töltöttünk el az Önök jóvoltából."
+                    </p>
 
-  <div className="flex-1">
-    <p
-      className="text-gray-700 italic mb-3"
-      style={{
-        fontSize: "0.9375rem",
-        lineHeight: 1.6,
-      }}
-    >
-      "Felejthetetlen csodás napokat töltöttünk el az Önök jóvoltából."
-    </p>
+                    <div>
+                      <p
+                        className="text-gray-900"
+                        style={{
+                          fontSize: "0.875rem",
+                          fontWeight: 700,
+                        }}
+                      >
+                        B. Istvánné
+                      </p>
 
-    <div>
-      <p
-        className="text-gray-900"
-        style={{
-          fontSize: "0.875rem",
-          fontWeight: 700,
-        }}
-      >
-        B. Istvánné
-      </p>
-
-      <p className="text-gray-500 text-xs">
-        Bosznia körutazás
-      </p>
-    </div>
-  </div>
-</div>
-</div>
+                      <p className="text-gray-500 text-xs">
+                        Bosznia körutazás
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             </div>
           </motion.div>
@@ -131,30 +185,37 @@ export default function ExperienceSection() {
               transition={{ delay: 0.3 }}
             >
               <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff]" />
-              <span className="text-[#00c389]" style={{ fontSize: "0.875rem", fontWeight: 600, letterSpacing: "0.05em" }}>
-                MIÉRT AZ ADRIA HOLIDAY
+                <span className="text-[#00c389]" style={{ fontSize: "0.875rem", fontWeight: 600, letterSpacing: "0.05em" }}>
+                {badge}
               </span>
             </motion.div>
 
             {/* Emotional Magazine-Style Headline */}
-            <motion.h2
-              className="text-gray-900 mb-8"
-              style={{
-                fontSize: "clamp(2.25rem, 5vw, 3.5rem)",
-                fontWeight: 700,
-                letterSpacing: "-0.03em",
-                lineHeight: 1.1,
-              }}
+            <motion.div
+              className="mb-8"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
             >
-              Élményeket adunk,{" "}
-              <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-                amikre évek múlva is emlékezni fogsz
-              </span>
-            </motion.h2>
+              <EditablePortfolioHeading
+                fieldKey="home.experience.titleParts"
+                fallbackParts={[
+                  { text: "Élményeket adunk," },
+                  { text: "amikre évek múlva is", variant: "gradient" },
+                  { text: "emlékezni fogsz" },
+                ]}
+                as="h2"
+                mode="inline"
+                className="m-0 text-gray-900"
+                style={{
+                  fontSize: "clamp(2.25rem, 5vw, 3.5rem)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.1,
+                }}
+              />
+            </motion.div>
 
             {/* Premium Editorial Description */}
             <motion.div
@@ -168,11 +229,11 @@ export default function ExperienceSection() {
                 className="text-gray-700 leading-relaxed"
                 style={{ fontSize: "1.125rem", lineHeight: 1.8 }}
               >
-                Naplementék az Adrián, mediterrán városok hangulata, autentikus élmények és gondtalan utazások.
+                {descriptionOne}
               </p>
 
               <p className="text-gray-600 leading-relaxed">
-                Minden út gondosan megtervezett, minden részlet átgondolt — te csak élvezd a pillanatot. Családok, párok, barátok — mindenkinek megtaláljuk a tökéletes utat.
+                {descriptionTwo}
               </p>
             </motion.div>
 
@@ -184,11 +245,7 @@ export default function ExperienceSection() {
               viewport={{ once: true }}
               transition={{ delay: 0.8 }}
             >
-              {[
-                { value: "10K+", label: "Elégedett utas" },
-                { value: "15", label: "Év tapasztalat" },
-                { value: "4.9", label: "Értékelés" },
-              ].map((stat, i) => (
+              {stats.map((stat, i) => (
                 <div key={i}>
                   <div
                     className="text-gray-900 mb-1"
@@ -226,7 +283,7 @@ export default function ExperienceSection() {
                   transition={{ duration: 0.4 }}
                 />
                 <span className="relative flex items-center gap-2" style={{ fontSize: "1rem", fontWeight: 600 }}>
-                  Ismerj meg minket
+                  {cta}
                   <motion.span
                     animate={{ x: [0, 4, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}

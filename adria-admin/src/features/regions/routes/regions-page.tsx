@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { RichTextPreview } from '@/components/editor/rich-text-editor';
 import { Button } from '@/components/ui/button';
 import { RegionFormDialog } from '@/features/regions/components/region-form-dialog';
 import { RegionStatusBadge } from '@/features/regions/components/region-status-badge';
@@ -38,6 +39,11 @@ function toMutationInput(values: RegionFormValues) {
     name: values.name,
     slug: values.slug,
     status: values.status,
+    heroImageUrl: values.heroImageUrl || '',
+    portfolioFeatured: values.portfolioFeatured,
+    portfolioSortOrder: values.portfolioSortOrder,
+    portfolioImageUrl: values.portfolioImageUrl || null,
+    portfolioShortDescription: values.portfolioShortDescription || null,
   };
 }
 
@@ -50,10 +56,13 @@ function createOptimisticRegion(values: RegionFormValues): Region {
     countryCode: 'HR',
     timezone: 'Europe/Zagreb',
     currency: 'EUR',
-    heroImageUrl:
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80',
+    heroImageUrl: values.heroImageUrl || '',
     summary: `${values.name} portfolio region ready for admin setup.`,
     description: `${values.name} létrehozása folyamatban van a kérés befejezéséig.`,
+    portfolioFeatured: values.portfolioFeatured,
+    portfolioSortOrder: values.portfolioSortOrder,
+    portfolioImageUrl: values.portfolioImageUrl || null,
+    portfolioShortDescription: values.portfolioShortDescription || null,
   };
 }
 
@@ -121,20 +130,26 @@ export function RegionsPage() {
       const previousRegions =
         queryClient.getQueryData<Region[]>(regionsQueryKey) ?? [];
 
-      queryClient.setQueryData<Region[]>(
-        regionsQueryKey,
-        (currentRegions = []) =>
-          currentRegions.map((region) =>
-            region.id === regionId
-              ? {
-                  ...region,
-                  name: values.name,
-                  slug: values.slug,
-                  isActive: values.status === 'active',
-                }
-              : region,
-          ),
-      );
+          queryClient.setQueryData<Region[]>(
+            regionsQueryKey,
+            (currentRegions = []) =>
+              currentRegions.map((region) =>
+                region.id === regionId
+                  ? {
+                      ...region,
+                      name: values.name,
+                      slug: values.slug,
+                      isActive: values.status === 'active',
+                      heroImageUrl: values.heroImageUrl || '',
+                      portfolioFeatured: values.portfolioFeatured,
+                      portfolioSortOrder: values.portfolioSortOrder,
+                      portfolioImageUrl: values.portfolioImageUrl || null,
+                      portfolioShortDescription:
+                        values.portfolioShortDescription || null,
+                    }
+                  : region,
+              ),
+          );
 
       return { previousRegions };
     },
@@ -239,9 +254,10 @@ export function RegionsPage() {
       cell: ({ row }) => (
         <div>
           <p className="font-medium text-foreground">{row.original.name}</p>
-          <p className="text-xs text-muted-foreground">
-            {row.original.summary}
-          </p>
+          <RichTextPreview
+            value={row.original.summary || ''}
+            className="mt-1 border-0 bg-transparent p-0 text-xs text-muted-foreground"
+          />
         </div>
       ),
     },

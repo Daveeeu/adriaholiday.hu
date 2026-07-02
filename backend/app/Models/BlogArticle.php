@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\LogsModelActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Image\Enums\Fit;
 
 class BlogArticle extends Model implements HasMedia
 {
@@ -20,6 +21,8 @@ class BlogArticle extends Model implements HasMedia
         'active',
         'published_at',
         'show_on_homepage',
+        'portfolio_featured',
+        'portfolio_sort_order',
         'image',
         'image_title',
         'views',
@@ -29,8 +32,10 @@ class BlogArticle extends Model implements HasMedia
     protected $casts = [
         'active' => 'boolean',
         'show_on_homepage' => 'boolean',
+        'portfolio_featured' => 'boolean',
         'published_at' => 'datetime',
         'views' => 'integer',
+        'portfolio_sort_order' => 'integer',
         'sort_order' => 'integer',
     ];
 
@@ -52,5 +57,20 @@ class BlogArticle extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('cover')->singleFile()->useDisk(config('media-library.disk_name'));
+    }
+
+    public function registerMediaConversions(?\Spatie\MediaLibrary\MediaCollections\Models\Media $media = null): void
+    {
+        $this->addMediaConversion('thumbnail')
+            ->fit(Fit::Crop, 480, 320)
+            ->nonQueued();
+
+        $this->addMediaConversion('preview')
+            ->fit(Fit::Crop, 960, 640)
+            ->nonQueued();
+
+        $this->addMediaConversion('large')
+            ->fit(Fit::Crop, 1600, 1067)
+            ->nonQueued();
     }
 }

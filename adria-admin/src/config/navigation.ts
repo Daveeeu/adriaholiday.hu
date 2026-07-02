@@ -2,9 +2,11 @@ import {
   Building2,
   CalendarDays,
   Mail,
+  PencilLine,
   Newspaper,
   GalleryVerticalEnd,
   LayoutDashboard,
+  BarChart3,
   Megaphone,
   Settings,
   Ticket,
@@ -37,6 +39,7 @@ export type NavigationItem = NavigationLink | NavigationGroup;
 
 export const navigationItems: NavigationItem[] = [
   { to: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard, exact: true },
+  { to: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
   {
     labelKey: 'nav.apartments',
     icon: Building2,
@@ -58,6 +61,8 @@ export const navigationItems: NavigationItem[] = [
     ],
   },
   { to: '/homepage-offers', labelKey: 'nav.homepageOffers', icon: Megaphone, permission: 'homepage-offers.viewAny' },
+  { to: '/portfolio-filter-chips', labelKey: 'nav.portfolioFilterChips', icon: Megaphone },
+  { to: '/portfolio-editor', labelKey: 'nav.portfolioContent', icon: PencilLine, permission: 'portfolio-content.view' },
   {
     labelKey: 'nav.blog',
     icon: Newspaper,
@@ -98,7 +103,7 @@ export const navigationItems: NavigationItem[] = [
   },
   { to: '/offers', labelKey: 'nav.offers', icon: Ticket, permission: 'offers.viewAny' },
   { to: '/buses', labelKey: 'nav.buses', icon: TrainFront, permission: 'buses.viewAny' },
-  { to: '/galleries', labelKey: 'nav.galleries', icon: GalleryVerticalEnd, permission: 'galleries.viewAny' },
+  { to: '/media', labelKey: 'nav.galleries', icon: GalleryVerticalEnd, permission: 'galleries.viewAny' },
   { to: '/email-templates', labelKey: 'nav.emailTemplates', icon: Mail },
   { to: '/settings', labelKey: 'nav.settings', icon: Settings },
 ];

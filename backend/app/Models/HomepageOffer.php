@@ -33,6 +33,11 @@ class HomepageOffer extends Model implements HasMedia
         return $this->hasMany(HomepageOfferTranslation::class);
     }
 
+    public function tours(): HasMany
+    {
+        return $this->hasMany(Tour::class);
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('image')->singleFile()->useDisk(config('media-library.disk_name'));

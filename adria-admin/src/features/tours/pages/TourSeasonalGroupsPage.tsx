@@ -15,10 +15,10 @@ import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { RichTextEditor, RichTextPreview } from '@/components/editor/rich-text-editor';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
@@ -103,6 +103,10 @@ function SeasonalGroupPanel({
                 <div className="text-sm text-muted-foreground">Menü típus</div>
                 <div className="font-medium">{TOUR_SEASONAL_MENU_TYPES.find((opt) => opt.value === item.menuType)?.label ?? item.menuType}</div>
               </div>
+              <div className="rounded-2xl border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Doboz szöveg</div>
+                <RichTextPreview value={item.boxText || ''} className="mt-2 border-0 bg-transparent p-0 rounded-none" />
+              </div>
             </div>
           ) : (
             <Form {...form}>
@@ -158,7 +162,15 @@ function SeasonalGroupPanel({
                 <FormField control={form.control} name="boxText" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Doboz szöveg</FormLabel>
-                    <FormControl><Textarea className="min-h-28" {...field} /></FormControl>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={(value) => field.onChange(value)}
+                        minHeight={140}
+                        allowPreview
+                        placeholder="Doboz szöveg"
+                      />
+                    </FormControl>
                   </FormItem>
                 )} />
                 <div className="sticky bottom-0 border-t bg-background/95 py-4">

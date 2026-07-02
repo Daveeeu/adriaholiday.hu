@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { WandSparkles } from 'lucide-react';
 import { useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, type Resolver } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +22,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { MediaPicker } from '@/components/media/media-picker';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 import { t } from '@/i18n';
 import type { Region } from '@/types/domain';
 
@@ -48,7 +50,7 @@ export function RegionFormDialog({
   onSubmit,
 }: RegionFormDialogProps) {
   const form = useForm<RegionFormValues>({
-    resolver: zodResolver(regionFormSchema),
+    resolver: zodResolver(regionFormSchema) as unknown as Resolver<RegionFormValues>,
     defaultValues: getRegionFormDefaults(region),
   });
 
@@ -142,6 +144,139 @@ export function RegionFormDialog({
                 </FormItem>
               )}
             />
+
+            <div className="grid gap-4 rounded-2xl border border-border/60 bg-muted/20 p-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {t('regions.form.portfolioSectionTitle')}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('regions.form.portfolioSectionDescription')}
+                </p>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="portfolioFeatured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-xl border border-border/60 bg-background px-4 py-3">
+                    <div className="space-y-1">
+                      <FormLabel className="text-sm">
+                        {t('regions.form.portfolioFeatured')}
+                      </FormLabel>
+                      <FormDescription>
+                        {t('regions.form.portfolioFeaturedHelp')}
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(field.value)}
+                        onChange={(event) => field.onChange(event.target.checked)}
+                        className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="portfolioSortOrder"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('regions.form.portfolioSortOrder')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={field.value}
+                        onChange={(event) =>
+                          field.onChange(
+                            event.target.value === ''
+                              ? 0
+                              : Number(event.target.value),
+                          )
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {t('regions.form.portfolioSortOrderHelp')}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="heroImageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MediaPicker
+                        label={t('regions.form.heroImageUrl')}
+                        value={field.value || null}
+                        onChange={(value) => field.onChange(value ?? '')}
+                        description={t('regions.form.heroImageUrlHelp')}
+                        defaultCategory="general"
+                        sourceContext="region"
+                        uploadAlt={nameValue || undefined}
+                        uploadTitle={nameValue || undefined}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="portfolioImageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MediaPicker
+                        label={t('regions.form.portfolioImageUrl')}
+                        value={field.value || null}
+                        onChange={(value) => field.onChange(value ?? '')}
+                        description={t('regions.form.portfolioImageUrlHelp')}
+                        defaultCategory="apartments"
+                        sourceContext="region"
+                        uploadAlt={nameValue || undefined}
+                        uploadTitle={nameValue || undefined}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="portfolioShortDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t('regions.form.portfolioShortDescription')}
+                    </FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        minHeight={120}
+                        allowPreview
+                        placeholder={t('regions.form.portfolioShortDescriptionPlaceholder')}
+                        value={field.value ?? ''}
+                        onChange={(value) => field.onChange(value)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {t('regions.form.portfolioShortDescriptionHelp')}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <DialogFooter>
               <Button

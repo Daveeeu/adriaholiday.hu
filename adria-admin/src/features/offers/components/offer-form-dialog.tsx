@@ -15,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,6 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { MediaPicker } from '@/components/media/media-picker';
 import { t } from '@/i18n';
 import type {
   Offer,
@@ -273,14 +273,18 @@ export function OfferFormDialog({
                     name="pdfUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('offers.form.pdf')}</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="/files/offers/offer.pdf"
-                            {...field}
+                          <MediaPicker
+                            label={t('offers.form.pdf')}
+                            value={field.value || null}
+                            onChange={(value) => field.onChange(value ?? '')}
+                            description={t('offers.form.pdfHelp')}
+                            defaultCategory="homepage_offers"
+                            allowedTypes={['pdf']}
+                            sourceContext="homepage_offer"
+                            uploadTitle={titleValue || undefined}
                           />
                         </FormControl>
-                        <FormDescription>{t('offers.form.pdfHelp')}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

@@ -18,6 +18,13 @@ class TourDate extends Model
         'start_date',
         'end_date',
         'price',
+        'price_box_price',
+        'price_box_displayed_price',
+        'price_box_discount_badge',
+        'price_box_min_participants',
+        'price_box_max_participants',
+        'price_box_available_seats',
+        'price_box_capacity',
         'status',
     ];
 
@@ -25,6 +32,11 @@ class TourDate extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'price' => 'decimal:2',
+        'price_box_price' => 'decimal:2',
+        'price_box_min_participants' => 'integer',
+        'price_box_max_participants' => 'integer',
+        'price_box_available_seats' => 'integer',
+        'price_box_capacity' => 'integer',
     ];
 
     public function tour(): BelongsTo

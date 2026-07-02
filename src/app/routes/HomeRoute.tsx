@@ -17,6 +17,7 @@ import FeaturedOffers from "../components/FeaturedOffers";
 import { useNavigate } from "react-router";
 import Seo from "../seo/Seo";
 import { useEffect } from "react";
+import { resolveCategorySlugFromOfferLink } from "../content/portfolio-offer-routing";
 
 export default function HomeRoute({
   canonicalPath = "/",
@@ -74,7 +75,7 @@ export default function HomeRoute({
       <section className="ah-snap-section">
         <TravelCategories
           onCategorySelect={(categorySlug) => {
-            navigate(`/kategoriak/${categorySlug}`);
+            navigate(`/kategoriak/${resolveCategorySlugFromOfferLink(categorySlug)}`);
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         />

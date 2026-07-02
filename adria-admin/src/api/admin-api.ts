@@ -22,6 +22,10 @@ export type RegionMutationInput = {
   name: string;
   slug: string;
   status: 'active' | 'inactive';
+  portfolioFeatured?: boolean;
+  portfolioSortOrder?: number;
+  portfolioImageUrl?: string | null;
+  portfolioShortDescription?: string | null;
 };
 
 export type ApartmentMutationInput = {

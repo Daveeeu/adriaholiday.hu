@@ -1,17 +1,30 @@
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { useRef } from "react";
+import { usePortfolioContent } from "../content/PortfolioContentProvider";
+import { EditableMedia } from "../content/EditableFields";
+import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 
 export default function EmotionalStory() {
+  const { getValue } = usePortfolioContent();
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.06, 1, 1.04]);
+  const image = getValue("home.story.image", {
+    url: "https://images.unsplash.com/photo-1503220317375-aaad61436b1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=2200&q=90",
+    alt: "Travel memories",
+  }) as { url?: string; alt?: string };
+  const description = String(
+    getValue(
+      "home.story.description",
+      "Nem csak úti célokat mutatunk meg. Élményeket adunk, amelyek évekkel később is veled maradnak.",
+    ),
+  );
+  const ctaLabel = String(
+    getValue("home.story.cta.label", "Fedezd fel az utakat"),
+  );
+  const quote = String(
+    getValue("home.story.quote", "15 éve teremtünk felejthetetlen pillanatokat"),
+  );
 
   return (
     <section
@@ -24,11 +37,15 @@ export default function EmotionalStory() {
       <motion.div
         className="absolute inset-0"
       >
-        <motion.img
-          src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=2200&q=90"
-          alt="Travel memories"
-          className="w-full h-full object-cover"
-        
+        <EditableMedia
+          fieldKey="home.story.image"
+          fallback={{
+            url: image.url ?? "",
+            alt: image.alt ?? "Travel memories",
+            title: image.alt ?? "Travel memories",
+          }}
+          className="w-full h-full"
+          mediaClassName="w-full h-full object-cover"
         />
 
         {/* Main dark cinematic overlay */}
@@ -80,15 +97,8 @@ export default function EmotionalStory() {
       <div className="relative z-30 h-full flex items-center justify-center">
         <div className="max-w-5xl mx-auto px-8 md:px-12 text-center">
           {/* Headline */}
-          <motion.h2
-            className="text-white mb-6"
-            style={{
-              fontSize: "clamp(2.2rem, 5vw, 4rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.035em",
-              lineHeight: 1.08,
-              textShadow: "0 6px 28px rgba(0,0,0,0.45)",
-            }}
+          <motion.div
+            className="mb-6"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -98,12 +108,25 @@ export default function EmotionalStory() {
               ease: [0.16, 1, 0.3, 1],
             }}
           >
-            Közös naplementék.{" "}
-            <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-              Új élmények.
-            </span>{" "}
-            Emlékek egy életre.
-          </motion.h2>
+            <EditablePortfolioHeading
+              fieldKey="home.story.titleParts"
+              fallbackParts={[
+                { text: "Közös naplementék." },
+                { text: "Új élmények.", variant: "gradient" },
+                { text: "Emlékek egy életre." },
+              ]}
+              as="h2"
+              mode="inline"
+              className="m-0 text-white"
+              style={{
+                fontSize: "clamp(2.2rem, 5vw, 4rem)",
+                fontWeight: 700,
+                letterSpacing: "-0.035em",
+                lineHeight: 1.08,
+                textShadow: "0 6px 28px rgba(0,0,0,0.45)",
+              }}
+            />
+          </motion.div>
 
           {/* Divider */}
           <motion.div
@@ -132,8 +155,7 @@ export default function EmotionalStory() {
               ease: [0.16, 1, 0.3, 1],
             }}
           >
-            Nem csak úti célokat mutatunk meg. Élményeket adunk,
-            amelyek évekkel később is veled maradnak.
+            {description}
           </motion.p>
 
           {/* CTA */}
@@ -180,7 +202,7 @@ export default function EmotionalStory() {
                   letterSpacing: "-0.01em",
                 }}
               >
-                Fedezd fel az utakat
+                {ctaLabel}
 
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
@@ -208,8 +230,8 @@ export default function EmotionalStory() {
           >
             <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-white/30" />
 
-            <p className="text-white/80 italic text-sm tracking-wide">
-              15 éve teremtünk felejthetetlen pillanatokat
+              <p className="text-white/80 italic text-sm tracking-wide">
+              {quote}
             </p>
 
             <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/30" />

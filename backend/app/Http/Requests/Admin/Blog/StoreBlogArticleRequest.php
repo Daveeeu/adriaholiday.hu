@@ -22,6 +22,8 @@ class StoreBlogArticleRequest extends FormRequest
         $this->merge([
             'active' => $this->boolean('active', true),
             'show_on_homepage' => $this->boolean('show_on_homepage', $this->boolean('showOnHomepage', false)),
+            'portfolio_featured' => $this->boolean('portfolio_featured', $this->boolean('portfolioFeatured', false)),
+            'portfolio_sort_order' => $this->input('portfolio_sort_order', $this->input('portfolioSortOrder', 0)),
             'published_at' => $this->input('published_at', $this->input('publishedAt')),
             'image_title' => $this->input('image_title', $this->input('imageTitle')),
             'sort_order' => $this->input('sort_order', $this->input('sortOrder', 0)),
@@ -50,6 +52,8 @@ class StoreBlogArticleRequest extends FormRequest
             'active' => ['boolean'],
             'published_at' => ['required', 'date'],
             'show_on_homepage' => ['boolean'],
+            'portfolio_featured' => ['boolean'],
+            'portfolio_sort_order' => ['integer', 'min:0'],
             'image' => ['nullable', 'string', 'max:2048'],
             'image_title' => ['required', 'string', 'max:255'],
             'sort_order' => ['integer', 'min:0'],

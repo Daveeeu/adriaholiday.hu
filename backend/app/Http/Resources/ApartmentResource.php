@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -33,18 +34,18 @@ class ApartmentResource extends JsonResource
             'latitude' => $this->latitude !== null ? (float) $this->latitude : null,
             'longitude' => $this->longitude !== null ? (float) $this->longitude : null,
             'coordinates' => $this->coordinates,
-            'shortDescription' => $this->short_description,
-            'description' => $this->description,
-            'additionalInformation' => $this->additional_information,
-            'apartmentTypeContent' => $this->apartment_type_content,
-            'typeDescription' => $this->apartment_type_content,
-            'apartment_type_content' => $this->apartment_type_content,
-            'apartmentTypeDescription' => $this->apartment_type_description,
-            'apartmentTypeTextDescription' => $this->apartment_type_text_description,
-            'apartmentTypeTextDescription2' => $this->apartment_type_text_description_2,
-            'allInclusiveDescription' => $this->all_inclusive_description,
-            'allInclusiveContent' => $this->all_inclusive_description,
-            'all_inclusive_content' => $this->all_inclusive_description,
+            'shortDescription' => RichTextSanitizer::sanitize($this->short_description),
+            'description' => RichTextSanitizer::sanitize($this->description),
+            'additionalInformation' => RichTextSanitizer::sanitize($this->additional_information),
+            'apartmentTypeContent' => RichTextSanitizer::sanitize($this->apartment_type_content),
+            'typeDescription' => RichTextSanitizer::sanitize($this->apartment_type_content),
+            'apartment_type_content' => RichTextSanitizer::sanitize($this->apartment_type_content),
+            'apartmentTypeDescription' => RichTextSanitizer::sanitize($this->apartment_type_description),
+            'apartmentTypeTextDescription' => RichTextSanitizer::sanitize($this->apartment_type_text_description),
+            'apartmentTypeTextDescription2' => RichTextSanitizer::sanitize($this->apartment_type_text_description_2),
+            'allInclusiveDescription' => RichTextSanitizer::sanitize($this->all_inclusive_description),
+            'allInclusiveContent' => RichTextSanitizer::sanitize($this->all_inclusive_description),
+            'all_inclusive_content' => RichTextSanitizer::sanitize($this->all_inclusive_description),
             'priceHeader' => $this->price_header,
             'priceInnerHeader' => $this->price_inner_header,
             'pricingMatrix' => $this->pricing_matrix,

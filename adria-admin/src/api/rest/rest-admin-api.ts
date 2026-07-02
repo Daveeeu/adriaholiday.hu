@@ -103,6 +103,10 @@ function mapRegion(region: Region): Region {
   return {
     ...region,
     id: toStringId(region.id),
+    portfolioFeatured: Boolean(region.portfolioFeatured),
+    portfolioSortOrder: Number(region.portfolioSortOrder ?? 0),
+    portfolioImageUrl: region.portfolioImageUrl ?? null,
+    portfolioShortDescription: region.portfolioShortDescription ?? null,
   };
 }
 

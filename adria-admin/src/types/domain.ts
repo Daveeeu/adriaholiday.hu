@@ -62,6 +62,10 @@ export interface Region {
   summary: string;
   description: string;
   isActive: boolean;
+  portfolioFeatured?: boolean;
+  portfolioSortOrder?: number;
+  portfolioImageUrl?: string | null;
+  portfolioShortDescription?: string | null;
 }
 
 export interface Location {

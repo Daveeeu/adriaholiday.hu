@@ -41,20 +41,13 @@ import {
   deleteTour,
   duplicateTourOffer,
   getTours,
+  getTourById,
   moveTourOffer,
   setTourActive,
   updateTour,
 } from '../lib/tours.api';
 
 const toursQueryKey = ['tours'];
-
-function resolveLabel(
-  value: string,
-  options: ReadonlyArray<{ value: string; label: string }>,
-) {
-  const matched = options.find((option) => option.value === value)?.label;
-  return matched ?? (value || '—');
-}
 
 function createTourDefaults(overrides?: Partial<Tour>): Tour {
   return {
@@ -84,7 +77,12 @@ function createTourDefaults(overrides?: Partial<Tour>): Tour {
     prices: '',
     discounts: '',
     notes: '',
+    programDays: [],
+    priceItems: [],
     regionId: '',
+    homepageOfferId: '',
+    homepageOfferIds: [],
+    homepageOffers: [],
     groupId: '',
     seasonalGroupId: '',
     departurePlaceIds: [],
@@ -97,6 +95,22 @@ function createTourDefaults(overrides?: Partial<Tour>): Tour {
     difficultyId: '',
     price: '',
     displayedPrice: '',
+    priceBox: {
+      price: null,
+      displayedPrice: '',
+      currency: 'HUF',
+      priceSuffix: '/ fő',
+      discountBadge: '',
+      discountText: '',
+      urgencyText: '',
+      ratingText: '',
+      minParticipants: null,
+      maxParticipants: null,
+      availableSeats: null,
+      capacity: null,
+      ctaPrimaryLabel: '',
+      ctaSecondaryLabel: '',
+    },
     dates: [],
     partnerBonuses: [],
     sliderImage: '',
@@ -163,6 +177,17 @@ export function ToursPage() {
   } = useQuery({
     queryKey: [...toursQueryKey, queryParams],
     queryFn: () => getTours(queryParams),
+  });
+
+  const selectedTourId = selectedTour?.id;
+  const {
+    data: selectedTourDetail,
+    isLoading: selectedTourDetailLoading,
+    isError: selectedTourDetailError,
+  } = useQuery({
+    queryKey: [...toursQueryKey, 'detail', selectedTourId],
+    queryFn: () => getTourById(selectedTourId ?? ''),
+    enabled: panelOpen && !!selectedTourId && panelMode !== 'create',
   });
 
   useEffect(() => {
@@ -248,6 +273,15 @@ export function ToursPage() {
 
   const tours = toursResponse?.items ?? [];
   const totalCount = toursResponse?.totalCount ?? 0;
+  const panelTour = panelMode === 'create'
+    ? selectedTour
+    : selectedTourDetail;
+  const panelLoading =
+    panelMode !== 'create' && !!selectedTourId && selectedTourDetailLoading;
+  const panelError =
+    panelMode !== 'create' && selectedTourDetailError && !selectedTourDetail
+      ? 'Nem sikerült betölteni a körutazás adatait.'
+      : null;
 
   const columns = useMemo<ColumnDef<Tour>[]>(
     () => [
@@ -296,7 +330,7 @@ export function ToursPage() {
         ),
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {resolveLabel(row.original.regionId, TOUR_REGION_OPTIONS)}
+            {row.original.regionLabel ?? '—'}
           </span>
         ),
       },
@@ -313,7 +347,7 @@ export function ToursPage() {
         ),
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {resolveLabel(row.original.groupId, TOUR_GROUP_OPTIONS)}
+            {row.original.groupLabel ?? '—'}
           </span>
         ),
       },
@@ -598,10 +632,11 @@ export function ToursPage() {
       />
 
       <TourSidePanel
-        key={`${panelMode}-${selectedTour?.id ?? 'new'}-${panelOpen ? 'open' : 'closed'}`}
         open={panelOpen}
         mode={panelMode}
-        tour={selectedTour}
+        tour={panelTour}
+        loading={panelLoading}
+        error={panelError}
         submitting={submitting}
         onOpenChange={(open) => {
           setPanelOpen(open);

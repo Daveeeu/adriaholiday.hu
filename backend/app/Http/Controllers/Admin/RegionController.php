@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\Region\StoreRegionRequest;
 use App\Http\Requests\Admin\Region\UpdateRegionRequest;
 use App\Http\Resources\RegionResource;
 use App\Models\Region;
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -54,7 +55,12 @@ class RegionController extends Controller
 
     public function store(StoreRegionRequest $request)
     {
-        $region = Region::create($request->validated());
+        $validated = $request->validated();
+        $validated['summary'] = RichTextSanitizer::sanitize($validated['summary'] ?? null);
+        $validated['description'] = RichTextSanitizer::sanitize($validated['description'] ?? null);
+        $validated['portfolio_short_description'] = RichTextSanitizer::sanitize($validated['portfolio_short_description'] ?? null);
+
+        $region = Region::create($validated);
 
         return new RegionResource($region);
     }
@@ -66,7 +72,12 @@ class RegionController extends Controller
 
     public function update(UpdateRegionRequest $request, Region $region)
     {
-        $region->update($request->validated());
+        $validated = $request->validated();
+        $validated['summary'] = RichTextSanitizer::sanitize($validated['summary'] ?? null);
+        $validated['description'] = RichTextSanitizer::sanitize($validated['description'] ?? null);
+        $validated['portfolio_short_description'] = RichTextSanitizer::sanitize($validated['portfolio_short_description'] ?? null);
+
+        $region->update($validated);
 
         return new RegionResource($region->refresh());
     }

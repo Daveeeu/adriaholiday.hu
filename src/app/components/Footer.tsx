@@ -2,10 +2,12 @@ import { motion } from "motion/react";
 import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
 import { Link } from "react-router";
 
+import { EditableText } from "../content/EditableFields";
+import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+
 export default function Footer() {
   return (
     <footer className="relative bg-gradient-to-br from-[#0A1628] via-[#0F1E35] to-[#1A2942] text-white overflow-hidden">
-      {/* Subtle grid texture */}
       <div className="absolute inset-0 opacity-[0.03]">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -17,7 +19,6 @@ export default function Footer() {
         </svg>
       </div>
 
-      {/* Floating gradient accents */}
       <motion.div
         className="absolute top-20 left-[15%] w-80 h-80 bg-[#00c389]/10 rounded-full blur-3xl"
         animate={{
@@ -37,29 +38,32 @@ export default function Footer() {
 
       <div className="relative max-w-[1400px] mx-auto px-6 md:px-8 lg:px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* Logo & Description */}
           <motion.div
             className="col-span-1 md:col-span-2"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <motion.h3
-              className="text-white mb-4"
-              style={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}
-              whileHover={{ scale: 1.02 }}
-            >
-              <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-                Adria
-              </span>{" "}
-              Holiday
-            </motion.h3>
-            <p className="text-white/70 mb-6 max-w-md leading-relaxed">
-              Prémium buszos utazások Európa legszebb úti céljaihoz. 15 év tapasztalat,
-              10,000+ elégedett utas, és számtalan felejthetetlen élmény.
-            </p>
+            <motion.div className="mb-4" whileHover={{ scale: 1.02 }}>
+              <EditablePortfolioHeading
+                fieldKey="home.footer.titleParts"
+                fallbackParts={[
+                  { text: "Adria", variant: "gradient" },
+                  { text: "Holiday" },
+                ]}
+                as="h3"
+                mode="inline"
+                className="m-0"
+                style={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}
+              />
+            </motion.div>
+            <EditableText
+              fieldKey="home.footer.description"
+              fallback="Prémium buszos utazások Európa legszebb úti céljaihoz. 15 év tapasztalat, 10,000+ elégedett utas, és számtalan felejthetetlen élmény."
+              as="p"
+              className="text-white/70 mb-6 max-w-md leading-relaxed"
+            />
 
-            {/* Social Icons */}
             <div className="flex gap-3">
               {[
                 { icon: Facebook, to: "/kapcsolat", label: "Facebook" },
@@ -82,7 +86,6 @@ export default function Footer() {
             </div>
           </motion.div>
 
-          {/* Quick Links */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -115,7 +118,6 @@ export default function Footer() {
             </ul>
           </motion.div>
 
-          {/* Contact */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -136,7 +138,12 @@ export default function Footer() {
                 <div className="w-9 h-9 rounded-lg bg-[#00c389]/10 flex items-center justify-center flex-shrink-0">
                   <Phone className="w-4 h-4 text-[#00c389]" strokeWidth={2} />
                 </div>
-                <span className="text-[15px] pt-1.5">+36 1 234 5678</span>
+                <EditableText
+                  fieldKey="home.footer.phone"
+                  fallback="+36 1 234 5678"
+                  as="span"
+                  className="text-[15px] pt-1.5"
+                />
               </motion.li>
               <motion.li
                 className="flex items-start gap-3 text-white/70"
@@ -145,7 +152,12 @@ export default function Footer() {
                 <div className="w-9 h-9 rounded-lg bg-[#00c389]/10 flex items-center justify-center flex-shrink-0">
                   <Mail className="w-4 h-4 text-[#00c389]" strokeWidth={2} />
                 </div>
-                <span className="text-[15px] pt-1.5">info@adriaholiday.hu</span>
+                <EditableText
+                  fieldKey="home.footer.email"
+                  fallback="info@adriaholiday.hu"
+                  as="span"
+                  className="text-[15px] pt-1.5"
+                />
               </motion.li>
               <motion.li
                 className="flex items-start gap-3 text-white/70"
@@ -154,15 +166,17 @@ export default function Footer() {
                 <div className="w-9 h-9 rounded-lg bg-[#00c389]/10 flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-4 h-4 text-[#00c389]" strokeWidth={2} />
                 </div>
-                <span className="text-[15px] pt-1.5">
-                  1051 Budapest<br />Példa utca 12.
-                </span>
+                <EditableText
+                  fieldKey="home.footer.address"
+                  fallback={"1051 Budapest\nPélda utca 12."}
+                  as="span"
+                  className="text-[15px] pt-1.5 whitespace-pre-line"
+                />
               </motion.li>
             </ul>
           </motion.div>
         </div>
 
-        {/* Bottom bar */}
         <motion.div
           className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4"
           initial={{ opacity: 0 }}
@@ -170,9 +184,12 @@ export default function Footer() {
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
         >
-          <p className="text-white/50 text-sm">
-            © 2026 Adria Holiday. Minden jog fenntartva.
-          </p>
+          <EditableText
+            fieldKey="home.footer.copyright"
+            fallback="© 2026 Adria Holiday. Minden jog fenntartva."
+            as="p"
+            className="text-white/50 text-sm"
+          />
           <div className="flex gap-6 text-sm text-white/50">
             <motion.div
               className="hover:text-[#00c389] transition-colors"

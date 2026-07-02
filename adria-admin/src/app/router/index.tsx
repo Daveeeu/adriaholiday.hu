@@ -24,6 +24,7 @@ import { EmailCsvExportPage } from '@/features/bookings/routes/email-csv-export-
 import { BookingsOverviewPage } from '@/features/bookings/routes/bookings-overview-page';
 import { BusesPage } from '@/features/buses/routes/buses-page';
 import { DashboardPage } from '@/features/dashboard/routes/dashboard-page';
+import { AnalyticsPage } from '@/features/analytics/routes/analytics-page';
 import { EmailTemplatesPage } from '@/features/email-templates/routes/email-templates-page';
 import { GalleriesPage } from '@/features/galleries/routes/galleries-page';
 import { GuestsPage } from '@/features/guests/routes/guests-page';
@@ -33,16 +34,19 @@ import { OffersPage } from '@/features/offers/routes/offers-page';
 import { RegionsPage } from '@/features/regions/routes/regions-page';
 import { SettingsPage } from '@/features/settings/routes/settings-page';
 import { HomepageOffersPage } from '@/features/homepage-offers/routes/homepage-offers-page';
+import { PortfolioFilterChipsPage } from '@/features/portfolio-filter-chips/routes/portfolio-filter-chips-page';
 import { BlogPage } from '@/features/blog/routes/blog-page';
 import { BlogCategoriesPage } from '@/features/blog/routes/blog-categories-page';
 import { BlogTagsPage } from '@/features/blog/routes/blog-tags-page';
+import { PortfolioEditorPage } from '@/features/portfolio-content';
 import { ToursPage } from '@/features/tours/routes/tours-page';
 import { TourPartnerOffersPage } from '@/features/tours/pages/TourPartnerOffersPage';
 import { TourRegionGroupsPage } from '@/features/tours/pages/TourRegionGroupsPage';
 import { TourSeasonalGroupsPage } from '@/features/tours/pages/TourSeasonalGroupsPage';
 import { TourDeparturePlacesPage } from '@/features/tours/pages/TourDeparturePlacesPage';
 
-const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+const basename =
+  typeof window !== 'undefined' && window.location.pathname.startsWith('/admin') ? '/admin' : '/';
 
 const apartmentModuleRoutes = [
   {
@@ -142,6 +146,11 @@ const router = createBrowserRouter(
       children: [
       { index: true, element: <DashboardPage /> },
       {
+        path: 'analytics',
+        element: <AnalyticsPage />,
+        handle: { crumbKey: 'nav.analytics' },
+      },
+      {
         path: 'regions',
         element: <RegionsPage />,
         handle: { crumbKey: 'nav.regions' },
@@ -215,9 +224,18 @@ const router = createBrowserRouter(
       },
       { path: 'buses', element: <BusesPage />, handle: { crumbKey: 'nav.buses' } },
       {
-        path: 'galleries',
+        path: 'media',
         element: <GalleriesPage />,
         handle: { crumbKey: 'nav.galleries' },
+      },
+      {
+        path: 'gallery',
+        element: <GalleriesPage />,
+        handle: { crumbKey: 'nav.galleries' },
+      },
+      {
+        path: 'galleries',
+        element: <Navigate replace to="/media" />,
       },
       {
         path: 'email-templates',
@@ -256,6 +274,16 @@ const router = createBrowserRouter(
         path: 'homepage-offers',
         element: <HomepageOffersPage />,
         handle: { crumbKey: 'nav.homepageOffers' },
+      },
+      {
+        path: 'portfolio-filter-chips',
+        element: <PortfolioFilterChipsPage />,
+        handle: { crumbKey: 'nav.portfolioFilterChips' },
+      },
+      {
+        path: 'portfolio-editor',
+        element: <PortfolioEditorPage />,
+        handle: { crumbKey: 'nav.portfolioContent' },
       },
       {
         path: 'blog',

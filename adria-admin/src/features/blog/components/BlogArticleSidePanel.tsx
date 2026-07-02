@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { RichTextEditor, RichTextPreview } from '@/components/editor/rich-text-editor';
 
 import { BlogLanguageTabs } from './BlogLanguageTabs';
 import { BlogImageField } from './BlogImageField';
@@ -82,6 +82,8 @@ function BlogArticleDetailView({ article }: { article: BlogArticle }) {
           <DetailCard label="ID" value={article.id} />
           <DetailCard label="Dátum" value={article.publishedAt} />
           <DetailCard label="Megjelenik" value={article.showOnHomepage} />
+          <DetailCard label="Portfólió kiemelt" value={article.portfolioFeatured} />
+          <DetailCard label="Portfólió sorrend" value={article.portfolioSortOrder} />
           <DetailCard label="Megnyitva" value={article.views} />
         </div>
 
@@ -102,21 +104,31 @@ function BlogArticleDetailView({ article }: { article: BlogArticle }) {
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">
                   {BLOG_LANGUAGE_LABELS[language]}
                 </div>
-                <div className="mt-2 space-y-2 text-sm">
-                  <div>
-                    <span className="font-medium">Cím: </span>
-                    <span>{translation.title || '—'}</span>
-                  </div>
+                  <div className="mt-2 space-y-2 text-sm">
+                    <div>
+                      <span className="font-medium">Cím: </span>
+                      <span>{translation.title || '—'}</span>
+                    </div>
                   <div>
                     <span className="font-medium">SEO: </span>
                     <span>{translation.seoName || '—'}</span>
                   </div>
-                  <div>
-                    <span className="font-medium">Kivonat: </span>
-                    <span>{translation.excerpt || '—'}</span>
+                    <div>
+                      <span className="font-medium">Kivonat: </span>
+                      <RichTextPreview
+                        value={translation.excerpt || ''}
+                        className="mt-2 border-0 bg-transparent p-0 rounded-none"
+                      />
+                    </div>
+                    <div>
+                      <span className="font-medium">Tartalom: </span>
+                      <RichTextPreview
+                        value={translation.content || ''}
+                        className="mt-2 border-0 bg-transparent p-0 rounded-none"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
             );
           })}
         </div>
@@ -282,6 +294,22 @@ export function BlogArticleSidePanel({
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="portfolioFeatured"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={(event) => field.onChange(event.target.checked)}
+                            />
+                            Portfólió főoldalon?
+                          </label>
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2">
@@ -293,6 +321,30 @@ export function BlogArticleSidePanel({
                           <FormLabel>Dátum</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="portfolioSortOrder"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Portfólió sorrend</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={0}
+                              value={field.value}
+                              onChange={(event) =>
+                                field.onChange(
+                                  event.target.value === ''
+                                    ? 0
+                                    : Number(event.target.value),
+                                )
+                              }
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -429,7 +481,13 @@ export function BlogArticleSidePanel({
                                 <FormItem>
                                   <FormLabel>Kivonat</FormLabel>
                                   <FormControl>
-                                    <Textarea className="min-h-28" {...field} />
+                                    <RichTextEditor
+                                      value={field.value}
+                                      onChange={(next) => field.onChange(next)}
+                                      minHeight={160}
+                                      allowPreview
+                                      placeholder="Kivonat"
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -443,7 +501,13 @@ export function BlogArticleSidePanel({
                                 <FormItem>
                                   <FormLabel>Tartalom</FormLabel>
                                   <FormControl>
-                                    <Textarea className="min-h-56" {...field} />
+                                    <RichTextEditor
+                                      value={field.value}
+                                      onChange={(next) => field.onChange(next)}
+                                      minHeight={320}
+                                      allowPreview
+                                      placeholder="Cikk tartalma"
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>

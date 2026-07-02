@@ -8,7 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 
 import type { ApartmentFormValues } from '../lib/apartments.types';
 
@@ -40,7 +40,13 @@ function ContentBlock({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Textarea className="min-h-28" placeholder={placeholder} {...field} />
+            <RichTextEditor
+              value={typeof field.value === 'string' ? field.value : ''}
+              onChange={(next) => field.onChange(next)}
+              placeholder={placeholder}
+              minHeight={160}
+              allowPreview
+            />
           </FormControl>
           <FormMessage />
         </FormItem>

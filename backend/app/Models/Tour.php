@@ -44,7 +44,10 @@ class Tour extends Model implements HasMedia
         'prices',
         'discounts',
         'notes',
+        'gallery_title',
+        'gallery_subtitle',
         'region_id',
+        'homepage_offer_id',
         'group_id',
         'seasonal_group_id',
         'fit_id',
@@ -55,6 +58,20 @@ class Tour extends Model implements HasMedia
         'tag_ids',
         'category_ids',
         'price',
+        'price_box_price',
+        'price_box_displayed_price',
+        'price_box_currency',
+        'price_box_price_suffix',
+        'price_box_discount_badge',
+        'price_box_discount_text',
+        'price_box_urgency_text',
+        'price_box_rating_text',
+        'price_box_min_participants',
+        'price_box_max_participants',
+        'price_box_available_seats',
+        'price_box_capacity',
+        'price_box_cta_primary_label',
+        'price_box_cta_secondary_label',
         'displayed_price',
         'slider_text',
     ];
@@ -71,6 +88,11 @@ class Tour extends Model implements HasMedia
         'slider_text_enabled' => 'boolean',
         'seo_auto_generate' => 'boolean',
         'price' => 'decimal:2',
+        'price_box_price' => 'decimal:2',
+        'price_box_min_participants' => 'integer',
+        'price_box_max_participants' => 'integer',
+        'price_box_available_seats' => 'integer',
+        'price_box_capacity' => 'integer',
         'country_ids' => 'array',
         'tag_ids' => 'array',
         'category_ids' => 'array',
@@ -81,6 +103,11 @@ class Tour extends Model implements HasMedia
         return $this->belongsTo(Region::class);
     }
 
+    public function homepageOffer(): BelongsTo
+    {
+        return $this->belongsTo(HomepageOffer::class);
+    }
+
     public function dates(): HasMany
     {
         return $this->hasMany(TourDate::class);
@@ -89,6 +116,21 @@ class Tour extends Model implements HasMedia
     public function partnerBonuses(): HasMany
     {
         return $this->hasMany(TourPartnerBonus::class);
+    }
+
+    public function programDays(): HasMany
+    {
+        return $this->hasMany(TourProgramDay::class)->orderBy('sort_order');
+    }
+
+    public function galleryItems(): HasMany
+    {
+        return $this->hasMany(TourGalleryItem::class)->orderBy('sort_order');
+    }
+
+    public function priceItems(): HasMany
+    {
+        return $this->hasMany(TourPriceItem::class)->orderBy('sort_order');
     }
 
     public function departurePlaces(): BelongsToMany

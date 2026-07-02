@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,8 +19,8 @@ class TourRegionGroupResource extends JsonResource
             'seoName' => $this->seo_name,
             'seoAutoGenerate' => (bool) $this->seo_auto_generate,
             'galleryId' => $this->gallery_id,
-            'description' => $this->description,
-            'listBelowText' => $this->list_below_text,
+            'description' => RichTextSanitizer::sanitize($this->description),
+            'listBelowText' => RichTextSanitizer::sanitize($this->list_below_text),
             'travelConditionsLink' => $this->travel_conditions_link,
             'relatedToursCount' => (int) ($this->tours_count ?? 0),
             'gallery' => $this->whenLoaded('gallery', fn () => new GalleryResource($this->gallery)),

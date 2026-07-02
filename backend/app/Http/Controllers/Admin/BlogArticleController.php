@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\Blog\UpdateBlogArticleRequest;
 use App\Http\Resources\BlogArticleDetailResource;
 use App\Http\Resources\BlogArticleResource;
 use App\Models\BlogArticle;
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -74,6 +75,8 @@ class BlogArticleController extends Controller
                 'active' => $validated['active'] ?? true,
                 'published_at' => $validated['published_at'],
                 'show_on_homepage' => $validated['show_on_homepage'] ?? false,
+                'portfolio_featured' => $validated['portfolio_featured'] ?? false,
+                'portfolio_sort_order' => $validated['portfolio_sort_order'] ?? 0,
                 'image' => $validated['image'] ?? null,
                 'image_title' => $validated['image_title'],
                 'sort_order' => $validated['sort_order'] ?? 0,
@@ -103,6 +106,8 @@ class BlogArticleController extends Controller
                 'active' => $validated['active'] ?? true,
                 'published_at' => $validated['published_at'],
                 'show_on_homepage' => $validated['show_on_homepage'] ?? false,
+                'portfolio_featured' => $validated['portfolio_featured'] ?? false,
+                'portfolio_sort_order' => $validated['portfolio_sort_order'] ?? 0,
                 'image' => $validated['image'] ?? null,
                 'image_title' => $validated['image_title'],
                 'sort_order' => $validated['sort_order'] ?? 0,
@@ -135,8 +140,8 @@ class BlogArticleController extends Controller
                     'title' => $translation['title'],
                     'seo_name' => $translation['seo_name'],
                     'seo_auto_generate' => (bool) ($translation['seo_auto_generate'] ?? true),
-                    'excerpt' => $translation['excerpt'] ?? null,
-                    'content' => $translation['content'],
+                    'excerpt' => RichTextSanitizer::sanitize($translation['excerpt'] ?? null),
+                    'content' => RichTextSanitizer::sanitize($translation['content'] ?? null),
                 ],
             );
         }

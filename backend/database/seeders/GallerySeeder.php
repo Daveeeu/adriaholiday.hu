@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Gallery;
 use App\Models\Location;
 use Database\Seeders\Concerns\CreatesPlaceholderMedia;
+use App\Support\MediaCategory;
 use Illuminate\Database\Seeder;
 
 class GallerySeeder extends Seeder
@@ -29,7 +30,13 @@ class GallerySeeder extends Seeder
             );
 
             $gallery->clearMediaCollection('gallery');
-            $this->attachPlaceholderMedia($gallery, 'gallery', $location->name);
+            $this->attachPlaceholderMedia($gallery, 'gallery', $location->name, [
+                'category' => MediaCategory::GALLERIES->value,
+                'source_context' => 'gallery',
+                'source_id' => $gallery->id,
+                'alt' => $location->name,
+                'title' => $location->name,
+            ]);
         }
     }
 }

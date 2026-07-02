@@ -16,6 +16,10 @@ class StoreRegionRequest extends FormRequest
             'hero_image_url' => $this->input('hero_image_url', $this->input('heroImageUrl')),
             'is_active' => $this->boolean('is_active', $this->boolean('isActive', true)),
             'sort_order' => $this->input('sort_order', $this->input('sortOrder', 0)),
+            'portfolio_featured' => $this->boolean('portfolio_featured', $this->boolean('portfolioFeatured', false)),
+            'portfolio_sort_order' => $this->input('portfolio_sort_order', $this->input('portfolioSortOrder', 0)),
+            'portfolio_image_url' => $this->input('portfolio_image_url', $this->input('portfolioImageUrl')),
+            'portfolio_short_description' => $this->input('portfolio_short_description', $this->input('portfolioShortDescription')),
         ]);
     }
 
@@ -45,6 +49,10 @@ class StoreRegionRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'is_active' => ['boolean'],
             'sort_order' => ['integer', 'min:0'],
+            'portfolio_featured' => ['boolean'],
+            'portfolio_sort_order' => ['integer', 'min:0'],
+            'portfolio_image_url' => ['nullable', 'string', 'max:2048'],
+            'portfolio_short_description' => ['nullable', 'string'],
         ];
     }
 }

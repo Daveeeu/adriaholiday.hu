@@ -36,6 +36,8 @@ export type BlogArticle = {
   image: string | null;
   imageTitle: string;
   showOnHomepage: boolean;
+  portfolioFeatured: boolean;
+  portfolioSortOrder: number;
   title: string;
   seoName: string;
   excerpt: string;
@@ -63,6 +65,8 @@ export type BlogTag = {
 export type BlogArticleFormValues = {
   active: boolean;
   showOnHomepage: boolean;
+  portfolioFeatured: boolean;
+  portfolioSortOrder: number;
   publishedAt: string;
   image: string;
   imageTitle: string;
@@ -140,6 +144,8 @@ export type BlogTagsListResponse = {
 export type BlogArticleUpsertInput = {
   active: boolean;
   showOnHomepage: boolean;
+  portfolioFeatured: boolean;
+  portfolioSortOrder: number;
   publishedAt: string;
   image: string | null;
   imageTitle: string;
@@ -172,6 +178,8 @@ export const blogArticleTranslationSchema = z.object({
 export const blogArticleFormSchema = z.object({
   active: z.boolean(),
   showOnHomepage: z.boolean(),
+  portfolioFeatured: z.boolean(),
+  portfolioSortOrder: z.number().int().min(0),
   publishedAt: z.string().trim().min(1, 'A dátum megadása kötelező.'),
   image: z.string().trim(),
   imageTitle: z.string().trim(),
@@ -243,6 +251,8 @@ export function normalizeBlogArticleFormValues(
   return {
     active: values.active,
     showOnHomepage: values.showOnHomepage,
+    portfolioFeatured: values.portfolioFeatured,
+    portfolioSortOrder: values.portfolioSortOrder,
     publishedAt: values.publishedAt.trim(),
     image: values.image.trim() ? values.image.trim() : null,
     imageTitle: values.imageTitle.trim(),
@@ -289,6 +299,8 @@ export function getBlogArticleFormDefaults(
   return {
     active: article?.active ?? true,
     showOnHomepage: article?.showOnHomepage ?? false,
+    portfolioFeatured: article?.portfolioFeatured ?? false,
+    portfolioSortOrder: article?.portfolioSortOrder ?? 0,
     publishedAt: article?.publishedAt ?? new Date().toISOString().slice(0, 10),
     image: article?.image ?? '',
     imageTitle: article?.imageTitle ?? '',

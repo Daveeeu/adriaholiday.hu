@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\Apartment\UpdateApartmentStatusRequest;
 use App\Http\Resources\ApartmentDetailResource;
 use App\Http\Resources\ApartmentResource;
 use App\Models\Apartment;
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -60,7 +61,9 @@ class ApartmentController extends Controller
 
     public function store(StoreApartmentRequest $request)
     {
-        $apartment = Apartment::create($request->validated());
+        $validated = $request->validated();
+
+        $apartment = Apartment::create($this->sanitizeContentFields($validated));
 
         return new ApartmentDetailResource($apartment->load(['region', 'location', 'gallery']));
     }
@@ -72,7 +75,7 @@ class ApartmentController extends Controller
 
     public function update(UpdateApartmentRequest $request, Apartment $apartment)
     {
-        $apartment->update($request->validated());
+        $apartment->update($this->sanitizeContentFields($request->validated()));
 
         return new ApartmentDetailResource($apartment->refresh()->load(['region', 'location', 'gallery']));
     }
@@ -89,5 +92,27 @@ class ApartmentController extends Controller
         $apartment->update(['status' => $request->validated()['status']]);
 
         return new ApartmentResource($apartment->refresh());
+    }
+
+    /**
+     * @param array<string, mixed> $validated
+     * @return array<string, mixed>
+     */
+    private function sanitizeContentFields(array $validated): array
+    {
+        foreach ([
+            'short_description',
+            'description',
+            'additional_information',
+            'apartment_type_content',
+            'apartment_type_description',
+            'apartment_type_text_description',
+            'apartment_type_text_description_2',
+            'all_inclusive_description',
+        ] as $field) {
+            $validated[$field] = RichTextSanitizer::sanitize($validated[$field] ?? null);
+        }
+
+        return $validated;
     }
 }

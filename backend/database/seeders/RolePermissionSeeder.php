@@ -22,6 +22,7 @@ class RolePermissionSeeder extends Seeder
             'tour-departure-places.viewAny', 'tour-departure-places.view', 'tour-departure-places.create', 'tour-departure-places.update', 'tour-departure-places.delete', 'tour-departure-places.status',
             'tour-partner-offers.viewAny', 'tour-partner-offers.view', 'tour-partner-offers.create', 'tour-partner-offers.update', 'tour-partner-offers.delete', 'tour-partner-offers.status',
             'homepage-offers.viewAny', 'homepage-offers.view', 'homepage-offers.create', 'homepage-offers.update', 'homepage-offers.delete',
+            'portfolio-content.view', 'portfolio-content.update', 'portfolio-content.publish',
             'blog-articles.viewAny', 'blog-articles.view', 'blog-articles.create', 'blog-articles.update', 'blog-articles.delete',
             'blog-categories.viewAny', 'blog-categories.view', 'blog-categories.create', 'blog-categories.update', 'blog-categories.delete',
             'blog-tags.viewAny', 'blog-tags.view', 'blog-tags.create', 'blog-tags.update', 'blog-tags.delete',
@@ -56,6 +57,7 @@ class RolePermissionSeeder extends Seeder
             'tour-seasonal-groups.viewAny', 'tour-seasonal-groups.view', 'tour-seasonal-groups.create', 'tour-seasonal-groups.update', 'tour-seasonal-groups.delete', 'tour-seasonal-groups.status',
             'tour-departure-places.viewAny', 'tour-departure-places.view', 'tour-departure-places.create', 'tour-departure-places.update', 'tour-departure-places.delete', 'tour-departure-places.status',
             'homepage-offers.viewAny', 'homepage-offers.view', 'homepage-offers.create', 'homepage-offers.update', 'homepage-offers.delete',
+            'portfolio-content.view', 'portfolio-content.update', 'portfolio-content.publish',
             'blog-articles.viewAny', 'blog-articles.view', 'blog-articles.create', 'blog-articles.update', 'blog-articles.delete',
             'blog-categories.viewAny', 'blog-categories.view', 'blog-categories.create', 'blog-categories.update', 'blog-categories.delete',
             'blog-tags.viewAny', 'blog-tags.view', 'blog-tags.create', 'blog-tags.update', 'blog-tags.delete',
@@ -72,6 +74,7 @@ class RolePermissionSeeder extends Seeder
             'tours.viewAny', 'tours.view',
             'tour-partner-offers.viewAny', 'tour-partner-offers.view', 'tour-partner-offers.create', 'tour-partner-offers.update', 'tour-partner-offers.delete', 'tour-partner-offers.status',
             'homepage-offers.viewAny', 'homepage-offers.view',
+            'portfolio-content.view', 'portfolio-content.update', 'portfolio-content.publish',
             'blog-articles.viewAny', 'blog-articles.view',
             'buses.viewAny', 'buses.view',
             'bookings.viewAny', 'bookings.view',
@@ -90,6 +93,7 @@ class RolePermissionSeeder extends Seeder
             'bookings.viewAny', 'bookings.view',
             'messages.viewAny', 'messages.view', 'messages.status',
             'coupons.viewAny', 'coupons.view',
+            'portfolio-content.view',
         ]);
 
         $user = User::query()->updateOrCreate(

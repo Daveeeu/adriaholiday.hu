@@ -39,6 +39,16 @@
         "admin:build": [
             "npm run build --prefix ../adria-admin"
         ],
+        "frontend:build": [
+            "npm install --prefix ..",
+            "npm run build --prefix ..",
+            "npm install --prefix ../adria-admin",
+            "npm run build --prefix ../adria-admin",
+            "@php -r \"foreach (['public/portfolio/index.html', 'public/admin/index.html'] as $path) { if (!file_exists($path)) { fwrite(STDERR, sprintf('Missing %s\\\\n', $path)); exit(1); } }\""
+        ],
+        "app:build": [
+            "@composer frontend:build"
+        ],
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",

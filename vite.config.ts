@@ -16,7 +16,12 @@ function figmaAssetResolver() {
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/portfolio/' : '/',
+  build: {
+    outDir: path.resolve(__dirname, './backend/public/portfolio'),
+    emptyOutDir: true,
+  },
   plugins: [
     figmaAssetResolver(),
     // The React and Tailwind plugins are both required for Make, even if
@@ -30,7 +35,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api': 'http://127.0.0.1:8000',
+      '/storage': 'http://127.0.0.1:8000',
+    },
+  },
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
-})
+}))

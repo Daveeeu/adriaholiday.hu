@@ -15,10 +15,10 @@ import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { RichTextEditor, RichTextPreview } from '@/components/editor/rich-text-editor';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
@@ -106,6 +106,14 @@ function RegionGroupPanel({
               <div className="rounded-2xl border bg-card p-4">
                 <div className="text-sm text-muted-foreground">Típus</div>
                 <div className="font-medium">{item.type === 'region' ? 'Régió' : 'Csoport'}</div>
+              </div>
+              <div className="rounded-2xl border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Leírás</div>
+                <RichTextPreview value={item.description || ''} className="mt-2 border-0 bg-transparent p-0 rounded-none" />
+              </div>
+              <div className="rounded-2xl border bg-card p-4">
+                <div className="text-sm text-muted-foreground">List alatti szöveg</div>
+                <RichTextPreview value={item.listBelowText || ''} className="mt-2 border-0 bg-transparent p-0 rounded-none" />
               </div>
             </div>
           ) : (
@@ -202,7 +210,15 @@ function RegionGroupPanel({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Leírás</FormLabel>
-                      <FormControl><Textarea className="min-h-24" {...field} /></FormControl>
+                      <FormControl>
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={(value) => field.onChange(value)}
+                          minHeight={140}
+                          allowPreview
+                          placeholder="Leírás"
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
@@ -212,7 +228,15 @@ function RegionGroupPanel({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>List alatti szöveg</FormLabel>
-                      <FormControl><Textarea className="min-h-24" {...field} /></FormControl>
+                      <FormControl>
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={(value) => field.onChange(value)}
+                          minHeight={140}
+                          allowPreview
+                          placeholder="List alatti szöveg"
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />

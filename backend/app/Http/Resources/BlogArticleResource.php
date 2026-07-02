@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -15,6 +16,8 @@ class BlogArticleResource extends JsonResource
             'active' => (bool) $this->active,
             'publishedAt' => $this->published_at?->toISOString(),
             'showOnHomepage' => (bool) $this->show_on_homepage,
+            'portfolioFeatured' => (bool) $this->portfolio_featured,
+            'portfolioSortOrder' => (int) $this->portfolio_sort_order,
             'image' => $this->image ?: $this->getFirstMediaUrl('cover') ?: null,
             'imageMedia' => $this->getFirstMedia('cover') ? new MediaResource($this->getFirstMedia('cover')) : null,
             'imageTitle' => $this->image_title,
@@ -28,8 +31,8 @@ class BlogArticleResource extends JsonResource
                     'title' => $translation->title,
                     'seoName' => $translation->seo_name,
                     'seoAutoGenerate' => Str::slug($translation->title) === $translation->seo_name,
-                    'excerpt' => $translation->excerpt,
-                    'content' => $translation->content,
+                    'excerpt' => RichTextSanitizer::sanitize($translation->excerpt),
+                    'content' => RichTextSanitizer::sanitize($translation->content),
                 ])
                 ->all()),
             'createdAt' => $this->created_at?->toISOString(),

@@ -8,6 +8,7 @@ import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { createSlug } from '@/data/generators/core-generators';
 import { cn } from '@/lib/utils';
+import { RichTextPreview } from '@/components/editor/rich-text-editor';
 import type { Gallery, Location, Region, Apartment } from '@/types/domain';
 
 import { ApartmentForm } from './apartment-form';
@@ -220,54 +221,70 @@ function ApartmentDetailView({
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
               Rövid ismertető
             </div>
-            <div className="mt-2 text-sm">{apartment.shortDescription || '—'}</div>
+            <RichTextPreview
+              value={apartment.shortDescription || ''}
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
           </div>
           <div className="rounded-xl border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
               Ismertető
             </div>
-            <div className="mt-2 text-sm">{apartment.description || '—'}</div>
+            <RichTextPreview
+              value={apartment.description || ''}
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
           </div>
           <div className="rounded-xl border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
               Kiegészítő információk
             </div>
-            <div className="mt-2 text-sm">
-              {apartment.additionalInformation || '—'}
-            </div>
+            <RichTextPreview
+              value={apartment.additionalInformation || ''}
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
           </div>
           <div className="rounded-xl border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
               Típus tartalom
             </div>
-            <div className="mt-2 text-sm">
-              {apartment.apartmentTypeContent ||
+            <RichTextPreview
+              value={
+                apartment.apartmentTypeContent ||
                 apartment.apartment_type_content ||
                 apartment.typeDescription ||
-                '—'}
-            </div>
+                ''
+              }
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
           </div>
           <div className="rounded-xl border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
               Típus leírás
             </div>
-            <div className="mt-2 text-sm">
-              {apartment.apartment_type_description ||
+            <RichTextPreview
+              value={
+                apartment.apartment_type_description ||
                 apartment.apartment_type_text_description ||
                 apartment.apartment_type_text_description_2 ||
-                '—'}
-            </div>
+                ''
+              }
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
           </div>
           <div className="rounded-xl border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
               All-inclusive
             </div>
-            <div className="mt-2 text-sm">
-              {apartment.allInclusiveContent ||
+            <RichTextPreview
+              value={
+                apartment.allInclusiveContent ||
                 apartment.all_inclusive_content ||
                 apartment.allInclusiveDescription ||
-                '—'}
-            </div>
+                ''
+              }
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
           </div>
         </div>
       </section>

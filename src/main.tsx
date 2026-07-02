@@ -7,6 +7,8 @@ import HomeRoute from "./app/routes/HomeRoute";
 import StaticPage from "./app/routes/StaticPage";
 import CategoryRoute from "./app/routes/CategoryRoute";
 import TripRoute from "./app/routes/TripRoute";
+import BlogRoute from "./app/routes/BlogRoute";
+import BlogArticleRoute from "./app/routes/BlogArticleRoute";
 import { HelmetProvider } from "react-helmet-async";
 
 const router = createBrowserRouter([
@@ -25,8 +27,20 @@ const router = createBrowserRouter([
           />
         ),
       },
+      {
+        path: "portfolio",
+        element: (
+          <HomeRoute
+            canonicalPath="/portfolio"
+            title="Portfólió"
+            description="Prémium buszos és repülős utazások Európa legszebb úti céljaihoz."
+          />
+        ),
+      },
       { path: "kategoriak/:categorySlug", element: <CategoryRoute /> },
       { path: "ajanlat/:offerSlug", element: <TripRoute /> },
+      { path: "blog", element: <BlogRoute /> },
+      { path: "blog/:slug", element: <BlogArticleRoute /> },
       { path: "rolunk", element: <StaticPage title="Rólunk" canonicalPath="/rolunk" /> },
       {
         path: "kapcsolat",

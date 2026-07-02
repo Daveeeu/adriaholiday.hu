@@ -1,4 +1,4 @@
-import type { UseFormReturn } from 'react-hook-form';
+import { useWatch, type UseFormReturn } from 'react-hook-form';
 
 import {
   FormControl,
@@ -7,8 +7,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { MediaPicker } from '@/components/media/media-picker';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 
 import type { TourFormValues } from '../lib/tours.types';
 
@@ -21,11 +22,13 @@ function TextareaField({
   name,
   label,
   placeholder,
+  minHeight = 144,
 }: {
   form: UseFormReturn<TourFormValues>;
   name: keyof TourFormValues;
   label: string;
   placeholder?: string;
+  minHeight?: number;
 }) {
   return (
     <FormField
@@ -35,14 +38,12 @@ function TextareaField({
         <FormItem className="space-y-2">
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Textarea
-              className="min-h-28"
-              placeholder={placeholder}
+            <RichTextEditor
               value={typeof field.value === 'string' ? field.value : ''}
-              onChange={(event) => field.onChange(event.target.value)}
-              onBlur={field.onBlur}
-              name={field.name}
-              ref={field.ref}
+              onChange={(next) => field.onChange(next)}
+              placeholder={placeholder}
+              minHeight={minHeight}
+              allowPreview
             />
           </FormControl>
           <FormMessage />
@@ -53,12 +54,17 @@ function TextareaField({
 }
 
 export function TourContentSections({ form }: TourContentSectionsProps) {
+  const tourName = useWatch({
+    control: form.control,
+    name: 'name',
+  });
+
   return (
     <section className="space-y-4 rounded-2xl border bg-card p-4">
       <div>
         <h3 className="font-semibold">Tartalmi blokkok</h3>
         <p className="text-sm text-muted-foreground">
-          A régi admin külön szerkeszthető szövegblokkjai.
+          Általános leírások és kiegészítő szolgáltatási információk.
         </p>
       </div>
 
@@ -68,12 +74,14 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
           name="listDescription"
           label="Leírás"
           placeholder="Lista rövid leírása"
+          minHeight={180}
         />
         <TextareaField
           form={form}
           name="shortDescription"
           label="Ismertető szöveg"
           placeholder="Rövid ismertető"
+          minHeight={180}
         />
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -81,10 +89,22 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
             control={form.control}
             name="programPdf"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Program PDF</FormLabel>
+              <FormItem className="md:col-span-2">
                 <FormControl>
-                  <Input placeholder="/files/programok/korutazasok.pdf" {...field} />
+                  <MediaPicker
+                    label="Program PDF"
+                    value={field.value || null}
+                    onChange={(value, media) => {
+                      field.onChange(value ?? '');
+                      form.setValue('programPdfFile', media?.fileName || media?.name || '');
+                    }}
+                    description="A túra program PDF fájlja."
+                    defaultCategory="tours"
+                    allowedTypes={['pdf']}
+                    sourceContext="tour_program_pdf"
+                    uploadAlt={tourName || undefined}
+                    uploadTitle={tourName || undefined}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -95,7 +115,7 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
             name="programPdfFile"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Program PDF fájl</FormLabel>
+                <FormLabel>Program PDF fájlnév</FormLabel>
                 <FormControl>
                   <Input placeholder="korutazasok.pdf" {...field} />
                 </FormControl>
@@ -105,47 +125,69 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
           />
         </div>
 
+        <FormField
+          control={form.control}
+          name="sliderImage"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <MediaPicker
+                  label="Slider kép"
+                  value={field.value || null}
+                  onChange={(value) => field.onChange(value ?? '')}
+                  description="A körutazás slider nézetében megjelenő kép."
+                  defaultCategory="tours"
+                  sourceContext="tour"
+                  uploadAlt={tourName || undefined}
+                  uploadTitle={tourName || undefined}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <TextareaField
           form={form}
           name="programBefore"
-          label="Programok előtti szöveg"
+          label="Program előtti szöveg"
           placeholder="Bevezető szöveg"
-        />
-        <TextareaField
-          form={form}
-          name="program"
-          label="Programok"
-          placeholder="Program részletei"
+          minHeight={220}
         />
         <TextareaField
           form={form}
           name="inclusions"
-          label="Belefoglalva"
-          placeholder="Mit tartalmaz az ár"
+          label="További szolgáltatási információk"
+          placeholder="Kiegészítő, nem árhoz kötött információk"
+          minHeight={220}
         />
         <TextareaField
           form={form}
           name="paymentProgram"
           label="Fizetési program"
           placeholder="Fizetési feltételek"
+          minHeight={220}
         />
         <TextareaField
           form={form}
           name="prices"
           label="Árak"
           placeholder="Árazási információk"
+          minHeight={220}
         />
         <TextareaField
           form={form}
           name="discounts"
           label="Kedvezmények"
           placeholder="Kedvezmények"
+          minHeight={220}
         />
         <TextareaField
           form={form}
           name="notes"
           label="Jegyzet / egyéb információ"
           placeholder="Jegyzetek"
+          minHeight={220}
         />
       </div>
     </section>

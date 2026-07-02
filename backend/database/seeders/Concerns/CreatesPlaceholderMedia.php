@@ -3,10 +3,11 @@
 namespace Database\Seeders\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 trait CreatesPlaceholderMedia
 {
-    protected function attachPlaceholderMedia(Model $model, string $collection, string $label): void
+    protected function attachPlaceholderMedia(Model $model, string $collection, string $label, array $metadata = []): void
     {
         if (! method_exists($model, 'addMediaFromString')) {
             return;
@@ -23,9 +24,41 @@ trait CreatesPlaceholderMedia
 </svg>
 SVG;
 
-        $model
+        $media = $model
             ->addMediaFromString($svg)
             ->usingFileName(strtolower($safeLabel).'.svg')
             ->toMediaCollection($collection);
+
+        if ($media instanceof Media) {
+            $this->applyPlaceholderMediaMetadata($media, $metadata, $label);
+        }
+    }
+
+    protected function applyPlaceholderMediaMetadata(Media $media, array $metadata, ?string $fallbackTitle = null): void
+    {
+        $category = $metadata['category'] ?? null;
+        $sourceContext = $metadata['source_context'] ?? null;
+        $sourceId = $metadata['source_id'] ?? null;
+        $alt = $metadata['alt'] ?? null;
+        $title = $metadata['title'] ?? $fallbackTitle;
+
+        $media->forceFill(array_filter([
+            'category' => $category,
+            'source_context' => $sourceContext,
+            'source_id' => $sourceId,
+            'alt' => $alt,
+            'title' => $title,
+        ], static fn ($value) => $value !== null && $value !== ''));
+
+        $media->custom_properties = array_filter([
+            ...($media->custom_properties ?? []),
+            'category' => $category,
+            'source_context' => $sourceContext,
+            'source_id' => $sourceId,
+            'alt' => $alt,
+            'title' => $title,
+        ], static fn ($value) => $value !== null && $value !== '');
+
+        $media->save();
     }
 }

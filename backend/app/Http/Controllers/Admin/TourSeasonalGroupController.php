@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\Tour\UpdateTourSeasonalGroupRequest;
 use App\Http\Requests\Admin\Tour\UpdateTourSeasonalGroupStatusRequest;
 use App\Http\Resources\TourSeasonalGroupResource;
 use App\Models\TourSeasonalGroup;
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -61,7 +62,10 @@ class TourSeasonalGroupController extends Controller
 
     public function store(StoreTourSeasonalGroupRequest $request)
     {
-        $group = DB::transaction(fn () => TourSeasonalGroup::create($request->validated()));
+        $validated = $request->validated();
+        $validated['box_text'] = RichTextSanitizer::sanitize($validated['box_text'] ?? null);
+
+        $group = DB::transaction(fn () => TourSeasonalGroup::create($validated));
 
         return new TourSeasonalGroupResource($group->loadCount('tours'));
     }
@@ -73,7 +77,10 @@ class TourSeasonalGroupController extends Controller
 
     public function update(UpdateTourSeasonalGroupRequest $request, TourSeasonalGroup $tourSeasonalGroup)
     {
-        $tourSeasonalGroup->update($request->validated());
+        $validated = $request->validated();
+        $validated['box_text'] = RichTextSanitizer::sanitize($validated['box_text'] ?? null);
+
+        $tourSeasonalGroup->update($validated);
 
         return new TourSeasonalGroupResource($tourSeasonalGroup->refresh()->loadCount('tours'));
     }

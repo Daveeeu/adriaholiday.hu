@@ -2,42 +2,49 @@ import { motion } from "motion/react";
 import {
   Mail,
   Send,
-  Gift,
-  Zap,
-  Globe,
   ShieldCheck,
   Sparkles,
   ArrowRight,
 } from "lucide-react";
 import { useState } from "react";
 import Lottie from "lottie-react";
-import worldMapAnimation from "../../imports/World_map_pinging_and_searching.json";
 
-const benefits = [
+import worldMapAnimation from "../../imports/World_map_pinging_and_searching.json";
+import { EditableText } from "../content/EditableFields";
+import { renderContentIcon } from "../content/icon-map";
+import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+import { usePortfolioContent } from "../content/PortfolioContentProvider";
+
+const benefitsFallback = [
   {
-    icon: <Gift className="w-5 h-5" strokeWidth={2} />,
+    icon: "gift",
     title: "Last Minute utak",
     description: "A legjobb ajánlatokat elsőként küldjük.",
   },
   {
-    icon: <Zap className="w-5 h-5" strokeWidth={2} />,
+    icon: "zap",
     title: "Exkluzív kedvezmények",
     description: "Csak feliratkozóknak elérhető akciók.",
   },
   {
-    icon: <Globe className="w-5 h-5" strokeWidth={2} />,
+    icon: "globe",
     title: "Új úti célok",
     description: "Friss inspirációk Európa legszebb helyeiről.",
   },
 ];
 
 export default function Newsletter() {
+  const { getValue } = usePortfolioContent();
   const [email, setEmail] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
+  const placeholder = String(
+    getValue("home.newsletter.placeholder", "Add meg az email címed"),
+  );
+  const benefits = getValue("home.newsletter.benefits", benefitsFallback) as typeof benefitsFallback;
+
   return (
     <section className="relative py-20 md:py-24 bg-gradient-to-b from-[#f7fbff] via-white to-[#f5fffb] overflow-hidden">
-      {/* Soft light background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-180px] left-1/2 -translate-x-1/2 w-[900px] h-[520px] bg-[#16b8ff]/7 rounded-full blur-3xl" />
         <div className="absolute bottom-[-180px] right-[8%] w-[560px] h-[560px] bg-[#00c389]/7 rounded-full blur-3xl" />
@@ -51,12 +58,10 @@ export default function Newsletter() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Inner premium glow */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-[#16b8ff]/[0.12]" />
           <div className="absolute top-[-120px] left-[-120px] w-[420px] h-[420px] bg-[#00c389]/16 rounded-full blur-3xl" />
           <div className="absolute bottom-[-140px] right-[-120px] w-[480px] h-[480px] bg-[#16b8ff]/16 rounded-full blur-3xl" />
 
-          {/* Subtle dotted texture */}
           <div
             className="absolute inset-0 opacity-[0.045]"
             style={{
@@ -66,7 +71,6 @@ export default function Newsletter() {
             }}
           />
 
-          {/* Background Lottie */}
           <motion.div
             className="absolute -right-44 top-[-120px] w-[650px] h-[650px] opacity-[9.53]"
             initial={{ scale: 0.96 }}
@@ -78,7 +82,6 @@ export default function Newsletter() {
           </motion.div>
 
           <div className="relative grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-10 items-center p-7 md:p-10 lg:p-12">
-            {/* Left content */}
             <div>
               <motion.div
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/8 text-[#60ffd0] border border-white/10 font-semibold text-sm mb-5"
@@ -88,40 +91,35 @@ export default function Newsletter() {
                 transition={{ delay: 0.15 }}
               >
                 <Sparkles className="w-4 h-4" />
-                HÍRLEVÉL
+                <EditableText fieldKey="home.newsletter.eyebrow" fallback="HÍRLEVÉL" as="span" />
               </motion.div>
 
-              <motion.h2
-                className="text-white mb-5"
-                style={{
-                  fontSize: "clamp(2.25rem, 4.6vw, 4rem)",
-                  fontWeight: 760,
-                  letterSpacing: "-0.05em",
-                  lineHeight: 1.04,
-                }}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-              >
-                Ne maradj le a{" "}
-                <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-                  következő élményről!
-                </span>
-              </motion.h2>
+              <div className="mb-5">
+                <EditablePortfolioHeading
+                  fieldKey="home.newsletter.titleParts"
+                  fallbackParts={[
+                    { text: "Ne maradj le" },
+                    { text: "a következő élményről!", variant: "gradient" },
+                  ]}
+                  as="h2"
+                  mode="inline"
+                  className="m-0 text-white"
+                  style={{
+                    fontSize: "clamp(2.25rem, 4.6vw, 4rem)",
+                    fontWeight: 760,
+                    letterSpacing: "-0.05em",
+                    lineHeight: 1.04,
+                  }}
+                />
+              </div>
 
-              <motion.p
+              <EditableText
+                fieldKey="home.newsletter.description"
+                fallback="Last minute ajánlatok, exkluzív kedvezmények és új utazási inspirációk — elsőként a postaládádban."
+                as="p"
                 className="text-white/72 text-lg leading-relaxed max-w-2xl mb-7"
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.28 }}
-              >
-                Last minute ajánlatok, exkluzív kedvezmények és új utazási
-                inspirációk — elsőként a postaládádban.
-              </motion.p>
+              />
 
-              {/* Form */}
               <motion.div
                 className="relative max-w-2xl mb-4"
                 initial={{ opacity: 0, y: 18 }}
@@ -142,7 +140,7 @@ export default function Newsletter() {
 
                   <input
                     type="email"
-                    placeholder="Add meg az email címed"
+                    placeholder={placeholder}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setIsFocused(true)}
@@ -159,7 +157,11 @@ export default function Newsletter() {
                     whileTap={{ scale: 0.98 }}
                   >
                     <span className="font-semibold hidden sm:inline">
-                      Feliratkozás
+                      <EditableText
+                        fieldKey="home.newsletter.button.label"
+                        fallback="Feliratkozás"
+                        as="span"
+                      />
                     </span>
                     <Send className="w-4 h-4" />
                   </motion.button>
@@ -174,14 +176,14 @@ export default function Newsletter() {
                 transition={{ delay: 0.48 }}
               >
                 <ShieldCheck className="w-4 h-4 text-[#60ffd0] shrink-0 mt-0.5 sm:mt-0" />
-                <span>
-                  Az email címed biztonságban van. Nincs spam, csak hasznos
-                  utazási inspiráció.
-                </span>
+                <EditableText
+                  fieldKey="home.newsletter.disclaimer"
+                  fallback="Az email címed biztonságban van. Nincs spam, csak hasznos utazási inspiráció."
+                  as="span"
+                />
               </motion.div>
             </div>
 
-            {/* Right benefits */}
             <motion.div
               className="grid grid-cols-1 gap-3"
               initial={{ opacity: 0, x: 28 }}
@@ -204,7 +206,7 @@ export default function Newsletter() {
                   <div className="relative flex items-center justify-between gap-5">
                     <div className="flex items-center gap-5">
                       <div className="w-14 h-14 rounded-[18px] bg-white/[0.08] text-[#60ffd0] flex items-center justify-center shrink-0 border border-white/[0.10]">
-                        {benefit.icon}
+                        {renderContentIcon(benefit.icon, "w-5 h-5")}
                       </div>
 
                       <div>

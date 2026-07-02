@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\ApartmentController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\BlogArticleController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogTagController;
@@ -20,11 +21,36 @@ use App\Http\Controllers\Admin\SelectOptionController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\TourController;
 use App\Http\Controllers\Admin\TourDeparturePlaceController;
+use App\Http\Controllers\Admin\TourReferenceOptionController;
 use App\Http\Controllers\Admin\TourPartnerOfferController;
 use App\Http\Controllers\Admin\TourRegionGroupController;
 use App\Http\Controllers\Admin\TourSeasonalGroupController;
+use App\Http\Controllers\AnalyticsEventController;
+use App\Http\Controllers\Admin\AnalyticsController;
+use App\Http\Controllers\Admin\PortfolioFilterChipController as AdminPortfolioFilterChipController;
+use App\Http\Controllers\Admin\PortfolioContentController as AdminPortfolioContentController;
+use App\Http\Controllers\PortfolioBlogController;
+use App\Http\Controllers\PortfolioFilterChipController;
+use App\Http\Controllers\PortfolioOfferController;
+use App\Http\Controllers\PortfolioContentController;
+use App\Http\Controllers\PortfolioFeaturedTourController;
+use App\Http\Controllers\PortfolioHomepageOfferController;
+use App\Http\Controllers\PortfolioRegionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
+Route::get('portfolio/regions', [PortfolioRegionController::class, 'index']);
+Route::get('portfolio/blog', [PortfolioBlogController::class, 'index']);
+Route::get('portfolio/blog/{slug}', [PortfolioBlogController::class, 'show']);
+Route::get('portfolio/homepage-offers', [PortfolioHomepageOfferController::class, 'index']);
+Route::get('portfolio/featured-tours', [PortfolioFeaturedTourController::class, 'index']);
+Route::get('portfolio/offers', [PortfolioOfferController::class, 'index']);
+Route::get('portfolio/categories/{slug}/filters', [PortfolioFilterChipController::class, 'categoryFilters']);
+Route::get('portfolio/categories/{slug}/offers', [PortfolioOfferController::class, 'categoryOffers']);
+Route::get('portfolio/regions/{slug}/offers', [PortfolioOfferController::class, 'regionOffers']);
+Route::get('portfolio/offers/{slug}', [PortfolioOfferController::class, 'show']);
+Route::post('analytics/events', AnalyticsEventController::class);
 
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login']);
@@ -38,13 +64,33 @@ Route::prefix('auth')->group(function (): void {
 Route::prefix('admin')
     ->middleware(['auth:sanctum'])
     ->group(function (): void {
+        Route::get('portfolio/content', [AdminPortfolioContentController::class, 'index']);
+        Route::patch('portfolio/content/{key}', [AdminPortfolioContentController::class, 'update']);
+        Route::post('portfolio/content/{key}/media', [AdminPortfolioContentController::class, 'uploadMedia']);
+        Route::delete('portfolio/content/{key}/media', [AdminPortfolioContentController::class, 'deleteMedia']);
+        Route::post('portfolio/content/{key}/publish', [AdminPortfolioContentController::class, 'publish']);
+        Route::post('portfolio/content/publish-all', [AdminPortfolioContentController::class, 'publishAll']);
+
         Route::apiResource('regions', RegionController::class);
+        Route::get('media', [MediaController::class, 'index']);
+        Route::post('media', [MediaController::class, 'store']);
+        Route::post('media/upload', [MediaController::class, 'store']);
+        Route::get('media/{media}', [MediaController::class, 'show']);
+        Route::patch('media/{media}', [MediaController::class, 'update']);
+        Route::delete('media/{media}', [MediaController::class, 'destroy']);
         Route::apiResource('locations', LocationController::class);
         Route::apiResource('galleries', GalleryController::class);
         Route::apiResource('apartments', ApartmentController::class);
         Route::patch('apartments/{apartment}/status', [ApartmentController::class, 'status']);
         Route::apiResource('homepage-offers', HomepageOfferController::class);
+        Route::apiResource('portfolio-filter-chips', AdminPortfolioFilterChipController::class);
         Route::get('dashboard/summary', [DashboardController::class, 'summary']);
+        Route::get('analytics/summary', [AnalyticsController::class, 'summary']);
+        Route::get('analytics/top-offers', [AnalyticsController::class, 'topOffers']);
+        Route::get('analytics/top-categories', [AnalyticsController::class, 'topCategories']);
+        Route::get('analytics/events', [AnalyticsController::class, 'events']);
+        Route::get('analytics/utm', [AnalyticsController::class, 'utm']);
+        Route::get('analytics/funnel', [AnalyticsController::class, 'funnel']);
         Route::get('offers', function (Request $request) {
             $perPage = (int) $request->query('perPage', $request->query('per_page', 25));
             $page = (int) $request->query('page', 1);
@@ -69,11 +115,26 @@ Route::prefix('admin')
 
         Route::prefix('select-options')->group(function (): void {
             Route::get('regions', [SelectOptionController::class, 'regions']);
+            Route::get('groups', [SelectOptionController::class, 'groups']);
+            Route::get('offer-groups', [SelectOptionController::class, 'offerGroups']);
+            Route::get('homepage-offers', [SelectOptionController::class, 'homepageOffers']);
             Route::get('locations', [SelectOptionController::class, 'locations']);
             Route::get('galleries', [SelectOptionController::class, 'galleries']);
+            Route::get('departure-places', [SelectOptionController::class, 'departurePlaces']);
+            Route::get('countries', [SelectOptionController::class, 'countries']);
+            Route::get('fits', [SelectOptionController::class, 'fits']);
+            Route::get('program-types', [SelectOptionController::class, 'programTypes']);
+            Route::get('travel-modes', [SelectOptionController::class, 'travelModes']);
+            Route::get('difficulties', [SelectOptionController::class, 'difficulties']);
             Route::get('blog-categories', [SelectOptionController::class, 'blogCategories']);
             Route::get('blog-tags', [SelectOptionController::class, 'blogTags']);
         });
+
+        Route::post('countries', [TourReferenceOptionController::class, 'storeCountry']);
+        Route::post('fits', [TourReferenceOptionController::class, 'storeFit']);
+        Route::post('program-types', [TourReferenceOptionController::class, 'storeProgramType']);
+        Route::post('travel-modes', [TourReferenceOptionController::class, 'storeTravelMode']);
+        Route::post('difficulties', [TourReferenceOptionController::class, 'storeDifficulty']);
 
         Route::apiResource('tours', TourController::class);
         Route::patch('tours/{tour}/status', [TourController::class, 'status']);

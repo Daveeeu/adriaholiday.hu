@@ -9,9 +9,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import type { Gallery, Location, Region } from '@/types/domain';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 import {
   APARTMENT_TYPES,
   getApartmentTypeDefinition,
@@ -255,10 +255,12 @@ export function ApartmentForm({
               <FormItem className="md:col-span-2 xl:col-span-4">
                 <FormLabel>Típus szerkesztése</FormLabel>
                 <FormControl>
-                  <Textarea
-                    className="min-h-28"
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={(value) => field.onChange(value)}
                     placeholder="Típus leírása vagy marketing szöveg"
-                    {...field}
+                    minHeight={160}
+                    allowPreview
                   />
                 </FormControl>
                 <FormMessage />
@@ -273,10 +275,12 @@ export function ApartmentForm({
               <FormItem className="md:col-span-2 xl:col-span-4">
                 <FormLabel>All-inclusive szerkesztése</FormLabel>
                 <FormControl>
-                  <Textarea
-                    className="min-h-28"
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={(value) => field.onChange(value)}
                     placeholder="All-inclusive megjegyzések"
-                    {...field}
+                    minHeight={160}
+                    allowPreview
                   />
                 </FormControl>
                 <FormMessage />
@@ -399,10 +403,12 @@ export function ApartmentForm({
               <FormItem>
                 <FormLabel>Rövid ismertető</FormLabel>
                 <FormControl>
-                  <Textarea
-                    className="min-h-28"
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={(value) => field.onChange(value)}
                     placeholder="Rövid összefoglaló szöveg"
-                    {...field}
+                    minHeight={160}
+                    allowPreview
                   />
                 </FormControl>
                 <FormMessage />
@@ -417,10 +423,12 @@ export function ApartmentForm({
               <FormItem>
                 <FormLabel>Ismertető</FormLabel>
                 <FormControl>
-                  <Textarea
-                    className="min-h-40"
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={(value) => field.onChange(value)}
                     placeholder="Rövid bemutató szöveg"
-                    {...field}
+                    minHeight={180}
+                    allowPreview
                   />
                 </FormControl>
                 <FormMessage />
@@ -435,10 +443,12 @@ export function ApartmentForm({
               <FormItem>
                 <FormLabel>Kiegészítő információk</FormLabel>
                 <FormControl>
-                  <Textarea
-                    className="min-h-40"
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={(value) => field.onChange(value)}
                     placeholder="További információk"
-                    {...field}
+                    minHeight={180}
+                    allowPreview
                   />
                 </FormControl>
                 <FormMessage />

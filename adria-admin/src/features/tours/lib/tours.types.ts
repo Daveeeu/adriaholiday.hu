@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import type { MediaAsset } from '@/services/media-service';
+
 import type {
   TOUR_DATE_STATUSES,
   TOUR_PARTNER_OFFER_STATUSES,
@@ -19,13 +21,140 @@ export type TourDate = {
   startDate: string;
   endDate: string;
   price: string;
+  displayedPrice?: string | null;
+  priceBox?: TourPriceBox | null;
   status: TourDateStatus;
 };
 
 export type TourPartnerBonus = {
   id: string;
+  sortOrder: number;
   label: string;
   value: string;
+};
+
+export type TourPriceItemType = 'included' | 'excluded';
+
+export type TourPriceItem = {
+  id: string;
+  type: TourPriceItemType;
+  text: string;
+  sortOrder: number;
+  active: boolean;
+};
+
+export type TourPriceItemFormValue = {
+  clientId: string;
+  type: TourPriceItemType;
+  text: string;
+  sortOrder: number;
+  active: boolean;
+};
+
+export type TourPriceBox = {
+  price: number | null;
+  displayedPrice: string | null;
+  currency: string | null;
+  priceSuffix: string | null;
+  discountBadge: string | null;
+  discountText: string | null;
+  urgencyText: string | null;
+  ratingText: string | null;
+  minParticipants: number | null;
+  maxParticipants: number | null;
+  availableSeats: number | null;
+  capacity: number | null;
+  ctaPrimaryLabel: string | null;
+  ctaSecondaryLabel: string | null;
+};
+
+export type TourPriceBoxFormValue = {
+  price: string;
+  displayedPrice: string;
+  currency: string;
+  priceSuffix: string;
+  discountBadge: string;
+  discountText: string;
+  urgencyText: string;
+  ratingText: string;
+  minParticipants: string;
+  maxParticipants: string;
+  availableSeats: string;
+  capacity: string;
+  ctaPrimaryLabel: string;
+  ctaSecondaryLabel: string;
+};
+
+export type TourProgramDayBadge = {
+  id: string;
+  text: string;
+};
+
+export type TourProgramDay = {
+  id: string | number;
+  sortOrder: number;
+  dayNumber: number;
+  title: string;
+  description: string;
+  image: string;
+  icon: string;
+  experienceType: string;
+  badges: string[];
+  active: boolean;
+};
+
+export type TourProgramDayBadgeFormValue = {
+  clientId: string;
+  text: string;
+};
+
+export type TourProgramDayFormValue = {
+  id?: string | number;
+  clientId: string;
+  sortOrder: number;
+  dayNumber: number;
+  title: string;
+  description: string;
+  image: string;
+  icon: string;
+  experienceType: string;
+  badges: TourProgramDayBadgeFormValue[];
+  active: boolean;
+};
+
+export type TourGalleryItem = {
+  id: string | number;
+  mediaId: string | number;
+  image: MediaAsset | null;
+  title: string;
+  alt: string;
+  caption: string;
+  sortOrder: number;
+  active: boolean;
+};
+
+export type TourGalleryItemFormValue = {
+  clientId: string;
+  mediaId: string;
+  image: string;
+  title: string;
+  alt: string;
+  caption: string;
+  sortOrder: number;
+  active: boolean;
+  media?: MediaAsset | null;
+};
+
+export type SelectOption = {
+  id: string;
+  value: string;
+  label: string;
+};
+
+export type TourHomepageOfferSummary = {
+  id: string | number;
+  title: string;
+  slug?: string | null;
 };
 
 export type Tour = {
@@ -55,24 +184,47 @@ export type Tour = {
   prices: string;
   discounts: string;
   notes: string;
+  galleryTitle?: string | null;
+  gallerySubtitle?: string | null;
+  gallery?: TourGalleryItem[];
+  programDays: TourProgramDay[];
+  priceItems: TourPriceItem[];
   regionId: string;
+  regionLabel?: string | null;
+  homepageOfferId?: string | number | null;
+  homepageOfferIds?: Array<string | number>;
+  homepageOfferLabel?: string | null;
+  homepageOffers?: TourHomepageOfferSummary[];
   groupId: string;
+  groupLabel?: string | null;
   seasonalGroupId: string;
+  seasonalGroupLabel?: string | null;
   departurePlaceIds: string[];
+  departurePlaces?: TourDeparturePlace[];
   countryIds: string[];
+  countries?: SelectOption[];
   tagIds: string[];
+  tags?: SelectOption[];
   categoryIds: string[];
+  categories?: SelectOption[];
   fitId: string;
+  fitLabel?: string | null;
   programTypeId: string;
+  programTypeLabel?: string | null;
   travelModeId: string;
+  travelModeLabel?: string | null;
   difficultyId: string;
+  difficultyLabel?: string | null;
   price: string;
   displayedPrice: string;
+  priceBox: TourPriceBox;
   dates: TourDate[];
   partnerBonuses: TourPartnerBonus[];
   sliderImage: string;
   sliderText: string;
 };
+
+export type TourDetail = Tour;
 
 export const tourFormSchema = z.object({
   sortOrder: z.coerce.number().int().min(0),
@@ -100,7 +252,67 @@ export const tourFormSchema = z.object({
   prices: z.string(),
   discounts: z.string(),
   notes: z.string(),
+  galleryTitle: z.string(),
+  gallerySubtitle: z.string(),
+  gallery: z.array(
+    z.object({
+      clientId: z.string(),
+      mediaId: z.string(),
+      image: z.string(),
+      title: z.string(),
+      alt: z.string(),
+      caption: z.string(),
+      sortOrder: z.coerce.number().int().min(0),
+      active: z.boolean(),
+    }),
+  ),
+  priceBox: z.object({
+    price: z.string(),
+    displayedPrice: z.string(),
+    currency: z.string(),
+    priceSuffix: z.string(),
+    discountBadge: z.string(),
+    discountText: z.string(),
+    urgencyText: z.string(),
+    ratingText: z.string(),
+    minParticipants: z.string(),
+    maxParticipants: z.string(),
+    availableSeats: z.string(),
+    capacity: z.string(),
+    ctaPrimaryLabel: z.string(),
+    ctaSecondaryLabel: z.string(),
+  }),
+  programDays: z.array(
+    z.object({
+      id: z.union([z.string(), z.number()]).optional(),
+      clientId: z.string(),
+      sortOrder: z.coerce.number().int().min(0),
+      dayNumber: z.coerce.number().int().min(1),
+      title: z.string(),
+      description: z.string(),
+      image: z.string(),
+      icon: z.string(),
+      experienceType: z.string(),
+      badges: z.array(
+        z.object({
+          clientId: z.string(),
+          text: z.string(),
+        }),
+      ),
+      active: z.boolean(),
+    }),
+  ),
+  priceItems: z.array(
+    z.object({
+      clientId: z.string(),
+      type: z.enum(['included', 'excluded']),
+      text: z.string(),
+      sortOrder: z.coerce.number().int().min(0),
+      active: z.boolean(),
+    }),
+  ),
   regionId: z.string(),
+  homepageOfferId: z.string(),
   groupId: z.string(),
   seasonalGroupId: z.string(),
   departurePlaceIds: z.array(z.string()),
@@ -121,12 +333,23 @@ export const tourFormSchema = z.object({
       startDate: z.string(),
       endDate: z.string(),
       price: z.string(),
+      displayedPrice: z.string(),
       status: z.enum(['planned', 'available', 'sold_out']),
+      priceBox: z.object({
+        price: z.string(),
+        displayedPrice: z.string(),
+        discountBadge: z.string(),
+        minParticipants: z.string(),
+        maxParticipants: z.string(),
+        availableSeats: z.string(),
+        capacity: z.string(),
+      }),
     }),
   ),
   partnerBonuses: z.array(
     z.object({
       id: z.string(),
+      sortOrder: z.coerce.number().int().min(0),
       label: z.string(),
       value: z.string(),
     }),
@@ -135,7 +358,49 @@ export const tourFormSchema = z.object({
 
 export type TourFormValues = z.infer<typeof tourFormSchema>;
 
-export function getTourFormDefaults(tour?: Partial<Tour>): TourFormValues {
+export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues {
+  const dates = (tour?.dates ?? []).map((date) => ({
+    id: date.id ?? crypto.randomUUID(),
+    startDate: date.startDate ?? '',
+    endDate: date.endDate ?? '',
+    price: date.price ?? '',
+    displayedPrice: date.displayedPrice ?? '',
+    status: date.status ?? 'planned',
+    priceBox: {
+      price: date.priceBox?.price?.toString() ?? '',
+      displayedPrice: date.priceBox?.displayedPrice ?? '',
+      discountBadge: date.priceBox?.discountBadge ?? '',
+      minParticipants: date.priceBox?.minParticipants?.toString() ?? '',
+      maxParticipants: date.priceBox?.maxParticipants?.toString() ?? '',
+      availableSeats: date.priceBox?.availableSeats?.toString() ?? '',
+      capacity: date.priceBox?.capacity?.toString() ?? '',
+    },
+  }));
+
+  const partnerBonuses = (tour?.partnerBonuses ?? []).map((bonus, index) => ({
+    id: bonus.id ?? crypto.randomUUID(),
+    sortOrder: bonus.sortOrder ?? index + 1,
+    label: bonus.label ?? '',
+    value: bonus.value ?? '',
+  }));
+
+  const programDays = (tour?.programDays ?? []).map((day, index) => ({
+    id: day.id,
+    clientId: crypto.randomUUID(),
+    sortOrder: day.sortOrder ?? index + 1,
+    dayNumber: day.dayNumber ?? index + 1,
+    title: day.title ?? '',
+    description: day.description ?? '',
+    image: day.image ?? '',
+    icon: day.icon ?? '',
+    experienceType: day.experienceType ?? '',
+    badges: (day.badges ?? []).map((badge, badgeIndex) => ({
+      clientId: `${day.id ?? index}-${badgeIndex + 1}`,
+      text: badge ?? '',
+    })),
+    active: day.active ?? true,
+  }));
+
   return {
     sortOrder: tour?.sortOrder ?? 1,
     active: tour?.active ?? true,
@@ -162,7 +427,44 @@ export function getTourFormDefaults(tour?: Partial<Tour>): TourFormValues {
     prices: tour?.prices ?? '',
     discounts: tour?.discounts ?? '',
     notes: tour?.notes ?? '',
+    galleryTitle: tour?.galleryTitle ?? '',
+    gallerySubtitle: tour?.gallerySubtitle ?? '',
+    gallery: (tour?.gallery ?? []).map((item, index) => ({
+      clientId: String(item.id ?? crypto.randomUUID()),
+      mediaId: String(item.mediaId ?? ''),
+      image: item.image?.url ?? item.image?.thumbnailUrl ?? '',
+      title: item.title ?? '',
+      alt: item.alt ?? '',
+      caption: item.caption ?? '',
+      sortOrder: item.sortOrder ?? index + 1,
+      active: item.active ?? true,
+    })),
+    priceBox: {
+      price: tour?.priceBox?.price?.toString() ?? '',
+      displayedPrice: tour?.priceBox?.displayedPrice ?? '',
+      currency: tour?.priceBox?.currency ?? 'HUF',
+      priceSuffix: tour?.priceBox?.priceSuffix ?? '',
+      discountBadge: tour?.priceBox?.discountBadge ?? '',
+      discountText: tour?.priceBox?.discountText ?? '',
+      urgencyText: tour?.priceBox?.urgencyText ?? '',
+      ratingText: tour?.priceBox?.ratingText ?? '',
+      minParticipants: tour?.priceBox?.minParticipants?.toString() ?? '',
+      maxParticipants: tour?.priceBox?.maxParticipants?.toString() ?? '',
+      availableSeats: tour?.priceBox?.availableSeats?.toString() ?? '',
+      capacity: tour?.priceBox?.capacity?.toString() ?? '',
+      ctaPrimaryLabel: tour?.priceBox?.ctaPrimaryLabel ?? '',
+      ctaSecondaryLabel: tour?.priceBox?.ctaSecondaryLabel ?? '',
+    },
+    programDays,
+    priceItems: (tour?.priceItems ?? []).map((item) => ({
+      clientId: item.id ?? crypto.randomUUID(),
+      type: item.type ?? 'included',
+      text: item.text ?? '',
+      sortOrder: item.sortOrder ?? 0,
+      active: item.active ?? true,
+    })),
     regionId: tour?.regionId ?? '',
+    homepageOfferId: tour?.homepageOfferId ? String(tour.homepageOfferId) : '',
     groupId: tour?.groupId ?? '',
     seasonalGroupId: tour?.seasonalGroupId ?? '',
     departurePlaceIds: tour?.departurePlaceIds ?? [],
@@ -177,8 +479,42 @@ export function getTourFormDefaults(tour?: Partial<Tour>): TourFormValues {
     displayedPrice: tour?.displayedPrice ?? '',
     sliderImage: tour?.sliderImage ?? '',
     sliderText: tour?.sliderText ?? '',
-    dates: tour?.dates ?? [],
-    partnerBonuses: tour?.partnerBonuses ?? [],
+    dates,
+    partnerBonuses,
+  };
+}
+
+export function getTourFormDefaults(tour?: Partial<Tour> | null): TourFormValues {
+  return mapTourToFormValues(tour);
+}
+
+export function normalizeTourFormValues(values: TourFormValues): TourFormValues {
+  return {
+    ...values,
+    partnerBonuses: values.partnerBonuses.map((bonus, index) => ({
+      ...bonus,
+      sortOrder: bonus.sortOrder ?? index + 1,
+    })),
+    programDays: values.programDays.map((day, index) => ({
+      ...day,
+      sortOrder: day.sortOrder ?? index + 1,
+      dayNumber: day.dayNumber ?? index + 1,
+      badges: day.badges.map((badge, badgeIndex) => ({
+        ...badge,
+        clientId: badge.clientId ?? `${day.clientId}-${badgeIndex + 1}`,
+      })),
+    })),
+    gallery: values.gallery.map((item, index) => ({
+      ...item,
+      sortOrder: item.sortOrder ?? index + 1,
+    })),
+    priceBox: {
+      ...values.priceBox,
+    },
+    priceItems: values.priceItems.map((item, index) => ({
+      ...item,
+      sortOrder: item.sortOrder ?? index + 1,
+    })),
   };
 }
 

@@ -1,18 +1,21 @@
 import { motion } from "motion/react";
-import { MapPin, CheckCircle, Sparkles, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import Lottie from "lottie-react";
 
-import worldMapAnimation from "../../imports/World_map_pinging_and_searching.json";
 import loadingAnimation from "../../imports/loading.json";
 import earthPlaneAnimation from "../../imports/Rotating_earth_and_paper_plane.json";
 import onlinePlaneAnimation from "../../imports/earth.json";
+import { EditableText } from "../content/EditableFields";
+import { renderContentIcon } from "../content/icon-map";
+import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+import { usePortfolioContent } from "../content/PortfolioContentProvider";
 
-const steps = [
+const stepsFallback = [
   {
     number: "01",
     lottieAnimation: loadingAnimation,
-    iconAccent: <MapPin className="w-4 h-4" strokeWidth={2} />,
+    icon: "compass",
     eyebrow: "Felfedezés",
     title: "Válassz utat",
     description:
@@ -22,7 +25,7 @@ const steps = [
   {
     number: "02",
     lottieAnimation: onlinePlaneAnimation,
-    iconAccent: <CheckCircle className="w-4 h-4" strokeWidth={2} />,
+    icon: "calendar",
     eyebrow: "Foglalás",
     title: "Foglalj online",
     description:
@@ -32,7 +35,7 @@ const steps = [
   {
     number: "03",
     lottieAnimation: earthPlaneAnimation,
-    iconAccent: <Sparkles className="w-4 h-4" strokeWidth={2} />,
+    icon: "bus",
     eyebrow: "Utazás",
     title: "Indulj velünk",
     description:
@@ -42,7 +45,9 @@ const steps = [
 ];
 
 export default function HowItWorks() {
+  const { getValue } = usePortfolioContent();
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
+  const steps = getValue("home.howItWorks.steps", stepsFallback) as typeof stepsFallback;
 
   return (
     <section className="relative py-20 md:py-24 overflow-hidden bg-gradient-to-b from-white via-[#f3fbff] to-[#f5fffb]">
@@ -69,31 +74,45 @@ export default function HowItWorks() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-[#00c389]/15 text-[#00a878] text-sm font-bold mb-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
             <span className="w-2 h-2 rounded-full bg-[#00c389]" />
-            EGYSZERŰ FOLYAMAT
+            <EditableText
+              fieldKey="home.howItWorks.eyebrow"
+              fallback="EGYSZERŰ FOLYAMAT"
+              as="span"
+            />
           </div>
 
-          <h2
-            className="text-[#0f172a] mb-4"
-            style={{
-              fontSize: "clamp(2.25rem, 5vw, 3.7rem)",
-              fontWeight: 760,
-              letterSpacing: "-0.045em",
-              lineHeight: 1.05,
-            }}
-          >
-            Hogyan{" "}
-            <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-              zajlik?
-            </span>
-          </h2>
+          <div className="mb-4">
+            <EditablePortfolioHeading
+              fieldKey="home.howItWorks.titleParts"
+              fallbackParts={[
+                { text: "Hogyan" },
+                { text: "zajlik?", variant: "gradient" },
+              ]}
+              as="h2"
+              mode="inline"
+              className="m-0 text-[#0f172a]"
+              style={{
+                fontSize: "clamp(2.25rem, 5vw, 3.7rem)",
+                fontWeight: 760,
+                letterSpacing: "-0.045em",
+                lineHeight: 1.05,
+              }}
+            />
+          </div>
 
-          <p className="text-gray-900 mb-2 text-lg md:text-xl font-semibold tracking-[-0.02em]">
-            3 egyszerű lépés a következő élményedig
-          </p>
+          <EditableText
+            fieldKey="home.howItWorks.subtitle"
+            fallback="3 egyszerű lépés a következő élményedig"
+            as="p"
+            className="text-gray-900 mb-2 text-lg md:text-xl font-semibold tracking-[-0.02em]"
+          />
 
-          <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Gyors foglalás, gondos szervezés és felejthetetlen utazások.
-          </p>
+          <EditableText
+            fieldKey="home.howItWorks.description"
+            fallback="Gyors foglalás, gondos szervezés és felejthetetlen utazások."
+            as="p"
+            className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed"
+          />
         </motion.div>
 
         <div className="relative">
@@ -153,7 +172,7 @@ export default function HowItWorks() {
                             ease: "easeInOut",
                           }}
                         >
-                          {step.iconAccent}
+                          {renderContentIcon(step.icon, "w-4 h-4")}
                         </motion.div>
                       </div>
                     </motion.div>
@@ -205,11 +224,11 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           transition={{ delay: 0.35, duration: 0.6 }}
         >
-          <motion.button
-            className="group relative px-8 py-4 rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white shadow-[0_14px_42px_rgba(0,195,137,0.27)] overflow-hidden"
-            whileHover={{ scale: 1.025, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-          >
+              <motion.button
+                className="group relative px-8 py-4 rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white shadow-[0_14px_42px_rgba(0,195,137,0.27)] overflow-hidden"
+                whileHover={{ scale: 1.025, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent"
               initial={{ x: "-100%" }}
@@ -218,7 +237,11 @@ export default function HowItWorks() {
             />
 
             <span className="relative flex items-center gap-2 text-base font-semibold">
-              Kezdjük el
+              <EditableText
+                fieldKey="home.howItWorks.cta.label"
+                fallback="Kezdjük el"
+                as="span"
+              />
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
           </motion.button>

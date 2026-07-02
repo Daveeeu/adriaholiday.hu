@@ -2,6 +2,7 @@ import { useMemo, type Dispatch, type ReactNode, type SetStateAction } from 'rea
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { MediaPicker } from '@/components/media/media-picker';
 
 import { CrudModulePage } from '../components/crud-module-page';
 import { FormSection } from '../components/form-section';
@@ -156,7 +157,14 @@ export function BannerGeneratorPage() {
               <div className="grid gap-3">
                 <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Banner neve" />
                 <Input value={draft.url} onChange={(event) => setDraft((current) => ({ ...current, url: event.target.value }))} placeholder="Banner URL" />
-                <Input value={draft.image} onChange={(event) => setDraft((current) => ({ ...current, image: event.target.value }))} placeholder="Kép URL" />
+                <MediaPicker
+                  label="Kép"
+                  value={draft.image || null}
+                  onChange={(value) => setDraft((current) => ({ ...current, image: value ?? '' }))}
+                  description="Kép feltöltése vagy kiválasztása a médiatárból."
+                  defaultCategory="general"
+                  sourceContext="partner_banner"
+                />
                 <div className="grid gap-3 md:grid-cols-2">
                   <Input type="number" value={draft.width} onChange={(event) => setDraft((current) => ({ ...current, width: Number(event.target.value) || 0 }))} placeholder="Szélesség" />
                   <Input type="number" value={draft.height} onChange={(event) => setDraft((current) => ({ ...current, height: Number(event.target.value) || 0 }))} placeholder="Magasság" />

@@ -3,13 +3,27 @@ import { NavLink, Link, useLocation } from "react-router";
 import { Phone, ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { trackEvent } from "../analytics/trackEvent";
+import { EditableMedia } from "../content/EditableFields";
+import { usePortfolioContent } from "../content/PortfolioContentProvider";
+
+const portfolioAssetBase = import.meta.env.BASE_URL;
+
 const navItems = [
   { label: "Utazások", to: "/utazasok" },
+  { label: "Blog", to: "/blog" },
   { label: "Rólunk", to: "/rolunk" },
   { label: "Kapcsolat", to: "/kapcsolat" },
 ] as const;
 
 function Brand() {
+  const { getValue } = usePortfolioContent();
+  const logo = getValue("home.brand.logo", {
+    url: `${portfolioAssetBase}adrialogo_fehernarancs.png`,
+    alt: "Adria Holiday",
+    title: "Adria Holiday",
+  }) as { url?: string; alt?: string; title?: string };
+
   return (
     <Link to="/" className="inline-flex items-center">
       <span className="sr-only">Adria Holiday</span>
@@ -19,15 +33,19 @@ function Brand() {
           "bg-[#0A1628]/90 backdrop-blur-xl border border-white/15",
         ].join(" ")}
       >
-        <img
-          src="/adrialogo_fehernarancs.png"
-          alt="Adria Holiday"
-          className={[
+        <EditableMedia
+          fieldKey="home.brand.logo"
+          fallback={{
+            url: logo.url ?? `${portfolioAssetBase}adrialogo_fehernarancs.png`,
+            alt: logo.alt ?? "Adria Holiday",
+            title: logo.title ?? "Adria Holiday",
+          }}
+          className="leading-none"
+          mediaClassName={[
             "h-9 lg:h-10 w-auto",
             "max-w-[220px] lg:max-w-[260px]",
             "drop-shadow-[0_10px_26px_rgba(0,0,0,0.25)]",
           ].join(" ")}
-          loading="eager"
         />
       </span>
     </Link>
@@ -105,6 +123,13 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <a
               href="tel:+36123456789"
+              onClick={() =>
+                trackEvent("phone_click", {
+                  metadata: {
+                    placement: "header",
+                  },
+                })
+              }
               className="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/80 border border-white/70 text-[#0f172a] font-semibold shadow-[0_10px_30px_rgba(15,23,42,0.08)] hover:shadow-[0_14px_40px_rgba(15,23,42,0.10)] transition-all"
             >
               <Phone className="w-4 h-4 text-[#00c389]" />
@@ -113,6 +138,14 @@ export default function Header() {
 
             <Link
               to="/kapcsolat"
+              onClick={() =>
+                trackEvent("cta_click", {
+                  metadata: {
+                    cta_name: ctaLabel,
+                    placement: "header",
+                  },
+                })
+              }
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_14px_44px_rgba(0,195,137,0.22)] hover:shadow-[0_18px_56px_rgba(0,195,137,0.28)] transition-all"
             >
               {ctaLabel}

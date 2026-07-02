@@ -1,5 +1,6 @@
 export const hu = {
   'nav.dashboard': 'Vezérlőpult',
+  'nav.analytics': 'Analitika',
   'nav.regions': 'Régiók',
   'nav.locations': 'Helyek',
   'nav.apartments': 'Apartmanok',
@@ -27,6 +28,8 @@ export const hu = {
   'nav.guests': 'Vendégek',
   'nav.settings': 'Beállítások',
   'nav.homepageOffers': 'Főoldali ajánlatok',
+  'nav.portfolioFilterChips': 'Portfólió filter chipek',
+  'nav.portfolioContent': 'Portfólió szerkesztése',
   'nav.blog': 'Blog',
   'nav.blog.articles': 'Cikkek',
   'nav.blog.categories': 'Kategóriák',
@@ -203,6 +206,26 @@ export const hu = {
   'regions.form.slugHelp':
     'Kisbetűs URL-azonosító, amelyet a későbbi REST API is használhat.',
   'regions.form.status': 'Állapot',
+  'regions.form.portfolioSectionTitle': 'Portfólió kiemelés',
+  'regions.form.portfolioSectionDescription':
+    'Ezek az adatok a portfolio oldal kiemelt régiókártyáin jelennek meg.',
+  'regions.form.portfolioFeatured': 'Portfólió kiemelt',
+  'regions.form.portfolioFeaturedHelp':
+    'Csak a kiemelt régiók kerülnek megjelenítésre a TravelCategories blokkban.',
+  'regions.form.portfolioSortOrder': 'Portfólió sorrend',
+  'regions.form.portfolioSortOrderHelp':
+    'Az alacsonyabb szám előrébb jelenik meg.',
+  'regions.form.heroImageUrl': 'Fő kép',
+  'regions.form.heroImageUrlHelp':
+    'A régió főképe, amely a nyilvános felületeken is használható.',
+  'regions.form.portfolioImageUrl': 'Portfólió kép',
+  'regions.form.portfolioImageUrlHelp':
+    'A TravelCategories kártya képe. Ha üres, a fő régiós kép marad használatban.',
+  'regions.form.portfolioShortDescription': 'Portfólió rövid leírás',
+  'regions.form.portfolioShortDescriptionPlaceholder':
+    'Rövid leírás a kiemelt régióhoz.',
+  'regions.form.portfolioShortDescriptionHelp':
+    'A kártyához és a későbbi listanézetekhez használjuk.',
   'regions.form.submitCreate': 'Régió létrehozása',
   'regions.form.submitEdit': 'Mentés',
 

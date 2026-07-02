@@ -29,6 +29,10 @@ class RegionFactory extends Factory
             'description' => fake()->paragraphs(2, true),
             'is_active' => true,
             'sort_order' => fake()->numberBetween(1, 100),
+            'portfolio_featured' => fake()->boolean(30),
+            'portfolio_sort_order' => fake()->numberBetween(0, 100),
+            'portfolio_image_url' => fake()->imageUrl(1200, 750, 'travel', true),
+            'portfolio_short_description' => fake()->sentence(12),
         ];
     }
 }

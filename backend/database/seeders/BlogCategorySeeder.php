@@ -10,6 +10,12 @@ class BlogCategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
+            ['name' => 'Körutazások', 'seo_name' => 'korutazasok'],
+            ['name' => 'Repülős körutazások', 'seo_name' => 'repulos-korutazasok'],
+            'Tengerpartok',
+            'Városnézés',
+            'Világ érdekességei',
+            'Gasztronómia',
             'Utazási tippek',
             'Tengerparti úticélok',
             'Családi nyaralás',
@@ -20,9 +26,12 @@ class BlogCategorySeeder extends Seeder
             'Hasznos tudnivalók',
         ];
 
-        foreach ($categories as $index => $categoryName) {
+        foreach ($categories as $index => $categoryItem) {
+            $categoryName = is_array($categoryItem) ? $categoryItem['name'] : $categoryItem;
+            $seoName = is_array($categoryItem) ? $categoryItem['seo_name'] : \Illuminate\Support\Str::slug($categoryName);
+
             $category = BlogCategory::query()->updateOrCreate(
-                ['seo_name' => \Illuminate\Support\Str::slug($categoryName)],
+                ['seo_name' => $seoName],
                 [
                     'active' => true,
                     'column' => (string) (($index % 3) + 1),
@@ -34,7 +43,7 @@ class BlogCategorySeeder extends Seeder
                 ['locale' => 'hu'],
                 [
                     'name' => $categoryName,
-                    'seo_name' => \Illuminate\Support\Str::slug($categoryName),
+                    'seo_name' => $seoName,
                     'seo_auto_generate' => true,
                 ],
             );
@@ -42,7 +51,7 @@ class BlogCategorySeeder extends Seeder
                 ['locale' => 'en'],
                 [
                     'name' => $categoryName.' EN',
-                    'seo_name' => \Illuminate\Support\Str::slug($categoryName).'-en',
+                    'seo_name' => $seoName.'-en',
                     'seo_auto_generate' => true,
                 ],
             );
@@ -50,7 +59,7 @@ class BlogCategorySeeder extends Seeder
                 ['locale' => 'de'],
                 [
                     'name' => $categoryName.' DE',
-                    'seo_name' => \Illuminate\Support\Str::slug($categoryName).'-de',
+                    'seo_name' => $seoName.'-de',
                     'seo_auto_generate' => true,
                 ],
             );

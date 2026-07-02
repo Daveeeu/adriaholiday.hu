@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,7 +17,7 @@ class TourSeasonalGroupResource extends JsonResource
             'name' => $this->name,
             'seoName' => $this->seo_name,
             'seoAutoGenerate' => (bool) $this->seo_auto_generate,
-            'boxText' => $this->box_text,
+            'boxText' => RichTextSanitizer::sanitize($this->box_text),
             'hasOffers' => (bool) $this->has_offers,
             'relatedToursCount' => (int) ($this->tours_count ?? 0),
             'createdAt' => $this->created_at?->toISOString(),

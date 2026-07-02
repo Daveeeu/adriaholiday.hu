@@ -1,67 +1,87 @@
 import type { UseFormReturn } from 'react-hook-form';
 
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { FormField, FormItem } from '@/components/ui/form';
 
-import type { TourFormValues } from '../lib/tours.types';
+import {
+  createCategoryOption,
+  createCountryOption,
+  createDeparturePlaceOption,
+  createDifficultyOption,
+  createFitOption,
+  createGroupOption,
+  getHomepageOfferOptions,
+  createOfferGroupOption,
+  createProgramTypeOption,
+  createRegionOption,
+  createTagOption,
+  createTravelModeOption,
+  getCategoryOptions,
+  getCountryOptions,
+  getDeparturePlaceOptions,
+  getDifficultyOptions,
+  getFitOptions,
+  getGroupOptions,
+  getOfferGroupOptions,
+  getProgramTypeOptions,
+  getRegionOptions,
+  getTagOptions,
+  getTravelModeOptions,
+} from '../lib/tour-select-options.api';
+import { normalizeSelectOption } from '../lib/tour-select-options.api';
+import type { SelectOption, Tour, TourFormValues } from '../lib/tours.types';
+import { TourCreatableSelectField } from './TourCreatableSelectField';
 
 type TourFilterSectionsProps = {
   form: UseFormReturn<TourFormValues>;
+  tour?: Partial<Tour>;
 };
 
-function CommaListField({
-  form,
-  name,
-  label,
-  placeholder,
-}: {
-  form: UseFormReturn<TourFormValues>;
-  name:
-    | 'departurePlaceIds'
-    | 'countryIds'
-    | 'tagIds'
-    | 'categoryIds';
-  label: string;
-  placeholder?: string;
-}) {
-  const value = form.watch(name);
+function buildOption(id: string | number | null | undefined, label?: string | null): SelectOption[] {
+  if (id === null || id === undefined || String(id).trim() === '' || !label || label.trim() === '') {
+    return [];
+  }
 
-  return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={() => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <Input
-              value={value.join(', ')}
-              placeholder={placeholder ?? 'értékek vesszővel elválasztva'}
-              onChange={(event) =>
-                form.setValue(
-                  name,
-                  event.target.value
-                    .split(',')
-                    .map((item) => item.trim())
-                    .filter(Boolean),
-                )
-              }
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
+  return [normalizeSelectOption({ id: String(id), value: String(id), label })];
 }
 
-export function TourFilterSections({ form }: TourFilterSectionsProps) {
+function buildOptions(items?: Array<{ id: string | number; label?: string | null; name?: string | null; title?: string | null }>): SelectOption[] {
+  return (items ?? [])
+    .map((item) =>
+      normalizeSelectOption({
+        id: String(item.id),
+        value: String(item.id),
+        label: item.label ?? item.name ?? item.title ?? '',
+      }),
+    )
+    .filter((item) => item.label.trim() !== '');
+}
+
+export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
+  const regionFallbackOptions = buildOption(tour?.regionId, tour?.regionLabel);
+  const homepageOfferFallbackOptions = buildOptions(
+    tour?.homepageOffers?.map((offer) => ({
+      id: offer.id,
+      title: offer.title,
+    })),
+  ).length > 0
+    ? buildOptions(
+        tour?.homepageOffers?.map((offer) => ({
+          id: offer.id,
+          title: offer.title,
+        })),
+      )
+    : buildOption(tour?.homepageOfferId, tour?.homepageOfferLabel);
+  const groupFallbackOptions = buildOption(tour?.groupId, tour?.groupLabel);
+  const seasonalGroupFallbackOptions = buildOption(tour?.seasonalGroupId, tour?.seasonalGroupLabel);
+  const fitFallbackOptions = buildOption(tour?.fitId, tour?.fitLabel);
+  const programTypeFallbackOptions = buildOption(tour?.programTypeId, tour?.programTypeLabel);
+  const travelModeFallbackOptions = buildOption(tour?.travelModeId, tour?.travelModeLabel);
+  const difficultyFallbackOptions = buildOption(tour?.difficultyId, tour?.difficultyLabel);
+  const departurePlaceFallbackOptions = buildOptions(tour?.departurePlaces?.map((place) => ({ id: place.id, name: place.name })));
+  const countryFallbackOptions = buildOptions(tour?.countries);
+  const tagFallbackOptions = buildOptions(tour?.tags);
+  const categoryFallbackOptions = buildOptions(tour?.categories);
+
   return (
     <section className="space-y-4 rounded-2xl border bg-card p-4">
       <div>
@@ -72,108 +92,132 @@ export function TourFilterSections({ form }: TourFilterSectionsProps) {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <FormField
+        <TourCreatableSelectField
           control={form.control}
           name="regionId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Régiók</FormLabel>
-              <FormControl>
-                <Input placeholder="region-id" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Régiók"
+          queryKey={['tour-select-options', 'regions']}
+          queryFn={getRegionOptions}
+          quickCreateKind="region"
+          createFn={createRegionOption}
+          fallbackOptions={regionFallbackOptions}
         />
-        <FormField
+        <TourCreatableSelectField
           control={form.control}
           name="groupId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Csoportok</FormLabel>
-              <FormControl>
-                <Input placeholder="group-id" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Csoportok"
+          queryKey={['tour-select-options', 'groups']}
+          queryFn={getGroupOptions}
+          quickCreateKind="group"
+          createFn={createGroupOption}
+          fallbackOptions={groupFallbackOptions}
         />
-        <FormField
+        <TourCreatableSelectField
           control={form.control}
           name="seasonalGroupId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Ajánlat csoportok</FormLabel>
-              <FormControl>
-                <Input placeholder="seasonal-group-id" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Ajánlat csoportok"
+          queryKey={['tour-select-options', 'offer-groups']}
+          queryFn={getOfferGroupOptions}
+          quickCreateKind="offer-group"
+          createFn={createOfferGroupOption}
+          fallbackOptions={seasonalGroupFallbackOptions}
         />
-        <FormField
+        <TourCreatableSelectField
+          control={form.control}
+          name="homepageOfferId"
+          label="Főoldali ajánlat"
+          queryKey={['tour-select-options', 'homepage-offers']}
+          queryFn={getHomepageOfferOptions}
+          description="Az itt kiválasztott főoldali blokk alá fog megjelenni a körutazás a publikus listában."
+          fallbackOptions={homepageOfferFallbackOptions}
+        />
+        <TourCreatableSelectField
           control={form.control}
           name="fitId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>FIT</FormLabel>
-              <FormControl>
-                <Input placeholder="fit-id" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="FIT"
+          queryKey={['tour-select-options', 'fits']}
+          queryFn={getFitOptions}
+          quickCreateKind="fit"
+          createFn={createFitOption}
+          fallbackOptions={fitFallbackOptions}
         />
-        <FormField
+        <TourCreatableSelectField
           control={form.control}
           name="programTypeId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Program típus</FormLabel>
-              <FormControl>
-                <Input placeholder="program-type-id" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Program típus"
+          queryKey={['tour-select-options', 'program-types']}
+          queryFn={getProgramTypeOptions}
+          quickCreateKind="program-type"
+          createFn={createProgramTypeOption}
+          fallbackOptions={programTypeFallbackOptions}
         />
-        <FormField
+        <TourCreatableSelectField
           control={form.control}
           name="travelModeId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Közlekedés</FormLabel>
-              <FormControl>
-                <Input placeholder="travel-mode-id" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Közlekedés"
+          queryKey={['tour-select-options', 'travel-modes']}
+          queryFn={getTravelModeOptions}
+          quickCreateKind="travel-mode"
+          createFn={createTravelModeOption}
+          fallbackOptions={travelModeFallbackOptions}
         />
-        <FormField
+        <TourCreatableSelectField
           control={form.control}
           name="difficultyId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nehézségi szint</FormLabel>
-              <FormControl>
-                <Input placeholder="difficulty-id" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Nehézségi szint"
+          queryKey={['tour-select-options', 'difficulties']}
+          queryFn={getDifficultyOptions}
+          quickCreateKind="difficulty"
+          createFn={createDifficultyOption}
+          fallbackOptions={difficultyFallbackOptions}
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <CommaListField
-          form={form}
+        <TourCreatableSelectField
+          control={form.control}
           name="departurePlaceIds"
           label="Felszállási helyek"
+          isMulti
+          queryKey={['tour-select-options', 'departure-places']}
+          queryFn={getDeparturePlaceOptions}
+          quickCreateKind="departure-place"
+          createFn={createDeparturePlaceOption}
+          fallbackOptions={departurePlaceFallbackOptions}
         />
-        <CommaListField form={form} name="countryIds" label="Országok" />
-        <CommaListField form={form} name="tagIds" label="Címkék" />
-        <CommaListField form={form} name="categoryIds" label="Kategóriák" />
+        <TourCreatableSelectField
+          control={form.control}
+          name="countryIds"
+          label="Országok"
+          isMulti
+          queryKey={['tour-select-options', 'countries']}
+          queryFn={getCountryOptions}
+          quickCreateKind="country"
+          createFn={createCountryOption}
+          fallbackOptions={countryFallbackOptions}
+        />
+        <TourCreatableSelectField
+          control={form.control}
+          name="tagIds"
+          label="Címkék"
+          isMulti
+          queryKey={['tour-select-options', 'tags']}
+          queryFn={getTagOptions}
+          quickCreateKind="tag"
+          createFn={createTagOption}
+          fallbackOptions={tagFallbackOptions}
+        />
+        <TourCreatableSelectField
+          control={form.control}
+          name="categoryIds"
+          label="Kategóriák"
+          isMulti
+          queryKey={['tour-select-options', 'categories']}
+          queryFn={getCategoryOptions}
+          quickCreateKind="category"
+          createFn={createCategoryOption}
+          fallbackOptions={categoryFallbackOptions}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

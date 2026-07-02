@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ImageIcon, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch, type UseFormReturn } from 'react-hook-form';
 
@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { MediaPicker } from '@/components/media/media-picker';
 
 import {
   getHomepageOfferFormDefaults,
@@ -58,6 +59,11 @@ export function HomepageOfferFormDialog({
   const imageUrl = useWatch({
     control: form.control,
     name: 'imageUrl',
+  });
+
+  const imageTitle = useWatch({
+    control: form.control,
+    name: 'imageTitle',
   });
 
   useEffect(() => {
@@ -152,25 +158,35 @@ export function HomepageOfferFormDialog({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Kép URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://.../kep.jpg" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="md:col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="imageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MediaPicker
+                            label="Kép"
+                            value={field.value || null}
+                            onChange={(value) => field.onChange(value ?? '')}
+                            description="Feltöltés gépről vagy médiatárból."
+                            defaultCategory="homepage_offers"
+                            sourceContext="homepage_offer"
+                            uploadAlt={imageTitle || undefined}
+                            uploadTitle={imageTitle || undefined}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
                   name="imageTitle"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-2">
                       <FormLabel>Kép címe</FormLabel>
                       <FormControl>
                         <Input placeholder="Kép címe / alt szöveg" {...field} />
@@ -191,7 +207,7 @@ export function HomepageOfferFormDialog({
                     />
                   ) : (
                     <div className="flex h-24 w-36 items-center justify-center rounded-xl border bg-background text-muted-foreground">
-                      <ImageIcon className="size-8" />
+                      <span className="text-xs">Nincs kép</span>
                     </div>
                   )}
 

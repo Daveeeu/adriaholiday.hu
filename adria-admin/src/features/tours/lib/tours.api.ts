@@ -5,6 +5,7 @@ import type {
   TourDeparturePlaceFormValues,
   TourDeparturePlaceListQuery,
   TourDeparturePlaceListResponse,
+  TourDetail,
   TourFormValues,
   TourListQuery,
   TourListResponse,
@@ -22,6 +23,19 @@ import type {
   TourSeasonalGroupListResponse,
   Tour,
 } from './tours.types';
+import { normalizeTourFormValues } from './tours.types';
+
+type ResourceEnvelope<T> = {
+  data: T;
+};
+
+function unwrapResource<T>(response: T | ResourceEnvelope<T>): T {
+  if (response && typeof response === 'object' && 'data' in response) {
+    return (response as ResourceEnvelope<T>).data;
+  }
+
+  return response as T;
+}
 
 export async function getTours(
   query: TourListQuery,
@@ -29,6 +43,13 @@ export async function getTours(
   return apiClient.get<TourListResponse>('/api/admin/tours', {
     query,
   });
+}
+
+export async function getTourById(id: string): Promise<TourDetail> {
+  const response = await apiClient.get<Tour | ResourceEnvelope<Tour>>(
+    `/api/admin/tours/${id}`,
+  );
+  return unwrapResource(response);
 }
 
 export async function getAllTourOffers(): Promise<Tour[]> {
@@ -43,11 +64,16 @@ export async function getAllTourOffers(): Promise<Tour[]> {
 }
 
 export function createTour(values: TourFormValues) {
-  return apiClient.post<Tour>('/api/admin/tours', values);
+  return apiClient.post<Tour | ResourceEnvelope<Tour>>('/api/admin/tours', normalizeTourFormValues(values)).then(unwrapResource);
 }
 
 export function updateTour(id: string, values: TourFormValues) {
-  return apiClient.patch<Tour>(`/api/admin/tours/${id}`, values);
+  return apiClient
+    .patch<Tour | ResourceEnvelope<Tour>>(
+      `/api/admin/tours/${id}`,
+      normalizeTourFormValues(values),
+    )
+    .then(unwrapResource);
 }
 
 export function deleteTour(id: string) {
@@ -55,7 +81,9 @@ export function deleteTour(id: string) {
 }
 
 export function setTourActive(id: string, active: boolean) {
-  return apiClient.patch<Tour>(`/api/admin/tours/${id}/status`, { active });
+  return apiClient
+    .patch<Tour | ResourceEnvelope<Tour>>(`/api/admin/tours/${id}/status`, { active })
+    .then(unwrapResource);
 }
 
 export function reorderTourOffers(orderedIds: string[]) {
@@ -65,11 +93,15 @@ export function reorderTourOffers(orderedIds: string[]) {
 }
 
 export function duplicateTourOffer(id: string) {
-  return apiClient.post<Tour>(`/api/admin/tours/${id}/duplicate`);
+  return apiClient
+    .post<Tour | ResourceEnvelope<Tour>>(`/api/admin/tours/${id}/duplicate`)
+    .then(unwrapResource);
 }
 
 export function moveTourOffer(id: string, direction: 'up' | 'down') {
-  return apiClient.post<Tour>(`/api/admin/tours/${id}/move`, { direction });
+  return apiClient
+    .post<Tour | ResourceEnvelope<Tour>>(`/api/admin/tours/${id}/move`, { direction })
+    .then(unwrapResource);
 }
 
 export async function getTourPartnerOffers(

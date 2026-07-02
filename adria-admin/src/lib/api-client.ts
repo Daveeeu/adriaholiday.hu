@@ -39,7 +39,7 @@ function getBaseUrl() {
     return envBaseUrl.replace(/\/+$/, '');
   }
 
-  return import.meta.env.DEV ? 'http://localhost:8000/api/admin' : '/api/admin';
+  return '/api/admin';
 }
 
 function isAbsoluteUrl(value: string) {
