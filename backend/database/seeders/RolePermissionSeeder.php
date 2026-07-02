@@ -12,6 +12,12 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            'dashboard.view',
+            'analytics.view',
+            'media.viewAny', 'media.view', 'media.create', 'media.update', 'media.delete',
+            'select-options.view',
+            'tour-reference-options.create',
+            'portfolio-filter-chips.viewAny', 'portfolio-filter-chips.view', 'portfolio-filter-chips.create', 'portfolio-filter-chips.update', 'portfolio-filter-chips.delete',
             'regions.viewAny', 'regions.view', 'regions.create', 'regions.update', 'regions.delete',
             'locations.viewAny', 'locations.view', 'locations.create', 'locations.update', 'locations.delete',
             'galleries.viewAny', 'galleries.view', 'galleries.create', 'galleries.update', 'galleries.delete',
@@ -48,6 +54,12 @@ class RolePermissionSeeder extends Seeder
         $superAdmin->syncPermissions($permissions);
         $admin->syncPermissions($permissions);
         $contentManager->syncPermissions([
+            'dashboard.view',
+            'analytics.view',
+            'media.viewAny', 'media.view', 'media.create', 'media.update',
+            'select-options.view',
+            'tour-reference-options.create',
+            'portfolio-filter-chips.viewAny', 'portfolio-filter-chips.view', 'portfolio-filter-chips.create', 'portfolio-filter-chips.update', 'portfolio-filter-chips.delete',
             'regions.viewAny', 'regions.view',
             'locations.viewAny', 'locations.view',
             'galleries.viewAny', 'galleries.view',
@@ -70,6 +82,10 @@ class RolePermissionSeeder extends Seeder
             'email-csv-export.view',
         ]);
         $partnerManager->syncPermissions([
+            'dashboard.view',
+            'analytics.view',
+            'media.viewAny', 'media.view',
+            'select-options.view',
             'apartments.viewAny', 'apartments.view',
             'tours.viewAny', 'tours.view',
             'tour-partner-offers.viewAny', 'tour-partner-offers.view', 'tour-partner-offers.create', 'tour-partner-offers.update', 'tour-partner-offers.delete', 'tour-partner-offers.status',
@@ -84,6 +100,8 @@ class RolePermissionSeeder extends Seeder
             'email-csv-export.view',
         ]);
         $support->syncPermissions([
+            'dashboard.view',
+            'select-options.view',
             'regions.viewAny', 'regions.view',
             'locations.viewAny', 'locations.view',
             'galleries.viewAny', 'galleries.view',
@@ -96,14 +114,44 @@ class RolePermissionSeeder extends Seeder
             'portfolio-content.view',
         ]);
 
+        $this->seedAdminUser($superAdmin);
+    }
+
+    private function seedAdminUser(Role $superAdmin): void
+    {
+        [$email, $password] = $this->adminSeedCredentials();
+
+        if ($email === null || $password === null) {
+            return;
+        }
+
         $user = User::query()->updateOrCreate(
-            ['email' => 'info@jandldavid.hu'],
+            ['email' => $email],
             [
                 'name' => 'Jandl David',
-                'password' => 'password',
+                'password' => $password,
             ],
         );
 
         $user->assignRole($superAdmin);
+    }
+
+    /**
+     * @return array{0: string|null, 1: string|null}
+     */
+    private function adminSeedCredentials(): array
+    {
+        $email = env('ADMIN_SEED_EMAIL');
+        $password = env('ADMIN_SEED_PASSWORD');
+
+        if (is_string($email) && $email !== '' && is_string($password) && $password !== '') {
+            return [$email, $password];
+        }
+
+        if (app()->environment(['local', 'development', 'testing'])) {
+            return ['info@jandldavid.hu', 'password'];
+        }
+
+        return [null, null];
     }
 }

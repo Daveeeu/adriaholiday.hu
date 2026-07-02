@@ -37,7 +37,6 @@ class AdminPaginationEnvelopeTest extends TestCase
             'regions' => ['/api/admin/regions'],
             'locations' => ['/api/admin/locations'],
             'galleries' => ['/api/admin/galleries'],
-            'offers' => ['/api/admin/offers'],
             'blog-categories' => ['/api/admin/blog/categories'],
             'blog-tags' => ['/api/admin/blog/tags'],
             'buses' => ['/api/admin/buses'],
@@ -62,5 +61,16 @@ class AdminPaginationEnvelopeTest extends TestCase
         ]);
         $response->assertJsonMissingPath('data');
         $response->assertJsonMissingPath('meta');
+    }
+
+    public function test_legacy_admin_offers_endpoint_returns_gone(): void
+    {
+        $user = User::query()->where('email', 'info@jandldavid.hu')->firstOrFail();
+
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/admin/offers')
+            ->assertStatus(410)
+            ->assertJsonPath('message', 'The legacy admin offers API has been retired. Use the tours admin endpoints instead.');
     }
 }

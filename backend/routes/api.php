@@ -36,7 +36,6 @@ use App\Http\Controllers\PortfolioContentController;
 use App\Http\Controllers\PortfolioFeaturedTourController;
 use App\Http\Controllers\PortfolioHomepageOfferController;
 use App\Http\Controllers\PortfolioRegionController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
@@ -91,17 +90,11 @@ Route::prefix('admin')
         Route::get('analytics/events', [AnalyticsController::class, 'events']);
         Route::get('analytics/utm', [AnalyticsController::class, 'utm']);
         Route::get('analytics/funnel', [AnalyticsController::class, 'funnel']);
-        Route::get('offers', function (Request $request) {
-            $perPage = (int) $request->query('perPage', $request->query('per_page', 25));
-            $page = (int) $request->query('page', 1);
-
+        Route::any('offers/{path?}', function () {
             return response()->json([
-                'items' => [],
-                'totalCount' => 0,
-                'page' => $page > 0 ? $page : 1,
-                'perPage' => $perPage > 0 ? $perPage : 25,
-            ]);
-        });
+                'message' => 'The legacy admin offers API has been retired. Use the tours admin endpoints instead.',
+            ], 410);
+        })->where('path', '.*');
         Route::apiResource('blog/articles', BlogArticleController::class)->parameters([
             'articles' => 'blogArticle',
         ]);

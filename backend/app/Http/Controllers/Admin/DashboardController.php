@@ -19,6 +19,11 @@ use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:dashboard.view');
+    }
+
     public function summary(): JsonResponse
     {
         $counts = [

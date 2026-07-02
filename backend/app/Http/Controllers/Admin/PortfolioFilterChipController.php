@@ -15,6 +15,16 @@ class PortfolioFilterChipController extends Controller
 {
     use RespondsWithPagination;
 
+    public function __construct()
+    {
+        $this->authorizeResource(PortfolioFilterChip::class, 'portfolioFilterChip');
+        $this->middleware('permission:portfolio-filter-chips.viewAny')->only('index');
+        $this->middleware('permission:portfolio-filter-chips.view')->only('show');
+        $this->middleware('permission:portfolio-filter-chips.create')->only('store');
+        $this->middleware('permission:portfolio-filter-chips.update')->only('update');
+        $this->middleware('permission:portfolio-filter-chips.delete')->only('destroy');
+    }
+
     public function index(Request $request)
     {
         $query = PortfolioFilterChip::query();

@@ -25,6 +25,15 @@ class MediaController extends Controller
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
 
+    public function __construct()
+    {
+        $this->middleware('permission:media.viewAny')->only('index');
+        $this->middleware('permission:media.view')->only('show');
+        $this->middleware('permission:media.create')->only('store');
+        $this->middleware('permission:media.update')->only('update');
+        $this->middleware('permission:media.delete')->only('destroy');
+    }
+
     public function index(Request $request)
     {
         $perPage = max(1, min(50, (int) $request->query('perPage', $request->query('per_page', 24))));

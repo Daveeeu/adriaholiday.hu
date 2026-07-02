@@ -17,6 +17,11 @@ use Illuminate\Http\Request;
 
 class SelectOptionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:select-options.view');
+    }
+
     /**
      * @return array{id: int|string, value: int|string, label: string}
      */

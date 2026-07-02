@@ -9,6 +9,11 @@ use Illuminate\Support\Str;
 
 class TourReferenceOptionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:tour-reference-options.create');
+    }
+
     public function index(Request $request, string $type): array
     {
         $query = TourReferenceOption::query()

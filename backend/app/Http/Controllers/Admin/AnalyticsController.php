@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 class AnalyticsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:analytics.view');
+    }
+
     public function summary(Request $request): JsonResponse
     {
         $query = $this->filteredQuery($request);

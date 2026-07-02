@@ -196,7 +196,13 @@ class AdminTourSelectOptionsTest extends TestCase
 
     private function actingAsAdmin(): void
     {
-        $permissions = ['regions.create', 'blog-tags.create', 'blog-categories.create'];
+        $permissions = [
+            'regions.create',
+            'blog-tags.create',
+            'blog-categories.create',
+            'select-options.view',
+            'tour-reference-options.create',
+        ];
 
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission, 'web');
