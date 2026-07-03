@@ -1,14 +1,202 @@
 services:
-  adriaholiday-web:
+  nginx:
     build:
       context: .
       dockerfile: Dockerfile
-    image: adriaholiday-web:local
+      args:
+        PORTFOLIO_VITE_API_BASE_URL: ${PORTFOLIO_VITE_API_BASE_URL:-/api}
+        PORTFOLIO_VITE_SITE_URL: ${PORTFOLIO_VITE_SITE_URL:-https://adriaholiday.hu}
+        PORTFOLIO_VITE_ANALYTICS_ENABLED: ${PORTFOLIO_VITE_ANALYTICS_ENABLED:-true}
+        PORTFOLIO_VITE_ANALYTICS_DEBUG: ${PORTFOLIO_VITE_ANALYTICS_DEBUG:-false}
+        PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE: ${PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE:-ah_session_id}
+        PORTFOLIO_VITE_META_PIXEL_ENABLED: ${PORTFOLIO_VITE_META_PIXEL_ENABLED:-false}
+        PORTFOLIO_VITE_META_PIXEL_ID: ${PORTFOLIO_VITE_META_PIXEL_ID:-}
+        ADMIN_VITE_API_BASE_URL: ${ADMIN_VITE_API_BASE_URL:-/api/admin}
+    image: adriaholiday/nginx:${APP_IMAGE_TAG:-latest}
     restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     networks:
-      - platform
+      - internal
+      - edge
+
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        PORTFOLIO_VITE_API_BASE_URL: ${PORTFOLIO_VITE_API_BASE_URL:-/api}
+        PORTFOLIO_VITE_SITE_URL: ${PORTFOLIO_VITE_SITE_URL:-https://adriaholiday.hu}
+        PORTFOLIO_VITE_ANALYTICS_ENABLED: ${PORTFOLIO_VITE_ANALYTICS_ENABLED:-true}
+        PORTFOLIO_VITE_ANALYTICS_DEBUG: ${PORTFOLIO_VITE_ANALYTICS_DEBUG:-false}
+        PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE: ${PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE:-ah_session_id}
+        PORTFOLIO_VITE_META_PIXEL_ENABLED: ${PORTFOLIO_VITE_META_PIXEL_ENABLED:-false}
+        PORTFOLIO_VITE_META_PIXEL_ID: ${PORTFOLIO_VITE_META_PIXEL_ID:-}
+        ADMIN_VITE_API_BASE_URL: ${ADMIN_VITE_API_BASE_URL:-/api/admin}
+    image: adriaholiday/app:${APP_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - ${LARAVEL_ENV_FILE:-./backend/.env.production}
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      LOG_CHANNEL: ${LOG_CHANNEL:-stack}
+      LOG_STACK: ${LOG_STACK:-stderr,daily}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      CACHE_STORE: ${CACHE_STORE:-redis}
+      SESSION_DRIVER: ${SESSION_DRIVER:-database}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
+      REDIS_QUEUE: ${REDIS_QUEUE:-default}
+    volumes:
+      - laravel-storage:/var/www/backend/storage
+      - laravel-cache:/var/www/backend/bootstrap/cache
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php artisan app:healthcheck >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    networks:
+      - internal
+
+  queue:
+    image: adriaholiday/app:${APP_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    entrypoint: ["run-queue"]
+    env_file:
+      - ${LARAVEL_ENV_FILE:-./backend/.env.production}
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      LOG_CHANNEL: ${LOG_CHANNEL:-stack}
+      LOG_STACK: ${LOG_STACK:-stderr,daily}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      CACHE_STORE: ${CACHE_STORE:-redis}
+      SESSION_DRIVER: ${SESSION_DRIVER:-database}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
+      REDIS_QUEUE: ${REDIS_QUEUE:-default}
+      QUEUE_WORKER_QUEUE: ${QUEUE_WORKER_QUEUE:-default}
+      QUEUE_WORKER_TRIES: ${QUEUE_WORKER_TRIES:-3}
+      QUEUE_WORKER_TIMEOUT: ${QUEUE_WORKER_TIMEOUT:-120}
+      QUEUE_WORKER_SLEEP: ${QUEUE_WORKER_SLEEP:-3}
+      QUEUE_WORKER_BACKOFF: ${QUEUE_WORKER_BACKOFF:-5}
+      QUEUE_WORKER_MEMORY: ${QUEUE_WORKER_MEMORY:-256}
+      QUEUE_WORKER_MAX_JOBS: ${QUEUE_WORKER_MAX_JOBS:-500}
+      QUEUE_WORKER_MAX_TIME: ${QUEUE_WORKER_MAX_TIME:-3600}
+    volumes:
+      - laravel-storage:/var/www/backend/storage
+      - laravel-cache:/var/www/backend/bootstrap/cache
+    depends_on:
+      app:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php artisan app:healthcheck >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - internal
+
+  scheduler:
+    image: adriaholiday/app:${APP_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    entrypoint: ["run-scheduler"]
+    env_file:
+      - ${LARAVEL_ENV_FILE:-./backend/.env.production}
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      LOG_CHANNEL: ${LOG_CHANNEL:-stack}
+      LOG_STACK: ${LOG_STACK:-stderr,daily}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      CACHE_STORE: ${CACHE_STORE:-redis}
+      SESSION_DRIVER: ${SESSION_DRIVER:-database}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
+      REDIS_QUEUE: ${REDIS_QUEUE:-default}
+    volumes:
+      - laravel-storage:/var/www/backend/storage
+      - laravel-cache:/var/www/backend/bootstrap/cache
+    depends_on:
+      app:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php artisan app:healthcheck >/dev/null || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - internal
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: >
+      sh -lc 'if [ -n "$${REDIS_PASSWORD:-}" ]; then
+        exec redis-server --appendonly yes --save 60 1000 --requirepass "$${REDIS_PASSWORD}";
+      else
+        exec redis-server --appendonly yes --save 60 1000;
+      fi'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "if [ -n \"$${REDIS_PASSWORD:-}\" ]; then redis-cli -a \"$${REDIS_PASSWORD}\" ping; else redis-cli ping; fi | grep PONG >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - internal
+
+volumes:
+  laravel-storage:
+  laravel-cache:
+  redis-data:
 
 networks:
-  platform:
+  internal:
+    driver: bridge
+  edge:
     external: true
-
+    name: ${EDGE_NETWORK_NAME:-platform}
