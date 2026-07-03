@@ -1,13 +1,20 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
-import { Menu, X, Phone, Calendar } from "lucide-react";
+import { Menu, X, Phone, ArrowRight } from "lucide-react";
 import { Link, useLocation } from "react-router";
+
 import { trackEvent } from "../analytics/trackEvent";
+import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+
+function isInternalLink(value: string) {
+  return value.startsWith("/") || value.startsWith("#");
+}
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,7 +31,6 @@ export default function MobileNav() {
 
   return (
     <>
-      {/* Mobile Menu Button */}
       <AnimatePresence>
         {isVisible && (
           <motion.button
@@ -41,7 +47,6 @@ export default function MobileNav() {
         )}
       </AnimatePresence>
 
-      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -59,70 +64,87 @@ export default function MobileNav() {
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25 }}
             >
-              <nav className="mt-16 space-y-6">
-                {[
-                  { label: "Utazások", to: "/utazasok" },
-                  { label: "Blog", to: "/blog" },
-                  { label: "Úti célok", to: "/utazasok" },
-                  { label: "Rólunk", to: "/rolunk" },
-                  { label: "Kapcsolat", to: "/kapcsolat" },
-                ].map((item, index) => (
-                  <motion.div
-                    key={item.label}
-                    className="block text-white hover:text-cyan-400 transition-colors"
-                    style={{ fontSize: "1.25rem", fontWeight: 600 }}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ x: 4 }}
-                  >
-                    <Link to={item.to}>{item.label}</Link>
-                  </motion.div>
-                ))}
-              </nav>
+              {settings.headerNavigation.length > 0 ? (
+                <nav className="mt-16 space-y-6">
+                  {settings.headerNavigation.map((item, index) => (
+                    <motion.div
+                      key={`${item.to}-${item.label}`}
+                      className="block text-white hover:text-cyan-400 transition-colors"
+                      style={{ fontSize: "1.25rem", fontWeight: 600 }}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ x: 4 }}
+                    >
+                      <Link to={item.to}>{item.label}</Link>
+                    </motion.div>
+                  ))}
+                </nav>
+              ) : null}
 
               <div className="mt-12 space-y-4">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Link
-                    to="/kapcsolat"
+                {settings.primaryCtaText && settings.primaryCtaLink ? (
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    {isInternalLink(settings.primaryCtaLink) ? (
+                      <Link
+                        to={settings.primaryCtaLink}
+                        onClick={() =>
+                          trackEvent("cta_click", {
+                            metadata: {
+                              cta_name: settings.primaryCtaText,
+                              placement: "mobile_menu",
+                            },
+                          })
+                        }
+                        className="block w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl shadow-lg text-center font-semibold"
+                      >
+                        {settings.primaryCtaText}
+                      </Link>
+                    ) : (
+                      <a
+                        href={settings.primaryCtaLink}
+                        onClick={() =>
+                          trackEvent("cta_click", {
+                            metadata: {
+                              cta_name: settings.primaryCtaText,
+                              placement: "mobile_menu",
+                            },
+                          })
+                        }
+                        className="block w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl shadow-lg text-center font-semibold"
+                      >
+                        {settings.primaryCtaText}
+                      </a>
+                    )}
+                  </motion.div>
+                ) : null}
+
+                {settings.phone ? (
+                  <motion.a
+                    href={`tel:${settings.phone.replace(/\s+/g, "")}`}
                     onClick={() =>
-                      trackEvent("cta_click", {
+                      trackEvent("phone_click", {
                         metadata: {
-                          cta_name: "Foglalás",
                           placement: "mobile_menu",
                         },
                       })
                     }
-                    className="block w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl shadow-lg text-center font-semibold"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 text-white rounded-xl"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    Foglalás
-                  </Link>
-                </motion.div>
-                <motion.a
-                  href="tel:+36123456789"
-                  onClick={() =>
-                    trackEvent("phone_click", {
-                      metadata: {
-                        placement: "mobile_menu",
-                      },
-                    })
-                  }
-                  className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 text-white rounded-xl"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Phone className="w-5 h-5" />
-                  +36 1 234 5678
-                </motion.a>
+                    <Phone className="w-5 h-5" />
+                    {settings.phone}
+                  </motion.a>
+                ) : null}
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      {/* Floating Bottom CTA (Mobile) */}
       <AnimatePresence>
-        {isVisible && !isOpen && (
+        {isVisible && !isOpen && settings.primaryCtaText && settings.primaryCtaLink ? (
           <motion.div
             className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
             initial={{ y: 100 }}
@@ -132,40 +154,60 @@ export default function MobileNav() {
             <div className="bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-3 shadow-2xl">
               <div className="flex items-center gap-3">
                 <motion.div whileTap={{ scale: 0.98 }} className="flex-1">
-                  <Link
-                    to="/kapcsolat"
+                  {isInternalLink(settings.primaryCtaLink) ? (
+                    <Link
+                      to={settings.primaryCtaLink}
+                      onClick={() =>
+                        trackEvent("cta_click", {
+                          metadata: {
+                            cta_name: settings.primaryCtaText,
+                            placement: "mobile_bottom_bar",
+                          },
+                        })
+                      }
+                      className="w-full py-3 bg-white text-cyan-600 rounded-xl flex items-center justify-center gap-2 font-semibold"
+                    >
+                      <ArrowRight className="w-5 h-5" />
+                      {settings.primaryCtaText}
+                    </Link>
+                  ) : (
+                    <a
+                      href={settings.primaryCtaLink}
+                      onClick={() =>
+                        trackEvent("cta_click", {
+                          metadata: {
+                            cta_name: settings.primaryCtaText,
+                            placement: "mobile_bottom_bar",
+                          },
+                        })
+                      }
+                      className="w-full py-3 bg-white text-cyan-600 rounded-xl flex items-center justify-center gap-2 font-semibold"
+                    >
+                      <ArrowRight className="w-5 h-5" />
+                      {settings.primaryCtaText}
+                    </a>
+                  )}
+                </motion.div>
+                {settings.phone ? (
+                  <motion.a
+                    href={`tel:${settings.phone.replace(/\s+/g, "")}`}
                     onClick={() =>
-                      trackEvent("cta_click", {
+                      trackEvent("phone_click", {
                         metadata: {
-                          cta_name: "Foglalj most",
                           placement: "mobile_bottom_bar",
                         },
                       })
                     }
-                    className="w-full py-3 bg-white text-cyan-600 rounded-xl flex items-center justify-center gap-2 font-semibold"
+                    className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white"
+                    whileTap={{ scale: 0.9 }}
                   >
-                    <Calendar className="w-5 h-5" />
-                    Foglalj most
-                  </Link>
-                </motion.div>
-                <motion.a
-                  href="tel:+36123456789"
-                  onClick={() =>
-                    trackEvent("phone_click", {
-                      metadata: {
-                        placement: "mobile_bottom_bar",
-                      },
-                    })
-                  }
-                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white"
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Phone className="w-5 h-5" />
-                </motion.a>
+                    <Phone className="w-5 h-5" />
+                  </motion.a>
+                ) : null}
               </div>
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

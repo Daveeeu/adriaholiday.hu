@@ -15,6 +15,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'analytics.view',
             'media.viewAny', 'media.view', 'media.create', 'media.update', 'media.delete',
+            'site-settings.view', 'site-settings.update',
             'select-options.view',
             'tour-reference-options.create',
             'portfolio-filter-chips.viewAny', 'portfolio-filter-chips.view', 'portfolio-filter-chips.create', 'portfolio-filter-chips.update', 'portfolio-filter-chips.delete',
@@ -57,6 +58,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'analytics.view',
             'media.viewAny', 'media.view', 'media.create', 'media.update',
+            'site-settings.view', 'site-settings.update',
             'select-options.view',
             'tour-reference-options.create',
             'portfolio-filter-chips.viewAny', 'portfolio-filter-chips.view', 'portfolio-filter-chips.create', 'portfolio-filter-chips.update', 'portfolio-filter-chips.delete',
@@ -85,6 +87,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'analytics.view',
             'media.viewAny', 'media.view',
+            'site-settings.view',
             'select-options.view',
             'apartments.viewAny', 'apartments.view',
             'tours.viewAny', 'tours.view',
@@ -101,6 +104,7 @@ class RolePermissionSeeder extends Seeder
         ]);
         $support->syncPermissions([
             'dashboard.view',
+            'site-settings.view',
             'select-options.view',
             'regions.viewAny', 'regions.view',
             'locations.viewAny', 'locations.view',

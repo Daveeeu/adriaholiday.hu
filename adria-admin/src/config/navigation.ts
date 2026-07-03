@@ -105,5 +105,5 @@ export const navigationItems: NavigationItem[] = [
   { to: '/buses', labelKey: 'nav.buses', icon: TrainFront, permission: 'buses.viewAny' },
   { to: '/media', labelKey: 'nav.galleries', icon: GalleryVerticalEnd, permission: 'galleries.viewAny' },
   { to: '/email-templates', labelKey: 'nav.emailTemplates', icon: Mail },
-  { to: '/settings', labelKey: 'nav.settings', icon: Settings },
+  { to: '/settings', labelKey: 'nav.settings', icon: Settings, permission: 'site-settings.view' },
 ];

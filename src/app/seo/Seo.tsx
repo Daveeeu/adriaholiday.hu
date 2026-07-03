@@ -1,5 +1,7 @@
 import { Helmet } from "react-helmet-async";
-import { absoluteUrl, SITE_NAME } from "./site";
+
+import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { absoluteUrl } from "./site";
 
 type JsonLd = Record<string, any>;
 
@@ -12,19 +14,23 @@ export default function Seo({
   noIndex,
   jsonLd,
 }: {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   canonicalPath: string;
   ogImageUrl?: string;
   ogType?: "website" | "article" | "product";
   noIndex?: boolean;
   jsonLd?: JsonLd | JsonLd[];
 }) {
-  const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+  const { settings } = useSiteSettings();
+  const siteName = settings.siteName || settings.defaultSeoTitle || "";
+  const effectiveTitle = title?.trim() || settings.defaultSeoTitle || siteName;
+  const effectiveDescription = description?.trim() || settings.defaultSeoDescription || "";
+  const fullTitle = siteName && effectiveTitle && !effectiveTitle.includes(siteName)
+    ? `${effectiveTitle} | ${siteName}`
+    : effectiveTitle;
   const canonicalUrl = absoluteUrl(canonicalPath);
-  const imageUrl =
-    ogImageUrl ??
-    "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;1200x630;";
+  const imageUrl = ogImageUrl ?? settings.defaultOgImage?.sizes?.large ?? settings.defaultOgImage?.url;
 
   const robots = noIndex
     ? "noindex,nofollow"
@@ -34,23 +40,23 @@ export default function Seo({
 
   return (
     <Helmet>
-      <title>{fullTitle}</title>
-      <meta name="description" content={description} />
+      {fullTitle ? <title>{fullTitle}</title> : null}
+      {effectiveDescription ? <meta name="description" content={effectiveDescription} /> : null}
       <meta name="robots" content={robots} />
 
       <link rel="canonical" href={canonicalUrl} />
 
-      <meta property="og:site_name" content={SITE_NAME} />
+      {siteName ? <meta property="og:site_name" content={siteName} /> : null}
       <meta property="og:type" content={ogType ?? "website"} />
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
+      {fullTitle ? <meta property="og:title" content={fullTitle} /> : null}
+      {effectiveDescription ? <meta property="og:description" content={effectiveDescription} /> : null}
       <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:image" content={imageUrl} />
+      {imageUrl ? <meta property="og:image" content={imageUrl} /> : null}
 
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={imageUrl} />
+      {fullTitle ? <meta name="twitter:title" content={fullTitle} /> : null}
+      {effectiveDescription ? <meta name="twitter:description" content={effectiveDescription} /> : null}
+      {imageUrl ? <meta name="twitter:image" content={imageUrl} /> : null}
 
       {jsonLdArray.map((item, index) => (
         <script key={index} type="application/ld+json">

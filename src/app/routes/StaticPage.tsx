@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import Seo from "../seo/Seo";
+import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 
 export default function StaticPage({
   title,
@@ -12,11 +13,13 @@ export default function StaticPage({
   canonicalPath?: string;
   noIndex?: boolean;
 }) {
+  const { settings } = useSiteSettings();
+
   return (
     <div className="min-h-screen bg-white">
       <Seo
         title={title}
-        description={`${title} – Adria Holiday`}
+        description={settings.siteName ? `${title} – ${settings.siteName}` : title}
         canonicalPath={canonicalPath ?? "/"}
         noIndex={noIndex}
       />

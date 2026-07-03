@@ -36,9 +36,12 @@ use App\Http\Controllers\PortfolioContentController;
 use App\Http\Controllers\PortfolioFeaturedTourController;
 use App\Http\Controllers\PortfolioHomepageOfferController;
 use App\Http\Controllers\PortfolioRegionController;
+use App\Http\Controllers\PortfolioSiteSettingController;
+use App\Http\Controllers\Admin\SiteSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
+Route::get('portfolio/site-settings', PortfolioSiteSettingController::class);
 Route::get('portfolio/regions', [PortfolioRegionController::class, 'index']);
 Route::get('portfolio/blog', [PortfolioBlogController::class, 'index']);
 Route::get('portfolio/blog/{slug}', [PortfolioBlogController::class, 'show']);
@@ -69,6 +72,8 @@ Route::prefix('admin')
         Route::delete('portfolio/content/{key}/media', [AdminPortfolioContentController::class, 'deleteMedia']);
         Route::post('portfolio/content/{key}/publish', [AdminPortfolioContentController::class, 'publish']);
         Route::post('portfolio/content/publish-all', [AdminPortfolioContentController::class, 'publishAll']);
+        Route::get('site-settings', [SiteSettingController::class, 'index']);
+        Route::put('site-settings', [SiteSettingController::class, 'update']);
 
         Route::apiResource('regions', RegionController::class);
         Route::get('media', [MediaController::class, 'index']);
