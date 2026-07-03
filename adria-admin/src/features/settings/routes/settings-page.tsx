@@ -75,6 +75,12 @@ const settingsSchema = z.object({
   privacyUrl: z.string().trim(),
   termsUrl: z.string().trim(),
   cookieUrl: z.string().trim(),
+  aboutContent: z.string().trim(),
+  contactContent: z.string().trim(),
+  imprintContent: z.string().trim(),
+  privacyContent: z.string().trim(),
+  termsContent: z.string().trim(),
+  cookieContent: z.string().trim(),
 });
 
 const emptyValues: SiteSettingsFormValues = {
@@ -101,6 +107,12 @@ const emptyValues: SiteSettingsFormValues = {
   privacyUrl: '',
   termsUrl: '',
   cookieUrl: '',
+  aboutContent: '',
+  contactContent: '',
+  imprintContent: '',
+  privacyContent: '',
+  termsContent: '',
+  cookieContent: '',
 };
 
 function normalizeMediaAsset(asset: MediaAsset): SiteSettingsMedia {
@@ -506,6 +518,33 @@ export function SettingsPage() {
               </CardContent>
             </Card>
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Legal page content</CardTitle>
+              <CardDescription>Publikus placeholder vagy végleges tartalom a statikus oldalakhoz.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <FormField control={form.control} name="aboutContent" render={({ field }) => (
+                <FormItem><FormLabel>Rólunk tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Márkabemutatás..." /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="contactContent" render={({ field }) => (
+                <FormItem><FormLabel>Kapcsolat tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Kapcsolatfelvételi információk..." /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="imprintContent" render={({ field }) => (
+                <FormItem><FormLabel>Impresszum tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Cégadatok, üzemeltető..." /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="privacyContent" render={({ field }) => (
+                <FormItem><FormLabel>Adatkezelés tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Adatkezelési tájékoztató..." /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="termsContent" render={({ field }) => (
+                <FormItem><FormLabel>ÁSZF tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Szerződési feltételek..." /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="cookieContent" render={({ field }) => (
+                <FormItem><FormLabel>Cookie tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Cookie tájékoztató..." /></FormControl><FormMessage /></FormItem>
+              )} />
+            </CardContent>
+          </Card>
 
           <div className="flex justify-end">
             <Button type="submit" disabled={mutation.isPending || isUploadingLogo || isUploadingOgImage}>

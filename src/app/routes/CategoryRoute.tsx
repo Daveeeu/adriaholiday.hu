@@ -5,6 +5,7 @@ import CategoryOffersPage from "../components/CategoryOffersPage";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { fetchPortfolioHomepageOffers } from "../content/portfolio-homepage-offers-api";
 import Seo from "../seo/Seo";
+import { absoluteUrl } from "../seo/site";
 
 export default function CategoryRoute() {
   const navigate = useNavigate();
@@ -82,24 +83,35 @@ export default function CategoryRoute() {
         }
         canonicalPath={canonicalPath}
         ogImageUrl={seoCategory?.heroImage}
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            {
-              "@type": "ListItem",
-              position: 1,
-              name: "Főoldal",
-              item: "https://adriaholiday.hu/",
-            },
-            {
-              "@type": "ListItem",
-              position: 2,
-              name: seoCategory?.title ?? "Utazások",
-              item: `https://adriaholiday.hu${canonicalPath}`,
-            },
-          ],
-        }}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: seoCategory?.title ?? "Utazások",
+            description:
+              seoCategory?.subtitle ??
+              "Válogass a legfrissebb ajánlataink közül, és találd meg a következő élményt.",
+            url: absoluteUrl(canonicalPath),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Főoldal",
+                item: absoluteUrl("/"),
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: seoCategory?.title ?? "Utazások",
+                item: absoluteUrl(canonicalPath),
+              },
+            ],
+          },
+        ]}
       />
       <CategoryOffersPage
         categorySlug={categorySlug ?? "korutazasok"}

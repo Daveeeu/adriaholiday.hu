@@ -31,6 +31,12 @@ const emptySettings: ResolvedSiteSettings = {
   privacyUrl: "",
   termsUrl: "",
   cookieUrl: "",
+  aboutContent: "",
+  contactContent: "",
+  imprintContent: "",
+  privacyContent: "",
+  termsContent: "",
+  cookieContent: "",
 };
 
 const SiteSettingsContext = createContext<SiteSettingsContextValue>({
@@ -83,6 +89,12 @@ function resolveSettings(payload: PublicSiteSettingsPayload): ResolvedSiteSettin
     privacyUrl: asString(payload.legal?.privacy_url),
     termsUrl: asString(payload.legal?.terms_url),
     cookieUrl: asString(payload.legal?.cookie_url),
+    aboutContent: asString(payload.legal?.about_content),
+    contactContent: asString(payload.legal?.contact_content),
+    imprintContent: asString(payload.legal?.imprint_content),
+    privacyContent: asString(payload.legal?.privacy_content),
+    termsContent: asString(payload.legal?.terms_content),
+    cookieContent: asString(payload.legal?.cookie_content),
   };
 }
 

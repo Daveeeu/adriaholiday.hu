@@ -42,6 +42,12 @@ function toPayload(values: SiteSettingsFormValues): Array<{
     { group: 'legal', key: 'privacy_url', type: 'string', isPublic: true, value: values.privacyUrl },
     { group: 'legal', key: 'terms_url', type: 'string', isPublic: true, value: values.termsUrl },
     { group: 'legal', key: 'cookie_url', type: 'string', isPublic: true, value: values.cookieUrl },
+    { group: 'legal', key: 'about_content', type: 'text', isPublic: true, value: values.aboutContent },
+    { group: 'legal', key: 'contact_content', type: 'text', isPublic: true, value: values.contactContent },
+    { group: 'legal', key: 'imprint_content', type: 'text', isPublic: true, value: values.imprintContent },
+    { group: 'legal', key: 'privacy_content', type: 'text', isPublic: true, value: values.privacyContent },
+    { group: 'legal', key: 'terms_content', type: 'text', isPublic: true, value: values.termsContent },
+    { group: 'legal', key: 'cookie_content', type: 'text', isPublic: true, value: values.cookieContent },
   ];
 }
 
@@ -110,5 +116,11 @@ export function toSiteSettingsFormValues(settings: SiteSettingItem[]): SiteSetti
     privacyUrl: getStringValue(settings, 'legal', 'privacy_url'),
     termsUrl: getStringValue(settings, 'legal', 'terms_url'),
     cookieUrl: getStringValue(settings, 'legal', 'cookie_url'),
+    aboutContent: getStringValue(settings, 'legal', 'about_content'),
+    contactContent: getStringValue(settings, 'legal', 'contact_content'),
+    imprintContent: getStringValue(settings, 'legal', 'imprint_content'),
+    privacyContent: getStringValue(settings, 'legal', 'privacy_content'),
+    termsContent: getStringValue(settings, 'legal', 'terms_content'),
+    cookieContent: getStringValue(settings, 'legal', 'cookie_content'),
   };
 }

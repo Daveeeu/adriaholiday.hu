@@ -11,6 +11,7 @@ import {
   type PortfolioBlogArticleCard,
   type PortfolioBlogArticleDetail,
 } from "../content/portfolio-blog-api";
+import { absoluteUrl } from "../seo/site";
 
 function ArticleLinkCard({
   article,
@@ -153,24 +154,35 @@ export default function BlogArticleRoute() {
         canonicalPath={`/blog/${article.slug}`}
         ogImageUrl={article.image ?? undefined}
         ogType="article"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "Article",
-          headline: article.title,
-          image: article.image ? [article.image] : [],
-          datePublished: article.publishedAt,
-          articleSection: article.category ?? undefined,
-          description: article.excerpt.replace(/<[^>]+>/g, " ").trim() || article.title,
-          author: {
-            "@type": "Organization",
-            name: "Adria Holiday",
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Főoldal", item: absoluteUrl("/") },
+              { "@type": "ListItem", position: 2, name: "Blog", item: absoluteUrl("/blog") },
+              { "@type": "ListItem", position: 3, name: article.title, item: absoluteUrl(`/blog/${article.slug}`) },
+            ],
           },
-          publisher: {
-            "@type": "Organization",
-            name: "Adria Holiday",
+          {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: article.title,
+            image: article.image ? [article.image] : [],
+            datePublished: article.publishedAt,
+            articleSection: article.category ?? undefined,
+            description: article.excerpt.replace(/<[^>]+>/g, " ").trim() || article.title,
+            author: {
+              "@type": "Organization",
+              name: "Adria Holiday",
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "Adria Holiday",
+            },
+            mainEntityOfPage: absoluteUrl(`/blog/${article.slug}`),
           },
-          mainEntityOfPage: `https://adriaholiday.hu/blog/${article.slug}`,
-        }}
+        ]}
       />
 
       <section className="relative overflow-hidden bg-gradient-to-br from-[#071426] via-[#0d1f36] to-[#12314b] pb-16 pt-28 md:pt-36">

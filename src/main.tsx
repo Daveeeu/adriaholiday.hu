@@ -10,6 +10,8 @@ import TripRoute from "./app/routes/TripRoute";
 import BlogRoute from "./app/routes/BlogRoute";
 import BlogArticleRoute from "./app/routes/BlogArticleRoute";
 import { HelmetProvider } from "react-helmet-async";
+import RegionRoute from "./app/routes/RegionRoute";
+import NotFoundRoute from "./app/routes/NotFoundRoute";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +40,7 @@ const router = createBrowserRouter([
         ),
       },
       { path: "kategoriak/:categorySlug", element: <CategoryRoute /> },
+      { path: "regiok/:regionSlug", element: <RegionRoute /> },
       { path: "ajanlat/:offerSlug", element: <TripRoute /> },
       { path: "blog", element: <BlogRoute /> },
       { path: "blog/:slug", element: <BlogArticleRoute /> },
@@ -59,16 +62,7 @@ const router = createBrowserRouter([
         path: "sutik",
         element: <StaticPage title="Süti kezelés" canonicalPath="/sutik" />,
       },
-      {
-        path: "*",
-        element: (
-          <StaticPage
-            title="Az oldal nem található"
-            canonicalPath="/"
-            noIndex
-          />
-        ),
-      },
+      { path: "*", element: <NotFoundRoute /> },
     ],
   },
 ]);

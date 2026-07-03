@@ -14,6 +14,7 @@ import {
   type PortfolioOfferDetailDate,
 } from "../content/portfolio-offer-detail-api";
 import { useAnalytics } from "../analytics/useAnalytics";
+import { absoluteUrl } from "../seo/site";
 
 function formatCalendarDate(value?: string | null) {
   if (!value) {
@@ -226,23 +227,35 @@ export default function TripRoute() {
         canonicalPath={`/ajanlat/${offer.slug}`}
         ogImageUrl={offer.image}
         ogType="product"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: offer.title,
-          image: [offer.image],
-          description:
-            offer.shortDescription ??
-            `${offer.country} | ${offer.duration ?? "Utazás"} | ${offer.price}`,
-          brand: { "@type": "Brand", name: "Adria Holiday" },
-          offers: {
-            "@type": "Offer",
-            priceCurrency: "HUF",
-            price: offer.priceNumber,
-            availability: "https://schema.org/InStock",
-            url: `https://adriaholiday.hu/ajanlat/${offer.slug}`,
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Főoldal", item: absoluteUrl("/") },
+              { "@type": "ListItem", position: 2, name: "Utazások", item: absoluteUrl("/utazasok") },
+              { "@type": "ListItem", position: 3, name: offer.title, item: absoluteUrl(`/ajanlat/${offer.slug}`) },
+            ],
           },
-        }}
+          {
+            "@context": "https://schema.org",
+            "@type": "TouristTrip",
+            name: offer.title,
+            image: offer.image ? [offer.image] : [],
+            description:
+              offer.shortDescription ??
+              `${offer.country} | ${offer.duration ?? "Utazás"} | ${offer.price}`,
+            touristType: offer.transport ?? undefined,
+            itinerary: offer.program ?? undefined,
+            offers: {
+              "@type": "Offer",
+              priceCurrency: "HUF",
+              price: offer.priceNumber ?? undefined,
+              availability: "https://schema.org/InStock",
+              url: absoluteUrl(`/ajanlat/${offer.slug}`),
+            },
+          },
+        ]}
       />
       <TripDetailPage
         trip={offer}

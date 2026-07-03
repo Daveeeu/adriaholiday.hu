@@ -64,6 +64,12 @@ class SiteSettingsSeeder extends Seeder
             ['group' => 'legal', 'key' => 'privacy_url', 'type' => 'string', 'is_public' => true, 'value' => '/adatvedelem'],
             ['group' => 'legal', 'key' => 'terms_url', 'type' => 'string', 'is_public' => true, 'value' => '/aszf'],
             ['group' => 'legal', 'key' => 'cookie_url', 'type' => 'string', 'is_public' => true, 'value' => '/sutik'],
+            ['group' => 'legal', 'key' => 'about_content', 'type' => 'text', 'is_public' => true, 'value' => "Az Adria Holiday célja, hogy átlátható, biztonságos és inspiráló utazási élményt adjon.\n\nEzen az oldalon röviden bemutathatod a márka történetét, a csapatot és azt, hogyan dolgoztok az ügyfelekkel."],
+            ['group' => 'legal', 'key' => 'contact_content', 'type' => 'text', 'is_public' => true, 'value' => "Vedd fel velünk a kapcsolatot telefonon, e-mailben vagy WhatsAppon.\n\nA lenti elérhetőségeken munkaidőben gyorsan válaszolunk, ajánlatkérés esetén pedig rövid időn belül visszajelzünk."],
+            ['group' => 'legal', 'key' => 'imprint_content', 'type' => 'text', 'is_public' => true, 'value' => "Ez az oldal a szolgáltató hivatalos azonosító adatait tartalmazza.\n\nAdd meg itt a cégnév, székhely, adószám, cégjegyzékszám, nyilvántartó hatóság és kapcsolattartási adatok végleges szövegét."],
+            ['group' => 'legal', 'key' => 'privacy_content', 'type' => 'text', 'is_public' => true, 'value' => "Az adatkezelési tájékoztató ismerteti, milyen személyes adatokat kezeltek, milyen jogalapon és mennyi ideig.\n\nRészletezd a kapcsolatfelvételi űrlapok, ajánlatkérések, analitikai sütik és marketing rendszerek adatkezelését."],
+            ['group' => 'legal', 'key' => 'terms_content', 'type' => 'text', 'is_public' => true, 'value' => "Az ÁSZF oldal a foglalási, fizetési, lemondási és felelősségi feltételek összefoglaló helye.\n\nA production indulás előtt cseréld ezt a mintaszöveget a végleges jogi tartalomra."],
+            ['group' => 'legal', 'key' => 'cookie_content', 'type' => 'text', 'is_public' => true, 'value' => "A cookie tájékoztató mutassa be a feltétlenül szükséges, analitikai és marketing sütik célját.\n\nÍrd le, hogyan módosítható a hozzájárulás, és mely szolgáltatók kapnak adatot a sütikből."],
         ];
     }
 }

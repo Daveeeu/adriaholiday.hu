@@ -37,4 +37,30 @@ class PortfolioRegionController extends Controller
 
         return response()->json($regions);
     }
+
+    public function show(string $slug)
+    {
+        $region = Region::query()
+            ->where('is_active', true)
+            ->where('slug', $slug)
+            ->with('media')
+            ->withCount([
+                'apartments as apartments_count' => fn ($query) => $query->where('is_active', true),
+            ])
+            ->firstOrFail();
+
+        $media = $region->getFirstMedia('portfolio-image');
+
+        return response()->json([
+            'slug' => $region->slug,
+            'name' => $region->name,
+            'image' => $media?->getUrl() ?: $region->portfolio_image_url ?: $region->hero_image_url,
+            'imageMedia' => $media ? new \App\Http\Resources\MediaResource($media) : null,
+            'description' => $region->portfolio_short_description ?: $region->summary,
+            'fullDescription' => $region->description,
+            'apartmentCount' => (int) $region->apartments_count,
+            'portfolioFeatured' => (bool) $region->portfolio_featured,
+            'portfolioSortOrder' => (int) $region->portfolio_sort_order,
+        ]);
+    }
 }

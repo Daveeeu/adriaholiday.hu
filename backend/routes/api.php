@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
 Route::get('portfolio/site-settings', PortfolioSiteSettingController::class);
 Route::get('portfolio/regions', [PortfolioRegionController::class, 'index']);
+Route::get('portfolio/regions/{slug}', [PortfolioRegionController::class, 'show']);
 Route::get('portfolio/blog', [PortfolioBlogController::class, 'index']);
 Route::get('portfolio/blog/{slug}', [PortfolioBlogController::class, 'show']);
 Route::get('portfolio/homepage-offers', [PortfolioHomepageOfferController::class, 'index']);

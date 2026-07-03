@@ -18,6 +18,8 @@ import { useNavigate } from "react-router";
 import Seo from "../seo/Seo";
 import { useEffect } from "react";
 import { resolveCategorySlugFromOfferLink } from "../content/portfolio-offer-routing";
+import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { absoluteUrl } from "../seo/site";
 
 export default function HomeRoute({
   canonicalPath = "/",
@@ -29,6 +31,7 @@ export default function HomeRoute({
   description?: string;
 }) {
   const navigate = useNavigate();
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     document.documentElement.classList.add("ah-snap");
@@ -49,14 +52,18 @@ export default function HomeRoute({
           {
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: "Adria Holiday",
-            url: "https://adriaholiday.hu/",
+            name: settings.siteName || "Adria Holiday",
+            url: absoluteUrl("/"),
+            email: settings.email || undefined,
+            telephone: settings.phone || undefined,
+            address: settings.address || undefined,
+            sameAs: [settings.facebook, settings.instagram, settings.tiktok].filter(Boolean),
           },
           {
             "@context": "https://schema.org",
             "@type": "WebSite",
-            name: "Adria Holiday",
-            url: "https://adriaholiday.hu/",
+            name: settings.siteName || "Adria Holiday",
+            url: absoluteUrl("/"),
           },
         ]}
       />

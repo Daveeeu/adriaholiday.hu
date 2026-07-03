@@ -8,6 +8,7 @@ import {
   fetchPortfolioBlogArticles,
   type PortfolioBlogArticleCard,
 } from "../content/portfolio-blog-api";
+import { absoluteUrl } from "../seo/site";
 
 function ArticleCard({ article }: { article: PortfolioBlogArticleCard }) {
   return (
@@ -99,6 +100,23 @@ export default function BlogRoute() {
         canonicalPath="/blog"
         ogType="article"
         ogImageUrl={featured?.image ?? undefined}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Utazó blog",
+            description: "Utazási inspirációk, tippek és történetek az Adria Holiday blogján.",
+            url: absoluteUrl("/blog"),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Főoldal", item: absoluteUrl("/") },
+              { "@type": "ListItem", position: 2, name: "Blog", item: absoluteUrl("/blog") },
+            ],
+          },
+        ]}
       />
 
       <section className="relative overflow-hidden bg-gradient-to-br from-[#071426] via-[#0d1f36] to-[#12314b] pb-20 pt-28 md:pt-36">

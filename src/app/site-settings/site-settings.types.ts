@@ -27,7 +27,18 @@ export type PublicSiteSettingsPayload = {
   footer?: { copyright?: string; quick_links?: SiteLinkItem[] };
   cta?: { primary_text?: string; primary_link?: string };
   seo?: { default_title?: string; default_description?: string; default_og_image?: SiteMedia };
-  legal?: { imprint_url?: string; privacy_url?: string; terms_url?: string; cookie_url?: string };
+  legal?: {
+    imprint_url?: string;
+    privacy_url?: string;
+    terms_url?: string;
+    cookie_url?: string;
+    about_content?: string;
+    contact_content?: string;
+    imprint_content?: string;
+    privacy_content?: string;
+    terms_content?: string;
+    cookie_content?: string;
+  };
 };
 
 export type ResolvedSiteSettings = {
@@ -52,4 +63,10 @@ export type ResolvedSiteSettings = {
   privacyUrl: string;
   termsUrl: string;
   cookieUrl: string;
+  aboutContent: string;
+  contactContent: string;
+  imprintContent: string;
+  privacyContent: string;
+  termsContent: string;
+  cookieContent: string;
 };

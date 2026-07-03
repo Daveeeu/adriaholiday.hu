@@ -69,4 +69,10 @@ export type SiteSettingsFormValues = {
   privacyUrl: string;
   termsUrl: string;
   cookieUrl: string;
+  aboutContent: string;
+  contactContent: string;
+  imprintContent: string;
+  privacyContent: string;
+  termsContent: string;
+  cookieContent: string;
 };
