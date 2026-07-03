@@ -21,6 +21,28 @@ export default defineConfig(({ command }) => ({
   build: {
     outDir: path.resolve(__dirname, './backend/public/portfolio'),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('lottie-react') || id.includes('lottie-web')) {
+              return 'lottie';
+            }
+
+            if (id.includes('react-router') || id.includes('react-helmet-async')) {
+              return 'router';
+            }
+
+            if (id.includes('motion') || id.includes('framer-motion')) {
+              return 'motion';
+            }
+
+            return 'vendor';
+          }
+
+        },
+      },
+    },
   },
   plugins: [
     figmaAssetResolver(),

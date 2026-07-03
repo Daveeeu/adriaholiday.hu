@@ -4,6 +4,7 @@ import {
   Outlet,
   RouterProvider,
 } from 'react-router-dom';
+import { lazy } from 'react';
 
 import { RouteErrorFallback } from '@/components/common/route-error-fallback';
 import { AppShell } from '@/components/layout/app-shell';
@@ -23,27 +24,40 @@ import { CouponsPage } from '@/features/bookings/routes/coupons-page';
 import { EmailCsvExportPage } from '@/features/bookings/routes/email-csv-export-page';
 import { BookingsOverviewPage } from '@/features/bookings/routes/bookings-overview-page';
 import { BusesPage } from '@/features/buses/routes/buses-page';
-import { DashboardPage } from '@/features/dashboard/routes/dashboard-page';
-import { AnalyticsPage } from '@/features/analytics/routes/analytics-page';
 import { EmailTemplatesPage } from '@/features/email-templates/routes/email-templates-page';
-import { GalleriesPage } from '@/features/galleries/routes/galleries-page';
 import { GuestsPage } from '@/features/guests/routes/guests-page';
 import { LocationsPage } from '@/features/locations/routes/locations-page';
 import { OfferDatesPage } from '@/features/offer-dates/routes/offer-dates-page';
 import { OffersPage } from '@/features/offers/routes/offers-page';
 import { RegionsPage } from '@/features/regions/routes/regions-page';
-import { SettingsPage } from '@/features/settings/routes/settings-page';
 import { HomepageOffersPage } from '@/features/homepage-offers/routes/homepage-offers-page';
 import { PortfolioFilterChipsPage } from '@/features/portfolio-filter-chips/routes/portfolio-filter-chips-page';
 import { BlogPage } from '@/features/blog/routes/blog-page';
 import { BlogCategoriesPage } from '@/features/blog/routes/blog-categories-page';
 import { BlogTagsPage } from '@/features/blog/routes/blog-tags-page';
-import { PortfolioEditorPage } from '@/features/portfolio-content';
-import { ToursPage } from '@/features/tours/routes/tours-page';
 import { TourPartnerOffersPage } from '@/features/tours/pages/TourPartnerOffersPage';
 import { TourRegionGroupsPage } from '@/features/tours/pages/TourRegionGroupsPage';
 import { TourSeasonalGroupsPage } from '@/features/tours/pages/TourSeasonalGroupsPage';
 import { TourDeparturePlacesPage } from '@/features/tours/pages/TourDeparturePlacesPage';
+
+const DashboardPage = lazy(() =>
+  import('@/features/dashboard/routes/dashboard-page').then((module) => ({ default: module.DashboardPage })),
+);
+const AnalyticsPage = lazy(() =>
+  import('@/features/analytics/routes/analytics-page').then((module) => ({ default: module.AnalyticsPage })),
+);
+const GalleriesPage = lazy(() =>
+  import('@/features/galleries/routes/galleries-page').then((module) => ({ default: module.GalleriesPage })),
+);
+const SettingsPage = lazy(() =>
+  import('@/features/settings/routes/settings-page').then((module) => ({ default: module.SettingsPage })),
+);
+const PortfolioEditorPage = lazy(() =>
+  import('@/features/portfolio-content').then((module) => ({ default: module.PortfolioEditorPage })),
+);
+const ToursPage = lazy(() =>
+  import('@/features/tours/pages/ToursPage').then((module) => ({ default: module.ToursPage })),
+);
 
 const basename =
   typeof window !== 'undefined' && window.location.pathname.startsWith('/admin') ? '/admin' : '/';

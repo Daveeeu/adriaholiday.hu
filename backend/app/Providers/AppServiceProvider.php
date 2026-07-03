@@ -18,6 +18,7 @@ use App\Models\PartnerFinanceRecord;
 use App\Models\PortfolioContentBlock;
 use App\Models\PortfolioFilterChip;
 use App\Models\Region;
+use App\Models\SiteSetting;
 use App\Models\Tour;
 use App\Models\TourDeparturePlace;
 use App\Models\TourPartnerOffer;
@@ -44,6 +45,7 @@ use App\Policies\TourPartnerOfferPolicy;
 use App\Policies\TourPolicy;
 use App\Policies\TourRegionGroupPolicy;
 use App\Policies\TourSeasonalGroupPolicy;
+use App\Support\PublicContentCache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -83,5 +85,53 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TourSeasonalGroup::class, TourSeasonalGroupPolicy::class);
         Gate::policy(TourDeparturePlace::class, TourDeparturePlacePolicy::class);
         Gate::policy(TourPartnerOffer::class, TourPartnerOfferPolicy::class);
+
+        HomepageOffer::saved(fn () => PublicContentCache::bump(
+            PublicContentCache::CATEGORY_LIST,
+            PublicContentCache::SITEMAP,
+        ));
+        HomepageOffer::deleted(fn () => PublicContentCache::bump(
+            PublicContentCache::CATEGORY_LIST,
+            PublicContentCache::SITEMAP,
+        ));
+
+        BlogArticle::saved(fn () => PublicContentCache::bump(
+            PublicContentCache::BLOG,
+            PublicContentCache::SITEMAP,
+        ));
+        BlogArticle::deleted(fn () => PublicContentCache::bump(
+            PublicContentCache::BLOG,
+            PublicContentCache::SITEMAP,
+        ));
+
+        Tour::saved(fn () => PublicContentCache::bump(
+            PublicContentCache::PORTFOLIO_FILTERS,
+            PublicContentCache::SITEMAP,
+        ));
+        Tour::deleted(fn () => PublicContentCache::bump(
+            PublicContentCache::PORTFOLIO_FILTERS,
+            PublicContentCache::SITEMAP,
+        ));
+
+        Region::saved(fn () => PublicContentCache::bump(
+            PublicContentCache::REGIONS,
+            PublicContentCache::SITEMAP,
+        ));
+        Region::deleted(fn () => PublicContentCache::bump(
+            PublicContentCache::REGIONS,
+            PublicContentCache::SITEMAP,
+        ));
+
+        PortfolioFilterChip::saved(fn () => PublicContentCache::bump(PublicContentCache::PORTFOLIO_FILTERS));
+        PortfolioFilterChip::deleted(fn () => PublicContentCache::bump(PublicContentCache::PORTFOLIO_FILTERS));
+
+        SiteSetting::saved(fn () => PublicContentCache::bump(
+            PublicContentCache::SITE_SETTINGS,
+            PublicContentCache::SITEMAP,
+        ));
+        SiteSetting::deleted(fn () => PublicContentCache::bump(
+            PublicContentCache::SITE_SETTINGS,
+            PublicContentCache::SITEMAP,
+        ));
     }
 }

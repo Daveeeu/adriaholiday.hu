@@ -6,6 +6,7 @@ use App\Models\BlogArticle;
 use App\Models\HomepageOffer;
 use App\Models\Region;
 use App\Models\Tour;
+use App\Support\PublicContentCache;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -14,17 +15,24 @@ class SitemapController extends Controller
 {
     public function __invoke(): Response
     {
-        $items = collect()
-            ->merge($this->staticPages())
-            ->merge($this->categoryPages())
-            ->merge($this->regionPages())
-            ->merge($this->offerPages())
-            ->merge($this->blogPages())
-            ->values();
+        $xml = PublicContentCache::remember(
+            PublicContentCache::SITEMAP,
+            'xml',
+            3600,
+            function () {
+                $items = collect()
+                    ->merge($this->staticPages())
+                    ->merge($this->categoryPages())
+                    ->merge($this->regionPages())
+                    ->merge($this->offerPages())
+                    ->merge($this->blogPages())
+                    ->values();
 
-        $xml = view('seo.sitemap', [
-            'items' => $items,
-        ])->render();
+                return view('seo.sitemap', [
+                    'items' => $items,
+                ])->render();
+            }
+        );
 
         return response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',

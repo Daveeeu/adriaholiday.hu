@@ -235,6 +235,9 @@ export default function BlogArticleRoute() {
                   src={article.image}
                   alt={article.title}
                   className="h-full w-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
               </div>
             ) : null}

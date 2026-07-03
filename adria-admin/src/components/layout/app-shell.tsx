@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { TopBar } from '@/components/layout/top-bar';
@@ -80,7 +80,18 @@ export function AppShell() {
             </div>
           </header>
           <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 lg:px-6">
-            <Outlet />
+            <Suspense
+              fallback={
+                <div className="flex min-h-[40vh] items-center justify-center">
+                  <div className="space-y-3 text-center">
+                    <div className="mx-auto size-12 animate-spin rounded-full border border-primary/20 border-t-primary border-r-primary" />
+                    <p className="text-sm text-muted-foreground">Modul betöltése...</p>
+                  </div>
+                </div>
+              }
+            >
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </div>

@@ -27,7 +27,13 @@ function OfferCard({
     >
       <div className="relative h-64 overflow-hidden">
         {card.imageUrl ? (
-          <img src={card.imageUrl} alt={card.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          <img
+            src={card.imageUrl}
+            alt={card.title}
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+          />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-[#dff8ef] to-[#e5f4ff]" />
         )}
@@ -166,7 +172,14 @@ export default function RegionRoute() {
 
       <section className="relative h-[480px] overflow-hidden">
         {region.image ? (
-          <img src={region.image} alt={region.name} className="absolute inset-0 h-full w-full object-cover" />
+          <img
+            src={region.image}
+            alt={region.name}
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-[#07111f]/90 via-[#07111f]/56 to-[#07111f]/22" />
         <div className="relative z-10 mx-auto flex h-full max-w-[1400px] items-end px-8 pb-16 md:px-12 lg:px-20">

@@ -112,7 +112,27 @@ class PortfolioOfferQuery
      */
     public static function resolveScopedFilterChips(string $slug): Collection
     {
-        return PortfolioFilterChip::query()
+        static $cache = [];
+
+        if (array_key_exists($slug, $cache)) {
+            return $cache[$slug];
+        }
+
+        return $cache[$slug] = PortfolioFilterChip::query()
+            ->select([
+                'id',
+                'label',
+                'slug',
+                'icon',
+                'filter_type',
+                'filter_value',
+                'filter_config',
+                'hide_when_zero',
+                'scope_type',
+                'scope_value',
+                'sort_order',
+                'active',
+            ])
             ->where('active', true)
             ->where(function (Builder $builder) use ($slug): void {
                 $builder->where('scope_type', 'global')
@@ -163,8 +183,11 @@ class PortfolioOfferQuery
     public static function buildPublicChipPayload(Request $request, string $scopeSlug): array
     {
         $selectedSlugs = self::parseFilterSlugs($request->query('filters'));
-        $selected = self::resolveSelectedFilterChips($scopeSlug, $selectedSlugs)->keyBy('slug');
         $chips = self::resolveScopedFilterChips($scopeSlug);
+        $selected = $chips
+            ->filter(fn (PortfolioFilterChip $chip): bool => in_array($chip->slug, $selectedSlugs, true))
+            ->values()
+            ->keyBy('slug');
 
         return $chips->map(function (PortfolioFilterChip $chip) use ($request, $scopeSlug, $selected, $selectedSlugs): ?array {
             $otherSelected = $selected->except($chip->slug)->values();
@@ -260,14 +283,10 @@ class PortfolioOfferQuery
             return $cache[$value] = (string) $value;
         }
 
-        $normalized = str_replace('-', ' ', $value);
         $tagTranslation = BlogTagTranslation::query()
             ->where('locale', 'hu')
-            ->get(['blog_tag_id', 'name'])
-            ->first(function (BlogTagTranslation $translation) use ($value, $normalized): bool {
-                return str($translation->name)->slug()->toString() === $value
-                    || str($translation->name)->slug()->toString() === str($normalized)->slug()->toString();
-            });
+            ->where('seo_name', $value)
+            ->first(['blog_tag_id']);
 
         return $cache[$value] = $tagTranslation ? (string) $tagTranslation->blog_tag_id : null;
     }

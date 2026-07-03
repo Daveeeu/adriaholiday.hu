@@ -1,25 +1,34 @@
 import AmbientBackground from "../components/AmbientBackground";
 import CinematicHero from "../components/CinematicHero";
 import CursorGlow from "../components/CursorGlow";
-import EmotionalStory from "../components/EmotionalStory";
-import ExperienceSection from "../components/ExperienceSection";
-import FAQ from "../components/FAQ";
 import FloatingParticles from "../components/FloatingParticles";
-import HowItWorks from "../components/HowItWorks";
-import Newsletter from "../components/Newsletter";
 import ScrollProgress from "../components/ScrollProgress";
 import StickyMobileCTA from "../components/StickyMobileCTA";
-import TravelBlog from "../components/TravelBlog";
-import TravelCategories from "../components/TravelCategories";
-import TrustSection from "../components/TrustSection";
-import WhyChooseUs from "../components/WhyChooseUs";
-import FeaturedOffers from "../components/FeaturedOffers";
 import { useNavigate } from "react-router";
 import Seo from "../seo/Seo";
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { resolveCategorySlugFromOfferLink } from "../content/portfolio-offer-routing";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { absoluteUrl } from "../seo/site";
+
+const EmotionalStory = lazy(() => import("../components/EmotionalStory"));
+const ExperienceSection = lazy(() => import("../components/ExperienceSection"));
+const FAQ = lazy(() => import("../components/FAQ"));
+const HowItWorks = lazy(() => import("../components/HowItWorks"));
+const Newsletter = lazy(() => import("../components/Newsletter"));
+const TravelBlog = lazy(() => import("../components/TravelBlog"));
+const TravelCategories = lazy(() => import("../components/TravelCategories"));
+const TrustSection = lazy(() => import("../components/TrustSection"));
+const WhyChooseUs = lazy(() => import("../components/WhyChooseUs"));
+const FeaturedOffers = lazy(() => import("../components/FeaturedOffers"));
+
+function SectionFallback({ minHeight = "min-h-[320px]" }: { minHeight?: string }) {
+  return (
+    <div className={`flex ${minHeight} items-center justify-center`}>
+      <div className="h-14 w-14 rounded-full border border-[#00c389]/20 border-t-[#00c389] border-r-[#16b8ff] animate-spin" />
+    </div>
+  );
+}
 
 export default function HomeRoute({
   canonicalPath = "/",
@@ -80,40 +89,60 @@ export default function HomeRoute({
       </section>
 
       <section className="ah-snap-section">
-        <TravelCategories
-          onCategorySelect={(categorySlug) => {
-            navigate(`/kategoriak/${resolveCategorySlugFromOfferLink(categorySlug)}`);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        />
+        <Suspense fallback={<SectionFallback />}>
+          <TravelCategories
+            onCategorySelect={(categorySlug) => {
+              navigate(`/kategoriak/${resolveCategorySlugFromOfferLink(categorySlug)}`);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
+        </Suspense>
       </section>
 
       <section className="ah-snap-section">
-        <FeaturedOffers />
+        <Suspense fallback={<SectionFallback />}>
+          <FeaturedOffers />
+        </Suspense>
       </section>
       <section className="ah-snap-section">
-        <EmotionalStory />
+        <Suspense fallback={<SectionFallback />}>
+          <EmotionalStory />
+        </Suspense>
       </section>
       <section className="ah-snap-section">
-        <ExperienceSection />
+        <Suspense fallback={<SectionFallback />}>
+          <ExperienceSection />
+        </Suspense>
       </section>
       <section className="ah-snap-section">
-        <WhyChooseUs />
+        <Suspense fallback={<SectionFallback />}>
+          <WhyChooseUs />
+        </Suspense>
       </section>
       <section className="ah-snap-section">
-        <TravelBlog />
+        <Suspense fallback={<SectionFallback />}>
+          <TravelBlog />
+        </Suspense>
       </section>
       <section className="ah-snap-section">
-        <HowItWorks />
+        <Suspense fallback={<SectionFallback />}>
+          <HowItWorks />
+        </Suspense>
       </section>
       <section className="ah-snap-section">
-        <TrustSection />
+        <Suspense fallback={<SectionFallback />}>
+          <TrustSection />
+        </Suspense>
       </section>
       <section className="ah-snap-section">
-        <FAQ />
+        <Suspense fallback={<SectionFallback minHeight="min-h-[240px]" />}>
+          <FAQ />
+        </Suspense>
       </section>
       <section className="ah-snap-section">
-        <Newsletter />
+        <Suspense fallback={<SectionFallback minHeight="min-h-[280px]" />}>
+          <Newsletter />
+        </Suspense>
       </section>
       <StickyMobileCTA />
     </div>

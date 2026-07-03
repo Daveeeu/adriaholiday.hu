@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\PortfolioContent\UploadPortfolioContentBlockMediaReq
 use App\Http\Requests\Admin\PortfolioContent\UpdatePortfolioContentBlockRequest;
 use App\Http\Resources\PortfolioContentBlockResource;
 use App\Models\PortfolioContentBlock;
+use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use App\Support\MediaCategory;
 use Illuminate\Http\Request;
@@ -125,6 +126,8 @@ class PortfolioContentController extends Controller
 
         $block->publishDraftMedia();
 
+        PublicContentCache::bump(PublicContentCache::HOMEPAGE_CONTENT);
+
         return new PortfolioContentBlockResource($block->refresh());
     }
 
@@ -148,6 +151,8 @@ class PortfolioContentController extends Controller
 
             $block->publishDraftMedia();
         }
+
+        PublicContentCache::bump(PublicContentCache::HOMEPAGE_CONTENT);
 
         return response()->json([
             'page' => $page,

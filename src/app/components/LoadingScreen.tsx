@@ -1,6 +1,4 @@
 import { motion } from "motion/react";
-import Lottie from "lottie-react";
-import loadingAnimation from "../../imports/loading.json";
 
 export default function LoadingScreen() {
   return (
@@ -8,52 +6,48 @@ export default function LoadingScreen() {
       className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#0A1628] via-[#0f172a] to-[#0A1628]"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.35 }}
     >
-      {/* Atmospheric Mediterranean glow */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-br from-[#00c389]/15 via-[#16b8ff]/10 to-transparent rounded-full blur-3xl"
+          className="absolute left-1/2 top-1/2 h-[720px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#00c389]/14 via-[#16b8ff]/10 to-transparent blur-3xl"
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
+            scale: [1, 1.12, 1],
+            opacity: [0.28, 0.42, 0.28],
           }}
           transition={{
-            duration: 4,
+            duration: 3.2,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
       </div>
 
-      {/* Loading animation */}
       <div className="relative z-10 flex flex-col items-center gap-8">
-        <motion.div
-          className="w-32 h-32"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="relative">
-            {/* Soft turquoise glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#00c389] to-[#16b8ff] rounded-full blur-2xl opacity-40" />
-            <Lottie
-              animationData={loadingAnimation}
-              loop={true}
-              className="w-full h-full relative z-10"
-            />
-          </div>
-        </motion.div>
+        <div className="relative">
+          <motion.div
+            className="h-24 w-24 rounded-full border border-white/10"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: "linear" }}
+          >
+            <div className="absolute inset-2 rounded-full border-4 border-transparent border-t-[#00c389] border-r-[#16b8ff]" />
+          </motion.div>
+          <motion.div
+            className="absolute inset-0 rounded-full"
+            animate={{
+              boxShadow: [
+                "0 0 0 rgba(0,195,137,0.0)",
+                "0 0 36px rgba(0,195,137,0.22)",
+                "0 0 0 rgba(0,195,137,0.0)",
+              ],
+            }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
 
-        {/* Elegant loading text */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+        <div className="text-center">
           <h2
-            className="text-white mb-2"
+            className="mb-2 text-white"
             style={{
               fontSize: "1.5rem",
               fontWeight: 600,
@@ -62,35 +56,16 @@ export default function LoadingScreen() {
           >
             Az utazásod{" "}
             <span className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-transparent">
-              kezdődik
+              betöltődik
             </span>
           </h2>
           <motion.p
-            className="text-white/60 text-sm"
-            animate={{ opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            className="text-sm text-white/60"
+            animate={{ opacity: [0.55, 1, 0.55] }}
+            transition={{ duration: 1.8, repeat: Infinity }}
           >
             Kérlek várj...
           </motion.p>
-        </motion.div>
-
-        {/* Animated progress dots */}
-        <div className="flex gap-2">
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={i}
-              className="w-2 h-2 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff]"
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                delay: i * 0.2,
-              }}
-            />
-          ))}
         </div>
       </div>
     </motion.div>

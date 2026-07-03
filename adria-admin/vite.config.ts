@@ -8,6 +8,37 @@ export default defineConfig(({ command }) => ({
   build: {
     outDir: path.resolve(__dirname, '../backend/public/admin'),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return;
+          }
+
+          if (id.includes('react-router')) {
+            return 'router';
+          }
+
+          if (id.includes('@tanstack')) {
+            return 'tanstack';
+          }
+
+          if (
+            id.includes('react-hook-form')
+            || id.includes('@hookform')
+            || id.includes('zod')
+          ) {
+            return 'forms';
+          }
+
+          if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+            return 'ui';
+          }
+
+          return 'vendor';
+        },
+      },
+    },
   },
   plugins: [react(), tailwindcss()],
   resolve: {

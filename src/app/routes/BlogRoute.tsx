@@ -20,6 +20,8 @@ function ArticleCard({ article }: { article: PortfolioBlogArticleCard }) {
               src={article.image}
               alt={article.title}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="h-full w-full bg-gradient-to-br from-[#dff8ef] to-[#e5f4ff]" />
@@ -156,6 +158,9 @@ export default function BlogRoute() {
                       src={featured.image}
                       alt={featured.title}
                       className="absolute inset-0 h-full w-full object-cover"
+                      loading="eager"
+                      fetchPriority="high"
+                      decoding="async"
                     />
                   ) : null}
                   <div className="absolute inset-0 bg-gradient-to-r from-[#071426]/72 via-[#071426]/24 to-transparent" />

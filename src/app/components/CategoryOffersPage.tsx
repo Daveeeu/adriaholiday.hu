@@ -344,6 +344,9 @@ export default function CategoryOffersPage({
           }
           alt={title}
           className="absolute inset-0 h-full w-full object-cover"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#07111f]/88 via-[#07111f]/48 to-[#07111f]/20" />
 
@@ -693,6 +696,8 @@ function SpotlightOfferCard({
           src={offer.card.imageUrl}
           alt={offer.card.imageAlt ?? offer.card.name}
           className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-slate-500 to-slate-800" />
@@ -877,6 +882,8 @@ function RecommendedOfferCard({
           src={offer.card.imageUrl}
           alt={offer.card.imageAlt ?? offer.card.name}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-slate-400 to-slate-700" />
@@ -944,6 +951,8 @@ function ResultOfferCard({
             src={offer.card.imageUrl}
             alt={offer.card.imageAlt ?? offer.card.name}
             className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-slate-300 via-slate-200 to-slate-100" />

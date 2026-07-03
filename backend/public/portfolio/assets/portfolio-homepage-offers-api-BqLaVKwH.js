@@ -1,0 +1,1 @@
+function t(){return"/api"}async function o(){const e=await fetch(`${t()}/portfolio/homepage-offers`,{headers:{Accept:"application/json"},credentials:"include"});if(!e.ok)throw new Error(`Request failed with status ${e.status}`);return await e.json()}export{o as f};

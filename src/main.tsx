@@ -1,17 +1,20 @@
 
+import { Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import "./styles/index.css";
 import RootLayout from "./app/routes/RootLayout";
-import HomeRoute from "./app/routes/HomeRoute";
-import StaticPage from "./app/routes/StaticPage";
-import CategoryRoute from "./app/routes/CategoryRoute";
-import TripRoute from "./app/routes/TripRoute";
-import BlogRoute from "./app/routes/BlogRoute";
-import BlogArticleRoute from "./app/routes/BlogArticleRoute";
 import { HelmetProvider } from "react-helmet-async";
-import RegionRoute from "./app/routes/RegionRoute";
-import NotFoundRoute from "./app/routes/NotFoundRoute";
+import LoadingScreen from "./app/components/LoadingScreen";
+
+const HomeRoute = lazy(() => import("./app/routes/HomeRoute"));
+const StaticPage = lazy(() => import("./app/routes/StaticPage"));
+const CategoryRoute = lazy(() => import("./app/routes/CategoryRoute"));
+const TripRoute = lazy(() => import("./app/routes/TripRoute"));
+const BlogRoute = lazy(() => import("./app/routes/BlogRoute"));
+const BlogArticleRoute = lazy(() => import("./app/routes/BlogArticleRoute"));
+const RegionRoute = lazy(() => import("./app/routes/RegionRoute"));
+const NotFoundRoute = lazy(() => import("./app/routes/NotFoundRoute"));
 
 const router = createBrowserRouter([
   {
@@ -69,7 +72,9 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
-    <RouterProvider router={router} />
+    <Suspense fallback={<LoadingScreen />}>
+      <RouterProvider router={router} />
+    </Suspense>
   </HelmetProvider>
 );
   

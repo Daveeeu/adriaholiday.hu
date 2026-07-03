@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SiteSettings\UpdateSiteSettingsRequest;
 use App\Http\Resources\SiteSettingResource;
 use App\Models\SiteSetting;
+use App\Support\PublicContentCache;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -51,6 +52,11 @@ class SiteSettingController extends Controller
                 ->orderBy('id')
                 ->get();
         });
+
+        PublicContentCache::bump(
+            PublicContentCache::SITE_SETTINGS,
+            PublicContentCache::SITEMAP,
+        );
 
         return response()->json([
             'items' => SiteSettingResource::collection($items)->resolve(),
