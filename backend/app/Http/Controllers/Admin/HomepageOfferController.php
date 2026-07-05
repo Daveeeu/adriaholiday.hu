@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\HomepageOffer\StoreHomepageOfferRequest;
 use App\Http\Requests\Admin\HomepageOffer\UpdateHomepageOfferRequest;
 use App\Http\Resources\HomepageOfferResource;
 use App\Models\HomepageOffer;
+use App\Support\PublicContentCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -81,6 +82,8 @@ class HomepageOfferController extends Controller
             return $offer;
         });
 
+        PublicContentCache::bump(PublicContentCache::CATEGORY_LIST, PublicContentCache::SITEMAP);
+
         return new HomepageOfferResource($offer->load(['translations', 'media']));
     }
 
@@ -105,6 +108,8 @@ class HomepageOfferController extends Controller
             $this->syncTranslations($homepageOffer, $validated['translations']);
         });
 
+        PublicContentCache::bump(PublicContentCache::CATEGORY_LIST, PublicContentCache::SITEMAP);
+
         return new HomepageOfferResource($homepageOffer->refresh()->load(['translations', 'media']));
     }
 
@@ -112,11 +117,13 @@ class HomepageOfferController extends Controller
     {
         $homepageOffer->delete();
 
+        PublicContentCache::bump(PublicContentCache::CATEGORY_LIST, PublicContentCache::SITEMAP);
+
         return response()->noContent();
     }
 
     /**
-     * @param array<string, array<string, mixed>> $translations
+     * @param  array<string, array<string, mixed>>  $translations
      */
     private function syncTranslations(HomepageOffer $offer, array $translations): void
     {

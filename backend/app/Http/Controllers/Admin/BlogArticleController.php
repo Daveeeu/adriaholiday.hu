@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\Blog\UpdateBlogArticleRequest;
 use App\Http\Resources\BlogArticleDetailResource;
 use App\Http\Resources\BlogArticleResource;
 use App\Models\BlogArticle;
+use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -89,6 +90,8 @@ class BlogArticleController extends Controller
             return $article;
         });
 
+        PublicContentCache::bump(PublicContentCache::BLOG, PublicContentCache::SITEMAP);
+
         return new BlogArticleDetailResource($article->load(['translations', 'categories.translations', 'tags.translations', 'media']));
     }
 
@@ -118,6 +121,8 @@ class BlogArticleController extends Controller
             $blogArticle->tags()->sync($validated['tag_ids'] ?? []);
         });
 
+        PublicContentCache::bump(PublicContentCache::BLOG, PublicContentCache::SITEMAP);
+
         return new BlogArticleDetailResource($blogArticle->refresh()->load(['translations', 'categories.translations', 'tags.translations', 'media']));
     }
 
@@ -125,11 +130,13 @@ class BlogArticleController extends Controller
     {
         $blogArticle->delete();
 
+        PublicContentCache::bump(PublicContentCache::BLOG, PublicContentCache::SITEMAP);
+
         return response()->noContent();
     }
 
     /**
-     * @param array<string, array<string, mixed>> $translations
+     * @param  array<string, array<string, mixed>>  $translations
      */
     private function syncTranslations(BlogArticle $article, array $translations): void
     {

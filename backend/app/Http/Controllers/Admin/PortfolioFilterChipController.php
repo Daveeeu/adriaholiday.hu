@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\PortfolioFilterChip\StorePortfolioFilterChipRequest;
 use App\Http\Requests\Admin\PortfolioFilterChip\UpdatePortfolioFilterChipRequest;
 use App\Http\Resources\PortfolioFilterChipResource;
 use App\Models\PortfolioFilterChip;
+use App\Support\PublicContentCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -54,9 +55,11 @@ class PortfolioFilterChipController extends Controller
 
     public function store(StorePortfolioFilterChipRequest $request)
     {
-        return new PortfolioFilterChipResource(
-            PortfolioFilterChip::query()->create($request->validated())
-        );
+        $chip = PortfolioFilterChip::query()->create($request->validated());
+
+        PublicContentCache::bump(PublicContentCache::PORTFOLIO_FILTERS);
+
+        return new PortfolioFilterChipResource($chip);
     }
 
     public function show(PortfolioFilterChip $portfolioFilterChip)
@@ -68,12 +71,16 @@ class PortfolioFilterChipController extends Controller
     {
         $portfolioFilterChip->update($request->validated());
 
+        PublicContentCache::bump(PublicContentCache::PORTFOLIO_FILTERS);
+
         return new PortfolioFilterChipResource($portfolioFilterChip->refresh());
     }
 
     public function destroy(PortfolioFilterChip $portfolioFilterChip)
     {
         $portfolioFilterChip->delete();
+
+        PublicContentCache::bump(PublicContentCache::PORTFOLIO_FILTERS);
 
         return response()->noContent();
     }

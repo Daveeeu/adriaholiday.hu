@@ -13,8 +13,9 @@ use App\Http\Resources\TourDetailResource;
 use App\Http\Resources\TourResource;
 use App\Models\Tour;
 use App\Models\TourDate;
-use App\Models\TourProgramDay;
 use App\Models\TourPriceItem;
+use App\Models\TourProgramDay;
+use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -146,6 +147,8 @@ class TourController extends Controller
             return $tour;
         });
 
+        PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
+
         return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
@@ -213,12 +216,16 @@ class TourController extends Controller
             $tour->departurePlaces()->sync($validated['departure_place_ids'] ?? []);
         });
 
+        PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
+
         return new TourDetailResource($tour->refresh()->load(['region', 'homepageOffer.translations', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function destroy(Tour $tour)
     {
         $tour->delete();
+
+        PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
 
         return response()->noContent();
     }
@@ -228,6 +235,8 @@ class TourController extends Controller
         $this->authorize('status', $tour);
 
         $tour->update(['active' => $request->validated()['active']]);
+
+        PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
 
         return new TourResource($tour->refresh()->load(['homepageOffer.translations', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
@@ -419,6 +428,7 @@ class TourController extends Controller
 
             if ($existingDay instanceof TourProgramDay) {
                 $existingDay->update($attributes);
+
                 continue;
             }
 

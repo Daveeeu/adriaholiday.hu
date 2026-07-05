@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\Region\StoreRegionRequest;
 use App\Http\Requests\Admin\Region\UpdateRegionRequest;
 use App\Http\Resources\RegionResource;
 use App\Models\Region;
+use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -62,6 +63,8 @@ class RegionController extends Controller
 
         $region = Region::create($validated);
 
+        PublicContentCache::bump(PublicContentCache::REGIONS, PublicContentCache::OFFERS, PublicContentCache::SITEMAP);
+
         return new RegionResource($region);
     }
 
@@ -79,12 +82,16 @@ class RegionController extends Controller
 
         $region->update($validated);
 
+        PublicContentCache::bump(PublicContentCache::REGIONS, PublicContentCache::OFFERS, PublicContentCache::SITEMAP);
+
         return new RegionResource($region->refresh());
     }
 
     public function destroy(Region $region)
     {
         $region->delete();
+
+        PublicContentCache::bump(PublicContentCache::REGIONS, PublicContentCache::OFFERS, PublicContentCache::SITEMAP);
 
         return response()->noContent();
     }
