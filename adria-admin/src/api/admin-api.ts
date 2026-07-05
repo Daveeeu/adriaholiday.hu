@@ -10,8 +10,6 @@ import type {
   GalleryImage,
   Guest,
   Location,
-  OfferDate,
-  OfferGroup,
   Region,
 } from '@/types/domain';
 import type { PaginatedResponse } from '@/lib/api-client';
@@ -77,20 +75,6 @@ export type ApartmentMutationInput = {
   gallery_id?: string;
 };
 
-export type OfferDateMutationInput = {
-  offerId: string;
-  startDate: string;
-  endDate: string;
-  price: number;
-  active: boolean;
-  xmlExportEnabled: boolean;
-};
-
-export type OfferDateBulkOperationInput = {
-  ids: string[];
-  action: 'activate' | 'deactivate' | 'enable-xml' | 'disable-xml' | 'delete';
-};
-
 export type BookingStatusMutationInput = {
   status: Booking['status'];
 };
@@ -129,21 +113,6 @@ export interface AdminApi {
   ): Promise<Apartment>;
   deleteApartment(apartmentId: string): Promise<{ id: string }>;
   listApartmentPrices(apartmentId?: string): Promise<ApartmentPrice[]>;
-  listOfferGroups(regionId?: string): Promise<OfferGroup[]>;
-  listOfferDates(regionId?: string): Promise<OfferDate[]>;
-  createOfferDate(input: OfferDateMutationInput): Promise<OfferDate>;
-  updateOfferDate(
-    offerDateId: string,
-    input: OfferDateMutationInput,
-  ): Promise<OfferDate>;
-  deleteOfferDate(offerDateId: string): Promise<{ id: string }>;
-  cloneOfferDate(offerDateId: string): Promise<OfferDate>;
-  bulkUpdateOfferDates(
-    input: OfferDateBulkOperationInput,
-  ): Promise<
-    | { ids: string[]; action: OfferDateBulkOperationInput['action'] }
-    | OfferDate[]
-  >;
   listBookings(regionId?: string): Promise<Booking[]>;
   getBookingById(bookingId: string): Promise<BookingDetail | null>;
   updateBookingStatus(

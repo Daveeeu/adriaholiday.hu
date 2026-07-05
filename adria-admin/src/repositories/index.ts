@@ -42,14 +42,6 @@ export const repositories: AdminRepositories = {
     listBuses: (regionId) => restAdminApi.listBuses(regionId),
     listApartmentPrices: (apartmentId) =>
       restAdminApi.listApartmentPrices(apartmentId),
-    listOfferGroups: (regionId) => restAdminApi.listOfferGroups(regionId),
-    listOfferDates: (regionId) => restAdminApi.listOfferDates(regionId),
-    createOfferDate: (input) => restAdminApi.createOfferDate(input),
-    updateOfferDate: (offerDateId, input) =>
-      restAdminApi.updateOfferDate(offerDateId, input),
-    deleteOfferDate: (offerDateId) => restAdminApi.deleteOfferDate(offerDateId),
-    cloneOfferDate: (offerDateId) => restAdminApi.cloneOfferDate(offerDateId),
-    bulkUpdateOfferDates: (input) => restAdminApi.bulkUpdateOfferDates(input),
     listEmailTemplates: (regionId) => restAdminApi.listEmailTemplates(regionId),
     listGuests: () => restAdminApi.listGuests(),
   },

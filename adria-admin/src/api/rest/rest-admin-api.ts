@@ -11,15 +11,12 @@ import type {
   Location,
   Offer,
   OfferDate,
-  OfferGroup,
   Region,
 } from '@/types/domain';
 import type {
   AdminApi,
   ApartmentsListQuery,
   BookingStatusMutationInput,
-  OfferDateBulkOperationInput,
-  OfferDateMutationInput,
   RegionMutationInput,
   ApartmentMutationInput,
 } from '@/api/admin-api';
@@ -162,26 +159,6 @@ function mapApartment(apartment: Apartment): Apartment {
       apartmentId: toStringId(season.apartmentId ?? season.apartment_id),
       apartment_id: toStringId(season.apartment_id),
     })),
-  };
-}
-
-function mapOfferGroup(group: OfferGroup): OfferGroup {
-  return {
-    ...group,
-    id: toStringId(group.id),
-    regionId: toStringId(group.regionId),
-  };
-}
-
-function mapOfferDate(date: OfferDate): OfferDate {
-  return {
-    ...date,
-    id: toStringId(date.id),
-    offerId: toStringId(date.offerId),
-    regionId: toStringId(date.regionId),
-    apartmentIds: (date.apartmentIds ?? []).map((apartmentId) =>
-      toStringId(apartmentId),
-    ),
   };
 }
 
@@ -357,61 +334,6 @@ export class RestAdminApi implements AdminApi {
       { query: { page: 1, perPage: 1000 } },
     );
     return response.items;
-  }
-
-  public async listOfferGroups(regionId?: string): Promise<OfferGroup[]> {
-    const response = await apiClient.get<PaginatedResponse<OfferGroup>>(
-      '/api/admin/offer-groups',
-      { query: normalizePaginatedQuery({ page: 1, perPage: 1000, regionId }) },
-    );
-    return mapPaginated(response).map(mapOfferGroup);
-  }
-
-  public async listOfferDates(regionId?: string): Promise<OfferDate[]> {
-    const response = await apiClient.get<PaginatedResponse<OfferDate>>(
-      '/api/admin/offer-dates',
-      { query: normalizePaginatedQuery({ page: 1, perPage: 1000, regionId }) },
-    );
-    return mapPaginated(response).map(mapOfferDate);
-  }
-
-  public async createOfferDate(
-    input: OfferDateMutationInput,
-  ): Promise<OfferDate> {
-    return apiClient.post<OfferDate>('/api/admin/offer-dates', input);
-  }
-
-  public async updateOfferDate(
-    offerDateId: string,
-    input: OfferDateMutationInput,
-  ): Promise<OfferDate> {
-    return apiClient.patch<OfferDate>(
-      `/api/admin/offer-dates/${offerDateId}`,
-      input,
-    );
-  }
-
-  public async deleteOfferDate(offerDateId: string): Promise<{ id: string }> {
-    await apiClient.delete<void>(`/api/admin/offer-dates/${offerDateId}`);
-    return { id: offerDateId };
-  }
-
-  public async cloneOfferDate(offerDateId: string): Promise<OfferDate> {
-    return apiClient.post<OfferDate>(
-      `/api/admin/offer-dates/${offerDateId}/clone`,
-    );
-  }
-
-  public async bulkUpdateOfferDates(
-    input: OfferDateBulkOperationInput,
-  ): Promise<
-    | { ids: string[]; action: OfferDateBulkOperationInput['action'] }
-    | OfferDate[]
-  > {
-    return apiClient.patch<
-      | { ids: string[]; action: OfferDateBulkOperationInput['action'] }
-      | OfferDate[]
-    >('/api/admin/offer-dates/bulk', input);
   }
 
   public async listBookings(regionId?: string): Promise<Booking[]> {
