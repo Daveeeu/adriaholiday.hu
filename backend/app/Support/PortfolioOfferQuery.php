@@ -189,15 +189,26 @@ class PortfolioOfferQuery
             ->values()
             ->keyBy('slug');
 
-        return $chips->map(function (PortfolioFilterChip $chip) use ($request, $scopeSlug, $selected, $selectedSlugs): ?array {
-            $otherSelected = $selected->except($chip->slug)->values();
+        // Chips that aren't currently selected all share the same "other selected"
+        // combination, so the filtered base query only needs to be built once per
+        // distinct combination instead of once per chip.
+        $sharedQueriesBySignature = [];
 
-            $query = self::buildBaseQuery($request);
-            self::applyCategoryScope($query, $scopeSlug);
-            self::applyFilterChips($query, $otherSelected);
+        return $chips->map(function (PortfolioFilterChip $chip) use ($request, $scopeSlug, $selected, $selectedSlugs, &$sharedQueriesBySignature): ?array {
+            $otherSelected = $selected->except($chip->slug)->values();
+            $signature = $otherSelected->pluck('slug')->sort()->implode(',');
+
+            if (! isset($sharedQueriesBySignature[$signature])) {
+                $sharedQuery = self::buildBaseQuery($request);
+                self::applyCategoryScope($sharedQuery, $scopeSlug);
+                self::applyFilterChips($sharedQuery, $otherSelected);
+                $sharedQueriesBySignature[$signature] = $sharedQuery;
+            }
+
+            $query = clone $sharedQueriesBySignature[$signature];
             self::applyFilterChip($query, $chip);
 
-            $count = (clone $query)->count();
+            $count = $query->count();
             $isActive = in_array($chip->slug, $selectedSlugs, true);
 
             if ($count === 0 && $chip->hide_when_zero) {
@@ -285,7 +296,7 @@ class PortfolioOfferQuery
 
         $tagTranslation = BlogTagTranslation::query()
             ->where('locale', 'hu')
-            ->where('seo_name', $value)
+            ->where('name', $value)
             ->first(['blog_tag_id']);
 
         return $cache[$value] = $tagTranslation ? (string) $tagTranslation->blog_tag_id : null;
