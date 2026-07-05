@@ -10,9 +10,7 @@ import type {
   Guest,
   Location,
   Offer,
-  OfferContent,
   OfferDate,
-  OfferDetail,
   OfferGroup,
   Region,
 } from '@/types/domain';
@@ -22,8 +20,6 @@ import type {
   BookingStatusMutationInput,
   OfferDateBulkOperationInput,
   OfferDateMutationInput,
-  OfferFilters,
-  OfferMutationInput,
   RegionMutationInput,
   ApartmentMutationInput,
 } from '@/api/admin-api';
@@ -174,33 +170,6 @@ function mapOfferGroup(group: OfferGroup): OfferGroup {
     ...group,
     id: toStringId(group.id),
     regionId: toStringId(group.regionId),
-  };
-}
-
-function mapOffer(offer: Offer): Offer {
-  return {
-    ...offer,
-    id: toStringId(offer.id),
-    regionId: toStringId(offer.regionId),
-    locationId: toStringId(offer.locationId),
-    galleryId: toStringId(offer.galleryId),
-    offerGroupId: toStringId(offer.offerGroupId),
-    imageIds: (offer.imageIds ?? []).map((imageId) => toStringId(imageId)),
-    dateIds: (offer.dateIds ?? []).map((dateId) => toStringId(dateId)),
-    contentIds: (offer.contentIds ?? []).map((contentId) =>
-      toStringId(contentId),
-    ),
-    apartmentIds: (offer.apartmentIds ?? []).map((apartmentId) =>
-      toStringId(apartmentId),
-    ),
-  };
-}
-
-function mapOfferContent(content: OfferContent): OfferContent {
-  return {
-    ...content,
-    id: toStringId(content.id),
-    offerId: toStringId(content.offerId),
   };
 }
 
@@ -396,57 +365,6 @@ export class RestAdminApi implements AdminApi {
       { query: normalizePaginatedQuery({ page: 1, perPage: 1000, regionId }) },
     );
     return mapPaginated(response).map(mapOfferGroup);
-  }
-
-  public async listOfferContents(offerId?: string): Promise<OfferContent[]> {
-    if (!offerId) {
-      return [];
-    }
-
-    const response = await apiClient.get<PaginatedResponse<OfferContent>>(
-      `/api/admin/offers/${offerId}/contents`,
-      { query: { page: 1, perPage: 1000 } },
-    );
-    return mapPaginated(response).map(mapOfferContent);
-  }
-
-  public async listOffers(filters?: OfferFilters): Promise<Offer[]> {
-    const response = await apiClient.get<PaginatedResponse<Offer>>(
-      '/api/admin/offers',
-      {
-        query: normalizePaginatedQuery({ page: 1, perPage: 1000, ...filters }),
-      },
-    );
-    return mapPaginated(response).map(mapOffer);
-  }
-
-  public async createOffer(input: OfferMutationInput): Promise<OfferDetail> {
-    return apiClient.post<OfferDetail>('/api/admin/offers', input);
-  }
-
-  public async updateOffer(
-    offerId: string,
-    input: OfferMutationInput,
-  ): Promise<OfferDetail> {
-    return apiClient.patch<OfferDetail>(`/api/admin/offers/${offerId}`, input);
-  }
-
-  public async deleteOffer(offerId: string): Promise<{ id: string }> {
-    await apiClient.delete<void>(`/api/admin/offers/${offerId}`);
-    return { id: offerId };
-  }
-
-  public async setOfferStatus(
-    offerId: string,
-    status: Offer['status'],
-  ): Promise<Offer> {
-    return apiClient.patch<Offer>(`/api/admin/offers/${offerId}/status`, {
-      status,
-    });
-  }
-
-  public async getOfferById(offerId: string): Promise<OfferDetail | null> {
-    return apiClient.get<OfferDetail>(`/api/admin/offers/${offerId}`);
   }
 
   public async listOfferDates(regionId?: string): Promise<OfferDate[]> {

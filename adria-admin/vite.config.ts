@@ -43,10 +43,6 @@ export default defineConfig(({ command }) => ({
             return 'charts';
           }
 
-          if (id.includes('@fullcalendar')) {
-            return 'calendar';
-          }
-
           if (id.includes('react-select')) {
             return 'select';
           }

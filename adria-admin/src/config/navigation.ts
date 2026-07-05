@@ -10,7 +10,7 @@ import {
   Megaphone,
   Settings,
   Ticket,
-  TrainFront
+  TrainFront,
 } from 'lucide-react';
 
 import {
@@ -45,7 +45,13 @@ export const navigationItems: NavigationItem[] = [
     icon: Building2,
     permission: 'apartments.viewAny',
     children: [
-      { to: '/apartments', labelKey: 'nav.apartments.overview', icon: Building2, exact: true, permission: 'apartments.viewAny' },
+      {
+        to: '/apartments',
+        labelKey: 'nav.apartments.overview',
+        icon: Building2,
+        exact: true,
+        permission: 'apartments.viewAny',
+      },
       ...APARTMENT_TYPES.map((type) => ({
         to: type.route,
         labelKey: type.navLabelKey,
@@ -60,17 +66,51 @@ export const navigationItems: NavigationItem[] = [
       })),
     ],
   },
-  { to: '/homepage-offers', labelKey: 'nav.homepageOffers', icon: Megaphone, permission: 'homepage-offers.viewAny' },
-  { to: '/portfolio-filter-chips', labelKey: 'nav.portfolioFilterChips', icon: Megaphone },
-  { to: '/portfolio-editor', labelKey: 'nav.portfolioContent', icon: PencilLine, permission: 'portfolio-content.view' },
+  {
+    to: '/homepage-offers',
+    labelKey: 'nav.homepageOffers',
+    icon: Megaphone,
+    permission: 'homepage-offers.viewAny',
+  },
+  {
+    to: '/portfolio-filter-chips',
+    labelKey: 'nav.portfolioFilterChips',
+    icon: Megaphone,
+  },
+  {
+    to: '/portfolio-editor',
+    labelKey: 'nav.portfolioContent',
+    icon: PencilLine,
+    permission: 'portfolio-content.view',
+  },
   {
     labelKey: 'nav.blog',
     icon: Newspaper,
-    permission: ['blog-articles.viewAny', 'blog-categories.viewAny', 'blog-tags.viewAny'],
+    permission: [
+      'blog-articles.viewAny',
+      'blog-categories.viewAny',
+      'blog-tags.viewAny',
+    ],
     children: [
-      { to: '/blog', labelKey: 'nav.blog.articles', icon: Newspaper, exact: true, permission: 'blog-articles.viewAny' },
-      { to: '/blog/categories', labelKey: 'nav.blog.categories', icon: Newspaper, permission: 'blog-categories.viewAny' },
-      { to: '/blog/tags', labelKey: 'nav.blog.tags', icon: Newspaper, permission: 'blog-tags.viewAny' },
+      {
+        to: '/blog',
+        labelKey: 'nav.blog.articles',
+        icon: Newspaper,
+        exact: true,
+        permission: 'blog-articles.viewAny',
+      },
+      {
+        to: '/blog/categories',
+        labelKey: 'nav.blog.categories',
+        icon: Newspaper,
+        permission: 'blog-categories.viewAny',
+      },
+      {
+        to: '/blog/tags',
+        labelKey: 'nav.blog.tags',
+        icon: Newspaper,
+        permission: 'blog-tags.viewAny',
+      },
     ],
   },
   {
@@ -79,14 +119,55 @@ export const navigationItems: NavigationItem[] = [
     to: '/bookings',
     permission: 'bookings.viewAny',
     children: [
-      { to: '/bookings/tour-bookings', labelKey: 'nav.bookings.tourBookings', icon: CalendarDays, exact: true, permission: 'bookings.viewAny' },
-      { to: '/bookings/tour-inquiries', labelKey: 'nav.bookings.tourInquiries', icon: Mail, permission: 'messages.viewAny' },
-      { to: '/bookings/apartment-bookings', labelKey: 'nav.bookings.apartmentBookings', icon: Building2, permission: 'bookings.viewAny' },
-      { to: '/bookings/partner-finances', labelKey: 'nav.bookings.partnerFinances', icon: Ticket, permission: 'partner-finances.viewAny' },
-      { to: '/bookings/banner-generator', labelKey: 'nav.bookings.bannerGenerator', icon: Megaphone, permission: 'partner-banners.viewAny' },
-      { to: '/bookings/messages', labelKey: 'nav.bookings.messages', icon: Mail, permission: 'messages.viewAny' },
-      { to: '/bookings/coupons', labelKey: 'nav.bookings.coupons', icon: Ticket, permission: 'coupons.viewAny' },
-      { to: '/bookings/email-csv-export', labelKey: 'nav.bookings.emailCsvExport', icon: Mail, permission: 'email-csv-export.view' },
+      {
+        to: '/bookings/tour-bookings',
+        labelKey: 'nav.bookings.tourBookings',
+        icon: CalendarDays,
+        exact: true,
+        permission: 'bookings.viewAny',
+      },
+      {
+        to: '/bookings/tour-inquiries',
+        labelKey: 'nav.bookings.tourInquiries',
+        icon: Mail,
+        permission: 'messages.viewAny',
+      },
+      {
+        to: '/bookings/apartment-bookings',
+        labelKey: 'nav.bookings.apartmentBookings',
+        icon: Building2,
+        permission: 'bookings.viewAny',
+      },
+      {
+        to: '/bookings/partner-finances',
+        labelKey: 'nav.bookings.partnerFinances',
+        icon: Ticket,
+        permission: 'partner-finances.viewAny',
+      },
+      {
+        to: '/bookings/banner-generator',
+        labelKey: 'nav.bookings.bannerGenerator',
+        icon: Megaphone,
+        permission: 'partner-banners.viewAny',
+      },
+      {
+        to: '/bookings/messages',
+        labelKey: 'nav.bookings.messages',
+        icon: Mail,
+        permission: 'messages.viewAny',
+      },
+      {
+        to: '/bookings/coupons',
+        labelKey: 'nav.bookings.coupons',
+        icon: Ticket,
+        permission: 'coupons.viewAny',
+      },
+      {
+        to: '/bookings/email-csv-export',
+        labelKey: 'nav.bookings.emailCsvExport',
+        icon: Mail,
+        permission: 'email-csv-export.view',
+      },
     ],
   },
   {
@@ -101,9 +182,23 @@ export const navigationItems: NavigationItem[] = [
       permission: 'tours.viewAny',
     })),
   },
-  { to: '/offers', labelKey: 'nav.offers', icon: Ticket, permission: 'offers.viewAny' },
-  { to: '/buses', labelKey: 'nav.buses', icon: TrainFront, permission: 'buses.viewAny' },
-  { to: '/media', labelKey: 'nav.galleries', icon: GalleryVerticalEnd, permission: 'galleries.viewAny' },
+  {
+    to: '/buses',
+    labelKey: 'nav.buses',
+    icon: TrainFront,
+    permission: 'buses.viewAny',
+  },
+  {
+    to: '/media',
+    labelKey: 'nav.galleries',
+    icon: GalleryVerticalEnd,
+    permission: 'galleries.viewAny',
+  },
   { to: '/email-templates', labelKey: 'nav.emailTemplates', icon: Mail },
-  { to: '/settings', labelKey: 'nav.settings', icon: Settings, permission: 'site-settings.view' },
+  {
+    to: '/settings',
+    labelKey: 'nav.settings',
+    icon: Settings,
+    permission: 'site-settings.view',
+  },
 ];

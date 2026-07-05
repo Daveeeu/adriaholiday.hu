@@ -1,6 +1,5 @@
 import type { ApartmentRepository } from '@/repositories/apartment-repository';
 import type { BookingRepository } from '@/repositories/booking-repository';
-import type { OfferRepository } from '@/repositories/offer-repository';
 import type { ReferenceDataRepository } from '@/repositories/reference-data-repository';
 import type { RegionRepository } from '@/repositories/region-repository';
 import { restAdminApi } from '@/api/rest/rest-admin-api';
@@ -8,7 +7,6 @@ import { restAdminApi } from '@/api/rest/rest-admin-api';
 export type AdminRepositories = {
   regionRepository: RegionRepository;
   apartmentRepository: ApartmentRepository;
-  offerRepository: OfferRepository;
   bookingRepository: BookingRepository;
   referenceDataRepository: ReferenceDataRepository;
 };
@@ -29,16 +27,6 @@ export const repositories: AdminRepositories = {
     update: (apartmentId, input) =>
       restAdminApi.updateApartment(apartmentId, input),
     delete: (apartmentId) => restAdminApi.deleteApartment(apartmentId),
-  },
-  offerRepository: {
-    list: (filters) => restAdminApi.listOffers(filters),
-    listContents: (offerId) => restAdminApi.listOfferContents(offerId),
-    getById: (offerId) => restAdminApi.getOfferById(offerId),
-    create: (input) => restAdminApi.createOffer(input),
-    update: (offerId, input) => restAdminApi.updateOffer(offerId, input),
-    delete: (offerId) => restAdminApi.deleteOffer(offerId),
-    setStatus: (offerId, status) =>
-      restAdminApi.setOfferStatus(offerId, status),
   },
   bookingRepository: {
     list: (regionId) => restAdminApi.listBookings(regionId),

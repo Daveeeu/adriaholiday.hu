@@ -10,10 +10,7 @@ import type {
   GalleryImage,
   Guest,
   Location,
-  Offer,
-  OfferContent,
   OfferDate,
-  OfferDetail,
   OfferGroup,
   Region,
 } from '@/types/domain';
@@ -80,28 +77,6 @@ export type ApartmentMutationInput = {
   gallery_id?: string;
 };
 
-export type OfferTranslationInput = {
-  title: string;
-  description: string;
-  program: string;
-  tickets: string;
-  optionalPrograms: string;
-  pricingInformation: string;
-  teaser: string;
-};
-
-export type OfferMutationInput = {
-  title: string;
-  slug: string;
-  featured: boolean;
-  status: Offer['status'];
-  pdfUrl: string;
-  regionId: string;
-  offerGroupId: string;
-  galleryId: string;
-  translations: Record<'hu' | 'en' | 'de', OfferTranslationInput>;
-};
-
 export type OfferDateMutationInput = {
   offerId: string;
   startDate: string;
@@ -118,12 +93,6 @@ export type OfferDateBulkOperationInput = {
 
 export type BookingStatusMutationInput = {
   status: Booking['status'];
-};
-
-export type OfferFilters = {
-  regionId?: string;
-  offerGroupId?: string;
-  featured?: boolean;
 };
 
 export type ApartmentsListQuery = {
@@ -161,13 +130,6 @@ export interface AdminApi {
   deleteApartment(apartmentId: string): Promise<{ id: string }>;
   listApartmentPrices(apartmentId?: string): Promise<ApartmentPrice[]>;
   listOfferGroups(regionId?: string): Promise<OfferGroup[]>;
-  listOfferContents(offerId?: string): Promise<OfferContent[]>;
-  listOffers(filters?: OfferFilters): Promise<Offer[]>;
-  createOffer(input: OfferMutationInput): Promise<OfferDetail>;
-  updateOffer(offerId: string, input: OfferMutationInput): Promise<OfferDetail>;
-  deleteOffer(offerId: string): Promise<{ id: string }>;
-  setOfferStatus(offerId: string, status: Offer['status']): Promise<Offer>;
-  getOfferById(offerId: string): Promise<OfferDetail | null>;
   listOfferDates(regionId?: string): Promise<OfferDate[]>;
   createOfferDate(input: OfferDateMutationInput): Promise<OfferDate>;
   updateOfferDate(

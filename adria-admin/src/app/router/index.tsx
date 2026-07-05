@@ -114,16 +114,6 @@ const LocationsPage = lazy(() =>
     default: module.LocationsPage,
   })),
 );
-const OfferDatesPage = lazy(() =>
-  import('@/features/offer-dates/routes/offer-dates-page').then((module) => ({
-    default: module.OfferDatesPage,
-  })),
-);
-const OffersPage = lazy(() =>
-  import('@/features/offers/routes/offers-page').then((module) => ({
-    default: module.OffersPage,
-  })),
-);
 const RegionsPage = lazy(() =>
   import('@/features/regions/routes/regions-page').then((module) => ({
     default: module.RegionsPage,
@@ -293,16 +283,6 @@ const router = createBrowserRouter(
           handle: { crumbKey: 'nav.locations' },
         },
         ...apartmentModuleRoutes,
-        {
-          path: 'offers',
-          element: <OffersPage />,
-          handle: { crumbKey: 'nav.offers' },
-        },
-        {
-          path: 'offers/dates',
-          element: <OfferDatesPage />,
-          handle: { crumbKey: 'nav.offerDates' },
-        },
         {
           path: 'bookings',
           element: <Outlet />,
