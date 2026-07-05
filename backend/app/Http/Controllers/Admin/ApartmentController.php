@@ -45,6 +45,21 @@ class ApartmentController extends Controller
             $query->where('region_id', $regionId);
         }
 
+        if ($type = $request->query('type')) {
+            $query->where('type', $type);
+        }
+
+        if (($isAccommodation = $request->query('is_accommodation', $request->query('isAccommodation'))) !== null && $isAccommodation !== '') {
+            $query->where('is_accommodation', filter_var($isAccommodation, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
+        }
+
+        foreach (['is_active' => 'isActive', 'featured' => 'featured'] as $field => $camelField) {
+            $value = $request->query($field, $request->query($camelField));
+            if ($value !== null && $value !== '') {
+                $query->where($field, filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
+            }
+        }
+
         $sortBy = Str::snake((string) $request->query('sort_by', $request->query('sortBy', 'sort_order')));
         $perPage = (int) $request->query('per_page', $request->query('perPage', 25));
         $sortDirection = $request->query('sort_direction', $request->query('sortDirection', 'asc'));
@@ -95,7 +110,7 @@ class ApartmentController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $validated
+     * @param  array<string, mixed>  $validated
      * @return array<string, mixed>
      */
     private function sanitizeContentFields(array $validated): array
