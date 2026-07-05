@@ -24,15 +24,31 @@ export default defineConfig(({ command }) => ({
           }
 
           if (
-            id.includes('react-hook-form')
-            || id.includes('@hookform')
-            || id.includes('zod')
+            id.includes('react-hook-form') ||
+            id.includes('@hookform') ||
+            id.includes('zod')
           ) {
             return 'forms';
           }
 
           if (id.includes('@radix-ui') || id.includes('lucide-react')) {
             return 'ui';
+          }
+
+          if (id.includes('@tiptap')) {
+            return 'tiptap';
+          }
+
+          if (id.includes('recharts') || id.includes('d3-')) {
+            return 'charts';
+          }
+
+          if (id.includes('@fullcalendar')) {
+            return 'calendar';
+          }
+
+          if (id.includes('react-select')) {
+            return 'select';
           }
 
           return 'vendor';
