@@ -13,6 +13,8 @@ class PublicContentCache
 
     public const HOMEPAGE_CONTENT = 'homepage-content';
 
+    public const OFFERS = 'offers';
+
     public const PORTFOLIO_FILTERS = 'portfolio-filters';
 
     public const REGIONS = 'regions';

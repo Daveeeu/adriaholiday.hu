@@ -7,6 +7,7 @@ use App\Http\Resources\PortfolioOfferDetailResource;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Support\PortfolioOfferQuery;
+use App\Support\PublicContentCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class PortfolioOfferController extends Controller
 {
     public function index(Request $request)
     {
-        return $this->paginatedResponse($request, PortfolioOfferQuery::buildBaseQuery($request));
+        return $this->cachedPaginatedResponse($request, 'index', PortfolioOfferQuery::buildBaseQuery($request));
     }
 
     public function categoryOffers(Request $request, string $slug)
@@ -23,8 +24,8 @@ class PortfolioOfferController extends Controller
         PortfolioOfferQuery::applyCategoryScope($query, $slug);
         PortfolioOfferQuery::applyRequestChipFilters($query, $request, $slug);
 
-        return $this->paginatedResponse($request, $query, function () use ($request, $slug): array {
-            $recommendedQuery = PortfolioOfferQuery::buildBaseQuery(new Request());
+        return $this->cachedPaginatedResponse($request, "category:{$slug}", $query, function () use ($request, $slug): array {
+            $recommendedQuery = PortfolioOfferQuery::buildBaseQuery(new Request);
             PortfolioOfferQuery::applyCategoryScope($recommendedQuery, $slug);
 
             return $this->recommendedItems($request, $recommendedQuery);
@@ -40,7 +41,7 @@ class PortfolioOfferController extends Controller
             $query->whereHas('region', fn (Builder $regionQuery) => $regionQuery->where('slug', $slug));
         }
 
-        return $this->paginatedResponse($request, $query);
+        return $this->cachedPaginatedResponse($request, "region:{$slug}", $query);
     }
 
     public function show(string $slug)
@@ -60,7 +61,21 @@ class PortfolioOfferController extends Controller
         return response()->json((new PortfolioOfferDetailResource($tour))->resolve(request()));
     }
 
-    private function paginatedResponse(Request $request, Builder $query, ?callable $recommendedResolver = null)
+    private function cachedPaginatedResponse(Request $request, string $keyPrefix, Builder $query, ?callable $recommendedResolver = null)
+    {
+        $suffix = $keyPrefix.':'.PublicContentCache::fingerprint($request->query());
+
+        $payload = PublicContentCache::remember(
+            PublicContentCache::OFFERS,
+            $suffix,
+            300,
+            fn () => $this->buildPaginatedPayload($request, $query, $recommendedResolver)
+        );
+
+        return response()->json($payload);
+    }
+
+    private function buildPaginatedPayload(Request $request, Builder $query, ?callable $recommendedResolver): array
     {
         $page = max(1, (int) $request->query('page', 1));
         $perPage = (int) $request->query('perPage', $request->query('per_page', 12));
@@ -73,13 +88,13 @@ class PortfolioOfferController extends Controller
             $recommended = $recommendedResolver();
         }
 
-        return response()->json([
+        return [
             'items' => PortfolioFeaturedTourResource::collection($paginator->getCollection())->resolve($request),
             'totalCount' => $paginator->total(),
             'page' => $paginator->currentPage(),
             'perPage' => $paginator->perPage(),
             'recommended' => $recommended,
-        ]);
+        ];
     }
 
     private function recommendedItems(Request $request, Builder $query): array
