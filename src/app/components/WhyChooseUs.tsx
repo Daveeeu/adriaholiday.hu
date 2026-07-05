@@ -6,7 +6,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import worldMapAnimation from "../../imports/world map animation.json";
+import { useLottieAnimation } from "../hooks/useLottieAnimation";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
@@ -69,6 +69,7 @@ const bottomValuesFallback = [
 
 export default function WhyChooseUs() {
   const { getValue } = usePortfolioContent();
+  const worldMapAnimation = useLottieAnimation("world-map-animation.json");
 
   const badge = String(
     getValue("home.whyChooseUs.eyebrow", "MIÉRT AZ ADRIA HOLIDAY"),
@@ -183,16 +184,18 @@ export default function WhyChooseUs() {
               <div className="absolute top-[-100px] left-[-100px] w-[260px] h-[260px] bg-[#00c389]/10 blur-3xl rounded-full" />
               <div className="absolute bottom-[-100px] right-[-100px] w-[260px] h-[260px] bg-[#16b8ff]/10 blur-3xl rounded-full" />
 
-              <Lottie
-                animationData={worldMapAnimation}
-                loop
-                autoplay
-                className="absolute inset-0 w-full h-full"
-                style={{
-                  transform: "scale(1.18)",
-                  opacity: 0.92,
-                }}
-              />
+              {worldMapAnimation ? (
+                <Lottie
+                  animationData={worldMapAnimation}
+                  loop
+                  autoplay
+                  className="absolute inset-0 w-full h-full"
+                  style={{
+                    transform: "scale(1.18)",
+                    opacity: 0.92,
+                  }}
+                />
+              ) : null}
 
               <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/32 pointer-events-none" />
 

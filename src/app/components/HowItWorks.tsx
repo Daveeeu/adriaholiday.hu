@@ -1,52 +1,56 @@
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Lottie from "lottie-react";
 
-import loadingAnimation from "../../imports/loading.json";
-import earthPlaneAnimation from "../../imports/Rotating_earth_and_paper_plane.json";
-import onlinePlaneAnimation from "../../imports/earth.json";
+import { useLottieAnimation } from "../hooks/useLottieAnimation";
 import { EditableText } from "../content/EditableFields";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 
-const stepsFallback = [
-  {
-    number: "01",
-    lottieAnimation: loadingAnimation,
-    icon: "compass",
-    eyebrow: "Felfedezés",
-    title: "Válassz utat",
-    description:
-      "Böngéssz gondosan összeállított utazásaink között, és találd meg a hozzád illő úti célt.",
-    color: "from-[#00c389] to-[#16b8ff]",
-  },
-  {
-    number: "02",
-    lottieAnimation: onlinePlaneAnimation,
-    icon: "calendar",
-    eyebrow: "Foglalás",
-    title: "Foglalj online",
-    description:
-      "Foglalj gyorsan, átláthatóan és biztonságosan néhány kattintással.",
-    color: "from-[#16b8ff] to-[#0ea5e9]",
-  },
-  {
-    number: "03",
-    lottieAnimation: earthPlaneAnimation,
-    icon: "bus",
-    eyebrow: "Utazás",
-    title: "Indulj velünk",
-    description:
-      "Dőlj hátra, mi intézzük a részleteket — neked csak az élmény marad.",
-    color: "from-[#0ea5e9] to-[#00c389]",
-  },
-];
-
 export default function HowItWorks() {
   const { getValue } = usePortfolioContent();
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
+  const loadingAnimation = useLottieAnimation("loading.json");
+  const earthPlaneAnimation = useLottieAnimation("rotating-earth-and-paper-plane.json");
+  const onlinePlaneAnimation = useLottieAnimation("earth.json");
+
+  const stepsFallback = useMemo(
+    () => [
+      {
+        number: "01",
+        lottieAnimation: loadingAnimation,
+        icon: "compass",
+        eyebrow: "Felfedezés",
+        title: "Válassz utat",
+        description:
+          "Böngéssz gondosan összeállított utazásaink között, és találd meg a hozzád illő úti célt.",
+        color: "from-[#00c389] to-[#16b8ff]",
+      },
+      {
+        number: "02",
+        lottieAnimation: onlinePlaneAnimation,
+        icon: "calendar",
+        eyebrow: "Foglalás",
+        title: "Foglalj online",
+        description:
+          "Foglalj gyorsan, átláthatóan és biztonságosan néhány kattintással.",
+        color: "from-[#16b8ff] to-[#0ea5e9]",
+      },
+      {
+        number: "03",
+        lottieAnimation: earthPlaneAnimation,
+        icon: "bus",
+        eyebrow: "Utazás",
+        title: "Indulj velünk",
+        description:
+          "Dőlj hátra, mi intézzük a részleteket — neked csak az élmény marad.",
+        color: "from-[#0ea5e9] to-[#00c389]",
+      },
+    ],
+    [loadingAnimation, onlinePlaneAnimation, earthPlaneAnimation],
+  );
   const steps = getValue("home.howItWorks.steps", stepsFallback) as typeof stepsFallback;
 
   return (
@@ -160,7 +164,9 @@ export default function HowItWorks() {
                         <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-[0.08]`} />
 
                         <div className="relative w-28 h-28">
-                          <Lottie animationData={step.lottieAnimation} loop autoplay />
+                          {step.lottieAnimation ? (
+                            <Lottie animationData={step.lottieAnimation} loop autoplay />
+                          ) : null}
                         </div>
 
                         <motion.div

@@ -10,8 +10,7 @@ import {
 import { useRef, useState } from "react";
 import Lottie from "lottie-react";
 
-import earthPlaneAnimation from "../../imports/Rotating_earth_and_paper_plane.json";
-import loadingAnimation from "../../imports/loading.json";
+import { useLottieAnimation } from "../hooks/useLottieAnimation";
 import { EditableButton, EditableList, EditableMedia, EditableText } from "../content/EditableFields";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
@@ -21,6 +20,8 @@ export default function CinematicHero() {
   const { getValue } = usePortfolioContent();
   const [isSearching, setIsSearching] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+  const earthPlaneAnimation = useLottieAnimation("rotating-earth-and-paper-plane.json");
+  const loadingAnimation = useLottieAnimation("loading.json");
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -315,15 +316,17 @@ export default function CinematicHero() {
                   ease: "easeInOut",
                 }}
               >
-                <Lottie
-                  animationData={earthPlaneAnimation}
-                  loop
-                  speed={0.025}
-                  className="w-full h-full"
-                  style={{
-                    filter: "drop-shadow(0 0 120px rgba(0,195,137,0.35))",
-                  }}
-                />
+                {earthPlaneAnimation ? (
+                  <Lottie
+                    animationData={earthPlaneAnimation}
+                    loop
+                    speed={0.025}
+                    className="w-full h-full"
+                    style={{
+                      filter: "drop-shadow(0 0 120px rgba(0,195,137,0.35))",
+                    }}
+                  />
+                ) : null}
               </motion.div>
 
               {heroBadges[0] ? (
@@ -463,7 +466,7 @@ export default function CinematicHero() {
                   {isSearching ? (
                     <>
                       <div className="w-4 h-4">
-                        <Lottie animationData={loadingAnimation} loop />
+                        {loadingAnimation ? <Lottie animationData={loadingAnimation} loop /> : null}
                       </div>
                       Keresés...
                     </>

@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 import Lottie from "lottie-react";
 
-import worldMapAnimation from "../../imports/World_map_pinging_and_searching.json";
+import { useLottieAnimation } from "../hooks/useLottieAnimation";
 import { EditableText } from "../content/EditableFields";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
@@ -37,6 +37,7 @@ export default function Newsletter() {
   const { getValue } = usePortfolioContent();
   const [email, setEmail] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const worldMapAnimation = useLottieAnimation("world-map-pinging-and-searching.json");
 
   const placeholder = String(
     getValue("home.newsletter.placeholder", "Add meg az email címed"),
@@ -78,7 +79,9 @@ export default function Newsletter() {
             viewport={{ once: true }}
             transition={{ duration: 1.4 }}
           >
-            <Lottie animationData={worldMapAnimation} loop className="w-full h-full" />
+            {worldMapAnimation ? (
+              <Lottie animationData={worldMapAnimation} loop className="w-full h-full" />
+            ) : null}
           </motion.div>
 
           <div className="relative grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-10 items-center p-7 md:p-10 lg:p-12">
