@@ -100,6 +100,7 @@ class PortfolioOfferController extends Controller
     private function recommendedItems(Request $request, Builder $query): array
     {
         $items = $query
+            ->reorder()
             ->orderByDesc('featured')
             ->orderByDesc('recommended')
             ->orderBy('sort_order')

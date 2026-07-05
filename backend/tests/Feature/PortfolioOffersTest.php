@@ -334,6 +334,9 @@ class PortfolioOffersTest extends TestCase
             'seo_name' => 'buszos-korutazas',
             'active' => true,
             'featured' => true,
+            'recommended' => false,
+            'sort_order' => 1,
+            'price' => 199000,
             'category_ids' => [(string) $roundTripCategory->id],
         ]);
 
@@ -343,6 +346,8 @@ class PortfolioOffersTest extends TestCase
             'active' => true,
             'featured' => true,
             'recommended' => true,
+            'sort_order' => 2,
+            'price' => 249000,
             'category_ids' => [(string) $roundTripCategory->id],
         ]);
 
@@ -350,6 +355,10 @@ class PortfolioOffersTest extends TestCase
             'name' => 'Repülős körutazás',
             'seo_name' => 'repulos-korutazas',
             'active' => true,
+            'featured' => false,
+            'recommended' => false,
+            'sort_order' => 1,
+            'price' => 219000,
             'category_ids' => [(string) $flightRoundTripCategory->id],
         ]);
 
