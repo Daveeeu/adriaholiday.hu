@@ -1,8 +1,11 @@
-import type { ApartmentMutationInput } from '@/api/admin-api';
+import type {
+  ApartmentMutationInput,
+  ApartmentsListQuery,
+} from '@/api/admin-api';
 import { repositories } from '@/repositories';
 
-export async function getApartments(regionId?: string) {
-  return repositories.apartmentRepository.list(regionId);
+export async function getApartments(query?: ApartmentsListQuery) {
+  return repositories.apartmentRepository.list(query);
 }
 
 export async function getApartmentById(apartmentId: string) {

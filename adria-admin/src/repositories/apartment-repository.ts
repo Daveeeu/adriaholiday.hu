@@ -1,8 +1,12 @@
-import type { ApartmentMutationInput } from '@/api/admin-api';
+import type {
+  ApartmentMutationInput,
+  ApartmentsListQuery,
+} from '@/api/admin-api';
+import type { PaginatedResponse } from '@/lib/api-client';
 import type { Apartment } from '@/types/domain';
 
 export interface ApartmentRepository {
-  list(regionId?: string): Promise<Apartment[]>;
+  list(query?: ApartmentsListQuery): Promise<PaginatedResponse<Apartment>>;
   getById(apartmentId: string): Promise<Apartment>;
   create(input: ApartmentMutationInput): Promise<Apartment>;
   update(

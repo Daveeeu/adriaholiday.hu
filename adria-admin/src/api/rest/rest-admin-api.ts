@@ -18,6 +18,7 @@ import type {
 } from '@/types/domain';
 import type {
   AdminApi,
+  ApartmentsListQuery,
   BookingStatusMutationInput,
   OfferDateBulkOperationInput,
   OfferDateMutationInput,
@@ -26,7 +27,11 @@ import type {
   RegionMutationInput,
   ApartmentMutationInput,
 } from '@/api/admin-api';
-import { apiClient, type ApiQuery, type PaginatedResponse } from '@/lib/api-client';
+import {
+  apiClient,
+  type ApiQuery,
+  type PaginatedResponse,
+} from '@/lib/api-client';
 
 type ApiBooking = {
   id: string | number;
@@ -182,8 +187,12 @@ function mapOffer(offer: Offer): Offer {
     offerGroupId: toStringId(offer.offerGroupId),
     imageIds: (offer.imageIds ?? []).map((imageId) => toStringId(imageId)),
     dateIds: (offer.dateIds ?? []).map((dateId) => toStringId(dateId)),
-    contentIds: (offer.contentIds ?? []).map((contentId) => toStringId(contentId)),
-    apartmentIds: (offer.apartmentIds ?? []).map((apartmentId) => toStringId(apartmentId)),
+    contentIds: (offer.contentIds ?? []).map((contentId) =>
+      toStringId(contentId),
+    ),
+    apartmentIds: (offer.apartmentIds ?? []).map((apartmentId) =>
+      toStringId(apartmentId),
+    ),
   };
 }
 
@@ -201,7 +210,9 @@ function mapOfferDate(date: OfferDate): OfferDate {
     id: toStringId(date.id),
     offerId: toStringId(date.offerId),
     regionId: toStringId(date.regionId),
-    apartmentIds: (date.apartmentIds ?? []).map((apartmentId) => toStringId(apartmentId)),
+    apartmentIds: (date.apartmentIds ?? []).map((apartmentId) =>
+      toStringId(apartmentId),
+    ),
   };
 }
 
@@ -309,27 +320,38 @@ export class RestAdminApi implements AdminApi {
       return [];
     }
 
-    const gallery = await apiClient.get<Gallery>(`/api/admin/galleries/${galleryId}`);
-    return ((gallery as Gallery & { images?: GalleryImage[] }).images ?? []).map(mapGalleryImage);
+    const gallery = await apiClient.get<Gallery>(
+      `/api/admin/galleries/${galleryId}`,
+    );
+    return (
+      (gallery as Gallery & { images?: GalleryImage[] }).images ?? []
+    ).map(mapGalleryImage);
   }
 
   public async listBuses(regionId?: string): Promise<Bus[]> {
-    const response = await apiClient.get<PaginatedResponse<Bus>>('/api/admin/buses', {
-      query: normalizePaginatedQuery({ page: 1, perPage: 1000, regionId }),
-    });
+    const response = await apiClient.get<PaginatedResponse<Bus>>(
+      '/api/admin/buses',
+      {
+        query: normalizePaginatedQuery({ page: 1, perPage: 1000, regionId }),
+      },
+    );
     return mapPaginated(response).map(mapBus);
   }
 
-  public async listApartments(regionId?: string): Promise<Apartment[]> {
+  public async listApartments(
+    query?: ApartmentsListQuery,
+  ): Promise<PaginatedResponse<Apartment>> {
     const response = await apiClient.get<PaginatedResponse<Apartment>>(
       '/api/admin/apartments',
-      { query: normalizePaginatedQuery({ page: 1, perPage: 1000, regionId }) },
+      { query: normalizePaginatedQuery({ page: 1, perPage: 25, ...query }) },
     );
-    return mapPaginated(response).map(mapApartment);
+    return { ...response, items: response.items.map(mapApartment) };
   }
 
   public async getApartmentById(apartmentId: string): Promise<Apartment> {
-    const apartment = await apiClient.get<Apartment>(`/api/admin/apartments/${apartmentId}`);
+    const apartment = await apiClient.get<Apartment>(
+      `/api/admin/apartments/${apartmentId}`,
+    );
     return mapApartment(apartment);
   }
 
@@ -343,17 +365,20 @@ export class RestAdminApi implements AdminApi {
     apartmentId: string,
     input: ApartmentMutationInput,
   ): Promise<Apartment> {
-    return apiClient.patch<Apartment>(`/api/admin/apartments/${apartmentId}`, input);
+    return apiClient.patch<Apartment>(
+      `/api/admin/apartments/${apartmentId}`,
+      input,
+    );
   }
 
-  public async deleteApartment(
-    apartmentId: string,
-  ): Promise<{ id: string }> {
+  public async deleteApartment(apartmentId: string): Promise<{ id: string }> {
     await apiClient.delete<void>(`/api/admin/apartments/${apartmentId}`);
     return { id: apartmentId };
   }
 
-  public async listApartmentPrices(apartmentId?: string): Promise<ApartmentPrice[]> {
+  public async listApartmentPrices(
+    apartmentId?: string,
+  ): Promise<ApartmentPrice[]> {
     if (!apartmentId) {
       return [];
     }
@@ -388,7 +413,9 @@ export class RestAdminApi implements AdminApi {
   public async listOffers(filters?: OfferFilters): Promise<Offer[]> {
     const response = await apiClient.get<PaginatedResponse<Offer>>(
       '/api/admin/offers',
-      { query: normalizePaginatedQuery({ page: 1, perPage: 1000, ...filters }) },
+      {
+        query: normalizePaginatedQuery({ page: 1, perPage: 1000, ...filters }),
+      },
     );
     return mapPaginated(response).map(mapOffer);
   }
@@ -413,7 +440,9 @@ export class RestAdminApi implements AdminApi {
     offerId: string,
     status: Offer['status'],
   ): Promise<Offer> {
-    return apiClient.patch<Offer>(`/api/admin/offers/${offerId}/status`, { status });
+    return apiClient.patch<Offer>(`/api/admin/offers/${offerId}/status`, {
+      status,
+    });
   }
 
   public async getOfferById(offerId: string): Promise<OfferDetail | null> {
@@ -438,7 +467,10 @@ export class RestAdminApi implements AdminApi {
     offerDateId: string,
     input: OfferDateMutationInput,
   ): Promise<OfferDate> {
-    return apiClient.patch<OfferDate>(`/api/admin/offer-dates/${offerDateId}`, input);
+    return apiClient.patch<OfferDate>(
+      `/api/admin/offer-dates/${offerDateId}`,
+      input,
+    );
   }
 
   public async deleteOfferDate(offerDateId: string): Promise<{ id: string }> {
@@ -447,7 +479,9 @@ export class RestAdminApi implements AdminApi {
   }
 
   public async cloneOfferDate(offerDateId: string): Promise<OfferDate> {
-    return apiClient.post<OfferDate>(`/api/admin/offer-dates/${offerDateId}/clone`);
+    return apiClient.post<OfferDate>(
+      `/api/admin/offer-dates/${offerDateId}/clone`,
+    );
   }
 
   public async bulkUpdateOfferDates(
@@ -470,7 +504,9 @@ export class RestAdminApi implements AdminApi {
     return mapPaginated(response).map(mapBooking);
   }
 
-  public async getBookingById(bookingId: string): Promise<BookingDetail | null> {
+  public async getBookingById(
+    bookingId: string,
+  ): Promise<BookingDetail | null> {
     const response = await apiClient.get<ApiBooking>(
       `/api/admin/bookings/${bookingId}`,
     );

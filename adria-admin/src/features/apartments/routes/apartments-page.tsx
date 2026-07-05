@@ -1,6 +1,5 @@
 import {
   getCoreRowModel,
-  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -15,14 +14,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import type { ApartmentMutationInput } from '@/api/admin-api';
+import type {
+  ApartmentMutationInput,
+  ApartmentsListQuery,
+} from '@/api/admin-api';
 import { PageLoader } from '@/components/common/page-loader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   getApartmentCreateRoute,
   getApartmentDetailRoute,
-  getApartmentDimensions,
   getApartmentEditRoute,
   getApartmentListRoute,
   getApartmentRouteContext,
@@ -72,7 +73,8 @@ function toMutationInput(values: ApartmentFormValues): ApartmentMutationInput {
     .filter((part) => Number.isFinite(part));
   const latitude = normalizedCoordinates[0] ?? values.latitude;
   const longitude = normalizedCoordinates[1] ?? values.longitude;
-  const services = values.services.length > 0 ? values.services : values.amenities;
+  const services =
+    values.services.length > 0 ? values.services : values.amenities;
   const normalizedPriceSeasons = values.priceSeasons.map((season) => ({
     ...season,
     apartmentId: season.apartmentId ?? season.apartment_id ?? '',
@@ -84,7 +86,9 @@ function toMutationInput(values: ApartmentFormValues): ApartmentMutationInput {
   }));
 
   return {
-    seoName: values.autoGenerateSeoName ? createSlug(values.name) : values.seoName,
+    seoName: values.autoGenerateSeoName
+      ? createSlug(values.name)
+      : values.seoName,
     seo_name: values.seo_name || values.seoName,
     seo_auto_generate: values.seo_auto_generate ?? values.autoGenerateSeoName,
     isActive: values.isActive,
@@ -111,14 +115,27 @@ function toMutationInput(values: ApartmentFormValues): ApartmentMutationInput {
     description: values.description,
     additionalInformation: values.additionalInformation,
     typeDescription: values.typeDescription || values.apartment_type_content,
-    apartmentTypeContent: values.apartmentTypeContent || values.apartment_type_content || values.typeDescription,
-    apartment_type_content: values.apartment_type_content || values.apartmentTypeContent || values.typeDescription,
+    apartmentTypeContent:
+      values.apartmentTypeContent ||
+      values.apartment_type_content ||
+      values.typeDescription,
+    apartment_type_content:
+      values.apartment_type_content ||
+      values.apartmentTypeContent ||
+      values.typeDescription,
     apartment_type_description: values.apartment_type_description,
     apartment_type_text_description: values.apartment_type_text_description,
     apartment_type_text_description_2: values.apartment_type_text_description_2,
-    allInclusiveDescription: values.allInclusiveDescription || values.all_inclusive_content,
-    allInclusiveContent: values.allInclusiveContent || values.all_inclusive_content || values.allInclusiveDescription,
-    all_inclusive_content: values.all_inclusive_content || values.allInclusiveContent || values.allInclusiveDescription,
+    allInclusiveDescription:
+      values.allInclusiveDescription || values.all_inclusive_content,
+    allInclusiveContent:
+      values.allInclusiveContent ||
+      values.all_inclusive_content ||
+      values.allInclusiveDescription,
+    all_inclusive_content:
+      values.all_inclusive_content ||
+      values.allInclusiveContent ||
+      values.allInclusiveDescription,
     regionId: values.regionId,
     locationId: values.locationId,
     galleryId: values.galleryId,
@@ -132,21 +149,6 @@ function toMutationInput(values: ApartmentFormValues): ApartmentMutationInput {
     pricingMatrix: values.pricingMatrix,
     priceSeasons: normalizedPriceSeasons,
     status: values.isActive ? 'published' : 'archived',
-  };
-}
-
-function createOptimisticApartment(values: ApartmentFormValues): Apartment {
-  const mutationInput = toMutationInput(values);
-  const dimensions = getApartmentDimensions(mutationInput.type);
-
-  return {
-    id: `tmp_${crypto.randomUUID()}`,
-    ...dimensions,
-    ...mutationInput,
-    slug: mutationInput.slug || createSlug(mutationInput.name),
-    shortDescription:
-      mutationInput.shortDescription ||
-      `${mutationInput.name} helyi mentésként készült el a kérés befejezéséig.`,
   };
 }
 
@@ -196,18 +198,62 @@ export function ApartmentsPage() {
     ? getApartmentTypeDefinition(routeType)
     : undefined;
   const currentListRoute = getApartmentListRoute(routeType);
-  const routeMode: 'list' | ApartmentPanelMode =
-    routeContext?.mode ?? 'list';
+  const routeMode: 'list' | ApartmentPanelMode = routeContext?.mode ?? 'list';
   const defaultType = routeMode === 'create' && routeType ? routeType : '';
 
+  const columnFilterValue = (id: string) =>
+    (columnFilters.find((filter) => filter.id === id)?.value as
+      | string
+      | undefined) || undefined;
+
+  const queryParams = useMemo<ApartmentsListQuery>(
+    () => ({
+      page: pagination.pageIndex + 1,
+      perPage: pagination.pageSize,
+      search: search || undefined,
+      sortBy: sorting[0]?.id,
+      sortDirection: sorting[0]?.desc ? 'desc' : 'asc',
+      type: routeType || columnFilterValue('type'),
+      isAccommodation:
+        columnFilterValue('kind') === 'accommodation'
+          ? true
+          : columnFilterValue('kind') === 'apartment'
+            ? false
+            : undefined,
+      isActive:
+        columnFilterValue('isActive') === 'yes'
+          ? true
+          : columnFilterValue('isActive') === 'no'
+            ? false
+            : undefined,
+      featured:
+        columnFilterValue('featured') === 'yes'
+          ? true
+          : columnFilterValue('featured') === 'no'
+            ? false
+            : undefined,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      pagination.pageIndex,
+      pagination.pageSize,
+      search,
+      sorting,
+      routeType,
+      columnFilters,
+    ],
+  );
+
   const {
-    data: apartments,
+    data: apartmentsPage,
     isLoading: apartmentsLoading,
     isError: apartmentsError,
   } = useQuery({
-    queryKey: [...apartmentsQueryKey, routeType ?? 'all'],
-    queryFn: () => getApartments(),
+    queryKey: [...apartmentsQueryKey, queryParams],
+    queryFn: () => getApartments(queryParams),
+    placeholderData: (previous) => previous,
   });
+  const apartments = apartmentsPage?.items;
   const apartmentId = routeContext?.apartmentId ?? null;
   const {
     data: apartmentDetail,
@@ -241,36 +287,18 @@ export function ApartmentsPage() {
     }));
   }, [routeType]);
 
+  useEffect(() => {
+    setPagination((current) => ({ ...current, pageIndex: 0 }));
+  }, [search, sorting, columnFilters]);
+
   const createApartmentMutation = useMutation({
     mutationFn: (values: ApartmentFormValues) =>
       createApartment(toMutationInput(values)),
-    onMutate: async (values) => {
-      await queryClient.cancelQueries({ queryKey: apartmentsQueryKey });
-      const previousApartments =
-        queryClient.getQueryData<Apartment[]>(apartmentsQueryKey) ?? [];
-      const optimisticApartment = createOptimisticApartment(values);
-
-      queryClient.setQueryData<Apartment[]>(apartmentsQueryKey, [
-        optimisticApartment,
-        ...previousApartments,
-      ]);
-
-      return { previousApartments, optimisticId: optimisticApartment.id };
-    },
-    onError: (_error, _values, context) => {
-      queryClient.setQueryData(apartmentsQueryKey, context?.previousApartments);
+    onError: () => {
       toast.error('Az apartman létrehozása nem sikerült.');
     },
-    onSuccess: (createdApartment, _values, context) => {
-      queryClient.setQueryData<Apartment[]>(
-        apartmentsQueryKey,
-        (currentApartments = []) =>
-          currentApartments.map((apartment) =>
-            apartment.id === context?.optimisticId
-              ? createdApartment
-              : apartment,
-          ),
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: apartmentsQueryKey });
       toast.success('Az apartman létrejött.');
       navigate(currentListRoute, { replace: true });
     },
@@ -284,65 +312,24 @@ export function ApartmentsPage() {
       apartmentId: string;
       values: ApartmentFormValues;
     }) => updateApartment(targetApartmentId, toMutationInput(values)),
-    onMutate: async ({ apartmentId: targetApartmentId, values }) => {
-      await queryClient.cancelQueries({ queryKey: apartmentsQueryKey });
-      const previousApartments =
-        queryClient.getQueryData<Apartment[]>(apartmentsQueryKey) ?? [];
-      const mutationInput = toMutationInput(values);
-
-      queryClient.setQueryData<Apartment[]>(
-        apartmentsQueryKey,
-        (currentApartments = []) =>
-          currentApartments.map((apartment) =>
-            apartment.id === targetApartmentId
-              ? {
-                  ...apartment,
-                  ...mutationInput,
-                  slug: mutationInput.slug || createSlug(mutationInput.name),
-                }
-              : apartment,
-          ),
-      );
-
-      return { previousApartments };
-    },
-    onError: (_error, _variables, context) => {
-      queryClient.setQueryData(apartmentsQueryKey, context?.previousApartments);
+    onError: () => {
       toast.error('Az apartman mentése nem sikerült.');
     },
-    onSuccess: (updatedApartment) => {
-      queryClient.setQueryData<Apartment[]>(
-        apartmentsQueryKey,
-        (currentApartments = []) =>
-          currentApartments.map((apartment) =>
-            apartment.id === updatedApartment.id ? updatedApartment : apartment,
-          ),
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: apartmentsQueryKey });
       toast.success('Az apartman frissítve.');
       navigate(currentListRoute, { replace: true });
     },
   });
 
   const deleteApartmentMutation = useMutation({
-    mutationFn: (targetApartmentId: string) => deleteApartment(targetApartmentId),
-    onMutate: async (targetApartmentId) => {
-      await queryClient.cancelQueries({ queryKey: apartmentsQueryKey });
-      const previousApartments =
-        queryClient.getQueryData<Apartment[]>(apartmentsQueryKey) ?? [];
-
-      queryClient.setQueryData<Apartment[]>(
-        apartmentsQueryKey,
-        (currentApartments = []) =>
-          currentApartments.filter((apartment) => apartment.id !== targetApartmentId),
-      );
-
-      return { previousApartments };
-    },
-    onError: (_error, _variables, context) => {
-      queryClient.setQueryData(apartmentsQueryKey, context?.previousApartments);
+    mutationFn: (targetApartmentId: string) =>
+      deleteApartment(targetApartmentId),
+    onError: () => {
       toast.error('Az apartman törlése nem sikerült.');
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: apartmentsQueryKey });
       toast.success('Az apartman törölve.');
       navigate(currentListRoute, { replace: true });
     },
@@ -374,23 +361,14 @@ export function ApartmentsPage() {
 
     return apartments.map((apartment) => ({
       ...apartment,
-      regionName:
-        regionMap.get(apartment.regionId) ?? 'Ismeretlen régió',
-      locationName:
-        locationMap.get(apartment.locationId) ?? 'Ismeretlen hely',
+      regionName: regionMap.get(apartment.regionId) ?? 'Ismeretlen régió',
+      locationName: locationMap.get(apartment.locationId) ?? 'Ismeretlen hely',
       galleryTitle: galleryMap.get(apartment.galleryId) ?? 'Nincs galéria',
       apartmentKind: apartment.isAccommodation ? 'accommodation' : 'apartment',
-      typeLabel: getApartmentTypeDefinition(apartment.type)?.label ?? apartment.type,
+      typeLabel:
+        getApartmentTypeDefinition(apartment.type)?.label ?? apartment.type,
     }));
   }, [apartments, galleries, locations, regions]);
-
-  const visibleApartments = useMemo(
-    () =>
-    routeType
-      ? apartmentRows.filter((apartment) => apartment.type === routeType)
-      : apartmentRows,
-    [apartmentRows, routeType],
-  );
 
   const columns: ColumnDef<ApartmentRow>[] = useMemo(
     () => [
@@ -457,12 +435,15 @@ export function ApartmentsPage() {
         id: 'kind',
         header: 'Apartman/Szállás',
         cell: ({ row }) =>
-          row.original.apartmentKind === 'accommodation' ? 'Szállás' : 'Apartman',
+          row.original.apartmentKind === 'accommodation'
+            ? 'Szállás'
+            : 'Apartman',
         filterFn: 'equalsString',
       },
       {
         id: 'isActive',
-        accessorFn: (row) => ((row.isActive ?? row.status !== 'archived') ? 'yes' : 'no'),
+        accessorFn: (row) =>
+          (row.isActive ?? row.status !== 'archived') ? 'yes' : 'no',
         header: 'Aktív?',
         cell: ({ row }) => (
           <Badge className="border-transparent bg-primary/10 text-primary">
@@ -496,45 +477,24 @@ export function ApartmentsPage() {
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: visibleApartments,
+    data: apartmentRows,
     columns,
     state: {
       sorting,
-      globalFilter: search,
       pagination,
       columnFilters,
     },
+    pageCount: Math.max(
+      1,
+      Math.ceil((apartmentsPage?.totalCount ?? 0) / pagination.pageSize),
+    ),
     onSortingChange: setSorting,
-    onGlobalFilterChange: setSearch,
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
-    globalFilterFn: (row, _columnId, filterValue) => {
-      const query = String(filterValue).toLowerCase();
-      return [
-        row.original.name,
-        row.original.code ?? '',
-        row.original.address,
-        row.original.seoName ?? '',
-        row.original.regionName,
-        row.original.locationName,
-        row.original.typeLabel,
-      ].some((value) => value.toLowerCase().includes(query));
-    },
-    filterFns: {
-      includesString: (row, columnId, filterValue) => {
-        const value = String(row.getValue(columnId) ?? '').toLowerCase();
-        return value.includes(String(filterValue).toLowerCase());
-      },
-      equalsString: (row, columnId, filterValue) => {
-        if (!filterValue) {
-          return true;
-        }
-
-        return String(row.getValue(columnId)) === String(filterValue);
-      },
-    },
+    manualSorting: true,
+    manualPagination: true,
+    manualFiltering: true,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
@@ -554,7 +514,9 @@ export function ApartmentsPage() {
   const selectedApartment = apartmentDetail
     ? apartmentDetail
     : apartmentId
-      ? apartmentRows.find((apartment) => String(apartment.id) === String(apartmentId))
+      ? apartmentRows.find(
+          (apartment) => String(apartment.id) === String(apartmentId),
+        )
       : undefined;
   const apartmentNotFound =
     Boolean(apartmentId) &&
@@ -571,7 +533,7 @@ export function ApartmentsPage() {
   const description = routeTypeDefinition
     ? `A(z) ${routeTypeDefinition.formLabel.toLowerCase()} kategória rekordjai.`
     : 'A teljes apartmanállomány kezelése.';
-  const searchResultCount = table.getFilteredRowModel().rows.length;
+  const totalCount = apartmentsPage?.totalCount ?? 0;
   const submitting =
     createApartmentMutation.isPending || updateApartmentMutation.isPending;
 
@@ -580,21 +542,16 @@ export function ApartmentsPage() {
       <div className="space-y-2">
         <p className="text-sm font-medium text-primary">Apartmanok</p>
         <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          {description}
-        </p>
+        <p className="max-w-3xl text-sm text-muted-foreground">{description}</p>
       </div>
 
       <ApartmentsToolbar
         title={title}
-        description={`${searchResultCount} találat a ${visibleApartments.length} rekordból`}
+        description={`${totalCount} találat a ${totalCount} rekordból`}
         search={search}
-        resultCount={searchResultCount}
-        totalCount={visibleApartments.length}
-        onSearchChange={(value) => {
-          setSearch(value);
-          setPagination((current) => ({ ...current, pageIndex: 0 }));
-        }}
+        resultCount={totalCount}
+        totalCount={totalCount}
+        onSearchChange={setSearch}
         onCreateClick={() => {
           navigate(getApartmentCreateRoute(routeType));
         }}
@@ -604,7 +561,7 @@ export function ApartmentsPage() {
         table={table}
         sorting={sorting}
         pagination={pagination}
-        totalCount={visibleApartments.length}
+        totalCount={totalCount}
         onPageSizeChange={(pageSize) =>
           setPagination((currentPagination) => ({
             ...currentPagination,
@@ -620,13 +577,16 @@ export function ApartmentsPage() {
         }}
         onDeleteApartment={(apartment) => {
           if (
-            window.confirm(`Biztosan törlöd ezt az apartmant? (${apartment.name})`)
+            window.confirm(
+              `Biztosan törlöd ezt az apartmant? (${apartment.name})`,
+            )
           ) {
             deleteApartmentMutation.mutate(apartment.id);
           }
         }}
         onToggleActive={(apartment) => {
-          const isActive = apartment.isActive ?? apartment.status !== 'archived';
+          const isActive =
+            apartment.isActive ?? apartment.status !== 'archived';
           updateApartmentMutation.mutate({
             apartmentId: apartment.id,
             values: toFormValuesFromApartment(apartment, {
@@ -655,7 +615,9 @@ export function ApartmentsPage() {
         submitting={submitting}
         defaultType={defaultType}
         typeLocked={routeMode === 'create' && Boolean(routeType)}
-        isLoading={Boolean(apartmentId) && apartmentDetailLoading && !selectedApartment}
+        isLoading={
+          Boolean(apartmentId) && apartmentDetailLoading && !selectedApartment
+        }
         errorMessage={routeMode !== 'list' ? apartmentDetailMessage : null}
         onRetry={apartmentId ? () => void refetchApartmentDetail() : undefined}
         onOpenChange={(open) => {
@@ -677,9 +639,7 @@ export function ApartmentsPage() {
         onEdit={
           selectedApartment
             ? () =>
-                navigate(
-                  getApartmentEditRoute(selectedApartment.id, routeType),
-                )
+                navigate(getApartmentEditRoute(selectedApartment.id, routeType))
             : undefined
         }
         onDelete={
@@ -699,7 +659,8 @@ export function ApartmentsPage() {
           selectedApartment
             ? () => {
                 const isActive =
-                  selectedApartment.isActive ?? selectedApartment.status !== 'archived';
+                  selectedApartment.isActive ??
+                  selectedApartment.status !== 'archived';
                 updateApartmentMutation.mutate({
                   apartmentId: selectedApartment.id,
                   values: toFormValuesFromApartment(selectedApartment, {

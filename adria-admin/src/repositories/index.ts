@@ -23,7 +23,7 @@ export const repositories: AdminRepositories = {
       restAdminApi.setRegionActiveState(regionId, isActive),
   },
   apartmentRepository: {
-    list: (regionId) => restAdminApi.listApartments(regionId),
+    list: (query) => restAdminApi.listApartments(query),
     getById: (apartmentId) => restAdminApi.getApartmentById(apartmentId),
     create: (input) => restAdminApi.createApartment(input),
     update: (apartmentId, input) =>
@@ -37,7 +37,8 @@ export const repositories: AdminRepositories = {
     create: (input) => restAdminApi.createOffer(input),
     update: (offerId, input) => restAdminApi.updateOffer(offerId, input),
     delete: (offerId) => restAdminApi.deleteOffer(offerId),
-    setStatus: (offerId, status) => restAdminApi.setOfferStatus(offerId, status),
+    setStatus: (offerId, status) =>
+      restAdminApi.setOfferStatus(offerId, status),
   },
   bookingRepository: {
     list: (regionId) => restAdminApi.listBookings(regionId),

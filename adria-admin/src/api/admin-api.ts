@@ -17,6 +17,7 @@ import type {
   OfferGroup,
   Region,
 } from '@/types/domain';
+import type { PaginatedResponse } from '@/lib/api-client';
 
 export type RegionMutationInput = {
   name: string;
@@ -125,6 +126,19 @@ export type OfferFilters = {
   featured?: boolean;
 };
 
+export type ApartmentsListQuery = {
+  page?: number;
+  perPage?: number;
+  search?: string;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  regionId?: string;
+  type?: string;
+  isAccommodation?: boolean;
+  isActive?: boolean;
+  featured?: boolean;
+};
+
 export interface AdminApi {
   listRegions(): Promise<Region[]>;
   createRegion(input: RegionMutationInput): Promise<Region>;
@@ -135,7 +149,9 @@ export interface AdminApi {
   listGalleries(regionId?: string): Promise<Gallery[]>;
   listGalleryImages(galleryId?: string): Promise<GalleryImage[]>;
   listBuses(regionId?: string): Promise<Bus[]>;
-  listApartments(regionId?: string): Promise<Apartment[]>;
+  listApartments(
+    query?: ApartmentsListQuery,
+  ): Promise<PaginatedResponse<Apartment>>;
   getApartmentById(apartmentId: string): Promise<Apartment>;
   createApartment(input: ApartmentMutationInput): Promise<Apartment>;
   updateApartment(
