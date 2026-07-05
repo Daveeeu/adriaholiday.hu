@@ -1,6 +1,14 @@
 import { motion } from "motion/react";
 
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+
 export default function FloatingParticles() {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  if (prefersReducedMotion) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
       {/* Subtle Mediterranean particles */}

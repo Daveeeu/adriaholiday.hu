@@ -1,6 +1,14 @@
 import { motion } from "motion/react";
 
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+
 export default function AmbientBackground() {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  if (prefersReducedMotion) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Subtle radial gradient ambience - top */}
