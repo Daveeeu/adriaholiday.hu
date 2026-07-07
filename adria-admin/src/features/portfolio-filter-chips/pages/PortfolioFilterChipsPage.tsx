@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { apiClient } from '@/lib/api-client';
+import { useAuthStore } from '@/store/auth-store';
 
 import {
   createPortfolioFilterChip,
@@ -127,6 +128,10 @@ function translateFilterType(type: PortfolioFilterChip['filterType']) {
 
 export function PortfolioFilterChipsPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('portfolio-filter-chips.create');
+  const canUpdate = hasPermission('portfolio-filter-chips.update');
+  const canDelete = hasPermission('portfolio-filter-chips.delete');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -420,15 +425,17 @@ export function PortfolioFilterChipsPage() {
             <h2 className="text-lg font-semibold tracking-tight">Kategória oldali filter chipek</h2>
             <p className="text-sm text-muted-foreground">{data.totalCount} találat.</p>
           </div>
-          <Button
-            onClick={() => {
-              setSelectedChip(undefined);
-              setDialogOpen(true);
-            }}
-          >
-            <Plus className="size-4" />
-            Új filter chip
-          </Button>
+          {canCreate ? (
+            <Button
+              onClick={() => {
+                setSelectedChip(undefined);
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="size-4" />
+              Új filter chip
+            </Button>
+          ) : null}
         </div>
         <div className="mt-4">
           <Input
@@ -479,23 +486,27 @@ export function PortfolioFilterChipsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedChip(chip);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => deleteMutation.mutate(chip.id)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
+                        {canUpdate ? (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedChip(chip);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                        ) : null}
+                        {canDelete ? (
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => deleteMutation.mutate(chip.id)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        ) : null}
                       </div>
                     </TableCell>
                   </TableRow>

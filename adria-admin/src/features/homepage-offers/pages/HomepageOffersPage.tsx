@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/store/auth-store';
 
 import { HomepageOfferSidePanel } from '../components/HomepageOfferSidePanel';
 import { HomepageOffersTable } from '../components/HomepageOffersTable';
@@ -44,6 +45,10 @@ function getSortBy(sorting: SortingState): NonNullable<HomepageOffersListQuery['
 export function HomepageOffersPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('homepage-offers.create');
+  const canUpdate = hasPermission('homepage-offers.update');
+  const canDelete = hasPermission('homepage-offers.delete');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'sortOrder', desc: false },
@@ -271,49 +276,55 @@ export function HomepageOffersPage() {
             >
               <Eye className="size-4" />
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => {
-                setSelectedOffer(row.original);
-                setPanelMode('edit');
-                setPanelOpen(true);
-              }}
-            >
-              <Pencil className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                statusMutation.mutate({
-                  offerId: row.original.id,
-                  active: !row.original.active,
-                })
-              }
-            >
-              <Power className="size-4" />
-            </Button>
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => {
-                if (
-                  window.confirm(
-                    `Biztosan törlöd ezt a főoldali ajánlatot? (${row.original.translations.hu.name})`,
-                  )
-                ) {
-                  deleteMutation.mutate(row.original.id);
+            {canUpdate ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  setSelectedOffer(row.original);
+                  setPanelMode('edit');
+                  setPanelOpen(true);
+                }}
+              >
+                <Pencil className="size-4" />
+              </Button>
+            ) : null}
+            {canUpdate ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  statusMutation.mutate({
+                    offerId: row.original.id,
+                    active: !row.original.active,
+                  })
                 }
-              }}
-            >
-              <Trash2 className="size-4" />
-            </Button>
+              >
+                <Power className="size-4" />
+              </Button>
+            ) : null}
+            {canDelete ? (
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Biztosan törlöd ezt a főoldali ajánlatot? (${row.original.translations.hu.name})`,
+                    )
+                  ) {
+                    deleteMutation.mutate(row.original.id);
+                  }
+                }}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </div>
         ),
       },
     ],
-    [deleteMutation, navigate, statusMutation],
+    [canDelete, canUpdate, deleteMutation, navigate, statusMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -367,29 +378,33 @@ export function HomepageOffersPage() {
         resultCount={homepageOffersResponse.items.length}
         totalCount={homepageOffersResponse.totalCount}
         onSearchChange={setSearch}
-        onCreateClick={() => {
-          setSelectedOffer({
-            id: `tmp_${crypto.randomUUID()}`,
-            active: true,
-            sortOrder: defaultSortOrder,
-            image: null,
-            imageTitle: '',
-            link: '',
-            translations: HOMEPAGE_OFFER_LANGUAGES.reduce(
-              (acc, language) => ({
-                ...acc,
-                [language]: {
-                  name: '',
-                  seoName: '',
-                  seoAutoGenerate: true,
-                },
-              }),
-              {} as HomepageOffer['translations'],
-            ),
-          });
-          setPanelMode('create');
-          setPanelOpen(true);
-        }}
+        onCreateClick={
+          canCreate
+            ? () => {
+                setSelectedOffer({
+                  id: `tmp_${crypto.randomUUID()}`,
+                  active: true,
+                  sortOrder: defaultSortOrder,
+                  image: null,
+                  imageTitle: '',
+                  link: '',
+                  translations: HOMEPAGE_OFFER_LANGUAGES.reduce(
+                    (acc, language) => ({
+                      ...acc,
+                      [language]: {
+                        name: '',
+                        seoName: '',
+                        seoAutoGenerate: true,
+                      },
+                    }),
+                    {} as HomepageOffer['translations'],
+                  ),
+                });
+                setPanelMode('create');
+                setPanelOpen(true);
+              }
+            : undefined
+        }
       />
 
       <HomepageOffersTable
@@ -430,14 +445,14 @@ export function HomepageOffersPage() {
           createMutation.mutate(values);
         }}
         onEdit={
-          selectedOffer
+          selectedOffer && canUpdate
             ? () => {
                 setPanelMode('edit');
               }
             : undefined
         }
         onDelete={
-          selectedOffer
+          selectedOffer && canDelete
             ? () => {
                 if (
                   window.confirm(
@@ -450,7 +465,7 @@ export function HomepageOffersPage() {
             : undefined
         }
         onToggleActive={
-          selectedOffer
+          selectedOffer && canUpdate
             ? () =>
                 statusMutation.mutate({
                   offerId: selectedOffer.id,

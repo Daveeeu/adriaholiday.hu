@@ -21,6 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
 
 import {
   createTourRegionGroup,
@@ -268,6 +269,11 @@ function RegionGroupPanel({
 
 export function TourRegionGroupsPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('tour-region-groups.create');
+  const canUpdate = hasPermission('tour-region-groups.update');
+  const canDelete = hasPermission('tour-region-groups.delete');
+  const canUpdateStatus = hasPermission('tour-region-groups.status');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([{ id: 'name', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -355,20 +361,26 @@ export function TourRegionGroupsPage() {
             <Button variant="outline" size="icon" onClick={() => { setSelectedItem(row.original); setPanelMode('detail'); setPanelOpen(true); }}>
               <Eye className="size-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={() => { setSelectedItem(row.original); setPanelMode('edit'); setPanelOpen(true); }}>
-              <Pencil className="size-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => toggleMutation.mutate({ itemId: row.original.id, active: !row.original.active })}>
-              <Power className="size-4" />
-            </Button>
-            <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(row.original.id)}>
-              <Trash2 className="size-4" />
-            </Button>
+            {canUpdate ? (
+              <Button variant="outline" size="icon" onClick={() => { setSelectedItem(row.original); setPanelMode('edit'); setPanelOpen(true); }}>
+                <Pencil className="size-4" />
+              </Button>
+            ) : null}
+            {canUpdateStatus ? (
+              <Button variant="outline" size="icon" onClick={() => toggleMutation.mutate({ itemId: row.original.id, active: !row.original.active })}>
+                <Power className="size-4" />
+              </Button>
+            ) : null}
+            {canDelete ? (
+              <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(row.original.id)}>
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </div>
         ),
       },
     ],
-    [deleteMutation, toggleMutation],
+    [canDelete, canUpdate, canUpdateStatus, deleteMutation, toggleMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -429,7 +441,9 @@ export function TourRegionGroupsPage() {
         </div>
       </div>
 
-      <Button onClick={() => { setSelectedItem(undefined); setPanelMode('create'); setPanelOpen(true); }}>Új régió / csoport</Button>
+      {canCreate ? (
+        <Button onClick={() => { setSelectedItem(undefined); setPanelMode('create'); setPanelOpen(true); }}>Új régió / csoport</Button>
+      ) : null}
 
       <RegionGroupPanel
         open={panelOpen}
@@ -440,7 +454,7 @@ export function TourRegionGroupsPage() {
           if (panelMode === 'edit' && selectedItem) updateMutation.mutate({ itemId: selectedItem.id, values });
           else createMutation.mutate(values);
         }}
-        onDelete={selectedItem ? () => deleteMutation.mutate(selectedItem.id) : undefined}
+        onDelete={selectedItem && canDelete ? () => deleteMutation.mutate(selectedItem.id) : undefined}
       />
     </div>
   );

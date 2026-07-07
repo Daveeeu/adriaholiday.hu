@@ -28,6 +28,7 @@ import {
   setRegionActiveState,
   updateRegion,
 } from '@/services/region-service';
+import { useAuthStore } from '@/store/auth-store';
 import type { Region } from '@/types/domain';
 
 import type { RegionFormValues } from '../lib/region-schema';
@@ -68,6 +69,10 @@ function createOptimisticRegion(values: RegionFormValues): Region {
 
 export function RegionsPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('regions.create');
+  const canUpdate = hasPermission('regions.update');
+  const canDelete = hasPermission('regions.delete');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'name', desc: false },
@@ -299,40 +304,46 @@ export function RegionsPage() {
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setEditingRegion(row.original);
-              setDialogOpen(true);
-            }}
-          >
-            <Pencil className="size-4" />
-            {t('regions.table.edit')}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              toggleRegionMutation.mutate({
-                regionId: row.original.id,
-                isActive: !row.original.isActive,
-              })
-            }
-          >
-            <Power className="size-4" />
-            {row.original.isActive
-              ? t('regions.table.deactivate')
-              : t('regions.table.activate')}
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => deleteRegionMutation.mutate(row.original.id)}
-          >
-            <Trash2 className="size-4" />
-            {t('regions.table.delete')}
-          </Button>
+          {canUpdate ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setEditingRegion(row.original);
+                setDialogOpen(true);
+              }}
+            >
+              <Pencil className="size-4" />
+              {t('regions.table.edit')}
+            </Button>
+          ) : null}
+          {canUpdate ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                toggleRegionMutation.mutate({
+                  regionId: row.original.id,
+                  isActive: !row.original.isActive,
+                })
+              }
+            >
+              <Power className="size-4" />
+              {row.original.isActive
+                ? t('regions.table.deactivate')
+                : t('regions.table.activate')}
+            </Button>
+          ) : null}
+          {canDelete ? (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => deleteRegionMutation.mutate(row.original.id)}
+            >
+              <Trash2 className="size-4" />
+              {t('regions.table.delete')}
+            </Button>
+          ) : null}
         </div>
       ),
     },
@@ -397,10 +408,14 @@ export function RegionsPage() {
         search={search}
         resultCount={table.getFilteredRowModel().rows.length}
         onSearchChange={setSearch}
-        onCreateClick={() => {
-          setEditingRegion(undefined);
-          setDialogOpen(true);
-        }}
+        onCreateClick={
+          canCreate
+            ? () => {
+                setEditingRegion(undefined);
+                setDialogOpen(true);
+              }
+            : undefined
+        }
       />
 
       <RegionsTable

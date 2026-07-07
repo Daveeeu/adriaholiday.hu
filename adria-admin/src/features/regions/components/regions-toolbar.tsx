@@ -8,7 +8,7 @@ type RegionsToolbarProps = {
   search: string;
   resultCount: number;
   onSearchChange: (value: string) => void;
-  onCreateClick: () => void;
+  onCreateClick?: () => void;
 };
 
 export function RegionsToolbar({
@@ -38,10 +38,12 @@ export function RegionsToolbar({
             placeholder={t('regions.toolbar.searchPlaceholder')}
           />
         </div>
-        <Button onClick={onCreateClick}>
-          <Plus className="size-4" />
-          {t('regions.toolbar.create')}
-        </Button>
+        {onCreateClick ? (
+          <Button onClick={onCreateClick}>
+            <Plus className="size-4" />
+            {t('regions.toolbar.create')}
+          </Button>
+        ) : null}
       </div>
     </div>
   );

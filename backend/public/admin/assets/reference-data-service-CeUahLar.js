@@ -1,1 +1,0 @@
-import{t as e}from"./repositories-0kShcfx7.js";async function t(){return e.referenceDataRepository.listRegions()}async function n(t){return e.referenceDataRepository.listLocations(t)}async function r(t){return e.referenceDataRepository.listGalleries(t)}async function i(t){return e.referenceDataRepository.listEmailTemplates(t)}export{t as i,r as n,n as r,i as t};

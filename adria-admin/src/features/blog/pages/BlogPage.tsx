@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
 import { toast } from 'sonner';
 
 import { BlogArticleSidePanel } from '../components/BlogArticleSidePanel';
@@ -48,6 +49,10 @@ function formatDate(date?: string) {
 
 export function BlogPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('blog-articles.create');
+  const canUpdate = hasPermission('blog-articles.update');
+  const canDelete = hasPermission('blog-articles.delete');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'publishedAt', desc: true },
@@ -243,41 +248,47 @@ export function BlogPage() {
             >
               <Eye className="size-4" />
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => {
-                setSelectedArticle(row.original);
-                setPanelMode('edit');
-                setPanelOpen(true);
-              }}
-            >
-              <Pencil className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                toggleMutation.mutate({
-                  id: row.original.id,
-                  active: !row.original.active,
-                })
-              }
-            >
-              <Power className="size-4" />
-            </Button>
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => deleteMutation.mutate(row.original.id)}
-            >
-              <Trash2 className="size-4" />
-            </Button>
+            {canUpdate ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  setSelectedArticle(row.original);
+                  setPanelMode('edit');
+                  setPanelOpen(true);
+                }}
+              >
+                <Pencil className="size-4" />
+              </Button>
+            ) : null}
+            {canUpdate ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  toggleMutation.mutate({
+                    id: row.original.id,
+                    active: !row.original.active,
+                  })
+                }
+              >
+                <Power className="size-4" />
+              </Button>
+            ) : null}
+            {canDelete ? (
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() => deleteMutation.mutate(row.original.id)}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </div>
         ),
       },
     ],
-    [deleteMutation, toggleMutation],
+    [canDelete, canUpdate, deleteMutation, toggleMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -322,15 +333,17 @@ export function BlogPage() {
               {data.totalCount} találat a megjelenített oldalon.
             </p>
           </div>
-          <Button
-            onClick={() => {
-              setSelectedArticle(undefined);
-              setPanelMode('create');
-              setPanelOpen(true);
-            }}
-          >
-            Új blog cikk
-          </Button>
+          {canCreate ? (
+            <Button
+              onClick={() => {
+                setSelectedArticle(undefined);
+                setPanelMode('create');
+                setPanelOpen(true);
+              }}
+            >
+              Új blog cikk
+            </Button>
+          ) : null}
         </div>
         <div className="mt-4">
           <Input
@@ -456,9 +469,9 @@ export function BlogPage() {
             createMutation.mutate(values);
           }
         }}
-        onDelete={selectedArticle ? () => deleteMutation.mutate(selectedArticle.id) : undefined}
+        onDelete={selectedArticle && canDelete ? () => deleteMutation.mutate(selectedArticle.id) : undefined}
         onToggleActive={
-          selectedArticle
+          selectedArticle && canUpdate
             ? () =>
                 toggleMutation.mutate({
                   id: selectedArticle.id,

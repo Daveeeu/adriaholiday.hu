@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { MediaPicker } from '@/components/media/media-picker';
+import { useAuthStore } from '@/store/auth-store';
 
 import { CrudModulePage } from '../components/crud-module-page';
 import { FormSection } from '../components/form-section';
@@ -60,6 +61,11 @@ const columns = [
 ] satisfies Array<DataTableColumn<PartnerBanner>>;
 
 export function BannerGeneratorPage() {
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('partner-banners.create');
+  const canUpdate = hasPermission('partner-banners.update');
+  const canDelete = hasPermission('partner-banners.delete');
+
   const pageConfig = useMemo(
     () => ({
       eyebrow: 'Foglalások',
@@ -189,7 +195,14 @@ export function BannerGeneratorPage() {
     [],
   );
 
-  return <CrudModulePage {...pageConfig} />;
+  return (
+    <CrudModulePage
+      {...pageConfig}
+      canCreate={canCreate}
+      canUpdate={canUpdate}
+      canDelete={canDelete}
+    />
+  );
 }
 
 function BannerPreview({

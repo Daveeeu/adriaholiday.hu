@@ -10,7 +10,7 @@ type ApartmentsToolbarProps = {
   resultCount: number;
   totalCount: number;
   onSearchChange: (value: string) => void;
-  onCreateClick: () => void;
+  onCreateClick?: () => void;
 };
 
 export function ApartmentsToolbar({
@@ -35,10 +35,12 @@ export function ApartmentsToolbar({
           </p>
         </div>
 
-        <Button onClick={onCreateClick}>
-          <Plus className="size-4" />
-          Új apartman
-        </Button>
+        {onCreateClick ? (
+          <Button onClick={onCreateClick}>
+            <Plus className="size-4" />
+            Új apartman
+          </Button>
+        ) : null}
       </div>
 
       <div className="mt-4">

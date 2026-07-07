@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
 
 import {
   createTourPartnerOffer,
@@ -251,6 +252,11 @@ function PartnerOfferPanel({
 
 export function TourPartnerOffersPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('tour-partner-offers.create');
+  const canUpdate = hasPermission('tour-partner-offers.update');
+  const canDelete = hasPermission('tour-partner-offers.delete');
+  const canUpdateStatus = hasPermission('tour-partner-offers.status');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([{ id: 'inquiryDate', desc: true }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -352,41 +358,47 @@ export function TourPartnerOffersPage() {
             >
               <Eye className="size-4" />
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => {
-                setSelectedOffer(row.original);
-                setPanelMode('edit');
-                setPanelOpen(true);
-              }}
-            >
-              <Pencil className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                toggleMutation.mutate({
-                  offerId: row.original.id,
-                  active: !row.original.active,
-                })
-              }
-            >
-              <Power className="size-4" />
-            </Button>
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => deleteMutation.mutate(row.original.id)}
-            >
-              <Trash2 className="size-4" />
-            </Button>
+            {canUpdate ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  setSelectedOffer(row.original);
+                  setPanelMode('edit');
+                  setPanelOpen(true);
+                }}
+              >
+                <Pencil className="size-4" />
+              </Button>
+            ) : null}
+            {canUpdateStatus ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  toggleMutation.mutate({
+                    offerId: row.original.id,
+                    active: !row.original.active,
+                  })
+                }
+              >
+                <Power className="size-4" />
+              </Button>
+            ) : null}
+            {canDelete ? (
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() => deleteMutation.mutate(row.original.id)}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </div>
         ),
       },
     ],
-    [deleteMutation, toggleMutation],
+    [canDelete, canUpdate, canUpdateStatus, deleteMutation, toggleMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -470,15 +482,17 @@ export function TourPartnerOffersPage() {
         </div>
       </div>
 
-      <Button
-        onClick={() => {
-          setSelectedOffer(undefined);
-          setPanelMode('create');
-          setPanelOpen(true);
-        }}
-      >
-        Új partner ajánlat
-      </Button>
+      {canCreate ? (
+        <Button
+          onClick={() => {
+            setSelectedOffer(undefined);
+            setPanelMode('create');
+            setPanelOpen(true);
+          }}
+        >
+          Új partner ajánlat
+        </Button>
+      ) : null}
 
       <PartnerOfferPanel
         open={panelOpen}
@@ -496,7 +510,7 @@ export function TourPartnerOffersPage() {
           }
         }}
         onDelete={
-          selectedOffer
+          selectedOffer && canDelete
             ? () => deleteMutation.mutate(selectedOffer.id)
             : undefined
         }

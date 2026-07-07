@@ -1,43 +1,46 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\ApartmentController;
-use App\Http\Controllers\Admin\BookingController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\BlogArticleController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogTagController;
-use App\Http\Controllers\Admin\ContactMessageController;
+use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\BusController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CouponController;
-use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmailCsvExportController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HomepageOfferController;
 use App\Http\Controllers\Admin\LocationController;
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PartnerBannerController;
 use App\Http\Controllers\Admin\PartnerFinanceRecordController;
-use App\Http\Controllers\Admin\SelectOptionController;
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\PortfolioContentController as AdminPortfolioContentController;
+use App\Http\Controllers\Admin\PortfolioFilterChipController as AdminPortfolioFilterChipController;
 use App\Http\Controllers\Admin\RegionController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SelectOptionController;
+use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\TourController;
 use App\Http\Controllers\Admin\TourDeparturePlaceController;
-use App\Http\Controllers\Admin\TourReferenceOptionController;
 use App\Http\Controllers\Admin\TourPartnerOfferController;
+use App\Http\Controllers\Admin\TourReferenceOptionController;
 use App\Http\Controllers\Admin\TourRegionGroupController;
 use App\Http\Controllers\Admin\TourSeasonalGroupController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AnalyticsEventController;
-use App\Http\Controllers\Admin\AnalyticsController;
-use App\Http\Controllers\Admin\PortfolioFilterChipController as AdminPortfolioFilterChipController;
-use App\Http\Controllers\Admin\PortfolioContentController as AdminPortfolioContentController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\PortfolioBlogController;
-use App\Http\Controllers\PortfolioFilterChipController;
-use App\Http\Controllers\PortfolioOfferController;
 use App\Http\Controllers\PortfolioContentController;
 use App\Http\Controllers\PortfolioFeaturedTourController;
+use App\Http\Controllers\PortfolioFilterChipController;
 use App\Http\Controllers\PortfolioHomepageOfferController;
+use App\Http\Controllers\PortfolioOfferController;
 use App\Http\Controllers\PortfolioRegionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
-use App\Http\Controllers\Admin\SiteSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
@@ -58,14 +61,14 @@ Route::post('analytics/events', AnalyticsEventController::class);
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login']);
 
-    Route::middleware('auth:sanctum')->group(function (): void {
+    Route::middleware(['auth:sanctum', 'active'])->group(function (): void {
         Route::get('me', [AuthController::class, 'me']);
         Route::post('logout', [AuthController::class, 'logout']);
     });
 });
 
 Route::prefix('admin')
-    ->middleware(['auth:sanctum'])
+    ->middleware(['auth:sanctum', 'active'])
     ->group(function (): void {
         Route::get('portfolio/content', [AdminPortfolioContentController::class, 'index']);
         Route::patch('portfolio/content/{key}', [AdminPortfolioContentController::class, 'update']);
@@ -89,13 +92,15 @@ Route::prefix('admin')
         Route::patch('apartments/{apartment}/status', [ApartmentController::class, 'status']);
         Route::apiResource('homepage-offers', HomepageOfferController::class);
         Route::apiResource('portfolio-filter-chips', AdminPortfolioFilterChipController::class);
-        Route::get('dashboard/summary', [DashboardController::class, 'summary']);
-        Route::get('analytics/summary', [AnalyticsController::class, 'summary']);
-        Route::get('analytics/top-offers', [AnalyticsController::class, 'topOffers']);
-        Route::get('analytics/top-categories', [AnalyticsController::class, 'topCategories']);
-        Route::get('analytics/events', [AnalyticsController::class, 'events']);
-        Route::get('analytics/utm', [AnalyticsController::class, 'utm']);
-        Route::get('analytics/funnel', [AnalyticsController::class, 'funnel']);
+        Route::get('dashboard/summary', [DashboardController::class, 'summary'])->middleware('permission:dashboard.view');
+        Route::middleware('permission:analytics.view')->group(function (): void {
+            Route::get('analytics/summary', [AnalyticsController::class, 'summary']);
+            Route::get('analytics/top-offers', [AnalyticsController::class, 'topOffers']);
+            Route::get('analytics/top-categories', [AnalyticsController::class, 'topCategories']);
+            Route::get('analytics/events', [AnalyticsController::class, 'events']);
+            Route::get('analytics/utm', [AnalyticsController::class, 'utm']);
+            Route::get('analytics/funnel', [AnalyticsController::class, 'funnel']);
+        });
         Route::any('offers/{path?}', function () {
             return response()->json([
                 'message' => 'The legacy admin offers API has been retired. Use the tours admin endpoints instead.',
@@ -193,5 +198,10 @@ Route::prefix('admin')
         Route::patch('bookings/messages/{contactMessage}/status', [ContactMessageController::class, 'status'])->whereNumber('contactMessage');
         Route::apiResource('bookings/coupons', CouponController::class)->whereNumber('coupon');
         Route::patch('bookings/coupons/{coupon}/status', [CouponController::class, 'status'])->whereNumber('coupon');
-        Route::get('bookings/email-csv-export', [EmailCsvExportController::class, 'index']);
+        Route::get('bookings/email-csv-export', [EmailCsvExportController::class, 'index'])->middleware('permission:email-csv-export.view');
+
+        Route::apiResource('users', UserController::class);
+        Route::patch('users/{user}/status', [UserController::class, 'status']);
+        Route::apiResource('roles', RoleController::class);
+        Route::get('permissions', [PermissionController::class, 'index']);
     });

@@ -49,6 +49,7 @@ import {
   uploadMedia,
 } from '@/services/media-service';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Legújabb' },
@@ -344,10 +345,14 @@ function MediaDetailSheet({
   media,
   open,
   onOpenChange,
+  canUpdate,
+  canDelete,
 }: {
   media: MediaAsset | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  canUpdate: boolean;
+  canDelete: boolean;
 }) {
   const queryClient = useQueryClient();
   const [draftCategory, setDraftCategory] = useState<MediaCategory>('general');
@@ -599,25 +604,29 @@ function MediaDetailSheet({
               </div>
 
               <SheetFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setConfirmDeleteOpen(true)}
-                  className="mr-auto"
-                >
-                  <Trash2 className="size-4" />
-                  Törlés
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    void saveMutation.mutateAsync();
-                  }}
-                  disabled={saveMutation.isPending}
-                >
-                  {saveMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-                  Mentés
-                </Button>
+                {canDelete ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setConfirmDeleteOpen(true)}
+                    className="mr-auto"
+                  >
+                    <Trash2 className="size-4" />
+                    Törlés
+                  </Button>
+                ) : null}
+                {canUpdate ? (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      void saveMutation.mutateAsync();
+                    }}
+                    disabled={saveMutation.isPending}
+                  >
+                    {saveMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+                    Mentés
+                  </Button>
+                ) : null}
               </SheetFooter>
             </div>
           ) : (
@@ -660,6 +669,10 @@ function MediaDetailSheet({
 
 export function GalleriesPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('media.create');
+  const canUpdate = hasPermission('media.update');
+  const canDelete = hasPermission('media.delete');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<MediaCategory | 'all'>('all');
   const [sort, setSort] = useState<'newest' | 'oldest' | 'name'>('newest');
@@ -734,12 +747,14 @@ export function GalleriesPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" onClick={() => setUploadOpen(true)}>
-              <Plus className="size-4" />
-              Fájl feltöltése
-            </Button>
-          </div>
+          {canCreate ? (
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" onClick={() => setUploadOpen(true)}>
+                <Plus className="size-4" />
+                Fájl feltöltése
+              </Button>
+            </div>
+          ) : null}
         </div>
       </Card>
 
@@ -930,6 +945,8 @@ export function GalleriesPage() {
             setSelectedMediaId(null);
           }
         }}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
 
       <MediaUploadDialog

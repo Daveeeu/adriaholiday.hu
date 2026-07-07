@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 type ToursToolbarProps = {
   search: string;
   onSearchChange: (value: string) => void;
-  onCreateClick: () => void;
+  onCreateClick?: () => void;
 };
 
 export function ToursToolbar({
@@ -28,10 +28,12 @@ export function ToursToolbar({
         </div>
       </div>
 
-      <Button onClick={onCreateClick}>
-        <Plus className="size-4" />
-        Új körutazás
-      </Button>
+      {onCreateClick ? (
+        <Button onClick={onCreateClick}>
+          <Plus className="size-4" />
+          Új körutazás
+        </Button>
+      ) : null}
     </div>
   );
 }

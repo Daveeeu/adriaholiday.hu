@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
 
 import { BusSidePanel } from '../components/BusSidePanel';
 import {
@@ -33,6 +34,10 @@ const queryKey = ['buses'];
 
 export function BusesPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('buses.create');
+  const canUpdate = hasPermission('buses.update');
+  const canDelete = hasPermission('buses.delete');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([{ id: 'name', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -152,20 +157,26 @@ export function BusesPage() {
             <Button variant="outline" size="icon" onClick={() => { setSelectedBus(row.original); setPanelMode('detail'); setPanelOpen(true); }}>
               <Eye className="size-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={() => { setSelectedBus(row.original); setPanelMode('edit'); setPanelOpen(true); }}>
-              <Pencil className="size-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => toggleMutation.mutate({ id: row.original.id, active: !row.original.active })}>
-              <Power className="size-4" />
-            </Button>
-            <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(row.original.id)}>
-              <Trash2 className="size-4" />
-            </Button>
+            {canUpdate ? (
+              <Button variant="outline" size="icon" onClick={() => { setSelectedBus(row.original); setPanelMode('edit'); setPanelOpen(true); }}>
+                <Pencil className="size-4" />
+              </Button>
+            ) : null}
+            {canUpdate ? (
+              <Button variant="outline" size="icon" onClick={() => toggleMutation.mutate({ id: row.original.id, active: !row.original.active })}>
+                <Power className="size-4" />
+              </Button>
+            ) : null}
+            {canDelete ? (
+              <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(row.original.id)}>
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </div>
         ),
       },
     ],
-    [deleteMutation, toggleMutation],
+    [canDelete, canUpdate, deleteMutation, toggleMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -205,15 +216,17 @@ export function BusesPage() {
             <h2 className="text-lg font-semibold tracking-tight">Buszok kezelése</h2>
             <p className="text-sm text-muted-foreground">{data.totalCount} találat.</p>
           </div>
-          <Button
-            onClick={() => {
-              setSelectedBus(undefined);
-              setPanelMode('create');
-              setPanelOpen(true);
-            }}
-          >
-            Új busz
-          </Button>
+          {canCreate ? (
+            <Button
+              onClick={() => {
+                setSelectedBus(undefined);
+                setPanelMode('create');
+                setPanelOpen(true);
+              }}
+            >
+              Új busz
+            </Button>
+          ) : null}
         </div>
         <div className="mt-4">
           <Input
@@ -317,8 +330,8 @@ export function BusesPage() {
             createMutation.mutate(values);
           }
         }}
-        onDelete={selectedBus ? () => deleteMutation.mutate(selectedBus.id) : undefined}
-        onToggleActive={selectedBus ? () => toggleMutation.mutate({ id: selectedBus.id, active: !selectedBus.active }) : undefined}
+        onDelete={selectedBus && canDelete ? () => deleteMutation.mutate(selectedBus.id) : undefined}
+        onToggleActive={selectedBus && canUpdate ? () => toggleMutation.mutate({ id: selectedBus.id, active: !selectedBus.active }) : undefined}
         submitting={createMutation.isPending || updateMutation.isPending || deleteMutation.isPending}
       />
     </div>

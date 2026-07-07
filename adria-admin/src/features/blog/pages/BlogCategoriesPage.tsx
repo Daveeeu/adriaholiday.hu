@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
 
 import { BlogCategorySidePanel } from '../components/BlogCategorySidePanel';
 import {
@@ -38,6 +39,10 @@ const queryKey = ['blog-categories'];
 
 export function BlogCategoriesPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('blog-categories.create');
+  const canUpdate = hasPermission('blog-categories.update');
+  const canDelete = hasPermission('blog-categories.delete');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([{ id: 'name', desc: false }]);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -138,20 +143,26 @@ export function BlogCategoriesPage() {
             <Button variant="outline" size="icon" onClick={() => { setSelectedCategory(row.original); setPanelMode('detail'); setPanelOpen(true); }}>
               <Eye className="size-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={() => { setSelectedCategory(row.original); setPanelMode('edit'); setPanelOpen(true); }}>
-              <Pencil className="size-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => toggleMutation.mutate({ id: row.original.id, active: !row.original.active })}>
-              <Power className="size-4" />
-            </Button>
-            <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(row.original.id)}>
-              <Trash2 className="size-4" />
-            </Button>
+            {canUpdate ? (
+              <Button variant="outline" size="icon" onClick={() => { setSelectedCategory(row.original); setPanelMode('edit'); setPanelOpen(true); }}>
+                <Pencil className="size-4" />
+              </Button>
+            ) : null}
+            {canUpdate ? (
+              <Button variant="outline" size="icon" onClick={() => toggleMutation.mutate({ id: row.original.id, active: !row.original.active })}>
+                <Power className="size-4" />
+              </Button>
+            ) : null}
+            {canDelete ? (
+              <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(row.original.id)}>
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </div>
         ),
       },
     ],
-    [deleteMutation, toggleMutation],
+    [canDelete, canUpdate, deleteMutation, toggleMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -186,9 +197,11 @@ export function BlogCategoriesPage() {
             <h2 className="text-lg font-semibold tracking-tight">Blog kategóriák kezelése</h2>
             <p className="text-sm text-muted-foreground">{data.totalCount} találat.</p>
           </div>
-          <Button onClick={() => { setSelectedCategory(undefined); setPanelMode('create'); setPanelOpen(true); }}>
-            Új blog kategória
-          </Button>
+          {canCreate ? (
+            <Button onClick={() => { setSelectedCategory(undefined); setPanelMode('create'); setPanelOpen(true); }}>
+              Új blog kategória
+            </Button>
+          ) : null}
         </div>
         <div className="mt-4">
           <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Keresés név vagy SEO alapján..." />
@@ -272,8 +285,8 @@ export function BlogCategoriesPage() {
             createMutation.mutate(values);
           }
         }}
-        onDelete={selectedCategory ? () => deleteMutation.mutate(selectedCategory.id) : undefined}
-        onToggleActive={selectedCategory ? () => toggleMutation.mutate({ id: selectedCategory.id, active: !selectedCategory.active }) : undefined}
+        onDelete={selectedCategory && canDelete ? () => deleteMutation.mutate(selectedCategory.id) : undefined}
+        onToggleActive={selectedCategory && canUpdate ? () => toggleMutation.mutate({ id: selectedCategory.id, active: !selectedCategory.active }) : undefined}
       />
     </div>
   );

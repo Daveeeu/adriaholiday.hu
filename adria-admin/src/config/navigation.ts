@@ -9,8 +9,10 @@ import {
   BarChart3,
   Megaphone,
   Settings,
+  ShieldCheck,
   Ticket,
   TrainFront,
+  Users,
 } from 'lucide-react';
 
 import {
@@ -200,5 +202,30 @@ export const navigationItems: NavigationItem[] = [
     labelKey: 'nav.settings',
     icon: Settings,
     permission: 'site-settings.view',
+  },
+  {
+    labelKey: 'nav.administration',
+    icon: ShieldCheck,
+    permission: ['users.viewAny', 'roles.viewAny', 'permissions.viewAny'],
+    children: [
+      {
+        to: '/users',
+        labelKey: 'nav.administration.users',
+        icon: Users,
+        permission: 'users.viewAny',
+      },
+      {
+        to: '/roles',
+        labelKey: 'nav.administration.roles',
+        icon: ShieldCheck,
+        permission: 'roles.viewAny',
+      },
+      {
+        to: '/permissions',
+        labelKey: 'nav.administration.permissions',
+        icon: ShieldCheck,
+        permission: 'permissions.viewAny',
+      },
+    ],
   },
 ];

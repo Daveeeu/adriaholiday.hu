@@ -1,5 +1,6 @@
 import { useMemo, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { Input } from '@/components/ui/input';
+import { useAuthStore } from '@/store/auth-store';
 
 import { CrudModulePage } from '../components/crud-module-page';
 import { FormSection } from '../components/form-section';
@@ -46,6 +47,11 @@ const columns = [
 ] satisfies Array<DataTableColumn<Coupon>>;
 
 export function CouponsPage() {
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('coupons.create');
+  const canUpdate = hasPermission('coupons.update');
+  const canDelete = hasPermission('coupons.delete');
+
   const pageConfig = useMemo(
     () => ({
       eyebrow: 'Foglalások',
@@ -183,7 +189,14 @@ export function CouponsPage() {
     [],
   );
 
-  return <CrudModulePage {...pageConfig} />;
+  return (
+    <CrudModulePage
+      {...pageConfig}
+      canCreate={canCreate}
+      canUpdate={canUpdate}
+      canDelete={canDelete}
+    />
+  );
 }
 
 function DetailItem({

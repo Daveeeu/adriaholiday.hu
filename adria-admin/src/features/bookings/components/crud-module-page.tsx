@@ -63,6 +63,9 @@ export type CrudModulePageProps<T, D, Q extends CrudListQuery = CrudListQuery> =
   initialPageSize?: number;
   onRowSelect?: (record: T) => void;
   className?: string;
+  canCreate?: boolean;
+  canUpdate?: boolean;
+  canDelete?: boolean;
 };
 
 export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
@@ -94,6 +97,9 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
   initialPageSize = 10,
   onRowSelect,
   className,
+  canCreate = true,
+  canUpdate = true,
+  canDelete = true,
 }: CrudModulePageProps<T, D, Q>) {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -265,7 +271,7 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
           setSearch(value);
           setPage(1);
         }}
-        onCreate={handleCreate}
+        onCreate={canCreate ? handleCreate : undefined}
         createLabel={createLabel}
         onReset={() => {
           setSearch('');
@@ -316,22 +322,26 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
                 >
                   <ArrowLeftRight className="size-4" />
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleEdit(record)}
-                >
-                  <Pencil className="size-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleDelete(record)}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
+                {canUpdate ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleEdit(record)}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
+                ) : null}
+                {canDelete ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleDelete(record)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                ) : null}
               </div>
             )}
           />
@@ -347,22 +357,26 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
             <div className="flex flex-wrap items-center gap-2">
               {panelMode === 'detail' && selectedRecord ? (
                 <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleEdit(selectedRecord)}
-                  >
-                    <Pencil className="size-4" />
-                    Szerkesztés
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleDelete(selectedRecord)}
-                  >
-                    <Trash2 className="size-4" />
-                    Törlés
-                  </Button>
+                  {canUpdate ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleEdit(selectedRecord)}
+                    >
+                      <Pencil className="size-4" />
+                      Szerkesztés
+                    </Button>
+                  ) : null}
+                  {canDelete ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleDelete(selectedRecord)}
+                    >
+                      <Trash2 className="size-4" />
+                      Törlés
+                    </Button>
+                  ) : null}
                 </>
               ) : (
                 <>
@@ -373,13 +387,15 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
                   >
                     Mégse
                   </Button>
-                  <Button
-                    type="button"
-                    onClick={submit}
-                    disabled={createMutation.isPending || updateMutation.isPending}
-                  >
-                    {panelMode === 'edit' ? 'Mentés' : 'Létrehozás'}
-                  </Button>
+                  {(panelMode === 'edit' ? canUpdate : canCreate) ? (
+                    <Button
+                      type="button"
+                      onClick={submit}
+                      disabled={createMutation.isPending || updateMutation.isPending}
+                    >
+                      {panelMode === 'edit' ? 'Mentés' : 'Létrehozás'}
+                    </Button>
+                  ) : null}
                 </>
               )}
             </div>

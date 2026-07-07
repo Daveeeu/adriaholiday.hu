@@ -2,6 +2,7 @@ import { useMemo, type Dispatch, type ReactNode, type SetStateAction } from 'rea
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuthStore } from '@/store/auth-store';
 
 import { CrudModulePage } from '../components/crud-module-page';
 import { FormSection } from '../components/form-section';
@@ -50,6 +51,11 @@ const columns = [
 ] satisfies Array<DataTableColumn<ContactMessage>>;
 
 export function MessagesPage() {
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('messages.create');
+  const canUpdate = hasPermission('messages.update');
+  const canDelete = hasPermission('messages.delete');
+
   const pageConfig = useMemo(
     () => ({
       eyebrow: 'Foglalások',
@@ -161,7 +167,14 @@ export function MessagesPage() {
     [],
   );
 
-  return <CrudModulePage {...pageConfig} />;
+  return (
+    <CrudModulePage
+      {...pageConfig}
+      canCreate={canCreate}
+      canUpdate={canUpdate}
+      canDelete={canDelete}
+    />
+  );
 }
 
 function DetailItem({

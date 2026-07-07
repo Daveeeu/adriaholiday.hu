@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/store/auth-store';
 
 import { CrudModulePage } from '../components/crud-module-page';
 import { FormSection } from '../components/form-section';
@@ -104,6 +105,10 @@ const columns = [
 ] satisfies Array<DataTableColumn<PartnerFinanceRecord>>;
 
 export function PartnerFinancesPage() {
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('partner-finances.create');
+  const canUpdate = hasPermission('partner-finances.update');
+  const canDelete = hasPermission('partner-finances.delete');
   const [activeType, setActiveType] = useState<FinanceType>('commission_credit');
 
   const topContent = (
@@ -239,7 +244,15 @@ export function PartnerFinancesPage() {
     topContent,
   };
 
-  return <CrudModulePage key={activeType} {...pageConfig} />;
+  return (
+    <CrudModulePage
+      key={activeType}
+      {...pageConfig}
+      canCreate={canCreate}
+      canUpdate={canUpdate}
+      canDelete={canDelete}
+    />
+  );
 }
 
 function DetailItem({

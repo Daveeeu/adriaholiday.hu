@@ -29,9 +29,9 @@ type ApartmentsTableProps = {
   totalCount: number;
   onPageSizeChange: (pageSize: number) => void;
   onViewApartment: (apartment: ApartmentRow) => void;
-  onEditApartment: (apartment: ApartmentRow) => void;
-  onDeleteApartment: (apartment: ApartmentRow) => void;
-  onToggleActive: (apartment: ApartmentRow) => void;
+  onEditApartment?: (apartment: ApartmentRow) => void;
+  onDeleteApartment?: (apartment: ApartmentRow) => void;
+  onToggleActive?: (apartment: ApartmentRow) => void;
 };
 
 function ColumnFilter({
@@ -180,27 +180,33 @@ export function ApartmentsTable({
                             >
                               <Eye className="size-4" />
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => onEditApartment(row.original)}
-                            >
-                              <Pencil className="size-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => onToggleActive(row.original)}
-                            >
-                              <Power className="size-4" />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              onClick={() => onDeleteApartment(row.original)}
-                            >
-                              <Trash2 className="size-4" />
-                            </Button>
+                            {onEditApartment ? (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => onEditApartment(row.original)}
+                              >
+                                <Pencil className="size-4" />
+                              </Button>
+                            ) : null}
+                            {onToggleActive ? (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => onToggleActive(row.original)}
+                              >
+                                <Power className="size-4" />
+                              </Button>
+                            ) : null}
+                            {onDeleteApartment ? (
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => onDeleteApartment(row.original)}
+                              >
+                                <Trash2 className="size-4" />
+                              </Button>
+                            ) : null}
                           </div>
                         </TableCell>
                       );

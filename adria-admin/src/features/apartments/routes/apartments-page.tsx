@@ -51,6 +51,7 @@ import {
   getLocations,
   getRegions,
 } from '@/services/reference-data-service';
+import { useAuthStore } from '@/store/auth-store';
 import type { Apartment } from '@/types/domain';
 
 const apartmentsQueryKey = ['apartments'];
@@ -176,6 +177,11 @@ export function ApartmentsPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('apartments.create');
+  const canUpdate = hasPermission('apartments.update');
+  const canDelete = hasPermission('apartments.delete');
+  const canUpdateStatus = hasPermission('apartments.status');
   const routeContext = useMemo(
     () => getApartmentRouteContext(location.pathname),
     [location.pathname],
@@ -552,9 +558,13 @@ export function ApartmentsPage() {
         resultCount={totalCount}
         totalCount={totalCount}
         onSearchChange={setSearch}
-        onCreateClick={() => {
-          navigate(getApartmentCreateRoute(routeType));
-        }}
+        onCreateClick={
+          canCreate
+            ? () => {
+                navigate(getApartmentCreateRoute(routeType));
+              }
+            : undefined
+        }
       />
 
       <ApartmentsTable
@@ -572,37 +582,49 @@ export function ApartmentsPage() {
         onViewApartment={(apartment) => {
           navigate(getApartmentDetailRoute(apartment.id, routeType));
         }}
-        onEditApartment={(apartment) => {
-          navigate(getApartmentEditRoute(apartment.id, routeType));
-        }}
-        onDeleteApartment={(apartment) => {
-          if (
-            window.confirm(
-              `Biztosan törlöd ezt az apartmant? (${apartment.name})`,
-            )
-          ) {
-            deleteApartmentMutation.mutate(apartment.id);
-          }
-        }}
-        onToggleActive={(apartment) => {
-          const isActive =
-            apartment.isActive ?? apartment.status !== 'archived';
-          updateApartmentMutation.mutate({
-            apartmentId: apartment.id,
-            values: toFormValuesFromApartment(apartment, {
-              isActive: !isActive,
-              seoName: apartment.seoName ?? createSlug(apartment.name),
-              pricingMatrix:
-                apartment.pricingMatrix ??
-                getApartmentFormDefaults(apartment, {
-                  locations: [],
-                  galleries: [],
-                  regions: [],
-                  defaultType: apartment.type,
-                }).pricingMatrix,
-            }),
-          });
-        }}
+        onEditApartment={
+          canUpdate
+            ? (apartment) => {
+                navigate(getApartmentEditRoute(apartment.id, routeType));
+              }
+            : undefined
+        }
+        onDeleteApartment={
+          canDelete
+            ? (apartment) => {
+                if (
+                  window.confirm(
+                    `Biztosan törlöd ezt az apartmant? (${apartment.name})`,
+                  )
+                ) {
+                  deleteApartmentMutation.mutate(apartment.id);
+                }
+              }
+            : undefined
+        }
+        onToggleActive={
+          canUpdateStatus
+            ? (apartment) => {
+                const isActive =
+                  apartment.isActive ?? apartment.status !== 'archived';
+                updateApartmentMutation.mutate({
+                  apartmentId: apartment.id,
+                  values: toFormValuesFromApartment(apartment, {
+                    isActive: !isActive,
+                    seoName: apartment.seoName ?? createSlug(apartment.name),
+                    pricingMatrix:
+                      apartment.pricingMatrix ??
+                      getApartmentFormDefaults(apartment, {
+                        locations: [],
+                        galleries: [],
+                        regions: [],
+                        defaultType: apartment.type,
+                      }).pricingMatrix,
+                  }),
+                });
+              }
+            : undefined
+        }
       />
 
       <ApartmentSidePanel
@@ -637,13 +659,13 @@ export function ApartmentsPage() {
           createApartmentMutation.mutate(values);
         }}
         onEdit={
-          selectedApartment
+          selectedApartment && canUpdate
             ? () =>
                 navigate(getApartmentEditRoute(selectedApartment.id, routeType))
             : undefined
         }
         onDelete={
-          selectedApartment
+          selectedApartment && canDelete
             ? () => {
                 if (
                   window.confirm(
@@ -656,7 +678,7 @@ export function ApartmentsPage() {
             : undefined
         }
         onToggleActive={
-          selectedApartment
+          selectedApartment && canUpdateStatus
             ? () => {
                 const isActive =
                   selectedApartment.isActive ??

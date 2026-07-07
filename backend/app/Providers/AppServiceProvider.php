@@ -3,14 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Apartment;
-use App\Models\Booking;
 use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
+use App\Models\Booking;
 use App\Models\Bus;
 use App\Models\ContactMessage;
-use App\Models\Gallery;
 use App\Models\Coupon;
+use App\Models\Gallery;
 use App\Models\HomepageOffer;
 use App\Models\Location;
 use App\Models\PartnerBanner;
@@ -24,15 +24,16 @@ use App\Models\TourDeparturePlace;
 use App\Models\TourPartnerOffer;
 use App\Models\TourRegionGroup;
 use App\Models\TourSeasonalGroup;
+use App\Models\User;
 use App\Policies\ApartmentPolicy;
-use App\Policies\BookingPolicy;
 use App\Policies\BlogArticlePolicy;
 use App\Policies\BlogCategoryPolicy;
 use App\Policies\BlogTagPolicy;
+use App\Policies\BookingPolicy;
 use App\Policies\BusPolicy;
 use App\Policies\ContactMessagePolicy;
-use App\Policies\GalleryPolicy;
 use App\Policies\CouponPolicy;
+use App\Policies\GalleryPolicy;
 use App\Policies\HomepageOfferPolicy;
 use App\Policies\LocationPolicy;
 use App\Policies\PartnerBannerPolicy;
@@ -40,14 +41,17 @@ use App\Policies\PartnerFinanceRecordPolicy;
 use App\Policies\PortfolioContentBlockPolicy;
 use App\Policies\PortfolioFilterChipPolicy;
 use App\Policies\RegionPolicy;
+use App\Policies\RolePolicy;
 use App\Policies\TourDeparturePlacePolicy;
 use App\Policies\TourPartnerOfferPolicy;
 use App\Policies\TourPolicy;
 use App\Policies\TourRegionGroupPolicy;
 use App\Policies\TourSeasonalGroupPolicy;
+use App\Policies\UserPolicy;
 use App\Support\PublicContentCache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -85,6 +89,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TourSeasonalGroup::class, TourSeasonalGroupPolicy::class);
         Gate::policy(TourDeparturePlace::class, TourDeparturePlacePolicy::class);
         Gate::policy(TourPartnerOffer::class, TourPartnerOfferPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Role::class, RolePolicy::class);
 
         HomepageOffer::saved(fn () => PublicContentCache::bump(
             PublicContentCache::CATEGORY_LIST,

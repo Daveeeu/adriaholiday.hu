@@ -4,15 +4,21 @@ import {
   Outlet,
   RouterProvider,
 } from 'react-router-dom';
-import { lazy } from 'react';
+import { lazy, type ReactNode } from 'react';
 
 import { RouteErrorFallback } from '@/components/common/route-error-fallback';
+import { RequirePermission } from '@/components/common/require-permission';
 import { AppShell } from '@/components/layout/app-shell';
+import { getRoutePermission } from '@/config/navigation-permissions';
 import { AdminPlaceholderPage } from '@/features/shared/components/admin-placeholder-page';
 import {
   APARTMENT_ADMIN_ROUTES,
   APARTMENT_TYPES,
 } from '@/features/apartments/constants/apartmentTypes';
+
+function withPermission(path: string, element: ReactNode) {
+  return <RequirePermission permission={getRoutePermission(path)}>{element}</RequirePermission>;
+}
 
 const DashboardPage = lazy(() =>
   import('@/features/dashboard/routes/dashboard-page').then((module) => ({
@@ -164,6 +170,21 @@ const TourDeparturePlacesPage = lazy(() =>
     default: module.TourDeparturePlacesPage,
   })),
 );
+const UsersPage = lazy(() =>
+  import('@/features/users/routes/users-page').then((module) => ({
+    default: module.UsersPage,
+  })),
+);
+const RolesPage = lazy(() =>
+  import('@/features/roles/routes/roles-page').then((module) => ({
+    default: module.RolesPage,
+  })),
+);
+const PermissionsPage = lazy(() =>
+  import('@/features/permissions/routes/permissions-page').then((module) => ({
+    default: module.PermissionsPage,
+  })),
+);
 
 const basename =
   typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
@@ -173,7 +194,7 @@ const basename =
 const apartmentModuleRoutes = [
   {
     path: 'apartments',
-    element: <Outlet />,
+    element: withPermission('/apartments', <Outlet />),
     handle: { crumbKey: 'nav.apartments' },
     children: [
       { index: true, element: <ApartmentsPage /> },
@@ -269,23 +290,23 @@ const router = createBrowserRouter(
         { index: true, element: <DashboardPage /> },
         {
           path: 'analytics',
-          element: <AnalyticsPage />,
+          element: withPermission('/analytics', <AnalyticsPage />),
           handle: { crumbKey: 'nav.analytics' },
         },
         {
           path: 'regions',
-          element: <RegionsPage />,
+          element: withPermission('/regions', <RegionsPage />),
           handle: { crumbKey: 'nav.regions' },
         },
         {
           path: 'locations',
-          element: <LocationsPage />,
+          element: withPermission('/locations', <LocationsPage />),
           handle: { crumbKey: 'nav.locations' },
         },
         ...apartmentModuleRoutes,
         {
           path: 'bookings',
-          element: <Outlet />,
+          element: withPermission('/bookings', <Outlet />),
           handle: { crumbKey: 'nav.bookings' },
           children: [
             {
@@ -336,17 +357,17 @@ const router = createBrowserRouter(
         },
         {
           path: 'buses',
-          element: <BusesPage />,
+          element: withPermission('/buses', <BusesPage />),
           handle: { crumbKey: 'nav.buses' },
         },
         {
           path: 'media',
-          element: <GalleriesPage />,
+          element: withPermission('/media', <GalleriesPage />),
           handle: { crumbKey: 'nav.galleries' },
         },
         {
           path: 'gallery',
-          element: <GalleriesPage />,
+          element: withPermission('/media', <GalleriesPage />),
           handle: { crumbKey: 'nav.galleries' },
         },
         {
@@ -360,7 +381,7 @@ const router = createBrowserRouter(
         },
         {
           path: 'tours',
-          element: <Outlet />,
+          element: withPermission('/tours', <Outlet />),
           handle: { crumbKey: 'nav.tours' },
           children: [
             {
@@ -392,22 +413,22 @@ const router = createBrowserRouter(
         },
         {
           path: 'homepage-offers',
-          element: <HomepageOffersPage />,
+          element: withPermission('/homepage-offers', <HomepageOffersPage />),
           handle: { crumbKey: 'nav.homepageOffers' },
         },
         {
           path: 'portfolio-filter-chips',
-          element: <PortfolioFilterChipsPage />,
+          element: withPermission('/portfolio-filter-chips', <PortfolioFilterChipsPage />),
           handle: { crumbKey: 'nav.portfolioFilterChips' },
         },
         {
           path: 'portfolio-editor',
-          element: <PortfolioEditorPage />,
+          element: withPermission('/portfolio-editor', <PortfolioEditorPage />),
           handle: { crumbKey: 'nav.portfolioContent' },
         },
         {
           path: 'blog',
-          element: <Outlet />,
+          element: withPermission('/blog', <Outlet />),
           handle: { crumbKey: 'nav.blog' },
           children: [
             {
@@ -434,8 +455,23 @@ const router = createBrowserRouter(
         },
         {
           path: 'settings',
-          element: <SettingsPage />,
+          element: withPermission('/settings', <SettingsPage />),
           handle: { crumbKey: 'nav.settings' },
+        },
+        {
+          path: 'users',
+          element: withPermission('/users', <UsersPage />),
+          handle: { crumbKey: 'nav.administration.users' },
+        },
+        {
+          path: 'roles',
+          element: withPermission('/roles', <RolesPage />),
+          handle: { crumbKey: 'nav.administration.roles' },
+        },
+        {
+          path: 'permissions',
+          element: withPermission('/permissions', <PermissionsPage />),
+          handle: { crumbKey: 'nav.administration.permissions' },
         },
         { path: '*', element: <Navigate replace to="/" /> },
       ],

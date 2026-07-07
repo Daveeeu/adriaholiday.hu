@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { PageLoader } from '@/components/common/page-loader';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { useAuthStore } from '@/store/auth-store';
 
 import { ToursTable } from '../components/ToursTable';
 import { TourBooleanBadge } from '../components/tour-boolean-badge';
@@ -121,6 +122,13 @@ function createTourDefaults(overrides?: Partial<Tour>): Tour {
 
 export function ToursPage() {
   const queryClient = useQueryClient();
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canCreate = hasPermission('tours.create');
+  const canUpdate = hasPermission('tours.update');
+  const canDelete = hasPermission('tours.delete');
+  const canUpdateStatus = hasPermission('tours.status');
+  const canDuplicate = hasPermission('tours.duplicate');
+  const canReorder = hasPermission('tours.reorder');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([
     { id: TOUR_DEFAULT_SORT_BY, desc: false },
@@ -420,76 +428,93 @@ export function ToursPage() {
             >
               <Eye className="size-4" />
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => {
-                setSelectedTour(row.original);
-                setPanelMode('edit');
-                setPanelOpen(true);
-              }}
-            >
-              <Pencil className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                statusMutation.mutate({
-                  tourId: row.original.id,
-                  active: !row.original.active,
-                })
-              }
-            >
-              <Power className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => duplicateMutation.mutate(row.original.id)}
-            >
-              <Copy className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                moveMutation.mutate({
-                  tourId: row.original.id,
-                  direction: 'up',
-                })
-              }
-            >
-              <ArrowUp className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                moveMutation.mutate({
-                  tourId: row.original.id,
-                  direction: 'down',
-                })
-              }
-            >
-              <ArrowDown className="size-4" />
-            </Button>
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => {
-                if (window.confirm(`Biztosan törlöd ezt a körutazást? (${row.original.name})`)) {
-                  deleteMutation.mutate(row.original.id);
+            {canUpdate ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  setSelectedTour(row.original);
+                  setPanelMode('edit');
+                  setPanelOpen(true);
+                }}
+              >
+                <Pencil className="size-4" />
+              </Button>
+            ) : null}
+            {canUpdateStatus ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  statusMutation.mutate({
+                    tourId: row.original.id,
+                    active: !row.original.active,
+                  })
                 }
-              }}
-            >
-              <Trash2 className="size-4" />
-            </Button>
+              >
+                <Power className="size-4" />
+              </Button>
+            ) : null}
+            {canDuplicate ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => duplicateMutation.mutate(row.original.id)}
+              >
+                <Copy className="size-4" />
+              </Button>
+            ) : null}
+            {canReorder ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  moveMutation.mutate({
+                    tourId: row.original.id,
+                    direction: 'up',
+                  })
+                }
+              >
+                <ArrowUp className="size-4" />
+              </Button>
+            ) : null}
+            {canReorder ? (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  moveMutation.mutate({
+                    tourId: row.original.id,
+                    direction: 'down',
+                  })
+                }
+              >
+                <ArrowDown className="size-4" />
+              </Button>
+            ) : null}
+            {canDelete ? (
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() => {
+                  if (window.confirm(`Biztosan törlöd ezt a körutazást? (${row.original.name})`)) {
+                    deleteMutation.mutate(row.original.id);
+                  }
+                }}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </div>
         ),
       },
     ],
     [
+      canDelete,
+      canDuplicate,
+      canReorder,
+      canUpdate,
+      canUpdateStatus,
       deleteMutation,
       duplicateMutation,
       moveMutation,
@@ -548,11 +573,15 @@ export function ToursPage() {
       <ToursToolbar
         search={search}
         onSearchChange={setSearch}
-        onCreateClick={() => {
-          setSelectedTour(createTourDefaults());
-          setPanelMode('create');
-          setPanelOpen(true);
-        }}
+        onCreateClick={
+          canCreate
+            ? () => {
+                setSelectedTour(createTourDefaults());
+                setPanelMode('create');
+                setPanelOpen(true);
+              }
+            : undefined
+        }
       />
 
       <div className="grid gap-3 rounded-2xl border bg-card p-4 lg:grid-cols-4">
@@ -656,14 +685,14 @@ export function ToursPage() {
           createMutation.mutate(values);
         }}
         onEdit={
-          selectedTour
+          selectedTour && canUpdate
             ? () => {
                 setPanelMode('edit');
               }
             : undefined
         }
         onDelete={
-          selectedTour
+          selectedTour && canDelete
             ? () => {
                 if (window.confirm(`Biztosan törlöd ezt a körutazást? (${selectedTour.name})`)) {
                   deleteMutation.mutate(selectedTour.id);
@@ -672,7 +701,7 @@ export function ToursPage() {
             : undefined
         }
         onToggleActive={
-          selectedTour
+          selectedTour && canUpdateStatus
             ? () =>
                 statusMutation.mutate({
                   tourId: selectedTour.id,
@@ -681,7 +710,7 @@ export function ToursPage() {
             : undefined
         }
         onDuplicate={
-          selectedTour
+          selectedTour && canDuplicate
             ? () => duplicateMutation.mutate(selectedTour.id)
             : undefined
         }

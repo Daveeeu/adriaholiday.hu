@@ -8,7 +8,7 @@ type HomepageOffersToolbarProps = {
   resultCount: number;
   totalCount: number;
   onSearchChange: (value: string) => void;
-  onCreateClick: () => void;
+  onCreateClick?: () => void;
 };
 
 export function HomepageOffersToolbar({
@@ -30,10 +30,12 @@ export function HomepageOffersToolbar({
           </p>
         </div>
 
-        <Button onClick={onCreateClick}>
-          <Plus className="size-4" />
-          Új főoldali ajánlat
-        </Button>
+        {onCreateClick ? (
+          <Button onClick={onCreateClick}>
+            <Plus className="size-4" />
+            Új főoldali ajánlat
+          </Button>
+        ) : null}
       </div>
 
       <div className="mt-4">

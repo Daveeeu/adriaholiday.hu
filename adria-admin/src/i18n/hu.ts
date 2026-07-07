@@ -46,6 +46,10 @@ export const hu = {
   'nav.bookings.messages': 'Üzenetek',
   'nav.bookings.coupons': 'Kuponok',
   'nav.bookings.emailCsvExport': 'E-mail CSV exportálás',
+  'nav.administration': 'Rendszergazda',
+  'nav.administration.users': 'Felhasználók',
+  'nav.administration.roles': 'Role-ok',
+  'nav.administration.permissions': 'Permissionök',
 
   'brand.name': 'Adria Holiday',
   'brand.admin': 'Adminisztráció',
@@ -116,6 +120,10 @@ export const hu = {
   'error.route.title': 'A kért oldal nem jeleníthető meg.',
   'error.route.unknown': 'Ismeretlen útvonalhiba történt.',
   'error.route.back': 'Vissza a kezdőlapra',
+  'error.forbidden.eyebrow': 'Hozzáférés megtagadva',
+  'error.forbidden.title': 'Nincs jogosultságod ehhez az oldalhoz.',
+  'error.forbidden.description': 'Ha úgy gondolod, hogy hozzá kellene férned, keresd meg a rendszergazdát.',
+  'error.forbidden.back': 'Vissza a kezdőlapra',
 
   'status.booking.pending': 'Függőben',
   'status.booking.confirmed': 'Megerősítve',
