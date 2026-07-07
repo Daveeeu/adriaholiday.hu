@@ -801,6 +801,31 @@ Commands should be safe to rerun when possible.
 
 ---
 
+# Legacy Content Import (adriaholiday.hu)
+
+The old adriaholiday.hu site (custom PHP CMS, no API/sitemap) is imported via:
+
+```txt
+php artisan adria:import-offers
+    {--dry-run}
+    {--limit=}
+    {--slug=}
+    {--update-existing}
+```
+
+Split into four single-purpose services under `App\Services\Legacy` (never put scraping/parsing/import logic in the command itself):
+
+- `LegacyAdriaOfferCrawler` — discovers offer URLs by walking the two tour group listing pages and their per-country sub-pages (no sitemap exists); rate-limited HTTP fetch with UA header.
+- `LegacyAdriaOfferParser` — pure HTML → `App\Support\Legacy\LegacyOfferData` DTO, no I/O. The legacy page has no structured "program days" / "price includes" sections — everything is `<p>` blocks in one rich-text tab, classified by leading text pattern (`"N. NAP"`, `"Az ár tartalmazza:"`, etc.).
+- `LegacyMediaImporter` — downloads an image into the existing `AdminMediaItem` + Spatie `library` collection pattern (same one `MediaController::store` uses), deduping by `custom_properties.legacy_url` so re-imports and shared images never re-download.
+- `LegacyTourImporter` — resolves `Region` / `TourReferenceOption` (country/category/tag/travel-mode) / `TourDeparturePlace`, then persists via `App\Services\Tour\TourContentSyncService` — the same service `TourController` uses for admin edits, so imported and admin-entered tours go through identical rules.
+
+Idempotency: tours are matched by `seo_name`. Without `--update-existing`, an existing tour is skipped (never overwrites admin edits); with it, the tour and all its child records (dates, program days, gallery, price items) are replaced via `TourContentSyncService`'s existing delete-and-recreate sync methods — never duplicated. `--dry-run` never touches the DB or downloads images; it only prints what the parser extracted.
+
+Config: `config('services.legacy_adria')` (`LEGACY_ADRIA_BASE_URL`, `LEGACY_ADRIA_USER_AGENT`, `LEGACY_ADRIA_DELAY_MS`, `LEGACY_ADRIA_TIMEOUT`).
+
+---
+
 # Queues
 
 Use queues for slow operations.

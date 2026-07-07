@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\TourFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Tour extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\TourFactory> */
+    /** @use HasFactory<TourFactory> */
     use HasFactory, InteractsWithMedia, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [
@@ -54,6 +55,8 @@ class Tour extends Model implements HasMedia
         'program_type_id',
         'travel_mode_id',
         'difficulty_id',
+        'catering',
+        'accommodation',
         'country_ids',
         'tag_ids',
         'category_ids',

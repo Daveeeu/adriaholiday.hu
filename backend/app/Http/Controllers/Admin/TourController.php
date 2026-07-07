@@ -15,6 +15,7 @@ use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourPriceItem;
 use App\Models\TourProgramDay;
+use App\Services\Tour\TourContentSyncService;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class TourController extends Controller
 {
     use RespondsWithPagination;
 
-    public function __construct()
+    public function __construct(private readonly TourContentSyncService $tourContentSync)
     {
         $this->authorizeResource(Tour::class, 'tour');
         $this->middleware('permission:tours.viewAny')->only('index');
@@ -137,11 +138,11 @@ class TourController extends Controller
                 'slider_text' => $validated['slider_text'] ?? null,
             ], $priceBox));
 
-            $this->syncTourDates($tour, $validated['dates'] ?? []);
-            $this->syncPartnerBonuses($tour, $validated['partner_bonuses'] ?? []);
-            $this->syncProgramDays($tour, $validated['program_days'] ?? []);
-            $this->syncGalleryItems($tour, $validated['gallery'] ?? []);
-            $this->syncPriceItems($tour, $validated['price_items'] ?? []);
+            $this->tourContentSync->syncDates($tour, $validated['dates'] ?? []);
+            $this->tourContentSync->syncPartnerBonuses($tour, $validated['partner_bonuses'] ?? []);
+            $this->tourContentSync->syncProgramDays($tour, $validated['program_days'] ?? []);
+            $this->tourContentSync->syncGalleryItems($tour, $validated['gallery'] ?? []);
+            $this->tourContentSync->syncPriceItems($tour, $validated['price_items'] ?? []);
             $tour->departurePlaces()->sync($validated['departure_place_ids'] ?? []);
 
             return $tour;
@@ -208,11 +209,11 @@ class TourController extends Controller
                 'slider_text' => $validated['slider_text'] ?? null,
             ], $priceBox));
 
-            $this->syncTourDates($tour, $validated['dates'] ?? []);
-            $this->syncPartnerBonuses($tour, $validated['partner_bonuses'] ?? []);
-            $this->syncProgramDays($tour, $validated['program_days'] ?? []);
-            $this->syncGalleryItems($tour, $validated['gallery'] ?? []);
-            $this->syncPriceItems($tour, $validated['price_items'] ?? []);
+            $this->tourContentSync->syncDates($tour, $validated['dates'] ?? []);
+            $this->tourContentSync->syncPartnerBonuses($tour, $validated['partner_bonuses'] ?? []);
+            $this->tourContentSync->syncProgramDays($tour, $validated['program_days'] ?? []);
+            $this->tourContentSync->syncGalleryItems($tour, $validated['gallery'] ?? []);
+            $this->tourContentSync->syncPriceItems($tour, $validated['price_items'] ?? []);
             $tour->departurePlaces()->sync($validated['departure_place_ids'] ?? []);
         });
 
@@ -253,7 +254,7 @@ class TourController extends Controller
             $copy->push();
 
             $tour->load(['dates', 'partnerBonuses', 'departurePlaces', 'priceItems', 'programDays', 'galleryItems.media']);
-            $this->syncTourDates($copy, $tour->dates->map(fn (TourDate $date): array => [
+            $this->tourContentSync->syncDates($copy, $tour->dates->map(fn (TourDate $date): array => [
                 'start_date' => $date->start_date?->toDateString(),
                 'end_date' => $date->end_date?->toDateString(),
                 'price' => $date->price,
@@ -266,12 +267,12 @@ class TourController extends Controller
                 'price_box_capacity' => $date->price_box_capacity,
                 'status' => $date->status,
             ])->all());
-            $this->syncPartnerBonuses($copy, $tour->partnerBonuses->map(fn ($bonus): array => [
+            $this->tourContentSync->syncPartnerBonuses($copy, $tour->partnerBonuses->map(fn ($bonus): array => [
                 'sort_order' => $bonus->sort_order,
                 'label' => $bonus->label,
                 'value' => $bonus->value,
             ])->all());
-            $this->syncProgramDays($copy, $tour->programDays->map(fn (TourProgramDay $day): array => [
+            $this->tourContentSync->syncProgramDays($copy, $tour->programDays->map(fn (TourProgramDay $day): array => [
                 'sort_order' => $day->sort_order,
                 'day_number' => $day->day_number,
                 'title' => $day->title,
@@ -282,7 +283,7 @@ class TourController extends Controller
                 'badges' => $day->badges ?? [],
                 'active' => $day->active,
             ])->all());
-            $this->syncGalleryItems($copy, $tour->galleryItems->map(fn ($item): array => [
+            $this->tourContentSync->syncGalleryItems($copy, $tour->galleryItems->map(fn ($item): array => [
                 'media_id' => $item->media_id,
                 'title' => $item->title,
                 'alt' => $item->alt,
@@ -290,7 +291,7 @@ class TourController extends Controller
                 'sort_order' => $item->sort_order,
                 'active' => $item->active,
             ])->all());
-            $this->syncPriceItems($copy, $tour->priceItems->map(fn (TourPriceItem $item): array => [
+            $this->tourContentSync->syncPriceItems($copy, $tour->priceItems->map(fn (TourPriceItem $item): array => [
                 'type' => $item->type,
                 'text' => $item->text,
                 'sort_order' => $item->sort_order,
@@ -339,146 +340,6 @@ class TourController extends Controller
         $other->update(['sort_order' => $tourSortOrder]);
 
         return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
-    }
-
-    private function syncTourDates(Tour $tour, array $dates): void
-    {
-        $tour->dates()->withTrashed()->get()->each->forceDelete();
-
-        foreach ($dates as $date) {
-            $tour->dates()->create([
-                'start_date' => $date['start_date'] ?? null,
-                'end_date' => $date['end_date'] ?? null,
-                'price' => $date['price_box_price'] ?? $date['price'] ?? null,
-                'price_box_price' => $date['price_box_price'] ?? $date['price'] ?? null,
-                'price_box_displayed_price' => $date['price_box_displayed_price'] ?? null,
-                'price_box_discount_badge' => $date['price_box_discount_badge'] ?? null,
-                'price_box_min_participants' => $date['price_box_min_participants'] ?? null,
-                'price_box_max_participants' => $date['price_box_max_participants'] ?? null,
-                'price_box_available_seats' => $date['price_box_available_seats'] ?? null,
-                'price_box_capacity' => $date['price_box_capacity'] ?? null,
-                'status' => $date['status'] ?? 'planned',
-            ]);
-        }
-    }
-
-    private function syncPartnerBonuses(Tour $tour, array $bonuses): void
-    {
-        $tour->partnerBonuses()->withTrashed()->get()->each->forceDelete();
-
-        foreach ($bonuses as $bonus) {
-            $tour->partnerBonuses()->create([
-                'sort_order' => $bonus['sort_order'] ?? 0,
-                'label' => $bonus['label'],
-                'value' => $bonus['value'] ?? null,
-            ]);
-        }
-    }
-
-    private function syncProgramDays(Tour $tour, array $programDays): void
-    {
-        $existingDays = $tour->programDays()->get()->keyBy('id');
-        $requestedExistingIds = collect($programDays)
-            ->map(fn (array $day) => $day['id'] ?? null)
-            ->filter(fn ($id): bool => is_numeric($id) && $existingDays->has((int) $id))
-            ->map(fn ($id): int => (int) $id)
-            ->values()
-            ->all();
-
-        if ($requestedExistingIds === []) {
-            $tour->programDays()->delete();
-        } else {
-            $tour->programDays()->whereNotIn('id', $requestedExistingIds)->delete();
-        }
-
-        foreach (array_values($programDays) as $index => $day) {
-            $title = trim((string) ($day['title'] ?? ''));
-
-            if ($title === '') {
-                continue;
-            }
-
-            $badges = collect($day['badges'] ?? [])
-                ->map(function ($badge): string {
-                    if (is_array($badge)) {
-                        return trim((string) ($badge['text'] ?? $badge['value'] ?? ''));
-                    }
-
-                    return trim((string) $badge);
-                })
-                ->filter()
-                ->values()
-                ->all();
-
-            $attributes = [
-                'sort_order' => (int) ($day['sort_order'] ?? ($index + 1)),
-                'day_number' => (int) ($day['day_number'] ?? ($index + 1)),
-                'title' => $title,
-                'description' => RichTextSanitizer::sanitize($day['description'] ?? null),
-                'image' => isset($day['image']) ? trim((string) $day['image']) : null,
-                'icon' => isset($day['icon']) ? trim((string) $day['icon']) : null,
-                'experience_type' => isset($day['experience_type']) ? trim((string) $day['experience_type']) : null,
-                'badges' => $badges,
-                'active' => filter_var($day['active'] ?? true, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true,
-            ];
-
-            $existingDay = is_numeric($day['id'] ?? null)
-                ? $existingDays->get((int) $day['id'])
-                : null;
-
-            if ($existingDay instanceof TourProgramDay) {
-                $existingDay->update($attributes);
-
-                continue;
-            }
-
-            $tour->programDays()->create($attributes);
-        }
-    }
-
-    private function syncGalleryItems(Tour $tour, array $galleryItems): void
-    {
-        $tour->galleryItems()->delete();
-
-        foreach (array_values($galleryItems) as $index => $item) {
-            $mediaId = $item['media_id'] ?? null;
-
-            if (! is_numeric($mediaId)) {
-                continue;
-            }
-
-            $tour->galleryItems()->create([
-                'media_id' => (int) $mediaId,
-                'title' => isset($item['title']) ? trim((string) $item['title']) : null,
-                'alt' => isset($item['alt']) ? trim((string) $item['alt']) : null,
-                'caption' => isset($item['caption']) ? trim((string) $item['caption']) : null,
-                'sort_order' => (int) ($item['sort_order'] ?? ($index + 1)),
-                'active' => filter_var($item['active'] ?? true, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true,
-            ]);
-        }
-    }
-
-    private function syncPriceItems(Tour $tour, array $priceItems): void
-    {
-        $tour->priceItems()->delete();
-
-        foreach (array_values($priceItems) as $index => $item) {
-            $text = trim(strip_tags((string) ($item['text'] ?? '')));
-            $type = in_array(($item['type'] ?? 'included'), ['included', 'excluded'], true)
-                ? $item['type']
-                : 'included';
-
-            if ($text === '') {
-                continue;
-            }
-
-            $tour->priceItems()->create([
-                'type' => $type,
-                'text' => $text,
-                'sort_order' => (int) ($item['sort_order'] ?? ($index + 1)),
-                'active' => filter_var($item['active'] ?? true, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true,
-            ]);
-        }
     }
 
     private function tourPriceBoxAttributes(array $validated): array

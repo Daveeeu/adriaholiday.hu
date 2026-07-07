@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'legacy_adria' => [
+        'base_url' => env('LEGACY_ADRIA_BASE_URL', 'https://adriaholiday.hu'),
+        'user_agent' => env('LEGACY_ADRIA_USER_AGENT', 'AdriaHolidayLegacyImporter/1.0 (+https://adriaholiday.hu)'),
+        'request_delay_ms' => env('LEGACY_ADRIA_DELAY_MS', 500),
+        'timeout' => env('LEGACY_ADRIA_TIMEOUT', 15),
+    ],
+
 ];
