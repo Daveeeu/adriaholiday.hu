@@ -24,7 +24,7 @@ export type PublicSiteSettingsPayload = {
   contact?: { phone?: string; email?: string; address?: string; whatsapp?: string };
   social?: { facebook?: string; instagram?: string; tiktok?: string };
   header?: { navigation?: SiteLinkItem[] };
-  footer?: { copyright?: string; quick_links?: SiteLinkItem[] };
+  footer?: { description?: string; copyright?: string; quick_links?: SiteLinkItem[] };
   cta?: { primary_text?: string; primary_link?: string };
   seo?: { default_title?: string; default_description?: string; default_og_image?: SiteMedia };
   legal?: {
@@ -53,6 +53,7 @@ export type ResolvedSiteSettings = {
   tiktok: string;
   headerNavigation: SiteLinkItem[];
   footerQuickLinks: SiteLinkItem[];
+  footerDescription: string;
   footerCopyright: string;
   primaryCtaText: string;
   primaryCtaLink: string;

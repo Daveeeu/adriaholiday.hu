@@ -55,6 +55,7 @@ export type SiteSettingsFormValues = {
   facebook: string;
   instagram: string;
   tiktok: string;
+  footerDescription: string;
   footerCopyright: string;
   footerQuickLinks: SiteLinkItem[];
   headerNavigation: SiteLinkItem[];

@@ -61,6 +61,7 @@ const settingsSchema = z.object({
   facebook: z.string().trim(),
   instagram: z.string().trim(),
   tiktok: z.string().trim(),
+  footerDescription: z.string().trim(),
   footerCopyright: z.string().trim(),
   footerQuickLinks: z.array(linkSchema),
   headerNavigation: z.array(linkSchema),
@@ -93,6 +94,7 @@ const emptyValues: SiteSettingsFormValues = {
   facebook: '',
   instagram: '',
   tiktok: '',
+  footerDescription: '',
   footerCopyright: '',
   footerQuickLinks: [],
   headerNavigation: [],
@@ -384,6 +386,9 @@ export function SettingsPage() {
                 <CardDescription>Footer szöveg és gyors linkek.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <FormField control={form.control} name="footerDescription" render={({ field }) => (
+                  <FormItem><FormLabel>Leírás</FormLabel><FormControl><Textarea {...field} rows={4} placeholder="Prémium buszos utazások Európa legszebb úti céljaihoz..." /></FormControl><FormMessage /></FormItem>
+                )} />
                 <FormField control={form.control} name="footerCopyright" render={({ field }) => (
                   <FormItem><FormLabel>Copyright</FormLabel><FormControl><Input {...field} placeholder="© 2026 Adria Holiday. Minden jog fenntartva." /></FormControl><FormMessage /></FormItem>
                 )} />

@@ -36,15 +36,15 @@ class SiteSettingsSeeder extends Seeder
             ['group' => 'contact', 'key' => 'email', 'type' => 'string', 'is_public' => true, 'value' => 'info@adriaholiday.hu'],
             ['group' => 'contact', 'key' => 'address', 'type' => 'text', 'is_public' => true, 'value' => "1051 Budapest\nPélda utca 12."],
             ['group' => 'contact', 'key' => 'whatsapp', 'type' => 'string', 'is_public' => true, 'value' => '36123456789'],
-            ['group' => 'social', 'key' => 'facebook', 'type' => 'string', 'is_public' => true, 'value' => ''],
-            ['group' => 'social', 'key' => 'instagram', 'type' => 'string', 'is_public' => true, 'value' => ''],
+            ['group' => 'social', 'key' => 'facebook', 'type' => 'string', 'is_public' => true, 'value' => 'https://www.facebook.com/adriaholiday'],
+            ['group' => 'social', 'key' => 'instagram', 'type' => 'string', 'is_public' => true, 'value' => 'https://www.instagram.com/adriaholiday'],
             ['group' => 'social', 'key' => 'tiktok', 'type' => 'string', 'is_public' => true, 'value' => ''],
             ['group' => 'header', 'key' => 'navigation', 'type' => 'json', 'is_public' => true, 'value' => [
                 ['label' => 'Utazások', 'to' => '/utazasok'],
-                ['label' => 'Blog', 'to' => '/blog'],
                 ['label' => 'Rólunk', 'to' => '/rolunk'],
                 ['label' => 'Kapcsolat', 'to' => '/kapcsolat'],
             ]],
+            ['group' => 'footer', 'key' => 'description', 'type' => 'text', 'is_public' => true, 'value' => 'Prémium buszos utazások Európa legszebb úti céljaihoz. 15 év tapasztalat, 10 000+ elégedett utas, és számtalan felejthetetlen élmény.'],
             ['group' => 'footer', 'key' => 'copyright', 'type' => 'string', 'is_public' => true, 'value' => '© 2026 Adria Holiday. Minden jog fenntartva.'],
             ['group' => 'footer', 'key' => 'quick_links', 'type' => 'json', 'is_public' => true, 'value' => [
                 ['label' => 'Utazások', 'to' => '/utazasok'],

@@ -70,9 +70,9 @@ export default function Footer() {
               </motion.div>
             ) : null}
 
-            {settings.defaultSeoDescription ? (
+            {settings.footerDescription ? (
               <p className="text-white/70 mb-6 max-w-md leading-relaxed">
-                {settings.defaultSeoDescription}
+                {settings.footerDescription}
               </p>
             ) : null}
 
