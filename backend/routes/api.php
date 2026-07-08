@@ -60,7 +60,7 @@ Route::get('portfolio/categories/{slug}/offers', [PortfolioOfferController::clas
 Route::get('portfolio/regions/{slug}/offers', [PortfolioOfferController::class, 'regionOffers']);
 Route::get('portfolio/offers/{slug}', [PortfolioOfferController::class, 'show']);
 Route::post('analytics/events', AnalyticsEventController::class);
-Route::post('bookings', [PublicBookingController::class, 'store']);
+Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('throttle:bookings');
 
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login']);

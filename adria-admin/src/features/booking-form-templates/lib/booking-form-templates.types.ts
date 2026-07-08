@@ -55,6 +55,7 @@ export type BookingFormTemplatesListQuery = {
   page?: number;
   perPage?: number;
   search?: string;
+  active?: 'true' | 'false';
 };
 
 export type BookingFormTemplatesListResponse = {

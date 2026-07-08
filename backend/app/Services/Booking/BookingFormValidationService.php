@@ -6,11 +6,25 @@ use App\Models\Tour;
 
 /**
  * Validates a public booking submission's dynamic fields against the
- * booking form template assigned to the tour, and strips any values
- * that don't belong to a visible (required or optional) field.
+ * booking form template assigned to the tour (or a sane default field
+ * set when no template is assigned), and strips any values that don't
+ * belong to a visible (required or optional) field.
  */
 class BookingFormValidationService
 {
+    /**
+     * @var array<int, array{key: string, label: string, inputGroup: string, visibility: string}>
+     */
+    private const DEFAULT_FIELDS = [
+        ['key' => 'contact_name', 'label' => 'Teljes név', 'inputGroup' => 'contact', 'visibility' => 'required'],
+        ['key' => 'contact_email', 'label' => 'E-mail', 'inputGroup' => 'contact', 'visibility' => 'required'],
+        ['key' => 'contact_phone', 'label' => 'Telefonszám', 'inputGroup' => 'contact', 'visibility' => 'required'],
+        ['key' => 'contact_city', 'label' => 'Város', 'inputGroup' => 'contact', 'visibility' => 'optional'],
+        ['key' => 'passenger_name', 'label' => 'Utas neve', 'inputGroup' => 'passenger', 'visibility' => 'required'],
+        ['key' => 'passenger_birth_date', 'label' => 'Születési dátum', 'inputGroup' => 'passenger', 'visibility' => 'required'],
+        ['key' => 'passenger_nationality', 'label' => 'Állampolgárság', 'inputGroup' => 'passenger', 'visibility' => 'optional'],
+    ];
+
     /**
      * @param  array<string, mixed>  $formData
      * @param  array<int, array<string, mixed>>  $passengers
@@ -18,41 +32,36 @@ class BookingFormValidationService
      */
     public function validate(Tour $tour, array $formData, array $passengers): array
     {
-        $template = $tour->bookingFormTemplate;
-
-        if (! $template) {
-            return ['errors' => [], 'formData' => $formData, 'passengers' => $passengers];
-        }
+        $fields = $this->resolveFields($tour);
 
         $errors = [];
         $filteredFormData = [];
-        $passengerFields = [];
+        $passengerFieldDefs = [];
 
-        foreach ($template->templateFields as $templateField) {
-            $field = $templateField->field;
-
-            if (! $field || $templateField->visibility === 'hidden') {
+        foreach ($fields as $fieldDef) {
+            if ($fieldDef['visibility'] === 'hidden') {
                 continue;
             }
 
-            if ($field->input_group !== 'contact') {
-                $passengerFields[] = $templateField;
+            if ($fieldDef['inputGroup'] !== 'contact') {
+                $passengerFieldDefs[] = $fieldDef;
 
                 continue;
             }
 
-            $value = trim((string) ($formData[$field->key] ?? ''));
+            $value = $this->sanitizeValue($formData[$fieldDef['key']] ?? '');
 
-            if ($templateField->visibility === 'required' && $value === '') {
-                $errors["formData.{$field->key}"] = "A(z) \"{$field->label}\" mező megadása kötelező.";
+            if ($fieldDef['visibility'] === 'required' && $value === '') {
+                $errors["formData.{$fieldDef['key']}"] = "A(z) \"{$fieldDef['label']}\" mező megadása kötelező.";
             }
 
             if ($value !== '') {
-                $filteredFormData[$field->key] = $value;
+                $filteredFormData[$fieldDef['key']] = $value;
             }
         }
 
-        $hasRequiredPassengerField = collect($passengerFields)->contains(fn ($templateField) => $templateField->visibility === 'required');
+        $hasRequiredPassengerField = collect($passengerFieldDefs)
+            ->contains(fn (array $fieldDef): bool => $fieldDef['visibility'] === 'required');
 
         if ($hasRequiredPassengerField && $passengers === []) {
             $errors['passengers'] = 'Legalább egy utas adatainak megadása kötelező.';
@@ -63,16 +72,15 @@ class BookingFormValidationService
         foreach ($passengers as $index => $passenger) {
             $filteredPassenger = [];
 
-            foreach ($passengerFields as $templateField) {
-                $field = $templateField->field;
-                $value = trim((string) ($passenger[$field->key] ?? ''));
+            foreach ($passengerFieldDefs as $fieldDef) {
+                $value = $this->sanitizeValue($passenger[$fieldDef['key']] ?? '');
 
-                if ($templateField->visibility === 'required' && $value === '') {
-                    $errors["passengers.{$index}.{$field->key}"] = "A(z) \"{$field->label}\" mező megadása kötelező az utasnál.";
+                if ($fieldDef['visibility'] === 'required' && $value === '') {
+                    $errors["passengers.{$index}.{$fieldDef['key']}"] = "A(z) \"{$fieldDef['label']}\" mező megadása kötelező az utasnál.";
                 }
 
                 if ($value !== '') {
-                    $filteredPassenger[$field->key] = $value;
+                    $filteredPassenger[$fieldDef['key']] = $value;
                 }
             }
 
@@ -80,5 +88,32 @@ class BookingFormValidationService
         }
 
         return ['errors' => $errors, 'formData' => $filteredFormData, 'passengers' => $filteredPassengers];
+    }
+
+    /**
+     * @return array<int, array{key: string, label: string, inputGroup: string, visibility: string}>
+     */
+    private function resolveFields(Tour $tour): array
+    {
+        $template = $tour->bookingFormTemplate;
+
+        if (! $template) {
+            return self::DEFAULT_FIELDS;
+        }
+
+        return $template->templateFields
+            ->filter(fn ($templateField): bool => $templateField->field !== null)
+            ->map(fn ($templateField): array => [
+                'key' => $templateField->field->key,
+                'label' => $templateField->field->label,
+                'inputGroup' => $templateField->field->input_group,
+                'visibility' => $templateField->visibility,
+            ])
+            ->all();
+    }
+
+    private function sanitizeValue(mixed $value): string
+    {
+        return trim(strip_tags((string) $value));
     }
 }

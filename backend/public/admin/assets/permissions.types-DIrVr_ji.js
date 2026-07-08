@@ -1,0 +1,1 @@
+import{U as e}from"./index-ENUlg6Yi.js";async function t(){let t=await e.get(`/api/admin/permissions`);return Array.isArray(t)?t:t.data}function n(e){let t=new Map;for(let n of e){let e=t.get(n.group)??[];e.push(n),t.set(n.group,e)}return Array.from(t.entries()).map(([e,t])=>({group:e,permissions:t})).sort((e,t)=>e.group.localeCompare(t.group))}export{t as n,n as t};

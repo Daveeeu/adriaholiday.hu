@@ -175,6 +175,173 @@ class BookingFormTemplateTest extends TestCase
         $deleteResponse->assertNoContent();
     }
 
+    public function test_public_booking_is_rejected_for_inactive_tour(): void
+    {
+        $tour = Tour::factory()->create(['active' => false]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [['passenger_name' => 'Kovács Anna']],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['tour_id']);
+    }
+
+    public function test_public_booking_is_rejected_for_sold_out_tour_date(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+        $date = $tour->dates()->create([
+            'start_date' => now()->addMonth(),
+            'end_date' => now()->addMonth()->addDays(7),
+            'status' => 'sold_out',
+        ]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'tourDateId' => $date->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [['passenger_name' => 'Kovács Anna']],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['tour_date_id']);
+    }
+
+    public function test_public_booking_is_rejected_when_tour_date_belongs_to_a_different_tour(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+        $otherTour = Tour::factory()->create(['active' => true]);
+        $date = $otherTour->dates()->create([
+            'start_date' => now()->addMonth(),
+            'end_date' => now()->addMonth()->addDays(7),
+            'status' => 'available',
+        ]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'tourDateId' => $date->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [['passenger_name' => 'Kovács Anna']],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['tour_date_id']);
+    }
+
+    public function test_public_booking_without_template_uses_default_required_fields(): void
+    {
+        $tour = Tour::factory()->create(['active' => true, 'booking_form_template_id' => null]);
+
+        $missing = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+            ],
+            'passengers' => [],
+        ]);
+
+        $missing->assertStatus(422);
+        $missing->assertJsonValidationErrors(['formData.contact_email', 'formData.contact_phone', 'passengers']);
+
+        $valid = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+            ],
+        ]);
+
+        $valid->assertCreated();
+    }
+
+    public function test_hidden_fields_are_ignored_and_not_stored(): void
+    {
+        $this->seed(BookingFormFieldSeeder::class);
+        $this->seed(BookingFormTemplateSeeder::class);
+
+        $template = BookingFormTemplate::query()->where('slug', 'buszos-ut')->firstOrFail();
+        $tour = Tour::factory()->create(['booking_form_template_id' => $template->id]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                [
+                    'passenger_name' => 'Kovács Anna',
+                    'document_type' => 'passport',
+                    'document_number' => 'AB1234567',
+                ],
+            ],
+        ]);
+
+        $response->assertCreated();
+
+        $booking = \App\Models\Booking::find($response->json('id'));
+        $this->assertArrayNotHasKey('document_type', $booking->payload['passengers'][0]);
+        $this->assertArrayNotHasKey('document_number', $booking->payload['passengers'][0]);
+    }
+
+    public function test_zero_participants_is_rejected(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'participants' => 0,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [['passenger_name' => 'Kovács Anna']],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['participants']);
+    }
+
+    public function test_too_many_passengers_is_rejected(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+
+        $passengers = array_fill(0, 21, ['passenger_name' => 'Utas']);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => $passengers,
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['passengers']);
+    }
+
     /**
      * @param  array<int, string>  $permissions
      */

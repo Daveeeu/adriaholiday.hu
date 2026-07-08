@@ -33,6 +33,14 @@ class BookingFormTemplateController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
 
+        $activeFilter = $request->query('active');
+        if ($activeFilter !== null && $activeFilter !== '') {
+            $active = filter_var($activeFilter, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+            if ($active !== null) {
+                $query->where('active', $active);
+            }
+        }
+
         $perPage = (int) $request->query('per_page', $request->query('perPage', 25));
         $paginator = $query->orderBy('name')->paginate($perPage);
 

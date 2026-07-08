@@ -62,8 +62,8 @@ export function deleteBookingFormTemplate(id: string | number) {
 export async function getBookingFormTemplateOptions(): Promise<
   { id: string; value: string; label: string }[]
 > {
-  const templates = await getAllBookingFormTemplates();
-  return templates.map((template) => ({
+  const response = await getBookingFormTemplates({ page: 1, perPage: 1000, active: 'true' });
+  return response.items.map((template) => ({
     id: String(template.id),
     value: String(template.id),
     label: template.name,

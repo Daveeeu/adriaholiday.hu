@@ -737,7 +737,12 @@ export function TourForm({ form, tour }: TourFormProps) {
             placeholder="Buszos út, Repülős út vagy egyedi sablon..."
             queryKey={['tour-select-options', 'booking-form-templates']}
             queryFn={getBookingFormTemplateOptions}
-            description="A sablonokat a Foglalások / Foglalási űrlap sablonok oldalon lehet létrehozni és szerkeszteni."
+            fallbackOptions={bookingFormTemplates.map((template) => ({
+              id: String(template.id),
+              value: String(template.id),
+              label: template.active ? template.name : `${template.name} (inaktív)`,
+            }))}
+            description="A sablonokat a Foglalások / Foglalási űrlap sablonok oldalon lehet létrehozni és szerkeszteni. A listában csak az aktív sablonok választhatók."
           />
 
           {selectedBookingFormTemplate ? (

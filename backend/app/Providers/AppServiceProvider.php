@@ -7,6 +7,7 @@ use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
 use App\Models\Booking;
+use App\Models\BookingFormTemplate;
 use App\Models\Bus;
 use App\Models\ContactMessage;
 use App\Models\Coupon;
@@ -29,6 +30,7 @@ use App\Policies\ApartmentPolicy;
 use App\Policies\BlogArticlePolicy;
 use App\Policies\BlogCategoryPolicy;
 use App\Policies\BlogTagPolicy;
+use App\Policies\BookingFormTemplatePolicy;
 use App\Policies\BookingPolicy;
 use App\Policies\BusPolicy;
 use App\Policies\ContactMessagePolicy;
@@ -49,7 +51,9 @@ use App\Policies\TourRegionGroupPolicy;
 use App\Policies\TourSeasonalGroupPolicy;
 use App\Policies\UserPolicy;
 use App\Support\PublicContentCache;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\Models\Role;
 
@@ -78,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(BlogCategory::class, BlogCategoryPolicy::class);
         Gate::policy(BlogTag::class, BlogTagPolicy::class);
         Gate::policy(Bus::class, BusPolicy::class);
+        Gate::policy(BookingFormTemplate::class, BookingFormTemplatePolicy::class);
         Gate::policy(PartnerFinanceRecord::class, PartnerFinanceRecordPolicy::class);
         Gate::policy(PortfolioContentBlock::class, PortfolioContentBlockPolicy::class);
         Gate::policy(PortfolioFilterChip::class, PortfolioFilterChipPolicy::class);
@@ -139,5 +144,7 @@ class AppServiceProvider extends ServiceProvider
             PublicContentCache::SITE_SETTINGS,
             PublicContentCache::SITEMAP,
         ));
+
+        RateLimiter::for('bookings', fn ($request) => Limit::perMinute(10)->by($request->ip()));
     }
 }
