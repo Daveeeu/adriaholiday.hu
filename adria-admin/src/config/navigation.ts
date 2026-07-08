@@ -170,6 +170,12 @@ export const navigationItems: NavigationItem[] = [
         icon: Mail,
         permission: 'email-csv-export.view',
       },
+      {
+        to: '/bookings/booking-form-templates',
+        labelKey: 'nav.bookings.bookingFormTemplates',
+        icon: Ticket,
+        permission: 'booking-form-templates.viewAny',
+      },
     ],
   },
   {

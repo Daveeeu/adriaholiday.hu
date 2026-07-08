@@ -46,6 +46,7 @@ export const hu = {
   'nav.bookings.messages': 'Üzenetek',
   'nav.bookings.coupons': 'Kuponok',
   'nav.bookings.emailCsvExport': 'E-mail CSV exportálás',
+  'nav.bookings.bookingFormTemplates': 'Foglalási űrlap sablonok',
   'nav.administration': 'Rendszergazda',
   'nav.administration.users': 'Felhasználók',
   'nav.administration.roles': 'Role-ok',

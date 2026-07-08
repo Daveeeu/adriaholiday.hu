@@ -100,6 +100,11 @@ const BookingsOverviewPage = lazy(() =>
     (module) => ({ default: module.BookingsOverviewPage }),
   ),
 );
+const BookingFormTemplatesPage = lazy(() =>
+  import('@/features/booking-form-templates/pages/BookingFormTemplatesPage').then(
+    (module) => ({ default: module.BookingFormTemplatesPage }),
+  ),
+);
 const BusesPage = lazy(() =>
   import('@/features/buses/routes/buses-page').then((module) => ({
     default: module.BusesPage,
@@ -352,6 +357,11 @@ const router = createBrowserRouter(
               path: 'email-csv-export',
               element: <EmailCsvExportPage />,
               handle: { crumbKey: 'nav.bookings.emailCsvExport' },
+            },
+            {
+              path: 'booking-form-templates',
+              element: withPermission('/bookings/booking-form-templates', <BookingFormTemplatesPage />),
+              handle: { crumbKey: 'nav.bookings.bookingFormTemplates' },
             },
           ],
         },

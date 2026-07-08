@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Support\TourLabelResolver;
+use App\Http\Resources\BookingFormTemplateResource;
 use App\Support\PriceBoxData;
 use App\Support\RichTextSanitizer;
 use App\Models\HomepageOffer;
@@ -101,6 +102,8 @@ class TourResource extends JsonResource
             'travelModeLabel' => TourLabelResolver::referenceOptionLabel('travel-mode', $this->travel_mode_id),
             'difficultyId' => $this->difficulty_id,
             'difficultyLabel' => TourLabelResolver::referenceOptionLabel('difficulty', $this->difficulty_id),
+            'bookingFormTemplateId' => $this->booking_form_template_id,
+            'bookingFormTemplate' => $this->whenLoaded('bookingFormTemplate', fn () => $this->bookingFormTemplate ? new BookingFormTemplateResource($this->bookingFormTemplate) : null),
             'countryIds' => $this->country_ids ?? [],
             'countries' => TourLabelResolver::referenceOptionItems('country', $this->country_ids ?? []),
             'tagIds' => $this->tag_ids ?? [],

@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\BlogArticleController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogTagController;
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\BookingFormFieldController;
+use App\Http\Controllers\Admin\BookingFormTemplateController;
 use App\Http\Controllers\Admin\BusController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CouponController;
@@ -41,6 +43,7 @@ use App\Http\Controllers\PortfolioHomepageOfferController;
 use App\Http\Controllers\PortfolioOfferController;
 use App\Http\Controllers\PortfolioRegionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
+use App\Http\Controllers\PublicBookingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
@@ -57,6 +60,7 @@ Route::get('portfolio/categories/{slug}/offers', [PortfolioOfferController::clas
 Route::get('portfolio/regions/{slug}/offers', [PortfolioOfferController::class, 'regionOffers']);
 Route::get('portfolio/offers/{slug}', [PortfolioOfferController::class, 'show']);
 Route::post('analytics/events', AnalyticsEventController::class);
+Route::post('bookings', [PublicBookingController::class, 'store']);
 
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login']);
@@ -116,6 +120,11 @@ Route::prefix('admin')
             'tags' => 'blogTag',
         ]);
         Route::apiResource('buses', BusController::class);
+
+        Route::apiResource('booking-form-templates', BookingFormTemplateController::class)->parameters([
+            'booking-form-templates' => 'bookingFormTemplate',
+        ]);
+        Route::get('booking-form-fields', [BookingFormFieldController::class, 'index']);
 
         Route::prefix('select-options')->group(function (): void {
             Route::get('regions', [SelectOptionController::class, 'regions']);

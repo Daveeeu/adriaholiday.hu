@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            BookingFormFieldSeeder::class,
+            BookingFormTemplateSeeder::class,
             SiteSettingsSeeder::class,
             PortfolioContentBlockSeeder::class,
             RegionSeeder::class,

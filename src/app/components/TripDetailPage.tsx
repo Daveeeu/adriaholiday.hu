@@ -1,6 +1,6 @@
 // TripDetailPage.tsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Link } from "react-router";
 import {
@@ -28,6 +28,11 @@ import { useAnalytics } from "../analytics/useAnalytics";
 import type { PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
 import OfferCard from "./OfferCard";
+import {
+  submitBooking,
+  BookingApiError,
+  BookingValidationError,
+} from "../booking/bookings-api";
 
 interface TripDetailPageProps {
   trip: any;
@@ -655,8 +660,98 @@ function SimilarTrips({ currentTrip, relatedTrips }: any) {
   );
 }
 
+type BookingFieldVisibility = "required" | "optional" | "hidden";
+
+type BookingTemplateField = {
+  key: string;
+  label: string;
+  fieldType: string;
+  inputGroup: "contact" | "passenger";
+  visibility: BookingFieldVisibility;
+  sortOrder: number;
+  options?: string[] | null;
+};
+
+const DEFAULT_BOOKING_FIELDS: BookingTemplateField[] = [
+  { key: "contact_name", label: "Teljes név", fieldType: "text", inputGroup: "contact", visibility: "required", sortOrder: 1 },
+  { key: "contact_email", label: "E-mail", fieldType: "email", inputGroup: "contact", visibility: "required", sortOrder: 2 },
+  { key: "contact_phone", label: "Telefonszám", fieldType: "tel", inputGroup: "contact", visibility: "required", sortOrder: 3 },
+  { key: "contact_city", label: "Város", fieldType: "text", inputGroup: "contact", visibility: "optional", sortOrder: 4 },
+  { key: "passenger_name", label: "Utas neve", fieldType: "text", inputGroup: "passenger", visibility: "required", sortOrder: 5 },
+  { key: "passenger_birth_date", label: "Születési dátum", fieldType: "date", inputGroup: "passenger", visibility: "required", sortOrder: 6 },
+  { key: "passenger_nationality", label: "Állampolgárság", fieldType: "text", inputGroup: "passenger", visibility: "optional", sortOrder: 7 },
+];
+
+function resolveBookingFields(trip: any): BookingTemplateField[] {
+  const templateFields = trip?.bookingFormTemplate?.fields as BookingTemplateField[] | undefined;
+
+  if (templateFields && templateFields.length > 0) {
+    return templateFields
+      .filter((field) => field.visibility !== "hidden")
+      .slice()
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
+  return DEFAULT_BOOKING_FIELDS;
+}
+
+function emptyPassenger(passengerFields: BookingTemplateField[]): Record<string, string> {
+  return passengerFields.reduce<Record<string, string>>((accumulator, field) => {
+    accumulator[field.key] = "";
+    return accumulator;
+  }, {});
+}
+
+function computeBookingErrors(
+  contactFields: BookingTemplateField[],
+  passengerFields: BookingTemplateField[],
+  contactValues: Record<string, string>,
+  passengers: Record<string, string>[],
+): { contact: Record<string, string>; passengers: Record<number, Record<string, string>> } {
+  const contactErrors: Record<string, string> = {};
+  const passengerErrors: Record<number, Record<string, string>> = {};
+
+  contactFields.forEach((field) => {
+    if (field.visibility === "required" && !(contactValues[field.key] ?? "").trim()) {
+      contactErrors[field.key] = `A(z) "${field.label}" mező megadása kötelező.`;
+    }
+  });
+
+  passengers.forEach((passenger, index) => {
+    passengerFields.forEach((field) => {
+      if (field.visibility === "required" && !(passenger[field.key] ?? "").trim()) {
+        passengerErrors[index] = {
+          ...passengerErrors[index],
+          [field.key]: `A(z) "${field.label}" mező megadása kötelező.`,
+        };
+      }
+    });
+  });
+
+  return { contact: contactErrors, passengers: passengerErrors };
+}
+
 function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
+  const { trackEvent } = useAnalytics();
   const [step, setStep] = useState(1);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [contactValues, setContactValues] = useState<Record<string, string>>({});
+  const [passengers, setPassengers] = useState<Record<string, string>[]>([]);
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [fieldErrors, setFieldErrors] = useState<{
+    contact: Record<string, string>;
+    passengers: Record<number, Record<string, string>>;
+  }>({ contact: {}, passengers: {} });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [bookingId, setBookingId] = useState<string | number | null>(null);
+
+  const fields = useMemo(() => resolveBookingFields(trip), [trip]);
+  const contactFields = useMemo(() => fields.filter((field) => field.inputGroup === "contact"), [fields]);
+  const passengerFields = useMemo(() => fields.filter((field) => field.inputGroup === "passenger"), [fields]);
+
+  useEffect(() => {
+    setPassengers((current) => (current.length > 0 ? current : [emptyPassenger(passengerFields)]));
+  }, [passengerFields]);
 
   const steps = [
     { id: 1, title: "Utazás" },
@@ -665,8 +760,175 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
     { id: 4, title: "Véglegesítés" },
   ];
 
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, 4));
+  function markStarted() {
+    if (hasStarted) {
+      return;
+    }
+
+    setHasStarted(true);
+    trackEvent("booking_start", {
+      entity: { type: "tour", slug: trip.slug },
+      metadata: { transport: trip.transport },
+    });
+  }
+
+  function setContactValue(key: string, value: string) {
+    markStarted();
+    setContactValues((current) => ({ ...current, [key]: value }));
+  }
+
+  function setPassengerValue(index: number, key: string, value: string) {
+    markStarted();
+    setPassengers((current) =>
+      current.map((passenger, passengerIndex) =>
+        passengerIndex === index ? { ...passenger, [key]: value } : passenger,
+      ),
+    );
+  }
+
+  function addPassenger() {
+    setPassengers((current) => {
+      const next = [...current, emptyPassenger(passengerFields)];
+      trackEvent("participants_change", {
+        entity: { type: "tour", slug: trip.slug },
+        metadata: { participants: next.length },
+      });
+      return next;
+    });
+  }
+
+  function removePassenger(index: number) {
+    setPassengers((current) => {
+      if (current.length <= 1) {
+        return current;
+      }
+
+      const next = current.filter((_, passengerIndex) => passengerIndex !== index);
+      trackEvent("participants_change", {
+        entity: { type: "tour", slug: trip.slug },
+        metadata: { participants: next.length },
+      });
+      return next;
+    });
+  }
+
+  function nextStep() {
+    if (step === 2) {
+      const errors = computeBookingErrors(contactFields, passengerFields, contactValues, passengers);
+      setFieldErrors((current) => ({ ...current, contact: errors.contact }));
+      if (Object.keys(errors.contact).length > 0) {
+        return;
+      }
+    }
+
+    if (step === 3) {
+      const errors = computeBookingErrors(contactFields, passengerFields, contactValues, passengers);
+      setFieldErrors(errors);
+      if (Object.keys(errors.passengers).length > 0) {
+        return;
+      }
+    }
+
+    setStep((prev) => Math.min(prev + 1, 4));
+  }
+
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
+  async function handleSubmit() {
+    const errors = computeBookingErrors(contactFields, passengerFields, contactValues, passengers);
+    setFieldErrors(errors);
+
+    if (Object.keys(errors.contact).length > 0) {
+      setStep(2);
+      return;
+    }
+
+    if (Object.keys(errors.passengers).length > 0) {
+      setStep(3);
+      return;
+    }
+
+    setStatus("submitting");
+    setErrorMessage(null);
+
+    const tourDateId = selectedDate?.id && selectedDate.id !== "default" ? selectedDate.id : null;
+
+    try {
+      const response = await submitBooking({
+        tourId: trip.id,
+        tourDateId,
+        participants: passengers.length,
+        formData: contactValues,
+        passengers,
+        note: contactValues.note,
+        type: "tour_booking",
+      });
+
+      setBookingId(response.id);
+      setStatus("success");
+      trackEvent("lead_submit", {
+        entity: { type: "tour", slug: trip.slug },
+        metadata: { booking_id: response.id, participants: passengers.length },
+      });
+    } catch (submitError) {
+      setStatus("error");
+
+      if (submitError instanceof BookingValidationError) {
+        const contactErrors: Record<string, string> = {};
+        const passengerErrors: Record<number, Record<string, string>> = {};
+
+        Object.entries(submitError.errors).forEach(([key, messages]) => {
+          const message = messages[0] ?? "Érvénytelen mező.";
+          const passengerMatch = key.match(/^passengers\.(\d+)\.(.+)$/);
+          const contactMatch = key.match(/^formData\.(.+)$/);
+
+          if (passengerMatch) {
+            const index = Number(passengerMatch[1]);
+            passengerErrors[index] = { ...passengerErrors[index], [passengerMatch[2]]: message };
+          } else if (contactMatch) {
+            contactErrors[contactMatch[1]] = message;
+          }
+        });
+
+        setFieldErrors({ contact: contactErrors, passengers: passengerErrors });
+        setErrorMessage(submitError.message);
+
+        if (Object.keys(contactErrors).length > 0) {
+          setStep(2);
+        } else if (Object.keys(passengerErrors).length > 0) {
+          setStep(3);
+        }
+      } else if (submitError instanceof BookingApiError) {
+        setErrorMessage(submitError.message);
+      } else {
+        setErrorMessage("Váratlan hiba történt a foglalás elküldése közben.");
+      }
+
+      trackEvent("booking_error", {
+        entity: { type: "tour", slug: trip.slug },
+        metadata: { message: submitError instanceof Error ? submitError.message : "unknown_error" },
+      });
+    }
+  }
+
+  if (status === "success") {
+    return (
+      <section id="foglalas" className="scroll-mt-[92px]">
+        <div className="rounded-[40px] bg-[#07111f] p-8 md:p-12 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#00c389]/15 text-[#00c389]">
+            <Check className="w-8 h-8" />
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-3">
+            Köszönjük a foglalást!
+          </h2>
+          <p className="text-white/65 text-lg max-w-xl mx-auto">
+            Foglalásod azonosítója: <span className="font-bold text-white">#{bookingId}</span>.
+            Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="foglalas" className="scroll-mt-[92px]">
@@ -748,10 +1010,16 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
                   text="Kapcsolati adatok megadása."
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormInput label="Teljes név*" placeholder="Teljes név" />
-                    <FormInput label="E-mail*" placeholder="email@email.hu" />
-                    <FormInput label="Telefonszám*" placeholder="+36..." />
-                    <FormInput label="Város*" placeholder="Város" />
+                    {contactFields.map((field) => (
+                      <FormInput
+                        key={field.key}
+                        label={`${field.label}${field.visibility === "required" ? "*" : ""}`}
+                        type={field.fieldType}
+                        value={contactValues[field.key] ?? ""}
+                        onChange={(value) => setContactValue(field.key, value)}
+                        error={fieldErrors.contact[field.key]}
+                      />
+                    ))}
                   </div>
                 </StepPanel>
               )}
@@ -759,19 +1027,51 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
               {step === 3 && (
                 <StepPanel
                   title="Utas adatai"
-                  text="Add meg az utas alapadatait."
+                  text="Add meg az utasok alapadatait."
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormInput label="Utas neve*" placeholder="Teljes név" />
-                    <FormInput label="Születési dátum*" placeholder="ÉÉÉÉ.HH.NN." />
-                    <FormInput label="Okmány száma*" placeholder="Személyi szám" />
-                    <FormInput label="Állampolgárság" placeholder="Magyar" />
+                  <div className="space-y-5">
+                    {passengers.map((passenger, index) => (
+                      <div key={index} className="rounded-2xl border border-gray-200 p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="font-bold text-[#0f172a]">{index + 1}. utas</div>
+                          {passengers.length > 1 ? (
+                            <button
+                              type="button"
+                              onClick={() => removePassenger(index)}
+                              className="text-sm text-gray-400 hover:text-red-500"
+                            >
+                              Eltávolítás
+                            </button>
+                          ) : null}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {passengerFields.map((field) => (
+                            <FormInput
+                              key={field.key}
+                              label={`${field.label}${field.visibility === "required" ? "*" : ""}`}
+                              type={field.fieldType}
+                              value={passenger[field.key] ?? ""}
+                              onChange={(value) => setPassengerValue(index, field.key, value)}
+                              error={fieldErrors.passengers[index]?.[field.key]}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={addPassenger}
+                      className="text-sm font-bold text-[#00a878] hover:text-[#00c389]"
+                    >
+                      + Újabb utas hozzáadása
+                    </button>
                   </div>
                 </StepPanel>
               )}
 
               {step === 4 && (
-                <StepPanel title="Véglegesítés" text="Extra opciók és fizetés.">
+                <StepPanel title="Véglegesítés" text="Extra opciók és megjegyzés.">
                   <div className="space-y-4">
                     <CheckboxCard
                       title="Egyágyas felár"
@@ -790,6 +1090,12 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
                     <PaymentOption title="Banki befizetés" />
                     <PaymentOption title="Átutalás" />
                   </div>
+
+                  {errorMessage ? (
+                    <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+                      {errorMessage}
+                    </div>
+                  ) : null}
                 </StepPanel>
               )}
 
@@ -813,10 +1119,11 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
                   </button>
 
                   <button
-                    onClick={step < 4 ? nextStep : undefined}
-                    className="h-12 px-7 rounded-xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-bold"
+                    onClick={step < 4 ? nextStep : handleSubmit}
+                    disabled={status === "submitting"}
+                    className="h-12 px-7 rounded-xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-bold disabled:opacity-60"
                   >
-                    {step < 4 ? "Következő" : "Foglalás elküldése"}
+                    {status === "submitting" ? "Küldés..." : step < 4 ? "Következő" : "Foglalás elküldése"}
                   </button>
                 </div>
               </div>
@@ -913,22 +1220,44 @@ function StepTitle({ title, text }: { title: string; text: string }) {
 
 function FormInput({
   label,
-  placeholder,
   type = "text",
+  value,
+  onChange,
+  error,
 }: {
   label: string;
-  placeholder: string;
   type?: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
 }) {
+  const fieldClassName = `w-full rounded-2xl border px-5 outline-none focus:ring-4 transition-all ${
+    error
+      ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+      : "border-gray-200 focus:border-[#00c389] focus:ring-[#00c389]/10"
+  }`;
+
   return (
     <label className="block">
       <span className="block text-sm font-bold text-[#0f172a] mb-2">{label}</span>
 
-      <input
-        type={type}
-        placeholder={placeholder}
-        className="w-full h-14 rounded-2xl border border-gray-200 px-5 outline-none focus:border-[#00c389] focus:ring-4 focus:ring-[#00c389]/10 transition-all"
-      />
+      {type === "textarea" ? (
+        <textarea
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          rows={3}
+          className={`${fieldClassName} py-3`}
+        />
+      ) : (
+        <input
+          type={type}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className={`${fieldClassName} h-14`}
+        />
+      )}
+
+      {error ? <span className="mt-1.5 block text-sm font-medium text-red-500">{error}</span> : null}
     </label>
   );
 }

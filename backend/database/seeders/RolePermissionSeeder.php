@@ -61,6 +61,7 @@ class RolePermissionSeeder extends Seeder
             ...$permissionGroups['tourSeasonalGroups'],
             ...$permissionGroups['tourDeparturePlaces'],
             ...$permissionGroups['media'],
+            ...$permissionGroups['bookingFormTemplates'],
             'portfolio-content.view', 'portfolio-content.update',
         ]);
 
@@ -115,6 +116,7 @@ class RolePermissionSeeder extends Seeder
             'blogCategories' => ['blog-categories.viewAny', 'blog-categories.view', 'blog-categories.create', 'blog-categories.update', 'blog-categories.delete'],
             'blogTags' => ['blog-tags.viewAny', 'blog-tags.view', 'blog-tags.create', 'blog-tags.update', 'blog-tags.delete'],
             'buses' => ['buses.viewAny', 'buses.view', 'buses.create', 'buses.update', 'buses.delete'],
+            'bookingFormTemplates' => ['booking-form-templates.viewAny', 'booking-form-templates.view', 'booking-form-templates.create', 'booking-form-templates.update', 'booking-form-templates.delete'],
             'bookings' => ['bookings.viewAny', 'bookings.view', 'bookings.create', 'bookings.update', 'bookings.delete', 'bookings.status'],
             'partnerFinances' => ['partner-finances.viewAny', 'partner-finances.view', 'partner-finances.create', 'partner-finances.update', 'partner-finances.delete'],
             'partnerBanners' => ['partner-banners.viewAny', 'partner-banners.view', 'partner-banners.create', 'partner-banners.update', 'partner-banners.delete'],

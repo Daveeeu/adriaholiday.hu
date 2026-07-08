@@ -78,6 +78,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
       ];
 
   return {
+    id: offer.id,
     slug: offer.seoName,
     title: offer.name,
     country: offer.country ?? offer.region?.name ?? "Utazás",
@@ -109,6 +110,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     gallery: offer.gallery ?? [],
     priceInformation: offer.priceInformation,
     priceBox,
+    bookingFormTemplate: offer.bookingFormTemplate ?? null,
   };
 }
 

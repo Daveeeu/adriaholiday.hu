@@ -55,6 +55,7 @@ class Tour extends Model implements HasMedia
         'program_type_id',
         'travel_mode_id',
         'difficulty_id',
+        'booking_form_template_id',
         'catering',
         'accommodation',
         'country_ids',
@@ -109,6 +110,11 @@ class Tour extends Model implements HasMedia
     public function homepageOffer(): BelongsTo
     {
         return $this->belongsTo(HomepageOffer::class);
+    }
+
+    public function bookingFormTemplate(): BelongsTo
+    {
+        return $this->belongsTo(BookingFormTemplate::class);
     }
 
     public function dates(): HasMany

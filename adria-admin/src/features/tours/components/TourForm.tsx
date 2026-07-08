@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useFieldArray, useWatch, type UseFormReturn } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, ChevronRight, Minus, Plus, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -11,14 +12,27 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import {
+  getAllBookingFormTemplates,
+  getBookingFormTemplateOptions,
+} from '@/features/booking-form-templates/lib/booking-form-templates.api';
+import type { BookingFormFieldVisibility } from '@/features/booking-form-templates/lib/booking-form-templates.types';
 import { TOUR_DATE_STATUSES } from '../lib/tours.constants';
 import type { Tour, TourFormValues } from '../lib/tours.types';
 import { TourContentSections } from './TourContentSections';
+import { TourCreatableSelectField } from './TourCreatableSelectField';
 import { TourFilterSections } from './TourFilterSections';
 import { TourGallerySection } from './TourGallerySection';
 import { TourProgramDaysSection } from './TourProgramDaysSection';
 import { TourPriceItemsSection } from './TourPriceItemsSection';
 import { TourSeoSection } from './TourSeoSection';
+
+const bookingFormVisibilityLabels: Record<BookingFormFieldVisibility, string> = {
+  required: 'Kötelező',
+  optional: 'Opcionális',
+  hidden: 'Rejtett',
+};
 
 type TourFormProps = {
   form: UseFormReturn<TourFormValues>;
@@ -34,7 +48,8 @@ type TourPanelSectionKey =
   | 'programDays'
   | 'priceItems'
   | 'filters'
-  | 'dates';
+  | 'dates'
+  | 'bookingForm';
 
 const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
   basic: true,
@@ -46,6 +61,7 @@ const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
   priceItems: false,
   filters: true,
   dates: true,
+  bookingForm: false,
 };
 
 function TourPanelSection({
@@ -173,8 +189,20 @@ export function TourForm({ form, tour }: TourFormProps) {
       priceItems: open,
       filters: open,
       dates: open,
+      bookingForm: open,
     });
   };
+
+  const bookingFormTemplateId = useWatch({ control: form.control, name: 'bookingFormTemplateId' });
+
+  const { data: bookingFormTemplates = [] } = useQuery({
+    queryKey: ['tour-select-options', 'booking-form-templates-detail'],
+    queryFn: getAllBookingFormTemplates,
+  });
+
+  const selectedBookingFormTemplate = bookingFormTemplates.find(
+    (template) => String(template.id) === bookingFormTemplateId,
+  );
 
   return (
     <div className="space-y-5">
@@ -687,6 +715,70 @@ export function TourForm({ form, tour }: TourFormProps) {
             <Plus className="size-4" />
             Időpont hozzáadása
           </Button>
+        </div>
+      </TourPanelSection>
+
+      <TourPanelSection
+        title="Foglalási űrlap beállításai"
+        description="Válaszd ki, milyen sablon alapján kérje be a publikus foglalási űrlap az adatokat."
+        countLabel={
+          selectedBookingFormTemplate
+            ? `${selectedBookingFormTemplate.fields.filter((field) => field.visibility !== 'hidden').length} látható mező`
+            : undefined
+        }
+        open={openSections.bookingForm}
+        onToggle={() => toggleSection('bookingForm')}
+      >
+        <div className="space-y-4">
+          <TourCreatableSelectField
+            control={form.control}
+            name="bookingFormTemplateId"
+            label="Foglalási űrlap sablon"
+            placeholder="Buszos út, Repülős út vagy egyedi sablon..."
+            queryKey={['tour-select-options', 'booking-form-templates']}
+            queryFn={getBookingFormTemplateOptions}
+            description="A sablonokat a Foglalások / Foglalási űrlap sablonok oldalon lehet létrehozni és szerkeszteni."
+          />
+
+          {selectedBookingFormTemplate ? (
+            <div className="rounded-xl border bg-background p-3">
+              <div className="text-sm font-medium text-foreground">
+                Mezők előnézete – {selectedBookingFormTemplate.name}
+              </div>
+              <div className="mt-3 space-y-2">
+                {selectedBookingFormTemplate.fields
+                  .slice()
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((field) => (
+                    <div
+                      key={field.id}
+                      className="flex items-center justify-between rounded-lg border bg-card px-3 py-2"
+                    >
+                      <div>
+                        <div className="text-sm font-medium">{field.label}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {field.inputGroup === 'contact' ? 'Kapcsolattartó' : 'Utas'}
+                        </div>
+                      </div>
+                      <span
+                        className={cn(
+                          'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
+                          field.visibility === 'required' && 'bg-emerald-100 text-emerald-700',
+                          field.visibility === 'optional' && 'bg-sky-100 text-sky-700',
+                          field.visibility === 'hidden' && 'bg-slate-100 text-slate-500',
+                        )}
+                      >
+                        {bookingFormVisibilityLabels[field.visibility]}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Nincs sablon kiválasztva – a foglalási űrlap alapértelmezett mezőit fogja megjeleníteni.
+            </p>
+          )}
         </div>
       </TourPanelSection>
 

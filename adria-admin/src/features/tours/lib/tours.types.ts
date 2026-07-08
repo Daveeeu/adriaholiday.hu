@@ -215,6 +215,8 @@ export type Tour = {
   travelModeLabel?: string | null;
   difficultyId: string;
   difficultyLabel?: string | null;
+  bookingFormTemplateId?: string | number | null;
+  bookingFormTemplate?: { id: string | number; name: string; slug: string } | null;
   price: string;
   displayedPrice: string;
   priceBox: TourPriceBox;
@@ -323,6 +325,7 @@ export const tourFormSchema = z.object({
   programTypeId: z.string(),
   travelModeId: z.string(),
   difficultyId: z.string(),
+  bookingFormTemplateId: z.string(),
   price: z.string(),
   displayedPrice: z.string(),
   sliderImage: z.string(),
@@ -475,6 +478,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     programTypeId: tour?.programTypeId ?? '',
     travelModeId: tour?.travelModeId ?? '',
     difficultyId: tour?.difficultyId ?? '',
+    bookingFormTemplateId: tour?.bookingFormTemplateId ? String(tour.bookingFormTemplateId) : '',
     price: tour?.price ?? '',
     displayedPrice: tour?.displayedPrice ?? '',
     sliderImage: tour?.sliderImage ?? '',

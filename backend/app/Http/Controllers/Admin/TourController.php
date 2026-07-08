@@ -41,7 +41,7 @@ class TourController extends Controller
 
     public function index(Request $request)
     {
-        $query = Tour::query()->with(['region', 'homepageOffer.translations', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']);
+        $query = Tour::query()->with(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']);
 
         if ($search = trim((string) $request->query('search', ''))) {
             $query->where(function ($builder) use ($search): void {
@@ -130,6 +130,7 @@ class TourController extends Controller
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
                 'difficulty_id' => $validated['difficulty_id'] ?? null,
+                'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
                 'category_ids' => $validated['category_ids'] ?? [],
@@ -150,12 +151,12 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
 
-        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function show(Tour $tour)
     {
-        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function update(UpdateTourRequest $request, Tour $tour)
@@ -201,6 +202,7 @@ class TourController extends Controller
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
                 'difficulty_id' => $validated['difficulty_id'] ?? null,
+                'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
                 'category_ids' => $validated['category_ids'] ?? [],
@@ -219,7 +221,7 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
 
-        return new TourDetailResource($tour->refresh()->load(['region', 'homepageOffer.translations', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->refresh()->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function destroy(Tour $tour)
