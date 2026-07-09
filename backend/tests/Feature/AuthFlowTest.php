@@ -75,4 +75,26 @@ class AuthFlowTest extends TestCase
             ->assertUnauthorized()
             ->assertJsonStructure(['message']);
     }
+
+    public function test_cors_preflight_allows_configured_admin_dev_origin(): void
+    {
+        $response = $this->withHeaders([
+            'Origin' => 'http://localhost:5174',
+            'Access-Control-Request-Method' => 'POST',
+        ])->options('/api/auth/login');
+
+        $response->assertNoContent();
+        $response->assertHeader('Access-Control-Allow-Origin', 'http://localhost:5174');
+        $response->assertHeader('Access-Control-Allow-Credentials', 'true');
+    }
+
+    public function test_cors_rejects_unlisted_origin(): void
+    {
+        $response = $this->withHeaders([
+            'Origin' => 'http://evil.example.com',
+            'Access-Control-Request-Method' => 'POST',
+        ])->options('/api/auth/login');
+
+        $response->assertHeaderMissing('Access-Control-Allow-Origin');
+    }
 }

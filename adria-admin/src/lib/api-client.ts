@@ -126,7 +126,6 @@ export async function request<T>(
     headers,
     body,
     signal: options.signal,
-    credentials: 'include',
   });
 
   if (!response.ok) {
