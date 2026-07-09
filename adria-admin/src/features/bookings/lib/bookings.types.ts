@@ -16,11 +16,11 @@ export type CrudListResponse<T> = {
 };
 
 export type BookingStatus =
-  | 'pending'
+  | 'new'
+  | 'contacted'
   | 'confirmed'
-  | 'in_progress'
   | 'cancelled'
-  | 'completed';
+  | 'expired';
 
 export type InquiryStatus = 'new' | 'contacted' | 'quoted' | 'closed';
 
@@ -60,6 +60,39 @@ export interface TourBooking {
   applicationDate: string;
   createdAt: string;
 }
+
+export type BookingDynamicField = {
+  key: string;
+  label: string;
+  value: string;
+};
+
+export type BookingActivity = {
+  id: string;
+  event: string;
+  description: string;
+  causerName: string | null;
+  createdAt: string;
+};
+
+export type TourBookingTourDate = {
+  id: string;
+  startDate: string | null;
+  endDate: string | null;
+  status: string | null;
+  availableSeats: number | null;
+  capacity: number | null;
+};
+
+export type TourBookingDetail = TourBooking & {
+  tourId: string | null;
+  tourDateId: string | null;
+  tourDate: TourBookingTourDate | null;
+  adminNote: string;
+  seatsReserved: boolean;
+  formDataFields: BookingDynamicField[];
+  passengerFields: BookingDynamicField[][];
+};
 
 export interface TourInquiry {
   id: string;
@@ -143,6 +176,7 @@ export type TourBookingFormValues = Omit<
   'id' | 'createdAt' | 'cancelled'
 > & {
   cancelled: boolean;
+  adminNote: string;
 };
 
 export type TourInquiryFormValues = Omit<TourInquiry, 'id' | 'createdAt'>;

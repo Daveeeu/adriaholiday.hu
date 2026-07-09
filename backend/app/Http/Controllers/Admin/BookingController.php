@@ -7,25 +7,29 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Booking\StoreBookingRequest;
 use App\Http\Requests\Admin\Booking\UpdateBookingRequest;
 use App\Http\Requests\Admin\Booking\UpdateBookingStatusRequest;
+use App\Http\Resources\BookingActivityResource;
 use App\Http\Resources\BookingDetailResource;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
+use App\Services\Booking\TourBookingStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Activity;
 
 class BookingController extends Controller
 {
     use RespondsWithPagination;
 
-    public function __construct()
+    public function __construct(private readonly TourBookingStatusService $tourBookingStatusService)
     {
         $this->authorizeResource(Booking::class, 'booking');
         $this->middleware('permission:bookings.viewAny')->only('index');
-        $this->middleware('permission:bookings.view')->only('show');
+        $this->middleware('permission:bookings.view')->only(['show', 'activities']);
         $this->middleware('permission:bookings.create')->only('store');
         $this->middleware('permission:bookings.update')->only('update');
         $this->middleware('permission:bookings.delete')->only('destroy');
         $this->middleware('permission:bookings.status')->only('status');
+        $this->middleware('permission:bookings.export')->only('export');
     }
 
     public function index(Request $request)
@@ -71,6 +75,18 @@ class BookingController extends Controller
             $query->where('cancelled', filter_var($cancelled, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
         }
 
+        if ($tourId = $request->query('tour_id', $request->query('tourId'))) {
+            $query->where('tour_id', $tourId);
+        }
+
+        if ($dateFrom = $request->query('date_from', $request->query('dateFrom'))) {
+            $query->whereDate('departure_date', '>=', $dateFrom);
+        }
+
+        if ($dateTo = $request->query('date_to', $request->query('dateTo'))) {
+            $query->whereDate('departure_date', '<=', $dateTo);
+        }
+
         $sortBy = Str::snake((string) $request->query('sort_by', $request->query('sortBy', 'created_at')));
         $sortDirection = $request->query('sort_direction', $request->query('sortDirection', 'desc'));
         $perPage = (int) $request->query('per_page', $request->query('perPage', 25));
@@ -98,14 +114,14 @@ class BookingController extends Controller
 
         $booking = Booking::create($validated);
 
-        return new BookingDetailResource($booking->load(['region', 'location', 'apartment', 'tour']));
+        return new BookingDetailResource($booking->load(['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate']));
     }
 
     public function show(Request $request, Booking $booking)
     {
         $this->ensureBookingTypeMatches($request, $booking);
 
-        return new BookingDetailResource($booking->load(['region', 'location', 'apartment', 'tour']));
+        return new BookingDetailResource($booking->load(['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate']));
     }
 
     public function update(UpdateBookingRequest $request, Booking $booking)
@@ -121,7 +137,7 @@ class BookingController extends Controller
 
         $booking->update($validated);
 
-        return new BookingDetailResource($booking->refresh()->load(['region', 'location', 'apartment', 'tour']));
+        return new BookingDetailResource($booking->refresh()->load(['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate']));
     }
 
     public function destroy(Request $request, Booking $booking)
@@ -138,11 +154,68 @@ class BookingController extends Controller
         $this->authorize('status', $booking);
         $this->ensureBookingTypeMatches($request, $booking);
 
-        $booking->update([
-            'status' => $request->validated()['status'],
-        ]);
+        $nextStatus = $request->validated()['status'];
 
-        return new BookingResource($booking->refresh());
+        if ($booking->booking_type === 'tour_booking') {
+            $booking = $this->tourBookingStatusService->transition($booking, $nextStatus, $request->user()?->id);
+        } else {
+            $booking->update(['status' => $nextStatus]);
+            $booking = $booking->refresh();
+        }
+
+        return new BookingResource($booking);
+    }
+
+    public function activities(Request $request, Booking $booking)
+    {
+        $this->ensureBookingTypeMatches($request, $booking);
+
+        $activities = Activity::query()
+            ->where('subject_type', Booking::class)
+            ->where('subject_id', $booking->id)
+            ->with('causer')
+            ->latest()
+            ->get();
+
+        return BookingActivityResource::collection($activities);
+    }
+
+    public function export(Request $request)
+    {
+        $bookingType = $this->resolveBookingType($request) ?? 'tour_booking';
+
+        $bookings = Booking::query()
+            ->where('booking_type', $bookingType)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $columns = ['ID', 'Státusz', 'Kapcsolattartó', 'Email', 'Telefon', 'Ajánlat', 'Indulás', 'Utasok', 'Létrehozva'];
+
+        $csv = fopen('php://temp', 'w+');
+        fputcsv($csv, $columns);
+
+        foreach ($bookings as $booking) {
+            fputcsv($csv, [
+                $booking->id,
+                $booking->status,
+                $booking->customer_name,
+                $booking->email,
+                $booking->phone,
+                $booking->offer_name_snapshot,
+                $booking->departure_date?->toDateString(),
+                $booking->passenger_count,
+                $booking->created_at?->toDateString(),
+            ]);
+        }
+
+        rewind($csv);
+        $content = stream_get_contents($csv);
+        fclose($csv);
+
+        return response($content, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$bookingType}-export.csv\"",
+        ]);
     }
 
     private function resolveBookingType(Request $request): ?string

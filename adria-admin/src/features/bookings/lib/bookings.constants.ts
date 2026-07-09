@@ -10,19 +10,39 @@ import type {
 
 export function getTourBookingStatusLabel(status: BookingStatus) {
   switch (status) {
-    case 'pending':
-      return 'Függőben';
-    case 'in_progress':
-      return 'Folyamatban';
+    case 'new':
+      return 'Új';
+    case 'contacted':
+      return 'Felvéve a kapcsolat';
     case 'confirmed':
       return 'Megerősítve';
     case 'cancelled':
       return 'Lemondva';
-    case 'completed':
-      return 'Lezárva';
+    case 'expired':
+      return 'Lejárt';
     default:
       return status;
   }
+}
+
+export const TOUR_BOOKING_STATUS_OPTIONS: BookingStatus[] = [
+  'new',
+  'contacted',
+  'confirmed',
+  'cancelled',
+  'expired',
+];
+
+const TOUR_BOOKING_STATUS_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
+  new: ['contacted', 'confirmed', 'cancelled', 'expired'],
+  contacted: ['confirmed', 'cancelled', 'expired'],
+  confirmed: ['cancelled'],
+  cancelled: [],
+  expired: [],
+};
+
+export function getAllowedTourBookingStatusTransitions(status: BookingStatus): BookingStatus[] {
+  return TOUR_BOOKING_STATUS_TRANSITIONS[status] ?? [];
 }
 
 export function getInquiryStatusLabel(status: InquiryStatus) {

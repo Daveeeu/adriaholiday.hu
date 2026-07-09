@@ -1,25 +1,35 @@
+import { useQuery } from '@tanstack/react-query';
 import {
   type Dispatch,
-  type ReactNode,
   type SetStateAction,
   useMemo,
+  useState,
 } from 'react';
+import { Download } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { getAllTourOffers } from '@/features/tours/lib/tours.api';
 
 import { CrudModulePage } from '../components/crud-module-page';
 import { FormSection } from '../components/form-section';
 import { StatusBadge } from '../components/status-badge';
+import { TourBookingDetailPanel } from '../components/tour-booking-detail-panel';
 import {
   createTourBookingRecord,
   deleteTourBookingRecord,
+  exportTourBookingsCsv,
   getTourBookingRecord,
   getTourBookings,
   updateTourBookingRecord,
+  type TourBookingListQuery,
 } from '../lib/bookings.api';
 import type {
   TourBooking,
+  TourBookingDetail,
   TourBookingFormValues,
 } from '../lib/bookings.types';
 import {
@@ -27,26 +37,30 @@ import {
   formatDateTime,
   toInputDate,
 } from '../lib/bookings.utils';
-import { getTourBookingStatusLabel } from '../lib/bookings.constants';
+import {
+  TOUR_BOOKING_STATUS_OPTIONS,
+  getTourBookingStatusLabel,
+} from '../lib/bookings.constants';
 import type { DataTableColumn } from '../components/data-table';
 
 function statusTone(status: TourBooking['status']) {
   switch (status) {
     case 'confirmed':
       return 'success';
-    case 'in_progress':
+    case 'contacted':
       return 'info';
     case 'cancelled':
+    case 'expired':
       return 'danger';
-    case 'completed':
-      return 'neutral';
-    case 'pending':
+    case 'new':
     default:
       return 'warning';
   }
 }
 
 function initialDraft(record?: TourBooking | null): TourBookingFormValues {
+  const detail = record as TourBookingDetail | null | undefined;
+
   return {
     partnerName: record?.partnerName ?? '',
     partnerEmail: record?.partnerEmail ?? '',
@@ -55,11 +69,12 @@ function initialDraft(record?: TourBooking | null): TourBookingFormValues {
     partnerCity: record?.partnerCity ?? '',
     partnerCountry: record?.partnerCountry ?? 'Magyarország',
     partnerNote: record?.partnerNote ?? '',
+    adminNote: detail?.adminNote ?? '',
     offerName: record?.offerName ?? '',
     departureDate: record?.departureDate ?? '',
     passengerCount: record?.passengerCount ?? 2,
     paymentStatus: record?.paymentStatus ?? 'unpaid',
-    status: record?.status ?? 'pending',
+    status: record?.status ?? 'new',
     cancelled: record?.cancelled ?? false,
     appointmentTime: record?.appointmentTime ?? new Date().toISOString(),
     applicationDate: record?.applicationDate ?? toInputDate(new Date().toISOString()),
@@ -130,6 +145,35 @@ const columns = [
 ] satisfies Array<DataTableColumn<TourBooking>>;
 
 export function TourBookingsPage() {
+  const [statusFilter, setStatusFilter] = useState('');
+  const [tourFilter, setTourFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
+
+  const { data: tourOptions = [] } = useQuery({
+    queryKey: ['tour-select-options', 'all-tours'],
+    queryFn: getAllTourOffers,
+  });
+
+  async function handleExport() {
+    setIsExporting(true);
+    try {
+      const csv = await exportTourBookingsCsv();
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'tour-bookings-export.csv';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Az exportálás nem sikerült.');
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
   const pageConfig = useMemo(
     () => ({
       eyebrow: 'Foglalások',
@@ -137,11 +181,11 @@ export function TourBookingsPage() {
       description:
         'A körutazási foglalások, partner adatok és állapotok központi kezelése, modern listanézettel és oldalsó szerkesztőpanellel.',
       toolbarTitle: 'Körutazás foglalások',
-      toolbarDescription: 'Keresés, rendezés, lapozás és gyors CRUD műveletek.',
-      searchPlaceholder: 'Keresés partner, email, ajánlat vagy dátum alapján...',
+      toolbarDescription: 'Keresés, szűrés, rendezés, lapozás és gyors CRUD műveletek.',
+      searchPlaceholder: 'Keresés partner, email vagy telefon alapján...',
       createLabel: 'Új foglalás',
       emptyText: 'Nincs a keresésnek megfelelő körutazás foglalás.',
-      queryKey: ['bookings', 'tour-bookings'],
+      queryKey: ['bookings', 'tour-bookings', statusFilter, tourFilter, dateFrom, dateTo],
       listQuery: getTourBookings,
       buildQuery: ({
         page,
@@ -155,12 +199,16 @@ export function TourBookingsPage() {
         search: string;
         sortBy: string;
         sortDirection: 'asc' | 'desc';
-      }) => ({
+      }): TourBookingListQuery => ({
         page,
         perPage,
         search,
         sortBy,
         sortDirection,
+        status: statusFilter || undefined,
+        tourId: tourFilter || undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
       }),
       getId: (item: TourBooking) => item.id,
       columns,
@@ -169,6 +217,44 @@ export function TourBookingsPage() {
       createRecord: createTourBookingRecord,
       updateRecord: updateTourBookingRecord,
       deleteRecord: deleteTourBookingRecord,
+      extraToolbarControls: (
+        <>
+          <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+            <option value="">Összes státusz</option>
+            {TOUR_BOOKING_STATUS_OPTIONS.map((status) => (
+              <option key={status} value={status}>
+                {getTourBookingStatusLabel(status)}
+              </option>
+            ))}
+          </Select>
+          <Select value={tourFilter} onChange={(event) => setTourFilter(event.target.value)}>
+            <option value="">Összes utazás</option>
+            {tourOptions.map((tour) => (
+              <option key={tour.id} value={tour.id}>
+                {tour.name}
+              </option>
+            ))}
+          </Select>
+          <Input
+            type="date"
+            value={dateFrom}
+            onChange={(event) => setDateFrom(event.target.value)}
+            className="w-40"
+            placeholder="Ettől"
+          />
+          <Input
+            type="date"
+            value={dateTo}
+            onChange={(event) => setDateTo(event.target.value)}
+            className="w-40"
+            placeholder="Eddig"
+          />
+          <Button type="button" variant="outline" onClick={handleExport} disabled={isExporting}>
+            <Download className="size-4" />
+            Exportálás
+          </Button>
+        </>
+      ),
       panelTitle: (mode: 'create' | 'edit' | 'detail', record: TourBooking | null) => {
         if (mode === 'create') return 'Új körutazás foglalás';
         if (mode === 'edit') return `Foglalás szerkesztése: ${record?.partnerName ?? ''}`;
@@ -196,39 +282,7 @@ export function TourBookingsPage() {
         onDelete: () => void;
       }) => {
         if (mode === 'detail' && record) {
-          return (
-            <div className="space-y-4">
-              <FormSection title="Partner adatok" description="A foglalást indító partner kapcsolati adatai.">
-                <div className="grid gap-3 text-sm md:grid-cols-2">
-                  <DetailItem label="Név" value={record.partnerName} />
-                  <DetailItem label="Email" value={record.partnerEmail} />
-                  <DetailItem label="Telefon" value={record.partnerPhone} />
-                  <DetailItem label="Cím" value={record.partnerAddress} />
-                  <DetailItem label="Város" value={record.partnerCity} />
-                  <DetailItem label="Ország" value={record.partnerCountry} />
-                  <DetailItem label="Megjegyzés" value={record.partnerNote} className="md:col-span-2" />
-                </div>
-              </FormSection>
-
-              <FormSection title="Foglalási adatok" description="Az aktuális körutazás foglalási állapota és időzítése.">
-                <div className="grid gap-3 text-sm md:grid-cols-2">
-                  <DetailItem label="Ajánlat" value={record.offerName} />
-                  <DetailItem label="Indulás dátuma" value={formatDate(record.departureDate)} />
-                  <DetailItem label="Utasok száma" value={`${record.passengerCount} fő`} />
-                  <DetailItem label="Jelentkezés dátuma" value={formatDate(record.applicationDate)} />
-                  <DetailItem label="Fizetési státusz" value={record.paymentStatus} />
-                  <DetailItem
-                    label="Állapot"
-                    value={<StatusBadge label={getTourBookingStatusLabel(record.status)} tone={statusTone(record.status)} />}
-                  />
-                  <DetailItem
-                    label="Lemondott?"
-                    value={<StatusBadge label={record.cancelled ? 'Igen' : 'Nem'} tone={record.cancelled ? 'danger' : 'success'} />}
-                  />
-                </div>
-              </FormSection>
-            </div>
-          );
+          return <TourBookingDetailPanel booking={record as TourBookingDetail} />;
         }
 
         return (
@@ -325,18 +379,20 @@ export function TourBookingsPage() {
                     <option value="partial">Részben fizetett</option>
                     <option value="paid">Fizetett</option>
                   </Select>
-                  <Select
-                    value={draft.status}
-                    onChange={(event) =>
-                      setDraft((current) => ({ ...current, status: event.target.value as TourBookingFormValues['status'] }))
-                    }
-                  >
-                    <option value="pending">Függőben</option>
-                    <option value="in_progress">Folyamatban</option>
-                    <option value="confirmed">Megerősítve</option>
-                    <option value="completed">Lezárva</option>
-                    <option value="cancelled">Lemondva</option>
-                  </Select>
+                  {mode === 'create' ? (
+                    <Select
+                      value={draft.status}
+                      onChange={(event) =>
+                        setDraft((current) => ({ ...current, status: event.target.value as TourBookingFormValues['status'] }))
+                      }
+                    >
+                      {TOUR_BOOKING_STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {getTourBookingStatusLabel(status)}
+                        </option>
+                      ))}
+                    </Select>
+                  ) : null}
                 </div>
                 <Input
                   type="datetime-local"
@@ -371,32 +427,14 @@ export function TourBookingsPage() {
                 </div>
               </div>
             </FormSection>
-
           </div>
         );
       },
     }),
-    [],
+    [statusFilter, tourFilter, dateFrom, dateTo, tourOptions, isExporting],
   );
 
   return (
     <CrudModulePage {...pageConfig} />
-  );
-}
-
-function DetailItem({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
-      <div className="mt-1 text-sm font-medium text-foreground">{value}</div>
-    </div>
   );
 }

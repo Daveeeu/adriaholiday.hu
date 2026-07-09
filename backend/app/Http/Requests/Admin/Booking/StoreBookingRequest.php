@@ -15,8 +15,8 @@ class StoreBookingRequest extends FormRequest
         $this->merge([
             'booking_type' => $bookingType,
             'status' => $this->input('status', match ($bookingType) {
-                'tour_inquiry', 'apartment_booking' => 'new',
-                default => 'pending',
+                'tour_booking' => \App\Support\Booking\TourBookingStatus::NEW,
+                default => 'new',
             }),
             'payment_status' => $this->input('payment_status', $this->input('paymentStatus')),
             'region_id' => $this->input('region_id', $this->input('regionId')),
@@ -25,6 +25,8 @@ class StoreBookingRequest extends FormRequest
             'offer_date_id' => $this->input('offer_date_id', $this->input('offerDateId')),
             'apartment_id' => $this->input('apartment_id', $this->input('apartmentId')),
             'tour_id' => $this->input('tour_id', $this->input('tourId')),
+            'tour_date_id' => $this->input('tour_date_id', $this->input('tourDateId')),
+            'admin_note' => $this->input('admin_note', $this->input('adminNote')),
             'customer_name' => $this->input('customer_name', $this->input('customerName', $this->input('partnerName', $this->input('guestName', $this->input('name'))))),
             'email' => $this->input('email', $this->input('partnerEmail')),
             'phone' => $this->input('phone', $this->input('partnerPhone')),
@@ -71,10 +73,18 @@ class StoreBookingRequest extends FormRequest
 
     public function rules(): array
     {
+        $statusRules = ['required', 'string', 'max:255'];
+
+        if ($this->input('booking_type') === 'tour_booking') {
+            $statusRules[] = Rule::in(\App\Support\Booking\TourBookingStatus::all());
+        }
+
         return [
             'booking_type' => ['required', 'string', Rule::in(['tour_booking', 'tour_inquiry', 'apartment_booking'])],
-            'status' => ['required', 'string', 'max:255'],
+            'status' => $statusRules,
             'payment_status' => ['nullable', 'string', 'max:255'],
+            'tour_date_id' => ['nullable', 'integer', 'exists:tour_dates,id'],
+            'admin_note' => ['nullable', 'string', 'max:5000'],
             'region_id' => ['nullable', 'integer', 'exists:regions,id'],
             'location_id' => ['nullable', 'integer', 'exists:locations,id'],
             'offer_id' => ['nullable', 'integer'],

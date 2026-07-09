@@ -3,6 +3,8 @@ import { apiClient } from '@/lib/api-client';
 import type {
   ApartmentBooking,
   ApartmentBookingFormValues,
+  BookingActivity,
+  BookingDynamicField,
   ContactMessage,
   ContactMessageFormValues,
   Coupon,
@@ -15,10 +17,19 @@ import type {
   PartnerFinanceFormValues,
   PartnerFinanceRecord,
   TourBooking,
+  TourBookingDetail,
   TourBookingFormValues,
+  TourBookingTourDate,
   TourInquiry,
   TourInquiryFormValues,
 } from './bookings.types';
+
+export type TourBookingListQuery = CrudListQuery & {
+  status?: string;
+  tourId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
 
 type BookingResource = {
   id: string;
@@ -69,7 +80,13 @@ type BookingDetailResource = BookingResource & {
   region?: unknown;
   location?: unknown;
   apartment?: unknown;
-  tour?: unknown;
+  tour?: { name?: string } | null;
+  tourDateId: string | null;
+  tourDate: TourBookingTourDate | null;
+  adminNote: string | null;
+  seatsReserved: boolean;
+  formDataFields: BookingDynamicField[];
+  passengerFields: BookingDynamicField[][];
 };
 
 function mapTourBooking(resource: BookingResource): TourBooking {
@@ -86,14 +103,25 @@ function mapTourBooking(resource: BookingResource): TourBooking {
     departureDate: resource.departureDate ?? '',
     passengerCount: resource.passengerCount ?? 0,
     paymentStatus: (resource.paymentStatus as TourBooking['paymentStatus']) ?? 'unpaid',
-    status:
-      resource.status === 'in_progress'
-        ? 'in_progress'
-        : (resource.status as TourBooking['status']),
+    status: resource.status as TourBooking['status'],
     cancelled: resource.cancelled,
     appointmentTime: resource.appointmentTime ?? '',
     applicationDate: resource.applicationDate ?? resource.createdAt.slice(0, 10),
     createdAt: resource.createdAt,
+  };
+}
+
+function mapTourBookingDetail(resource: BookingDetailResource): TourBookingDetail {
+  return {
+    ...mapTourBooking(resource),
+    offerName: resource.offerName ?? resource.tour?.name ?? resource.propertyNameSnapshot ?? '',
+    tourId: resource.tourId,
+    tourDateId: resource.tourDateId,
+    tourDate: resource.tourDate,
+    adminNote: resource.adminNote ?? '',
+    seatsReserved: resource.seatsReserved,
+    formDataFields: resource.formDataFields ?? [],
+    passengerFields: resource.passengerFields ?? [],
   };
 }
 
@@ -157,8 +185,28 @@ async function listBookingsByType<T>(
   };
 }
 
-export function getTourBookings(query: CrudListQuery) {
-  return listBookingsByType('/api/admin/bookings/tour-bookings', query, mapTourBooking);
+export async function getTourBookings(query: TourBookingListQuery) {
+  const response = await apiClient.get<CrudListResponse<BookingResource>>(
+    '/api/admin/bookings/tour-bookings',
+    {
+      query: {
+        page: query.page,
+        perPage: query.perPage,
+        search: query.search,
+        sortBy: query.sortBy,
+        sortDirection: query.sortDirection,
+        status: query.status,
+        tourId: query.tourId,
+        dateFrom: query.dateFrom,
+        dateTo: query.dateTo,
+      },
+    },
+  );
+
+  return {
+    ...response,
+    items: response.items.map(mapTourBooking),
+  };
 }
 
 export function createTourBookingRecord(values: TourBookingFormValues) {
@@ -173,6 +221,7 @@ export function createTourBookingRecord(values: TourBookingFormValues) {
     city: values.partnerCity,
     country: values.partnerCountry,
     notes: values.partnerNote,
+    adminNote: values.adminNote,
     offerName: values.offerName,
     departureDate: values.departureDate,
     passengerCount: values.passengerCount,
@@ -197,6 +246,7 @@ export function updateTourBookingRecord(
     city: values.partnerCity,
     country: values.partnerCountry,
     notes: values.partnerNote,
+    adminNote: values.adminNote,
     offerName: values.offerName,
     departureDate: values.departureDate,
     passengerCount: values.passengerCount,
@@ -214,7 +264,24 @@ export async function getTourBookingRecord(id: string) {
   const response = await apiClient.get<BookingDetailResource>(
     `/api/admin/bookings/tour-bookings/${id}`,
   );
-  return mapTourBooking(response);
+  return mapTourBookingDetail(response);
+}
+
+export function changeTourBookingStatus(id: string, status: string) {
+  return apiClient.patch<TourBooking>(`/api/admin/bookings/tour-bookings/${id}/status`, {
+    status,
+  });
+}
+
+export async function getTourBookingActivities(id: string): Promise<BookingActivity[]> {
+  const response = await apiClient.get<{ data: BookingActivity[] } | BookingActivity[]>(
+    `/api/admin/bookings/tour-bookings/${id}/activities`,
+  );
+  return Array.isArray(response) ? response : response.data;
+}
+
+export function exportTourBookingsCsv(): Promise<string> {
+  return apiClient.get<string>('/api/admin/bookings/tour-bookings/export');
 }
 
 export function getTourInquiries(query: CrudListQuery) {

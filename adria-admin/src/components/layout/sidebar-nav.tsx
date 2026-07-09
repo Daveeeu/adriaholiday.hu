@@ -3,10 +3,23 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { navigationItems } from '@/config/navigation';
+import { useNewTourBookingsCount } from '@/features/bookings/lib/use-new-tour-bookings-count';
 import { t } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
 import { useUiStore } from '@/store/ui-store';
+
+function NavBadge({ count }: { count: number }) {
+  if (count <= 0) {
+    return null;
+  }
+
+  return (
+    <span className="ml-auto inline-flex min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold leading-5 text-primary-foreground">
+      {count > 99 ? '99+' : count}
+    </span>
+  );
+}
 
 type SidebarNavProps = {
   collapsed?: boolean;
@@ -90,6 +103,7 @@ export function SidebarNav({
   const setMobileSidebarOpen = useUiStore(
     (state) => state.setMobileSidebarOpen,
   );
+  const newTourBookingsCount = useNewTourBookingsCount();
 
   const visibleNavigationItems = useMemo(
     () =>
@@ -294,6 +308,9 @@ export function SidebarNav({
                       <child.icon className="size-4 shrink-0" />
                       {!collapsed ? (
                         <span className="min-w-0 flex-1 truncate">{t(child.labelKey)}</span>
+                      ) : null}
+                      {!collapsed && child.to === '/bookings/tour-bookings' ? (
+                        <NavBadge count={newTourBookingsCount} />
                       ) : null}
                     </NavLink>
                   ))}

@@ -26,6 +26,14 @@ class BookingFormValidationService
     ];
 
     /**
+     * @return array<string, string>
+     */
+    public static function defaultFieldLabels(): array
+    {
+        return collect(self::DEFAULT_FIELDS)->pluck('label', 'key')->all();
+    }
+
+    /**
      * @param  array<string, mixed>  $formData
      * @param  array<int, array<string, mixed>>  $passengers
      * @return array{errors: array<string, string>, formData: array<string, mixed>, passengers: array<int, array<string, mixed>>}

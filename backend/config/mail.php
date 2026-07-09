@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Booking Office Notifications
+    |--------------------------------------------------------------------------
+    |
+    | The mailbox that receives a notification whenever a new tour booking
+    | is submitted through the public booking form.
+    |
+    */
+
+    'office_notifications_address' => env('BOOKING_OFFICE_EMAIL'),
+
 ];

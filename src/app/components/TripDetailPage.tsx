@@ -866,7 +866,7 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
 
       setBookingId(response.id);
       setStatus("success");
-      trackEvent("lead_submit", {
+      trackEvent("booking_success", {
         entity: { type: "tour", slug: trip.slug },
         metadata: { booking_id: response.id, participants: passengers.length },
       });

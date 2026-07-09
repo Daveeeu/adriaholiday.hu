@@ -117,7 +117,7 @@ class RolePermissionSeeder extends Seeder
             'blogTags' => ['blog-tags.viewAny', 'blog-tags.view', 'blog-tags.create', 'blog-tags.update', 'blog-tags.delete'],
             'buses' => ['buses.viewAny', 'buses.view', 'buses.create', 'buses.update', 'buses.delete'],
             'bookingFormTemplates' => ['booking-form-templates.viewAny', 'booking-form-templates.view', 'booking-form-templates.create', 'booking-form-templates.update', 'booking-form-templates.delete'],
-            'bookings' => ['bookings.viewAny', 'bookings.view', 'bookings.create', 'bookings.update', 'bookings.delete', 'bookings.status'],
+            'bookings' => ['bookings.viewAny', 'bookings.view', 'bookings.create', 'bookings.update', 'bookings.delete', 'bookings.status', 'bookings.export'],
             'partnerFinances' => ['partner-finances.viewAny', 'partner-finances.view', 'partner-finances.create', 'partner-finances.update', 'partner-finances.delete'],
             'partnerBanners' => ['partner-banners.viewAny', 'partner-banners.view', 'partner-banners.create', 'partner-banners.update', 'partner-banners.delete'],
             'messages' => ['messages.viewAny', 'messages.view', 'messages.create', 'messages.update', 'messages.delete', 'messages.status'],

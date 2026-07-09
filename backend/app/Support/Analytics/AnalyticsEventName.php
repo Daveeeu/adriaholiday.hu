@@ -29,6 +29,7 @@ final class AnalyticsEventName
     public const BOOKING_START = 'booking_start';
     public const BOOKING_SUCCESS = 'booking_success';
     public const BOOKING_ERROR = 'booking_error';
+    public const BOOKING_STATUS_CHANGE = 'booking_status_change';
 
     public static function all(): array
     {
@@ -58,6 +59,7 @@ final class AnalyticsEventName
             self::BOOKING_START,
             self::BOOKING_SUCCESS,
             self::BOOKING_ERROR,
+            self::BOOKING_STATUS_CHANGE,
         ];
     }
 }

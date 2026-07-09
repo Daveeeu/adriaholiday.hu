@@ -23,6 +23,9 @@ class Booking extends Model
         'offer_date_id',
         'apartment_id',
         'tour_id',
+        'tour_date_id',
+        'admin_note',
+        'seats_reserved',
         'customer_name',
         'email',
         'phone',
@@ -71,6 +74,7 @@ class Booking extends Model
         'paid_amount' => 'decimal:2',
         'credited' => 'boolean',
         'cancelled' => 'boolean',
+        'seats_reserved' => 'boolean',
         'payload' => 'array',
     ];
 
@@ -92,5 +96,10 @@ class Booking extends Model
     public function tour(): BelongsTo
     {
         return $this->belongsTo(Tour::class);
+    }
+
+    public function tourDate(): BelongsTo
+    {
+        return $this->belongsTo(TourDate::class);
     }
 }
