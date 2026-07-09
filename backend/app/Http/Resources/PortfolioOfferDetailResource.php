@@ -2,30 +2,17 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Tour;
 use App\Support\RichTextSanitizer;
+use App\Support\TourMeta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PortfolioOfferDetailResource extends TourDetailResource
 {
-    private function meta(Tour $tour): array
-    {
-        $notes = trim((string) $tour->notes);
-
-        if ($notes === '') {
-            return [];
-        }
-
-        $decoded = json_decode($notes, true);
-
-        return is_array($decoded) ? $decoded : [];
-    }
-
     public function toArray(Request $request): array
     {
         $tour = $this->resource;
-        $meta = $this->meta($tour);
+        $meta = TourMeta::extract($tour);
         $media = $tour->getFirstMedia('slider');
         $firstDate = $tour->dates->sortBy('start_date')->first();
         $priceItems = $tour->priceItems->where('active', true)->sortBy('sort_order')->values();

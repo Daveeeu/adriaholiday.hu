@@ -8,8 +8,11 @@ use App\Http\Requests\Admin\Booking\StoreBookingRequest;
 use App\Http\Requests\Admin\Booking\UpdateBookingRequest;
 use App\Http\Requests\Admin\Booking\UpdateBookingStatusRequest;
 use App\Http\Resources\BookingActivityResource;
+use App\Http\Resources\BookingAnalyticsEventResource;
 use App\Http\Resources\BookingDetailResource;
+use App\Http\Resources\BookingEmailLogResource;
 use App\Http\Resources\BookingResource;
+use App\Models\AnalyticsEvent;
 use App\Models\Booking;
 use App\Services\Booking\TourBookingStatusService;
 use Illuminate\Http\Request;
@@ -24,7 +27,7 @@ class BookingController extends Controller
     {
         $this->authorizeResource(Booking::class, 'booking');
         $this->middleware('permission:bookings.viewAny')->only('index');
-        $this->middleware('permission:bookings.view')->only(['show', 'activities']);
+        $this->middleware('permission:bookings.view')->only(['show', 'activities', 'analytics', 'emails']);
         $this->middleware('permission:bookings.create')->only('store');
         $this->middleware('permission:bookings.update')->only('update');
         $this->middleware('permission:bookings.delete')->only('destroy');
@@ -114,14 +117,14 @@ class BookingController extends Controller
 
         $booking = Booking::create($validated);
 
-        return new BookingDetailResource($booking->load(['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate']));
+        return new BookingDetailResource($booking->load($this->detailRelationsFor($booking->booking_type)));
     }
 
     public function show(Request $request, Booking $booking)
     {
         $this->ensureBookingTypeMatches($request, $booking);
 
-        return new BookingDetailResource($booking->load(['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate']));
+        return new BookingDetailResource($booking->load($this->detailRelationsFor($booking->booking_type)));
     }
 
     public function update(UpdateBookingRequest $request, Booking $booking)
@@ -137,7 +140,7 @@ class BookingController extends Controller
 
         $booking->update($validated);
 
-        return new BookingDetailResource($booking->refresh()->load(['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate']));
+        return new BookingDetailResource($booking->refresh()->load($this->detailRelationsFor($booking->booking_type)));
     }
 
     public function destroy(Request $request, Booking $booking)
@@ -180,6 +183,30 @@ class BookingController extends Controller
         return BookingActivityResource::collection($activities);
     }
 
+    public function analytics(Request $request, Booking $booking)
+    {
+        $this->ensureBookingTypeMatches($request, $booking);
+
+        $events = AnalyticsEvent::query()
+            ->where(function ($query) use ($booking): void {
+                $query->where('metadata->booking_id', $booking->id)
+                    ->orWhere(function ($inner) use ($booking): void {
+                        $inner->where('entity_type', 'booking')->where('entity_id', (string) $booking->id);
+                    });
+            })
+            ->orderBy('created_at')
+            ->get();
+
+        return BookingAnalyticsEventResource::collection($events);
+    }
+
+    public function emails(Request $request, Booking $booking)
+    {
+        $this->ensureBookingTypeMatches($request, $booking);
+
+        return BookingEmailLogResource::collection($booking->emailLogs);
+    }
+
     public function export(Request $request)
     {
         $bookingType = $this->resolveBookingType($request) ?? 'tour_booking';
@@ -216,6 +243,19 @@ class BookingController extends Controller
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$bookingType}-export.csv\"",
         ]);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function detailRelationsFor(?string $bookingType): array
+    {
+        return match ($bookingType) {
+            'tour_booking' => ['tour.bookingFormTemplate.templateFields.field', 'tourDate'],
+            'apartment_booking' => ['apartment'],
+            'tour_inquiry' => ['tour', 'region'],
+            default => ['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate'],
+        };
     }
 
     private function resolveBookingType(Request $request): ?string

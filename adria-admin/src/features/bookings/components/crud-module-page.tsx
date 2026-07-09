@@ -19,6 +19,7 @@ type PanelMode = 'create' | 'edit' | 'detail';
 type PanelRenderContext<T, D> = {
   mode: PanelMode;
   record: T | null;
+  isDetailLoading: boolean;
   draft: D;
   setDraft: Dispatch<SetStateAction<D>>;
   isSaving: boolean;
@@ -404,6 +405,7 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
           {renderPanel({
             mode: panelMode,
             record: selectedRecord,
+            isDetailLoading: Boolean(detailQuery) && selectedRecordQuery.isLoading,
             draft,
             setDraft,
             isSaving: createMutation.isPending || updateMutation.isPending,

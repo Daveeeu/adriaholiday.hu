@@ -185,6 +185,161 @@ class AdminBookingTest extends TestCase
         $this->assertSame(1, $response->json('totalCount'));
     }
 
+    public function test_booking_detail_handles_missing_tour_date_analytics_email_and_payload(): void
+    {
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view']);
+
+        $booking = Booking::factory()->create([
+            'booking_type' => 'tour_booking',
+            'status' => 'new',
+            'tour_id' => null,
+            'tour_date_id' => null,
+            'payload' => null,
+        ]);
+
+        $showResponse = $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}");
+        $showResponse->assertOk();
+        $showResponse->assertJsonPath('data.tour', null);
+        $showResponse->assertJsonPath('data.tourDate', null);
+        $showResponse->assertJsonPath('data.formDataFields', []);
+        $showResponse->assertJsonPath('data.passengerFields', []);
+
+        $analyticsResponse = $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}/analytics");
+        $analyticsResponse->assertOk();
+        $this->assertSame([], $analyticsResponse->json('data'));
+
+        $emailsResponse = $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}/emails");
+        $emailsResponse->assertOk();
+        $this->assertSame([], $emailsResponse->json('data'));
+    }
+
+    public function test_booking_detail_handles_no_passengers_in_payload(): void
+    {
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view']);
+
+        $booking = Booking::factory()->create([
+            'booking_type' => 'tour_booking',
+            'status' => 'new',
+            'payload' => ['formData' => ['contact_name' => 'Kovács Anna'], 'passengers' => []],
+        ]);
+
+        $response = $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}");
+
+        $response->assertOk();
+        $response->assertJsonPath('data.passengerFields', []);
+        $response->assertJsonCount(1, 'data.formDataFields');
+    }
+
+    public function test_booking_detail_shows_multiple_passengers(): void
+    {
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view']);
+
+        $booking = Booking::factory()->create([
+            'booking_type' => 'tour_booking',
+            'status' => 'new',
+            'payload' => [
+                'formData' => [],
+                'passengers' => [
+                    ['passenger_name' => 'Utas Egy'],
+                    ['passenger_name' => 'Utas Kettő'],
+                    ['passenger_name' => 'Utas Három'],
+                ],
+            ],
+        ]);
+
+        $response = $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}");
+
+        $response->assertOk();
+        $response->assertJsonCount(3, 'data.passengerFields');
+    }
+
+    public function test_activity_timeline_reflects_multiple_status_changes_with_hungarian_titles(): void
+    {
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view', 'bookings.status']);
+
+        $booking = Booking::factory()->create(['booking_type' => 'tour_booking', 'status' => 'new']);
+
+        $this->patchJson("/api/admin/bookings/tour-bookings/{$booking->id}/status", ['status' => 'contacted'])->assertOk();
+        $this->patchJson("/api/admin/bookings/tour-bookings/{$booking->id}/status", ['status' => 'confirmed'])->assertOk();
+
+        $response = $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}/activities");
+
+        $response->assertOk();
+        $descriptions = collect($response->json('data'))->pluck('description')->all();
+
+        $this->assertContains('Foglalás létrejött', $descriptions);
+        $this->assertContains('Kapcsolatfelvétel', $descriptions);
+        $this->assertTrue(collect($descriptions)->contains(fn (string $description) => str_starts_with($description, 'Visszaigazolva')));
+    }
+
+    public function test_new_booking_email_notifications_are_logged(): void
+    {
+        config(['mail.office_notifications_address' => 'office@adriaholiday.hu']);
+
+        $tour = Tour::factory()->create(['active' => true]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+            ],
+        ]);
+
+        $response->assertCreated();
+        $bookingId = $response->json('id');
+
+        $this->assertDatabaseHas('email_logs', [
+            'booking_id' => $bookingId,
+            'to' => 'office@adriaholiday.hu',
+            'status' => 'sent',
+        ]);
+        $this->assertDatabaseHas('email_logs', [
+            'booking_id' => $bookingId,
+            'to' => 'anna@example.com',
+            'status' => 'sent',
+        ]);
+
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view']);
+
+        $emailsResponse = $this->getJson("/api/admin/bookings/tour-bookings/{$bookingId}/emails");
+        $emailsResponse->assertOk();
+        $this->assertCount(2, $emailsResponse->json('data'));
+    }
+
+    public function test_booking_analytics_endpoint_returns_linked_events(): void
+    {
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view']);
+
+        $booking = Booking::factory()->create(['booking_type' => 'tour_booking', 'status' => 'new']);
+
+        \App\Models\AnalyticsEvent::query()->create([
+            'event_id' => (string) \Illuminate\Support\Str::uuid(),
+            'session_id' => 'sess-1',
+            'visitor_id' => 'visitor-1',
+            'event_name' => 'booking_success',
+            'entity_type' => 'tour',
+            'entity_slug' => 'valami-tour',
+            'page_url' => '/ajanlat/valami-tour',
+            'page_path' => '/ajanlat/valami-tour',
+            'utm_source' => 'google',
+            'utm_medium' => 'cpc',
+            'metadata' => ['booking_id' => $booking->id],
+            'consent_analytics' => true,
+            'consent_marketing' => false,
+        ]);
+
+        $response = $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}/analytics");
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.utmSource', 'google');
+    }
+
     /**
      * @param  array<int, string>  $permissions
      */

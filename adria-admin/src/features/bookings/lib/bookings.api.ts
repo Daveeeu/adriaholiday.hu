@@ -4,7 +4,9 @@ import type {
   ApartmentBooking,
   ApartmentBookingFormValues,
   BookingActivity,
+  BookingAnalyticsEvent,
   BookingDynamicField,
+  BookingEmailLog,
   ContactMessage,
   ContactMessageFormValues,
   Coupon,
@@ -20,6 +22,7 @@ import type {
   TourBookingDetail,
   TourBookingFormValues,
   TourBookingTourDate,
+  TourBookingTourSummary,
   TourInquiry,
   TourInquiryFormValues,
 } from './bookings.types';
@@ -30,6 +33,12 @@ export type TourBookingListQuery = CrudListQuery & {
   dateFrom?: string;
   dateTo?: string;
 };
+
+function unwrapResource<T>(response: T | { data: T }): T {
+  return response !== null && typeof response === 'object' && 'data' in response
+    ? (response as { data: T }).data
+    : (response as T);
+}
 
 type BookingResource = {
   id: string;
@@ -80,7 +89,9 @@ type BookingDetailResource = BookingResource & {
   region?: unknown;
   location?: unknown;
   apartment?: unknown;
-  tour?: { name?: string } | null;
+  tour?: TourBookingTourSummary | null;
+  tourTransportLabel: string | null;
+  tourCountry: string | null;
   tourDateId: string | null;
   tourDate: TourBookingTourDate | null;
   adminNote: string | null;
@@ -116,12 +127,17 @@ function mapTourBookingDetail(resource: BookingDetailResource): TourBookingDetai
     ...mapTourBooking(resource),
     offerName: resource.offerName ?? resource.tour?.name ?? resource.propertyNameSnapshot ?? '',
     tourId: resource.tourId,
+    tour: resource.tour ?? null,
+    tourTransportLabel: resource.tourTransportLabel ?? null,
+    tourCountry: resource.tourCountry ?? null,
     tourDateId: resource.tourDateId,
     tourDate: resource.tourDate,
     adminNote: resource.adminNote ?? '',
     seatsReserved: resource.seatsReserved,
     formDataFields: resource.formDataFields ?? [],
     passengerFields: resource.passengerFields ?? [],
+    payload: resource.payload,
+    updatedAt: resource.updatedAt,
   };
 }
 
@@ -209,8 +225,8 @@ export async function getTourBookings(query: TourBookingListQuery) {
   };
 }
 
-export function createTourBookingRecord(values: TourBookingFormValues) {
-  return apiClient.post<TourBooking>('/api/admin/bookings/tour-bookings', {
+export async function createTourBookingRecord(values: TourBookingFormValues) {
+  const response = await apiClient.post<TourBooking | { data: TourBooking }>('/api/admin/bookings/tour-bookings', {
     bookingType: 'tour_booking',
     status: values.status,
     paymentStatus: values.paymentStatus,
@@ -229,13 +245,14 @@ export function createTourBookingRecord(values: TourBookingFormValues) {
     applicationDate: values.applicationDate,
     cancelled: values.cancelled,
   });
+  return unwrapResource(response);
 }
 
-export function updateTourBookingRecord(
+export async function updateTourBookingRecord(
   id: string,
   values: TourBookingFormValues,
 ) {
-  return apiClient.patch<TourBooking>(`/api/admin/bookings/tour-bookings/${id}`, {
+  const response = await apiClient.patch<TourBooking | { data: TourBooking }>(`/api/admin/bookings/tour-bookings/${id}`, {
     bookingType: 'tour_booking',
     status: values.status,
     paymentStatus: values.paymentStatus,
@@ -254,6 +271,7 @@ export function updateTourBookingRecord(
     applicationDate: values.applicationDate,
     cancelled: values.cancelled,
   });
+  return unwrapResource(response);
 }
 
 export function deleteTourBookingRecord(id: string) {
@@ -261,21 +279,36 @@ export function deleteTourBookingRecord(id: string) {
 }
 
 export async function getTourBookingRecord(id: string) {
-  const response = await apiClient.get<BookingDetailResource>(
+  const response = await apiClient.get<BookingDetailResource | { data: BookingDetailResource }>(
     `/api/admin/bookings/tour-bookings/${id}`,
   );
-  return mapTourBookingDetail(response);
+  return mapTourBookingDetail(unwrapResource(response));
 }
 
-export function changeTourBookingStatus(id: string, status: string) {
-  return apiClient.patch<TourBooking>(`/api/admin/bookings/tour-bookings/${id}/status`, {
+export async function changeTourBookingStatus(id: string, status: string) {
+  const response = await apiClient.patch<TourBooking | { data: TourBooking }>(`/api/admin/bookings/tour-bookings/${id}/status`, {
     status,
   });
+  return unwrapResource(response);
 }
 
 export async function getTourBookingActivities(id: string): Promise<BookingActivity[]> {
   const response = await apiClient.get<{ data: BookingActivity[] } | BookingActivity[]>(
     `/api/admin/bookings/tour-bookings/${id}/activities`,
+  );
+  return Array.isArray(response) ? response : response.data;
+}
+
+export async function getTourBookingAnalytics(id: string): Promise<BookingAnalyticsEvent[]> {
+  const response = await apiClient.get<{ data: BookingAnalyticsEvent[] } | BookingAnalyticsEvent[]>(
+    `/api/admin/bookings/tour-bookings/${id}/analytics`,
+  );
+  return Array.isArray(response) ? response : response.data;
+}
+
+export async function getTourBookingEmails(id: string): Promise<BookingEmailLog[]> {
+  const response = await apiClient.get<{ data: BookingEmailLog[] } | BookingEmailLog[]>(
+    `/api/admin/bookings/tour-bookings/${id}/emails`,
   );
   return Array.isArray(response) ? response : response.data;
 }
@@ -288,8 +321,8 @@ export function getTourInquiries(query: CrudListQuery) {
   return listBookingsByType('/api/admin/bookings/tour-inquiries', query, mapTourInquiry);
 }
 
-export function createTourInquiryRecord(values: TourInquiryFormValues) {
-  return apiClient.post<TourInquiry>('/api/admin/bookings/tour-inquiries', {
+export async function createTourInquiryRecord(values: TourInquiryFormValues) {
+  const response = await apiClient.post<TourInquiry | { data: TourInquiry }>('/api/admin/bookings/tour-inquiries', {
     bookingType: 'tour_inquiry',
     status: values.status,
     customerName: values.name,
@@ -299,13 +332,14 @@ export function createTourInquiryRecord(values: TourInquiryFormValues) {
     offerName: values.offerName,
     appointmentTime: values.appointmentTime,
   });
+  return unwrapResource(response);
 }
 
-export function updateTourInquiryRecord(
+export async function updateTourInquiryRecord(
   id: string,
   values: TourInquiryFormValues,
 ) {
-  return apiClient.patch<TourInquiry>(`/api/admin/bookings/tour-inquiries/${id}`, {
+  const response = await apiClient.patch<TourInquiry | { data: TourInquiry }>(`/api/admin/bookings/tour-inquiries/${id}`, {
     bookingType: 'tour_inquiry',
     status: values.status,
     customerName: values.name,
@@ -315,6 +349,7 @@ export function updateTourInquiryRecord(
     offerName: values.offerName,
     appointmentTime: values.appointmentTime,
   });
+  return unwrapResource(response);
 }
 
 export function deleteTourInquiryRecord(id: string) {
@@ -322,10 +357,10 @@ export function deleteTourInquiryRecord(id: string) {
 }
 
 export async function getTourInquiryRecord(id: string) {
-  const response = await apiClient.get<BookingDetailResource>(
+  const response = await apiClient.get<BookingDetailResource | { data: BookingDetailResource }>(
     `/api/admin/bookings/tour-inquiries/${id}`,
   );
-  return mapTourInquiry(response);
+  return mapTourInquiry(unwrapResource(response));
 }
 
 export function getApartmentBookings(query: CrudListQuery) {
@@ -336,10 +371,10 @@ export function getApartmentBookings(query: CrudListQuery) {
   );
 }
 
-export function createApartmentBookingRecord(
+export async function createApartmentBookingRecord(
   values: ApartmentBookingFormValues,
 ) {
-  return apiClient.post<ApartmentBooking>(
+  const response = await apiClient.post<ApartmentBooking | { data: ApartmentBooking }>(
     '/api/admin/bookings/apartment-bookings',
     {
       bookingType: 'apartment_booking',
@@ -358,13 +393,14 @@ export function createApartmentBookingRecord(
       credited: values.credited,
     },
   );
+  return unwrapResource(response);
 }
 
-export function updateApartmentBookingRecord(
+export async function updateApartmentBookingRecord(
   id: string,
   values: ApartmentBookingFormValues,
 ) {
-  return apiClient.patch<ApartmentBooking>(
+  const response = await apiClient.patch<ApartmentBooking | { data: ApartmentBooking }>(
     `/api/admin/bookings/apartment-bookings/${id}`,
     {
       bookingType: 'apartment_booking',
@@ -383,6 +419,7 @@ export function updateApartmentBookingRecord(
       credited: values.credited,
     },
   );
+  return unwrapResource(response);
 }
 
 export function deleteApartmentBookingRecord(id: string) {
@@ -392,10 +429,10 @@ export function deleteApartmentBookingRecord(id: string) {
 }
 
 export async function getApartmentBookingRecord(id: string) {
-  const response = await apiClient.get<BookingDetailResource>(
+  const response = await apiClient.get<BookingDetailResource | { data: BookingDetailResource }>(
     `/api/admin/bookings/apartment-bookings/${id}`,
   );
-  return mapApartmentBooking(response);
+  return mapApartmentBooking(unwrapResource(response));
 }
 
 export function getPartnerFinances(

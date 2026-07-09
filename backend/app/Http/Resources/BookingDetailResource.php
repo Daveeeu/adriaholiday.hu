@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Services\Booking\BookingFormValidationService;
+use App\Support\TourMeta;
 use Illuminate\Http\Request;
 
 class BookingDetailResource extends BookingResource
@@ -11,12 +12,15 @@ class BookingDetailResource extends BookingResource
     {
         $labels = $this->resolveFieldLabels();
         $payload = $this->payload ?? [];
+        $tour = $this->tour;
 
         return parent::toArray($request) + [
             'region' => $this->whenLoaded('region', fn () => new RegionResource($this->region)),
             'location' => $this->whenLoaded('location', fn () => new LocationResource($this->location)),
             'apartment' => $this->whenLoaded('apartment', fn () => new ApartmentResource($this->apartment)),
             'tour' => $this->whenLoaded('tour', fn () => new TourResource($this->tour)),
+            'tourTransportLabel' => $this->whenLoaded('tour', fn () => $tour ? TourMeta::transportLabel($tour) : null),
+            'tourCountry' => $this->whenLoaded('tour', fn () => $tour ? TourMeta::country($tour) : null),
             'tourDateId' => $this->tour_date_id,
             'tourDate' => $this->whenLoaded('tourDate', fn () => $this->tourDate ? [
                 'id' => $this->tourDate->id,
@@ -25,6 +29,7 @@ class BookingDetailResource extends BookingResource
                 'status' => $this->tourDate->status,
                 'availableSeats' => $this->tourDate->price_box_available_seats,
                 'capacity' => $this->tourDate->price_box_capacity,
+                'maxParticipants' => $this->tourDate->price_box_max_participants,
             ] : null),
             'adminNote' => $this->admin_note,
             'seatsReserved' => (bool) $this->seats_reserved,

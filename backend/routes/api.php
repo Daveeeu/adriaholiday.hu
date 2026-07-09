@@ -181,6 +181,8 @@ Route::prefix('admin')
         Route::get('bookings/tour-bookings/export', [BookingController::class, 'export'])->defaults('booking_type', 'tour_booking');
         Route::get('bookings/tour-bookings/{booking}', [BookingController::class, 'show'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
         Route::get('bookings/tour-bookings/{booking}/activities', [BookingController::class, 'activities'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
+        Route::get('bookings/tour-bookings/{booking}/analytics', [BookingController::class, 'analytics'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
+        Route::get('bookings/tour-bookings/{booking}/emails', [BookingController::class, 'emails'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
         Route::patch('bookings/tour-bookings/{booking}/status', [BookingController::class, 'status'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
         Route::post('bookings/tour-bookings', [BookingController::class, 'store'])->defaults('booking_type', 'tour_booking');
         Route::patch('bookings/tour-bookings/{booking}', [BookingController::class, 'update'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');

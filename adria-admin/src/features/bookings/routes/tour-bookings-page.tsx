@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { getAllTourOffers } from '@/features/tours/lib/tours.api';
 
@@ -268,11 +269,13 @@ export function TourBookingsPage() {
       renderPanel: ({
         mode,
         record,
+        isDetailLoading,
         draft,
         setDraft,
       }: {
         mode: 'create' | 'edit' | 'detail';
         record: TourBooking | null;
+        isDetailLoading: boolean;
         draft: TourBookingFormValues;
         setDraft: Dispatch<SetStateAction<TourBookingFormValues>>;
         isSaving: boolean;
@@ -281,7 +284,17 @@ export function TourBookingsPage() {
         onEdit: () => void;
         onDelete: () => void;
       }) => {
-        if (mode === 'detail' && record) {
+        if (mode === 'detail') {
+          if (isDetailLoading || !record) {
+            return (
+              <div className="space-y-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-40 w-full" />
+                <Skeleton className="h-40 w-full" />
+              </div>
+            );
+          }
+
           return <TourBookingDetailPanel booking={record as TourBookingDetail} />;
         }
 

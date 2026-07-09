@@ -82,16 +82,56 @@ export type TourBookingTourDate = {
   status: string | null;
   availableSeats: number | null;
   capacity: number | null;
+  maxParticipants: number | null;
+};
+
+export type TourBookingTourSummary = {
+  id: string;
+  name: string;
+  seoName: string | null;
+  regionLabel: string | null;
+  categories: Array<{ id: string; label: string }>;
+  price: number | null;
+  displayedPrice: string | null;
+};
+
+export type BookingAnalyticsEvent = {
+  id: string;
+  eventId: string;
+  eventName: string;
+  source: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  referrer: string | null;
+  ipHash: string | null;
+  userAgent: string | null;
+  createdAt: string;
+};
+
+export type BookingEmailLog = {
+  id: string;
+  to: string;
+  subject: string;
+  status: 'sent' | 'failed';
+  error: string | null;
+  sentAt: string | null;
+  createdAt: string;
 };
 
 export type TourBookingDetail = TourBooking & {
   tourId: string | null;
+  tour: TourBookingTourSummary | null;
+  tourTransportLabel: string | null;
+  tourCountry: string | null;
   tourDateId: string | null;
   tourDate: TourBookingTourDate | null;
   adminNote: string;
   seatsReserved: boolean;
   formDataFields: BookingDynamicField[];
   passengerFields: BookingDynamicField[][];
+  payload: Record<string, unknown> | null;
+  updatedAt: string;
 };
 
 export interface TourInquiry {
