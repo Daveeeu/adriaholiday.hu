@@ -142,6 +142,24 @@ export function setStoredConsent(consent: AnalyticsConsent) {
   writeStorage(CONSENT_STORAGE_KEY, consent);
 }
 
+/**
+ * getStoredConsent() always returns a full object with safe defaults, so it
+ * alone can't tell "visitor never made a choice yet" apart from "visitor
+ * explicitly declined everything". Used to decide whether the consent
+ * banner should be shown.
+ */
+export function hasStoredConsentDecision(): boolean {
+  if (!isBrowser()) {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(CONSENT_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export function syncMetaCookies() {
   if (!isBrowser()) {
     return;

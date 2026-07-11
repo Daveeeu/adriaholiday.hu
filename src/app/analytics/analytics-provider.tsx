@@ -22,6 +22,7 @@ import {
   getSessionId,
   getStoredConsent,
   getVisitorId,
+  hasStoredConsentDecision,
   setStoredConsent,
   syncMetaCookies,
 } from "./storage";
@@ -30,6 +31,8 @@ type AnalyticsContextValue = {
   consent: AnalyticsConsent;
   setConsent: (consent: AnalyticsConsent) => void;
   trackEvent: (eventName: AnalyticsEventName, payload?: AnalyticsTrackPayload) => void;
+  isConsentBannerOpen: boolean;
+  openConsentPreferences: () => void;
 };
 
 const AnalyticsContext = createContext<AnalyticsContextValue | null>(null);
@@ -53,6 +56,9 @@ function metaPixelEnabled() {
 export function AnalyticsProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [consent, setConsentState] = useState<AnalyticsConsent>(() => getStoredConsent());
+  const [isConsentBannerOpen, setConsentBannerOpen] = useState(
+    () => analyticsEnabled() && !hasStoredConsentDecision(),
+  );
   const consentRef = useRef(consent);
   const lastTrackedPathRef = useRef<string | null>(null);
 
@@ -167,13 +173,16 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
       setConsent: (nextConsent) => {
         startTransition(() => {
           setConsentState(nextConsent);
+          setConsentBannerOpen(false);
         });
       },
       trackEvent: (eventName, payload) => {
         void dispatchEvent(eventName, payload);
       },
+      isConsentBannerOpen,
+      openConsentPreferences: () => setConsentBannerOpen(true),
     }),
-    [consent, dispatchEvent],
+    [consent, dispatchEvent, isConsentBannerOpen],
   );
 
   return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;

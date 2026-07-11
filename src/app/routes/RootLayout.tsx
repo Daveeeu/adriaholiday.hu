@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router";
+import CookieConsentBanner from "../components/CookieConsentBanner";
 import Footer from "../components/Footer";
 import MobileNav from "../components/MobileNav";
 import Header from "../components/Header";
@@ -31,6 +32,7 @@ export default function RootLayout() {
               </Suspense>
             </div>
             <Footer />
+            <CookieConsentBanner />
           </PortfolioContentProvider>
         </SiteSettingsProvider>
       </AnalyticsProvider>

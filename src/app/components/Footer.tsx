@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Facebook, Instagram, Mail, MapPin, Phone, Music2 } from "lucide-react";
 import { Link } from "react-router";
 
+import { useAnalytics } from "../analytics/useAnalytics";
 import { trackEvent } from "../analytics/trackEvent";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 
@@ -23,6 +24,7 @@ function ExternalLink({
 
 export default function Footer() {
   const { settings } = useSiteSettings();
+  const { openConsentPreferences } = useAnalytics();
 
   const socialItems = [
     settings.facebook
@@ -175,6 +177,11 @@ export default function Footer() {
                 <Link to={settings.cookieUrl}>Süti kezelés</Link>
               </motion.div>
             ) : null}
+            <motion.div className="hover:text-[#00c389] transition-colors" whileHover={{ y: -2 }}>
+              <button type="button" onClick={openConsentPreferences}>
+                Süti beállítások módosítása
+              </button>
+            </motion.div>
           </div>
         </motion.div>
       </div>
