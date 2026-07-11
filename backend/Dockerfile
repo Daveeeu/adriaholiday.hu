@@ -78,7 +78,9 @@ COPY backend/docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY backend /var/www/backend
 COPY --from=composer-deps /app/backend/vendor /var/www/backend/vendor
 COPY --from=portfolio-build /app/backend/public /var/www/backend/public
-COPY --from=admin-build /app/adria-admin/dist /var/www/backend/public/admin
+# adria-admin's vite.config.ts outDir resolves to backend/public/admin (not
+# adria-admin/dist), so that's what actually exists after the build above.
+COPY --from=admin-build /app/backend/public/admin /var/www/backend/public/admin
 
 RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs storage/app/public bootstrap/cache \
  && chown -R www-data:www-data /var/www/backend \

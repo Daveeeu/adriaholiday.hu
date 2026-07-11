@@ -33,7 +33,9 @@ RUN npm run build --prefix ./adria-admin
 FROM nginx:1.29-alpine AS runtime
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=portfolio-build /app/backend/public /var/www/backend/public
-COPY --from=admin-build /app/adria-admin/dist /var/www/backend/public/admin
+# adria-admin's vite.config.ts outDir resolves to backend/public/admin (not
+# adria-admin/dist), so that's what actually exists after the build above.
+COPY --from=admin-build /app/backend/public/admin /var/www/backend/public/admin
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -qO- http://127.0.0.1/health >/dev/null || exit 1
 CMD ["nginx", "-g", "daemon off;"]
