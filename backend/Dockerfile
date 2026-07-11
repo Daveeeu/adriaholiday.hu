@@ -65,12 +65,13 @@ RUN apk add --no-cache \
     freetype-dev \
     libzip-dev \
     oniguruma-dev \
+    postgresql-dev \
     $PHPIZE_DEPS \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install -j"$(nproc)" bcmath exif gd intl opcache pcntl pdo_mysql pdo_pgsql zip \
  && pecl install redis \
  && docker-php-ext-enable redis \
- && apk del --no-network curl-dev icu-dev libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev oniguruma-dev $PHPIZE_DEPS
+ && apk del --no-network curl-dev icu-dev libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev oniguruma-dev postgresql-dev $PHPIZE_DEPS
 
 COPY backend/docker/php/conf.d/production.ini /usr/local/etc/php/conf.d/production.ini
 COPY backend/docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
