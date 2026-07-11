@@ -29,6 +29,33 @@ class UserAccessGuard
         $target->syncRoles($roleNames);
     }
 
+    /**
+     * Grants/revokes permissions directly on a user or role, but never lets
+     * a non-Super-Admin actor hand out a permission they do not themselves
+     * hold. Without this, a plain "Admin" account could bypass the
+     * Super-Admin-only role guard above entirely by self-granting
+     * `roles.*`/`permissions.*` permissions directly (instead of the
+     * "Super Admin" role) and then using those to manage roles/permissions
+     * freely.
+     *
+     * @param  array<int, string>  $permissionNames
+     */
+    public static function syncPermissions(User $actor, User|Role $target, array $permissionNames): void
+    {
+        if (! $actor->hasRole(self::SUPER_ADMIN_ROLE)) {
+            $actorPermissions = $actor->getAllPermissions()->pluck('name')->all();
+            $ungranted = array_values(array_diff($permissionNames, $actorPermissions));
+
+            if ($ungranted !== []) {
+                throw new AuthorizationException(
+                    'You cannot grant permissions you do not hold yourself: '.implode(', ', $ungranted).'.'
+                );
+            }
+        }
+
+        $target->syncPermissions($permissionNames);
+    }
+
     public static function guardDeactivation(User $actor, User $target): void
     {
         if ($actor->is($target)) {

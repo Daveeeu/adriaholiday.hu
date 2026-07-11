@@ -46,9 +46,9 @@ class RoleController extends Controller
         $validated = $request->validated();
         $actor = $request->user();
 
-        $role = DB::transaction(function () use ($validated): Role {
+        $role = DB::transaction(function () use ($validated, $actor): Role {
             $role = Role::create(['name' => $validated['name'], 'guard_name' => 'web']);
-            $role->syncPermissions($validated['permissions'] ?? []);
+            UserAccessGuard::syncPermissions($actor, $role, $validated['permissions'] ?? []);
 
             return $role;
         });
@@ -68,9 +68,9 @@ class RoleController extends Controller
         $validated = $request->validated();
         $actor = $request->user();
 
-        DB::transaction(function () use ($validated, $role): void {
+        DB::transaction(function () use ($validated, $role, $actor): void {
             $role->update(['name' => $validated['name']]);
-            $role->syncPermissions($validated['permissions'] ?? []);
+            UserAccessGuard::syncPermissions($actor, $role, $validated['permissions'] ?? []);
         });
 
         activity()->causedBy($actor)->performedOn($role)->log('role_updated');

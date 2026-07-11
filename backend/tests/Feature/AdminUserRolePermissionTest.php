@@ -139,6 +139,97 @@ class AdminUserRolePermissionTest extends TestCase
         $this->assertTrue($target->fresh()->hasRole('Super Admin'));
     }
 
+    /**
+     * Reproduces the privilege-escalation gap directly: the "Admin" role
+     * has every permission except role/permission management ones, and
+     * has users.update, so it could previously call syncPermissions() on
+     * itself with role/permission-management permission *names* directly
+     * (bypassing the Super-Admin-only role guard, which only inspected
+     * role names, never raw permission grants). Once granted directly,
+     * those permissions work exactly like role-based ones for Spatie's
+     * hasPermissionTo(), so the actor would then have full access to
+     * RoleController despite never holding the "Super Admin" role.
+     */
+    public function test_admin_cannot_self_grant_role_management_permissions(): void
+    {
+        $admin = $this->userWithRole('Admin');
+        Sanctum::actingAs($admin);
+
+        $response = $this->putJson("/api/admin/users/{$admin->id}", [
+            'name' => $admin->name,
+            'email' => $admin->email,
+            'permissions' => ['roles.update', 'roles.create', 'permissions.viewAny'],
+        ]);
+
+        $response->assertStatus(403);
+
+        $fresh = $admin->fresh();
+        $this->assertFalse($fresh->hasPermissionTo('roles.update'));
+        $this->assertFalse($fresh->hasPermissionTo('roles.create'));
+        $this->assertFalse($fresh->hasPermissionTo('permissions.viewAny'));
+    }
+
+    public function test_admin_cannot_grant_role_management_permissions_to_another_user(): void
+    {
+        $admin = $this->userWithRole('Admin');
+        $target = $this->userWithRole('Viewer');
+        Sanctum::actingAs($admin);
+
+        $response = $this->putJson("/api/admin/users/{$target->id}", [
+            'name' => $target->name,
+            'email' => $target->email,
+            'permissions' => ['roles.update'],
+        ]);
+
+        $response->assertStatus(403);
+        $this->assertFalse($target->fresh()->hasPermissionTo('roles.update'));
+    }
+
+    public function test_admin_can_still_grant_permissions_they_already_hold(): void
+    {
+        $admin = $this->userWithRole('Admin');
+        $target = $this->userWithRole('Viewer');
+        Sanctum::actingAs($admin);
+
+        $response = $this->putJson("/api/admin/users/{$target->id}", [
+            'name' => $target->name,
+            'email' => $target->email,
+            'permissions' => ['tours.delete'],
+        ]);
+
+        $response->assertOk();
+        $this->assertTrue($target->fresh()->hasPermissionTo('tours.delete'));
+    }
+
+    public function test_admin_cannot_self_grant_role_management_permissions_via_role_creation(): void
+    {
+        // Admin has no roles.create permission at all, so this is blocked
+        // before it can ever reach the escalation path above — asserted
+        // here as a belt-and-suspenders check on the first gate.
+        $admin = $this->userWithRole('Admin');
+        Sanctum::actingAs($admin);
+
+        $this->postJson('/api/admin/roles', [
+            'name' => 'Self Made Super Role',
+            'permissions' => ['roles.update', 'permissions.viewAny'],
+        ])->assertStatus(403);
+    }
+
+    public function test_super_admin_can_create_a_role_with_role_management_permissions(): void
+    {
+        Sanctum::actingAs($this->userWithRole('Super Admin'));
+
+        $response = $this->postJson('/api/admin/roles', [
+            'name' => 'Custom Role Manager',
+            'permissions' => ['roles.viewAny', 'roles.update'],
+        ]);
+
+        $response->assertCreated();
+
+        $role = Role::where('name', 'Custom Role Manager')->firstOrFail();
+        $this->assertTrue($role->hasPermissionTo('roles.update'));
+    }
+
     public function test_user_cannot_deactivate_their_own_account(): void
     {
         $admin = $this->userWithRole('Admin');

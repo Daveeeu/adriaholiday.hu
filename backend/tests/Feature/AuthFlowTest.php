@@ -67,6 +67,46 @@ class AuthFlowTest extends TestCase
             ->assertJsonValidationErrors(['email']);
     }
 
+    /**
+     * The login endpoint previously had no rate limiter at all, so an
+     * attacker could attempt unlimited password guesses against any known
+     * admin email. This proves the "login" limiter (5/min/IP) actually
+     * kicks in, returns 429 with a Retry-After header once exhausted, and
+     * that a *different* IP is not affected by another IP's attempts.
+     */
+    public function test_login_is_rate_limited_per_ip(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'ratelimit@example.com',
+            'password' => Hash::make('password'),
+        ]);
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $user->assignRole('Admin');
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/api/auth/login', [
+                'email' => 'ratelimit@example.com',
+                'password' => 'wrong-password',
+            ], ['REMOTE_ADDR' => '10.0.0.1'])->assertStatus(422);
+        }
+
+        $blocked = $this->postJson('/api/auth/login', [
+            'email' => 'ratelimit@example.com',
+            'password' => 'password',
+        ], ['REMOTE_ADDR' => '10.0.0.1']);
+
+        $blocked->assertStatus(429);
+        $blocked->assertHeader('Retry-After');
+
+        // A request from a different IP must not be affected by the first IP's attempts.
+        $otherIp = $this->postJson('/api/auth/login', [
+            'email' => 'ratelimit@example.com',
+            'password' => 'password',
+        ], ['REMOTE_ADDR' => '10.0.0.2']);
+
+        $otherIp->assertOk();
+    }
+
     public function test_admin_api_without_session_returns_json_401(): void
     {
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);

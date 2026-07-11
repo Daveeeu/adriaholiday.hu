@@ -76,7 +76,7 @@ class UserController extends Controller
             ]);
 
             UserAccessGuard::syncRoles($actor, $user, $validated['roles'] ?? []);
-            $user->syncPermissions($validated['permissions'] ?? []);
+            UserAccessGuard::syncPermissions($actor, $user, $validated['permissions'] ?? []);
             $this->syncDeniedPermissions($user, $validated['denied_permissions'] ?? []);
 
             return $user;
@@ -111,7 +111,7 @@ class UserController extends Controller
             $user->save();
 
             UserAccessGuard::syncRoles($actor, $user, $validated['roles'] ?? []);
-            $user->syncPermissions($validated['permissions'] ?? []);
+            UserAccessGuard::syncPermissions($actor, $user, $validated['permissions'] ?? []);
             $this->syncDeniedPermissions($user, $validated['denied_permissions'] ?? []);
         });
 

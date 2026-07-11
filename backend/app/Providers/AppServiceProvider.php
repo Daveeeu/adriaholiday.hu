@@ -146,5 +146,7 @@ class AppServiceProvider extends ServiceProvider
         ));
 
         RateLimiter::for('bookings', fn ($request) => Limit::perMinute(10)->by($request->ip()));
+
+        RateLimiter::for('login', fn ($request) => Limit::perMinute(5)->by($request->ip()));
     }
 }
