@@ -3,7 +3,11 @@
 FROM composer:2.8 AS composer-deps
 WORKDIR /app/backend
 COPY backend/composer.json backend/composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --no-scripts
+# The composer:2.8 image's bundled PHP doesn't have ext-exif (spatie/image and
+# spatie/laravel-medialibrary require it), but the runtime stage below installs
+# it via docker-php-ext-install before the vendor/ directory built here gets
+# copied in, so it's safe to skip this stage's platform check for it.
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --no-scripts --ignore-platform-req=ext-exif
 
 FROM node:20-alpine AS portfolio-build
 WORKDIR /app
