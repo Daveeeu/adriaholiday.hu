@@ -29,9 +29,9 @@ class PublicBookingService
         $requestedSeats = max(count($result['passengers']), (int) ($validated['participants'] ?? 0), 1);
 
         $booking = DB::transaction(function () use ($tour, $validated, $result, $requestedSeats): Booking {
-            $this->assertCapacityAvailable($validated['tour_date_id'] ?? null, $requestedSeats);
+            $seatsReserved = $this->reserveCapacity($validated['tour_date_id'] ?? null, $requestedSeats);
 
-            return $this->createBooking($tour, $validated, $result);
+            return $this->createBooking($tour, $validated, $result, $seatsReserved);
         });
 
         $this->notifications->sendNewBookingNotifications($booking, $tour);
@@ -39,16 +39,27 @@ class PublicBookingService
         return $booking;
     }
 
-    private function assertCapacityAvailable(?int $tourDateId, int $requestedSeats): void
+    /**
+     * Locks the tour date row, checks remaining capacity, and immediately
+     * decrements it within the same transaction so that the availability
+     * check and the seat hold are a single atomic operation. This prevents
+     * concurrent submissions for the same date from all seeing the same
+     * "seats available" snapshot and all succeeding (overbooking).
+     *
+     * Returns whether a seat hold was actually taken (false when the tour
+     * date has no tracked capacity), so the caller can record it on the
+     * booking and later transitions know not to reserve again.
+     */
+    private function reserveCapacity(?int $tourDateId, int $requestedSeats): bool
     {
         if (! $tourDateId) {
-            return;
+            return false;
         }
 
         $tourDate = TourDate::query()->whereKey($tourDateId)->lockForUpdate()->first();
 
         if (! $tourDate || $tourDate->price_box_available_seats === null) {
-            return;
+            return false;
         }
 
         if ($tourDate->price_box_available_seats < $requestedSeats) {
@@ -56,13 +67,17 @@ class PublicBookingService
                 'tour_date_id' => 'Nincs elég szabad hely erre az időpontra.',
             ]);
         }
+
+        $tourDate->decrement('price_box_available_seats', $requestedSeats);
+
+        return true;
     }
 
     /**
      * @param  array<string, mixed>  $validated
      * @param  array{formData: array<string, mixed>, passengers: array<int, array<string, mixed>>}  $result
      */
-    private function createBooking(Tour $tour, array $validated, array $result): Booking
+    private function createBooking(Tour $tour, array $validated, array $result, bool $seatsReserved): Booking
     {
         $type = $validated['type'] ?? 'tour_booking';
         $formData = $result['formData'];
@@ -76,6 +91,7 @@ class PublicBookingService
             'booking_type' => $type,
             'status' => $type === 'tour_booking' ? TourBookingStatus::NEW : 'new',
             'payment_status' => $type === 'tour_booking' ? 'unpaid' : null,
+            'seats_reserved' => $seatsReserved,
             'tour_id' => $tour->id,
             'tour_date_id' => $tourDate?->id,
             'offer_name_snapshot' => $tour->name,

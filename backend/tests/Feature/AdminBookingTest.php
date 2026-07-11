@@ -118,6 +118,189 @@ class AdminBookingTest extends TestCase
         $this->assertFalse($booking->fresh()->seats_reserved);
     }
 
+    /**
+     * Reproduces the overbooking race condition directly: previously,
+     * capacity was only *checked* on submission and never decremented
+     * until an admin later confirmed the booking, so every submission for
+     * the same date saw the same "seats available" snapshot and could
+     * succeed regardless of how many requests came in ahead of it. This
+     * proves the fix by exhausting a single-seat date with back-to-back
+     * submissions the same way concurrent requests would: only the first
+     * can succeed, capacity is decremented immediately (not at confirm
+     * time), and it never goes negative.
+     *
+     * Real multi-connection row-lock contention (MySQL/InnoDB `FOR
+     * UPDATE`, used in production) cannot be meaningfully exercised
+     * against the SQLite in-memory testing driver, which has no row-level
+     * locking and cannot share state across OS processes/connections. The
+     * bug this guards against is a missing atomic decrement, which is
+     * fully reproducible and provable without true thread concurrency:
+     * before the fix this test would create two bookings for one seat;
+     * after the fix, capacity is provably held by the first request
+     * before the second request's check ever runs.
+     */
+    public function test_concurrent_submissions_for_the_last_seat_cannot_both_succeed(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+        $date = $tour->dates()->create([
+            'start_date' => now()->addMonth(),
+            'end_date' => now()->addMonth()->addDays(7),
+            'status' => 'available',
+            'price_box_available_seats' => 1,
+        ]);
+
+        $payload = [
+            'tourId' => $tour->id,
+            'tourDateId' => $date->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+            ],
+        ];
+
+        $first = $this->postJson('/api/bookings', $payload);
+        $second = $this->postJson('/api/bookings', $payload);
+
+        $first->assertCreated();
+        $second->assertStatus(422);
+        $second->assertJsonValidationErrors(['tour_date_id']);
+
+        $this->assertSame(0, $date->fresh()->price_box_available_seats);
+        $this->assertSame(1, Booking::query()->where('tour_date_id', $date->id)->count());
+    }
+
+    /**
+     * Fires more competing submissions than the tour date has seats for
+     * (5 requests against 3 seats) to stress the boundary rather than
+     * just the single-seat edge case. The aggregate must never oversell:
+     * exactly as many bookings succeed as there was capacity for, the
+     * rest are rejected, and the seat counter lands at exactly zero.
+     */
+    public function test_repeated_submissions_never_oversell_available_capacity(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+        $date = $tour->dates()->create([
+            'start_date' => now()->addMonth(),
+            'end_date' => now()->addMonth()->addDays(7),
+            'status' => 'available',
+            'price_box_available_seats' => 3,
+        ]);
+
+        $payload = [
+            'tourId' => $tour->id,
+            'tourDateId' => $date->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+            ],
+        ];
+
+        $accepted = 0;
+        $rejected = 0;
+
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->postJson('/api/bookings', $payload);
+
+            if ($response->status() === 201) {
+                $accepted++;
+            } else {
+                $response->assertStatus(422);
+                $rejected++;
+            }
+        }
+
+        $this->assertSame(3, $accepted);
+        $this->assertSame(2, $rejected);
+        $this->assertSame(0, $date->fresh()->price_box_available_seats);
+        $this->assertSame(3, Booking::query()->where('tour_date_id', $date->id)->count());
+    }
+
+    /**
+     * The seat hold must now be taken at submission time, not only once
+     * an admin confirms the booking — otherwise an unlimited number of
+     * "new" bookings could still be created for a date that has no seats
+     * left to actually give them.
+     */
+    public function test_public_booking_reserves_seat_immediately_without_admin_confirmation(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+        $date = $tour->dates()->create([
+            'start_date' => now()->addMonth(),
+            'end_date' => now()->addMonth()->addDays(7),
+            'status' => 'available',
+            'price_box_available_seats' => 5,
+        ]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'tourDateId' => $date->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+                ['passenger_name' => 'Kovács Béla', 'passenger_birth_date' => '1988-01-01'],
+            ],
+        ]);
+
+        $response->assertCreated();
+
+        $booking = Booking::query()->where('tour_date_id', $date->id)->firstOrFail();
+
+        $this->assertSame('new', $booking->status);
+        $this->assertTrue($booking->seats_reserved);
+        $this->assertSame(3, $date->fresh()->price_box_available_seats);
+    }
+
+    /**
+     * Since seats are now held from the moment of submission (not only
+     * from confirmation), cancelling a booking that never reached
+     * "confirmed" must still give the seat back — otherwise every
+     * abandoned/declined "new" booking would permanently shrink capacity.
+     */
+    public function test_cancelling_a_new_booking_releases_seats_reserved_at_creation(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+        $date = $tour->dates()->create([
+            'start_date' => now()->addMonth(),
+            'end_date' => now()->addMonth()->addDays(7),
+            'status' => 'available',
+            'price_box_available_seats' => 5,
+        ]);
+
+        $booking = Booking::factory()->create([
+            'booking_type' => 'tour_booking',
+            'status' => 'new',
+            'tour_id' => $tour->id,
+            'tour_date_id' => $date->id,
+            'passenger_count' => 2,
+            'seats_reserved' => true,
+        ]);
+        $date->decrement('price_box_available_seats', 2);
+
+        $this->assertSame(3, $date->fresh()->price_box_available_seats);
+
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view', 'bookings.status']);
+
+        $response = $this->patchJson("/api/admin/bookings/tour-bookings/{$booking->id}/status", [
+            'status' => 'cancelled',
+        ]);
+
+        $response->assertOk();
+        $this->assertSame(5, $date->fresh()->price_box_available_seats);
+        $this->assertFalse($booking->fresh()->seats_reserved);
+    }
+
     public function test_invalid_status_transition_is_rejected(): void
     {
         $booking = Booking::factory()->create([

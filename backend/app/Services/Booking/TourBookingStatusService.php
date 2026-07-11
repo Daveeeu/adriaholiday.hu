@@ -35,8 +35,7 @@ class TourBookingStatusService
                 $seatsReserved = $this->reserveSeats($booking);
             }
 
-            if ($currentStatus === TourBookingStatus::CONFIRMED
-                && in_array($nextStatus, [TourBookingStatus::CANCELLED, TourBookingStatus::EXPIRED], true)
+            if (in_array($nextStatus, [TourBookingStatus::CANCELLED, TourBookingStatus::EXPIRED], true)
                 && $seatsReserved) {
                 $this->releaseSeats($booking);
                 $seatsReserved = false;
