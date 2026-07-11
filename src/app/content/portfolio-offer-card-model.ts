@@ -14,7 +14,9 @@ export type UnifiedOfferCardModel = {
   displayedPrice: string | null;
   departureCountText: string | null;
   transportLabel: string | null;
+  transportShortLabel: string | null;
   mealsLabel: string | null;
+  accommodationLabel: string | null;
   link: string;
 };
 
@@ -88,6 +90,24 @@ function transportLabel(value?: string | null): string | null {
   return transport;
 }
 
+function transportShortLabel(value?: string | null): string | null {
+  const transport = safeText(value);
+
+  if (!transport) {
+    return null;
+  }
+
+  if (transport === "bus") {
+    return "Busz";
+  }
+
+  if (transport === "plane") {
+    return "Repülő";
+  }
+
+  return transport;
+}
+
 export function toUnifiedOfferCardModel(
   offer: PortfolioOfferCard,
 ): UnifiedOfferCardModel {
@@ -106,7 +126,9 @@ export function toUnifiedOfferCardModel(
     displayedPrice: safeText(offer.displayedPrice),
     departureCountText: departureCountText(offer.departureDateCount),
     transportLabel: transportLabel(offer.transport),
+    transportShortLabel: transportShortLabel(offer.transport),
     mealsLabel: safeText(offer.meals),
+    accommodationLabel: safeText(offer.accommodation),
     link: offer.link,
   };
 }

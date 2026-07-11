@@ -12,7 +12,8 @@ import {
   toUnifiedOfferCardModel,
   type UnifiedOfferCardModel,
 } from "../content/portfolio-offer-card-model";
-import OfferCard from "./OfferCard";
+import FeaturedCard from "./FeaturedCard";
+import FeaturedHeroCard from "./FeaturedHeroCard";
 
 const filters = [
   "Összes ajánlat",
@@ -174,7 +175,7 @@ export default function FeaturedOffers() {
             {filteredOffers.length > 0 ? (
               <motion.div
                 key={selectedFilter}
-                className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
+                className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -14 }}
@@ -183,12 +184,17 @@ export default function FeaturedOffers() {
                 {filteredOffers.map((offer, index) => (
                   <motion.div
                     key={offer.id}
+                    className={index === 0 ? "md:col-span-2 lg:col-span-2" : undefined}
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.45, delay: index * 0.06 }}
                   >
-                    <OfferCard offer={offer} />
+                    {index === 0 ? (
+                      <FeaturedHeroCard offer={offer} />
+                    ) : (
+                      <FeaturedCard offer={offer} />
+                    )}
                   </motion.div>
                 ))}
               </motion.div>
