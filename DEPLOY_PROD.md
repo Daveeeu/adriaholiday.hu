@@ -262,54 +262,73 @@ Publikus publish ajánlás:
 
 ## Backup stratégia
 
-### DB backup
+Ez most már ténylegesen automatizálva van, nem csak dokumentáció: a `scheduler`
+konténer minden nap 02:00-kor lefuttatja a `php artisan backup:run` parancsot
+(`backend/routes/console.php`), ami:
 
-Napi dump host cronból vagy CI/CD scheduled jobból:
+1. Adatbázis dumpot készít (`mysqldump`/`pg_dump` a `DB_CONNECTION` drivertől
+   függően, gzippelve),
+2. tar.gz archívumot készít a `storage/app/public` (média) tartalomról,
+3. törli a retention-nél régebbi fájlokat mindkét kategóriában.
 
-```bash
-docker compose --env-file .env.production -f docker-compose.prod.yml exec -T app \
-  sh -lc 'mysqldump -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE"' \
-  > backups/db/$(date +%F)-adriaholiday.sql
-```
+A backupok egy külön, a konténer élettartamától független named volume-ba
+(`laravel-backups`, mountolva `storage/app/backups` alá) kerülnek, tehát egy
+konténer újraépítése/törlése nem viszi el őket.
 
-### Storage backup
-
-```bash
-docker run --rm \
-  -v adriaholiday_hu_laravel-storage:/source:ro \
-  -v "$(pwd)/backups/storage:/backup" \
-  alpine:3.22 \
-  sh -lc 'tar -czf /backup/storage-$(date +%F).tar.gz -C /source .'
-```
-
-### Retention
-
-- DB dump: 14 napi
-- storage backup: 7 napi napi snapshot + heti 4 snapshot
-- offsite másolat: S3 / object storage / Hetzner Storage Box
-
-Példa retention cleanup:
+### Konfiguráció
 
 ```bash
-find backups/db -type f -mtime +14 -delete
-find backups/storage -type f -mtime +30 -delete
+BACKUP_DISABLED=false                # true esetén a napi job kilép futás nélkül
+BACKUP_DATABASE_RETENTION_DAYS=14
+BACKUP_STORAGE_RETENTION_DAYS=30
 ```
+
+### Manuális futtatás
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml exec app \
+  php artisan backup:run
+```
+
+### Backupok elérése / offsite másolat
+
+A backup fájlok a `laravel-backups` named volume-ban vannak
+(`/var/www/backend/storage/app/backups/{database,storage}`). Offsite
+másolathoz szinkronizáld ezt a volume-ot (pl. `rclone`/`restic` egy host-oldali
+cron jobból, vagy egy sidecar konténerből) S3-ra / object storage-ra / Hetzner
+Storage Box-ra — ez a lépés a repón kívüli infrastruktúra felelőssége, mert a
+konkrét céltárhely/hitelesítő adatok környezetenként eltérnek.
 
 ### Restore flow
 
+A visszaállítás szándékosan **nem automatizált** — soha ne fusson
+`migrate:rollback` vagy automatikus restore scriptként productionben.
+
 1. Maintenance mode bekapcsolás
-2. DB restore
-3. Storage volume restore
+2. DB restore (lásd lent)
+3. Storage volume restore (a `storage/{timestamp}-media.tar.gz` archívum
+   visszacsomagolása a `laravel-storage` volume-ba)
 4. `php artisan migrate --force`
 5. `php artisan config:cache && php artisan route:cache && php artisan view:cache`
 6. queue restart
 7. Maintenance mode kikapcsolás
 
-DB restore példa:
+DB restore példa (MySQL/MariaDB):
 
 ```bash
-cat backups/db/2025-07-02-adriaholiday.sql | docker compose --env-file .env.production -f docker-compose.prod.yml exec -T app \
-  sh -lc 'mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE"'
+docker compose --env-file .env.production -f docker-compose.prod.yml exec app \
+  sh -lc 'ls storage/app/backups/database'   # válaszd ki a visszaállítandó dumpot
+
+docker compose --env-file .env.production -f docker-compose.prod.yml exec -T app \
+  sh -lc 'gunzip -c storage/app/backups/database/2026-07-10_020000-adriaholiday.sql.gz \
+    | MYSQL_PWD="$DB_PASSWORD" mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" "$DB_DATABASE"'
+```
+
+Storage restore példa:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml exec app \
+  sh -lc 'tar -xzf storage/app/backups/storage/2026-07-10_020000-media.tar.gz -C storage/app/public'
 ```
 
 ## Rollback

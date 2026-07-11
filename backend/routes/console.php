@@ -9,3 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('queue:prune-failed --hours=168')->dailyAt('02:15');
+
+Schedule::command('backup:run')->dailyAt('02:00')->withoutOverlapping();

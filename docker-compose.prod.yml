@@ -67,6 +67,7 @@ services:
     volumes:
       - laravel-storage:/var/www/backend/storage
       - laravel-cache:/var/www/backend/bootstrap/cache
+      - laravel-backups:/var/www/backend/storage/app/backups
     depends_on:
       redis:
         condition: service_healthy
@@ -155,6 +156,7 @@ services:
     volumes:
       - laravel-storage:/var/www/backend/storage
       - laravel-cache:/var/www/backend/bootstrap/cache
+      - laravel-backups:/var/www/backend/storage/app/backups
     depends_on:
       app:
         condition: service_healthy
@@ -192,6 +194,7 @@ services:
 volumes:
   laravel-storage:
   laravel-cache:
+  laravel-backups:
   redis-data:
 
 networks:
