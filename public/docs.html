@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Adria Holiday — Admin felhasználói kézikönyv</title>
+<meta name="description" content="Kézikönyv az Adria Holiday admin felület napi használatához: tartalomkezelés, foglalások, felhasználók és jogosultságok." />
+<meta name="robots" content="noindex, nofollow" />
+<style>
+  :root{
+    --bg:#f6f8fb;
+    --surface:#ffffff;
+    --surface-2:#eef2f6;
+    --ink:#0f1722;
+    --ink-soft:#57677a;
+    --ink-faint:#8695a6;
+    --line:#dfe6ed;
+    --accent:#00a67e;
+    --accent-2:#1596d9;
+    --accent-wash:rgba(0,166,126,.09);
+    --accent-wash-strong:rgba(0,166,126,.16);
+    --ok:#12915f;
+    --ok-wash:rgba(18,145,95,.12);
+    --warn:#a86a00;
+    --warn-wash:rgba(184,127,0,.12);
+    --danger:#c73f3f;
+    --danger-wash:rgba(199,63,63,.1);
+    --radius:14px;
+    --shadow:0 1px 2px rgba(15,23,34,.04), 0 8px 24px rgba(15,23,34,.05);
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0b0f16;
+      --surface:#121824;
+      --surface-2:#1a212f;
+      --ink:#e8edf4;
+      --ink-soft:#9aa7ba;
+      --ink-faint:#69768a;
+      --line:#242e3d;
+      --accent:#22c79a;
+      --accent-2:#3db6f0;
+      --accent-wash:rgba(34,199,154,.1);
+      --accent-wash-strong:rgba(34,199,154,.18);
+      --ok:#33c48e;
+      --ok-wash:rgba(51,196,142,.14);
+      --warn:#e0ab3f;
+      --warn-wash:rgba(224,171,63,.14);
+      --danger:#ec6b6b;
+      --danger-wash:rgba(236,107,107,.14);
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b0f16; --surface:#121824; --surface-2:#1a212f; --ink:#e8edf4; --ink-soft:#9aa7ba; --ink-faint:#69768a;
+    --line:#242e3d; --accent:#22c79a; --accent-2:#3db6f0; --accent-wash:rgba(34,199,154,.1); --accent-wash-strong:rgba(34,199,154,.18);
+    --ok:#33c48e; --ok-wash:rgba(51,196,142,.14); --warn:#e0ab3f; --warn-wash:rgba(224,171,63,.14);
+    --danger:#ec6b6b; --danger-wash:rgba(236,107,107,.14); --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f8fb; --surface:#ffffff; --surface-2:#eef2f6; --ink:#0f1722; --ink-soft:#57677a; --ink-faint:#8695a6;
+    --line:#dfe6ed; --accent:#00a67e; --accent-2:#1596d9; --accent-wash:rgba(0,166,126,.09); --accent-wash-strong:rgba(0,166,126,.16);
+    --ok:#12915f; --ok-wash:rgba(18,145,95,.12); --warn:#a86a00; --warn-wash:rgba(184,127,0,.12);
+    --danger:#c73f3f; --danger-wash:rgba(199,63,63,.1); --shadow:0 1px 2px rgba(15,23,34,.04), 0 8px 24px rgba(15,23,34,.05);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-variant-numeric:tabular-nums;}
+
+  a{color:var(--accent-2);}
+  a:focus-visible, button:focus-visible, summary:focus-visible{
+    outline:2px solid var(--accent-2); outline-offset:2px; border-radius:4px;
+  }
+
+  .shell{
+    display:grid;
+    grid-template-columns:272px minmax(0,1fr);
+    max-width:1240px;
+    margin:0 auto;
+  }
+
+  /* ---------- Sidebar TOC (echoes the admin panel's own sidebar) ---------- */
+  .toc{
+    position:sticky; top:0; align-self:start; height:100vh;
+    padding:28px 18px 28px 28px;
+    border-right:1px solid var(--line);
+    overflow-y:auto;
+  }
+  .toc-brand{display:flex; align-items:center; gap:10px; margin-bottom:22px;}
+  .toc-brand .mark{
+    width:34px; height:34px; border-radius:10px; flex:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:17px;
+  }
+  .toc-brand .name{font-weight:700; font-size:14.5px; letter-spacing:.01em; line-height:1.25;}
+  .toc-brand .sub{font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.08em;}
+
+  .toc nav{display:flex; flex-direction:column; gap:2px;}
+  .toc-group-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-faint);
+    margin:16px 0 6px; font-weight:600;
+  }
+  .toc-group-label:first-child{margin-top:0;}
+  .toc a.tlink{
+    display:block; padding:6px 10px; border-radius:8px; font-size:13.5px;
+    color:var(--ink-soft); text-decoration:none; border:1px solid transparent;
+  }
+  .toc a.tlink:hover{background:var(--surface-2); color:var(--ink);}
+
+  .toc-toggle{display:none;}
+
+  /* ---------- Main content ---------- */
+  main{padding:0 40px 90px; min-width:0;}
+
+  .cover{padding:56px 0 40px; border-bottom:1px solid var(--line); margin-bottom:44px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:12px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--accent); background:var(--accent-wash); padding:5px 12px; border-radius:999px;
+    margin-bottom:18px;
+  }
+  h1{font-size:clamp(2rem,3.4vw,2.7rem); line-height:1.12; margin:0 0 14px; letter-spacing:-.02em; text-wrap:balance;}
+  .cover p.lede{font-size:17.5px; color:var(--ink-soft); max-width:640px; margin:0 0 26px;}
+
+  .factstrip{display:flex; flex-wrap:wrap; gap:10px;}
+  .fact{
+    background:var(--surface); border:1px solid var(--line); border-radius:11px;
+    padding:10px 16px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; gap:2px; min-width:108px;
+  }
+  .fact .n{font-size:20px; font-weight:700; font-variant-numeric:tabular-nums;}
+  .fact .l{font-size:11.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.06em;}
+
+  section.mod{margin:0 0 52px; scroll-margin-top:24px;}
+  section.mod .mhead{display:flex; align-items:flex-start; gap:14px; margin-bottom:14px;}
+  .micon{
+    flex:none; width:40px; height:40px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+    background:var(--accent-wash); color:var(--accent); font-size:19px;
+  }
+  section.mod h2{font-size:1.5rem; margin:2px 0 4px; letter-spacing:-.01em; text-wrap:balance;}
+  section.mod .path{
+    font-size:12px; color:var(--ink-faint); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  section.mod > p{max-width:680px; color:var(--ink-soft); margin:0 0 18px;}
+
+  h3.sub{font-size:1.02rem; margin:22px 0 8px;}
+
+  .fieldtable{width:100%; border-collapse:collapse; font-size:14.5px;}
+  .fieldtable-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface); box-shadow:var(--shadow);}
+  .fieldtable th, .fieldtable td{
+    text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top;
+  }
+  .fieldtable th{
+    font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint);
+    background:var(--surface-2); font-weight:600;
+  }
+  .fieldtable tr:last-child td{border-bottom:none;}
+  .fieldtable td.k{font-weight:600; white-space:nowrap;}
+  .fieldtable td.d{color:var(--ink-soft);}
+
+  ul.steps{margin:0; padding:0; list-style:none; counter-reset:step;}
+  ul.steps li{
+    counter-increment:step; position:relative; padding:0 0 0 34px; margin-bottom:10px; color:var(--ink-soft);
+  }
+  ul.steps li::before{
+    content:counter(step); position:absolute; left:0; top:.05em;
+    width:22px; height:22px; border-radius:7px; background:var(--surface-2); border:1px solid var(--line);
+    color:var(--ink); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  ul.plain{margin:0 0 14px; padding-left:20px; color:var(--ink-soft);}
+  ul.plain li{margin-bottom:5px;}
+  ul.plain b{color:var(--ink);}
+
+  .callout{
+    display:flex; gap:12px; padding:14px 16px; border-radius:10px; margin:16px 0;
+    border-left:3px solid var(--accent); background:var(--accent-wash); font-size:14.5px;
+  }
+  .callout.warn{border-left-color:var(--warn); background:var(--warn-wash);}
+  .callout.danger{border-left-color:var(--danger); background:var(--danger-wash);}
+  .callout .ci{flex:none; font-size:16px; line-height:1.4;}
+  .callout p{margin:0; color:var(--ink);}
+  .callout b{font-weight:700;}
+
+  .pill{
+    display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:999px;
+    font-size:12px; font-weight:600;
+  }
+  .pill.ok{background:var(--ok-wash); color:var(--ok);}
+  .pill.warn{background:var(--warn-wash); color:var(--warn);}
+  .pill.muted{background:var(--surface-2); color:var(--ink-soft);}
+
+  .rolegrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin:14px 0 6px;}
+  .rolecard{
+    border:1px solid var(--line); background:var(--surface); border-radius:11px; padding:13px 15px; box-shadow:var(--shadow);
+  }
+  .rolecard.super{border-color:var(--accent); background:var(--accent-wash);}
+  .rolecard .rn{font-weight:700; font-size:14.5px; display:flex; align-items:center; gap:6px;}
+  .rolecard .rc{font-size:12.5px; color:var(--ink-faint); margin-top:3px; font-variant-numeric:tabular-nums;}
+
+  .badge-icon{display:inline-block;}
+
+  footer.doc{
+    border-top:1px solid var(--line); margin-top:40px; padding-top:24px;
+    font-size:13px; color:var(--ink-faint); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+
+  figure.shot{
+    margin:16px 0 22px; border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    box-shadow:var(--shadow); background:var(--surface);
+  }
+  figure.shot img{display:block; width:100%; height:auto;}
+  figure.shot figcaption{
+    padding:8px 14px; font-size:12.5px; color:var(--ink-faint);
+    border-top:1px solid var(--line); background:var(--surface-2);
+  }
+
+  code.inline{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:var(--surface-2);
+    padding:1.5px 6px; border-radius:5px; font-size:.92em; color:var(--ink);
+  }
+
+  @media (max-width:880px){
+    .shell{grid-template-columns:1fr;}
+    .toc{
+      position:relative; height:auto; border-right:none; border-bottom:1px solid var(--line);
+      padding:18px 20px; display:none;
+    }
+    .toc.open{display:block;}
+    .toc-toggle{
+      display:flex; align-items:center; gap:8px; position:sticky; top:0; z-index:5;
+      background:var(--bg); border-bottom:1px solid var(--line); padding:14px 20px; margin:0;
+      width:100%; text-align:left; color:var(--ink); font-weight:600; font-size:14px;
+      border-left:none; border-right:none; border-top:none;
+    }
+    main{padding:0 20px 70px;}
+    .cover{padding-top:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <button class="toc-toggle" onclick="document.getElementById('toc').classList.toggle('open')">☰ Tartalomjegyzék</button>
+  <aside class="toc" id="toc">
+    <div class="toc-brand">
+      <div class="mark">🧭</div>
+      <div>
+        <div class="name">Adria Holiday</div>
+        <div class="sub">Admin kézikönyv</div>
+      </div>
+    </div>
+    <nav>
+      <a class="tlink" href="#bevezeto">Bevezető</a>
+      <a class="tlink" href="#belepes">Bejelentkezés</a>
+
+      <div class="toc-group-label">Áttekintés</div>
+      <a class="tlink" href="#vezerlopult">Vezérlőpult</a>
+      <a class="tlink" href="#analitika">Analitika</a>
+
+      <div class="toc-group-label">Tartalom</div>
+      <a class="tlink" href="#portfolio-szerkesztes">Portfólió szerkesztése</a>
+      <a class="tlink" href="#foldali-ajanlatok">Főoldali ajánlatok</a>
+      <a class="tlink" href="#filter-chipek">Portfólió filter chipek</a>
+      <a class="tlink" href="#blog">Blog</a>
+
+      <div class="toc-group-label">Utaztatás</div>
+      <a class="tlink" href="#korutazasok">Körutazások</a>
+      <a class="tlink" href="#apartmanok">Apartmanok</a>
+      <a class="tlink" href="#buszok">Buszok</a>
+
+      <div class="toc-group-label">Értékesítés</div>
+      <a class="tlink" href="#foglalasok">Foglalások</a>
+
+      <div class="toc-group-label">Rendszer</div>
+      <a class="tlink" href="#mediatar">Médiatár</a>
+      <a class="tlink" href="#email-sablonok">E-mail sablonok</a>
+      <a class="tlink" href="#beallitasok">Beállítások</a>
+      <a class="tlink" href="#rendszergazda">Rendszergazda</a>
+      <a class="tlink" href="#ismert-korlatozasok">Ismert korlátozások</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="cover" id="bevezeto">
+      <div class="eyebrow">🧭 Admin felhasználói kézikönyv</div>
+      <h1>Az Adria Holiday admin felület használata</h1>
+      <p class="lede">
+        Ez a kézikönyv végigvezet az admin felület minden főbb részén: mit csinál egy-egy menüpont,
+        milyen mezőket és műveleteket találsz rajta, és mire figyelj közben. A publikus oldal
+        (<code class="inline">adriaholiday.jandldavid.hu</code>) tartalmának nagy része innen szerkeszthető.
+      </p>
+      <div class="factstrip">
+        <div class="fact"><div class="n">100</div><div class="l">Apartman</div></div>
+        <div class="fact"><div class="n">4</div><div class="l">Körutazás</div></div>
+        <div class="fact"><div class="n">24</div><div class="l">Blog cikk</div></div>
+        <div class="fact"><div class="n">10</div><div class="l">Busz</div></div>
+        <div class="fact"><div class="n">140</div><div class="l">Médiafájl</div></div>
+        <div class="fact"><div class="n">7</div><div class="l">Szerepkör</div></div>
+      </div>
+    </header>
+
+    <section class="mod" id="belepes">
+      <div class="mhead">
+        <div class="micon">🔐</div>
+        <div>
+          <div class="path">/admin</div>
+          <h2>Bejelentkezés</h2>
+        </div>
+      </div>
+      <p>
+        Az admin felület a publikus Laravel backend API-val hitelesít (Sanctum tokenes bejelentkezés).
+        A belépéshez a fiókodhoz tartozó e-mail címre és jelszóra van szükség — ezeket a rendszergazdától kapod.
+      </p>
+      <ul class="steps">
+        <li>Nyisd meg a <code class="inline">/admin</code> címet.</li>
+        <li>Add meg az e-mail címed és a jelszavad az „Admin belépés” panelen.</li>
+        <li>A <b>Belépés</b> gombra kattintva a rendszer a szerepköröd alapján állítja össze a bal oldali menüt — csak azokat a pontokat látod, amikhez jogosultságod van.</li>
+      </ul>
+      <div class="callout">
+        <div class="ci">💡</div>
+        <p>Ha valaki elfelejti a jelszavát, azt ő maga nem tudja visszakeresni — de egy Super Admin bármikor beállíthat neki egy újat a <a href="#rendszergazda">Rendszergazda → Felhasználók</a> menüben.</p>
+      </div>
+    </section>
+
+    <section class="mod" id="vezerlopult">
+      <div class="mhead">
+        <div class="micon">📊</div>
+        <div>
+          <div class="path">/admin</div>
+          <h2>Vezérlőpult</h2>
+        </div>
+      </div>
+      <p>
+        Bejelentkezés után ez az első képernyő. Egy pillanat alatt megmutatja a rendszer aktuális állapotát:
+        havi bevétel, aktív foglalások, új ajánlatkérések, valamint a portfólió méretei (apartmanok és
+        élő körutazások száma). Innen nincs mit szerkeszteni — ez tájékoztató nézet, kiindulópont a napi munkához.
+      </p>
+      <figure class="shot">
+        <img src="/docs/img/dashboard.jpg" alt="Az Adria Holiday admin vezérlőpultja: gyors áttekintés, apartman- és körutazásszám, foglalási mutatók." loading="lazy" />
+        <figcaption>Vezérlőpult — élő állapot a jelenlegi adatokkal.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="analitika">
+      <div class="mhead">
+        <div class="micon">📈</div>
+        <div>
+          <div class="path">/admin/analytics</div>
+          <h2>Analitika</h2>
+        </div>
+      </div>
+      <p>
+        Saját fejlesztésű, first-party látogatottsági riport — nem Google Analytics, hanem a weboldal saját
+        eseménynaplójából (<code class="inline">analytics_events</code>) épül fel, így a látogató sütijóváhagyásától függ,
+        de nem küld adatot harmadik félnek.
+      </p>
+      <h3 class="sub">Szűrők</h3>
+      <ul class="plain">
+        <li><b>Kezdő / záró dátum</b> — az időszak, amire a riport vonatkozik.</li>
+        <li><b>Esemény, Entitás típus</b> — pl. oldalmegtekintés, ajánlat-megtekintés, CTA-kattintás.</li>
+        <li><b>Entity slug, Offer slug, Category slug</b> — egy konkrét ajánlatra vagy kategóriára szűkíthetsz.</li>
+        <li><b>UTM kampány</b> — ha egy hirdetési kampány teljesítményét nézed, ide írd a kampány UTM-kódját.</li>
+      </ul>
+      <p>A szűrők alatt kártyák mutatják az összes oldalmegtekintést, ajánlat- és kategória-megtekintést, valamint a CTA-kattintásokat; lejjebb toplisták és a nyers eseménytábla is elérhető.</p>
+    </section>
+
+    <section class="mod" id="portfolio-szerkesztes">
+      <div class="mhead">
+        <div class="micon">✏️</div>
+        <div>
+          <div class="path">/admin/portfolio-editor</div>
+          <h2>Portfólió szerkesztése</h2>
+        </div>
+      </div>
+      <p>
+        A főoldal szekcióinak (hero, story, stb.) helyben szerkeszthető tartalma. Minden szekció saját kártyaként
+        jelenik meg: szöveges mezők, feltölthető képek és — ahol értelmezhető — színstílus-választó (pl. az egyik
+        főcím-sor lehet <code class="inline">default</code> vagy <code class="inline">gradient</code> kiemelésű).
+      </p>
+      <h3 class="sub">Draft és publikálás</h3>
+      <p>Minden szekció külön menthető <b>draftként</b> (csak neked látható, még nem él) vagy <b>publikálható</b> azonnal.
+      A jobb felső <b>„Összes publikálása”</b> gomb egyszerre viszi élesbe az összes még draftban lévő módosítást.</p>
+      <div class="callout">
+        <div class="ci">💡</div>
+        <p>A <b>„Portfólió megnyitása szerkesztői módban”</b> gomb a valódi élő oldalt nyitja meg egy szerkesztőréteggel — így azonnal látod, hogyan fog kinézni a módosítás, mielőtt publikálnád.</p>
+      </div>
+      <figure class="shot">
+        <img src="/docs/img/portfolio-editor.jpg" alt="A Portfólió szerkesztése oldal a hero szekció mezőivel és a háttérkép feltöltő panellel." loading="lazy" />
+        <figcaption>Portfólió szerkesztése — a Hero szekció mezői és a kép feltöltő panel.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="foldali-ajanlatok">
+      <div class="mhead">
+        <div class="micon">📣</div>
+        <div>
+          <div class="path">/admin/homepage-offers</div>
+          <h2>Főoldali ajánlatok</h2>
+        </div>
+      </div>
+      <p>
+        A főoldal „Fedezd fel kedvenc úti célod” szekciójában megjelenő kategóriakártyák (pl. <i>Körutazások</i>,
+        <i>Repülős körutazások</i>, <i>Tengerparti ajánlatok autóbusszal</i>). Mindegyikhez tartozik egy kép, egy cím,
+        egy cél-link (SEO név) és egy sorrend — ez utóbbi határozza meg, melyik kártya jelenik meg először.
+      </p>
+      <div class="fieldtable-wrap">
+        <table class="fieldtable">
+          <tr><th>Mező</th><th>Jelentés</th></tr>
+          <tr><td class="k">Sorrend</td><td class="d">A kártyák megjelenési sorrendje a főoldalon.</td></tr>
+          <tr><td class="k">Név / SEO</td><td class="d">A kártyán megjelenő cím, illetve a link célja.</td></tr>
+          <tr><td class="k">Kép</td><td class="d">A kártya háttérképe — drag &amp; drop feltöltéssel cserélhető.</td></tr>
+          <tr><td class="k">Aktív</td><td class="d">Csak az aktív kártyák jelennek meg a publikus oldalon.</td></tr>
+        </table>
+      </div>
+      <figure class="shot">
+        <img src="/docs/img/homepage-offers.jpg" alt="A Főoldali ajánlatok listája: Körutazások, Repülős körutazások, Tengerparti ajánlatok és a hozzájuk tartozó képek." loading="lazy" />
+        <figcaption>Főoldali ajánlatok — a jelenlegi 6 kategóriakártya.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="filter-chipek">
+      <div class="mhead">
+        <div class="micon">🏷️</div>
+        <div>
+          <div class="path">/admin/portfolio-filter-chips</div>
+          <h2>Portfólió filter chipek</h2>
+        </div>
+      </div>
+      <p>
+        A körutazások/ajánlatok listaoldalán megjelenő gyorsszűrő-gombok (chipek) szövege és sorrendje.
+        Ha egy gyakran keresett szempontot (pl. „Last Minute”, „Tengerpart”) szeretnél kiemelni a szűrők közt, itt tudod hozzáadni vagy átnevezni.
+      </p>
+    </section>
+
+    <section class="mod" id="blog">
+      <div class="mhead">
+        <div class="micon">📰</div>
+        <div>
+          <div class="path">/admin/blog</div>
+          <h2>Blog</h2>
+        </div>
+      </div>
+      <p>Jelenleg 24 cikk fut a rendszerben. A Blog menüpont három al-részre oszlik:</p>
+      <ul class="plain">
+        <li><b>Cikkek</b> — listázás, keresés cím/SEO/kivonat/tartalom alapján, oldalsó panelen szerkeszthető CRUD.</li>
+        <li><b>Kategóriák</b> — a cikkeket csoportosító témák.</li>
+        <li><b>Címkék</b> — finomabb, szabadon társítható jelölők egy-egy cikkhez.</li>
+      </ul>
+      <h3 class="sub">Egy cikk fontosabb mezői</h3>
+      <div class="fieldtable-wrap">
+        <table class="fieldtable">
+          <tr><th>Mező</th><th>Jelentés</th></tr>
+          <tr><td class="k">Megjelenik</td><td class="d">Publikált-e a cikk a publikus blogban.</td></tr>
+          <tr><td class="k">Portfólió / sorrend</td><td class="d">Kiemelhető-e a főoldalon, és milyen sorrendben a többi kiemelt cikk közt.</td></tr>
+          <tr><td class="k">Megnyitva</td><td class="d">Hányszor nyitották meg a cikket eddig.</td></tr>
+        </table>
+      </div>
+      <figure class="shot">
+        <img src="/docs/img/blog.jpg" alt="A Blog cikkek listája: ID, cím, dátum, megjelenik, portfólió-kiemelés és megnyitásszám oszlopokkal." loading="lazy" />
+        <figcaption>Blog cikkek — mind a 24 jelenlegi cikk innen kezelhető.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="korutazasok">
+      <div class="mhead">
+        <div class="micon">🚌</div>
+        <div>
+          <div class="path">/admin/tours</div>
+          <h2>Körutazások</h2>
+        </div>
+      </div>
+      <p>
+        A buszos/repülős körutazási ajánlatok teljes kezelése: útvonal, program napok, galéria, árazás, felszállási
+        helyek, induló időpontok. Jelenleg 4 élő körutazás fut (pl. <i>Albánia, a Balkán Riviérája</i>,
+        <i>Montenegrói üdülés</i>).
+      </p>
+      <h3 class="sub">Almenük</h3>
+      <ul class="plain">
+        <li><b>Ajánlatok</b> — maga a körutazás-lista, régió/csoport/szezonális csoport szerint szűrhető.</li>
+        <li><b>Szervezés alatt partner ajánlatok</b> — külső partnerektől átvett, még véglegesítés alatt álló ajánlatok.</li>
+        <li><b>Régiók és csoportok</b> — a körutazásokat tematikusan összefogó csoportok (pl. „Balkáni körutak”).</li>
+        <li><b>Szezonális ajánlat csoportok</b> — évszakhoz kötött gyűjtők (pl. „Őszi utazások”).</li>
+        <li><b>Felszállási helyek</b> — a busz indulási pontjainak listája (város szerint), amiből foglaláskor lehet választani.</li>
+      </ul>
+      <div class="fieldtable-wrap">
+        <table class="fieldtable">
+          <tr><th>Oszlop</th><th>Jelentés</th></tr>
+          <tr><td class="k">Kiemelt</td><td class="d">Megjelenik-e a főoldal „Kiemelt ajánlataink” szekciójában.</td></tr>
+          <tr><td class="k">Aktív</td><td class="d">Látható-e egyáltalán a publikus oldalon.</td></tr>
+          <tr><td class="k">Képes ajánlat</td><td class="d">Van-e feltöltött galériaképe — kép nélkül a kártya üresen jelenne meg.</td></tr>
+        </table>
+      </div>
+      <figure class="shot">
+        <img src="/docs/img/tours.jpg" alt="A Körutazások ajánlatlistája régió, csoport és szezonális csoport szűrőkkel, illetve kiemelt/aktív/képes ajánlat jelzőkkel." loading="lazy" />
+        <figcaption>Körutazások — a 4 élő ajánlat régió és csoport szerint szűrve.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="apartmanok">
+      <div class="mhead">
+        <div class="micon">🏢</div>
+        <div>
+          <div class="path">/admin/apartments</div>
+          <h2>Apartmanok</h2>
+        </div>
+      </div>
+      <p>
+        A teljes apartman-portfólió (jelenleg 100 rekord), régiónkénti gyorsnézetekkel: görög, bulgáriai,
+        montenegrói és horvát (kétféle horvát nézet — a régi és az új adatstruktúra szerint) apartmanok.
+      </p>
+      <ul class="plain">
+        <li><b>Régiók, Helyek, Típusok</b> — az apartmanokhoz rendelhető alapadatok (hova tartozik, milyen jellegű).</li>
+        <li><b>Szolgáltatások</b> — az egyes apartmanoknál kipipálható extrák (pl. klíma, wifi).</li>
+        <li><b>Akciók</b> — időszakos kedvezmények egy-egy apartmanhoz vagy típushoz.</li>
+        <li><b>Egyedi intervallumok</b> — az általános szezonális árazástól eltérő, kézzel megadott időszakok.</li>
+      </ul>
+      <div class="fieldtable-wrap">
+        <table class="fieldtable">
+          <tr><th>Oszlop</th><th>Jelentés</th></tr>
+          <tr><td class="k">Aktív</td><td class="d">Foglalható-e / látszik-e az apartman a publikus oldalon.</td></tr>
+          <tr><td class="k">Kiemelt</td><td class="d">Előrébb sorolva jelenik meg a listákban.</td></tr>
+        </table>
+      </div>
+      <p>A táblázat fejlécei alatti szűrősorban név, kód, cím vagy SEO név szerint kereshetsz, és minden sorban azonnal
+      megnézheted (👁), szerkesztheted (✏️), ki/be kapcsolhatod (⏻), vagy törölheted (🗑) az adott apartmant.</p>
+      <figure class="shot">
+        <img src="/docs/img/apartments.jpg" alt="Az Összes apartman lista 100 rekorddal, régió- és típusszűréssel, valamint aktív/kiemelt jelzőkkel." loading="lazy" />
+        <figcaption>Apartmanok — mind a 100 rekord egy listában, régió szerint is szűrve.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="buszok">
+      <div class="mhead">
+        <div class="micon">🚐</div>
+        <div>
+          <div class="path">/admin/buses</div>
+          <h2>Buszok</h2>
+        </div>
+      </div>
+      <p>
+        A saját buszflotta törzsadatai — jelenleg 10 jármű (pl. <span class="mono">BUS-001 Setra S 515 HD</span>,
+        <span class="mono">BUS-010 Irizar i8</span>). Ez a lista adja a körutazásokhoz rendelhető járműveket; egy busz
+        inaktívra állítható, ha éppen nem üzemel, anélkül hogy törölni kellene a korábbi utazásokhoz fűződő adatait.
+      </p>
+    </section>
+
+    <section class="mod" id="foglalasok">
+      <div class="mhead">
+        <div class="micon">📅</div>
+        <div>
+          <div class="path">/admin/bookings</div>
+          <h2>Foglalások</h2>
+        </div>
+      </div>
+      <p>Az értékesítési/ügyfélkezelési munka központja — kilenc al-menüpontra oszlik.</p>
+      <div class="fieldtable-wrap">
+        <table class="fieldtable">
+          <tr><th>Almenü</th><th>Mire való</th></tr>
+          <tr><td class="k">Körutazás foglalások</td><td class="d">A buszos/repülős körutazásokra érkezett tényleges foglalások: partner adatok, státusz, exportálás CSV-be.</td></tr>
+          <tr><td class="k">Körutazás ajánlatkérések</td><td class="d">Még nem lezárt, tájékozódó jellegű érdeklődések egy adott utazásra.</td></tr>
+          <tr><td class="k">Apartman foglalások</td><td class="d">Ugyanaz a logika, mint a körutazásoknál, de a szálláshelyekre.</td></tr>
+          <tr><td class="k">Partner pénzügyek</td><td class="d">A közvetítő partnerekkel elszámolt tételek nyilvántartása.</td></tr>
+          <tr><td class="k">Banner generálás</td><td class="d">Partnereknek szánt, kész méretű reklámbannerek összeállítása élő előnézettel (név, cél-URL, kép, méret, státusz).</td></tr>
+          <tr><td class="k">Üzenetek</td><td class="d">A kapcsolatfelvételi űrlapon beérkezett szabad szöveges üzenetek.</td></tr>
+          <tr><td class="k">Kuponok</td><td class="d">Kedvezménykódok kezelése: érték, létrehozás és lejárati dátum, felhasználtság.</td></tr>
+          <tr><td class="k">E-mail CSV exportálás</td><td class="d">Feliratkozott/érdeklődő e-mail címek exportálása táblázatba, pl. hírlevélhez.</td></tr>
+          <tr><td class="k">Foglalási űrlap sablonok</td><td class="d">Az egyes ajánlatokhoz rendelhető foglalási űrlapok mezőinek összeállítása (mely adatokat kérjen be az űrlap).</td></tr>
+        </table>
+      </div>
+      <p>A körutazás-foglalások listája dátum, státusz és utazás szerint szűrhető, és egy kattintással CSV-be exportálható.</p>
+      <figure class="shot">
+        <img src="/docs/img/bookings.jpg" alt="A Körutazás foglalások lista szűrőkkel (státusz, utazás, dátumtartomány) és CSV exportálás gombbal." loading="lazy" />
+        <figcaption>Foglalások → Körutazás foglalások — szűrők és CSV exportálás.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="mediatar">
+      <div class="mhead">
+        <div class="micon">🖼️</div>
+        <div>
+          <div class="path">/admin/media</div>
+          <h2>Médiatár (Galériák)</h2>
+        </div>
+      </div>
+      <p>
+        Egyetlen közös helyről tölthető fel, kereshető és törölhető minden kép/fájl, amit a rendszer bárhol használ —
+        jelenleg 140 fájl van betöltve, kategóriák szerint (Blog, Utazások, Apartmanok, Főoldali ajánlatok, Portfólió,
+        Galériák, Buszok, Általános).
+      </p>
+      <ul class="plain">
+        <li>Kategória és rendezés (legújabb / legrégebbi / név szerint) szerint szűkítheted a listát.</li>
+        <li>Fájlonként látod a méretet és a feltöltés dátumát; több fájl egyszerre is kijelölhető tömeges művelethez.</li>
+      </ul>
+      <div class="callout warn">
+        <div class="ci">⚠️</div>
+        <p>Egy kép törlése <b>minden</b> olyan helyről eltünteti a képet, ahol az adott fájlt használják — mielőtt törölnél, érdemes megnézni, hol van még felhasználva.</p>
+      </div>
+      <figure class="shot">
+        <img src="/docs/img/media.jpg" alt="A Médiatár rácsnézete kategória- és rendezésszűrővel, 140 fájllal." loading="lazy" />
+        <figcaption>Médiatár — 140 fájl, kategóriák szerint szűrve.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="email-sablonok">
+      <div class="mhead">
+        <div class="micon">✉️</div>
+        <div>
+          <div class="path">/admin/email-templates</div>
+          <h2>E-mail sablonok</h2>
+        </div>
+      </div>
+      <p>A rendszer által automatikusan küldött e-mailek (pl. foglalás-visszaigazolás) szövegének szerkesztésére szolgálna.</p>
+      <div class="callout danger">
+        <div class="ci">🚧</div>
+        <p><b>Jelenleg nem működik.</b> Ez az oldal egy hiányzó backend-végpontra hivatkozik, ezért betöltéskor hibaüzenetet ad. Lásd az <a href="#ismert-korlatozasok">Ismert korlátozások</a> részt.</p>
+      </div>
+    </section>
+
+    <section class="mod" id="beallitasok">
+      <div class="mhead">
+        <div class="micon">⚙️</div>
+        <div>
+          <div class="path">/admin/settings</div>
+          <h2>Beállítások</h2>
+        </div>
+      </div>
+      <p>A publikus oldal fejléce, lábléce és globális adatai — ide nyúlsz, ha cégszintű adat változik, nem egy konkrét ajánlat.</p>
+      <div class="fieldtable-wrap">
+        <table class="fieldtable">
+          <tr><th>Blokk</th><th>Tartalma</th></tr>
+          <tr><td class="k">General</td><td class="d">Az oldal neve (jelenleg: Adria Holiday).</td></tr>
+          <tr><td class="k">Contact</td><td class="d">Telefonszám, e-mail, WhatsApp szám, postai cím — ezek jelennek meg a fejlécben/láblécben és a kapcsolat oldalon.</td></tr>
+          <tr><td class="k">Social</td><td class="d">Közösségi média linkek (Facebook, Instagram stb.).</td></tr>
+          <tr><td class="k">CTA</td><td class="d">A fejlécben megjelenő „Ajánlatot kérek” jellegű gomb szövege és célja.</td></tr>
+        </table>
+      </div>
+      <div class="callout">
+        <div class="ci">💡</div>
+        <p>Ha itt módosítasz egy telefonszámot vagy címet, az azonnal, publikálás nélkül megjelenik az élő oldalon — nincs külön draft/publikál lépés, mint a Portfólió szerkesztésénél.</p>
+      </div>
+      <figure class="shot">
+        <img src="/docs/img/settings.jpg" alt="A Site Settings oldal a General, Contact, Social és CTA blokkokkal." loading="lazy" />
+        <figcaption>Beállítások — General, Contact, Social és CTA blokkok.</figcaption>
+      </figure>
+    </section>
+
+    <section class="mod" id="rendszergazda">
+      <div class="mhead">
+        <div class="micon">🛡️</div>
+        <div>
+          <div class="path">/admin/users · /admin/roles · /admin/permissions</div>
+          <h2>Rendszergazda</h2>
+        </div>
+      </div>
+      <p>Három részből áll: <b>Felhasználók</b>, <b>Role-ok</b> és a mögöttük álló egyedi <b>Permissionök</b>. Csak azok látják, akiknek erre külön jogosultsága van.</p>
+
+      <h3 class="sub">Felhasználók</h3>
+      <p>Jelenleg 2 aktív felhasználó van. Egy felhasználóhoz egy vagy több role rendelhető; a lista soronként mutatja
+      a nevet, e-mail címet, a szerepköreit és azt, hogy aktív-e.</p>
+      <ul class="plain">
+        <li>Az <b>Új felhasználó</b> gombbal hozol létre új admin-fiókot: név, e-mail, kezdő jelszó, majd a role kiválasztása.</li>
+        <li>A ✏️ ikonnal szerkesztheted az adatait vagy állíthatsz be neki új jelszót; a ⏻ ikonnal deaktiválhatod a fiókját anélkül, hogy törölnéd.</li>
+        <li>A saját fiókodat nem tudod deaktiválni magad — ez szándékos védelem, hogy véletlenül se zárd ki magad.</li>
+      </ul>
+      <figure class="shot">
+        <img src="/docs/img/users.jpg" alt="A Felhasználók lista két aktív Super Admin fiókkal, szerepkör- és állapotoszloppal." loading="lazy" />
+        <figcaption>Rendszergazda → Felhasználók — jelenleg 2 aktív fiók.</figcaption>
+      </figure>
+
+      <h3 class="sub">Role-ok (7 db)</h3>
+      <p>Egy role permissionök gyűjteménye. Az alábbi 7 előre elkészített role közül választhatsz, vagy sajátot is összeállíthatsz az <b>Új role</b> gombbal.</p>
+      <div class="rolegrid">
+        <div class="rolecard super"><div class="rn">🛡️ Super Admin</div><div class="rc">143 jogosultság · mindent lát és módosíthat</div></div>
+        <div class="rolecard"><div class="rn">Admin</div><div class="rc">137 jogosultság</div></div>
+        <div class="rolecard"><div class="rn">Content Editor</div><div class="rc">54 jogosultság</div></div>
+        <div class="rolecard"><div class="rn">Viewer</div><div class="rc">50 jogosultság · csak megtekintés</div></div>
+        <div class="rolecard"><div class="rn">Marketing</div><div class="rc">30 jogosultság</div></div>
+        <div class="rolecard"><div class="rn">Sales</div><div class="rc">22 jogosultság</div></div>
+        <div class="rolecard"><div class="rn">Operator</div><div class="rc">21 jogosultság</div></div>
+      </div>
+      <figure class="shot">
+        <img src="/docs/img/roles.jpg" alt="A Role-ok lista mind a 7 szerepkörrel és a hozzájuk tartozó jogosultságszámmal." loading="lazy" />
+        <figcaption>Rendszergazda → Role-ok — mind a 7 előre elkészített szerepkör.</figcaption>
+      </figure>
+      <div class="callout">
+        <div class="ci">💡</div>
+        <p>Csak a <b>Super Admin</b> tud másnak Super Admin szerepkört adni vagy elvenni, és a rendszer mindig
+        megkövetel legalább egy aktív Super Admin fiókot — így nem lehet véletlenül kizárni mindenkit a rendszerből.</p>
+      </div>
+
+      <h3 class="sub">Permissionök</h3>
+      <p>
+        A legapróbb jogosultsági egységek (pl. <span class="mono">tours.viewAny</span>, <span class="mono">bookings.viewAny</span>)
+        — ezekből épülnek fel a fenti role-ok. Napi munkához ritkán kell ide nyúlni; inkább akkor hasznos, ha egy
+        egyedi role-t pontosan a kívánt jogokra szeretnél szabni.
+      </p>
+    </section>
+
+    <section class="mod" id="ismert-korlatozasok">
+      <div class="mhead">
+        <div class="micon">🚧</div>
+        <div>
+          <div class="path">Állapot</div>
+          <h2>Ismert korlátozások</h2>
+        </div>
+      </div>
+      <ul class="plain">
+        <li><b>E-mail sablonok</b> — a menüpont létezik, de a hozzá tartozó backend végpont még nincs implementálva, ezért hibát dob.</li>
+        <li><b>Automatikus e-mail küldés</b> — a rendszer jelenleg egy teszt SMTP-kiszolgálóra van beállítva, így a kimenő e-mailek (pl. foglalás-visszaigazolás) még nem jutnak el valódi címzettekhez éles használatban.</li>
+      </ul>
+      <p>Ezeket külön kell rendezni a fejlesztővel, nem a napi admin-használat része.</p>
+    </section>
+
+    <footer class="doc">
+      <span>Adria Holiday — admin felhasználói kézikönyv</span>
+      <span>Készült a 2026. júliusi élesítés állapota alapján</span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>
