@@ -80,12 +80,17 @@ class ProductionHealth
             $connection = (string) config('database.redis.default.database', '0');
             $response = Redis::connection()->ping();
 
+            // The phpredis client returns a bool true on a successful PING
+            // (not the string "PONG" that predis returns), so also accept
+            // that instead of only matching the string response.
+            $isHealthy = $response === true || str_contains(strtolower((string) $response), 'pong');
+
             return [
-                'status' => str_contains(strtolower((string) $response), 'pong') ? 'ok' : 'failed',
+                'status' => $isHealthy ? 'ok' : 'failed',
                 'message' => 'Redis connection reachable.',
                 'meta' => [
                     'database' => $connection,
-                    'response' => (string) $response,
+                    'response' => is_bool($response) ? var_export($response, true) : (string) $response,
                 ],
             ];
         } catch (Throwable $exception) {
