@@ -14,12 +14,12 @@ return new class extends Migration
             $table->string('status')->index();
             $table->string('payment_status')->nullable()->index();
 
-            $table->foreignId('region_id')->nullable()->constrained('regions')->nullOnDelete()->index();
-            $table->foreignId('location_id')->nullable()->constrained('locations')->nullOnDelete()->index();
+            $table->foreignId('region_id')->nullable()->index();
+            $table->foreignId('location_id')->nullable()->index();
             $table->unsignedBigInteger('offer_id')->nullable()->index();
             $table->unsignedBigInteger('offer_date_id')->nullable()->index();
-            $table->foreignId('apartment_id')->nullable()->constrained('apartments')->nullOnDelete()->index();
-            $table->foreignId('tour_id')->nullable()->constrained('tours')->nullOnDelete()->index();
+            $table->foreignId('apartment_id')->nullable()->index();
+            $table->foreignId('tour_id')->nullable()->index();
 
             $table->string('customer_name')->nullable()->index();
             $table->string('email')->nullable()->index();
@@ -60,6 +60,15 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->index('created_at');
+
+            // Named explicitly: MariaDB's auto-generated constraint name for
+            // multiple nullable ->constrained()->nullOnDelete() foreign keys
+            // added in the same Schema::create collided (all came out named
+            // literally "1"), failing the migration with "Duplicate key name".
+            $table->foreign('region_id', 'bookings_region_id_foreign')->references('id')->on('regions')->nullOnDelete();
+            $table->foreign('location_id', 'bookings_location_id_foreign')->references('id')->on('locations')->nullOnDelete();
+            $table->foreign('apartment_id', 'bookings_apartment_id_foreign')->references('id')->on('apartments')->nullOnDelete();
+            $table->foreign('tour_id', 'bookings_tour_id_foreign')->references('id')->on('tours')->nullOnDelete();
         });
     }
 
