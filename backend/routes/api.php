@@ -41,9 +41,11 @@ use App\Http\Controllers\PortfolioFeaturedTourController;
 use App\Http\Controllers\PortfolioFilterChipController;
 use App\Http\Controllers\PortfolioHomepageOfferController;
 use App\Http\Controllers\PortfolioOfferController;
+use App\Http\Controllers\PortfolioOfferPdfController;
 use App\Http\Controllers\PortfolioRegionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\PublicNewsletterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
@@ -59,8 +61,10 @@ Route::get('portfolio/categories/{slug}/filters', [PortfolioFilterChipController
 Route::get('portfolio/categories/{slug}/offers', [PortfolioOfferController::class, 'categoryOffers']);
 Route::get('portfolio/regions/{slug}/offers', [PortfolioOfferController::class, 'regionOffers']);
 Route::get('portfolio/offers/{slug}', [PortfolioOfferController::class, 'show']);
+Route::get('portfolio/offers/{slug}/pdf', PortfolioOfferPdfController::class)->middleware('throttle:offer-pdf');
 Route::post('analytics/events', AnalyticsEventController::class);
 Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('throttle:bookings');
+Route::post('newsletter/subscribe', [PublicNewsletterController::class, 'store'])->middleware('throttle:newsletter');
 
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');

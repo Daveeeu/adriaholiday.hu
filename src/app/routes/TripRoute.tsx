@@ -81,6 +81,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     id: offer.id,
     slug: offer.seoName,
     title: offer.name,
+    subtitle: offer.subtitle ?? null,
     country: offer.country ?? offer.region?.name ?? "Utazás",
     departure: offer.departureDateLabel || dates[0]?.label || "Érdeklődjön",
     transport: offer.transport === "plane" ? "plane" : "bus",

@@ -60,6 +60,7 @@ class SiteSettingsSeeder extends Seeder
             ['group' => 'seo', 'key' => 'default_og_image', 'type' => 'media', 'is_public' => true, 'value' => null],
             ['group' => 'analytics', 'key' => 'meta_pixel_enabled', 'type' => 'boolean', 'is_public' => false, 'value' => false],
             ['group' => 'analytics', 'key' => 'meta_pixel_id', 'type' => 'string', 'is_public' => false, 'value' => ''],
+            ['group' => 'newsletter', 'key' => 'coupon_value', 'type' => 'number', 'is_public' => true, 'value' => 5000],
             ['group' => 'legal', 'key' => 'imprint_url', 'type' => 'string', 'is_public' => true, 'value' => '/impresszum'],
             ['group' => 'legal', 'key' => 'privacy_url', 'type' => 'string', 'is_public' => true, 'value' => '/adatvedelem'],
             ['group' => 'legal', 'key' => 'terms_url', 'type' => 'string', 'is_public' => true, 'value' => '/aszf'],

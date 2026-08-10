@@ -72,6 +72,7 @@ const settingsSchema = z.object({
   defaultOgImage: mediaSchema,
   metaPixelEnabled: z.boolean(),
   metaPixelId: z.string().trim(),
+  newsletterCouponValue: z.coerce.number().min(0, 'A kupon értéke nem lehet negatív.'),
   imprintUrl: z.string().trim(),
   privacyUrl: z.string().trim(),
   termsUrl: z.string().trim(),
@@ -105,6 +106,7 @@ const emptyValues: SiteSettingsFormValues = {
   defaultOgImage: null,
   metaPixelEnabled: false,
   metaPixelId: '',
+  newsletterCouponValue: 0,
   imprintUrl: '',
   privacyUrl: '',
   termsUrl: '',
@@ -498,6 +500,18 @@ export function SettingsPage() {
                 )} />
                 <FormField control={form.control} name="metaPixelId" render={({ field }) => (
                   <FormItem><FormLabel>Meta Pixel ID</FormLabel><FormControl><Input {...field} placeholder="1234567890" /></FormControl><FormMessage /></FormItem>
+                )} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Hírlevél</CardTitle>
+                <CardDescription>A feliratkozáskor automatikusan kiküldött kedvezménykupon értéke.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <FormField control={form.control} name="newsletterCouponValue" render={({ field }) => (
+                  <FormItem><FormLabel>Kupon értéke (Ft)</FormLabel><FormControl><Input type="number" min={0} step={1} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>

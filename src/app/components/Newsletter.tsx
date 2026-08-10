@@ -5,8 +5,9 @@ import {
   ShieldCheck,
   Sparkles,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import Lottie from "lottie-react";
 
 import { useLottieAnimation } from "../hooks/useLottieAnimation";
@@ -14,6 +15,8 @@ import { EditableText } from "../content/EditableFields";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
+import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { NewsletterApiError, subscribeToNewsletter } from "../newsletter/newsletter-api";
 
 const benefitsFallback = [
   {
@@ -33,16 +36,50 @@ const benefitsFallback = [
   },
 ];
 
+type SubmitStatus = "idle" | "submitting" | "success" | "error";
+
 export default function Newsletter() {
   const { getValue } = usePortfolioContent();
+  const { settings } = useSiteSettings();
   const [email, setEmail] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [status, setStatus] = useState<SubmitStatus>("idle");
+  const [feedback, setFeedback] = useState("");
   const worldMapAnimation = useLottieAnimation("world-map-pinging-and-searching.json");
 
   const placeholder = String(
     getValue("home.newsletter.placeholder", "Add meg az email címed"),
   );
   const benefits = getValue("home.newsletter.benefits", benefitsFallback) as typeof benefitsFallback;
+  const couponValue = settings.newsletterCouponValue;
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (status === "submitting") {
+      return;
+    }
+
+    setStatus("submitting");
+
+    try {
+      const response = await subscribeToNewsletter(email.trim());
+      setStatus("success");
+      setFeedback(
+        response.status === "already_subscribed"
+          ? "Ezzel az email címmel már korábban feliratkoztál."
+          : "Köszönjük a feliratkozást! A kedvezménykupont elküldtük az email címedre.",
+      );
+      setEmail("");
+    } catch (error) {
+      setStatus("error");
+      setFeedback(
+        error instanceof NewsletterApiError
+          ? error.message
+          : "Váratlan hiba történt, kérjük próbáld meg később.",
+      );
+    }
+  }
 
   return (
     <section className="relative py-20 md:py-24 bg-gradient-to-b from-[#f7fbff] via-white to-[#f5fffb] overflow-hidden">
@@ -120,10 +157,17 @@ export default function Newsletter() {
                 fieldKey="home.newsletter.description"
                 fallback="Last minute ajánlatok, exkluzív kedvezmények és új utazási inspirációk — elsőként a postaládádban."
                 as="p"
-                className="text-white/72 text-lg leading-relaxed max-w-2xl mb-7"
+                className="text-white/72 text-lg leading-relaxed max-w-2xl mb-3"
               />
 
-              <motion.div
+              {couponValue > 0 && (
+                <p className="text-[#60ffd0] text-base font-semibold mb-4">
+                  Iratkozz fel most, és ajándékba kapsz egy {couponValue.toLocaleString("hu-HU")} Ft értékű kedvezménykupont emailben!
+                </p>
+              )}
+
+              <motion.form
+                onSubmit={handleSubmit}
                 className="relative max-w-2xl mb-4"
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -143,16 +187,21 @@ export default function Newsletter() {
 
                   <input
                     type="email"
+                    required
                     placeholder={placeholder}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
-                    className="w-full pl-14 pr-44 py-5 bg-transparent text-gray-900 placeholder-gray-400 rounded-[24px] focus:outline-none"
+                    disabled={status === "submitting"}
+                    aria-label={placeholder}
+                    className="w-full pl-14 pr-44 py-5 bg-transparent text-gray-900 placeholder-gray-400 rounded-[24px] focus:outline-none disabled:opacity-60"
                   />
 
                   <motion.button
-                    className="absolute right-2 top-1/2 -translate-y-1/2 px-5 md:px-6 py-3.5 bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white rounded-[18px] flex items-center gap-2 shadow-[0_8px_24px_rgba(0,195,137,0.25)]"
+                    type="submit"
+                    disabled={status === "submitting"}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-5 md:px-6 py-3.5 bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white rounded-[18px] flex items-center gap-2 shadow-[0_8px_24px_rgba(0,195,137,0.25)] disabled:opacity-70"
                     whileHover={{
                       scale: 1.04,
                       boxShadow: "0 12px 32px rgba(0,195,137,0.35)",
@@ -166,10 +215,23 @@ export default function Newsletter() {
                         as="span"
                       />
                     </span>
-                    <Send className="w-4 h-4" />
+                    {status === "submitting" ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
                   </motion.button>
                 </motion.div>
-              </motion.div>
+              </motion.form>
+
+              {feedback && (
+                <p
+                  role="status"
+                  className={`text-sm mb-4 ${status === "error" ? "text-red-300" : "text-[#60ffd0]"}`}
+                >
+                  {feedback}
+                </p>
+              )}
 
               <motion.div
                 className="flex items-start sm:items-center gap-2 text-white/58 text-sm"

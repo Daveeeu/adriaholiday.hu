@@ -826,6 +826,24 @@ Config: `config('services.legacy_adria')` (`LEGACY_ADRIA_BASE_URL`, `LEGACY_ADRI
 
 ---
 
+# Newsletter Subscription (signup coupon)
+
+Public `POST /api/newsletter/subscribe` (throttled via the `newsletter` rate limiter) creates a `NewsletterSubscriber` and issues it a one-time `Coupon` (code prefixed `HIR-`, `name: 'Hírlevél feliratkozás'` so it's identifiable in the admin Coupons list), then emails it via `NewsletterCouponMail`. All of this is orchestrated by `App\Services\Newsletter\NewsletterSubscriptionService`, which is idempotent — resubscribing an existing email is a no-op (no second coupon, no resend).
+
+The coupon amount is admin-configurable via the `newsletter.coupon_value` `SiteSetting` (`is_public = true`, so the portfolio site can advertise the live amount instead of hardcoding it).
+
+Mail sending + `EmailLog` auditing is shared via `App\Services\Mail\LoggedMailer` (also used by `BookingNotificationService`) — reuse it for any new transactional email instead of duplicating the send/log/catch logic.
+
+---
+
+# Tour Program PDF
+
+Public `GET /api/portfolio/offers/{slug}/pdf` (throttled via the `offer-pdf` rate limiter) renders a downloadable PDF of an active tour's *current* data on demand — no PDF is ever stored; `PortfolioOfferPdfController` builds it synchronously per-request via `barryvdh/laravel-dompdf` (`Pdf::loadView('pdf.tour-program', [...])->download(...)`) from the `resources/views/pdf/tour-program.blade.php` template, using the same `TourMeta`/`PriceBoxData` helpers the portfolio resources use. 404s for unknown/inactive tours, same as `PortfolioOfferController::show`.
+
+This is unrelated to the pre-existing `program_pdf_path`/`program_pdf_file`/`pdf` media-collection fields on `Tour`, which are a manual admin-upload attachment mechanism (a static file picked in the admin panel), not a generated one.
+
+---
+
 # Queues
 
 Use queues for slow operations.

@@ -169,6 +169,7 @@ export type Tour = {
   sliderImageEnabled: boolean;
   sliderTextEnabled: boolean;
   name: string;
+  subtitle?: string | null;
   seoName: string;
   seoAutoGenerate: boolean;
   action1: string;
@@ -239,6 +240,7 @@ export const tourFormSchema = z.object({
   sliderImageEnabled: z.boolean(),
   sliderTextEnabled: z.boolean(),
   name: z.string().min(2, 'A név megadása kötelező.'),
+  subtitle: z.string(),
   seoName: z.string(),
   seoAutoGenerate: z.boolean(),
   action1: z.string(),
@@ -415,6 +417,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     sliderImageEnabled: tour?.sliderImageEnabled ?? false,
     sliderTextEnabled: tour?.sliderTextEnabled ?? false,
     name: tour?.name ?? '',
+    subtitle: tour?.subtitle ?? '',
     seoName: tour?.seoName ?? slugifyTourText(tour?.name ?? ''),
     seoAutoGenerate: tour?.seoAutoGenerate ?? true,
     action1: tour?.action1 ?? '',

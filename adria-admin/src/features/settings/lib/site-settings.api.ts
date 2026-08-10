@@ -39,6 +39,7 @@ function toPayload(values: SiteSettingsFormValues): Array<{
     { group: 'seo', key: 'default_og_image', type: 'media', isPublic: true, value: values.defaultOgImage },
     { group: 'analytics', key: 'meta_pixel_enabled', type: 'boolean', isPublic: false, value: values.metaPixelEnabled },
     { group: 'analytics', key: 'meta_pixel_id', type: 'string', isPublic: false, value: values.metaPixelId },
+    { group: 'newsletter', key: 'coupon_value', type: 'number', isPublic: true, value: values.newsletterCouponValue },
     { group: 'legal', key: 'imprint_url', type: 'string', isPublic: true, value: values.imprintUrl },
     { group: 'legal', key: 'privacy_url', type: 'string', isPublic: true, value: values.privacyUrl },
     { group: 'legal', key: 'terms_url', type: 'string', isPublic: true, value: values.termsUrl },
@@ -70,6 +71,11 @@ function getStringValue(settings: SiteSettingItem[], group: string, key: string)
 
 function getBooleanValue(settings: SiteSettingItem[], group: string, key: string) {
   return Boolean(settings.find((setting) => setting.group === group && setting.key === key)?.value);
+}
+
+function getNumberValue(settings: SiteSettingItem[], group: string, key: string) {
+  const value = settings.find((setting) => setting.group === group && setting.key === key)?.value;
+  return typeof value === 'number' ? value : 0;
 }
 
 function getMediaValue(settings: SiteSettingItem[], group: string, key: string): SiteSettingsMedia {
@@ -114,6 +120,7 @@ export function toSiteSettingsFormValues(settings: SiteSettingItem[]): SiteSetti
     defaultOgImage: getMediaValue(settings, 'seo', 'default_og_image'),
     metaPixelEnabled: getBooleanValue(settings, 'analytics', 'meta_pixel_enabled'),
     metaPixelId: getStringValue(settings, 'analytics', 'meta_pixel_id'),
+    newsletterCouponValue: getNumberValue(settings, 'newsletter', 'coupon_value'),
     imprintUrl: getStringValue(settings, 'legal', 'imprint_url'),
     privacyUrl: getStringValue(settings, 'legal', 'privacy_url'),
     termsUrl: getStringValue(settings, 'legal', 'terms_url'),

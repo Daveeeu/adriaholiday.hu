@@ -96,6 +96,7 @@ export type PortfolioBookingFormTemplate = {
 export type PortfolioOfferDetail = {
   id: number | string;
   name: string;
+  subtitle?: string | null;
   seoName: string;
   shortDescription: string;
   listDescription: string;
@@ -195,4 +196,33 @@ export async function fetchPortfolioOfferDetail(
   return request<PortfolioOfferDetailResponse>(
     `/portfolio/offers/${encodeURIComponent(slug)}`,
   );
+}
+
+export async function fetchPortfolioOfferProgramPdf(slug: string): Promise<Blob> {
+  const response = await fetch(
+    `${getPortfolioApiBaseUrl()}/portfolio/offers/${encodeURIComponent(slug)}/pdf`,
+    {
+      headers: {
+        Accept: 'application/pdf',
+      },
+      credentials: 'include',
+    },
+  );
+
+  if (!response.ok) {
+    let message = `A PDF generálása sikertelen volt (${response.status}).`;
+
+    try {
+      const payload = await response.json();
+      if (typeof payload?.message === 'string' && payload.message.trim() !== '') {
+        message = payload.message;
+      }
+    } catch {
+      // Ignore invalid JSON error payloads.
+    }
+
+    throw new PortfolioApiError(response.status, message);
+  }
+
+  return response.blob();
 }

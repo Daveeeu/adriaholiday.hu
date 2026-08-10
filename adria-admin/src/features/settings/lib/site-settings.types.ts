@@ -18,7 +18,8 @@ export type SiteSettingGroup =
   | 'cta'
   | 'seo'
   | 'analytics'
-  | 'legal';
+  | 'legal'
+  | 'newsletter';
 
 export type SiteLinkItem = {
   label: string;
@@ -66,6 +67,7 @@ export type SiteSettingsFormValues = {
   defaultOgImage: SiteSettingsMedia;
   metaPixelEnabled: boolean;
   metaPixelId: string;
+  newsletterCouponValue: number;
   imprintUrl: string;
   privacyUrl: string;
   termsUrl: string;

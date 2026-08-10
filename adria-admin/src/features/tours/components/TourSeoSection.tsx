@@ -78,6 +78,20 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
 
         <FormField
           control={form.control}
+          name="subtitle"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Alcím</FormLabel>
+              <FormControl>
+                <Input placeholder="Opcionális alcím" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="action1"
           render={({ field }) => (
             <FormItem>

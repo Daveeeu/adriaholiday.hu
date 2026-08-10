@@ -27,6 +27,7 @@ export type PublicSiteSettingsPayload = {
   footer?: { description?: string; copyright?: string; quick_links?: SiteLinkItem[] };
   cta?: { primary_text?: string; primary_link?: string };
   seo?: { default_title?: string; default_description?: string; default_og_image?: SiteMedia };
+  newsletter?: { coupon_value?: number };
   legal?: {
     imprint_url?: string;
     privacy_url?: string;
@@ -60,6 +61,7 @@ export type ResolvedSiteSettings = {
   defaultSeoTitle: string;
   defaultSeoDescription: string;
   defaultOgImage: SiteMedia;
+  newsletterCouponValue: number;
   imprintUrl: string;
   privacyUrl: string;
   termsUrl: string;

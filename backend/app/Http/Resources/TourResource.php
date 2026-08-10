@@ -62,6 +62,7 @@ class TourResource extends JsonResource
             'sliderImageEnabled' => (bool) $this->slider_image_enabled,
             'sliderTextEnabled' => (bool) $this->slider_text_enabled,
             'name' => $this->name,
+            'subtitle' => $this->subtitle,
             'seoName' => $this->seo_name,
             'seoAutoGenerate' => (bool) $this->seo_auto_generate,
             'action1' => $this->action1,

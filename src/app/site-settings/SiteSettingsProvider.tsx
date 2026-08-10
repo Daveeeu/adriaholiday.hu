@@ -28,6 +28,7 @@ const emptySettings: ResolvedSiteSettings = {
   defaultSeoTitle: "",
   defaultSeoDescription: "",
   defaultOgImage: null,
+  newsletterCouponValue: 0,
   imprintUrl: "",
   privacyUrl: "",
   termsUrl: "",
@@ -48,6 +49,10 @@ const SiteSettingsContext = createContext<SiteSettingsContextValue>({
 
 function asString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function asNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
 function sanitizeLinkItems(value: unknown) {
@@ -87,6 +92,7 @@ function resolveSettings(payload: PublicSiteSettingsPayload): ResolvedSiteSettin
     defaultOgImage: payload.seo?.default_og_image && typeof payload.seo.default_og_image === "object"
       ? payload.seo.default_og_image
       : null,
+    newsletterCouponValue: asNumber(payload.newsletter?.coupon_value),
     imprintUrl: asString(payload.legal?.imprint_url),
     privacyUrl: asString(payload.legal?.privacy_url),
     termsUrl: asString(payload.legal?.terms_url),

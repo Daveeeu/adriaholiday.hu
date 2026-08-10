@@ -20,12 +20,18 @@ import {
   Phone,
   Mail,
   Flame,
+  Download,
+  Loader2,
 } from "lucide-react";
 import OfferGallerySection from "./OfferGallerySection";
 import OfferProgramTimeline from "./OfferProgramTimeline";
 import OfferContentSection from "./OfferContentSection";
 import { useAnalytics } from "../analytics/useAnalytics";
-import type { PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
+import {
+  fetchPortfolioOfferProgramPdf,
+  type PortfolioPriceBox,
+} from "../content/portfolio-offer-detail-api";
+import { PortfolioApiError } from "../content/portfolio-api";
 import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
 import OfferCard from "./OfferCard";
 import {
@@ -95,6 +101,44 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   ];
 
   const [selectedDateId, setSelectedDateId] = useState(dateOptions[0].id);
+  const [pdfStatus, setPdfStatus] = useState<"idle" | "generating" | "error">("idle");
+  const [pdfError, setPdfError] = useState("");
+
+  async function handleDownloadPdf() {
+    if (pdfStatus === "generating") {
+      return;
+    }
+
+    setPdfStatus("generating");
+    setPdfError("");
+
+    try {
+      const blob = await fetchPortfolioOfferProgramPdf(trip.slug);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${trip.slug || "program"}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setPdfStatus("idle");
+
+      trackEvent("program_pdf_download", {
+        entity: {
+          type: "tour",
+          slug: trip.slug,
+        },
+      });
+    } catch (error) {
+      setPdfStatus("error");
+      setPdfError(
+        error instanceof PortfolioApiError
+          ? error.message
+          : "Váratlan hiba történt, kérjük próbáld meg később.",
+      );
+    }
+  }
 
   const selectedDate =
     dateOptions.find((item: any) => item.id === selectedDateId) ||
@@ -163,6 +207,12 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
           >
             {trip.title}
           </h1>
+
+          {trip.subtitle ? (
+            <p className="text-white/85 text-2xl font-medium max-w-2xl mt-3">
+              {trip.subtitle}
+            </p>
+          ) : null}
 
           <p className="text-white/75 text-xl max-w-2xl mt-8 leading-relaxed">
             {trip.shortDescription}
@@ -396,6 +446,32 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   >
                     {priceBox?.ctaPrimaryLabel ?? priceBox?.ctaSecondaryLabel}
                   </button>
+                ) : null}
+
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  disabled={pdfStatus === "generating"}
+                  className="w-full h-14 mt-3 rounded-2xl bg-white text-[#0f172a] font-bold border border-gray-200 hover:border-[#00c389]/40 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {pdfStatus === "generating" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  {pdfStatus === "generating" ? "Generálás..." : "Program letöltése PDF-ben"}
+                </button>
+
+                {pdfStatus === "generating" ? (
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    A program PDF-fájljának elkészítése folyamatban van, kérem várjon…
+                  </p>
+                ) : null}
+
+                {pdfStatus === "error" ? (
+                  <p className="text-xs text-red-500 mt-2 text-center">
+                    {pdfError}
+                  </p>
                 ) : null}
 
               </div>

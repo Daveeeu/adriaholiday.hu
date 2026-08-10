@@ -29,6 +29,7 @@ class Tour extends Model implements HasMedia
         'slider_image_enabled',
         'slider_text_enabled',
         'name',
+        'subtitle',
         'seo_name',
         'seo_auto_generate',
         'action1',
