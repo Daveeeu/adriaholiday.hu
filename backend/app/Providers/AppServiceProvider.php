@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Apartment;
+use App\Models\ApartmentType;
 use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
@@ -18,6 +19,7 @@ use App\Models\PartnerBanner;
 use App\Models\PartnerFinanceRecord;
 use App\Models\PortfolioContentBlock;
 use App\Models\PortfolioFilterChip;
+use App\Models\Promotion;
 use App\Models\Region;
 use App\Models\SiteSetting;
 use App\Models\Tour;
@@ -27,6 +29,7 @@ use App\Models\TourRegionGroup;
 use App\Models\TourSeasonalGroup;
 use App\Models\User;
 use App\Policies\ApartmentPolicy;
+use App\Policies\ApartmentTypePolicy;
 use App\Policies\BlogArticlePolicy;
 use App\Policies\BlogCategoryPolicy;
 use App\Policies\BlogTagPolicy;
@@ -42,6 +45,7 @@ use App\Policies\PartnerBannerPolicy;
 use App\Policies\PartnerFinanceRecordPolicy;
 use App\Policies\PortfolioContentBlockPolicy;
 use App\Policies\PortfolioFilterChipPolicy;
+use App\Policies\PromotionPolicy;
 use App\Policies\RegionPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\TourDeparturePlacePolicy;
@@ -76,6 +80,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Location::class, LocationPolicy::class);
         Gate::policy(Gallery::class, GalleryPolicy::class);
         Gate::policy(Apartment::class, ApartmentPolicy::class);
+        Gate::policy(ApartmentType::class, ApartmentTypePolicy::class);
         Gate::policy(Booking::class, BookingPolicy::class);
         Gate::policy(HomepageOffer::class, HomepageOfferPolicy::class);
         Gate::policy(BlogArticle::class, BlogArticlePolicy::class);
@@ -89,6 +94,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(PartnerBanner::class, PartnerBannerPolicy::class);
         Gate::policy(ContactMessage::class, ContactMessagePolicy::class);
         Gate::policy(Coupon::class, CouponPolicy::class);
+        Gate::policy(Promotion::class, PromotionPolicy::class);
         Gate::policy(Tour::class, TourPolicy::class);
         Gate::policy(TourRegionGroup::class, TourRegionGroupPolicy::class);
         Gate::policy(TourSeasonalGroup::class, TourSeasonalGroupPolicy::class);

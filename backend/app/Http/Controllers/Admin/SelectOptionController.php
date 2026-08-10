@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApartmentType;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
 use App\Models\Gallery;
@@ -10,8 +11,8 @@ use App\Models\HomepageOffer;
 use App\Models\Location;
 use App\Models\Region;
 use App\Models\TourDeparturePlace;
-use App\Models\TourRegionGroup;
 use App\Models\TourReferenceOption;
+use App\Models\TourRegionGroup;
 use App\Models\TourSeasonalGroup;
 use Illuminate\Http\Request;
 
@@ -124,6 +125,23 @@ class SelectOptionController extends Controller
             ->orderBy('name')
             ->get(['id', 'name'])
             ->map(fn (TourDeparturePlace $place): array => $this->option($place->id, $place->name))
+            ->all();
+    }
+
+    public function apartmentTypes(Request $request): array
+    {
+        return ApartmentType::query()
+            ->where('is_active', true)
+            ->when($search = trim((string) $request->query('search', '')), function ($query) use ($search): void {
+                $query->where(function ($builder) use ($search): void {
+                    $builder->where('name', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'slug', 'name'])
+            ->map(fn (ApartmentType $type): array => $this->option($type->slug, $type->name))
             ->all();
     }
 

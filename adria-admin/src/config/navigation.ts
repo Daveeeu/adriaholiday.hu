@@ -15,10 +15,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import {
-  APARTMENT_ADMIN_ROUTES,
-  APARTMENT_TYPES,
-} from '@/features/apartments/constants/apartmentTypes';
+import { APARTMENT_ADMIN_ROUTES } from '@/features/apartments/constants/apartmentTypes';
 import { TOUR_MAIN_NAV_ITEMS } from '@/features/tours/lib/tours.constants';
 
 export type NavigationLink = {
@@ -39,7 +36,7 @@ export type NavigationGroup = {
 
 export type NavigationItem = NavigationLink | NavigationGroup;
 
-export const navigationItems: NavigationItem[] = [
+export const staticNavigationItems: NavigationItem[] = [
   { to: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard, exact: true },
   { to: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
   {
@@ -54,12 +51,6 @@ export const navigationItems: NavigationItem[] = [
         exact: true,
         permission: 'apartments.viewAny',
       },
-      ...APARTMENT_TYPES.map((type) => ({
-        to: type.route,
-        labelKey: type.navLabelKey,
-        icon: Building2,
-        permission: 'apartments.viewAny',
-      })),
       ...APARTMENT_ADMIN_ROUTES.map((item) => ({
         to: item.route,
         labelKey: item.labelKey,
@@ -163,6 +154,12 @@ export const navigationItems: NavigationItem[] = [
         labelKey: 'nav.bookings.coupons',
         icon: Ticket,
         permission: 'coupons.viewAny',
+      },
+      {
+        to: '/bookings/promotions',
+        labelKey: 'nav.bookings.promotions',
+        icon: Megaphone,
+        permission: 'promotions.viewAny',
       },
       {
         to: '/bookings/email-csv-export',

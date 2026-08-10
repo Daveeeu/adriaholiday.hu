@@ -10,6 +10,7 @@ export type SubmitBookingPayload = {
   formData: BookingFormData;
   passengers: BookingPassenger[];
   note?: string;
+  couponCode?: string;
   type?: 'tour_booking' | 'tour_inquiry';
 };
 

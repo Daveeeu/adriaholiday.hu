@@ -736,6 +736,7 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
   const [step, setStep] = useState(1);
   const [hasStarted, setHasStarted] = useState(false);
   const [contactValues, setContactValues] = useState<Record<string, string>>({});
+  const [couponCode, setCouponCode] = useState("");
   const [passengers, setPassengers] = useState<Record<string, string>[]>([]);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [fieldErrors, setFieldErrors] = useState<{
@@ -861,6 +862,7 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
         formData: contactValues,
         passengers,
         note: contactValues.note,
+        couponCode: couponCode.trim() || undefined,
         type: "tour_booking",
       });
 
@@ -1085,6 +1087,16 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
                       price="+ díj alapján"
                     />
                   </div>
+
+                  {trip.couponable ? (
+                    <div className="mt-5 max-w-sm">
+                      <FormInput
+                        label="Kuponkód (opcionális)"
+                        value={couponCode}
+                        onChange={setCouponCode}
+                      />
+                    </div>
+                  ) : null}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
                     <PaymentOption title="Banki befizetés" />

@@ -43,6 +43,7 @@ export type CouponStatus = 'active' | 'used' | 'expired';
 
 export interface TourBooking {
   id: string;
+  couponCode: string | null;
   partnerName: string;
   partnerEmail: string;
   partnerPhone: string;
@@ -211,6 +212,17 @@ export interface Coupon {
   createdAt: string;
 }
 
+export interface Promotion {
+  id: string;
+  title: string;
+  message: string;
+  code: string;
+  isActive: boolean;
+  startsAt: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
 export type TourBookingFormValues = Omit<
   TourBooking,
   'id' | 'createdAt' | 'cancelled'
@@ -239,6 +251,8 @@ export type PartnerBannerFormValues = Omit<
 export type ContactMessageFormValues = Omit<ContactMessage, 'id'>;
 
 export type CouponFormValues = Omit<Coupon, 'id' | 'createdAt'>;
+
+export type PromotionFormValues = Omit<Promotion, 'id' | 'createdAt'>;
 
 export type BookingModuleKey =
   | 'tourBookings'

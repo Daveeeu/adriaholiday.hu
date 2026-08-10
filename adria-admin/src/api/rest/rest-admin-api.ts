@@ -1,6 +1,7 @@
 import type {
   Apartment,
   ApartmentPrice,
+  ApartmentType,
   Booking,
   BookingDetail,
   Bus,
@@ -16,6 +17,7 @@ import type {
 import type {
   AdminApi,
   ApartmentsListQuery,
+  ApartmentTypeMutationInput,
   BookingStatusMutationInput,
   RegionMutationInput,
   ApartmentMutationInput,
@@ -243,6 +245,51 @@ export class RestAdminApi implements AdminApi {
     return apiClient.patch<Region>(`/api/admin/regions/${regionId}/status`, {
       status: isActive ? 'active' : 'inactive',
     });
+  }
+
+  public async listApartmentTypes(): Promise<ApartmentType[]> {
+    const response = await apiClient.get<PaginatedResponse<ApartmentType>>(
+      '/api/admin/apartment-types',
+      { query: { page: 1, perPage: 1000, sortBy: 'sortOrder', sortDirection: 'asc' } },
+    );
+    return mapPaginated(response);
+  }
+
+  public async createApartmentType(
+    input: ApartmentTypeMutationInput,
+  ): Promise<ApartmentType> {
+    const response = await apiClient.post<{ data: ApartmentType }>(
+      '/api/admin/apartment-types',
+      input,
+    );
+    return response.data;
+  }
+
+  public async updateApartmentType(
+    apartmentTypeId: string,
+    input: ApartmentTypeMutationInput,
+  ): Promise<ApartmentType> {
+    const response = await apiClient.patch<{ data: ApartmentType }>(
+      `/api/admin/apartment-types/${apartmentTypeId}`,
+      input,
+    );
+    return response.data;
+  }
+
+  public async deleteApartmentType(apartmentTypeId: string): Promise<{ id: string }> {
+    await apiClient.delete<void>(`/api/admin/apartment-types/${apartmentTypeId}`);
+    return { id: apartmentTypeId };
+  }
+
+  public async setApartmentTypeActiveState(
+    apartmentTypeId: string,
+    isActive: boolean,
+  ): Promise<ApartmentType> {
+    const response = await apiClient.patch<{ data: ApartmentType }>(
+      `/api/admin/apartment-types/${apartmentTypeId}/status`,
+      { isActive },
+    );
+    return response.data;
   }
 
   public async listLocations(regionId?: string): Promise<Location[]> {

@@ -16,9 +16,7 @@ use Illuminate\Validation\ValidationException;
  */
 class PublicBookingService
 {
-    public function __construct(private readonly BookingNotificationService $notifications)
-    {
-    }
+    public function __construct(private readonly BookingNotificationService $notifications) {}
 
     /**
      * @param  array<string, mixed>  $validated
@@ -103,6 +101,7 @@ class PublicBookingService
             'departure_date' => $tourDate?->start_date,
             'notes' => $formData['note'] ?? null,
             'message' => $validated['note'] ?? null,
+            'coupon_code' => $validated['coupon_code'] ?? null,
             'payload' => [
                 'bookingFormTemplateId' => $tour->booking_form_template_id,
                 'tourDateId' => $validated['tour_date_id'] ?? null,

@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin\Tour;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +26,7 @@ class UpdateTourRequest extends FormRequest
             'partner_offer' => $this->boolean('partner_offer', $this->boolean('partnerOffer', false)),
             'image_offer' => $this->boolean('image_offer', $this->boolean('imageOffer', false)),
             'xml_enabled' => $this->boolean('xml_enabled', $this->boolean('xmlEnabled', false)),
+            'couponable' => $this->boolean('couponable', false),
             'slider_image_enabled' => $this->boolean('slider_image_enabled', $this->boolean('sliderImageEnabled', false)),
             'slider_text_enabled' => $this->boolean('slider_text_enabled', $this->boolean('sliderTextEnabled', false)),
             'seo_auto_generate' => $this->boolean('seo_auto_generate', $this->boolean('seoAutoGenerate', false)),
@@ -157,6 +157,7 @@ class UpdateTourRequest extends FormRequest
             'partner_offer' => ['boolean'],
             'image_offer' => ['boolean'],
             'xml_enabled' => ['boolean'],
+            'couponable' => ['boolean'],
             'slider_image_enabled' => ['boolean'],
             'slider_text_enabled' => ['boolean'],
             'name' => ['required', 'string', 'max:255'],

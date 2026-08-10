@@ -60,6 +60,7 @@ function createTourDefaults(overrides?: Partial<Tour>): Tour {
     partnerOffer: false,
     imageOffer: false,
     xmlEnabled: true,
+    couponable: false,
     sliderImageEnabled: false,
     sliderTextEnabled: false,
     name: '',

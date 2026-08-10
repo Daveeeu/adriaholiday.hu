@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Support\TourLabelResolver;
-use App\Http\Resources\BookingFormTemplateResource;
+use App\Models\HomepageOffer;
 use App\Support\PriceBoxData;
 use App\Support\RichTextSanitizer;
-use App\Models\HomepageOffer;
+use App\Support\TourLabelResolver;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -59,6 +58,7 @@ class TourResource extends JsonResource
             'partnerOffer' => (bool) $this->partner_offer,
             'imageOffer' => (bool) $this->image_offer,
             'xmlEnabled' => (bool) $this->xml_enabled,
+            'couponable' => (bool) $this->couponable,
             'sliderImageEnabled' => (bool) $this->slider_image_enabled,
             'sliderTextEnabled' => (bool) $this->slider_text_enabled,
             'name' => $this->name,

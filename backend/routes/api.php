@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\ApartmentController;
+use App\Http\Controllers\Admin\ApartmentTypeController;
 use App\Http\Controllers\Admin\BlogArticleController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogTagController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Admin\PartnerFinanceRecordController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PortfolioContentController as AdminPortfolioContentController;
 use App\Http\Controllers\Admin\PortfolioFilterChipController as AdminPortfolioFilterChipController;
+use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SelectOptionController;
@@ -41,6 +43,7 @@ use App\Http\Controllers\PortfolioFeaturedTourController;
 use App\Http\Controllers\PortfolioFilterChipController;
 use App\Http\Controllers\PortfolioHomepageOfferController;
 use App\Http\Controllers\PortfolioOfferController;
+use App\Http\Controllers\PortfolioPromotionController;
 use App\Http\Controllers\PortfolioRegionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
 use App\Http\Controllers\PublicBookingController;
@@ -53,6 +56,7 @@ Route::get('portfolio/regions/{slug}', [PortfolioRegionController::class, 'show'
 Route::get('portfolio/blog', [PortfolioBlogController::class, 'index']);
 Route::get('portfolio/blog/{slug}', [PortfolioBlogController::class, 'show']);
 Route::get('portfolio/homepage-offers', [PortfolioHomepageOfferController::class, 'index']);
+Route::get('portfolio/promotion', [PortfolioPromotionController::class, 'active']);
 Route::get('portfolio/featured-tours', [PortfolioFeaturedTourController::class, 'index']);
 Route::get('portfolio/offers', [PortfolioOfferController::class, 'index']);
 Route::get('portfolio/categories/{slug}/filters', [PortfolioFilterChipController::class, 'categoryFilters']);
@@ -94,6 +98,10 @@ Route::prefix('admin')
         Route::apiResource('galleries', GalleryController::class);
         Route::apiResource('apartments', ApartmentController::class);
         Route::patch('apartments/{apartment}/status', [ApartmentController::class, 'status']);
+        Route::apiResource('apartment-types', ApartmentTypeController::class)->parameters([
+            'apartment-types' => 'apartmentType',
+        ]);
+        Route::patch('apartment-types/{apartmentType}/status', [ApartmentTypeController::class, 'status']);
         Route::apiResource('homepage-offers', HomepageOfferController::class);
         Route::apiResource('portfolio-filter-chips', AdminPortfolioFilterChipController::class);
         Route::get('dashboard/summary', [DashboardController::class, 'summary'])->middleware('permission:dashboard.view');
@@ -134,6 +142,7 @@ Route::prefix('admin')
             Route::get('locations', [SelectOptionController::class, 'locations']);
             Route::get('galleries', [SelectOptionController::class, 'galleries']);
             Route::get('departure-places', [SelectOptionController::class, 'departurePlaces']);
+            Route::get('apartment-types', [SelectOptionController::class, 'apartmentTypes']);
             Route::get('countries', [SelectOptionController::class, 'countries']);
             Route::get('fits', [SelectOptionController::class, 'fits']);
             Route::get('program-types', [SelectOptionController::class, 'programTypes']);
@@ -212,6 +221,8 @@ Route::prefix('admin')
         Route::patch('bookings/messages/{contactMessage}/status', [ContactMessageController::class, 'status'])->whereNumber('contactMessage');
         Route::apiResource('bookings/coupons', CouponController::class)->whereNumber('coupon');
         Route::patch('bookings/coupons/{coupon}/status', [CouponController::class, 'status'])->whereNumber('coupon');
+        Route::apiResource('bookings/promotions', PromotionController::class)->whereNumber('promotion');
+        Route::patch('bookings/promotions/{promotion}/status', [PromotionController::class, 'status'])->whereNumber('promotion');
         Route::get('bookings/email-csv-export', [EmailCsvExportController::class, 'index'])->middleware('permission:email-csv-export.view');
 
         Route::apiResource('users', UserController::class);

@@ -63,6 +63,7 @@ function initialDraft(record?: TourBooking | null): TourBookingFormValues {
   const detail = record as TourBookingDetail | null | undefined;
 
   return {
+    couponCode: record?.couponCode ?? null,
     partnerName: record?.partnerName ?? '',
     partnerEmail: record?.partnerEmail ?? '',
     partnerPhone: record?.partnerPhone ?? '',

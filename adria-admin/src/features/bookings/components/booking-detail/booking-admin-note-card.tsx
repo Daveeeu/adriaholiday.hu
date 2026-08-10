@@ -26,6 +26,7 @@ export function BookingAdminNoteCard({ booking }: { booking: TourBookingDetail }
   const mutation = useMutation({
     mutationFn: () =>
       updateTourBookingRecord(booking.id, {
+        couponCode: booking.couponCode,
         partnerName: booking.partnerName,
         partnerEmail: booking.partnerEmail,
         partnerPhone: booking.partnerPhone,

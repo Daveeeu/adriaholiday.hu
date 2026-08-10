@@ -66,7 +66,7 @@ class StoreApartmentRequest extends FormRequest
             'region_id' => ['required', 'integer', 'exists:regions,id'],
             'location_id' => ['required', 'integer', 'exists:locations,id'],
             'gallery_id' => ['required', 'integer', 'exists:galleries,id'],
-            'type' => ['required', 'string', Rule::in(['greek', 'bulgarian', 'montenegro', 'croatian', 'croatian_new'])],
+            'type' => ['required', 'string', Rule::exists('apartment_types', 'slug')],
             'slug' => ['required', 'string', 'max:255', Rule::unique('apartments', 'slug')],
             'code' => ['nullable', 'string', 'max:255', Rule::unique('apartments', 'code')],
             'seo_name' => ['nullable', 'string', 'max:255'],

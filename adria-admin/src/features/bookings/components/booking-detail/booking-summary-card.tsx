@@ -25,6 +25,7 @@ export function BookingSummaryCard({ booking }: { booking: TourBookingDetail }) 
       <div className="grid gap-3 text-sm md:grid-cols-2">
         <DetailField label="Foglalás azonosító" value={`#${booking.id}`} />
         <DetailField label="Foglalás típusa" value="Körutazás foglalás" />
+        <DetailField label="Kuponkód" value={booking.couponCode || null} />
         <DetailField
           label="Aktuális státusz"
           value={<StatusBadge label={getTourBookingStatusLabel(booking.status)} tone={statusTone(booking.status)} />}

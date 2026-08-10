@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Booking;
 use App\Models\BookingFormField;
 use App\Models\BookingFormTemplate;
 use App\Models\Tour;
@@ -123,6 +124,47 @@ class BookingFormTemplateTest extends TestCase
             'email' => 'anna@example.com',
             'customer_name' => 'Kovács Anna',
         ]);
+    }
+
+    public function test_couponable_tour_stores_the_submitted_coupon_code(): void
+    {
+        $this->seed(BookingFormFieldSeeder::class);
+        $this->seed(BookingFormTemplateSeeder::class);
+
+        $template = BookingFormTemplate::query()->where('slug', 'buszos-ut')->firstOrFail();
+        $tour = Tour::factory()->create([
+            'booking_form_template_id' => $template->id,
+            'couponable' => true,
+        ]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'participants' => 1,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna'],
+            ],
+            'couponCode' => 'NYAR10',
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('bookings', [
+            'tour_id' => $tour->id,
+            'coupon_code' => 'NYAR10',
+        ]);
+    }
+
+    public function test_tour_couponable_flag_is_exposed_on_the_public_offer_detail(): void
+    {
+        $tour = Tour::factory()->create(['couponable' => true, 'seo_name' => 'couponable-tour']);
+
+        $response = $this->getJson("/api/portfolio/offers/{$tour->seo_name}");
+
+        $response->assertOk()->assertJsonPath('couponable', true);
     }
 
     public function test_admin_crud_without_permission_returns_403(): void
@@ -298,7 +340,7 @@ class BookingFormTemplateTest extends TestCase
 
         $response->assertCreated();
 
-        $booking = \App\Models\Booking::find($response->json('id'));
+        $booking = Booking::find($response->json('id'));
         $this->assertArrayNotHasKey('document_type', $booking->payload['passengers'][0]);
         $this->assertArrayNotHasKey('document_number', $booking->payload['passengers'][0]);
     }

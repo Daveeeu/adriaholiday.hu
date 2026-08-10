@@ -117,6 +117,7 @@ function BooleanField({
   name:
     | 'active'
     | 'xmlEnabled'
+    | 'couponable'
     | 'featured'
     | 'recommended'
     | 'partnerOffer'
@@ -254,6 +255,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
           <BooleanField form={form} name="active" label="Aktív?" />
           <BooleanField form={form} name="xmlEnabled" label="XML-ben szerepel?" />
+          <BooleanField form={form} name="couponable" label="Kuponozható?" />
           <BooleanField form={form} name="imageOffer" label="Képes ajánlat?" />
           <BooleanField form={form} name="sliderImageEnabled" label="Slider kép" />
           <BooleanField form={form} name="sliderTextEnabled" label="Slider szöveg" />

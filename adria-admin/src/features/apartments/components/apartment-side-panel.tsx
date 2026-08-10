@@ -18,7 +18,7 @@ import {
   getApartmentFormDefaults,
 } from '../lib/apartment-schema';
 import type { ApartmentFormValues, ApartmentPanelMode } from '../lib/apartments.types';
-import { getApartmentTypeDefinition } from '@/features/apartments/constants/apartmentTypes';
+import { useApartmentTypes } from '@/features/apartments/lib/use-apartment-types';
 
 type ApartmentSidePanelProps = {
   open: boolean;
@@ -152,8 +152,9 @@ function ApartmentDetailView({
   const regionName = regions.find((region) => region.id === regionRef)?.name ?? regionRef;
   const locationName = locations.find((location) => location.id === locationRef)?.name ?? locationRef;
   const galleryTitle = galleries.find((gallery) => gallery.id === galleryRef)?.title ?? galleryRef;
+  const { data: apartmentTypes } = useApartmentTypes();
   const typeLabel =
-    getApartmentTypeDefinition(apartment.type)?.label ?? apartment.type;
+    apartmentTypes?.find((type) => type.slug === apartment.type)?.name ?? apartment.type;
   const groupedServices = APARTMENT_SERVICE_GROUPS.map((group) => ({
     ...group,
     services: group.services.filter((service) =>

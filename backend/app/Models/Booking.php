@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\BookingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Booking extends Model
 {
-    /** @use HasFactory<\Database\Factories\BookingFactory> */
+    /** @use HasFactory<BookingFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [
@@ -49,6 +50,7 @@ class Booking extends Model
         'apartment_name_snapshot',
         'partner_name_snapshot',
         'offer_code',
+        'coupon_code',
         'total_amount',
         'paid_amount',
         'currency',

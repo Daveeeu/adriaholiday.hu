@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
 import { createSlug } from '@/data/generators/core-generators';
-import {
-  APARTMENT_TYPE_DEFAULT_DIMENSIONS,
-  APARTMENT_TYPE_VALUES,
-} from '@/features/apartments/constants/apartmentTypes';
 import { apartmentPricingMatrixConfig } from './apartments.constants';
 import type { ApartmentFormContext, ApartmentFormValues } from './apartments.types';
 import type { Apartment } from '@/types/domain';
@@ -54,10 +50,7 @@ export const apartmentFormSchema = z
     autoGenerateSeoName: z.boolean(),
     seo_auto_generate: z.boolean(),
     code: z.string().trim().min(2, 'A kód megadása kötelező.'),
-    type: z.union([
-      z.enum(APARTMENT_TYPE_VALUES),
-      z.literal(''),
-    ]),
+    type: z.string(),
     bedrooms: z.number().int().min(0),
     bathrooms: z.number().int().min(0),
     maxGuests: z.number().int().min(0),
@@ -227,8 +220,4 @@ export function getApartmentFormDefaults(
     place_id: apartment?.place_id ?? locationId,
     gallery_id: apartment?.gallery_id ?? galleryId,
   };
-}
-
-export function getApartmentDimensions(type: Apartment['type']) {
-  return APARTMENT_TYPE_DEFAULT_DIMENSIONS[type];
 }
