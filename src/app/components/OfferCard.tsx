@@ -5,6 +5,7 @@ import OfferCardCTA from "./offer-card/OfferCardCTA";
 import OfferCardContent from "./offer-card/OfferCardContent";
 import OfferCardMedia from "./offer-card/OfferCardMedia";
 import OfferCardMeta from "./offer-card/OfferCardMeta";
+import OfferCardPrice from "./offer-card/OfferCardPrice";
 import type { OfferCardVariant } from "./offer-card/offer-card-variant";
 
 type OfferCardProps = {
@@ -23,15 +24,15 @@ export default function OfferCard({
   offer,
   variant = "default",
   className,
-  ctaLabel = "Részletek",
+  ctaLabel = "Foglalás",
   onClick,
 }: OfferCardProps) {
   const isHero = variant === "hero";
 
   const cardClassName = joinClasses(
-    "group relative h-full overflow-hidden border border-gray-100 bg-white transition-all duration-500",
+    "group relative flex h-full flex-col overflow-hidden border border-gray-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-[#00c389]/25",
     isHero
-      ? "rounded-[34px] shadow-[0_18px_60px_rgba(0,195,137,0.14)]"
+      ? "rounded-[34px] shadow-[0_10px_40px_rgba(15,23,42,0.07)] hover:shadow-[0_20px_56px_rgba(0,195,137,0.16)]"
       : "rounded-[28px] shadow-[0_6px_28px_rgba(15,23,42,0.06)] hover:shadow-[0_16px_44px_rgba(0,195,137,0.14)]",
     className,
   );
@@ -39,10 +40,13 @@ export default function OfferCard({
   const content = (
     <>
       <OfferCardMedia offer={offer} variant={variant} />
-      <div className={isHero ? "p-6" : "p-5"}>
+      <div className={joinClasses("flex flex-1 flex-col", isHero ? "p-6" : "p-5")}>
         <OfferCardContent offer={offer} variant={variant} />
         <OfferCardMeta offer={offer} />
-        <OfferCardCTA label={ctaLabel} />
+        <div className="mt-auto flex items-center justify-between gap-4 border-t border-gray-100 pt-4">
+          <OfferCardPrice offer={offer} />
+          <OfferCardCTA label={ctaLabel} />
+        </div>
       </div>
     </>
   );
@@ -53,7 +57,7 @@ export default function OfferCard({
         type="button"
         onClick={onClick}
         aria-label={`${offer.name} – ${ctaLabel}`}
-        className={joinClasses(cardClassName, "block w-full text-left")}
+        className={joinClasses(cardClassName, "w-full text-left")}
       >
         {content}
       </button>
