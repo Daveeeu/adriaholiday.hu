@@ -375,7 +375,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   ) : null}
                 </div>
 
-                {(priceBox?.ctaPrimaryLabel ?? priceBox?.ctaSecondaryLabel) ? (
+                {priceBox ? (
                   <button
                     type="button"
                     onClick={() => {
@@ -392,9 +392,10 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                         .getElementById("foglalas")
                         ?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
-                    className="w-full h-14 rounded-2xl bg-[#f5f9fc] text-[#0f172a] font-bold border border-gray-200 hover:border-[#00c389]/40 transition-all"
+                    className="group/cta flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] font-bold text-white shadow-[0_14px_34px_rgba(0,195,137,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_44px_rgba(0,195,137,0.4)]"
                   >
-                    {priceBox?.ctaPrimaryLabel ?? priceBox?.ctaSecondaryLabel}
+                    Foglalás
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/cta:translate-x-1" />
                   </button>
                 ) : null}
 
@@ -511,18 +512,17 @@ function PriceBox({
         {discountedDisplayedPrice ?? priceBox.displayedPrice}
       </div>
 
-      {(priceBox.ctaPrimaryLabel ?? priceBox.ctaSecondaryLabel) ? (
-        <a
-          href="#foglalas"
-          onClick={(event) => {
-            event.preventDefault();
-            onBookClick();
-          }}
-          className="w-full mt-6 h-14 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-bold text-lg shadow-[0_20px_40px_rgba(0,195,137,0.25)] flex items-center justify-center"
-        >
-          {priceBox.ctaPrimaryLabel ?? priceBox.ctaSecondaryLabel}
-        </a>
-      ) : null}
+      <a
+        href="#foglalas"
+        onClick={(event) => {
+          event.preventDefault();
+          onBookClick();
+        }}
+        className="group/cta mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-lg font-bold text-white shadow-[0_20px_40px_rgba(0,195,137,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_26px_52px_rgba(0,195,137,0.4)]"
+      >
+        Foglalás
+        <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover/cta:translate-x-1" />
+      </a>
     </div>
   );
 }
