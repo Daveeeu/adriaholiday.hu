@@ -40,7 +40,7 @@ export default function CinematicHero() {
   );
   const heroStats = getValue("home.hero.stats", [
     { value: "10 000+", label: "elégedett utas" },
-    { value: "15+", label: "év tapasztalat" },
+    { value: "22+", label: "év tapasztalat" },
     { value: "4.9/5", label: "értékelés" },
     { value: "100%", label: "kényelmes utazás" },
   ]) as Array<{ value: string; label: string }>;
@@ -144,7 +144,7 @@ export default function CinematicHero() {
                 >
                   <EditableText
                     fieldKey="home.hero.accent"
-                    fallback="Az élmény vár rád"
+                    fallback="Az élmény rád vár"
                     as="span"
                     className="text-[#00c389]"
                     style={{
@@ -194,7 +194,7 @@ export default function CinematicHero() {
               >
                 <EditableText
                   fieldKey="home.hero.subtitle"
-                  fallback="Tengerparti utak, városlátogatások és körutazások tapasztalt szervezéssel, kényelmes buszokkal."
+                  fallback="Tengerparti utak, városlátogatások és körutazások tapasztalt szervezéssel, kényelmes autóbuszokkal vagy épp repülővel."
                   as="span"
                 />
               </motion.p>

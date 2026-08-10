@@ -39,7 +39,7 @@ const featuresFallback = [
   },
   {
     icon: "calendar",
-    title: "15 év tapasztalat",
+    title: "22+ év tapasztalat",
     description: "Megbízható háttér és szakértelem.",
   },
 ];
@@ -238,7 +238,7 @@ export default function WhyChooseUs() {
 
                   <div>
                     <div className="text-2xl font-bold text-[#00c389] leading-none">
-                      15 év
+                      22+ év
                     </div>
 
                     <div className="text-sm text-gray-600 mt-1">
