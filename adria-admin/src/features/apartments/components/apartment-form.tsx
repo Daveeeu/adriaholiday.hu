@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -12,10 +13,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import type { Gallery, Location, Region } from '@/types/domain';
 import { RichTextEditor } from '@/components/editor/rich-text-editor';
-import {
-  APARTMENT_TYPES,
-  getApartmentTypeDefinition,
-} from '@/features/apartments/constants/apartmentTypes';
+import { useApartmentTypes } from '@/features/apartments/lib/use-apartment-types';
 
 import { ApartmentLocationSection } from './apartment-location-section';
 import { ApartmentContentSection } from './apartment-content-section';
@@ -63,7 +61,15 @@ export function ApartmentForm({
   typeLocked = false,
 }: ApartmentFormProps) {
   const selectedType = form.watch('type');
-  const typeDefinition = getApartmentTypeDefinition(selectedType);
+  const { data: apartmentTypes } = useApartmentTypes();
+  const typeDefinition = apartmentTypes?.find((type) => type.slug === selectedType);
+  const typeOptions = useMemo(() => {
+    const active = (apartmentTypes ?? []).filter((type) => type.isActive);
+    const currentInactive = apartmentTypes?.find(
+      (type) => type.slug === selectedType && !type.isActive,
+    );
+    return currentInactive ? [...active, currentInactive] : active;
+  }, [apartmentTypes, selectedType]);
 
   return (
     <div className="space-y-4">
@@ -81,7 +87,7 @@ export function ApartmentForm({
               Előre beállított típus
             </div>
             <div className="mt-1 text-sm font-medium">
-              {typeDefinition?.formLabel ?? 'Nincs kiválasztva típus'}
+              {typeDefinition?.name ?? 'Nincs kiválasztva típus'}
             </div>
           </div>
         ) : (
@@ -98,9 +104,10 @@ export function ApartmentForm({
                     onChange={(event) => field.onChange(event.target.value)}
                   >
                     <option value="">-- Válassz típust --</option>
-                    {APARTMENT_TYPES.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.formLabel}
+                    {typeOptions.map((option) => (
+                      <option key={option.slug} value={option.slug}>
+                        {option.name}
+                        {!option.isActive ? ' (inaktív)' : ''}
                       </option>
                     ))}
                   </select>

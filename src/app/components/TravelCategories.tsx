@@ -97,7 +97,7 @@ export default function TravelCategories({
 
           <EditableText
             fieldKey="home.categories.subtitle"
-            fallback="Valós Adria Holiday ajánlatok, aktuális utazási kínálattal."
+            fallback="Valódi Adria Holiday ajánlatok, folyamatosan frissülő utazási kínálattal."
             as="p"
             className="mx-auto max-w-2xl text-lg leading-relaxed text-[#64748b]"
           />

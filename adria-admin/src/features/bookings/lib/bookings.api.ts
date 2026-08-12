@@ -18,6 +18,8 @@ import type {
   PartnerBannerFormValues,
   PartnerFinanceFormValues,
   PartnerFinanceRecord,
+  Promotion,
+  PromotionFormValues,
   TourBooking,
   TourBookingDetail,
   TourBookingFormValues,
@@ -73,6 +75,7 @@ type BookingResource = {
   apartmentName: string | null;
   partnerName: string | null;
   offerCode: string | null;
+  couponCode: string | null;
   totalAmount: number | null;
   paidAmount: number | null;
   currency: string;
@@ -103,6 +106,7 @@ type BookingDetailResource = BookingResource & {
 function mapTourBooking(resource: BookingResource): TourBooking {
   return {
     id: resource.id,
+    couponCode: resource.couponCode ?? null,
     partnerName: resource.partnerName ?? resource.customerName ?? '',
     partnerEmail: resource.email ?? '',
     partnerPhone: resource.phone ?? '',
@@ -564,4 +568,32 @@ export function updateCouponStatusRecord(id: string, status: string) {
   return apiClient.patch<Coupon>(`/api/admin/bookings/coupons/${id}/status`, {
     status,
   });
+}
+
+export function getPromotions(query: CrudListQuery) {
+  return apiClient.get<CrudListResponse<Promotion>>('/api/admin/bookings/promotions', {
+    query: listQuery(query),
+  });
+}
+
+export function createPromotionRecord(values: PromotionFormValues) {
+  return apiClient
+    .post<Promotion | { data: Promotion }>('/api/admin/bookings/promotions', values)
+    .then(unwrapResource);
+}
+
+export function updatePromotionRecord(id: string, values: PromotionFormValues) {
+  return apiClient
+    .patch<Promotion | { data: Promotion }>(`/api/admin/bookings/promotions/${id}`, values)
+    .then(unwrapResource);
+}
+
+export function deletePromotionRecord(id: string) {
+  return apiClient.delete<void>(`/api/admin/bookings/promotions/${id}`);
+}
+
+export function getPromotionRecord(id: string) {
+  return apiClient
+    .get<Promotion | { data: Promotion }>(`/api/admin/bookings/promotions/${id}`)
+    .then(unwrapResource);
 }

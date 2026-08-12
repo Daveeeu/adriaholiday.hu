@@ -31,10 +31,10 @@ const statsFallback: Stat[] = [
   },
   {
     icon: "award",
-    value: 15,
-    suffix: " év",
+    value: 22,
+    suffix: "+ év",
     label: "Tapasztalat",
-    description: "Több mint egy évtizede szervezünk utazásokat.",
+    description: "Több mint 22 éve szervezünk utazásokat.",
   },
   {
     icon: "mapPin",
@@ -201,7 +201,7 @@ export default function TrustSection() {
             <div className="hidden sm:block w-px h-4 bg-gray-300" />
             <div className="flex items-center gap-2 text-gray-600">
               <Award className="w-4 h-4 text-[#00c389]" />
-              <span className="text-sm font-medium">15 év tapasztalat</span>
+              <span className="text-sm font-medium">22+ év tapasztalat</span>
             </div>
           </motion.div>
         </motion.div>

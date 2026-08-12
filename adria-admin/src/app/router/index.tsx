@@ -11,10 +11,7 @@ import { RequirePermission } from '@/components/common/require-permission';
 import { AppShell } from '@/components/layout/app-shell';
 import { getRoutePermission } from '@/config/navigation-permissions';
 import { AdminPlaceholderPage } from '@/features/shared/components/admin-placeholder-page';
-import {
-  APARTMENT_ADMIN_ROUTES,
-  APARTMENT_TYPES,
-} from '@/features/apartments/constants/apartmentTypes';
+import { APARTMENT_ADMIN_ROUTES } from '@/features/apartments/constants/apartmentTypes';
 
 function withPermission(path: string, element: ReactNode) {
   return <RequirePermission permission={getRoutePermission(path)}>{element}</RequirePermission>;
@@ -90,6 +87,11 @@ const CouponsPage = lazy(() =>
     default: module.CouponsPage,
   })),
 );
+const PromotionsPage = lazy(() =>
+  import('@/features/bookings/routes/promotions-page').then((module) => ({
+    default: module.PromotionsPage,
+  })),
+);
 const EmailCsvExportPage = lazy(() =>
   import('@/features/bookings/routes/email-csv-export-page').then((module) => ({
     default: module.EmailCsvExportPage,
@@ -128,6 +130,11 @@ const LocationsPage = lazy(() =>
 const RegionsPage = lazy(() =>
   import('@/features/regions/routes/regions-page').then((module) => ({
     default: module.RegionsPage,
+  })),
+);
+const ApartmentTypesPage = lazy(() =>
+  import('@/features/apartments/routes/apartment-types-page').then((module) => ({
+    default: module.ApartmentTypesPage,
   })),
 );
 const HomepageOffersPage = lazy(() =>
@@ -218,10 +225,47 @@ const apartmentModuleRoutes = [
         element: <ApartmentsPage />,
         handle: { crumbKey: 'nav.apartments.edit' },
       },
-      ...APARTMENT_TYPES.map((type) => ({
-        path: type.route.replace('/apartments/', ''),
+      ...APARTMENT_ADMIN_ROUTES.map((route) => ({
+        path: route.route.replace('/apartments/', ''),
+        element:
+          route.route === '/apartments/regions' ? (
+            <RegionsPage />
+          ) : route.route === '/apartments/places' ? (
+            <LocationsPage />
+          ) : route.route === '/apartments/types' ? (
+            <ApartmentTypesPage />
+          ) : (
+            <AdminPlaceholderPage
+              eyebrow="Apartmanok"
+              title={
+                route.route === '/apartments/services'
+                  ? 'Szolgáltatások'
+                  : route.route === '/apartments/actions'
+                    ? 'Akciók'
+                    : 'Egyedi intervallumok'
+              }
+              description={
+                route.route === '/apartments/services'
+                  ? 'Szolgáltatás katalógus kezelőfelület.'
+                  : route.route === '/apartments/actions'
+                    ? 'Apartman akciók kezelőfelülete.'
+                    : 'Egyedi időintervallumok kezelése.'
+              }
+              metrics={[
+                {
+                  label: 'Állapot',
+                  value: 'Előkészítve',
+                  hint: 'A modul jelenleg előkészített állapotban van.',
+                },
+              ]}
+            />
+          ),
+        handle: { crumbKey: route.labelKey },
+      })),
+      {
+        path: ':typeSlug',
         element: <Outlet />,
-        handle: { crumbKey: type.navLabelKey },
+        handle: { crumbKey: 'nav.apartments.type' },
         children: [
           { index: true, element: <ApartmentsPage /> },
           {
@@ -240,46 +284,7 @@ const apartmentModuleRoutes = [
             handle: { crumbKey: 'nav.apartments.edit' },
           },
         ],
-      })),
-      ...APARTMENT_ADMIN_ROUTES.map((route) => ({
-        path: route.route.replace('/apartments/', ''),
-        element:
-          route.route === '/apartments/regions' ? (
-            <RegionsPage />
-          ) : route.route === '/apartments/places' ? (
-            <LocationsPage />
-          ) : (
-            <AdminPlaceholderPage
-              eyebrow="Apartmanok"
-              title={
-                route.route === '/apartments/types'
-                  ? 'Típusok'
-                  : route.route === '/apartments/services'
-                    ? 'Szolgáltatások'
-                    : route.route === '/apartments/actions'
-                      ? 'Akciók'
-                      : 'Egyedi intervallumok'
-              }
-              description={
-                route.route === '/apartments/types'
-                  ? 'Az apartman típusszótár és a kapcsolódó kategóriák kezelési helye.'
-                  : route.route === '/apartments/services'
-                    ? 'Szolgáltatás katalógus kezelőfelület.'
-                    : route.route === '/apartments/actions'
-                      ? 'Apartman akciók kezelőfelülete.'
-                      : 'Egyedi időintervallumok kezelése.'
-              }
-              metrics={[
-                {
-                  label: 'Állapot',
-                  value: 'Előkészítve',
-                  hint: 'A modul jelenleg előkészített állapotban van.',
-                },
-              ]}
-            />
-          ),
-        handle: { crumbKey: route.labelKey },
-      })),
+      },
     ],
   },
 ];
@@ -352,6 +357,11 @@ const router = createBrowserRouter(
               path: 'coupons',
               element: <CouponsPage />,
               handle: { crumbKey: 'nav.bookings.coupons' },
+            },
+            {
+              path: 'promotions',
+              element: <PromotionsPage />,
+              handle: { crumbKey: 'nav.bookings.promotions' },
             },
             {
               path: 'email-csv-export',

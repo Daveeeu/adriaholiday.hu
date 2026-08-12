@@ -1,4 +1,5 @@
 import type { ApartmentRepository } from '@/repositories/apartment-repository';
+import type { ApartmentTypeRepository } from '@/repositories/apartment-type-repository';
 import type { BookingRepository } from '@/repositories/booking-repository';
 import type { ReferenceDataRepository } from '@/repositories/reference-data-repository';
 import type { RegionRepository } from '@/repositories/region-repository';
@@ -7,6 +8,7 @@ import { restAdminApi } from '@/api/rest/rest-admin-api';
 export type AdminRepositories = {
   regionRepository: RegionRepository;
   apartmentRepository: ApartmentRepository;
+  apartmentTypeRepository: ApartmentTypeRepository;
   bookingRepository: BookingRepository;
   referenceDataRepository: ReferenceDataRepository;
 };
@@ -19,6 +21,15 @@ export const repositories: AdminRepositories = {
     delete: (regionId) => restAdminApi.deleteRegion(regionId),
     setActiveState: (regionId, isActive) =>
       restAdminApi.setRegionActiveState(regionId, isActive),
+  },
+  apartmentTypeRepository: {
+    list: () => restAdminApi.listApartmentTypes(),
+    create: (input) => restAdminApi.createApartmentType(input),
+    update: (apartmentTypeId, input) =>
+      restAdminApi.updateApartmentType(apartmentTypeId, input),
+    delete: (apartmentTypeId) => restAdminApi.deleteApartmentType(apartmentTypeId),
+    setActiveState: (apartmentTypeId, isActive) =>
+      restAdminApi.setApartmentTypeActiveState(apartmentTypeId, isActive),
   },
   apartmentRepository: {
     list: (query) => restAdminApi.listApartments(query),

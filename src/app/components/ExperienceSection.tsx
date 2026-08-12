@@ -33,7 +33,7 @@ export default function ExperienceSection() {
   );
   const stats = getValue("home.experience.stats", [
     { value: "10K+", label: "Elégedett utas" },
-    { value: "15", label: "Év tapasztalat" },
+    { value: "22+", label: "Év tapasztalat" },
     { value: "4.9", label: "Értékelés" },
   ]) as Array<{ value: string; label: string }>;
   const cta = String(getValue("home.experience.cta.label", "Ismerj meg minket"));

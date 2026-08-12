@@ -166,6 +166,7 @@ export type Tour = {
   partnerOffer: boolean;
   imageOffer: boolean;
   xmlEnabled: boolean;
+  couponable: boolean;
   sliderImageEnabled: boolean;
   sliderTextEnabled: boolean;
   name: string;
@@ -237,6 +238,7 @@ export const tourFormSchema = z.object({
   partnerOffer: z.boolean(),
   imageOffer: z.boolean(),
   xmlEnabled: z.boolean(),
+  couponable: z.boolean(),
   sliderImageEnabled: z.boolean(),
   sliderTextEnabled: z.boolean(),
   name: z.string().min(2, 'A név megadása kötelező.'),
@@ -414,6 +416,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     partnerOffer: tour?.partnerOffer ?? false,
     imageOffer: tour?.imageOffer ?? false,
     xmlEnabled: tour?.xmlEnabled ?? true,
+    couponable: tour?.couponable ?? false,
     sliderImageEnabled: tour?.sliderImageEnabled ?? false,
     sliderTextEnabled: tour?.sliderTextEnabled ?? false,
     name: tour?.name ?? '',

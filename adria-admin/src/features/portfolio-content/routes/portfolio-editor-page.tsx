@@ -126,7 +126,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
     const badges = blocks['home.hero.badges'];
 
     return {
-      accent: readString(accent?.draftValue ?? accent?.publishedValue ?? 'Az élmény vár rád'),
+      accent: readString(accent?.draftValue ?? accent?.publishedValue ?? 'Az élmény rád vár'),
       titleParts: readHeadingParts(
         titleParts?.draftValue ?? titleParts?.publishedValue ?? null,
         [
@@ -136,7 +136,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
         ],
       ),
       subtitle: readString(
-        subtitle?.draftValue ?? subtitle?.publishedValue ?? 'Tengerparti utak, városlátogatások és körutazások tapasztalt szervezéssel, kényelmes buszokkal.',
+        subtitle?.draftValue ?? subtitle?.publishedValue ?? 'Tengerparti utak, városlátogatások és körutazások tapasztalt szervezéssel, kényelmes autóbuszokkal vagy épp repülővel.',
       ),
       primaryLabel: readString(primaryLabel?.draftValue ?? primaryLabel?.publishedValue ?? 'Utazások keresése'),
       primaryUrl: readString(primaryUrl?.draftValue ?? primaryUrl?.publishedValue ?? '/utazasok'),
@@ -144,7 +144,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
       secondaryUrl: readString(secondaryUrl?.draftValue ?? secondaryUrl?.publishedValue ?? '/utazasok'),
       stats: safeStringify(stats?.draftValue ?? stats?.publishedValue ?? [
         { value: '10 000+', label: 'elégedett utas' },
-        { value: '15+', label: 'év tapasztalat' },
+        { value: '22+', label: 'év tapasztalat' },
         { value: '4.9/5', label: 'értékelés' },
         { value: '100%', label: 'kényelmes utazás' },
       ]),

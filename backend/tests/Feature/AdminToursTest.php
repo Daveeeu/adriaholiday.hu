@@ -13,17 +13,17 @@ use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourDeparturePlace;
 use App\Models\TourProgramDay;
-use App\Models\TourRegionGroup;
 use App\Models\TourReferenceOption;
+use App\Models\TourRegionGroup;
 use App\Models\TourSeasonalGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Tests\TestCase;
 
 class AdminToursTest extends TestCase
@@ -283,6 +283,7 @@ class AdminToursTest extends TestCase
             'price_box_price' => 199900,
             'price_box_displayed_price' => '199 900 Ft-tól',
             'price_box_available_seats' => 12,
+            'couponable' => 1,
         ]);
         $this->assertDatabaseHas('tour_dates', [
             'tour_id' => $tourId,
@@ -357,6 +358,7 @@ class AdminToursTest extends TestCase
         $updateResponse = $this->patchJson("/api/admin/tours/{$tourId}", $this->payload([
             'name' => 'Teszt körutazás módosítva',
             'seo_name' => 'teszt-korutazas-modositva',
+            'couponable' => false,
             'region_id' => $region->id,
             'homepage_offer_id' => null,
             'group_id' => $regionGroup->seo_name,
@@ -480,6 +482,7 @@ class AdminToursTest extends TestCase
             'price_box_price' => 229900,
             'price_box_displayed_price' => '229 900 Ft-tól',
             'price_box_available_seats' => 10,
+            'couponable' => 0,
         ]);
         $this->assertDatabaseHas('tour_partner_bonuses', [
             'tour_id' => $tourId,
@@ -667,6 +670,7 @@ class AdminToursTest extends TestCase
             'partner_offer' => false,
             'image_offer' => true,
             'xml_enabled' => true,
+            'couponable' => true,
             'slider_image_enabled' => false,
             'slider_text_enabled' => false,
             'name' => 'Teszt körutazás',

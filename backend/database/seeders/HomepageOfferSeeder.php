@@ -50,7 +50,7 @@ class HomepageOfferSeeder extends Seeder
                 'seo_name' => 'kulonlegessegek',
                 'link' => '/kategoriak/kulonlegessegek',
                 'image' => 'https://adriaholiday.hu/framework/img.php?p=files/shutterstock_2495541347.jpg&op=;800x450;',
-                'short_description' => 'Különleges tematikus utak, ritkább úti célokkal és élményekkel.',
+                'short_description' => 'Tematikus utak, különleges úti célokkal és felejthetetlen élményekkel.',
             ],
             [
                 'name' => 'Egzotikus üdülések',

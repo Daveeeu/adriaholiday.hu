@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router";
 import CookieConsentBanner from "../components/CookieConsentBanner";
+import PromotionToast from "../components/PromotionToast";
 import Footer from "../components/Footer";
 import MobileNav from "../components/MobileNav";
 import Header from "../components/Header";
@@ -33,6 +34,7 @@ export default function RootLayout() {
             </div>
             <Footer />
             <CookieConsentBanner />
+            {isHome ? <PromotionToast /> : null}
           </PortfolioContentProvider>
         </SiteSettingsProvider>
       </AnalyticsProvider>

@@ -96,6 +96,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     seatsLeft: offer.seatsLeft ?? undefined,
     guaranteed: dates[0]?.status === "Elérhető",
     additionalDates: offer.additionalDates,
+    couponable: offer.couponable ?? false,
     shortDescription: offer.shortDescription,
     dateOptions: dates,
     programBefore: offer.programBefore,

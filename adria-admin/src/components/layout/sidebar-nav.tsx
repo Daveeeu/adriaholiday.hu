@@ -2,7 +2,8 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { navigationItems } from '@/config/navigation';
+import type { NavigationItem } from '@/config/navigation';
+import { useNavigationItems } from '@/config/use-navigation-items';
 import { useNewTourBookingsCount } from '@/features/bookings/lib/use-new-tour-bookings-count';
 import { t } from '@/i18n';
 import { cn } from '@/lib/utils';
@@ -36,12 +37,12 @@ function isRouteActive(pathname: string, to: string, exact?: boolean) {
 
 function getActiveGroupKey(
   pathname: string,
-  items: typeof navigationItems,
+  items: NavigationItem[],
 ) {
   return (
     items
       .filter(
-        (item): item is Extract<(typeof navigationItems)[number], { children: unknown }> =>
+        (item): item is Extract<NavigationItem, { children: unknown }> =>
           'children' in item,
       )
       .find((item) =>
@@ -104,6 +105,7 @@ export function SidebarNav({
     (state) => state.setMobileSidebarOpen,
   );
   const newTourBookingsCount = useNewTourBookingsCount();
+  const navigationItems = useNavigationItems();
 
   const visibleNavigationItems = useMemo(
     () =>
@@ -131,8 +133,8 @@ export function SidebarNav({
             ? null
             : item;
         })
-        .filter(Boolean) as typeof navigationItems,
-    [hasPermission],
+        .filter(Boolean) as NavigationItem[],
+    [hasPermission, navigationItems],
   );
 
   const activeGroupKey = useMemo(

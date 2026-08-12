@@ -155,6 +155,7 @@ export type PortfolioOfferDetail = {
   duration?: string | null;
   seatsLeft?: number | null;
   additionalDates?: boolean;
+  couponable?: boolean;
   departureDate?: string | null;
   departureDateLabel?: string | null;
   link?: string | null;

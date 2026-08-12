@@ -1,4 +1,4 @@
-import { navigationItems, type NavigationItem } from './navigation';
+import { staticNavigationItems, type NavigationItem } from './navigation';
 
 type FlatNavigationEntry = {
   to: string;
@@ -21,7 +21,7 @@ function flatten(items: NavigationItem[]): FlatNavigationEntry[] {
   return result;
 }
 
-const flattenedNavigation = flatten(navigationItems);
+const flattenedNavigation = flatten(staticNavigationItems);
 
 export function getRoutePermission(path: string): string | string[] | undefined {
   return flattenedNavigation.find((entry) => entry.to === path)?.permission;

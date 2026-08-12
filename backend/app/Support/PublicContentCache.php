@@ -17,6 +17,8 @@ class PublicContentCache
 
     public const PORTFOLIO_FILTERS = 'portfolio-filters';
 
+    public const PROMOTIONS = 'promotions';
+
     public const REGIONS = 'regions';
 
     public const SITEMAP = 'sitemap';

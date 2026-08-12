@@ -53,6 +53,7 @@ class BookingResource extends JsonResource
             'offerName' => $this->offer_name_snapshot,
             'apartmentName' => $this->apartment_name_snapshot,
             'offerCode' => $this->offer_code,
+            'couponCode' => $this->coupon_code,
             'totalAmount' => $this->total_amount !== null ? (float) $this->total_amount : null,
             'paidAmount' => $this->paid_amount !== null ? (float) $this->paid_amount : null,
             'currency' => $this->currency,

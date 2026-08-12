@@ -20,10 +20,8 @@ export default function OfferCardContent({ offer, variant }: OfferCardContentPro
       </h3>
 
       {offer.description ? (
-        <p className="mb-4 text-sm leading-relaxed text-gray-500">{offer.description}</p>
+        <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-500">{offer.description}</p>
       ) : null}
-
-      <div className="mb-4 h-[2px] w-10 bg-gradient-to-r from-[#00c389] to-transparent opacity-40" />
     </>
   );
 }

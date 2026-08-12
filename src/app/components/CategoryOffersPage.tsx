@@ -377,7 +377,7 @@ export default function CategoryOffersPage({
             <div className="mt-10 flex flex-wrap gap-4">
               <HeroStatCard label="Ajánlat" value={displayCount(totalCount)} />
               <HeroStatCard label="Ország" value={displayCount(uniqueCountryCount(items))} />
-              <HeroStatCard label="Tapasztalat" value="15 év" />
+              <HeroStatCard label="Tapasztalat" value="22+ év" />
             </div>
           </div>
         </div>

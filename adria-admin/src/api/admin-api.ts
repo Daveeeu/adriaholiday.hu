@@ -2,6 +2,7 @@ import type {
   Apartment,
   ApartmentPrice,
   ApartmentPriceSeason,
+  ApartmentType,
   Booking,
   BookingDetail,
   Bus,
@@ -22,6 +23,13 @@ export type RegionMutationInput = {
   portfolioSortOrder?: number;
   portfolioImageUrl?: string | null;
   portfolioShortDescription?: string | null;
+};
+
+export type ApartmentTypeMutationInput = {
+  name: string;
+  slug: string;
+  isActive: boolean;
+  sortOrder: number;
 };
 
 export type ApartmentMutationInput = {
@@ -98,6 +106,17 @@ export interface AdminApi {
   updateRegion(regionId: string, input: RegionMutationInput): Promise<Region>;
   deleteRegion(regionId: string): Promise<{ id: string }>;
   setRegionActiveState(regionId: string, isActive: boolean): Promise<Region>;
+  listApartmentTypes(): Promise<ApartmentType[]>;
+  createApartmentType(input: ApartmentTypeMutationInput): Promise<ApartmentType>;
+  updateApartmentType(
+    apartmentTypeId: string,
+    input: ApartmentTypeMutationInput,
+  ): Promise<ApartmentType>;
+  deleteApartmentType(apartmentTypeId: string): Promise<{ id: string }>;
+  setApartmentTypeActiveState(
+    apartmentTypeId: string,
+    isActive: boolean,
+  ): Promise<ApartmentType>;
   listLocations(regionId?: string): Promise<Location[]>;
   listGalleries(regionId?: string): Promise<Gallery[]>;
   listGalleryImages(galleryId?: string): Promise<GalleryImage[]>;

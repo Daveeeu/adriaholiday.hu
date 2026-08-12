@@ -16,6 +16,7 @@ class StorePublicBookingRequest extends FormRequest
             'form_data' => $this->input('form_data', $this->input('formData', [])),
             'passengers' => $this->input('passengers', []),
             'note' => $this->input('note'),
+            'coupon_code' => $this->input('coupon_code', $this->input('couponCode')),
             'type' => $this->input('type', 'tour_booking'),
         ]);
     }
@@ -49,6 +50,7 @@ class StorePublicBookingRequest extends FormRequest
             'passengers.*' => ['array', 'max:30'],
             'passengers.*.*' => ['nullable', 'string', 'max:500'],
             'note' => ['nullable', 'string', 'max:2000'],
+            'coupon_code' => ['nullable', 'string', 'max:100'],
             'type' => ['nullable', 'string', Rule::in(['tour_booking', 'tour_inquiry'])],
         ];
     }

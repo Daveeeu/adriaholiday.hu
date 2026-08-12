@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight, Eye, Pencil, Power, Trash2 } from 'lucide-re
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { t } from '@/i18n';
-import { APARTMENT_TYPES } from '@/features/apartments/constants/apartmentTypes';
+import type { ApartmentType } from '@/types/domain';
 import {
   Table,
   TableBody,
@@ -27,6 +27,7 @@ type ApartmentsTableProps = {
   sorting: SortingState;
   pagination: PaginationState;
   totalCount: number;
+  apartmentTypes: ApartmentType[];
   onPageSizeChange: (pageSize: number) => void;
   onViewApartment: (apartment: ApartmentRow) => void;
   onEditApartment?: (apartment: ApartmentRow) => void;
@@ -37,9 +38,11 @@ type ApartmentsTableProps = {
 function ColumnFilter({
   table,
   columnId,
+  apartmentTypes,
 }: {
   table: ReactTable<ApartmentRow>;
   columnId: string;
+  apartmentTypes: ApartmentType[];
 }) {
   const column = table.getColumn(columnId);
 
@@ -89,9 +92,10 @@ function ColumnFilter({
           }}
         >
           <option value="">Összes</option>
-          {APARTMENT_TYPES.map((type) => (
-            <option key={type.value} value={type.value}>
-              {type.formLabel}
+          {apartmentTypes.map((type) => (
+            <option key={type.slug} value={type.slug}>
+              {type.name}
+              {!type.isActive ? ' (inaktív)' : ''}
             </option>
           ))}
         </select>
@@ -122,6 +126,7 @@ export function ApartmentsTable({
   sorting,
   pagination,
   totalCount,
+  apartmentTypes,
   onPageSizeChange,
   onViewApartment,
   onEditApartment,
@@ -158,7 +163,7 @@ export function ApartmentsTable({
             <TableRow>
               {table.getAllLeafColumns().map((column) => (
                 <TableHead key={`${column.id}-filter`}>
-                  <ColumnFilter table={table} columnId={column.id} />
+                  <ColumnFilter table={table} columnId={column.id} apartmentTypes={apartmentTypes} />
                 </TableHead>
               ))}
             </TableRow>

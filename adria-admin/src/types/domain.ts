@@ -2,12 +2,13 @@ export type EntityStatus = 'draft' | 'published' | 'archived';
 
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
-export type ApartmentType =
-  | 'greek'
-  | 'bulgarian'
-  | 'montenegro'
-  | 'croatian'
-  | 'croatian_new';
+export interface ApartmentType {
+  id: string;
+  slug: string;
+  name: string;
+  isActive: boolean;
+  sortOrder: number;
+}
 
 export interface ApartmentPricingMatrixColumn {
   id: string;
@@ -122,7 +123,7 @@ export interface Bus {
 
 export interface Apartment {
   id: string;
-  type: ApartmentType;
+  type: string;
   regionId: string;
   locationId: string;
   galleryId: string;

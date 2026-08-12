@@ -11,7 +11,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowUpDown } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import type {
@@ -26,15 +26,13 @@ import {
   getApartmentDetailRoute,
   getApartmentEditRoute,
   getApartmentListRoute,
-  getApartmentRouteContext,
-  getApartmentTypeDefinition,
-  getApartmentTypeFromPath,
 } from '@/features/apartments/constants/apartmentTypes';
 import { ApartmentSidePanel } from '@/features/apartments/components/apartment-side-panel';
 import { ApartmentsTable } from '@/features/apartments/components/apartments-table';
 import { ApartmentsToolbar } from '@/features/apartments/components/apartments-toolbar';
 import { createSlug } from '@/data/generators/core-generators';
 import { getApartmentFormDefaults } from '@/features/apartments/lib/apartment-schema';
+import { useApartmentTypes } from '@/features/apartments/lib/use-apartment-types';
 import type {
   ApartmentFormValues,
   ApartmentPanelMode,
@@ -182,10 +180,11 @@ export function ApartmentsPage() {
   const canUpdate = hasPermission('apartments.update');
   const canDelete = hasPermission('apartments.delete');
   const canUpdateStatus = hasPermission('apartments.status');
-  const routeContext = useMemo(
-    () => getApartmentRouteContext(location.pathname),
-    [location.pathname],
-  );
+  const { typeSlug, apartmentId: apartmentIdParam } = useParams<{
+    typeSlug?: string;
+    apartmentId?: string;
+  }>();
+  const { data: apartmentTypes } = useApartmentTypes();
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'name', desc: false },
@@ -196,15 +195,19 @@ export function ApartmentsPage() {
     pageSize: 10,
   });
 
-  const routeType = useMemo(
-    () => getApartmentTypeFromPath(location.pathname),
-    [location.pathname],
-  );
+  const routeType = typeSlug ?? null;
+  const apartmentId = apartmentIdParam ?? null;
+  const routeMode: 'list' | ApartmentPanelMode = apartmentId
+    ? location.pathname.endsWith('/edit')
+      ? 'edit'
+      : 'detail'
+    : location.pathname.endsWith('/new')
+      ? 'create'
+      : 'list';
   const routeTypeDefinition = routeType
-    ? getApartmentTypeDefinition(routeType)
+    ? apartmentTypes?.find((type) => type.slug === routeType)
     : undefined;
   const currentListRoute = getApartmentListRoute(routeType);
-  const routeMode: 'list' | ApartmentPanelMode = routeContext?.mode ?? 'list';
   const defaultType = routeMode === 'create' && routeType ? routeType : '';
 
   const columnFilterValue = (id: string) =>
@@ -260,7 +263,6 @@ export function ApartmentsPage() {
     placeholderData: (previous) => previous,
   });
   const apartments = apartmentsPage?.items;
-  const apartmentId = routeContext?.apartmentId ?? null;
   const {
     data: apartmentDetail,
     isLoading: apartmentDetailLoading,
@@ -372,9 +374,10 @@ export function ApartmentsPage() {
       galleryTitle: galleryMap.get(apartment.galleryId) ?? 'Nincs galéria',
       apartmentKind: apartment.isAccommodation ? 'accommodation' : 'apartment',
       typeLabel:
-        getApartmentTypeDefinition(apartment.type)?.label ?? apartment.type,
+        apartmentTypes?.find((type) => type.slug === apartment.type)?.name ??
+        apartment.type,
     }));
-  }, [apartments, galleries, locations, regions]);
+  }, [apartments, apartmentTypes, galleries, locations, regions]);
 
   const columns: ColumnDef<ApartmentRow>[] = useMemo(
     () => [
@@ -535,9 +538,9 @@ export function ApartmentsPage() {
       ? 'Az apartman nem található vagy még nem töltődött be.'
       : null;
 
-  const title = routeTypeDefinition?.label ?? 'Összes apartman';
+  const title = routeTypeDefinition?.name ?? 'Összes apartman';
   const description = routeTypeDefinition
-    ? `A(z) ${routeTypeDefinition.formLabel.toLowerCase()} kategória rekordjai.`
+    ? `A(z) ${routeTypeDefinition.name.toLowerCase()} kategória rekordjai.`
     : 'A teljes apartmanállomány kezelése.';
   const totalCount = apartmentsPage?.totalCount ?? 0;
   const submitting =
@@ -572,6 +575,7 @@ export function ApartmentsPage() {
         sorting={sorting}
         pagination={pagination}
         totalCount={totalCount}
+        apartmentTypes={apartmentTypes ?? []}
         onPageSizeChange={(pageSize) =>
           setPagination((currentPagination) => ({
             ...currentPagination,
