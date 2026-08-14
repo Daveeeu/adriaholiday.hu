@@ -51,6 +51,7 @@ class Booking extends Model
         'partner_name_snapshot',
         'offer_code',
         'coupon_code',
+        'coupon_id',
         'total_amount',
         'paid_amount',
         'currency',
@@ -104,6 +105,11 @@ class Booking extends Model
     public function tourDate(): BelongsTo
     {
         return $this->belongsTo(TourDate::class);
+    }
+
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class);
     }
 
     public function emailLogs(): HasMany

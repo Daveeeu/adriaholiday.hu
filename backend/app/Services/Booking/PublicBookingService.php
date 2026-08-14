@@ -3,6 +3,7 @@
 namespace App\Services\Booking;
 
 use App\Models\Booking;
+use App\Models\Coupon;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Support\Booking\TourBookingStatus;
@@ -28,8 +29,9 @@ class PublicBookingService
 
         $booking = DB::transaction(function () use ($tour, $validated, $result, $requestedSeats): Booking {
             $seatsReserved = $this->reserveCapacity($validated['tour_date_id'] ?? null, $requestedSeats);
+            $coupon = $this->reserveCoupon($validated['coupon_code'] ?? null, $tour);
 
-            return $this->createBooking($tour, $validated, $result, $seatsReserved);
+            return $this->createBooking($tour, $validated, $result, $seatsReserved, $coupon);
         });
 
         $this->notifications->sendNewBookingNotifications($booking, $tour);
@@ -72,10 +74,41 @@ class PublicBookingService
     }
 
     /**
+     * Locks the coupon row and re-checks eligibility/usability inside the
+     * transaction (the FormRequest already checked this, but without a
+     * lock) so two concurrent submissions can't both redeem the last use
+     * of a limited coupon. Increments the usage counter immediately.
+     */
+    private function reserveCoupon(?string $couponCode, Tour $tour): ?Coupon
+    {
+        $couponCode = trim((string) $couponCode);
+
+        if ($couponCode === '') {
+            return null;
+        }
+
+        $coupon = Coupon::query()->where('code', $couponCode)->lockForUpdate()->first();
+
+        if (! $coupon || ! $tour->couponable || ! $coupon->isUsable()) {
+            throw ValidationException::withMessages([
+                'coupon_code' => 'A megadott kuponkód nem érvényes vagy lejárt.',
+            ]);
+        }
+
+        $coupon->increment('used_count');
+
+        if ($coupon->max_uses !== null && $coupon->used_count >= $coupon->max_uses) {
+            $coupon->update(['used' => true]);
+        }
+
+        return $coupon;
+    }
+
+    /**
      * @param  array<string, mixed>  $validated
      * @param  array{formData: array<string, mixed>, passengers: array<int, array<string, mixed>>}  $result
      */
-    private function createBooking(Tour $tour, array $validated, array $result, bool $seatsReserved): Booking
+    private function createBooking(Tour $tour, array $validated, array $result, bool $seatsReserved, ?Coupon $coupon): Booking
     {
         $type = $validated['type'] ?? 'tour_booking';
         $formData = $result['formData'];
@@ -102,6 +135,7 @@ class PublicBookingService
             'notes' => $formData['note'] ?? null,
             'message' => $validated['note'] ?? null,
             'coupon_code' => $validated['coupon_code'] ?? null,
+            'coupon_id' => $coupon?->id,
             'payload' => [
                 'bookingFormTemplateId' => $tour->booking_form_template_id,
                 'tourDateId' => $validated['tour_date_id'] ?? null,

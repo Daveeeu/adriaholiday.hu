@@ -20,8 +20,12 @@ class CouponFactory extends Factory
             'email' => $this->faker->optional()->safeEmail(),
             'code' => strtoupper($this->faker->unique()->bothify('CPN-#####')),
             'value' => $this->faker->randomFloat(2, 5, 500),
+            'starts_at' => $this->faker->optional()->dateTimeBetween('-1 month', 'now')?->format('Y-m-d'),
             'expires_at' => $this->faker->optional()->dateTimeBetween('now', '+1 year')?->format('Y-m-d'),
+            'usage_conditions' => $this->faker->optional()->sentence(),
             'used' => $this->faker->boolean(20),
+            'max_uses' => $this->faker->optional()->numberBetween(1, 100),
+            'used_count' => 0,
         ];
     }
 }

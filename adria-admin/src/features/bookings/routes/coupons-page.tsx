@@ -1,5 +1,6 @@
 import { useMemo, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuthStore } from '@/store/auth-store';
 
 import { CrudModulePage } from '../components/crud-module-page';
@@ -23,8 +24,11 @@ function initialDraft(record?: Coupon | null): CouponFormValues {
     email: record?.email ?? '',
     code: record?.code ?? '',
     value: record?.value ?? 0,
+    startsAt: record?.startsAt ?? '',
     expiresAt: record?.expiresAt ?? '',
+    usageConditions: record?.usageConditions ?? '',
     used: record?.used ?? false,
+    maxUses: record?.maxUses ?? null,
   };
 }
 
@@ -35,7 +39,15 @@ const columns = [
   { key: 'code', label: 'Kupon', sortable: true, render: (item: Coupon) => item.code },
   { key: 'value', label: 'Érték', sortable: true, render: (item: Coupon) => formatMoney(item.value) },
   { key: 'createdAt', label: 'Létrehozva', sortable: true, render: (item: Coupon) => formatDateTime(item.createdAt) },
+  { key: 'startsAt', label: 'Érvényesség kezdete', sortable: true, render: (item: Coupon) => item.startsAt },
   { key: 'expiresAt', label: 'Lejárat', sortable: true, render: (item: Coupon) => item.expiresAt },
+  {
+    key: 'maxUses',
+    label: 'Felhasználás',
+    sortable: true,
+    render: (item: Coupon) =>
+      item.maxUses ? `${item.usedCount} / ${item.maxUses}` : `${item.usedCount} / korlátlan`,
+  },
   {
     key: 'used',
     label: 'Felhasználva',
@@ -127,9 +139,15 @@ export function CouponsPage() {
                   <DetailItem label="Email" value={record.email} />
                   <DetailItem label="Kuponkód" value={record.code} />
                   <DetailItem label="Érték" value={formatMoney(record.value)} />
-                  <DetailItem label="Lejárat" value={record.expiresAt} />
+                  <DetailItem label="Érvényesség kezdete" value={record.startsAt || '—'} />
+                  <DetailItem label="Lejárat" value={record.expiresAt || '—'} />
+                  <DetailItem
+                    label="Felhasználás"
+                    value={record.maxUses ? `${record.usedCount} / ${record.maxUses}` : `${record.usedCount} / korlátlan`}
+                  />
                   <DetailItem label="Felhasználva" value={<StatusBadge label={record.used ? 'Igen' : 'Nem'} tone={record.used ? 'info' : 'success'} />} />
                   <DetailItem label="Létrehozva" value={formatDateTime(record.createdAt)} />
+                  <DetailItem className="md:col-span-2" label="Felhasználhatóság feltételei" value={record.usageConditions || '—'} />
                 </div>
               </FormSection>
             </div>
@@ -161,7 +179,40 @@ export function CouponsPage() {
                 <Input value={draft.email} onChange={(event) => setDraft((current) => ({ ...current, email: event.target.value }))} placeholder="Email" />
                 <Input value={draft.code} onChange={(event) => setDraft((current) => ({ ...current, code: event.target.value }))} placeholder="Kuponkód" />
                 <Input type="number" value={draft.value} onChange={(event) => setDraft((current) => ({ ...current, value: Number(event.target.value) || 0 }))} placeholder="Érték" />
-                <Input type="date" value={draft.expiresAt} onChange={(event) => setDraft((current) => ({ ...current, expiresAt: event.target.value }))} />
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div>
+                    <div className="mb-1 text-xs text-muted-foreground">Érvényesség kezdete</div>
+                    <Input type="date" value={draft.startsAt} onChange={(event) => setDraft((current) => ({ ...current, startsAt: event.target.value }))} />
+                  </div>
+                  <div>
+                    <div className="mb-1 text-xs text-muted-foreground">Lejárat</div>
+                    <Input type="date" value={draft.expiresAt} onChange={(event) => setDraft((current) => ({ ...current, expiresAt: event.target.value }))} />
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1 text-xs text-muted-foreground">Maximális felhasználási darabszám (üresen hagyva: korlátlan)</div>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={draft.maxUses ?? ''}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        maxUses: event.target.value === '' ? null : Number(event.target.value),
+                      }))
+                    }
+                    placeholder="pl. 100"
+                  />
+                </div>
+                <div>
+                  <div className="mb-1 text-xs text-muted-foreground">Felhasználhatóság feltételei</div>
+                  <Textarea
+                    value={draft.usageConditions}
+                    onChange={(event) => setDraft((current) => ({ ...current, usageConditions: event.target.value }))}
+                    placeholder="pl. minimum 2 fős foglalás esetén érvényes"
+                    rows={3}
+                  />
+                </div>
                 <div className="flex items-center justify-between rounded-2xl border bg-muted/30 px-4 py-3">
                   <div>
                     <div className="text-sm font-medium">Felhasználva</div>

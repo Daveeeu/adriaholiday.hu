@@ -40,6 +40,7 @@ class NewsletterSubscriptionService
                     'code' => $this->generateCouponCode(),
                     'value' => $this->couponValue(),
                     'used' => false,
+                    'max_uses' => 1,
                 ]);
 
                 NewsletterSubscriber::create([

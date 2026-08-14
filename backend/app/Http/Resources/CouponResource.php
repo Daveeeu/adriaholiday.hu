@@ -16,8 +16,12 @@ class CouponResource extends JsonResource
             'email' => $this->email,
             'code' => $this->code,
             'value' => $this->value !== null ? (float) $this->value : null,
+            'startsAt' => $this->starts_at?->toDateString(),
             'expiresAt' => $this->expires_at?->toDateString(),
+            'usageConditions' => $this->usage_conditions,
             'used' => (bool) $this->used,
+            'maxUses' => $this->max_uses !== null ? (int) $this->max_uses : null,
+            'usedCount' => (int) $this->used_count,
             'status' => $this->derivedStatus(),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
@@ -26,7 +30,7 @@ class CouponResource extends JsonResource
 
     private function derivedStatus(): string
     {
-        if ($this->used) {
+        if ($this->used || ($this->max_uses !== null && $this->used_count >= $this->max_uses)) {
             return 'used';
         }
 
@@ -36,6 +40,10 @@ class CouponResource extends JsonResource
 
         if ($this->expires_at && $this->expires_at->isPast()) {
             return 'expired';
+        }
+
+        if ($this->starts_at && $this->starts_at->isFuture()) {
+            return 'scheduled';
         }
 
         return 'active';

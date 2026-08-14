@@ -16,8 +16,11 @@ class UpdateCouponRequest extends StoreCouponRequest
             'email' => ['nullable', 'email', 'max:255'],
             'code' => ['required', 'string', 'max:255', Rule::unique('coupons', 'code')->ignore($couponId)],
             'value' => ['nullable', 'numeric'],
-            'expires_at' => ['nullable', 'date'],
+            'starts_at' => ['nullable', 'date'],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'usage_conditions' => ['nullable', 'string'],
             'used' => ['boolean'],
+            'max_uses' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

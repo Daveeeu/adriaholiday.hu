@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Booking;
 use App\Models\BookingFormField;
 use App\Models\BookingFormTemplate;
+use App\Models\Coupon;
 use App\Models\Tour;
 use App\Models\User;
 use Database\Seeders\BookingFormFieldSeeder;
@@ -136,6 +137,14 @@ class BookingFormTemplateTest extends TestCase
             'booking_form_template_id' => $template->id,
             'couponable' => true,
         ]);
+        $coupon = Coupon::factory()->create([
+            'active' => true,
+            'code' => 'NYAR10',
+            'starts_at' => null,
+            'expires_at' => null,
+            'used' => false,
+            'max_uses' => null,
+        ]);
 
         $response = $this->postJson('/api/bookings', [
             'tourId' => $tour->id,
@@ -155,7 +164,68 @@ class BookingFormTemplateTest extends TestCase
         $this->assertDatabaseHas('bookings', [
             'tour_id' => $tour->id,
             'coupon_code' => 'NYAR10',
+            'coupon_id' => $coupon->id,
         ]);
+        $this->assertSame(1, $coupon->fresh()->used_count);
+    }
+
+    public function test_non_couponable_tour_rejects_a_coupon_code(): void
+    {
+        $this->seed(BookingFormFieldSeeder::class);
+        $this->seed(BookingFormTemplateSeeder::class);
+
+        $template = BookingFormTemplate::query()->where('slug', 'buszos-ut')->firstOrFail();
+        $tour = Tour::factory()->create([
+            'booking_form_template_id' => $template->id,
+            'couponable' => false,
+        ]);
+        Coupon::factory()->create(['active' => true, 'code' => 'NYAR10']);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'participants' => 1,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna'],
+            ],
+            'couponCode' => 'NYAR10',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['coupon_code']);
+    }
+
+    public function test_couponable_tour_rejects_an_unknown_coupon_code(): void
+    {
+        $this->seed(BookingFormFieldSeeder::class);
+        $this->seed(BookingFormTemplateSeeder::class);
+
+        $template = BookingFormTemplate::query()->where('slug', 'buszos-ut')->firstOrFail();
+        $tour = Tour::factory()->create([
+            'booking_form_template_id' => $template->id,
+            'couponable' => true,
+        ]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'participants' => 1,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna'],
+            ],
+            'couponCode' => 'DOES-NOT-EXIST',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['coupon_code']);
     }
 
     public function test_tour_couponable_flag_is_exposed_on_the_public_offer_detail(): void

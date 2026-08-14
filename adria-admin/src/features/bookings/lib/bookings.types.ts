@@ -26,17 +26,6 @@ export type InquiryStatus = 'new' | 'contacted' | 'quoted' | 'closed';
 
 export type ApartmentBookingStatus = 'new' | 'approved' | 'credited' | 'closed';
 
-export type FinanceStatus = 'pending' | 'approved' | 'paid' | 'settled';
-
-export type FinanceType =
-  | 'commission_credit'
-  | 'commission_payout'
-  | 'location_credit'
-  | 'commission_list'
-  | 'travelable_commission';
-
-export type BannerStatus = 'draft' | 'active' | 'archived';
-
 export type MessageStatus = 'new' | 'read' | 'archived';
 
 export type CouponStatus = 'active' | 'used' | 'expired';
@@ -165,31 +154,6 @@ export interface ApartmentBooking {
   createdAt: string;
 }
 
-export interface PartnerFinanceRecord {
-  id: string;
-  partnerName: string;
-  date: string;
-  amount: number;
-  type: FinanceType;
-  status: FinanceStatus;
-  balance: number;
-  note: string;
-  createdAt: string;
-}
-
-export interface PartnerBanner {
-  id: string;
-  name: string;
-  url: string;
-  image: string;
-  width: number;
-  height: number;
-  embedCode: string;
-  status: BannerStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface ContactMessage {
   id: string;
   name: string;
@@ -207,8 +171,12 @@ export interface Coupon {
   email: string;
   code: string;
   value: number;
+  startsAt: string;
   expiresAt: string;
+  usageConditions: string;
   used: boolean;
+  maxUses: number | null;
+  usedCount: number;
   createdAt: string;
 }
 
@@ -238,19 +206,9 @@ export type ApartmentBookingFormValues = Omit<
   'id' | 'createdAt'
 >;
 
-export type PartnerFinanceFormValues = Omit<
-  PartnerFinanceRecord,
-  'id' | 'createdAt'
->;
-
-export type PartnerBannerFormValues = Omit<
-  PartnerBanner,
-  'id' | 'createdAt' | 'updatedAt'
->;
-
 export type ContactMessageFormValues = Omit<ContactMessage, 'id'>;
 
-export type CouponFormValues = Omit<Coupon, 'id' | 'createdAt'>;
+export type CouponFormValues = Omit<Coupon, 'id' | 'createdAt' | 'usedCount'>;
 
 export type PromotionFormValues = Omit<Promotion, 'id' | 'createdAt'>;
 
@@ -258,8 +216,6 @@ export type BookingModuleKey =
   | 'tourBookings'
   | 'tourInquiries'
   | 'apartmentBookings'
-  | 'partnerFinances'
-  | 'bannerGenerator'
   | 'messages'
   | 'coupons';
 

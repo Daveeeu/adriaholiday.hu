@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\Public;
 
+use App\Models\Coupon;
+use App\Models\Tour;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -53,6 +56,32 @@ class StorePublicBookingRequest extends FormRequest
             'coupon_code' => ['nullable', 'string', 'max:100'],
             'type' => ['nullable', 'string', Rule::in(['tour_booking', 'tour_inquiry'])],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $code = trim((string) $this->input('coupon_code', ''));
+
+            if ($code === '') {
+                return;
+            }
+
+            $tourId = $this->input('tour_id');
+            $tour = $tourId ? Tour::query()->find($tourId) : null;
+
+            if (! $tour || ! $tour->couponable) {
+                $validator->errors()->add('coupon_code', 'Erre a programra nem alkalmazható kedvezménykód.');
+
+                return;
+            }
+
+            $coupon = Coupon::query()->where('code', $code)->first();
+
+            if (! $coupon || ! $coupon->isUsable()) {
+                $validator->errors()->add('coupon_code', 'A megadott kuponkód nem érvényes vagy lejárt.');
+            }
+        });
     }
 
     public function messages(): array
