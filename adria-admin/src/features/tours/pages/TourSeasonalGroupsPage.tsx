@@ -124,7 +124,7 @@ function SeasonalGroupPanel({
                   <FormItem>
                     <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
                       <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
-                      Ajánlatos utak?
+                      Programos utak?
                     </label>
                   </FormItem>
                 )} />
@@ -268,7 +268,7 @@ export function TourSeasonalGroupsPage() {
       },
       {
         accessorKey: 'hasOffers',
-        header: 'Ajánlatos utak?',
+        header: 'Programos utak?',
         cell: ({ row }) => (row.original.hasOffers ? 'Igen' : 'Nem'),
       },
       { accessorKey: 'relatedToursCount', header: 'Kapcsolódó utak száma' },
@@ -324,8 +324,8 @@ export function TourSeasonalGroupsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-primary">Körutazások</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Szezonális ajánlat csoportok</h1>
+        <p className="text-sm font-medium text-primary">Programok</p>
+        <h1 className="text-3xl font-semibold tracking-tight">Szezonális program csoportok</h1>
       </div>
       <div className="rounded-2xl border bg-card p-4">
         <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Keresés név vagy box szöveg alapján..." />

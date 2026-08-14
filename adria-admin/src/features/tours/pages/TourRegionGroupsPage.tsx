@@ -404,7 +404,7 @@ export function TourRegionGroupsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-primary">Körutazások</p>
+        <p className="text-sm font-medium text-primary">Programok</p>
         <h1 className="text-3xl font-semibold tracking-tight">Régiók és csoportok</h1>
       </div>
 

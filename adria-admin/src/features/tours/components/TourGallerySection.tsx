@@ -247,7 +247,7 @@ export function TourGallerySection({ form }: TourGallerySectionProps) {
       <div>
         <h3 className="font-semibold">Galéria</h3>
         <p className="text-sm text-muted-foreground">
-          Ajánlathoz kötött képek a publikus detail oldalra.
+          Programhoz kötött képek a publikus detail oldalra.
         </p>
       </div>
 

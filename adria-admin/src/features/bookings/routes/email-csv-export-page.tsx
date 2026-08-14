@@ -97,7 +97,7 @@ export function EmailCsvExportPage() {
               CSV export foglalásokból
             </CardTitle>
             <CardDescription>
-              A körutazás foglalások e-mail címeit és kapcsolódó alapadatait exportálja.
+              A program foglalások e-mail címeit és kapcsolódó alapadatait exportálja.
             </CardDescription>
           </CardHeader>
           <CardContent>

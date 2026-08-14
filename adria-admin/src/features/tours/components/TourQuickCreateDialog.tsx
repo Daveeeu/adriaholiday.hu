@@ -41,7 +41,7 @@ type TourQuickCreateDialogProps = {
 const KIND_LABELS: Record<TourQuickCreateKind, string> = {
   region: 'Régió',
   group: 'Csoport',
-  'offer-group': 'Ajánlat csoport',
+  'offer-group': 'Program csoport',
   fit: 'FIT',
   'program-type': 'Program típus',
   'travel-mode': 'Közlekedés',

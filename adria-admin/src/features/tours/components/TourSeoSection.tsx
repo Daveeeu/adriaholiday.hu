@@ -69,7 +69,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
             <FormItem>
               <FormLabel>Név</FormLabel>
               <FormControl>
-                <Input placeholder="Körutazás neve" {...field} />
+                <Input placeholder="Program neve" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

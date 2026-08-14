@@ -348,7 +348,7 @@ export function AnalyticsPage() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AnalyticsMetricCard label="Összes page_view" value={summary.counts.pageViews} hint="Oldalmegtekintés események" icon={metricIcons[0]} />
-        <AnalyticsMetricCard label="Összes offer_view" value={summary.counts.offerViews} hint="Ajánlat részletmegtekintések" icon={metricIcons[1]} />
+        <AnalyticsMetricCard label="Összes offer_view" value={summary.counts.offerViews} hint="Program részletmegtekintések" icon={metricIcons[1]} />
         <AnalyticsMetricCard label="Összes category_view" value={summary.counts.categoryViews} hint="Kategóriaoldal megtekintések" icon={metricIcons[2]} />
         <AnalyticsMetricCard label="CTA kattintások" value={summary.counts.ctaClicks} hint="Közös CTA helperből mért kattintások" icon={metricIcons[3]} />
         <AnalyticsMetricCard label="PriceBox megjelenések" value={summary.counts.priceboxViews} hint="Offer oldali PriceBox view események" icon={metricIcons[4]} />
@@ -404,7 +404,7 @@ export function AnalyticsPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <Card className="border-border/60 bg-card/95 shadow-sm">
           <CardHeader>
-            <CardTitle>Top ajánlatok</CardTitle>
+            <CardTitle>Top programok</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -427,7 +427,7 @@ export function AnalyticsPage() {
                     </TableRow>
                   ))
                 ) : (
-                  <EmptyTableRow colSpan={4} label="Nincs ajánlat adat a kiválasztott szűrőkkel." />
+                  <EmptyTableRow colSpan={4} label="Nincs program adat a kiválasztott szűrőkkel." />
                 )}
               </TableBody>
             </Table>

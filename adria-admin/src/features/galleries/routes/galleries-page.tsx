@@ -115,8 +115,8 @@ function copyText(value: string) {
 
 const SOURCE_CONTEXT_LABELS: Record<string, string> = {
   blog_article: 'Blog cikk',
-  tour: 'Körutazás',
-  tour_program_pdf: 'Körutazás program PDF',
+  tour: 'Program',
+  tour_program_pdf: 'Program PDF',
   apartment: 'Apartman',
   portfolio_content: 'Portfólió tartalom',
   homepage_offer: 'Főoldali ajánlat',

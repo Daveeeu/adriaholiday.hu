@@ -24,7 +24,7 @@ export function BookingSummaryCard({ booking }: { booking: TourBookingDetail }) 
     <FormSection title="Foglalás információ" description="Alapadatok és a foglalás forrása.">
       <div className="grid gap-3 text-sm md:grid-cols-2">
         <DetailField label="Foglalás azonosító" value={`#${booking.id}`} />
-        <DetailField label="Foglalás típusa" value="Körutazás foglalás" />
+        <DetailField label="Foglalás típusa" value="Program foglalás" />
         <DetailField label="Kuponkód" value={booking.couponCode || null} />
         <DetailField
           label="Aktuális státusz"

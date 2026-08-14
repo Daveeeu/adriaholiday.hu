@@ -16,7 +16,7 @@ export type AdminEntity = {
 export const adminEntityLabels: Record<AdminEntityType, string> = {
   regions: 'Régiók',
   regionGroups: 'Régió csoportok',
-  offerGroups: 'Ajánlat csoportok',
+  offerGroups: 'Program csoportok',
   boardingPlaces: 'Felszállási helyek',
   galleries: 'Galériák',
 };

@@ -115,7 +115,7 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
         <TourCreatableSelectField
           control={form.control}
           name="seasonalGroupId"
-          label="Ajánlat csoportok"
+          label="Program csoportok"
           queryKey={['tour-select-options', 'offer-groups']}
           queryFn={getOfferGroupOptions}
           quickCreateKind="offer-group"
@@ -128,7 +128,7 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
           label="Főoldali ajánlat"
           queryKey={['tour-select-options', 'homepage-offers']}
           queryFn={getHomepageOfferOptions}
-          description="Az itt kiválasztott főoldali blokk alá fog megjelenni a körutazás a publikus listában."
+          description="Az itt kiválasztott főoldali blokk alá fog megjelenni a program a publikus listában."
           fallbackOptions={homepageOfferFallbackOptions}
         />
         <TourCreatableSelectField
@@ -248,7 +248,7 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
                   checked={field.value}
                   onChange={(event) => field.onChange(event.target.checked)}
                 />
-                Kiemelés a pozitív kiemelt ajánlatok között
+                Kiemelés a pozitív kiemelt programok között
               </label>
             </FormItem>
           )}

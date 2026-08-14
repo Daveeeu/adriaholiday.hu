@@ -263,7 +263,7 @@ export function TourDeparturePlacesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-primary">Körutazások</p>
+        <p className="text-sm font-medium text-primary">Programok</p>
         <h1 className="text-3xl font-semibold tracking-tight">Felszállási helyek</h1>
       </div>
       <div className="rounded-2xl border bg-card p-4">

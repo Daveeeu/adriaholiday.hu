@@ -31,7 +31,7 @@ export function ToursToolbar({
       {onCreateClick ? (
         <Button onClick={onCreateClick}>
           <Plus className="size-4" />
-          Új körutazás
+          Új program
         </Button>
       ) : null}
     </div>

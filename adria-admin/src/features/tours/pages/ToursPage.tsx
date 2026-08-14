@@ -80,6 +80,7 @@ function createTourDefaults(overrides?: Partial<Tour>): Tour {
     discounts: '',
     notes: '',
     programDays: [],
+    cities: [],
     priceItems: [],
     regionId: '',
     homepageOfferId: '',
@@ -210,12 +211,12 @@ export function ToursPage() {
     mutationFn: createTour,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: toursQueryKey });
-      toast.success('Körutazás létrehozva.');
+      toast.success('Program létrehozva.');
       setPanelOpen(false);
       setSelectedTour(undefined);
     },
     onError: () => {
-      toast.error('Nem sikerült létrehozni a körutazást.');
+      toast.error('Nem sikerült létrehozni a programot.');
     },
   });
 
@@ -224,12 +225,12 @@ export function ToursPage() {
       updateTour(tourId, values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: toursQueryKey });
-      toast.success('Körutazás módosítva.');
+      toast.success('Program módosítva.');
       setPanelOpen(false);
       setSelectedTour(undefined);
     },
     onError: () => {
-      toast.error('Nem sikerült módosítani a körutazást.');
+      toast.error('Nem sikerült módosítani a programot.');
     },
   });
 
@@ -237,12 +238,12 @@ export function ToursPage() {
     mutationFn: deleteTour,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: toursQueryKey });
-      toast.success('Körutazás törölve.');
+      toast.success('Program törölve.');
       setPanelOpen(false);
       setSelectedTour(undefined);
     },
     onError: () => {
-      toast.error('Nem sikerült törölni a körutazást.');
+      toast.error('Nem sikerült törölni a programot.');
     },
   });
 
@@ -263,7 +264,7 @@ export function ToursPage() {
     mutationFn: duplicateTourOffer,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: toursQueryKey });
-      toast.success('Körutazás másolva.');
+      toast.success('Program másolva.');
     },
   });
 
@@ -289,7 +290,7 @@ export function ToursPage() {
     panelMode !== 'create' && !!selectedTourId && selectedTourDetailLoading;
   const panelError =
     panelMode !== 'create' && selectedTourDetailError && !selectedTourDetail
-      ? 'Nem sikerült betölteni a körutazás adatait.'
+      ? 'Nem sikerült betölteni a program adatait.'
       : null;
 
   const columns = useMemo<ColumnDef<Tour>[]>(
@@ -498,7 +499,7 @@ export function ToursPage() {
                 variant="destructive"
                 size="icon"
                 onClick={() => {
-                  if (window.confirm(`Biztosan törlöd ezt a körutazást? (${row.original.name})`)) {
+                  if (window.confirm(`Biztosan törlöd ezt a programot? (${row.original.name})`)) {
                     deleteMutation.mutate(row.original.id);
                   }
                 }}
@@ -548,7 +549,7 @@ export function ToursPage() {
   if (isError || !toursResponse) {
     return (
       <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-        Nem sikerült betölteni a körutazásokat.
+        Nem sikerült betölteni a programokat.
       </div>
     );
   }
@@ -564,10 +565,10 @@ export function ToursPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-primary">Körutazások</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Ajánlatok</h1>
+        <p className="text-sm font-medium text-primary">Programok</p>
+        <h1 className="text-3xl font-semibold tracking-tight">Programok</h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          A körutazási ajánlatok kezelése, többféle szűréssel és side paneles szerkesztéssel.
+          A programok kezelése, többféle szűréssel és side paneles szerkesztéssel.
         </p>
       </div>
 
@@ -695,7 +696,7 @@ export function ToursPage() {
         onDelete={
           selectedTour && canDelete
             ? () => {
-                if (window.confirm(`Biztosan törlöd ezt a körutazást? (${selectedTour.name})`)) {
+                if (window.confirm(`Biztosan törlöd ezt a programot? (${selectedTour.name})`)) {
                   deleteMutation.mutate(selectedTour.id);
                 }
               }

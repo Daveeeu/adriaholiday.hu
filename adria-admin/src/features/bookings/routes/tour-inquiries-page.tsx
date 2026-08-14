@@ -48,7 +48,7 @@ const columns = [
   { key: 'id', label: 'ID', sortable: true, render: (item: TourInquiry) => item.id },
   { key: 'name', label: 'Név', sortable: true, render: (item: TourInquiry) => item.name },
   { key: 'email', label: 'Email', sortable: true, render: (item: TourInquiry) => item.email },
-  { key: 'offer', label: 'Ajánlat', sortable: true, render: (item: TourInquiry) => item.offerName },
+  { key: 'offer', label: 'Program', sortable: true, render: (item: TourInquiry) => item.offerName },
   { key: 'time', label: 'Időpont', sortable: true, render: (item: TourInquiry) => formatDateTime(item.appointmentTime) },
   { key: 'createdAt', label: 'Létrehozva', sortable: true, render: (item: TourInquiry) => formatDateTime(item.createdAt) },
   {
@@ -65,12 +65,12 @@ export function TourInquiriesPage() {
   const pageConfig = useMemo(
     () => ({
       eyebrow: 'Foglalások',
-      title: 'Körutazás ajánlatkérések',
+      title: 'Program ajánlatkérések',
       description:
         'Ajánlatkérések listája modern kereséssel, rendezéssel és oldalsó szerkesztőpanellel.',
-      toolbarTitle: 'Körutazás ajánlatkérések',
+      toolbarTitle: 'Program ajánlatkérések',
       toolbarDescription: 'Gyorsan feldolgozható érdeklődések és státuszok.',
-      searchPlaceholder: 'Keresés név, email, ajánlat vagy üzenet alapján...',
+      searchPlaceholder: 'Keresés név, email, program vagy üzenet alapján...',
       createLabel: 'Új ajánlatkérés',
       emptyText: 'Nincs a keresésnek megfelelő ajánlatkérés.',
       queryKey: ['bookings', 'tour-inquiries'],
@@ -135,7 +135,7 @@ export function TourInquiriesPage() {
                   <DetailItem label="Név" value={record.name} />
                   <DetailItem label="Email" value={record.email} />
                   <DetailItem label="Telefon" value={record.phone} />
-                  <DetailItem label="Ajánlat" value={record.offerName} />
+                  <DetailItem label="Program" value={record.offerName} />
                   <DetailItem label="Létrehozva" value={formatDateTime(record.createdAt)} />
                   <DetailItem
                     label="Státusz"
@@ -178,7 +178,7 @@ export function TourInquiriesPage() {
                   onChange={(event) =>
                     setDraft((current) => ({ ...current, offerName: event.target.value }))
                   }
-                  placeholder="Ajánlat"
+                  placeholder="Program"
                 />
                 <Input
                   type="datetime-local"

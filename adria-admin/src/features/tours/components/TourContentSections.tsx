@@ -135,7 +135,7 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
                   label="Slider kép"
                   value={field.value || null}
                   onChange={(value) => field.onChange(value ?? '')}
-                  description="A körutazás slider nézetében megjelenő kép."
+                  description="A program slider nézetében megjelenő kép."
                   defaultCategory="tours"
                   sourceContext="tour"
                   uploadAlt={tourName || undefined}

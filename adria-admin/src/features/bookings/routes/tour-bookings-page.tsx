@@ -109,7 +109,7 @@ const columns = [
   },
   {
     key: 'offer',
-    label: 'Ajánlat',
+    label: 'Program',
     sortable: true,
     render: (item: TourBooking) => item.offerName,
   },
@@ -179,14 +179,14 @@ export function TourBookingsPage() {
   const pageConfig = useMemo(
     () => ({
       eyebrow: 'Foglalások',
-      title: 'Körutazás foglalások',
+      title: 'Program foglalások',
       description:
-        'A körutazási foglalások, partner adatok és állapotok központi kezelése, modern listanézettel és oldalsó szerkesztőpanellel.',
-      toolbarTitle: 'Körutazás foglalások',
+        'A program foglalások, partner adatok és állapotok központi kezelése, modern listanézettel és oldalsó szerkesztőpanellel.',
+      toolbarTitle: 'Program foglalások',
       toolbarDescription: 'Keresés, szűrés, rendezés, lapozás és gyors CRUD műveletek.',
       searchPlaceholder: 'Keresés partner, email vagy telefon alapján...',
       createLabel: 'Új foglalás',
-      emptyText: 'Nincs a keresésnek megfelelő körutazás foglalás.',
+      emptyText: 'Nincs a keresésnek megfelelő program foglalás.',
       queryKey: ['bookings', 'tour-bookings', statusFilter, tourFilter, dateFrom, dateTo],
       listQuery: getTourBookings,
       buildQuery: ({
@@ -258,7 +258,7 @@ export function TourBookingsPage() {
         </>
       ),
       panelTitle: (mode: 'create' | 'edit' | 'detail', record: TourBooking | null) => {
-        if (mode === 'create') return 'Új körutazás foglalás';
+        if (mode === 'create') return 'Új program foglalás';
         if (mode === 'edit') return `Foglalás szerkesztése: ${record?.partnerName ?? ''}`;
         return record ? `${record.partnerName}` : 'Foglalás részletei';
       },
@@ -357,14 +357,14 @@ export function TourBookingsPage() {
               </div>
             </FormSection>
 
-            <FormSection title="Foglalási adatok" description="A körutazási foglalás fő mezői.">
+            <FormSection title="Foglalási adatok" description="A program foglalás fő mezői.">
               <div className="grid gap-3">
                 <Input
                   value={draft.offerName}
                   onChange={(event) =>
                     setDraft((current) => ({ ...current, offerName: event.target.value }))
                   }
-                  placeholder="Ajánlat"
+                  placeholder="Program"
                 />
                 <Input
                   type="date"

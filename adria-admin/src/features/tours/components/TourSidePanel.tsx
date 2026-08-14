@@ -214,7 +214,7 @@ function TourDetailView({ tour }: { tour: Tour }) {
           <DetailItem label="Régió" value={tour.regionLabel} />
           <DetailItem label="Főoldali ajánlat" value={tour.homepageOfferLabel} />
           <DetailItem label="Csoport" value={tour.groupLabel} />
-          <DetailItem label="Ajánlat csoport" value={tour.seasonalGroupLabel} />
+          <DetailItem label="Program csoport" value={tour.seasonalGroupLabel} />
           <DetailItem label="FIT" value={tour.fitLabel} />
           <DetailItem label="Program típus" value={tour.programTypeLabel} />
           <DetailItem label="Közlekedés" value={tour.travelModeLabel} />
@@ -414,12 +414,12 @@ export function TourSidePanel({
     return (
       <EntitySidePanel
         open={open}
-        title={mode === 'edit' ? 'Körutazás szerkesztése' : 'Körutazás részletei'}
-        description="A körutazás teljes adminisztrációs felülete."
+        title={mode === 'edit' ? 'Program szerkesztése' : 'Program részletei'}
+        description="A program teljes adminisztrációs felülete."
         onOpenChange={onOpenChange}
       >
         <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed bg-muted/20 p-6 text-sm text-muted-foreground">
-          Körutazás adatok betöltése...
+          Program adatok betöltése...
         </div>
       </EntitySidePanel>
     );
@@ -429,12 +429,12 @@ export function TourSidePanel({
     return (
       <EntitySidePanel
         open={open}
-        title={mode === 'edit' ? 'Körutazás szerkesztése' : 'Körutazás részletei'}
-        description="A körutazás teljes adminisztrációs felülete."
+        title={mode === 'edit' ? 'Program szerkesztése' : 'Program részletei'}
+        description="A program teljes adminisztrációs felülete."
         onOpenChange={onOpenChange}
       >
         <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-          Nem sikerült betölteni a körutazás adatait.
+          Nem sikerült betölteni a program adatait.
         </div>
       </EntitySidePanel>
     );
@@ -442,16 +442,16 @@ export function TourSidePanel({
 
   const title =
     mode === 'create'
-      ? 'Körutazás hozzáadása'
+      ? 'Program hozzáadása'
       : mode === 'edit'
-        ? 'Körutazás szerkesztése'
-        : 'Körutazás részletei';
+        ? 'Program szerkesztése'
+        : 'Program részletei';
 
   return (
     <EntitySidePanel
       open={open}
       title={title}
-      description="A körutazás teljes adminisztrációs felülete."
+      description="A program teljes adminisztrációs felülete."
       onOpenChange={onOpenChange}
       headerActions={
         mode === 'detail' && tour ? (

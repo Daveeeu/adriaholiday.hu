@@ -82,7 +82,7 @@ export function ToursTable({
                   colSpan={table.getAllLeafColumns().length}
                   className="h-28 text-center text-sm text-muted-foreground"
                 >
-                  Nincs megjeleníthető körutazás.
+                  Nincs megjeleníthető program.
                 </TableCell>
               </TableRow>
             )}
