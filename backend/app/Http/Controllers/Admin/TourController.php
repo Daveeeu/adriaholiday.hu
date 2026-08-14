@@ -12,6 +12,7 @@ use App\Http\Requests\Admin\Tour\UpdateTourStatusRequest;
 use App\Http\Resources\TourDetailResource;
 use App\Http\Resources\TourResource;
 use App\Models\Tour;
+use App\Models\TourCity;
 use App\Models\TourDate;
 use App\Models\TourPriceItem;
 use App\Models\TourProgramDay;
@@ -41,7 +42,7 @@ class TourController extends Controller
 
     public function index(Request $request)
     {
-        $query = Tour::query()->with(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']);
+        $query = Tour::query()->with(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']);
 
         if ($search = trim((string) $request->query('search', ''))) {
             $query->where(function ($builder) use ($search): void {
@@ -144,6 +145,7 @@ class TourController extends Controller
             $this->tourContentSync->syncDates($tour, $validated['dates'] ?? []);
             $this->tourContentSync->syncPartnerBonuses($tour, $validated['partner_bonuses'] ?? []);
             $this->tourContentSync->syncProgramDays($tour, $validated['program_days'] ?? []);
+            $this->tourContentSync->syncCities($tour, $validated['cities'] ?? []);
             $this->tourContentSync->syncGalleryItems($tour, $validated['gallery'] ?? []);
             $this->tourContentSync->syncPriceItems($tour, $validated['price_items'] ?? []);
             $tour->departurePlaces()->sync($validated['departure_place_ids'] ?? []);
@@ -153,12 +155,12 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
 
-        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']));
     }
 
     public function show(Tour $tour)
     {
-        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']));
     }
 
     public function update(UpdateTourRequest $request, Tour $tour)
@@ -218,6 +220,7 @@ class TourController extends Controller
             $this->tourContentSync->syncDates($tour, $validated['dates'] ?? []);
             $this->tourContentSync->syncPartnerBonuses($tour, $validated['partner_bonuses'] ?? []);
             $this->tourContentSync->syncProgramDays($tour, $validated['program_days'] ?? []);
+            $this->tourContentSync->syncCities($tour, $validated['cities'] ?? []);
             $this->tourContentSync->syncGalleryItems($tour, $validated['gallery'] ?? []);
             $this->tourContentSync->syncPriceItems($tour, $validated['price_items'] ?? []);
             $tour->departurePlaces()->sync($validated['departure_place_ids'] ?? []);
@@ -225,7 +228,7 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
 
-        return new TourDetailResource($tour->refresh()->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->refresh()->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']));
     }
 
     public function destroy(Tour $tour)
@@ -245,7 +248,7 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
 
-        return new TourResource($tour->refresh()->load(['homepageOffer.translations', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourResource($tour->refresh()->load(['homepageOffer.translations', 'departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']));
     }
 
     public function duplicate(Tour $tour)
@@ -259,7 +262,7 @@ class TourController extends Controller
             $copy->sort_order = $tour->sort_order + 1;
             $copy->push();
 
-            $tour->load(['dates', 'partnerBonuses', 'departurePlaces', 'priceItems', 'programDays', 'galleryItems.media']);
+            $tour->load(['dates', 'partnerBonuses', 'departurePlaces', 'priceItems', 'programDays', 'cities', 'galleryItems.media']);
             $this->tourContentSync->syncDates($copy, $tour->dates->map(fn (TourDate $date): array => [
                 'start_date' => $date->start_date?->toDateString(),
                 'end_date' => $date->end_date?->toDateString(),
@@ -289,6 +292,10 @@ class TourController extends Controller
                 'badges' => $day->badges ?? [],
                 'active' => $day->active,
             ])->all());
+            $this->tourContentSync->syncCities($copy, $tour->cities->map(fn (TourCity $city): array => [
+                'sort_order' => $city->sort_order,
+                'name' => $city->name,
+            ])->all());
             $this->tourContentSync->syncGalleryItems($copy, $tour->galleryItems->map(fn ($item): array => [
                 'media_id' => $item->media_id,
                 'title' => $item->title,
@@ -308,7 +315,7 @@ class TourController extends Controller
             return $copy;
         });
 
-        return new TourDetailResource($duplicate->load(['region', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($duplicate->load(['region', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']));
     }
 
     public function reorder(ReorderToursRequest $request)
@@ -332,12 +339,12 @@ class TourController extends Controller
         $currentIndex = $ordered->search(fn (Tour $item): bool => $item->id === $tour->id);
 
         if ($currentIndex === false) {
-            return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+            return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']));
         }
 
         $swapIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
         if (! $ordered->has($swapIndex)) {
-            return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+            return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']));
         }
 
         $other = $ordered->get($swapIndex);
@@ -345,7 +352,7 @@ class TourController extends Controller
         $tour->update(['sort_order' => $otherSortOrder]);
         $other->update(['sort_order' => $tourSortOrder]);
 
-        return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'cities', 'galleryItems.media']));
     }
 
     private function tourPriceBoxAttributes(array $validated): array

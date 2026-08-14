@@ -107,6 +107,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     discounts: offer.discounts,
     notes: offer.notes,
     programDays: offer.programDays ?? [],
+    cities: offer.cities ?? [],
     galleryTitle: offer.galleryTitle ?? null,
     gallerySubtitle: offer.gallerySubtitle ?? null,
     gallery: offer.gallery ?? [],

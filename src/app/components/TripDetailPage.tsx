@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import OfferGallerySection from "./OfferGallerySection";
 import OfferProgramTimeline from "./OfferProgramTimeline";
+import OfferCitiesSection from "./OfferCitiesSection";
 import OfferContentSection from "./OfferContentSection";
 import { useAnalytics } from "../analytics/useAnalytics";
 import {
@@ -294,6 +295,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 programDays={trip.programDays}
                 intro={trip.programBefore}
               />
+
+              <OfferCitiesSection cities={trip.cities} />
 
               <OfferContentSection
                 title="Kiegészítő / fizető programok"

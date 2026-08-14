@@ -81,6 +81,7 @@ class TourResource extends JsonResource
             'discounts' => RichTextSanitizer::sanitize($this->discounts),
             'notes' => RichTextSanitizer::sanitize($this->notes),
             'programDays' => TourProgramDayResource::collection($this->programDays ?? [])->resolve($request),
+            'cities' => TourCityResource::collection($this->cities ?? [])->resolve($request),
             'priceItems' => TourPriceItemResource::collection($this->priceItems ?? [])->resolve($request),
             'priceBox' => $priceBox,
             'regionId' => $this->region_id,

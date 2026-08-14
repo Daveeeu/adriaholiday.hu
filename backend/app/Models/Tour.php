@@ -135,6 +135,11 @@ class Tour extends Model implements HasMedia
         return $this->hasMany(TourProgramDay::class)->orderBy('sort_order');
     }
 
+    public function cities(): HasMany
+    {
+        return $this->hasMany(TourCity::class)->orderBy('sort_order');
+    }
+
     public function galleryItems(): HasMany
     {
         return $this->hasMany(TourGalleryItem::class)->orderBy('sort_order');

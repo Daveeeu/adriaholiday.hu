@@ -4,15 +4,12 @@ import type { MediaAsset } from '@/services/media-service';
 
 import type {
   TOUR_DATE_STATUSES,
-  TOUR_PARTNER_OFFER_STATUSES,
   TOUR_REGION_GROUP_TYPES,
   TOUR_SEASONAL_MENU_TYPES,
 } from './tours.constants';
 import { slugifyTourText } from './tours.constants';
 
 export type TourDateStatus = (typeof TOUR_DATE_STATUSES)[number]['value'];
-export type TourPartnerOfferStatus =
-  (typeof TOUR_PARTNER_OFFER_STATUSES)[number]['value'];
 export type TourRegionGroupType = (typeof TOUR_REGION_GROUP_TYPES)[number]['value'];
 export type TourSeasonalMenuType = (typeof TOUR_SEASONAL_MENU_TYPES)[number]['value'];
 
@@ -122,6 +119,19 @@ export type TourProgramDayFormValue = {
   active: boolean;
 };
 
+export type TourCity = {
+  id: string | number;
+  sortOrder: number;
+  name: string;
+};
+
+export type TourCityFormValue = {
+  id?: string | number;
+  clientId: string;
+  sortOrder: number;
+  name: string;
+};
+
 export type TourGalleryItem = {
   id: string | number;
   mediaId: string | number;
@@ -190,6 +200,7 @@ export type Tour = {
   gallerySubtitle?: string | null;
   gallery?: TourGalleryItem[];
   programDays: TourProgramDay[];
+  cities: TourCity[];
   priceItems: TourPriceItem[];
   regionId: string;
   regionLabel?: string | null;
@@ -317,6 +328,14 @@ export const tourFormSchema = z.object({
       active: z.boolean(),
     }),
   ),
+  cities: z.array(
+    z.object({
+      id: z.union([z.string(), z.number()]).optional(),
+      clientId: z.string(),
+      sortOrder: z.coerce.number().int().min(0),
+      name: z.string(),
+    }),
+  ),
   regionId: z.string(),
   homepageOfferId: z.string(),
   groupId: z.string(),
@@ -408,6 +427,13 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     active: day.active ?? true,
   }));
 
+  const cities = (tour?.cities ?? []).map((city, index) => ({
+    id: city.id,
+    clientId: crypto.randomUUID(),
+    sortOrder: city.sortOrder ?? index + 1,
+    name: city.name ?? '',
+  }));
+
   return {
     sortOrder: tour?.sortOrder ?? 1,
     active: tour?.active ?? true,
@@ -472,6 +498,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       sortOrder: item.sortOrder ?? 0,
       active: item.active ?? true,
     })),
+    cities,
     regionId: tour?.regionId ?? '',
     homepageOfferId: tour?.homepageOfferId ? String(tour.homepageOfferId) : '',
     groupId: tour?.groupId ?? '',
@@ -525,6 +552,10 @@ export function normalizeTourFormValues(values: TourFormValues): TourFormValues 
       ...item,
       sortOrder: item.sortOrder ?? index + 1,
     })),
+    cities: values.cities.map((city, index) => ({
+      ...city,
+      sortOrder: city.sortOrder ?? index + 1,
+    })),
   };
 }
 
@@ -545,34 +576,6 @@ export type TourListQuery = {
 
 export type TourListResponse = {
   items: Tour[];
-  totalCount: number;
-  page: number;
-  perPage: number;
-};
-
-export type TourPartnerOffer = {
-  id: string;
-  name: string;
-  partnerName: string;
-  partnerEmail: string;
-  inquiryDate: string;
-  status: TourPartnerOfferStatus;
-  note: string;
-  active: boolean;
-};
-
-export type TourPartnerOfferFormValues = Omit<TourPartnerOffer, 'id'>;
-
-export type TourPartnerOfferListQuery = {
-  page: number;
-  perPage: number;
-  search?: string;
-  sortBy?: keyof TourPartnerOffer;
-  sortDirection?: 'asc' | 'desc';
-};
-
-export type TourPartnerOfferListResponse = {
-  items: TourPartnerOffer[];
   totalCount: number;
   page: number;
   perPage: number;
@@ -669,4 +672,42 @@ export type TourDeparturePlaceListResponse = {
   totalCount: number;
   page: number;
   perPage: number;
+};
+
+export type TourWordImportProgramDay = {
+  dayNumber: number;
+  title: string;
+  description: string;
+};
+
+export type TourWordImportDate = {
+  startDate: string;
+  endDate: string;
+};
+
+export type TourWordImportDraft = {
+  fileName: string;
+  name: string;
+  subtitle: string | null;
+  listDescription: string;
+  programDays: TourWordImportProgramDay[];
+  dates: TourWordImportDate[];
+  price: number | null;
+  inclusions: string | null;
+  notes: string;
+  travelModeHint: string | null;
+  accommodationHint: string | null;
+  regionHint: string | null;
+  warnings: string[];
+};
+
+export type TourWordImportResult = {
+  fileName: string;
+  success: boolean;
+  data: TourWordImportDraft | null;
+  error: string | null;
+};
+
+export type TourWordImportResponse = {
+  results: TourWordImportResult[];
 };

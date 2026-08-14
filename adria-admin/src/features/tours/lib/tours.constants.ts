@@ -1,19 +1,14 @@
 export const TOURS_ROUTE = '/tours';
 
 export const TOUR_MAIN_NAV_ITEMS = [
-  { label: 'Ajánlatok', labelKey: 'nav.tours.offers', route: '/tours' },
-  {
-    label: 'Szervezés alatt partner ajánlatok',
-    labelKey: 'nav.tours.partnerOffers',
-    route: '/tours/partner-offers',
-  },
+  { label: 'Programok', labelKey: 'nav.tours.offers', route: '/tours' },
   {
     label: 'Régiók és csoportok',
     labelKey: 'nav.tours.regionGroups',
     route: '/tours/region-groups',
   },
   {
-    label: 'Szezonális ajánlat csoportok',
+    label: 'Szezonális program csoportok',
     labelKey: 'nav.tours.seasonalGroups',
     route: '/tours/seasonal-groups',
   },
@@ -21,6 +16,11 @@ export const TOUR_MAIN_NAV_ITEMS = [
     label: 'Felszállási helyek',
     labelKey: 'nav.tours.departurePlaces',
     route: '/tours/departure-places',
+  },
+  {
+    label: 'Word import',
+    labelKey: 'nav.tours.wordImport',
+    route: '/tours/import',
   },
 ] as const;
 
@@ -33,7 +33,7 @@ export const TOUR_SEASONAL_MENU_TYPES = [
   { value: 'intro', label: 'Bevezető utak' },
   { value: 'request', label: 'Ajánlatkérő utak' },
   { value: 'featured', label: 'Híres menüben' },
-  { value: 'travel', label: 'Utazási ajánlatok' },
+  { value: 'travel', label: 'Utazási programok' },
   { value: 'icon', label: 'Ikonalapúakat' },
 ] as const;
 
@@ -77,14 +77,6 @@ export const TOUR_DIFFICULTY_OPTIONS = [
   { value: 'easy', label: 'Könnyű' },
   { value: 'medium', label: 'Közepes' },
   { value: 'hard', label: 'Nehéz' },
-] as const;
-
-export const TOUR_PARTNER_OFFER_STATUSES = [
-  { value: 'new', label: 'Új' },
-  { value: 'contacted', label: 'Felvett kapcsolat' },
-  { value: 'offer_sent', label: 'Ajánlat elküldve' },
-  { value: 'won', label: 'Megnyert' },
-  { value: 'lost', label: 'Elvesztett' },
 ] as const;
 
 export const TOUR_DATE_STATUSES = [

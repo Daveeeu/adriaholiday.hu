@@ -66,6 +66,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'discounts' => $sanitizeContent($tour->discounts),
             'notes' => $sanitizeContent($tour->notes, true),
             'programDays' => TourProgramDayResource::collection($tour->programDays ?? [])->resolve($request),
+            'cities' => TourCityResource::collection($tour->cities ?? [])->resolve($request),
             'priceInformation' => [
                 'included' => $priceItems
                     ->where('type', 'included')

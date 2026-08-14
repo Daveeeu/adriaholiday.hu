@@ -3,6 +3,7 @@
 namespace App\Services\Tour;
 
 use App\Models\Tour;
+use App\Models\TourCity;
 use App\Models\TourProgramDay;
 use App\Support\RichTextSanitizer;
 
@@ -107,6 +108,48 @@ class TourContentSyncService
             }
 
             $tour->programDays()->create($attributes);
+        }
+    }
+
+    public function syncCities(Tour $tour, array $cities): void
+    {
+        $existingCities = $tour->cities()->get()->keyBy('id');
+        $requestedExistingIds = collect($cities)
+            ->map(fn (array $city) => $city['id'] ?? null)
+            ->filter(fn ($id): bool => is_numeric($id) && $existingCities->has((int) $id))
+            ->map(fn ($id): int => (int) $id)
+            ->values()
+            ->all();
+
+        if ($requestedExistingIds === []) {
+            $tour->cities()->delete();
+        } else {
+            $tour->cities()->whereNotIn('id', $requestedExistingIds)->delete();
+        }
+
+        foreach (array_values($cities) as $index => $city) {
+            $name = trim((string) ($city['name'] ?? ''));
+
+            if ($name === '') {
+                continue;
+            }
+
+            $attributes = [
+                'sort_order' => (int) ($city['sort_order'] ?? ($index + 1)),
+                'name' => $name,
+            ];
+
+            $existingCity = is_numeric($city['id'] ?? null)
+                ? $existingCities->get((int) $city['id'])
+                : null;
+
+            if ($existingCity instanceof TourCity) {
+                $existingCity->update($attributes);
+
+                continue;
+            }
+
+            $tour->cities()->create($attributes);
         }
     }
 

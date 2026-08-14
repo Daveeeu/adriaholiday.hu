@@ -9,10 +9,6 @@ import type {
   TourFormValues,
   TourListQuery,
   TourListResponse,
-  TourPartnerOffer,
-  TourPartnerOfferFormValues,
-  TourPartnerOfferListQuery,
-  TourPartnerOfferListResponse,
   TourRegionGroup,
   TourRegionGroupFormValues,
   TourRegionGroupListQuery,
@@ -22,6 +18,7 @@ import type {
   TourSeasonalGroupListQuery,
   TourSeasonalGroupListResponse,
   Tour,
+  TourWordImportResponse,
 } from './tours.types';
 import { normalizeTourFormValues } from './tours.types';
 
@@ -67,6 +64,13 @@ export function createTour(values: TourFormValues) {
   return apiClient.post<Tour | ResourceEnvelope<Tour>>('/api/admin/tours', normalizeTourFormValues(values)).then(unwrapResource);
 }
 
+export function parseWordTourImport(files: File[]) {
+  const formData = new FormData();
+  files.forEach((file) => formData.append('files[]', file));
+
+  return apiClient.post<TourWordImportResponse>('/api/admin/tours/import/word/parse', formData);
+}
+
 export function updateTour(id: string, values: TourFormValues) {
   return apiClient
     .patch<Tour | ResourceEnvelope<Tour>>(
@@ -102,40 +106,6 @@ export function moveTourOffer(id: string, direction: 'up' | 'down') {
   return apiClient
     .post<Tour | ResourceEnvelope<Tour>>(`/api/admin/tours/${id}/move`, { direction })
     .then(unwrapResource);
-}
-
-export async function getTourPartnerOffers(
-  query: TourPartnerOfferListQuery,
-): Promise<TourPartnerOfferListResponse> {
-  return apiClient.get<TourPartnerOfferListResponse>(
-    '/api/admin/tour-partner-offers',
-    { query },
-  );
-}
-
-export function createTourPartnerOffer(values: TourPartnerOfferFormValues) {
-  return apiClient.post<TourPartnerOffer>('/api/admin/tour-partner-offers', values);
-}
-
-export function updateTourPartnerOffer(
-  id: string,
-  values: TourPartnerOfferFormValues,
-) {
-  return apiClient.patch<TourPartnerOffer>(
-    `/api/admin/tour-partner-offers/${id}`,
-    values,
-  );
-}
-
-export function deleteTourPartnerOffer(id: string) {
-  return apiClient.delete<{ id: string }>(`/api/admin/tour-partner-offers/${id}`);
-}
-
-export function setTourPartnerOfferActive(id: string, active: boolean) {
-  return apiClient.patch<TourPartnerOffer>(
-    `/api/admin/tour-partner-offers/${id}/status`,
-    { active },
-  );
 }
 
 export async function getTourRegionGroups(

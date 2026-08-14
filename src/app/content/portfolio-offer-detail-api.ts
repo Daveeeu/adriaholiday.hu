@@ -60,6 +60,13 @@ export type PortfolioOfferProgramDay = {
   active: boolean;
 };
 
+export type PortfolioOfferCity = {
+  id: number | string;
+  tourId?: number | string;
+  sortOrder: number;
+  name: string;
+};
+
 export type PortfolioOfferGalleryItem = {
   id: number | string;
   tourId?: number | string;
@@ -108,6 +115,7 @@ export type PortfolioOfferDetail = {
   discounts?: string | null;
   notes?: string | null;
   programDays?: PortfolioOfferProgramDay[];
+  cities?: PortfolioOfferCity[];
   galleryTitle?: string | null;
   gallerySubtitle?: string | null;
   gallery?: PortfolioOfferGalleryItem[];

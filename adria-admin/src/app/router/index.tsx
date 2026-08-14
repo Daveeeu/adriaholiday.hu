@@ -67,16 +67,6 @@ const ApartmentBookingsPage = lazy(() =>
     (module) => ({ default: module.ApartmentBookingsPage }),
   ),
 );
-const PartnerFinancesPage = lazy(() =>
-  import('@/features/bookings/routes/partner-finances-page').then((module) => ({
-    default: module.PartnerFinancesPage,
-  })),
-);
-const BannerGeneratorPage = lazy(() =>
-  import('@/features/bookings/routes/banner-generator-page').then((module) => ({
-    default: module.BannerGeneratorPage,
-  })),
-);
 const MessagesPage = lazy(() =>
   import('@/features/bookings/routes/messages-page').then((module) => ({
     default: module.MessagesPage,
@@ -162,11 +152,6 @@ const BlogTagsPage = lazy(() =>
     default: module.BlogTagsPage,
   })),
 );
-const TourPartnerOffersPage = lazy(() =>
-  import('@/features/tours/pages/TourPartnerOffersPage').then((module) => ({
-    default: module.TourPartnerOffersPage,
-  })),
-);
 const TourRegionGroupsPage = lazy(() =>
   import('@/features/tours/pages/TourRegionGroupsPage').then((module) => ({
     default: module.TourRegionGroupsPage,
@@ -180,6 +165,11 @@ const TourSeasonalGroupsPage = lazy(() =>
 const TourDeparturePlacesPage = lazy(() =>
   import('@/features/tours/pages/TourDeparturePlacesPage').then((module) => ({
     default: module.TourDeparturePlacesPage,
+  })),
+);
+const TourWordImportPage = lazy(() =>
+  import('@/features/tours/pages/TourWordImportPage').then((module) => ({
+    default: module.TourWordImportPage,
   })),
 );
 const UsersPage = lazy(() =>
@@ -339,16 +329,6 @@ const router = createBrowserRouter(
               handle: { crumbKey: 'nav.bookings.apartmentBookings' },
             },
             {
-              path: 'partner-finances',
-              element: <PartnerFinancesPage />,
-              handle: { crumbKey: 'nav.bookings.partnerFinances' },
-            },
-            {
-              path: 'banner-generator',
-              element: <BannerGeneratorPage />,
-              handle: { crumbKey: 'nav.bookings.bannerGenerator' },
-            },
-            {
               path: 'messages',
               element: <MessagesPage />,
               handle: { crumbKey: 'nav.bookings.messages' },
@@ -410,11 +390,6 @@ const router = createBrowserRouter(
               handle: { crumbKey: 'nav.tours.offers' },
             },
             {
-              path: 'partner-offers',
-              element: <TourPartnerOffersPage />,
-              handle: { crumbKey: 'nav.tours.partnerOffers' },
-            },
-            {
               path: 'region-groups',
               element: <TourRegionGroupsPage />,
               handle: { crumbKey: 'nav.tours.regionGroups' },
@@ -428,6 +403,11 @@ const router = createBrowserRouter(
               path: 'departure-places',
               element: <TourDeparturePlacesPage />,
               handle: { crumbKey: 'nav.tours.departurePlaces' },
+            },
+            {
+              path: 'import',
+              element: <TourWordImportPage />,
+              handle: { crumbKey: 'nav.tours.wordImport' },
             },
           ],
         },

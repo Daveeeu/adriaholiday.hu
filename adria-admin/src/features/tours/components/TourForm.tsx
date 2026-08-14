@@ -25,6 +25,7 @@ import { TourCreatableSelectField } from './TourCreatableSelectField';
 import { TourFilterSections } from './TourFilterSections';
 import { TourGallerySection } from './TourGallerySection';
 import { TourProgramDaysSection } from './TourProgramDaysSection';
+import { TourCitiesSection } from './TourCitiesSection';
 import { TourPriceItemsSection } from './TourPriceItemsSection';
 import { TourSeoSection } from './TourSeoSection';
 
@@ -46,6 +47,7 @@ type TourPanelSectionKey =
   | 'priceBox'
   | 'content'
   | 'programDays'
+  | 'cities'
   | 'priceItems'
   | 'filters'
   | 'dates'
@@ -58,6 +60,7 @@ const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
   priceBox: true,
   content: false,
   programDays: false,
+  cities: false,
   priceItems: false,
   filters: true,
   dates: true,
@@ -159,6 +162,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
   const gallery = useWatch({ control: form.control, name: 'gallery' }) ?? [];
   const programDays = useWatch({ control: form.control, name: 'programDays' }) ?? [];
+  const cities = useWatch({ control: form.control, name: 'cities' }) ?? [];
   const priceItems = useWatch({ control: form.control, name: 'priceItems' }) ?? [];
   const [openSections, setOpenSections] = useState(DEFAULT_OPEN_SECTIONS);
 
@@ -166,10 +170,11 @@ export function TourForm({ form, tour }: TourFormProps) {
     () => ({
       gallery: gallery.length,
       programDays: programDays.length,
+      cities: cities.length,
       priceItems: priceItems.length,
       dates: dates.fields.length,
     }),
-    [dates.fields.length, gallery.length, priceItems.length, programDays.length],
+    [cities.length, dates.fields.length, gallery.length, priceItems.length, programDays.length],
   );
 
   const toggleSection = (key: TourPanelSectionKey) => {
@@ -187,6 +192,7 @@ export function TourForm({ form, tour }: TourFormProps) {
       priceBox: open,
       content: open,
       programDays: open,
+      cities: open,
       priceItems: open,
       filters: open,
       dates: open,
@@ -209,7 +215,7 @@ export function TourForm({ form, tour }: TourFormProps) {
     <div className="space-y-5">
       <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-background/95 px-4 py-3 backdrop-blur">
         <div>
-          <div className="text-sm font-semibold text-foreground">Körutazás szekciók</div>
+          <div className="text-sm font-semibold text-foreground">Program szekciók</div>
           <div className="text-xs text-muted-foreground">
             Nyisd le csak azt, amin dolgozol.
           </div>
@@ -493,6 +499,16 @@ export function TourForm({ form, tour }: TourFormProps) {
       </TourPanelSection>
 
       <TourPanelSection
+        title="Érintett városok"
+        description="Opcionális városlista a program útvonaláról."
+        countLabel={`${sectionCounts.cities} város`}
+        open={openSections.cities}
+        onToggle={() => toggleSection('cities')}
+      >
+        <TourCitiesSection form={form} />
+      </TourPanelSection>
+
+      <TourPanelSection
         title="Ár tartalma"
         description="Mit tartalmaz és mit nem tartalmaz az ár."
         countLabel={`${sectionCounts.priceItems} tétel`}
@@ -504,7 +520,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
       <TourPanelSection
         title="Szűrők és kapcsolatok"
-        description="Régiók, kategóriák, címkék, országok és ajánlati csoportok."
+        description="Régiók, kategóriák, címkék, országok és program csoportok."
         open={openSections.filters}
         onToggle={() => toggleSection('filters')}
       >

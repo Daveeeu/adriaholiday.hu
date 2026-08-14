@@ -138,6 +138,13 @@ class StoreTourRequest extends FormRequest
                     'value' => $bonus['value'] ?? null,
                 ];
             })->all(),
+            'cities' => collect($this->input('cities', []))->map(function (array $city, int $index): array {
+                return [
+                    'id' => $city['id'] ?? $city['clientId'] ?? null,
+                    'sort_order' => $city['sort_order'] ?? $city['sortOrder'] ?? ($index + 1),
+                    'name' => $city['name'] ?? '',
+                ];
+            })->all(),
         ]);
     }
 
@@ -213,6 +220,10 @@ class StoreTourRequest extends FormRequest
             'program_days.*.badges' => ['nullable', 'array'],
             'program_days.*.badges.*' => ['nullable', 'string', 'max:100'],
             'program_days.*.active' => ['nullable', 'boolean'],
+            'cities' => ['nullable', 'array'],
+            'cities.*.id' => ['nullable'],
+            'cities.*.sort_order' => ['nullable', 'integer', 'min:0'],
+            'cities.*.name' => ['required_with:cities', 'string', 'max:255'],
             'price_items' => ['nullable', 'array'],
             'price_items.*.id' => ['nullable', 'string', 'max:255'],
             'price_items.*.type' => ['required_with:price_items', 'string', Rule::in(['included', 'excluded'])],
