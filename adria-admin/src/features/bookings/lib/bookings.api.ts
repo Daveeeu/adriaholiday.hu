@@ -13,11 +13,6 @@ import type {
   CouponFormValues,
   CrudListQuery,
   CrudListResponse,
-  FinanceType,
-  PartnerBanner,
-  PartnerBannerFormValues,
-  PartnerFinanceFormValues,
-  PartnerFinanceRecord,
   Promotion,
   PromotionFormValues,
   TourBooking,
@@ -179,14 +174,13 @@ function mapApartmentBooking(resource: BookingResource): ApartmentBooking {
   };
 }
 
-function listQuery(query: CrudListQuery & { type?: FinanceType }) {
+function listQuery(query: CrudListQuery) {
   return {
     page: query.page,
     perPage: query.perPage,
     search: query.search,
     sortBy: query.sortBy,
     sortDirection: query.sortDirection,
-    type: query.type,
   };
 }
 
@@ -437,73 +431,6 @@ export async function getApartmentBookingRecord(id: string) {
     `/api/admin/bookings/apartment-bookings/${id}`,
   );
   return mapApartmentBooking(unwrapResource(response));
-}
-
-export function getPartnerFinances(
-  query: CrudListQuery & { type?: FinanceType },
-) {
-  return apiClient.get<CrudListResponse<PartnerFinanceRecord>>(
-    '/api/admin/bookings/partner-finances',
-    { query: listQuery(query) },
-  );
-}
-
-export function createPartnerFinanceRecord(values: PartnerFinanceFormValues) {
-  return apiClient.post<PartnerFinanceRecord>(
-    '/api/admin/bookings/partner-finances',
-    values,
-  );
-}
-
-export function updatePartnerFinanceRecord(
-  id: string,
-  values: PartnerFinanceFormValues,
-) {
-  return apiClient.patch<PartnerFinanceRecord>(
-    `/api/admin/bookings/partner-finances/${id}`,
-    values,
-  );
-}
-
-export function deletePartnerFinanceRecord(id: string) {
-  return apiClient.delete<void>(
-    `/api/admin/bookings/partner-finances/${id}`,
-  );
-}
-
-export function getPartnerFinanceRecord(id: string) {
-  return apiClient.get<PartnerFinanceRecord>(
-    `/api/admin/bookings/partner-finances/${id}`,
-  );
-}
-
-export function getBanners(query: CrudListQuery) {
-  return apiClient.get<CrudListResponse<PartnerBanner>>(
-    '/api/admin/bookings/banners',
-    { query: listQuery(query) },
-  );
-}
-
-export function createBannerRecord(values: PartnerBannerFormValues) {
-  return apiClient.post<PartnerBanner>('/api/admin/bookings/banners', values);
-}
-
-export function updateBannerRecord(
-  id: string,
-  values: PartnerBannerFormValues,
-) {
-  return apiClient.patch<PartnerBanner>(
-    `/api/admin/bookings/banners/${id}`,
-    values,
-  );
-}
-
-export function deleteBannerRecord(id: string) {
-  return apiClient.delete<void>(`/api/admin/bookings/banners/${id}`);
-}
-
-export function getBannerRecord(id: string) {
-  return apiClient.get<PartnerBanner>(`/api/admin/bookings/banners/${id}`);
 }
 
 export function getMessages(query: CrudListQuery) {

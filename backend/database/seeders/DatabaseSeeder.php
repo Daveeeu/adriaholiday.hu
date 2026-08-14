@@ -26,7 +26,6 @@ class DatabaseSeeder extends Seeder
             TourSeasonalGroupSeeder::class,
             TourDeparturePlaceSeeder::class,
             TourReferenceOptionSeeder::class,
-            TourPartnerOfferSeeder::class,
             TourSeeder::class,
             HomepageOfferSeeder::class,
             BlogCategorySeeder::class,
@@ -39,8 +38,6 @@ class DatabaseSeeder extends Seeder
             BlogArticleSeeder::class,
             BusSeeder::class,
             BookingSeeder::class,
-            PartnerFinanceRecordSeeder::class,
-            PartnerBannerSeeder::class,
             ContactMessageSeeder::class,
             CouponSeeder::class,
         ]);

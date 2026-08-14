@@ -1,5 +1,4 @@
 export { ToursPage } from '../pages/ToursPage';
-export { TourPartnerOffersPage } from '../pages/TourPartnerOffersPage';
 export { TourRegionGroupsPage } from '../pages/TourRegionGroupsPage';
 export { TourSeasonalGroupsPage } from '../pages/TourSeasonalGroupsPage';
 export { TourDeparturePlacesPage } from '../pages/TourDeparturePlacesPage';

@@ -72,7 +72,6 @@ class RolePermissionSeeder extends Seeder
             ...$permissionGroups['bookings'],
             ...$permissionGroups['messages'],
             'coupons.viewAny', 'coupons.view',
-            'partner-finances.viewAny', 'partner-finances.view',
             'email-csv-export.view',
         ]);
 
@@ -110,7 +109,6 @@ class RolePermissionSeeder extends Seeder
             'tourRegionGroups' => ['tour-region-groups.viewAny', 'tour-region-groups.view', 'tour-region-groups.create', 'tour-region-groups.update', 'tour-region-groups.delete', 'tour-region-groups.status'],
             'tourSeasonalGroups' => ['tour-seasonal-groups.viewAny', 'tour-seasonal-groups.view', 'tour-seasonal-groups.create', 'tour-seasonal-groups.update', 'tour-seasonal-groups.delete', 'tour-seasonal-groups.status'],
             'tourDeparturePlaces' => ['tour-departure-places.viewAny', 'tour-departure-places.view', 'tour-departure-places.create', 'tour-departure-places.update', 'tour-departure-places.delete', 'tour-departure-places.status'],
-            'tourPartnerOffers' => ['tour-partner-offers.viewAny', 'tour-partner-offers.view', 'tour-partner-offers.create', 'tour-partner-offers.update', 'tour-partner-offers.delete', 'tour-partner-offers.status'],
             'homepageOffers' => ['homepage-offers.viewAny', 'homepage-offers.view', 'homepage-offers.create', 'homepage-offers.update', 'homepage-offers.delete'],
             'portfolioContent' => ['portfolio-content.view', 'portfolio-content.update', 'portfolio-content.publish'],
             'blogArticles' => ['blog-articles.viewAny', 'blog-articles.view', 'blog-articles.create', 'blog-articles.update', 'blog-articles.delete'],
@@ -119,8 +117,6 @@ class RolePermissionSeeder extends Seeder
             'buses' => ['buses.viewAny', 'buses.view', 'buses.create', 'buses.update', 'buses.delete'],
             'bookingFormTemplates' => ['booking-form-templates.viewAny', 'booking-form-templates.view', 'booking-form-templates.create', 'booking-form-templates.update', 'booking-form-templates.delete'],
             'bookings' => ['bookings.viewAny', 'bookings.view', 'bookings.create', 'bookings.update', 'bookings.delete', 'bookings.status', 'bookings.export'],
-            'partnerFinances' => ['partner-finances.viewAny', 'partner-finances.view', 'partner-finances.create', 'partner-finances.update', 'partner-finances.delete'],
-            'partnerBanners' => ['partner-banners.viewAny', 'partner-banners.view', 'partner-banners.create', 'partner-banners.update', 'partner-banners.delete'],
             'messages' => ['messages.viewAny', 'messages.view', 'messages.create', 'messages.update', 'messages.delete', 'messages.status'],
             'coupons' => ['coupons.viewAny', 'coupons.view', 'coupons.create', 'coupons.update', 'coupons.delete', 'coupons.status'],
             'promotions' => ['promotions.viewAny', 'promotions.view', 'promotions.create', 'promotions.update', 'promotions.delete', 'promotions.status'],

@@ -31,8 +31,6 @@ class BookingsModuleTest extends TestCase
             '/api/admin/bookings/tour-bookings',
             '/api/admin/bookings/tour-inquiries',
             '/api/admin/bookings/apartment-bookings',
-            '/api/admin/bookings/partner-finances',
-            '/api/admin/bookings/banners',
             '/api/admin/bookings/messages',
             '/api/admin/bookings/coupons',
         ] as $endpoint) {

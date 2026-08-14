@@ -33,7 +33,6 @@ class AdminPaginationEnvelopeTest extends TestCase
             'tour-region-groups' => ['/api/admin/tour-region-groups'],
             'tour-seasonal-groups' => ['/api/admin/tour-seasonal-groups'],
             'tour-departure-places' => ['/api/admin/tour-departure-places'],
-            'tour-partner-offers' => ['/api/admin/tour-partner-offers'],
             'regions' => ['/api/admin/regions'],
             'locations' => ['/api/admin/locations'],
             'galleries' => ['/api/admin/galleries'],

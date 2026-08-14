@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ArrowRight, Building2, CalendarDays, Mail, Megaphone, Ticket } from 'lucide-react';
+import { ArrowRight, Building2, CalendarDays, Mail, Ticket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
@@ -7,10 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 import {
   getApartmentBookings,
-  getBanners,
   getCoupons,
   getMessages,
-  getPartnerFinances,
   getTourBookings,
   getTourInquiries,
 } from '../lib/bookings.api';
@@ -55,12 +53,6 @@ export function BookingsOverviewPage() {
   const apartmentBookings = useTotalCount(['bookings', 'apartment-bookings', 'count'], () =>
     getApartmentBookings(countQuery),
   );
-  const partnerFinances = useTotalCount(['bookings', 'partner-finances', 'count'], () =>
-    getPartnerFinances(countQuery),
-  );
-  const banners = useTotalCount(['bookings', 'banner-generator', 'count'], () =>
-    getBanners(countQuery),
-  );
   const messages = useTotalCount(['bookings', 'messages', 'count'], () =>
     getMessages(countQuery),
   );
@@ -71,14 +63,14 @@ export function BookingsOverviewPage() {
   const cards = useMemo<OverviewCard[]>(
     () => [
       {
-        title: 'Körutazás foglalások',
-        description: 'A fő körutazás foglalási lista és a kapcsolódó szerkesztőpanel.',
+        title: 'Program foglalások',
+        description: 'A fő program foglalási lista és a kapcsolódó szerkesztőpanel.',
         to: '/bookings/tour-bookings',
         count: tourBookings.count,
         icon: CalendarDays,
       },
       {
-        title: 'Körutazás ajánlatkérések',
+        title: 'Program ajánlatkérések',
         description: 'Ajánlatkérések feldolgozása és státusz-kezelés.',
         to: '/bookings/tour-inquiries',
         count: tourInquiries.count,
@@ -90,20 +82,6 @@ export function BookingsOverviewPage() {
         to: '/bookings/apartment-bookings',
         count: apartmentBookings.count,
         icon: Building2,
-      },
-      {
-        title: 'Partner pénzügyek',
-        description: 'Jutalék jóváírás, kifizetés és egyenlegkezelés.',
-        to: '/bookings/partner-finances',
-        count: partnerFinances.count,
-        icon: Ticket,
-      },
-      {
-        title: 'Banner generálás',
-        description: 'Partner bannerek konfigurálása és előnézete.',
-        to: '/bookings/banner-generator',
-        count: banners.count,
-        icon: Megaphone,
       },
       {
         title: 'Üzenetek',
@@ -129,10 +107,8 @@ export function BookingsOverviewPage() {
     ],
     [
       apartmentBookings.count,
-      banners.count,
       coupons.count,
       messages.count,
-      partnerFinances.count,
       tourBookings.count,
       tourInquiries.count,
     ],

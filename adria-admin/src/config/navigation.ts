@@ -132,18 +132,6 @@ export const staticNavigationItems: NavigationItem[] = [
         permission: 'bookings.viewAny',
       },
       {
-        to: '/bookings/partner-finances',
-        labelKey: 'nav.bookings.partnerFinances',
-        icon: Ticket,
-        permission: 'partner-finances.viewAny',
-      },
-      {
-        to: '/bookings/banner-generator',
-        labelKey: 'nav.bookings.bannerGenerator',
-        icon: Megaphone,
-        permission: 'partner-banners.viewAny',
-      },
-      {
         to: '/bookings/messages',
         labelKey: 'nav.bookings.messages',
         icon: Mail,
