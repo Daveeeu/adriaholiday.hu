@@ -2,12 +2,6 @@ import { Building2, Globe2, MapPinned, Ticket, type LucideIcon } from 'lucide-re
 
 export type ApartmentModuleTabKey =
   | 'apartments'
-  | 'greek-apartments'
-  | 'bulgarian-apartments'
-  | 'montenegrin-apartments'
-  | 'croatian-apartments'
-  | 'croatian-apartments-new'
-  | 'croatian-texts'
   | 'regions'
   | 'locations'
   | 'types'
@@ -25,12 +19,6 @@ export type ApartmentModuleTab = {
 
 export const apartmentModuleTabs: ApartmentModuleTab[] = [
   { key: 'apartments', label: 'Apartmanok', to: '/apartments', icon: Building2 },
-  { key: 'greek-apartments', label: 'Görög Apartmanok', disabled: true, icon: Globe2 },
-  { key: 'bulgarian-apartments', label: 'Bulgáriai Apartmanok', disabled: true, icon: Globe2 },
-  { key: 'montenegrin-apartments', label: 'Montenegró Apartmanok', disabled: true, icon: Globe2 },
-  { key: 'croatian-apartments', label: 'Horvát Apartmanok', to: '/apartments', icon: MapPinned },
-  { key: 'croatian-apartments-new', label: 'Horvát Apartmanok (új)', disabled: true, icon: MapPinned },
-  { key: 'croatian-texts', label: 'Horvát szövegek', disabled: true, icon: Ticket },
   { key: 'regions', label: 'Régiók', to: '/regions', icon: Globe2 },
   { key: 'locations', label: 'Helyek', to: '/locations', icon: MapPinned },
   { key: 'types', label: 'Típusok', disabled: true, icon: Building2 },

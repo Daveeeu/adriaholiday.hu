@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin\Apartment;
 
+use App\Models\Region;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -63,9 +64,13 @@ class StoreApartmentRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'region_id' => ['required', 'integer', 'exists:regions,id'],
-            'location_id' => ['required', 'integer', 'exists:locations,id'],
-            'gallery_id' => ['required', 'integer', 'exists:galleries,id'],
+            'region_id' => ['required', 'integer', Rule::exists('regions', 'id')->where('country_code', 'IT')],
+            'location_id' => ['required', 'integer', Rule::exists('locations', 'id')->where(
+                fn ($query) => $query->whereIn('region_id', Region::query()->where('country_code', 'IT')->pluck('id')),
+            )],
+            'gallery_id' => ['required', 'integer', Rule::exists('galleries', 'id')->where(
+                fn ($query) => $query->where('category', 'apartment')->whereIn('region_id', Region::query()->where('country_code', 'IT')->pluck('id')),
+            )],
             'type' => ['required', 'string', Rule::exists('apartment_types', 'slug')],
             'slug' => ['required', 'string', 'max:255', Rule::unique('apartments', 'slug')],
             'code' => ['nullable', 'string', 'max:255', Rule::unique('apartments', 'code')],

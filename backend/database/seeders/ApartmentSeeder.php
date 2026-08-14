@@ -13,7 +13,6 @@ class ApartmentSeeder extends Seeder
 {
     public function run(): void
     {
-        $types = ['greek', 'bulgarian', 'montenegro', 'croatian', 'croatian_new'];
         $locations = Location::query()->orderBy('id')->get()->values();
         $galleries = Gallery::query()->orderBy('id')->get()->values();
 
@@ -46,118 +45,6 @@ class ApartmentSeeder extends Seeder
                 'Piazza Milano Residence',
                 'Lido Residence Jesolo',
             ],
-            'sarti' => [
-                'Sarti Sunset Apartman',
-                'Aegean View Sarti',
-                'Blue Bay Residence Sarti',
-                'Olive Garden Sarti',
-                'Sea Pearl Sarti',
-            ],
-            'nei-pori' => [
-                'Nei Pori Beach Residence',
-                'Olympus View Nei Pori',
-                'Sea Breeze Nei Pori',
-                'Sunrise Apartman Nei Pori',
-                'Aegean Garden Nei Pori',
-            ],
-            'paralia' => [
-                'Paralia Deluxe Apartman',
-                'Paralia Beach Residence',
-                'Olympic Coast Paralia',
-                'Asteria Apartman Paralia',
-                'Sunset House Paralia',
-            ],
-            'hanioti' => [
-                'Hanioti Bay Apartman',
-                'Hanioti Garden Residence',
-                'Kassandra View Hanioti',
-                'Blue Horizon Hanioti',
-                'Sea Line Hanioti',
-            ],
-            'budva' => [
-                'Budva Old Town Apartman',
-                'Mali Raj Apartman Budva',
-                'Adriatic Pearl Budva',
-                'Budva View Residence',
-                'Sun Coast Budva',
-            ],
-            'petrovac' => [
-                'Petrovac Bay Residence',
-                'Oliva Apartman Petrovac',
-                'Petrovac Seaside House',
-                'Mediteran Residence Petrovac',
-                'Sunset Garden Petrovac',
-            ],
-            'ulcinj' => [
-                'Ulcinj Long Beach Apartman',
-                'Ulcinj Panorama Residence',
-                'Adriatic Star Ulcinj',
-                'Ulcinj Sea View',
-                'Mango Beach House Ulcinj',
-            ],
-            'bar' => [
-                'Bar Marina Apartman',
-                'Bar Coast Residence',
-                'Kraljica Apartman Bar',
-                'Sunrise Residence Bar',
-                'Port View Bar',
-            ],
-            'rovinj' => [
-                'Rovinj Old Town Apartman',
-                'Marina Residence Rovinj',
-                'Bella Vista Rovinj Suite',
-                'Riva Apartman Rovinj',
-                'Adriatic Loft Rovinj',
-            ],
-            'porec' => [
-                'Poreč Seaside Residence',
-                'Poreč Old Town Apartman',
-                'Luna Apartment Poreč',
-                'Aqua Blue Poreč',
-                'Poreč Garden Suite',
-            ],
-            'crikvenica' => [
-                'Crikvenica Riviera Apartman',
-                'Crikvenica Beach Residence',
-                'Sunshine Apartman Crikvenica',
-                'Adria View Crikvenica',
-                'Crikvenica Panorama',
-            ],
-            'makarska' => [
-                'Makarska Riviera Apartman',
-                'Makarska Harbor Residence',
-                'Biokovo View Makarska',
-                'Seaside House Makarska',
-                'Blue Bay Makarska',
-            ],
-            'napospart' => [
-                'Napospart Sunrise Residence',
-                'Napospart Beach Apartman',
-                'Sandy Bay Napospart',
-                'Golden Coast Napospart',
-                'Napospart Family Suite',
-            ],
-            'aranyhomok' => [
-                'Aranyhomok Panorama',
-                'Golden Sands Residence',
-                'Aranyhomok Beach Suite',
-                'Sunny Dune Aranyhomok',
-                'Aranyhomok Sea View',
-            ],
-            'neszebar' => [
-                'Neszebár Old Town Apartman',
-                'Neszebár Riviera Residence',
-                'St. Sofia Neszebár',
-                'Neszebár Sea House',
-                'Sunline Neszebár',
-            ],
-            'szozopol' => [
-                'Szozopol Marina Apartman',
-                'Szozopol Bay Residence',
-                'Black Sea View Szozopol',
-                'Szozopol Old Town Suite',
-                'Szozopol Coast House',
-            ],
         ];
 
         $counter = 1;
@@ -179,7 +66,7 @@ class ApartmentSeeder extends Seeder
                         'region_id' => $region->id,
                         'location_id' => $location->id,
                         'gallery_id' => $gallery->id,
-                        'type' => $types[$counter % count($types)],
+                        'type' => 'italian',
                         'name' => $name,
                         'code' => $code,
                         'seo_name' => Str::slug($name),

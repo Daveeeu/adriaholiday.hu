@@ -346,10 +346,27 @@ export function ApartmentsPage() {
   const loading =
     apartmentsLoading || regionsLoading || locationsLoading || galleriesLoading;
 
+  const italianRegions = useMemo(
+    () => (regions ?? []).filter((region) => region.countryCode === 'IT'),
+    [regions],
+  );
+
+  const italianLocations = useMemo(
+    () =>
+      (locations ?? []).filter((location) =>
+        italianRegions.some((region) => region.id === location.regionId),
+      ),
+    [locations, italianRegions],
+  );
+
   const filteredGalleries = useMemo(
     () =>
-      (galleries ?? []).filter((gallery) => gallery.category === 'apartment'),
-    [galleries],
+      (galleries ?? []).filter(
+        (gallery) =>
+          gallery.category === 'apartment' &&
+          italianRegions.some((region) => region.id === gallery.regionId),
+      ),
+    [galleries, italianRegions],
   );
 
   const apartmentRows = useMemo<ApartmentRow[]>(() => {
@@ -635,8 +652,8 @@ export function ApartmentsPage() {
         open={routeMode !== 'list'}
         mode={routeMode === 'list' ? 'create' : routeMode}
         apartment={selectedApartment}
-        regions={regions}
-        locations={locations}
+        regions={italianRegions}
+        locations={italianLocations}
         galleries={filteredGalleries}
         submitting={submitting}
         defaultType={defaultType}
