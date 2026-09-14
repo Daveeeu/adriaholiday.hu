@@ -22,6 +22,14 @@ export type PortfolioCategoryFilterChip = {
   active?: boolean;
 };
 
+export type PortfolioCategoryCountryOption = {
+  code: string;
+  label: string;
+  count: number;
+  disabled: boolean;
+  active?: boolean;
+};
+
 export type PortfolioOfferListParams = {
   page?: number;
   perPage?: number;
@@ -104,6 +112,15 @@ export async function fetchPortfolioCategoryFilters(
 ): Promise<PortfolioCategoryFilterChip[]> {
   return request<PortfolioCategoryFilterChip[]>(
     `/portfolio/categories/${encodeURIComponent(slug)}/filters${buildQuery(params)}`,
+  );
+}
+
+export async function fetchPortfolioCategoryCountries(
+  slug: string,
+  params: Pick<PortfolioOfferListParams, 'filters'> = {},
+): Promise<PortfolioCategoryCountryOption[]> {
+  return request<PortfolioCategoryCountryOption[]>(
+    `/portfolio/categories/${encodeURIComponent(slug)}/countries${buildQuery(params)}`,
   );
 }
 

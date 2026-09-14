@@ -109,7 +109,7 @@ class LegacyTourImporter
             $tour->departurePlaces()->sync($departurePlaceIds);
         });
 
-        PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::SITEMAP);
+        PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
 
         return $existing !== null ? LegacyImportOutcome::Updated : LegacyImportOutcome::Created;
     }

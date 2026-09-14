@@ -123,10 +123,12 @@ class AppServiceProvider extends ServiceProvider
 
         Tour::saved(fn () => PublicContentCache::bump(
             PublicContentCache::PORTFOLIO_FILTERS,
+            PublicContentCache::PORTFOLIO_COUNTRIES,
             PublicContentCache::SITEMAP,
         ));
         Tour::deleted(fn () => PublicContentCache::bump(
             PublicContentCache::PORTFOLIO_FILTERS,
+            PublicContentCache::PORTFOLIO_COUNTRIES,
             PublicContentCache::SITEMAP,
         ));
 

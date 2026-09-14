@@ -6,6 +6,7 @@ import {
   Calendar,
   Clock,
   Flame,
+  Globe2,
   Hotel,
   Loader2,
   Mountain,
@@ -25,8 +26,10 @@ import { useSearchParams } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
 import {
+  fetchPortfolioCategoryCountries,
   fetchPortfolioCategoryFilters,
   fetchPortfolioCategoryOffers,
+  type PortfolioCategoryCountryOption,
   type PortfolioCategoryFilterChip,
   type PortfolioOfferCard,
 } from "../content/portfolio-offers-api";
@@ -46,6 +49,7 @@ type CategoryOffersPageProps = {
 
 type OfferFilters = {
   quickFilters: string[];
+  country: string;
   order: string;
   page: string;
 };
@@ -137,17 +141,20 @@ export default function CategoryOffersPage({
   const [items, setItems] = useState<PortfolioOfferCard[]>([]);
   const [recommended, setRecommended] = useState<PortfolioOfferCard[]>([]);
   const [quickFilters, setQuickFilters] = useState<PortfolioCategoryFilterChip[]>([]);
+  const [countryOptions, setCountryOptions] = useState<PortfolioCategoryCountryOption[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
   const [perPage] = useState(12);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(true);
   const [hasError, setHasError] = useState(false);
   const filterSectionRef = useRef<HTMLDivElement | null>(null);
 
   const filters = useMemo<OfferFilters>(
     () => ({
       quickFilters: parseQuickFilterValue(searchParams.get("filters")),
+      country: safeTrim(searchParams.get("country")),
       order: searchParams.get("order") ?? DEFAULT_ORDER,
       page: searchParams.get("page") ?? "1",
     }),
@@ -170,6 +177,7 @@ export default function CategoryOffersPage({
       perPage,
       order: filters.order,
       filters: serializedFilters,
+      country: filters.country || undefined,
     })
       .then((response) => {
         if (cancelled) {
@@ -200,7 +208,7 @@ export default function CategoryOffersPage({
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, filters.order, filters.page, perPage, serializedFilters]);
+  }, [categorySlug, filters.country, filters.order, filters.page, perPage, serializedFilters]);
 
   useEffect(() => {
     let cancelled = false;
@@ -221,6 +229,33 @@ export default function CategoryOffersPage({
       .finally(() => {
         if (!cancelled) {
           setIsLoadingFilters(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [categorySlug, serializedFilters]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setIsLoadingCountries(true);
+
+    fetchPortfolioCategoryCountries(categorySlug, { filters: serializedFilters })
+      .then((response) => {
+        if (!cancelled) {
+          setCountryOptions(response);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCountryOptions([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoadingCountries(false);
         }
       });
 
@@ -307,6 +342,26 @@ export default function CategoryOffersPage({
     });
   };
 
+  const toggleCountry = (code: string) => {
+    const isRemoving = filters.country === code;
+
+    trackEvent(isRemoving ? "filter_remove" : "filter_click", {
+      entity: {
+        type: "category",
+        slug: categorySlug,
+      },
+      metadata: {
+        filter_type: "country",
+        filter_value: code,
+        result_count: totalCount,
+      },
+    });
+
+    replaceSearchState({
+      country: isRemoving ? undefined : code,
+    });
+  };
+
   const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
   const canGoBack = page > 1;
   const canGoForward = page < totalPages;
@@ -327,8 +382,9 @@ export default function CategoryOffersPage({
   const highlightedOffers = useMemo(() => recommendedCards.slice(0, 3), [recommendedCards]);
   const hasResults = itemCards.length > 0;
   const hasRecommended = highlightedOffers.length > 0;
-  const hasActiveFilters = filters.quickFilters.length > 0 || filters.order !== DEFAULT_ORDER;
-  const hasActiveQuickFilters = filters.quickFilters.length > 0;
+  const hasActiveFilters =
+    filters.quickFilters.length > 0 || filters.country !== "" || filters.order !== DEFAULT_ORDER;
+  const hasActiveQuickFilters = filters.quickFilters.length > 0 || filters.country !== "";
   const showCategoryHighlights = hasResults && !hasActiveQuickFilters;
   const resultCountLabel = hasActiveFilters
     ? `${totalCount} elérhető utazás a kiválasztott szűrők alapján.`
@@ -459,6 +515,55 @@ export default function CategoryOffersPage({
                 ))
               )}
             </div>
+
+            {isLoadingCountries || countryOptions.length > 0 ? (
+              <div className="mt-6 border-t border-gray-100 pt-6">
+                <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#0f172a]">
+                  <Globe2 className="h-4 w-4 text-[#00c389]" />
+                  Ország szerint
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {isLoadingCountries ? (
+                    <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-5 py-3 text-sm text-slate-500">
+                      <Loader2 className="h-4 w-4 animate-spin text-[#00c389]" />
+                      Országok betöltése...
+                    </div>
+                  ) : (
+                    countryOptions.map((option) => {
+                      const active = filters.country === option.code;
+
+                      return (
+                        <button
+                          key={option.code}
+                          type="button"
+                          onClick={() => toggleCountry(option.code)}
+                          disabled={option.disabled}
+                          className={
+                            option.disabled
+                              ? "cursor-not-allowed rounded-full bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-300 opacity-60"
+                              : active
+                                ? "rounded-full bg-[#0f172a] px-4 py-2.5 text-sm font-semibold text-white"
+                                : "rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:border-[#00c389]/40 hover:shadow-[0_8px_22px_rgba(15,23,42,0.06)]"
+                          }
+                        >
+                          {option.label}
+                          <span
+                            className={
+                              active
+                                ? "ml-2 rounded-full bg-white/15 px-2 py-0.5 text-xs text-white/80"
+                                : "ml-2 rounded-full bg-[#f4f7fb] px-2 py-0.5 text-xs text-gray-400"
+                            }
+                          >
+                            {option.count}
+                          </span>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               {hasActiveFilters ? (

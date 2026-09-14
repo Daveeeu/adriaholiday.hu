@@ -6,6 +6,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogTagTranslation;
 use App\Models\PortfolioFilterChip;
 use App\Models\Tour;
+use App\Models\TourReferenceOption;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -226,6 +227,60 @@ class PortfolioOfferQuery
                 'active' => $isActive,
             ];
         })->filter()->values()->all();
+    }
+
+    /**
+     * @return array<int, array{code: string, label: string, count: int, disabled: bool, active: bool}>
+     */
+    public static function buildPublicCountryPayload(Request $request, string $scopeSlug): array
+    {
+        $selectedCountry = trim((string) $request->query('country', ''));
+
+        $requestWithoutCountry = $request->duplicate();
+        $requestWithoutCountry->query->remove('country');
+
+        $query = self::buildBaseQuery($requestWithoutCountry);
+        self::applyCategoryScope($query, $scopeSlug);
+        self::applyRequestChipFilters($query, $requestWithoutCountry, $scopeSlug);
+
+        $counts = [];
+        foreach ($query->pluck('country_ids') as $countryIds) {
+            foreach ((array) $countryIds as $code) {
+                $code = trim((string) $code);
+
+                if ($code === '') {
+                    continue;
+                }
+
+                $counts[$code] = ($counts[$code] ?? 0) + 1;
+            }
+        }
+
+        if ($counts === []) {
+            return [];
+        }
+
+        return TourReferenceOption::query()
+            ->where('type', 'country')
+            ->where('active', true)
+            ->whereIn('code', array_keys($counts))
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['code', 'name'])
+            ->map(function (TourReferenceOption $option) use ($counts, $selectedCountry): array {
+                $count = $counts[$option->code] ?? 0;
+                $isActive = $selectedCountry !== '' && $selectedCountry === $option->code;
+
+                return [
+                    'code' => $option->code,
+                    'label' => $option->name,
+                    'count' => $count,
+                    'disabled' => $count === 0 && ! $isActive,
+                    'active' => $isActive,
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     public static function applyFilterChip(Builder $query, PortfolioFilterChip $chip): Builder
