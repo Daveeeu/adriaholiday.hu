@@ -67,9 +67,9 @@ export default function CinematicHero() {
           <EditableMedia
             fieldKey="home.hero.image"
             fallback={{
-              url: "https://images.unsplash.com/photo-1764956607632-0aeeaae38e1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=90",
-              alt: "Adriatic Coast",
-              title: "Adriatic Coast",
+              url: "https://images.unsplash.com/photo-1562532418-ad84d8df5124?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=90",
+              alt: "Napfényes, világos tengerparti panoráma",
+              title: "Napfényes, világos tengerparti panoráma",
             }}
             kind="image"
             className="h-full w-full"
@@ -171,8 +171,7 @@ export default function CinematicHero() {
                 <EditablePortfolioHeading
                   fieldKey="home.hero.titleParts"
                   fallbackParts={[
-                    { text: "Buszos utak," },
-                    { text: "amikre" },
+                    { text: "Utazások, amikre" },
                     { text: "emlékezni fogsz", variant: "gradient" },
                   ]}
                   as="span"
