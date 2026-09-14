@@ -1,7 +1,6 @@
 import { motion } from "motion/react";
-import { NavLink, Link, useLocation } from "react-router";
+import { NavLink, Link } from "react-router";
 import { Phone, ArrowRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
 
 import { trackEvent } from "../analytics/trackEvent";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
@@ -70,35 +69,9 @@ function DesktopNav() {
 }
 
 export default function Header() {
-  const location = useLocation();
   const { settings } = useSiteSettings();
-  const [showHeader, setShowHeader] = useState(true);
   const ctaLabel = settings.primaryCtaText;
   const ctaLink = settings.primaryCtaLink;
-  const isHome = useMemo(
-    () => location.pathname === "/" || location.pathname === "/utazasok",
-    [location.pathname]
-  );
-
-  useEffect(() => {
-    const onScroll = () => {
-      if (!isHome) {
-        setShowHeader(true);
-        return;
-      }
-
-      const threshold = Math.max(220, Math.floor(window.innerHeight * 0.7));
-      setShowHeader(window.scrollY > threshold);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isHome]);
-
-  if (!showHeader) {
-    return null;
-  }
 
   return (
     <motion.header
