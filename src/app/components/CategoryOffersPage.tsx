@@ -549,7 +549,7 @@ export default function CategoryOffersPage({
                             option.disabled
                               ? "inline-flex cursor-not-allowed items-center gap-2 rounded-full bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-300 opacity-60"
                               : active
-                                ? "inline-flex items-center gap-2 rounded-full border border-[#00c389]/40 bg-[#00c389]/8 px-4 py-2.5 text-sm font-semibold text-[#0f172a] shadow-[0_8px_22px_rgba(15,23,42,0.06)]"
+                                ? "inline-flex items-center gap-2 rounded-full border border-[#00c389] bg-[#00c389]/15 px-4 py-2.5 text-sm font-semibold text-[#0f172a] shadow-[0_8px_22px_rgba(0,195,137,0.18)]"
                                 : "inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:border-[#00c389]/40 hover:shadow-[0_8px_22px_rgba(15,23,42,0.06)]"
                           }
                         >
@@ -558,7 +558,7 @@ export default function CategoryOffersPage({
                           <span
                             className={
                               active
-                                ? "rounded-full bg-white px-2 py-0.5 text-xs text-gray-500"
+                                ? "rounded-full bg-[#00c389] px-2 py-0.5 text-xs font-bold text-white"
                                 : "rounded-full bg-[#f4f7fb] px-2 py-0.5 text-xs text-gray-400"
                             }
                           >
