@@ -328,11 +328,13 @@ class PortfolioContentBlockSeeder extends Seeder
                 if (isset($data['path']) && is_string($data['path']) && file_exists($data['path'])) {
                     $media = $block
                         ->addMedia($data['path'])
+                        ->preservingOriginal()
                         ->usingName($data['name'])
                         ->usingFileName($data['fileName'])
                         ->toMediaCollection($publishedCollection);
 
                     $this->applyMediaMetadata($media, $metadata, $data['name']);
+
                     continue;
                 }
 
@@ -345,6 +347,7 @@ class PortfolioContentBlockSeeder extends Seeder
                         $data['name'],
                         $metadata,
                     );
+
                     continue;
                 }
 
