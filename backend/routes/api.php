@@ -61,6 +61,8 @@ Route::get('portfolio/homepage-offers', [PortfolioHomepageOfferController::class
 Route::get('portfolio/promotion', [PortfolioPromotionController::class, 'active']);
 Route::get('portfolio/featured-tours', [PortfolioFeaturedTourController::class, 'index']);
 Route::get('portfolio/offers', [PortfolioOfferController::class, 'index']);
+Route::get('portfolio/offers/filters', [PortfolioFilterChipController::class, 'offerFilters']);
+Route::get('portfolio/offers/countries', [PortfolioFilterChipController::class, 'offerCountries']);
 Route::get('portfolio/categories/{slug}/filters', [PortfolioFilterChipController::class, 'categoryFilters']);
 Route::get('portfolio/categories/{slug}/countries', [PortfolioFilterChipController::class, 'categoryCountries']);
 Route::get('portfolio/categories/{slug}/offers', [PortfolioOfferController::class, 'categoryOffers']);

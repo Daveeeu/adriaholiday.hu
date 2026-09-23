@@ -12,10 +12,7 @@ import LoadingScreen from "../components/LoadingScreen";
 
 export default function RootLayout() {
   const location = useLocation();
-  const isHome =
-    location.pathname === "/" ||
-    location.pathname === "/utazasok" ||
-    location.pathname === "/portfolio";
+  const isHome = location.pathname === "/" || location.pathname === "/portfolio";
 
   return (
     <>

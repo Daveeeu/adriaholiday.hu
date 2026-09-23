@@ -56,8 +56,12 @@ class PortfolioOfferQuery
             });
         }
 
-        if ($country = trim((string) $request->query('country', ''))) {
-            $query->whereJsonContains('country_ids', $country);
+        if ($countries = self::parseCountryCodes($request)) {
+            $query->where(function (Builder $builder) use ($countries): void {
+                foreach ($countries as $country) {
+                    $builder->orWhereJsonContains('country_ids', $country);
+                }
+            });
         }
 
         if (($maxPrice = $request->query('maxPrice')) !== null && $maxPrice !== '') {
@@ -78,8 +82,12 @@ class PortfolioOfferQuery
         return self::applyOrdering($query, $request);
     }
 
-    public static function applyCategoryScope(Builder $query, string $slug): Builder
+    public static function applyCategoryScope(Builder $query, ?string $slug): Builder
     {
+        if ($slug === null) {
+            return $query;
+        }
+
         $category = BlogCategory::query()
             ->where('active', true)
             ->where(function (Builder $builder) use ($slug): void {
@@ -109,17 +117,23 @@ class PortfolioOfferQuery
     }
 
     /**
+     * Countries are a multi-select facet: an offer matches when it visits any of the selected countries.
+     *
+     * @return array<int, string>
+     */
+    public static function parseCountryCodes(Request $request): array
+    {
+        $value = $request->query('country');
+
+        return is_string($value) ? self::parseFilterSlugs($value) : [];
+    }
+
+    /**
      * @return Collection<int, PortfolioFilterChip>
      */
-    public static function resolveScopedFilterChips(string $slug): Collection
+    public static function resolveScopedFilterChips(?string $slug): Collection
     {
-        static $cache = [];
-
-        if (array_key_exists($slug, $cache)) {
-            return $cache[$slug];
-        }
-
-        return $cache[$slug] = PortfolioFilterChip::query()
+        return PortfolioFilterChip::query()
             ->select([
                 'id',
                 'label',
@@ -136,18 +150,21 @@ class PortfolioOfferQuery
             ])
             ->where('active', true)
             ->where(function (Builder $builder) use ($slug): void {
-                $builder->where('scope_type', 'global')
-                    ->orWhere(function (Builder $categoryBuilder) use ($slug): void {
+                $builder->where('scope_type', 'global');
+
+                if ($slug !== null) {
+                    $builder->orWhere(function (Builder $categoryBuilder) use ($slug): void {
                         $categoryBuilder->where('scope_type', 'category')
                             ->where('scope_value', $slug);
                     });
+                }
             })
             ->orderBy('sort_order')
             ->orderBy('label')
             ->get();
     }
 
-    public static function applyRequestChipFilters(Builder $query, Request $request, string $scopeSlug): Builder
+    public static function applyRequestChipFilters(Builder $query, Request $request, ?string $scopeSlug): Builder
     {
         $selected = self::resolveSelectedFilterChips($scopeSlug, self::parseFilterSlugs($request->query('filters')));
 
@@ -158,7 +175,7 @@ class PortfolioOfferQuery
      * @param  array<int, string>  $slugs
      * @return Collection<int, PortfolioFilterChip>
      */
-    public static function resolveSelectedFilterChips(string $scopeSlug, array $slugs): Collection
+    public static function resolveSelectedFilterChips(?string $scopeSlug, array $slugs): Collection
     {
         if ($slugs === []) {
             return collect();
@@ -181,7 +198,7 @@ class PortfolioOfferQuery
         return $query;
     }
 
-    public static function buildPublicChipPayload(Request $request, string $scopeSlug): array
+    public static function buildPublicChipPayload(Request $request, ?string $scopeSlug): array
     {
         $selectedSlugs = self::parseFilterSlugs($request->query('filters'));
         $chips = self::resolveScopedFilterChips($scopeSlug);
@@ -232,9 +249,9 @@ class PortfolioOfferQuery
     /**
      * @return array<int, array{code: string, label: string, count: int, disabled: bool, active: bool}>
      */
-    public static function buildPublicCountryPayload(Request $request, string $scopeSlug): array
+    public static function buildPublicCountryPayload(Request $request, ?string $scopeSlug): array
     {
-        $selectedCountry = trim((string) $request->query('country', ''));
+        $selectedCountries = self::parseCountryCodes($request);
 
         $requestWithoutCountry = $request->duplicate();
         $requestWithoutCountry->query->remove('country');
@@ -267,9 +284,9 @@ class PortfolioOfferQuery
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get(['code', 'name'])
-            ->map(function (TourReferenceOption $option) use ($counts, $selectedCountry): array {
+            ->map(function (TourReferenceOption $option) use ($counts, $selectedCountries): array {
                 $count = $counts[$option->code] ?? 0;
-                $isActive = $selectedCountry !== '' && $selectedCountry === $option->code;
+                $isActive = in_array($option->code, $selectedCountries, true);
 
                 return [
                     'code' => $option->code,

@@ -106,6 +106,18 @@ export async function fetchPortfolioCategoryOffers(
   );
 }
 
+export async function fetchPortfolioOfferFilters(
+  params: Pick<PortfolioOfferListParams, 'filters'> = {},
+): Promise<PortfolioCategoryFilterChip[]> {
+  return request<PortfolioCategoryFilterChip[]>(`/portfolio/offers/filters${buildQuery(params)}`);
+}
+
+export async function fetchPortfolioOfferCountries(
+  params: Pick<PortfolioOfferListParams, 'filters'> = {},
+): Promise<PortfolioCategoryCountryOption[]> {
+  return request<PortfolioCategoryCountryOption[]>(`/portfolio/offers/countries${buildQuery(params)}`);
+}
+
 export async function fetchPortfolioCategoryFilters(
   slug: string,
   params: Pick<PortfolioOfferListParams, 'filters'> = {},

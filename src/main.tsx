@@ -14,6 +14,7 @@ const TripRoute = lazy(() => import("./app/routes/TripRoute"));
 const BlogRoute = lazy(() => import("./app/routes/BlogRoute"));
 const BlogArticleRoute = lazy(() => import("./app/routes/BlogArticleRoute"));
 const RegionRoute = lazy(() => import("./app/routes/RegionRoute"));
+const TravelsRoute = lazy(() => import("./app/routes/TravelsRoute"));
 const NotFoundRoute = lazy(() => import("./app/routes/NotFoundRoute"));
 
 const router = createBrowserRouter([
@@ -22,16 +23,7 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <HomeRoute canonicalPath="/" /> },
-      {
-        path: "utazasok",
-        element: (
-          <HomeRoute
-            canonicalPath="/utazasok"
-            title="Utazások"
-            description="Kiemelt ajánlatok, kategóriák és inspiráció a következő utazásodhoz."
-          />
-        ),
-      },
+      { path: "utazasok", element: <TravelsRoute /> },
       {
         path: "portfolio",
         element: (

@@ -29,6 +29,9 @@ import {
   fetchPortfolioCategoryCountries,
   fetchPortfolioCategoryFilters,
   fetchPortfolioCategoryOffers,
+  fetchPortfolioOfferCountries,
+  fetchPortfolioOfferFilters,
+  fetchPortfolioOffers,
   type PortfolioCategoryCountryOption,
   type PortfolioCategoryFilterChip,
   type PortfolioOfferCard,
@@ -39,7 +42,8 @@ import {
 } from "../content/portfolio-offer-card-model";
 
 type CategoryOffersPageProps = {
-  categorySlug: string;
+  /** Omit to list offers across all categories instead of scoping to one. */
+  categorySlug?: string;
   title: string;
   subtitle: string;
   heroImage?: string | null;
@@ -49,7 +53,7 @@ type CategoryOffersPageProps = {
 
 type OfferFilters = {
   quickFilters: string[];
-  country: string;
+  countries: string[];
   order: string;
   page: string;
 };
@@ -85,15 +89,19 @@ function uniqueCountryCount(items: PortfolioOfferCard[]) {
   ).size;
 }
 
-function parseQuickFilterValue(value: string | null) {
+function parseListParam(value: string | null) {
   return (value ?? "")
     .split(",")
     .map((item) => item.trim())
     .filter((item) => item !== "");
 }
 
-function serializeQuickFilterValue(filters: string[]) {
-  return filters.join(",");
+function serializeListParam(values: string[]) {
+  return values.length > 0 ? values.join(",") : undefined;
+}
+
+function toggleListValue(values: string[], value: string) {
+  return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
 }
 
 function renderFilterIcon(icon: string | null) {
@@ -150,11 +158,12 @@ export default function CategoryOffersPage({
   const [isLoadingCountries, setIsLoadingCountries] = useState(true);
   const [hasError, setHasError] = useState(false);
   const filterSectionRef = useRef<HTMLDivElement | null>(null);
+  const analyticsEntity = { type: categorySlug ? "category" : "offer_list", slug: categorySlug ?? null };
 
   const filters = useMemo<OfferFilters>(
     () => ({
-      quickFilters: parseQuickFilterValue(searchParams.get("filters")),
-      country: safeTrim(searchParams.get("country")),
+      quickFilters: parseListParam(searchParams.get("filters")),
+      countries: parseListParam(searchParams.get("country")),
       order: searchParams.get("order") ?? DEFAULT_ORDER,
       page: searchParams.get("page") ?? "1",
     }),
@@ -162,8 +171,12 @@ export default function CategoryOffersPage({
   );
 
   const serializedFilters = useMemo(
-    () => (filters.quickFilters.length > 0 ? serializeQuickFilterValue(filters.quickFilters) : undefined),
+    () => serializeListParam(filters.quickFilters),
     [filters.quickFilters],
+  );
+  const serializedCountries = useMemo(
+    () => serializeListParam(filters.countries),
+    [filters.countries],
   );
 
   useEffect(() => {
@@ -172,13 +185,17 @@ export default function CategoryOffersPage({
     setIsLoading(true);
     setHasError(false);
 
-    fetchPortfolioCategoryOffers(categorySlug, {
+    const offerParams = {
       page: Math.max(1, Number(filters.page) || 1),
       perPage,
       order: filters.order,
       filters: serializedFilters,
-      country: filters.country || undefined,
-    })
+      country: serializedCountries,
+    };
+
+    (categorySlug
+      ? fetchPortfolioCategoryOffers(categorySlug, offerParams)
+      : fetchPortfolioOffers(offerParams))
       .then((response) => {
         if (cancelled) {
           return;
@@ -208,14 +225,16 @@ export default function CategoryOffersPage({
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, filters.country, filters.order, filters.page, perPage, serializedFilters]);
+  }, [categorySlug, filters.order, filters.page, perPage, serializedCountries, serializedFilters]);
 
   useEffect(() => {
     let cancelled = false;
 
     setIsLoadingFilters(true);
 
-    fetchPortfolioCategoryFilters(categorySlug, { filters: serializedFilters })
+    (categorySlug
+      ? fetchPortfolioCategoryFilters(categorySlug, { filters: serializedFilters })
+      : fetchPortfolioOfferFilters({ filters: serializedFilters }))
       .then((response) => {
         if (!cancelled) {
           setQuickFilters(response);
@@ -242,7 +261,9 @@ export default function CategoryOffersPage({
 
     setIsLoadingCountries(true);
 
-    fetchPortfolioCategoryCountries(categorySlug, { filters: serializedFilters })
+    (categorySlug
+      ? fetchPortfolioCategoryCountries(categorySlug, { filters: serializedFilters })
+      : fetchPortfolioOfferCountries({ filters: serializedFilters }))
       .then((response) => {
         if (!cancelled) {
           setCountryOptions(response);
@@ -285,10 +306,7 @@ export default function CategoryOffersPage({
 
   const clearParams = () => {
     trackEvent("filter_remove", {
-      entity: {
-        type: "category",
-        slug: categorySlug,
-      },
+      entity: analyticsEntity,
       metadata: {
         filter_type: "all",
       },
@@ -302,10 +320,7 @@ export default function CategoryOffersPage({
 
   const setOrder = (order: string) => {
     trackEvent("filter_click", {
-      entity: {
-        type: "category",
-        slug: categorySlug,
-      },
+      entity: analyticsEntity,
       metadata: {
         filter_type: "order",
         filter_value: order,
@@ -316,20 +331,10 @@ export default function CategoryOffersPage({
   };
 
   const toggleQuickFilter = (slug: string) => {
-    const next = new Set(filters.quickFilters);
-    const isRemoving = next.has(slug);
-
-    if (isRemoving) {
-      next.delete(slug);
-    } else {
-      next.add(slug);
-    }
+    const isRemoving = filters.quickFilters.includes(slug);
 
     trackEvent(isRemoving ? "filter_remove" : "filter_click", {
-      entity: {
-        type: "category",
-        slug: categorySlug,
-      },
+      entity: analyticsEntity,
       metadata: {
         filter_type: "quick_filter",
         filter_value: slug,
@@ -338,18 +343,15 @@ export default function CategoryOffersPage({
     });
 
     replaceSearchState({
-      filters: next.size > 0 ? serializeQuickFilterValue(Array.from(next)) : undefined,
+      filters: serializeListParam(toggleListValue(filters.quickFilters, slug)),
     });
   };
 
   const toggleCountry = (code: string) => {
-    const isRemoving = filters.country === code;
+    const isRemoving = filters.countries.includes(code);
 
     trackEvent(isRemoving ? "filter_remove" : "filter_click", {
-      entity: {
-        type: "category",
-        slug: categorySlug,
-      },
+      entity: analyticsEntity,
       metadata: {
         filter_type: "country",
         filter_value: code,
@@ -358,7 +360,7 @@ export default function CategoryOffersPage({
     });
 
     replaceSearchState({
-      country: isRemoving ? undefined : code,
+      country: serializeListParam(toggleListValue(filters.countries, code)),
     });
   };
 
@@ -383,9 +385,9 @@ export default function CategoryOffersPage({
   const hasResults = itemCards.length > 0;
   const hasRecommended = highlightedOffers.length > 0;
   const hasActiveFilters =
-    filters.quickFilters.length > 0 || filters.country !== "" || filters.order !== DEFAULT_ORDER;
-  const hasActiveQuickFilters = filters.quickFilters.length > 0 || filters.country !== "";
-  const showCategoryHighlights = hasResults && !hasActiveQuickFilters;
+    filters.quickFilters.length > 0 || filters.countries.length > 0 || filters.order !== DEFAULT_ORDER;
+  const hasActiveQuickFilters = filters.quickFilters.length > 0 || filters.countries.length > 0;
+  const showHighlights = hasResults && !hasActiveQuickFilters;
   const resultCountLabel = hasActiveFilters
     ? `${totalCount} elérhető utazás a kiválasztott szűrők alapján.`
     : `${totalCount} elérhető utazás.`;
@@ -531,13 +533,14 @@ export default function CategoryOffersPage({
                     </div>
                   ) : (
                     countryOptions.map((option) => {
-                      const active = filters.country === option.code;
+                      const active = filters.countries.includes(option.code);
 
                       return (
                         <button
                           key={option.code}
                           type="button"
                           onClick={() => toggleCountry(option.code)}
+                          aria-pressed={active}
                           disabled={option.disabled}
                           className={
                             option.disabled
@@ -596,12 +599,12 @@ export default function CategoryOffersPage({
       ) : !hasResults ? (
         <section className="py-20">
           <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
-            <EmptyState />
+            <EmptyState scoped={Boolean(categorySlug)} />
           </div>
         </section>
       ) : (
         <>
-          {showCategoryHighlights && spotlightOffer ? (
+          {showHighlights && spotlightOffer ? (
             <section className="pt-14">
               <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
                 <SpotlightOfferCard offer={spotlightOffer} onOfferSelect={onOfferSelect} />
@@ -609,7 +612,7 @@ export default function CategoryOffersPage({
             </section>
           ) : null}
 
-          {showCategoryHighlights && hasRecommended ? (
+          {showHighlights && hasRecommended ? (
             <section className="pt-16">
               <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
                 <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -658,7 +661,7 @@ export default function CategoryOffersPage({
                 ))}
               </div>
 
-              {showCategoryHighlights && spotlightOffer ? (
+              {showHighlights && spotlightOffer ? (
                 <div className="relative mb-10 mt-10 overflow-hidden rounded-[40px]">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#07111f] via-[#0b1830] to-[#10283f]" />
                   <div className="absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full bg-[#00c389]/20 blur-3xl" />
@@ -1162,12 +1165,14 @@ function ErrorState() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ scoped }: { scoped: boolean }) {
   return (
     <div className="rounded-[30px] border border-dashed border-gray-200 bg-white p-10 text-center">
-      <div className="text-lg font-semibold text-slate-900">Nincs elérhető ajánlat ebben a kategóriában.</div>
+      <div className="text-lg font-semibold text-slate-900">
+        {scoped ? "Nincs elérhető ajánlat ebben a kategóriában." : "Nincs elérhető ajánlat a kiválasztott feltételekkel."}
+      </div>
       <p className="mt-2 text-sm leading-relaxed text-slate-500">
-        Nézz vissza később, vagy válassz másik kategóriát.
+        {scoped ? "Nézz vissza később, vagy válassz másik kategóriát." : "Nézz vissza később, vagy módosítsd a szűrőket."}
       </p>
     </div>
   );

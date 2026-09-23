@@ -172,6 +172,92 @@ class PortfolioFilterChipsTest extends TestCase
         $this->assertSame([$matchingTour->id], collect($response->json('items'))->pluck('id')->all());
     }
 
+    public function test_offer_filters_endpoint_returns_global_chips_with_counts_across_categories(): void
+    {
+        $roundTrips = $this->createCategory('Körutazások', 'korutazasok');
+        $beachHolidays = $this->createCategory('Tengerparti nyaralások', 'tengerparti-nyaralasok');
+        $beachTagId = $this->createTag('Tengerpart');
+
+        PortfolioFilterChip::query()->create([
+            'scope_type' => 'global',
+            'label' => 'Tengerpart',
+            'slug' => 'tengerpart',
+            'icon' => 'waves',
+            'filter_type' => 'theme',
+            'filter_value' => $beachTagId,
+            'sort_order' => 1,
+            'active' => true,
+            'hide_when_zero' => false,
+        ]);
+
+        $this->createTour('buszos-tengerpart', $roundTrips->id, [$beachTagId], 'bus', 199000);
+        $this->createTour('repulos-tengerpart', $beachHolidays->id, [$beachTagId], 'plane', 259000);
+
+        $response = $this->getJson('/api/portfolio/offers/filters');
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'label' => 'Tengerpart',
+            'slug' => 'tengerpart',
+            'count' => 2,
+            'disabled' => false,
+        ]);
+    }
+
+    public function test_offer_filters_endpoint_omits_category_scoped_chips(): void
+    {
+        $category = $this->createCategory('Körutazások', 'korutazasok');
+        $tagId = $this->createTag('Repülős');
+
+        PortfolioFilterChip::query()->create([
+            'scope_type' => 'category',
+            'scope_value' => 'korutazasok',
+            'label' => 'Repülős utak',
+            'slug' => 'repulos-utak',
+            'icon' => 'plane',
+            'filter_type' => 'theme',
+            'filter_value' => $tagId,
+            'sort_order' => 1,
+            'active' => true,
+            'hide_when_zero' => false,
+        ]);
+
+        $this->createTour('repulos-ut', $category->id, [$tagId], 'plane', 199000);
+
+        $response = $this->getJson('/api/portfolio/offers/filters');
+
+        $response->assertOk();
+        $response->assertJsonMissing(['slug' => 'repulos-utak']);
+    }
+
+    public function test_offer_list_endpoint_filters_by_chip_slug_across_categories(): void
+    {
+        $roundTrips = $this->createCategory('Körutazások', 'korutazasok');
+        $beachHolidays = $this->createCategory('Tengerparti nyaralások', 'tengerparti-nyaralasok');
+
+        PortfolioFilterChip::query()->create([
+            'scope_type' => 'global',
+            'label' => 'Buszos utak',
+            'slug' => 'buszos-utak',
+            'icon' => 'bus',
+            'filter_type' => 'travel_mode',
+            'filter_value' => 'bus',
+            'sort_order' => 1,
+            'active' => true,
+            'hide_when_zero' => false,
+        ]);
+
+        $busTour = $this->createTour('buszos-ut', $roundTrips->id, [], 'bus', 199000);
+        $planeTour = $this->createTour('repulos-ut', $beachHolidays->id, [], 'plane', 259000);
+
+        $response = $this->getJson('/api/portfolio/offers?filters=buszos-utak');
+
+        $response->assertOk();
+        $response->assertJsonPath('totalCount', 1);
+        $this->assertSame([$busTour->id], collect($response->json('items'))->pluck('id')->all());
+        $this->assertNotContains($planeTour->id, collect($response->json('items'))->pluck('id')->all());
+    }
+
     private function createCategory(string $name, string $slug): BlogCategory
     {
         $category = BlogCategory::query()->create([

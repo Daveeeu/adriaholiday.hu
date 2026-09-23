@@ -15,7 +15,12 @@ class PortfolioOfferController extends Controller
 {
     public function index(Request $request)
     {
-        return $this->cachedPaginatedResponse($request, 'index', PortfolioOfferQuery::buildBaseQuery($request));
+        $query = PortfolioOfferQuery::buildBaseQuery($request);
+        PortfolioOfferQuery::applyRequestChipFilters($query, $request, null);
+
+        return $this->cachedPaginatedResponse($request, 'index', $query, function () use ($request): array {
+            return $this->recommendedItems($request, PortfolioOfferQuery::buildBaseQuery(new Request));
+        });
     }
 
     public function categoryOffers(Request $request, string $slug)
