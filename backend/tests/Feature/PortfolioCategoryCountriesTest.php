@@ -97,6 +97,26 @@ class PortfolioCategoryCountriesTest extends TestCase
         );
     }
 
+    public function test_category_countries_endpoint_keeps_selected_country_without_matches(): void
+    {
+        $category = $this->createCategory('Körutazások', 'korutazasok');
+        $this->createCountry('HR', 'Horvátország');
+        $this->createCountry('ES', 'Spanyolország');
+
+        $this->createTour('horvat-tura', $category->id, ['HR']);
+
+        $response = $this->getJson('/api/portfolio/categories/korutazasok/countries?country=HR,ES');
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'code' => 'ES',
+            'label' => 'Spanyolország',
+            'count' => 0,
+            'disabled' => false,
+            'active' => true,
+        ]);
+    }
+
     public function test_offer_list_endpoint_ignores_non_string_country_parameter(): void
     {
         $category = $this->createCategory('Körutazások', 'korutazasok');

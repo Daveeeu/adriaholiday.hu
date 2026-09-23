@@ -273,14 +273,17 @@ class PortfolioOfferQuery
             }
         }
 
-        if ($counts === []) {
+        // Selected countries stay listed even without matches, so visitors can always deselect them.
+        $codes = array_values(array_unique([...array_keys($counts), ...$selectedCountries]));
+
+        if ($codes === []) {
             return [];
         }
 
         return TourReferenceOption::query()
             ->where('type', 'country')
             ->where('active', true)
-            ->whereIn('code', array_keys($counts))
+            ->whereIn('code', $codes)
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get(['code', 'name'])

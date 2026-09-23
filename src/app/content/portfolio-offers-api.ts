@@ -113,7 +113,7 @@ export async function fetchPortfolioOfferFilters(
 }
 
 export async function fetchPortfolioOfferCountries(
-  params: Pick<PortfolioOfferListParams, 'filters'> = {},
+  params: Pick<PortfolioOfferListParams, 'filters' | 'country'> = {},
 ): Promise<PortfolioCategoryCountryOption[]> {
   return request<PortfolioCategoryCountryOption[]>(`/portfolio/offers/countries${buildQuery(params)}`);
 }
@@ -129,7 +129,7 @@ export async function fetchPortfolioCategoryFilters(
 
 export async function fetchPortfolioCategoryCountries(
   slug: string,
-  params: Pick<PortfolioOfferListParams, 'filters'> = {},
+  params: Pick<PortfolioOfferListParams, 'filters' | 'country'> = {},
 ): Promise<PortfolioCategoryCountryOption[]> {
   return request<PortfolioCategoryCountryOption[]>(
     `/portfolio/categories/${encodeURIComponent(slug)}/countries${buildQuery(params)}`,

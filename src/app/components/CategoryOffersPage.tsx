@@ -262,9 +262,11 @@ export default function CategoryOffersPage({
 
     setIsLoadingCountries(true);
 
+    const countryParams = { filters: serializedFilters, country: serializedCountries };
+
     (categorySlug
-      ? fetchPortfolioCategoryCountries(categorySlug, { filters: serializedFilters })
-      : fetchPortfolioOfferCountries({ filters: serializedFilters }))
+      ? fetchPortfolioCategoryCountries(categorySlug, countryParams)
+      : fetchPortfolioOfferCountries(countryParams))
       .then((response) => {
         if (!cancelled) {
           setCountryOptions(response);
@@ -284,7 +286,7 @@ export default function CategoryOffersPage({
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, serializedFilters]);
+  }, [categorySlug, serializedCountries, serializedFilters]);
 
   const replaceSearchState = (values: Record<string, string | undefined>, resetPage = true) => {
     const next = new URLSearchParams(searchParams);
@@ -527,7 +529,7 @@ export default function CategoryOffersPage({
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  {isLoadingCountries ? (
+                  {isLoadingCountries && countryOptions.length === 0 ? (
                     <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-5 py-3 text-sm text-slate-500">
                       <Loader2 className="h-4 w-4 animate-spin text-[#00c389]" />
                       Országok betöltése...
@@ -547,7 +549,7 @@ export default function CategoryOffersPage({
                             option.disabled
                               ? "inline-flex cursor-not-allowed items-center gap-2 rounded-full bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-300 opacity-60"
                               : active
-                                ? "inline-flex items-center gap-2 rounded-full bg-[#0f172a] px-4 py-2.5 text-sm font-semibold text-white"
+                                ? "inline-flex items-center gap-2 rounded-full border border-[#00c389]/40 bg-[#00c389]/8 px-4 py-2.5 text-sm font-semibold text-[#0f172a] shadow-[0_8px_22px_rgba(15,23,42,0.06)]"
                                 : "inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:border-[#00c389]/40 hover:shadow-[0_8px_22px_rgba(15,23,42,0.06)]"
                           }
                         >
@@ -556,7 +558,7 @@ export default function CategoryOffersPage({
                           <span
                             className={
                               active
-                                ? "rounded-full bg-white/15 px-2 py-0.5 text-xs text-white/80"
+                                ? "rounded-full bg-white px-2 py-0.5 text-xs text-gray-500"
                                 : "rounded-full bg-[#f4f7fb] px-2 py-0.5 text-xs text-gray-400"
                             }
                           >
