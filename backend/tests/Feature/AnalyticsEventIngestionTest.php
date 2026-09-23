@@ -6,6 +6,8 @@ use App\Jobs\SendMetaConversionEventJob;
 use App\Models\AnalyticsEvent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class AnalyticsEventIngestionTest extends TestCase
@@ -69,6 +71,42 @@ class AnalyticsEventIngestionTest extends TestCase
         ]);
 
         Queue::assertNotPushed(SendMetaConversionEventJob::class);
+    }
+
+    #[DataProvider('programPdfEventNames')]
+    public function test_it_accepts_program_pdf_events(string $eventName): void
+    {
+        Queue::fake();
+
+        $response = $this->postJson('/api/analytics/events', [
+            'event_id' => (string) Str::uuid(),
+            'session_id' => 'session_pdf',
+            'visitor_id' => 'visitor_pdf',
+            'event_name' => $eventName,
+            'entity' => ['type' => 'tour', 'slug' => 'albania-makedoniaval-fuszerezve'],
+            'page' => [
+                'url' => 'https://adriaholiday.hu/ajanlat/albania-makedoniaval-fuszerezve',
+                'path' => '/ajanlat/albania-makedoniaval-fuszerezve',
+            ],
+            'consent' => ['necessary' => true, 'analytics' => true, 'marketing' => false],
+        ]);
+
+        $response->assertAccepted();
+        $this->assertDatabaseHas('analytics_events', [
+            'event_name' => $eventName,
+            'entity_slug' => 'albania-makedoniaval-fuszerezve',
+        ]);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function programPdfEventNames(): array
+    {
+        return [
+            'download' => ['program_pdf_download'],
+            'print' => ['program_pdf_print'],
+        ];
     }
 
     public function test_it_skips_persistence_without_analytics_consent(): void

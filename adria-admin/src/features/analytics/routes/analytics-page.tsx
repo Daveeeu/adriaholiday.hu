@@ -38,6 +38,8 @@ const EVENT_OPTIONS = [
   'date_select',
   'filter_click',
   'booking_anchor_click',
+  'program_pdf_download',
+  'program_pdf_print',
   'lead_submit',
   'booking_start',
   'booking_success',
