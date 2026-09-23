@@ -5,13 +5,25 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
+import {
+  BOOKING_FORM_FIELD_TYPE_LABELS,
+  BOOKING_FORM_INPUT_GROUP_LABELS,
+  BOOKING_FORM_VISIBILITY_LABELS,
+} from '../lib/booking-form.constants';
 import {
   getBookingFormTemplateFormDefaults,
   type BookingFormField,
@@ -20,12 +32,6 @@ import {
   type BookingFormTemplateFormValues,
   type BookingFormTemplateUpsertInput,
 } from '../lib/booking-form-templates.types';
-
-const visibilityLabels: Record<BookingFormFieldVisibility, string> = {
-  required: 'Kötelező',
-  optional: 'Opcionális',
-  hidden: 'Rejtett',
-};
 
 const templateFormSchema = z.object({
   name: z.string().trim().min(2, 'A név megadása kötelező.'),
@@ -52,7 +58,11 @@ type BookingFormTemplateSidePanelProps = {
   onDelete?: () => void;
 };
 
-function VisibilityBadge({ visibility }: { visibility: BookingFormFieldVisibility }) {
+function VisibilityBadge({
+  visibility,
+}: {
+  visibility: BookingFormFieldVisibility;
+}) {
   return (
     <span
       className={cn(
@@ -62,13 +72,19 @@ function VisibilityBadge({ visibility }: { visibility: BookingFormFieldVisibilit
         visibility === 'hidden' && 'bg-slate-100 text-slate-500',
       )}
     >
-      {visibilityLabels[visibility]}
+      {BOOKING_FORM_VISIBILITY_LABELS[visibility]}
     </span>
   );
 }
 
-function BookingFormTemplateDetailView({ template }: { template: BookingFormTemplate }) {
-  const sortedFields = template.fields.slice().sort((a, b) => a.sortOrder - b.sortOrder);
+function BookingFormTemplateDetailView({
+  template,
+}: {
+  template: BookingFormTemplate;
+}) {
+  const sortedFields = template.fields
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
     <div className="space-y-5">
@@ -81,14 +97,18 @@ function BookingFormTemplateDetailView({ template }: { template: BookingFormTemp
           <span
             className={cn(
               'rounded-full px-3 py-1 text-xs font-semibold',
-              template.active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700',
+              template.active
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-slate-100 text-slate-700',
             )}
           >
             {template.active ? 'Aktív' : 'Inaktív'}
           </span>
         </div>
         {template.description ? (
-          <p className="text-sm text-muted-foreground">{template.description}</p>
+          <p className="text-sm text-muted-foreground">
+            {template.description}
+          </p>
         ) : null}
       </section>
 
@@ -103,7 +123,8 @@ function BookingFormTemplateDetailView({ template }: { template: BookingFormTemp
               <div>
                 <div className="text-sm font-medium">{field.label}</div>
                 <div className="text-xs text-muted-foreground">
-                  {field.inputGroup === 'contact' ? 'Kapcsolattartó' : 'Utas'} · {field.fieldType}
+                  {BOOKING_FORM_INPUT_GROUP_LABELS[field.inputGroup]} ·{' '}
+                  {BOOKING_FORM_FIELD_TYPE_LABELS[field.fieldType]}
                 </div>
               </div>
               <VisibilityBadge visibility={field.visibility} />
@@ -130,7 +151,10 @@ export function BookingFormTemplateSidePanel({
     defaultValues: getBookingFormTemplateFormDefaults(template, fields),
   });
 
-  const { fields: fieldRows, move } = useFieldArray({ control: form.control, name: 'fields' });
+  const { fields: fieldRows, move } = useFieldArray({
+    control: form.control,
+    name: 'fields',
+  });
 
   useEffect(() => {
     if (open) {
@@ -145,7 +169,9 @@ export function BookingFormTemplateSidePanel({
         ? 'Foglalási űrlap sablon szerkesztése'
         : 'Foglalási űrlap sablon részletei';
 
-  const fieldCatalogById = new Map(fields.map((field) => [String(field.id), field]));
+  const fieldCatalogById = new Map(
+    fields.map((field) => [String(field.id), field]),
+  );
 
   const moveField = (index: number, direction: -1 | 1) => {
     const targetIndex = index + direction;
@@ -156,7 +182,9 @@ export function BookingFormTemplateSidePanel({
     move(index, targetIndex);
     form.setValue(
       'fields',
-      form.getValues('fields').map((field, idx) => ({ ...field, sortOrder: idx + 1 })),
+      form
+        .getValues('fields')
+        .map((field, idx) => ({ ...field, sortOrder: idx + 1 })),
       { shouldDirty: true },
     );
   };
@@ -192,7 +220,12 @@ export function BookingFormTemplateSidePanel({
                 Törlés
               </Button>
             ) : null}
-            <Button type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+            >
               <X className="size-4" />
             </Button>
           </div>
@@ -231,7 +264,10 @@ export function BookingFormTemplateSidePanel({
                         <FormItem>
                           <FormLabel>Slug</FormLabel>
                           <FormControl>
-                            <Input placeholder="buszos-ut (üresen automatikus)" {...field} />
+                            <Input
+                              placeholder="buszos-ut (üresen automatikus)"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -262,7 +298,9 @@ export function BookingFormTemplateSidePanel({
                           <input
                             type="checkbox"
                             checked={field.value}
-                            onChange={(event) => field.onChange(event.target.checked)}
+                            onChange={(event) =>
+                              field.onChange(event.target.checked)
+                            }
                           />
                           Aktív
                         </label>
@@ -276,13 +314,16 @@ export function BookingFormTemplateSidePanel({
                         Mezők
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Állítsd be mezőnként a láthatóságot, és nyilakkal rendezd a sorrendet.
+                        Állítsd be mezőnként a láthatóságot, és nyilakkal
+                        rendezd a sorrendet.
                       </p>
                     </div>
 
                     <div className="mt-4 space-y-2">
                       {fieldRows.map((row, index) => {
-                        const catalogField = fieldCatalogById.get(String(row.fieldId));
+                        const catalogField = fieldCatalogById.get(
+                          String(row.fieldId),
+                        );
 
                         if (!catalogField) {
                           return null;
@@ -294,10 +335,21 @@ export function BookingFormTemplateSidePanel({
                             className="flex flex-col gap-2 rounded-xl border bg-background px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
                           >
                             <div>
-                              <div className="text-sm font-medium">{catalogField.label}</div>
+                              <div className="text-sm font-medium">
+                                {catalogField.label}
+                              </div>
                               <div className="text-xs text-muted-foreground">
-                                {catalogField.inputGroup === 'contact' ? 'Kapcsolattartó' : 'Utas'} ·{' '}
-                                {catalogField.fieldType}
+                                {
+                                  BOOKING_FORM_INPUT_GROUP_LABELS[
+                                    catalogField.inputGroup
+                                  ]
+                                }{' '}
+                                ·{' '}
+                                {
+                                  BOOKING_FORM_FIELD_TYPE_LABELS[
+                                    catalogField.fieldType
+                                  ]
+                                }
                               </div>
                             </div>
 
@@ -306,10 +358,17 @@ export function BookingFormTemplateSidePanel({
                                 control={form.control}
                                 name={`fields.${index}.visibility` as const}
                                 render={({ field }) => (
-                                  <Select value={field.value} onChange={field.onChange}>
-                                    <option value="required">Kötelező</option>
-                                    <option value="optional">Opcionális</option>
-                                    <option value="hidden">Rejtett</option>
+                                  <Select
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                  >
+                                    {Object.entries(
+                                      BOOKING_FORM_VISIBILITY_LABELS,
+                                    ).map(([value, label]) => (
+                                      <option key={value} value={value}>
+                                        {label}
+                                      </option>
+                                    ))}
                                   </Select>
                                 )}
                               />
@@ -341,7 +400,12 @@ export function BookingFormTemplateSidePanel({
                   <div className="sticky bottom-0 mt-2 border-t bg-background/95 py-4 backdrop-blur">
                     <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                       {mode === 'edit' && onDelete ? (
-                        <Button type="button" variant="destructive" onClick={onDelete} disabled={submitting}>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={onDelete}
+                          disabled={submitting}
+                        >
                           <Trash2 className="size-4" />
                           Törlés
                         </Button>

@@ -33,7 +33,7 @@ class BookingFormTemplateTest extends TestCase
         $this->seed(BookingFormFieldSeeder::class);
         $this->seed(BookingFormTemplateSeeder::class);
 
-        $this->assertDatabaseCount('booking_form_fields', 11);
+        $this->assertDatabaseCount('booking_form_fields', 15);
         $this->assertDatabaseCount('booking_form_templates', 2);
 
         $busTemplate = BookingFormTemplate::query()->where('slug', 'buszos-ut')->firstOrFail();

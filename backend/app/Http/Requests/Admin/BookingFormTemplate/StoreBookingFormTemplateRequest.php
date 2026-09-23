@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin\BookingFormTemplate;
 
+use App\Models\BookingFormField;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -42,7 +43,7 @@ class StoreBookingFormTemplateRequest extends FormRequest
             'active' => ['boolean'],
             'fields' => ['nullable', 'array'],
             'fields.*.field_id' => ['required', 'integer', 'exists:booking_form_fields,id'],
-            'fields.*.visibility' => ['required', 'string', Rule::in(['required', 'optional', 'hidden'])],
+            'fields.*.visibility' => ['required', 'string', Rule::in(BookingFormField::VISIBILITIES)],
             'fields.*.sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }

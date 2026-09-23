@@ -2,11 +2,15 @@ import { apiClient } from '@/lib/api-client';
 
 import type {
   BookingFormField,
+  BookingFormFieldUpsertInput,
   BookingFormTemplate,
   BookingFormTemplateUpsertInput,
   BookingFormTemplatesListQuery,
   BookingFormTemplatesListResponse,
 } from './booking-form-templates.types';
+
+export const bookingFormTemplatesQueryKey = ['booking-form-templates'];
+export const bookingFormFieldsQueryKey = ['booking-form-fields'];
 
 type ResourceEnvelope<T> = {
   data: T;
@@ -23,46 +27,65 @@ function unwrapResource<T>(response: T | ResourceEnvelope<T>): T {
 export function getBookingFormTemplates(
   query?: BookingFormTemplatesListQuery,
 ): Promise<BookingFormTemplatesListResponse> {
-  return apiClient.get<BookingFormTemplatesListResponse>('/api/admin/booking-form-templates', {
-    query,
-  });
+  return apiClient.get<BookingFormTemplatesListResponse>(
+    '/api/admin/booking-form-templates',
+    {
+      query,
+    },
+  );
 }
 
-export async function getAllBookingFormTemplates(): Promise<BookingFormTemplate[]> {
+export async function getAllBookingFormTemplates(): Promise<
+  BookingFormTemplate[]
+> {
   const response = await getBookingFormTemplates({ page: 1, perPage: 1000 });
   return response.items;
 }
 
-export async function getBookingFormTemplateById(id: string | number): Promise<BookingFormTemplate> {
-  const response = await apiClient.get<BookingFormTemplate | ResourceEnvelope<BookingFormTemplate>>(
-    `/api/admin/booking-form-templates/${id}`,
-  );
+export async function getBookingFormTemplateById(
+  id: string | number,
+): Promise<BookingFormTemplate> {
+  const response = await apiClient.get<
+    BookingFormTemplate | ResourceEnvelope<BookingFormTemplate>
+  >(`/api/admin/booking-form-templates/${id}`);
   return unwrapResource(response);
 }
 
-export function createBookingFormTemplate(values: BookingFormTemplateUpsertInput) {
+export function createBookingFormTemplate(
+  values: BookingFormTemplateUpsertInput,
+) {
   return apiClient
-    .post<BookingFormTemplate | ResourceEnvelope<BookingFormTemplate>>('/api/admin/booking-form-templates', values)
+    .post<
+      BookingFormTemplate | ResourceEnvelope<BookingFormTemplate>
+    >('/api/admin/booking-form-templates', values)
     .then(unwrapResource);
 }
 
-export function updateBookingFormTemplate(id: string | number, values: BookingFormTemplateUpsertInput) {
+export function updateBookingFormTemplate(
+  id: string | number,
+  values: BookingFormTemplateUpsertInput,
+) {
   return apiClient
-    .patch<BookingFormTemplate | ResourceEnvelope<BookingFormTemplate>>(
-      `/api/admin/booking-form-templates/${id}`,
-      values,
-    )
+    .patch<
+      BookingFormTemplate | ResourceEnvelope<BookingFormTemplate>
+    >(`/api/admin/booking-form-templates/${id}`, values)
     .then(unwrapResource);
 }
 
 export function deleteBookingFormTemplate(id: string | number) {
-  return apiClient.delete<{ id: string }>(`/api/admin/booking-form-templates/${id}`);
+  return apiClient.delete<{ id: string }>(
+    `/api/admin/booking-form-templates/${id}`,
+  );
 }
 
 export async function getBookingFormTemplateOptions(): Promise<
   { id: string; value: string; label: string }[]
 > {
-  const response = await getBookingFormTemplates({ page: 1, perPage: 1000, active: 'true' });
+  const response = await getBookingFormTemplates({
+    page: 1,
+    perPage: 1000,
+    active: 'true',
+  });
   return response.items.map((template) => ({
     id: String(template.id),
     value: String(template.id),
@@ -71,8 +94,31 @@ export async function getBookingFormTemplateOptions(): Promise<
 }
 
 export async function getBookingFormFields(): Promise<BookingFormField[]> {
-  const response = await apiClient.get<BookingFormField[] | { data: BookingFormField[] }>(
-    '/api/admin/booking-form-fields',
-  );
+  const response = await apiClient.get<
+    BookingFormField[] | { data: BookingFormField[] }
+  >('/api/admin/booking-form-fields');
   return Array.isArray(response) ? response : response.data;
+}
+
+export function createBookingFormField(values: BookingFormFieldUpsertInput) {
+  return apiClient
+    .post<
+      BookingFormField | ResourceEnvelope<BookingFormField>
+    >('/api/admin/booking-form-fields', values)
+    .then(unwrapResource);
+}
+
+export function updateBookingFormField(
+  id: string | number,
+  values: BookingFormFieldUpsertInput,
+) {
+  return apiClient
+    .patch<
+      BookingFormField | ResourceEnvelope<BookingFormField>
+    >(`/api/admin/booking-form-fields/${id}`, values)
+    .then(unwrapResource);
+}
+
+export function deleteBookingFormField(id: string | number) {
+  return apiClient.delete<void>(`/api/admin/booking-form-fields/${id}`);
 }

@@ -10,7 +10,7 @@ class BookingDetailResource extends BookingResource
 {
     public function toArray(Request $request): array
     {
-        $labels = $this->resolveFieldLabels();
+        $labels = BookingFormValidationService::fieldLabels();
         $payload = $this->payload ?? [];
         $tour = $this->tour;
 
@@ -53,22 +53,5 @@ class BookingDetailResource extends BookingResource
                 ->values()
                 ->all(),
         ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function resolveFieldLabels(): array
-    {
-        $template = $this->tour?->bookingFormTemplate;
-
-        if (! $template) {
-            return BookingFormValidationService::defaultFieldLabels();
-        }
-
-        return $template->templateFields
-            ->filter(fn ($templateField) => $templateField->field !== null)
-            ->mapWithKeys(fn ($templateField) => [$templateField->field->key => $templateField->field->label])
-            ->all();
     }
 }

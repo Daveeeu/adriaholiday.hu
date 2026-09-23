@@ -139,7 +139,9 @@ Route::prefix('admin')
         Route::apiResource('booking-form-templates', BookingFormTemplateController::class)->parameters([
             'booking-form-templates' => 'bookingFormTemplate',
         ]);
-        Route::get('booking-form-fields', [BookingFormFieldController::class, 'index']);
+        Route::apiResource('booking-form-fields', BookingFormFieldController::class)
+            ->except('show')
+            ->parameters(['booking-form-fields' => 'bookingFormField']);
 
         Route::prefix('select-options')->group(function (): void {
             Route::get('regions', [SelectOptionController::class, 'regions']);

@@ -17,6 +17,7 @@ class BookingFormFieldResource extends JsonResource
             'inputGroup' => $this->input_group,
             'sortOrder' => (int) $this->sort_order,
             'options' => $this->options,
+            'isSystem' => $this->isSystem(),
         ];
     }
 }

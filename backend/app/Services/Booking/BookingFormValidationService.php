@@ -2,35 +2,44 @@
 
 namespace App\Services\Booking;
 
+use App\Models\BookingFormField;
 use App\Models\Tour;
+use DateTimeImmutable;
 
 /**
  * Validates a public booking submission's dynamic fields against the
  * booking form template assigned to the tour (or a sane default field
- * set when no template is assigned), and strips any values that don't
- * belong to a visible (required or optional) field.
+ * set when no template is assigned), checks each value against its field
+ * type, and strips any values that don't belong to a visible (required or
+ * optional) field.
  */
 class BookingFormValidationService
 {
     /**
-     * @var array<int, array{key: string, label: string, inputGroup: string, visibility: string}>
+     * @var array<int, array{key: string, label: string, fieldType: string, inputGroup: string, options: array<int, string>|null, visibility: string}>
      */
     private const DEFAULT_FIELDS = [
-        ['key' => 'contact_name', 'label' => 'Teljes név', 'inputGroup' => 'contact', 'visibility' => 'required'],
-        ['key' => 'contact_email', 'label' => 'E-mail', 'inputGroup' => 'contact', 'visibility' => 'required'],
-        ['key' => 'contact_phone', 'label' => 'Telefonszám', 'inputGroup' => 'contact', 'visibility' => 'required'],
-        ['key' => 'contact_city', 'label' => 'Város', 'inputGroup' => 'contact', 'visibility' => 'optional'],
-        ['key' => 'passenger_name', 'label' => 'Utas neve', 'inputGroup' => 'passenger', 'visibility' => 'required'],
-        ['key' => 'passenger_birth_date', 'label' => 'Születési dátum', 'inputGroup' => 'passenger', 'visibility' => 'required'],
-        ['key' => 'passenger_nationality', 'label' => 'Állampolgárság', 'inputGroup' => 'passenger', 'visibility' => 'optional'],
+        ['key' => 'contact_name', 'label' => 'Teljes név', 'fieldType' => 'text', 'inputGroup' => 'contact', 'options' => null, 'visibility' => 'required'],
+        ['key' => 'contact_email', 'label' => 'E-mail', 'fieldType' => 'email', 'inputGroup' => 'contact', 'options' => null, 'visibility' => 'required'],
+        ['key' => 'contact_phone', 'label' => 'Telefonszám', 'fieldType' => 'tel', 'inputGroup' => 'contact', 'options' => null, 'visibility' => 'required'],
+        ['key' => 'contact_city', 'label' => 'Város', 'fieldType' => 'text', 'inputGroup' => 'contact', 'options' => null, 'visibility' => 'optional'],
+        ['key' => 'passenger_name', 'label' => 'Utas neve', 'fieldType' => 'text', 'inputGroup' => 'passenger', 'options' => null, 'visibility' => 'required'],
+        ['key' => 'passenger_birth_date', 'label' => 'Születési dátum', 'fieldType' => 'date', 'inputGroup' => 'passenger', 'options' => null, 'visibility' => 'required'],
+        ['key' => 'passenger_nationality', 'label' => 'Állampolgárság', 'fieldType' => 'text', 'inputGroup' => 'passenger', 'options' => null, 'visibility' => 'optional'],
     ];
 
     /**
+     * Labels for every known field key, so stored bookings stay readable even
+     * after a field is removed from the tour's template.
+     *
      * @return array<string, string>
      */
-    public static function defaultFieldLabels(): array
+    public static function fieldLabels(): array
     {
-        return collect(self::DEFAULT_FIELDS)->pluck('label', 'key')->all();
+        return array_merge(
+            collect(self::DEFAULT_FIELDS)->pluck('label', 'key')->all(),
+            BookingFormField::query()->pluck('label', 'key')->all(),
+        );
     }
 
     /**
@@ -59,8 +68,10 @@ class BookingFormValidationService
 
             $value = $this->sanitizeValue($formData[$fieldDef['key']] ?? '');
 
-            if ($fieldDef['visibility'] === 'required' && $value === '') {
-                $errors["formData.{$fieldDef['key']}"] = "A(z) \"{$fieldDef['label']}\" mező megadása kötelező.";
+            $error = $this->validateValue($fieldDef, $value);
+
+            if ($error !== null) {
+                $errors["formData.{$fieldDef['key']}"] = $error;
             }
 
             if ($value !== '') {
@@ -83,8 +94,10 @@ class BookingFormValidationService
             foreach ($passengerFieldDefs as $fieldDef) {
                 $value = $this->sanitizeValue($passenger[$fieldDef['key']] ?? '');
 
-                if ($fieldDef['visibility'] === 'required' && $value === '') {
-                    $errors["passengers.{$index}.{$fieldDef['key']}"] = "A(z) \"{$fieldDef['label']}\" mező megadása kötelező az utasnál.";
+                $error = $this->validateValue($fieldDef, $value);
+
+                if ($error !== null) {
+                    $errors["passengers.{$index}.{$fieldDef['key']}"] = $error;
                 }
 
                 if ($value !== '') {
@@ -99,7 +112,7 @@ class BookingFormValidationService
     }
 
     /**
-     * @return array<int, array{key: string, label: string, inputGroup: string, visibility: string}>
+     * @return array<int, array{key: string, label: string, fieldType: string, inputGroup: string, options: array<int, string>|null, visibility: string}>
      */
     private function resolveFields(Tour $tour): array
     {
@@ -114,10 +127,41 @@ class BookingFormValidationService
             ->map(fn ($templateField): array => [
                 'key' => $templateField->field->key,
                 'label' => $templateField->field->label,
+                'fieldType' => $templateField->field->field_type,
                 'inputGroup' => $templateField->field->input_group,
+                'options' => $templateField->field->options,
                 'visibility' => $templateField->visibility,
             ])
             ->all();
+    }
+
+    /**
+     * @param  array{label: string, fieldType: string, options: array<int, string>|null, visibility: string}  $fieldDef
+     */
+    private function validateValue(array $fieldDef, string $value): ?string
+    {
+        $label = $fieldDef['label'];
+
+        if ($value === '') {
+            return $fieldDef['visibility'] === 'required' ? "A(z) \"{$label}\" mező megadása kötelező." : null;
+        }
+
+        $isValid = match ($fieldDef['fieldType']) {
+            'email' => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
+            'date' => $this->isValidDate($value),
+            'number' => is_numeric($value),
+            'select' => in_array($value, $fieldDef['options'] ?? [], true),
+            default => true,
+        };
+
+        return $isValid ? null : "A(z) \"{$label}\" mező értéke érvénytelen.";
+    }
+
+    private function isValidDate(string $value): bool
+    {
+        $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+
+        return $date !== false && $date->format('Y-m-d') === $value;
     }
 
     private function sanitizeValue(mixed $value): string

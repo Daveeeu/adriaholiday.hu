@@ -1025,6 +1025,7 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
                         key={field.key}
                         label={`${field.label}${field.visibility === "required" ? "*" : ""}`}
                         type={field.fieldType}
+                        options={field.options}
                         value={contactValues[field.key] ?? ""}
                         onChange={(value) => setContactValue(field.key, value)}
                         error={fieldErrors.contact[field.key]}
@@ -1060,6 +1061,7 @@ function BottomBookingSection({ selectedDate, trip, priceBox }: any) {
                               key={field.key}
                               label={`${field.label}${field.visibility === "required" ? "*" : ""}`}
                               type={field.fieldType}
+                              options={field.options}
                               value={passenger[field.key] ?? ""}
                               onChange={(value) => setPassengerValue(index, field.key, value)}
                               error={fieldErrors.passengers[index]?.[field.key]}
@@ -1241,12 +1243,14 @@ function StepTitle({ title, text }: { title: string; text: string }) {
 function FormInput({
   label,
   type = "text",
+  options,
   value,
   onChange,
   error,
 }: {
   label: string;
   type?: string;
+  options?: string[] | null;
   value: string;
   onChange: (value: string) => void;
   error?: string;
@@ -1268,6 +1272,19 @@ function FormInput({
           rows={3}
           className={`${fieldClassName} py-3`}
         />
+      ) : type === "select" ? (
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className={`${fieldClassName} h-14 bg-white`}
+        >
+          <option value="">Válassz...</option>
+          {(options ?? []).map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
       ) : (
         <input
           type={type}

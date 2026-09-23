@@ -2,14 +2,31 @@ export type BookingFormFieldVisibility = 'required' | 'optional' | 'hidden';
 
 export type BookingFormInputGroup = 'contact' | 'passenger';
 
+export type BookingFormFieldType =
+  | 'text'
+  | 'textarea'
+  | 'email'
+  | 'tel'
+  | 'date'
+  | 'number'
+  | 'select';
+
 export type BookingFormField = {
   id: string | number;
   key: string;
   label: string;
-  fieldType: string;
+  fieldType: BookingFormFieldType;
   inputGroup: BookingFormInputGroup;
   sortOrder: number;
   options: string[] | null;
+  isSystem: boolean;
+};
+
+export type BookingFormFieldUpsertInput = {
+  label: string;
+  fieldType: BookingFormFieldType;
+  inputGroup: BookingFormInputGroup;
+  options: string[];
 };
 
 export type BookingFormTemplateField = {
@@ -17,7 +34,7 @@ export type BookingFormTemplateField = {
   fieldId: string | number;
   key: string;
   label: string;
-  fieldType: string;
+  fieldType: BookingFormFieldType;
   inputGroup: BookingFormInputGroup;
   options: string[] | null;
   visibility: BookingFormFieldVisibility;
