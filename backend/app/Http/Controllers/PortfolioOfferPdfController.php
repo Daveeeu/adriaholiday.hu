@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tour;
+use App\Support\DocumentBranding;
 use App\Support\PriceBoxData;
 use App\Support\TourMeta;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -43,6 +44,7 @@ class PortfolioOfferPdfController extends Controller
             'transportLabel' => TourMeta::transportLabel($tour) ?? 'Érdeklődjön',
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'generatedAt' => now()->format('Y.m.d. H:i'),
+            'branding' => DocumentBranding::resolve(),
         ]);
 
         $filename = Str::slug($tour->seo_name ?: $tour->name).'-program.pdf';
