@@ -24,6 +24,11 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Flag assets stay with the page that renders them instead of bloating the shared vendor chunk.
+          if (id.includes('node_modules/flag-icons/')) {
+            return;
+          }
+
           if (id.includes('node_modules')) {
             if (id.includes('lottie-react') || id.includes('lottie-web')) {
               return 'lottie';

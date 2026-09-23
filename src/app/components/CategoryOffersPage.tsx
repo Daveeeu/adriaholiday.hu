@@ -25,6 +25,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
+import CountryFlag from "./CountryFlag";
 import {
   fetchPortfolioCategoryCountries,
   fetchPortfolioCategoryFilters,
@@ -544,18 +545,19 @@ export default function CategoryOffersPage({
                           disabled={option.disabled}
                           className={
                             option.disabled
-                              ? "cursor-not-allowed rounded-full bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-300 opacity-60"
+                              ? "inline-flex cursor-not-allowed items-center gap-2 rounded-full bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-300 opacity-60"
                               : active
-                                ? "rounded-full bg-[#0f172a] px-4 py-2.5 text-sm font-semibold text-white"
-                                : "rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:border-[#00c389]/40 hover:shadow-[0_8px_22px_rgba(15,23,42,0.06)]"
+                                ? "inline-flex items-center gap-2 rounded-full bg-[#0f172a] px-4 py-2.5 text-sm font-semibold text-white"
+                                : "inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:border-[#00c389]/40 hover:shadow-[0_8px_22px_rgba(15,23,42,0.06)]"
                           }
                         >
+                          <CountryFlag code={option.code} className={option.disabled ? "grayscale" : undefined} />
                           {option.label}
                           <span
                             className={
                               active
-                                ? "ml-2 rounded-full bg-white/15 px-2 py-0.5 text-xs text-white/80"
-                                : "ml-2 rounded-full bg-[#f4f7fb] px-2 py-0.5 text-xs text-gray-400"
+                                ? "rounded-full bg-white/15 px-2 py-0.5 text-xs text-white/80"
+                                : "rounded-full bg-[#f4f7fb] px-2 py-0.5 text-xs text-gray-400"
                             }
                           >
                             {option.count}
