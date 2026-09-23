@@ -257,9 +257,9 @@ class PortfolioContentBlockSeeder extends Seeder
                 'fileName' => 'napfenyes-tengerparti-panorama.jpg',
             ],
             'home.brand.logo' => [
-                'path' => base_path('../public/adrialogo_fehernarancs.png'),
+                'path' => base_path('../public/adriaholiday-logo.png'),
                 'name' => 'Adria Holiday',
-                'fileName' => 'adrialogo_fehernarancs.png',
+                'fileName' => 'adriaholiday-logo.png',
             ],
             'home.experience.image' => [
                 'url' => 'https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90',

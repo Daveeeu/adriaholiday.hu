@@ -64,7 +64,7 @@ export default function Footer() {
                     src={settings.logo.url}
                     alt={settings.logo.alt || settings.siteName || "Logo"}
                     title={settings.logo.title || settings.siteName || undefined}
-                    className="h-12 w-auto max-w-[240px]"
+                    className="h-12 w-auto max-w-[240px] brightness-0 invert"
                   />
                 ) : settings.siteName ? (
                   <h3 className="text-[2rem] font-bold tracking-[-0.02em]">{settings.siteName}</h3>

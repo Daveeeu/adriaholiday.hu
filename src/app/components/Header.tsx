@@ -18,7 +18,7 @@ function Brand() {
       <span
         className={[
           "rounded-2xl px-3 py-2",
-          "bg-[#0A1628]/90 backdrop-blur-xl border border-white/15",
+          "bg-white/90 backdrop-blur-xl border border-white/60 shadow-[0_10px_30px_rgba(15,23,42,0.08)]",
         ].join(" ")}
       >
         {settings.logo?.url ? (
@@ -26,7 +26,7 @@ function Brand() {
             src={settings.logo.url}
             alt={settings.logo.alt || settings.siteName || "Logo"}
             title={settings.logo.title || settings.siteName || undefined}
-            className="h-9 lg:h-10 w-auto max-w-[220px] lg:max-w-[260px] drop-shadow-[0_10px_26px_rgba(0,0,0,0.25)]"
+            className="h-9 lg:h-10 w-auto max-w-[220px] lg:max-w-[260px]"
           />
         ) : settings.siteName ? (
           <span className="text-lg font-semibold tracking-tight text-white">
