@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Spatie\Image\Enums\Fit;
 
 class PortfolioContentBlock extends Model implements HasMedia
 {
@@ -34,6 +34,8 @@ class PortfolioContentBlock extends Model implements HasMedia
         'home.trust.review.2.image',
         'home.trust.review.3.image',
         'home.trust.review.4.image',
+        'about.team.image',
+        'about.office.image',
     ];
 
     protected $fillable = [

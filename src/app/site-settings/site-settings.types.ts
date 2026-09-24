@@ -33,7 +33,6 @@ export type PublicSiteSettingsPayload = {
     privacy_url?: string;
     terms_url?: string;
     cookie_url?: string;
-    about_content?: string;
     contact_content?: string;
     imprint_content?: string;
     privacy_content?: string;
@@ -66,7 +65,6 @@ export type ResolvedSiteSettings = {
   privacyUrl: string;
   termsUrl: string;
   cookieUrl: string;
-  aboutContent: string;
   contactContent: string;
   imprintContent: string;
   privacyContent: string;

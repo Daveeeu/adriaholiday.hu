@@ -136,6 +136,41 @@ export function EditableImage({
   );
 }
 
+export function EditableOptionalImage({
+  fieldKey,
+  placeholderLabel,
+  className = '',
+  imgClassName = '',
+}: {
+  fieldKey: string;
+  placeholderLabel: string;
+  className?: string;
+  imgClassName?: string;
+}) {
+  const { getValue, isEditorEnabled } = usePortfolioContent();
+  const value = getValue(fieldKey, null) as { url?: string; alt?: string; title?: string } | null;
+
+  if (!value?.url) {
+    if (!isEditorEnabled) {
+      return null;
+    }
+
+    return (
+      <EditableFrame target={{ kind: 'field', fieldKey }} className={className} label={placeholderLabel}>
+        <div className={`flex items-center justify-center border-2 border-dashed border-cyan-300/70 bg-cyan-50 text-sm font-semibold text-cyan-800 ${imgClassName}`}>
+          {placeholderLabel}
+        </div>
+      </EditableFrame>
+    );
+  }
+
+  return (
+    <EditableFrame target={{ kind: 'field', fieldKey }} className={className}>
+      <img src={value.url} alt={value.alt ?? ''} title={value.title} className={imgClassName} loading="lazy" />
+    </EditableFrame>
+  );
+}
+
 export function EditableMedia({
   fieldKey,
   fallback,

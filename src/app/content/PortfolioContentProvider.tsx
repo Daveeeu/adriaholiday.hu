@@ -95,6 +95,10 @@ function normalizePage(pathname: string) {
     return 'home';
   }
 
+  if (pathname === '/rolunk') {
+    return 'about';
+  }
+
   return pathname.replace(/^\/+/, '').split('/')[0] || 'home';
 }
 

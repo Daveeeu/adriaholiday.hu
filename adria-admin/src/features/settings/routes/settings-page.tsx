@@ -77,7 +77,6 @@ const settingsSchema = z.object({
   privacyUrl: z.string().trim(),
   termsUrl: z.string().trim(),
   cookieUrl: z.string().trim(),
-  aboutContent: z.string().trim(),
   contactContent: z.string().trim(),
   imprintContent: z.string().trim(),
   privacyContent: z.string().trim(),
@@ -111,7 +110,6 @@ const emptyValues: SiteSettingsFormValues = {
   privacyUrl: '',
   termsUrl: '',
   cookieUrl: '',
-  aboutContent: '',
   contactContent: '',
   imprintContent: '',
   privacyContent: '',
@@ -544,9 +542,6 @@ export function SettingsPage() {
               <CardDescription>Publikus placeholder vagy végleges tartalom a statikus oldalakhoz.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              <FormField control={form.control} name="aboutContent" render={({ field }) => (
-                <FormItem><FormLabel>Rólunk tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Márkabemutatás..." /></FormControl><FormMessage /></FormItem>
-              )} />
               <FormField control={form.control} name="contactContent" render={({ field }) => (
                 <FormItem><FormLabel>Kapcsolat tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Kapcsolatfelvételi információk..." /></FormControl><FormMessage /></FormItem>
               )} />

@@ -27,7 +27,6 @@ export default function StaticPage({
   const path = canonicalPath ?? "/";
 
   const pageContentMap: Record<string, string> = {
-    "/rolunk": settings.aboutContent,
     "/kapcsolat": settings.contactContent,
     "/impresszum": settings.imprintContent,
     "/adatvedelem": settings.privacyContent,
@@ -36,7 +35,6 @@ export default function StaticPage({
   };
 
   const pageDescriptionMap: Record<string, string> = {
-    "/rolunk": "Ismerd meg az Adria Holiday működését, szemléletét és utazásszervezési megközelítését.",
     "/kapcsolat": "Kapcsolatfelvételi lehetőségek, ügyfélszolgálati elérhetőségek és ajánlatkérési információk.",
     "/impresszum": "Az Adria Holiday szolgáltatói és üzemeltetői adatai.",
     "/adatvedelem": "Az Adria Holiday adatkezelési tájékoztatója és adatvédelmi gyakorlata.",
