@@ -67,18 +67,18 @@ export default function CinematicHero() {
           <EditableMedia
             fieldKey="home.hero.image"
             fallback={{
-              url: "https://images.unsplash.com/photo-1562532418-ad84d8df5124?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=90",
-              alt: "Napfényes, világos tengerparti panoráma",
-              title: "Napfényes, világos tengerparti panoráma",
+              url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?rect=900,400,3721,2325&flip=h&cs=tinysrgb&fm=jpg&w=1920&q=90",
+              alt: "Napsütötte homokos tengerpart türkizkék vízzel",
+              title: "Napsütötte homokos tengerpart türkizkék vízzel",
             }}
             kind="image"
             className="h-full w-full"
-            mediaClassName="w-full h-full object-cover"
+            mediaClassName="w-full h-full object-cover object-[85%_center]"
           />
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/88 via-[#0A1628]/55 to-[#0A1628]/25" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0A1628]/30 via-transparent to-[#0A1628]/65" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/70 via-[#0A1628]/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A1628]/20 via-transparent to-[#0A1628]/45" />
 
         <motion.div
           className="absolute top-0 right-0 w-[900px] h-[900px] rounded-full blur-3xl"

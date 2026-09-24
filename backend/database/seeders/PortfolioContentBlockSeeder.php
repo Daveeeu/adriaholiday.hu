@@ -53,7 +53,7 @@ class PortfolioContentBlockSeeder extends Seeder
                 $this->headingPart('emlékezni fogsz', 'gradient'),
             ]),
             ['key' => 'home.hero.subtitle', 'label' => 'Hero alcím leírás', 'type' => 'textarea', 'value' => 'Tengerparti utak, városlátogatások és körutazások tapasztalt szervezéssel, kényelmes autóbuszokkal vagy épp repülővel.'],
-            ['key' => 'home.hero.image', 'label' => 'Hero háttérkép', 'type' => 'image', 'value_json' => ['alt' => 'Napfényes, világos tengerparti panoráma', 'title' => 'Napfényes, világos tengerparti panoráma']],
+            ['key' => 'home.hero.image', 'label' => 'Hero háttérkép', 'type' => 'image', 'value_json' => ['alt' => 'Napsütötte homokos tengerpart türkizkék vízzel', 'title' => 'Napsütötte homokos tengerpart türkizkék vízzel']],
             ['key' => 'home.hero.video', 'label' => 'Hero videó', 'type' => 'video', 'value' => null, 'value_json' => null],
             ['key' => 'home.brand.logo', 'label' => 'Márkalogó', 'type' => 'image', 'value_json' => ['alt' => 'Adria Holiday', 'title' => 'Adria Holiday']],
             ['key' => 'home.hero.cta.primary.label', 'label' => 'Hero első gomb szöveg', 'type' => 'text', 'value' => 'Utazások keresése'],
@@ -252,9 +252,9 @@ class PortfolioContentBlockSeeder extends Seeder
     {
         $mediaMap = [
             'home.hero.image' => [
-                'url' => 'https://images.unsplash.com/photo-1562532418-ad84d8df5124?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=90',
-                'name' => 'Napfenyes tengerparti panorama',
-                'fileName' => 'napfenyes-tengerparti-panorama.jpg',
+                'url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?rect=900,400,3721,2325&flip=h&cs=tinysrgb&fm=jpg&w=1920&q=90',
+                'name' => 'Napsutotte tengerpart',
+                'fileName' => 'napsutotte-tengerpart.jpg',
             ],
             'home.brand.logo' => [
                 'path' => base_path('../public/adriaholiday-logo.png'),
