@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { createClientId } from '@/lib/client-id';
 import { cn } from '@/lib/utils';
 import {
   getAllBookingFormTemplates,
@@ -696,7 +697,7 @@ export function TourForm({ form, tour }: TourFormProps) {
                 variant="outline"
                 onClick={() =>
                   dates.append({
-                    id: crypto.randomUUID(),
+                    id: createClientId(),
                     startDate: '',
                     endDate: '',
                     price: '',
@@ -847,7 +848,7 @@ export function TourForm({ form, tour }: TourFormProps) {
             variant="outline"
             onClick={() =>
               bonuses.append({
-                id: crypto.randomUUID(),
+                id: createClientId(),
                 sortOrder: bonuses.fields.length + 1,
                 label: '',
                 value: '',

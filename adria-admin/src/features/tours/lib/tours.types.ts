@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { createClientId } from '@/lib/client-id';
 import type { MediaAsset } from '@/services/media-service';
 
 import type {
@@ -367,7 +368,7 @@ export type TourFormValues = z.infer<typeof tourFormSchema>;
 
 export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues {
   const dates = (tour?.dates ?? []).map((date) => ({
-    id: date.id ?? crypto.randomUUID(),
+    id: date.id ?? createClientId(),
     startDate: date.startDate ?? '',
     endDate: date.endDate ?? '',
     price: date.price ?? '',
@@ -385,7 +386,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
   }));
 
   const partnerBonuses = (tour?.partnerBonuses ?? []).map((bonus, index) => ({
-    id: bonus.id ?? crypto.randomUUID(),
+    id: bonus.id ?? createClientId(),
     sortOrder: bonus.sortOrder ?? index + 1,
     label: bonus.label ?? '',
     value: bonus.value ?? '',
@@ -393,7 +394,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
 
   const programDays = (tour?.programDays ?? []).map((day, index) => ({
     id: day.id,
-    clientId: crypto.randomUUID(),
+    clientId: createClientId(),
     sortOrder: day.sortOrder ?? index + 1,
     dayNumber: day.dayNumber ?? index + 1,
     title: day.title ?? '',
@@ -439,7 +440,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     galleryTitle: tour?.galleryTitle ?? '',
     gallerySubtitle: tour?.gallerySubtitle ?? '',
     gallery: (tour?.gallery ?? []).map((item, index) => ({
-      clientId: String(item.id ?? crypto.randomUUID()),
+      clientId: String(item.id ?? createClientId()),
       mediaId: String(item.mediaId ?? ''),
       image: item.image?.url ?? item.image?.thumbnailUrl ?? '',
       title: item.title ?? '',
@@ -466,7 +467,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     },
     programDays,
     priceItems: (tour?.priceItems ?? []).map((item) => ({
-      clientId: item.id ?? crypto.randomUUID(),
+      clientId: item.id ?? createClientId(),
       type: item.type ?? 'included',
       text: item.text ?? '',
       sortOrder: item.sortOrder ?? 0,

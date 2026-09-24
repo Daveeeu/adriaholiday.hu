@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 
 import type { ApartmentFormValues } from '../lib/apartments.types';
+import { createClientId } from '@/lib/client-id';
 
 type ApartmentPriceSeasonsSectionProps = {
   form: UseFormReturn<ApartmentFormValues>;
@@ -39,7 +40,7 @@ export function ApartmentPriceSeasonsSection({
           variant="outline"
           onClick={() =>
           append({
-            id: crypto.randomUUID(),
+            id: createClientId(),
             apartmentId: '',
             apartment_id: '',
             startDate: '',

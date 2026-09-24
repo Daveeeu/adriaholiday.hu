@@ -16,6 +16,7 @@ import { RichTextEditor } from '@/components/editor/rich-text-editor';
 
 import { renderProgramDayIcon } from '../lib/program-day-icon-map';
 import type { TourFormValues, TourProgramDayFormValue } from '../lib/tours.types';
+import { createClientId } from '@/lib/client-id';
 
 type TourProgramDaysSectionProps = {
   form: UseFormReturn<TourFormValues>;
@@ -65,7 +66,7 @@ function ProgramDayBadgesField({
           size="sm"
           onClick={() =>
             append({
-              clientId: crypto.randomUUID(),
+              clientId: createClientId(),
               text: '',
             })
           }
@@ -346,7 +347,7 @@ export function TourProgramDaysSection({ form }: TourProgramDaysSectionProps) {
     const nextSortOrder = Math.max(0, ...rows.map((row) => row.sortOrder)) + 1;
 
     append({
-      clientId: crypto.randomUUID(),
+      clientId: createClientId(),
       sortOrder: nextSortOrder,
       dayNumber: rows.length + 1,
       title: '',
@@ -361,7 +362,7 @@ export function TourProgramDaysSection({ form }: TourProgramDaysSectionProps) {
 
   const copyItem = (item: ProgramDayRow) => {
     append({
-      clientId: crypto.randomUUID(),
+      clientId: createClientId(),
       sortOrder: rows.length + 1,
       dayNumber: item.dayNumber,
       title: `${item.title} másolat`,
@@ -370,7 +371,7 @@ export function TourProgramDaysSection({ form }: TourProgramDaysSectionProps) {
       icon: item.icon,
       experienceType: item.experienceType,
       badges: item.badges.map((badge, index) => ({
-        clientId: `${crypto.randomUUID()}-${index}`,
+        clientId: `${createClientId()}-${index}`,
         text: badge.text,
       })),
       active: item.active,

@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { PageLoader } from '@/components/common/page-loader';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { createClientId } from '@/lib/client-id';
 import { useAuthStore } from '@/store/auth-store';
 
 import { ToursTable } from '../components/ToursTable';
@@ -52,7 +53,7 @@ const toursQueryKey = ['tours'];
 
 function createTourDefaults(overrides?: Partial<Tour>): Tour {
   return {
-    id: `tmp_${crypto.randomUUID()}`,
+    id: `tmp_${createClientId()}`,
     sortOrder: 1,
     active: true,
     featured: false,

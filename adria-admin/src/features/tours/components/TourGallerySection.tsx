@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { MediaPicker } from '@/components/media/media-picker';
 
 import type { TourFormValues } from '../lib/tours.types';
+import { createClientId } from '@/lib/client-id';
 
 type TourGallerySectionProps = {
   form: UseFormReturn<TourFormValues>;
@@ -231,7 +232,7 @@ export function TourGallerySection({ form }: TourGallerySectionProps) {
     const nextSortOrder = Math.max(0, ...rows.map((row) => row.sortOrder)) + 1;
 
     append({
-      clientId: crypto.randomUUID(),
+      clientId: createClientId(),
       mediaId: '',
       image: '',
       title: '',

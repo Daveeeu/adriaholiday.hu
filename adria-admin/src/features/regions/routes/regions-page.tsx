@@ -21,6 +21,7 @@ import { RegionStatusBadge } from '@/features/regions/components/region-status-b
 import { RegionsTable } from '@/features/regions/components/regions-table';
 import { RegionsToolbar } from '@/features/regions/components/regions-toolbar';
 import { t } from '@/i18n';
+import { createClientId } from '@/lib/client-id';
 import {
   createRegion,
   deleteRegion,
@@ -50,7 +51,7 @@ function toMutationInput(values: RegionFormValues) {
 
 function createOptimisticRegion(values: RegionFormValues): Region {
   return {
-    id: `tmp_${crypto.randomUUID()}`,
+    id: `tmp_${createClientId()}`,
     name: values.name,
     slug: values.slug,
     isActive: values.status === 'active',

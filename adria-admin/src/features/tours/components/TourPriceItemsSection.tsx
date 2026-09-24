@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 
 import type { TourFormValues, TourPriceItemType } from '../lib/tours.types';
+import { createClientId } from '@/lib/client-id';
 
 type TourPriceItemsSectionProps = {
   form: UseFormReturn<TourFormValues>;
@@ -88,7 +89,7 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
       ) + 1;
 
     append({
-      clientId: crypto.randomUUID(),
+      clientId: createClientId(),
       type,
       text: '',
       sortOrder: nextSortOrder,
