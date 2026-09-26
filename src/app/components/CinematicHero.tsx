@@ -1,15 +1,9 @@
 import { motion, useScroll, useTransform } from "motion/react";
-import {
-  ArrowRight,
-  MapPin,
-  Calendar,
-  Clock,
-  DollarSign,
-  Search,
-} from "lucide-react";
-import { useRef, useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { useRef } from "react";
 import Lottie from "lottie-react";
 
+import HeroSearchForm from "./HeroSearchForm";
 import { useLottieAnimation } from "../hooks/useLottieAnimation";
 import { EditableButton, EditableList, EditableMedia, EditableText } from "../content/EditableFields";
 import { renderContentIcon } from "../content/icon-map";
@@ -18,10 +12,8 @@ import { usePortfolioContent } from "../content/PortfolioContentProvider";
 
 export default function CinematicHero() {
   const { getValue } = usePortfolioContent();
-  const [isSearching, setIsSearching] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const earthPlaneAnimation = useLottieAnimation("rotating-earth-and-paper-plane.json");
-  const loadingAnimation = useLottieAnimation("loading.json");
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -399,86 +391,7 @@ export default function CinematicHero() {
         transition={{ delay: 1.5 }}
       >
         <div className="max-w-[1300px] mx-auto">
-          <div className="bg-white/12 backdrop-blur-3xl border border-white/15 rounded-[28px] p-7 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-              <div className="col-span-2 md:col-span-1">
-                <div className="relative rounded-[20px] border border-white/10 bg-white/5">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-                  <input
-                    placeholder="Úti cél"
-                    className="w-full pl-11 pr-4 py-4 bg-transparent text-white placeholder-white/40 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="col-span-2 md:col-span-1">
-                <div className="relative rounded-[20px] border border-white/10 bg-white/5">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-                  <input
-                    placeholder="Indulás helye"
-                    className="w-full pl-11 pr-4 py-4 bg-transparent text-white placeholder-white/40 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="col-span-1">
-                <div className="relative rounded-[20px] border border-white/10 bg-white/5">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-                  <input
-                    type="date"
-                    className="w-full pl-11 pr-4 py-4 bg-transparent text-white focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="col-span-1">
-                <div className="relative rounded-[20px] border border-white/10 bg-white/5">
-                  <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-                  <select className="w-full pl-11 pr-4 py-4 bg-transparent text-white focus:outline-none appearance-none">
-                    <option>Időtartam</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="col-span-1">
-                <div className="relative rounded-[20px] border border-white/10 bg-white/5">
-                  <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-                  <select className="w-full pl-11 pr-4 py-4 bg-transparent text-white focus:outline-none appearance-none">
-                    <option>Költségkeret</option>
-                  </select>
-                </div>
-              </div>
-
-              <motion.button
-                className="col-span-2 md:col-span-1 rounded-[20px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white py-4 shadow-[0_4px_20px_rgba(0,195,137,0.3)]"
-                whileHover={{
-                  scale: 1.02,
-                  boxShadow: "0 6px 28px rgba(0,195,137,0.4)",
-                }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setIsSearching(true);
-                  setTimeout(() => setIsSearching(false), 2000);
-                }}
-              >
-                <span className="flex items-center justify-center gap-2 font-semibold">
-                  {isSearching ? (
-                    <>
-                      <div className="w-4 h-4">
-                        {loadingAnimation ? <Lottie animationData={loadingAnimation} loop /> : null}
-                      </div>
-                      Keresés...
-                    </>
-                  ) : (
-                    <>
-                      <Search className="w-4 h-4" />
-                      Keresés
-                    </>
-                  )}
-                </span>
-              </motion.button>
-            </div>
-          </div>
+          <HeroSearchForm />
         </div>
       </motion.div>
     </div>

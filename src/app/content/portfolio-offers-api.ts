@@ -1,5 +1,6 @@
 import { getPortfolioApiBaseUrl, PortfolioApiError } from './portfolio-api';
 import type { PortfolioFeaturedTour } from './portfolio-featured-tours-api';
+import type { OfferSearchApiParams } from './offer-search';
 
 export type PortfolioOfferCard = PortfolioFeaturedTour;
 
@@ -30,20 +31,20 @@ export type PortfolioCategoryCountryOption = {
   active?: boolean;
 };
 
-export type PortfolioOfferListParams = {
+export type PortfolioOfferListParams = OfferSearchApiParams & {
   page?: number;
   perPage?: number;
   region?: string;
   category?: string;
   tag?: string;
   featured?: boolean;
-  search?: string;
   order?: string;
   country?: string;
-  maxPrice?: number;
   transport?: string;
   filters?: string;
 };
+
+type PortfolioFacetParams = OfferSearchApiParams & Pick<PortfolioOfferListParams, 'filters' | 'country'>;
 
 function buildQuery(params: PortfolioOfferListParams = {}) {
   const query = new URLSearchParams();
@@ -58,6 +59,9 @@ function buildQuery(params: PortfolioOfferListParams = {}) {
   if (params.order) query.set('order', params.order);
   if (params.country) query.set('country', params.country);
   if (params.maxPrice !== undefined) query.set('maxPrice', String(params.maxPrice));
+  if (params.departure) query.set('departure', params.departure);
+  if (params.from) query.set('from', params.from);
+  if (params.duration) query.set('duration', params.duration);
   if (params.transport) query.set('transport', params.transport);
   if (params.filters) query.set('filters', params.filters);
 
@@ -107,20 +111,20 @@ export async function fetchPortfolioCategoryOffers(
 }
 
 export async function fetchPortfolioOfferFilters(
-  params: Pick<PortfolioOfferListParams, 'filters'> = {},
+  params: Omit<PortfolioFacetParams, 'country'> = {},
 ): Promise<PortfolioCategoryFilterChip[]> {
   return request<PortfolioCategoryFilterChip[]>(`/portfolio/offers/filters${buildQuery(params)}`);
 }
 
 export async function fetchPortfolioOfferCountries(
-  params: Pick<PortfolioOfferListParams, 'filters' | 'country'> = {},
+  params: PortfolioFacetParams = {},
 ): Promise<PortfolioCategoryCountryOption[]> {
   return request<PortfolioCategoryCountryOption[]>(`/portfolio/offers/countries${buildQuery(params)}`);
 }
 
 export async function fetchPortfolioCategoryFilters(
   slug: string,
-  params: Pick<PortfolioOfferListParams, 'filters'> = {},
+  params: Omit<PortfolioFacetParams, 'country'> = {},
 ): Promise<PortfolioCategoryFilterChip[]> {
   return request<PortfolioCategoryFilterChip[]>(
     `/portfolio/categories/${encodeURIComponent(slug)}/filters${buildQuery(params)}`,
@@ -129,7 +133,7 @@ export async function fetchPortfolioCategoryFilters(
 
 export async function fetchPortfolioCategoryCountries(
   slug: string,
-  params: Pick<PortfolioOfferListParams, 'filters' | 'country'> = {},
+  params: PortfolioFacetParams = {},
 ): Promise<PortfolioCategoryCountryOption[]> {
   return request<PortfolioCategoryCountryOption[]>(
     `/portfolio/categories/${encodeURIComponent(slug)}/countries${buildQuery(params)}`,

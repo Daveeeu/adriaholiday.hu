@@ -25,6 +25,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
+import ActiveOfferSearch from "./ActiveOfferSearch";
 import CountryFlag from "./CountryFlag";
 import {
   fetchPortfolioCategoryCountries,
@@ -37,6 +38,12 @@ import {
   type PortfolioCategoryFilterChip,
   type PortfolioOfferCard,
 } from "../content/portfolio-offers-api";
+import {
+  hasOfferSearchCriteria,
+  parseOfferSearch,
+  toOfferSearchApiParams,
+  type OfferSearchCriteria,
+} from "../content/offer-search";
 import {
   toUnifiedOfferCardModel,
   type UnifiedOfferCardModel,
@@ -171,6 +178,13 @@ export default function CategoryOffersPage({
     [searchParams],
   );
 
+  const searchCriteria = useMemo(() => parseOfferSearch(searchParams), [searchParams]);
+  const { search, departure, from, duration, maxPrice } = searchCriteria;
+  const searchApiParams = useMemo(
+    () => toOfferSearchApiParams({ search, departure, from, duration, maxPrice }),
+    [search, departure, from, duration, maxPrice],
+  );
+
   const serializedFilters = useMemo(
     () => serializeListParam(filters.quickFilters),
     [filters.quickFilters],
@@ -187,6 +201,7 @@ export default function CategoryOffersPage({
     setHasError(false);
 
     const offerParams = {
+      ...searchApiParams,
       page: Math.max(1, Number(filters.page) || 1),
       perPage,
       order: filters.order,
@@ -226,16 +241,18 @@ export default function CategoryOffersPage({
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, filters.order, filters.page, perPage, serializedCountries, serializedFilters]);
+  }, [categorySlug, filters.order, filters.page, perPage, searchApiParams, serializedCountries, serializedFilters]);
 
   useEffect(() => {
     let cancelled = false;
 
     setIsLoadingFilters(true);
 
+    const filterParams = { ...searchApiParams, filters: serializedFilters };
+
     (categorySlug
-      ? fetchPortfolioCategoryFilters(categorySlug, { filters: serializedFilters })
-      : fetchPortfolioOfferFilters({ filters: serializedFilters }))
+      ? fetchPortfolioCategoryFilters(categorySlug, filterParams)
+      : fetchPortfolioOfferFilters(filterParams))
       .then((response) => {
         if (!cancelled) {
           setQuickFilters(response);
@@ -255,14 +272,14 @@ export default function CategoryOffersPage({
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, serializedFilters]);
+  }, [categorySlug, searchApiParams, serializedFilters]);
 
   useEffect(() => {
     let cancelled = false;
 
     setIsLoadingCountries(true);
 
-    const countryParams = { filters: serializedFilters, country: serializedCountries };
+    const countryParams = { ...searchApiParams, filters: serializedFilters, country: serializedCountries };
 
     (categorySlug
       ? fetchPortfolioCategoryCountries(categorySlug, countryParams)
@@ -286,7 +303,7 @@ export default function CategoryOffersPage({
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, serializedCountries, serializedFilters]);
+  }, [categorySlug, searchApiParams, serializedCountries, serializedFilters]);
 
   const replaceSearchState = (values: Record<string, string | undefined>, resetPage = true) => {
     const next = new URLSearchParams(searchParams);
@@ -367,6 +384,19 @@ export default function CategoryOffersPage({
     });
   };
 
+  const removeSearchCriterion = (key: keyof OfferSearchCriteria) => {
+    trackEvent("filter_remove", {
+      entity: analyticsEntity,
+      metadata: {
+        filter_type: key,
+        filter_value: searchCriteria[key],
+        result_count: totalCount,
+      },
+    });
+
+    replaceSearchState({ [key]: undefined });
+  };
+
   const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
   const canGoBack = page > 1;
   const canGoForward = page < totalPages;
@@ -387,9 +417,10 @@ export default function CategoryOffersPage({
   const highlightedOffers = useMemo(() => recommendedCards.slice(0, 3), [recommendedCards]);
   const hasResults = itemCards.length > 0;
   const hasRecommended = highlightedOffers.length > 0;
-  const hasActiveFilters =
-    filters.quickFilters.length > 0 || filters.countries.length > 0 || filters.order !== DEFAULT_ORDER;
-  const hasActiveQuickFilters = filters.quickFilters.length > 0 || filters.countries.length > 0;
+  const hasActiveSearch = hasOfferSearchCriteria(searchCriteria);
+  const hasActiveQuickFilters =
+    filters.quickFilters.length > 0 || filters.countries.length > 0 || hasActiveSearch;
+  const hasActiveFilters = hasActiveQuickFilters || filters.order !== DEFAULT_ORDER;
   const showHighlights = hasResults && !hasActiveQuickFilters;
   const resultCountLabel = hasActiveFilters
     ? `${totalCount} elérhető utazás a kiválasztott szűrők alapján.`
@@ -571,6 +602,8 @@ export default function CategoryOffersPage({
                 </div>
               </div>
             ) : null}
+
+            <ActiveOfferSearch criteria={searchCriteria} onRemove={removeSearchCriterion} />
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               {hasActiveFilters ? (

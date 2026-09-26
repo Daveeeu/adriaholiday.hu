@@ -7,29 +7,43 @@ use App\Models\BlogTagTranslation;
 use App\Models\PortfolioFilterChip;
 use App\Models\Tour;
 use App\Models\TourReferenceOption;
+use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class PortfolioOfferQuery
 {
+    private const MAX_TEXT_QUERY_LENGTH = 100;
+
+    private const UNBOOKABLE_DATE_STATUSES = ['sold_out', 'cancelled'];
+
     public static function buildBaseQuery(Request $request): Builder
     {
         $query = Tour::query()
             ->where('active', true)
             ->with(['region', 'dates', 'media']);
 
-        if ($search = trim((string) $request->query('search', ''))) {
-            $query->where(function (Builder $builder) use ($search): void {
+        if ($search = self::stringQuery($request, 'search')) {
+            $matchingCountryCodes = self::countryCodesMatchingName($search);
+
+            $query->where(function (Builder $builder) use ($search, $matchingCountryCodes): void {
                 $builder->where('name', 'like', "%{$search}%")
                     ->orWhere('seo_name', 'like', "%{$search}%")
                     ->orWhere('short_description', 'like', "%{$search}%")
                     ->orWhere('list_description', 'like', "%{$search}%")
-                    ->orWhere('notes', 'like', "%{$search}%");
+                    ->orWhere('notes', 'like', "%{$search}%")
+                    ->orWhereHas('region', function (Builder $regionQuery) use ($search): void {
+                        $regionQuery->where('name', 'like', "%{$search}%");
+                    });
+
+                foreach ($matchingCountryCodes as $countryCode) {
+                    $builder->orWhereJsonContains('country_ids', $countryCode);
+                }
             });
         }
 
-        if ($region = trim((string) $request->query('region', ''))) {
+        if ($region = self::stringQuery($request, 'region')) {
             $query->where(function (Builder $builder) use ($region): void {
                 $builder->whereHas('region', function (Builder $regionQuery) use ($region): void {
                     $regionQuery->where('slug', 'like', "%{$region}%")
@@ -38,7 +52,7 @@ class PortfolioOfferQuery
             });
         }
 
-        if ($category = trim((string) $request->query('category', ''))) {
+        if ($category = self::stringQuery($request, 'category')) {
             $query->where(function (Builder $builder) use ($category): void {
                 $builder->whereJsonContains('category_ids', $category)
                     ->orWhere('name', 'like', "%{$category}%")
@@ -46,7 +60,7 @@ class PortfolioOfferQuery
             });
         }
 
-        if ($tag = trim((string) $request->query('tag', ''))) {
+        if ($tag = self::stringQuery($request, 'tag')) {
             $query->where(function (Builder $builder) use ($tag): void {
                 $builder->whereJsonContains('tag_ids', $tag)
                     ->orWhere('name', 'like', "%{$tag}%")
@@ -55,6 +69,18 @@ class PortfolioOfferQuery
                     ->orWhere('notes', 'like', "%{$tag}%");
             });
         }
+
+        if ($departure = self::stringQuery($request, 'departure')) {
+            $query->whereHas('departurePlaces', function (Builder $placeQuery) use ($departure): void {
+                $placeQuery->where('active', true)
+                    ->where(function (Builder $builder) use ($departure): void {
+                        $builder->where('name', 'like', "%{$departure}%")
+                            ->orWhere('city', 'like', "%{$departure}%");
+                    });
+            });
+        }
+
+        self::applyDepartureDateFilters($query, $request);
 
         if ($countries = self::parseCountryCodes($request)) {
             $query->where(function (Builder $builder) use ($countries): void {
@@ -71,7 +97,7 @@ class PortfolioOfferQuery
             }
         }
 
-        if ($transport = trim((string) $request->query('transport', ''))) {
+        if ($transport = self::stringQuery($request, 'transport')) {
             $query->where('travel_mode_id', $transport);
         }
 
@@ -375,6 +401,81 @@ class PortfolioOfferQuery
             ->first(['blog_tag_id']);
 
         return $cache[$value] = $tagTranslation ? (string) $tagTranslation->blog_tag_id : null;
+    }
+
+    /**
+     * Returns a trimmed query parameter, ignoring array values and overlong input.
+     */
+    private static function stringQuery(Request $request, string $key): string
+    {
+        $value = $request->query($key);
+
+        return is_string($value) ? mb_substr(trim($value), 0, self::MAX_TEXT_QUERY_LENGTH) : '';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function countryCodesMatchingName(string $search): array
+    {
+        return TourReferenceOption::query()
+            ->where('type', 'country')
+            ->where('active', true)
+            ->where('name', 'like', "%{$search}%")
+            ->pluck('code')
+            ->all();
+    }
+
+    /**
+     * Start date and trip length are matched against the same bookable departure,
+     * so a tour qualifies only when one of its upcoming dates satisfies both.
+     */
+    private static function applyDepartureDateFilters(Builder $query, Request $request): void
+    {
+        $requestedStart = self::dateQuery($request, 'from');
+        $duration = TripDurationRange::tryFrom(self::stringQuery($request, 'duration'));
+
+        if ($requestedStart === null && $duration === null) {
+            return;
+        }
+
+        $today = now()->toDateString();
+        $earliestStart = $requestedStart !== null && $requestedStart > $today ? $requestedStart : $today;
+
+        $query->whereHas('dates', function (Builder $dateQuery) use ($earliestStart, $duration): void {
+            $dateQuery->whereNotIn('status', self::UNBOOKABLE_DATE_STATUSES)
+                ->whereDate('start_date', '>=', $earliestStart);
+
+            if ($duration === null) {
+                return;
+            }
+
+            $tripDays = self::tripDaysExpression($dateQuery->getConnection()->getDriverName());
+
+            $dateQuery->whereNotNull('end_date')
+                ->whereRaw("{$tripDays} >= ?", [$duration->minDays()]);
+
+            if (($maxDays = $duration->maxDays()) !== null) {
+                $dateQuery->whereRaw("{$tripDays} <= ?", [$maxDays]);
+            }
+        });
+    }
+
+    private static function dateQuery(Request $request, string $key): ?string
+    {
+        $value = self::stringQuery($request, $key);
+        $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+
+        return $date !== false && $date->format('Y-m-d') === $value ? $value : null;
+    }
+
+    private static function tripDaysExpression(string $driver): string
+    {
+        return match ($driver) {
+            'sqlite' => '(julianday(end_date) - julianday(start_date) + 1)',
+            'pgsql' => '(end_date - start_date + 1)',
+            default => '(DATEDIFF(end_date, start_date) + 1)',
+        };
     }
 
     private static function applyOrdering(Builder $query, Request $request): Builder
