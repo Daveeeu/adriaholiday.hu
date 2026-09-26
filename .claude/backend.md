@@ -816,13 +816,22 @@ php artisan adria:import-offers
 Split into four single-purpose services under `App\Services\Legacy` (never put scraping/parsing/import logic in the command itself):
 
 - `LegacyAdriaOfferCrawler` — discovers offer URLs by walking the two tour group listing pages and their per-country sub-pages (no sitemap exists); rate-limited HTTP fetch with UA header.
-- `LegacyAdriaOfferParser` — pure HTML → `App\Support\Legacy\LegacyOfferData` DTO, no I/O. The legacy page has no structured "program days" / "price includes" sections — everything is `<p>` blocks in one rich-text tab, classified by leading text pattern (`"N. NAP"`, `"Az ár tartalmazza:"`, etc.).
+- `LegacyAdriaOfferParser` — pure HTML → `App\Support\Legacy\LegacyOfferData` DTO, no I/O. The legacy page has no structured "program days" / "price includes" sections — everything is `<p>` blocks in one rich-text tab, classified by leading text pattern (`"N. NAP"`, `"Az ár tartalmazza:"`, etc.). A discounted date shows the struck-through original price first; the parser takes the last (bookable) price.
+- `LegacyBookingOptionsParser` — pure parser for the per-date booking options the legacy booking form loads from `roundtrip/get_datas?offer_date_id=…` (departure place `<option>`s and the extras block). The command fetches them through the crawler (`fetchBookingOptions()` with the ids from `LegacyAdriaOfferParser::legacyDateIds()`) and hands the raw responses to the parser, so parsing stays I/O-free. Checked + readonly extras are mandatory except the single room supplement (`data-name="single_bad"`, only pre-ticked for solo travellers); "Ft/fő" prices are per person, bare "Ft" per booking.
 - `LegacyMediaImporter` — downloads an image into the existing `AdminMediaItem` + Spatie `library` collection pattern (same one `MediaController::store` uses), deduping by `custom_properties.legacy_url` so re-imports and shared images never re-download.
 - `LegacyTourImporter` — resolves `Region` / `TourReferenceOption` (country/category/tag/travel-mode) / `TourDeparturePlace`, then persists via `App\Services\Tour\TourContentSyncService` — the same service `TourController` uses for admin edits, so imported and admin-entered tours go through identical rules.
 
-Idempotency: tours are matched by `seo_name`. Without `--update-existing`, an existing tour is skipped (never overwrites admin edits); with it, the tour and all its child records (dates, program days, gallery, price items) are replaced via `TourContentSyncService`'s existing delete-and-recreate sync methods — never duplicated. `--dry-run` never touches the DB or downloads images; it only prints what the parser extracted.
+Idempotency: tours are matched by `seo_name`. Without `--update-existing`, an existing tour is skipped (never overwrites admin edits); with it, the tour and all its child records (dates with their extras, program days, gallery, price items) are replaced via `TourContentSyncService`'s existing delete-and-recreate sync methods — never duplicated. `--dry-run` never touches the DB or downloads images; it only prints what the parser extracted.
 
 Config: `config('services.legacy_adria')` (`LEGACY_ADRIA_BASE_URL`, `LEGACY_ADRIA_USER_AGENT`, `LEGACY_ADRIA_DELAY_MS`, `LEGACY_ADRIA_TIMEOUT`).
+
+---
+
+# Tour Date Extras and Booking Pricing
+
+Priced supplements ("felárak": dinner, single room, baggage, optional programs…) are `TourDateExtra` records owned by a `TourDate`, because prices differ between departures of the same tour. Each has a `price`, a `price_unit` (`App\Support\Tour\TourExtraPriceUnit`: `per_person` / `per_booking`) and a `mandatory` flag. They are written only through `TourContentSyncService::syncDates()` as `dates[].extras[]` (admin form, duplicate and legacy import alike); since dates are delete-and-recreated, never reference a `TourDateExtra` id from other tables.
+
+Public bookings are priced on the server by `App\Services\Booking\TourBookingPriceCalculator`: base price (date price, else tour price) × passengers + the chosen departure place's `fee` × passengers + every mandatory extra and every selected optional extra (per passenger or once per booking). It validates that the departure place is an active place of the tour (required when the tour has any) and that selected extras belong to the chosen date. `PublicBookingService` stores the result as `bookings.total_amount` and as a snapshot in `payload.pricing`, which the admin booking detail and the office notification email display; the frontend total is only a preview of the same rules.
 
 ---
 

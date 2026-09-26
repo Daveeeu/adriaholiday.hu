@@ -10,7 +10,7 @@ use Throwable;
 
 /**
  * Discovers offer detail URLs on the legacy adriaholiday.hu site and fetches
- * raw HTML, with a rate-limited, identified HTTP client (no sitemap/API exists
+ * raw HTML and per-date booking options, with a rate-limited, identified HTTP client (no sitemap/API exists
  * on the legacy site, so discovery walks the two tour group listing pages and
  * their per-country sub-pages).
  */
@@ -75,6 +75,33 @@ class LegacyAdriaOfferCrawler
     public function offerUrlForSlug(string $slug): string
     {
         return $this->resolveUrl('korutazasok/'.trim($slug, '/'));
+    }
+
+    /**
+     * Fetches the booking options (departure places, extras) the legacy
+     * booking form loads for each tour date.
+     *
+     * @param  array<int, int>  $legacyDateIds
+     * @return array<int, array<string, mixed>> decoded responses keyed by legacy date id
+     *
+     * @throws LegacyFetchException
+     */
+    public function fetchBookingOptions(array $legacyDateIds): array
+    {
+        $options = [];
+
+        foreach ($legacyDateIds as $legacyDateId) {
+            $url = $this->resolveUrl('roundtrip/get_datas?'.http_build_query(['offer_date_id' => $legacyDateId]));
+            $decoded = json_decode($this->fetchHtml($url), true);
+
+            if (! is_array($decoded)) {
+                throw new LegacyFetchException("Invalid booking options response for legacy date {$legacyDateId}");
+            }
+
+            $options[$legacyDateId] = $decoded;
+        }
+
+        return $options;
     }
 
     /**

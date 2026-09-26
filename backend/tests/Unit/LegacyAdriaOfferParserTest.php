@@ -128,4 +128,71 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertStringContainsString('Útiokmány', $data->notesHtml);
         $this->assertNull($data->discountsHtml);
     }
+
+    public function test_it_reads_legacy_date_ids_and_attaches_booking_options_to_dates(): void
+    {
+        $parser = new LegacyAdriaOfferParser;
+
+        $this->assertSame([12250], $parser->legacyDateIds($this->html()));
+
+        $data = $parser->parse($this->html(), self::SOURCE_URL, [], [
+            12250 => [
+                'felszallas_items' => '<option value="">Kérem válasszon!</option><option value=96>269.600 Ft/fő budapesti indulással</option>',
+                'extra_prices_items' => '<div class="row"><div class="col-sm-4"><div class="no-margin"><input class="price_changer extra_price_changer" data-id="1" type="checkbox"> Vacsora</div></div><div class="col-sm-4"><p class="no-margin">12.000 Ft/fő</p></div></div>',
+            ],
+        ]);
+
+        $this->assertSame(12250, $data->dates[0]['legacy_id']);
+        $this->assertSame([
+            ['name' => 'Vacsora', 'price' => 12000.0, 'price_unit' => 'per_person', 'mandatory' => false],
+        ], $data->dates[0]['extras']);
+        $this->assertSame(['budapesti indulással'], $data->departurePlaceNames);
+    }
+
+    public function test_it_parses_short_date_ranges_current_discounted_prices_and_labels_without_popover_text(): void
+    {
+        $html = <<<'HTML'
+            <html><body><h1>Napfényes Itália</h1>
+            <table class="table hotels-details-inner-dates">
+                <tr><th>Időpont</th></tr>
+                <tr>
+                    <td>2027.05.01. - 04.</td>
+                    <td><i class="fa fa-bus"></i></td>
+                    <td><div class="popover-info"><span>önellátás</span></div><div class="d-none popover-data"><div class="popover-content"><p>éttermek a közelben</p></div></div></td>
+                    <td><div class="popover-info"><span>apartman</span></div><div class="d-none popover-data"><div class="popover-content"><p>5-6 fős apartmanok</p></div></div></td>
+                    <td><span style="text-decoration: line-through">84.900,-Ft/fő-től</span><br><span style="color:red">74.900,-Ft/fő-től</span></td>
+                    <td><span class="thm-btn thm-btn-reserve" data-date-id="12319">Foglalás</span></td>
+                </tr>
+                <tr>
+                    <td>2026.12.30. - 01.02.</td>
+                    <td><i class="fa fa-bus"></i></td>
+                    <td>reggeli</td>
+                    <td>Hotel***</td>
+                    <td><span>99.900,-Ft/fő-től</span></td>
+                    <td><span class="thm-btn thm-btn-reserve" data-date-id="12320">Foglalás</span></td>
+                </tr>
+            </table></body></html>
+            HTML;
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, 'https://adriaholiday.hu/korutazasok/napfenyes-italia-2018');
+
+        $this->assertSame('2027-05-01', $data->dates[0]['start_date']);
+        $this->assertSame('2027-05-04', $data->dates[0]['end_date']);
+        $this->assertSame(74900.0, $data->dates[0]['price']);
+        $this->assertSame('önellátás', $data->dates[0]['catering']);
+        $this->assertSame('apartman', $data->dates[0]['accommodation']);
+
+        $this->assertSame('2026-12-30', $data->dates[1]['start_date']);
+        $this->assertSame('2027-01-02', $data->dates[1]['end_date']);
+        $this->assertSame(99900.0, $data->dates[1]['price']);
+
+        $this->assertSame(74900.0, $data->price);
+    }
+
+    public function test_it_keeps_multibyte_characters_of_the_legacy_slug(): void
+    {
+        $data = (new LegacyAdriaOfferParser)->parse($this->html(), 'https://adriaholiday.hu/korutazasok/umbria-–-italia-zold-szive-2019');
+
+        $this->assertSame('umbria-–-italia-zold-szive-2019', $data->seoName);
+    }
 }

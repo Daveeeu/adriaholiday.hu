@@ -18,7 +18,7 @@ class AdriaImportOffersCommand extends Command
         {--slug= : Import a single offer by its legacy slug, skipping crawling}
         {--update-existing : Refresh tours that were already imported (matched by seo_name). Without this flag, existing tours are skipped.}';
 
-    protected $description = 'Import tours, images and content from the legacy adriaholiday.hu website.';
+    protected $description = 'Import tours, images, content and booking options (extras, departure places) from the legacy adriaholiday.hu website.';
 
     public function handle(
         LegacyAdriaOfferCrawler $crawler,
@@ -48,7 +48,8 @@ class AdriaImportOffersCommand extends Command
         foreach ($offers as $url => $context) {
             try {
                 $html = $crawler->fetchHtml($url);
-                $data = $parser->parse($html, $url, $context);
+                $bookingOptions = $crawler->fetchBookingOptions($parser->legacyDateIds($html));
+                $data = $parser->parse($html, $url, $context, $bookingOptions);
             } catch (Throwable $exception) {
                 report($exception);
                 $errors[$url] = $exception->getMessage();
@@ -110,8 +111,10 @@ class AdriaImportOffersCommand extends Command
         $this->newLine();
         $this->line("<info>{$data->name}</info> ({$data->seoName})");
         $this->line(sprintf(
-            '  dates=%d, program_days=%d, price_items=%d, gallery_images=%d, tags=%d, categories=%s, countries=%s, price=%s',
+            '  dates=%d, extras=%d, departure_places=%d, program_days=%d, price_items=%d, gallery_images=%d, tags=%d, categories=%s, countries=%s, price=%s',
             count($data->dates),
+            array_sum(array_map(fn (array $date): int => count($date['extras']), $data->dates)),
+            count($data->departurePlaceNames),
             count($data->programDays),
             count($data->priceItems),
             count($data->galleryImageUrls),

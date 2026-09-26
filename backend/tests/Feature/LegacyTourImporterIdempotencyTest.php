@@ -42,8 +42,18 @@ class LegacyTourImporterIdempotencyTest extends TestCase
                 'https://adriaholiday.hu/uploads/gallery/16205/photo-2.jpg',
             ],
             dates: [
-                ['start_date' => '2026-09-25', 'end_date' => '2026-10-01', 'price' => 269600.0, 'transport_code' => 'bus', 'catering' => 'félpanzió', 'accommodation' => 'Hotel***'],
-                ['start_date' => '2026-10-10', 'end_date' => '2026-10-16', 'price' => 279600.0, 'transport_code' => 'bus', 'catering' => 'félpanzió', 'accommodation' => 'Hotel***'],
+                [
+                    'legacy_id' => 12250, 'start_date' => '2026-09-25', 'end_date' => '2026-10-01', 'price' => 269600.0,
+                    'transport_code' => 'bus', 'catering' => 'félpanzió', 'accommodation' => 'Hotel***',
+                    'extras' => [
+                        ['name' => 'Vacsora', 'price' => 12000.0, 'price_unit' => 'per_person', 'mandatory' => false],
+                        ['name' => 'Egyágyas felár', 'price' => 45900.0, 'price_unit' => 'per_booking', 'mandatory' => false],
+                    ],
+                ],
+                [
+                    'legacy_id' => 12251, 'start_date' => '2026-10-10', 'end_date' => '2026-10-16', 'price' => 279600.0,
+                    'transport_code' => 'bus', 'catering' => 'félpanzió', 'accommodation' => 'Hotel***', 'extras' => [],
+                ],
             ],
             programDays: [
                 ['day_number' => 1, 'title' => 'Belgrád', 'description' => 'Indulás a kora reggeli órákban.'],
@@ -77,6 +87,12 @@ class LegacyTourImporterIdempotencyTest extends TestCase
 
         $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
         $this->assertCount(2, $tour->dates);
+
+        $firstDate = $tour->dates()->with('extras')->orderBy('start_date')->firstOrFail();
+        $this->assertEquals(269600, $firstDate->price_box_price);
+        $this->assertNull($firstDate->price_box_discount_badge);
+        $this->assertSame(['Vacsora', 'Egyágyas felár'], $firstDate->extras->pluck('name')->all());
+        $this->assertSame('per_booking', $firstDate->extras[1]->price_unit);
         $this->assertCount(2, $tour->programDays);
         $this->assertCount(2, $tour->galleryItems);
         $this->assertCount(2, $tour->priceItems);

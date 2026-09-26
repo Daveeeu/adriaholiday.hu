@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
- * Upserts a Tour (and its dates, program days, gallery, price items,
+ * Upserts a Tour (and its dates with their extras, program days, gallery, price items,
  * departure places, region/country/category/tag/travel-mode links) from a
  * parsed LegacyOfferData, reusing TourContentSyncService so imported tours
  * are persisted through the exact same rules as admin-edited tours.
@@ -85,12 +85,13 @@ class LegacyTourImporter
             ]);
             $tour->save();
 
-            $this->tourContentSync->syncDates($tour, array_map(static fn (array $date): array => [
+            $this->tourContentSync->syncDates($tour, array_map(fn (array $date): array => [
                 'start_date' => $date['start_date'],
                 'end_date' => $date['end_date'],
                 'price' => $date['price'],
                 'price_box_price' => $date['price'],
                 'status' => 'planned',
+                'extras' => $date['extras'] ?? [],
             ], $data->dates));
 
             $this->tourContentSync->syncProgramDays($tour, $data->programDays);

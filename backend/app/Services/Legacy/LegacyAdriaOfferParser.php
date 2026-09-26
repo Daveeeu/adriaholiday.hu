@@ -17,6 +17,10 @@ use Illuminate\Support\Str;
  * sections — they are all just <p> blocks inside one rich-text tab, so this
  * parser classifies each paragraph by its leading text pattern instead of by
  * CSS selector.
+ *
+ * Booking options (extras, departure places) are not part of the page; the
+ * caller fetches them per legacy date id (see legacyDateIds()) and passes the
+ * raw responses in, so this class stays free of I/O.
  */
 class LegacyAdriaOfferParser
 {
@@ -27,18 +31,49 @@ class LegacyAdriaOfferParser
 
     private const TRANSPORT_CODES = ['bus', 'plane', 'train'];
 
+    public function __construct(private readonly LegacyBookingOptionsParser $bookingOptionsParser = new LegacyBookingOptionsParser) {}
+
+    /**
+     * Legacy ids of the bookable dates, used to fetch their booking options.
+     *
+     * @return array<int, int>
+     */
+    public function legacyDateIds(string $html): array
+    {
+        $xpath = new DOMXPath($this->loadDocument($html));
+        $ids = [];
+
+        foreach ($xpath->query('//table[contains(@class,"hotels-details-inner-dates")]//*[@data-date-id]') as $node) {
+            $id = (int) $node->getAttribute('data-date-id');
+
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
     /**
      * @param  array{countries?: array<int, string>, categories?: array<int, string>}  $context
+     * @param  array<int, array<string, mixed>>  $bookingOptions  raw booking options responses keyed by legacy date id
      */
-    public function parse(string $html, string $sourceUrl, array $context = []): LegacyOfferData
+    public function parse(string $html, string $sourceUrl, array $context = [], array $bookingOptions = []): LegacyOfferData
     {
         $document = $this->loadDocument($html);
         $xpath = new DOMXPath($document);
 
         $name = $this->firstText($xpath, '//h1');
         $seoName = $this->seoNameFromUrl($sourceUrl);
-        $dates = $this->extractDates($xpath);
+        $parsedOptions = array_map(fn (array $response): array => $this->bookingOptionsParser->parse($response), $bookingOptions);
+        $dates = $this->extractDates($xpath, $parsedOptions);
         $program = $this->extractProgramParagraphs($xpath);
+        $bookableDeparturePlaces = collect($parsedOptions)
+            ->flatMap(fn (array $options): array => array_column($options['departurePlaces'], 'name'))
+            ->unique()
+            ->values()
+            ->all();
+        $datePrices = array_values(array_filter(array_column($dates, 'price'), fn (?float $price): bool => $price !== null));
 
         return new LegacyOfferData(
             sourceUrl: $sourceUrl,
@@ -55,10 +90,10 @@ class LegacyAdriaOfferParser
             travelModeCode: $dates[0]['transport_code'] ?? null,
             catering: $dates[0]['catering'] ?? null,
             accommodation: $dates[0]['accommodation'] ?? null,
-            departurePlaceNames: $program['departurePlaces'],
+            departurePlaceNames: $bookableDeparturePlaces !== [] ? $bookableDeparturePlaces : $program['departurePlaces'],
             notesHtml: $program['notesHtml'],
             discountsHtml: $program['discountsHtml'],
-            price: $dates[0]['price'] ?? $program['price'] ?? null,
+            price: $datePrices !== [] ? min($datePrices) : $program['price'],
         );
     }
 
@@ -129,9 +164,10 @@ class LegacyAdriaOfferParser
     }
 
     /**
-     * @return array<int, array{start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string}>
+     * @param  array<int, array{departurePlaces: array<int, array{name: string, price: float|null}>, extras: array<int, array{name: string, price: float, price_unit: string, mandatory: bool}>}>  $bookingOptions
+     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: array<int, array{name: string, price: float, price_unit: string, mandatory: bool}>}>
      */
-    private function extractDates(DOMXPath $xpath): array
+    private function extractDates(DOMXPath $xpath, array $bookingOptions): array
     {
         $table = $xpath->query('//table[contains(@class,"hotels-details-inner-dates")]')->item(0);
 
@@ -142,21 +178,26 @@ class LegacyAdriaOfferParser
         $dates = [];
 
         foreach ($xpath->query('.//tr[td]', $table) as $row) {
-            $cells = iterator_to_array($xpath->query('.//td', $row));
+            $cells = iterator_to_array($xpath->query('./td', $row));
 
             if (count($cells) < 5) {
                 continue;
             }
 
             [$startDate, $endDate] = $this->parseDateRange($this->normalizeWhitespace($cells[0]->textContent));
+            $prices = $this->parsePrices($cells[4]->textContent);
+            $legacyIdNode = $xpath->query('.//*[@data-date-id]', $row)->item(0);
+            $legacyId = $legacyIdNode instanceof DOMElement ? (int) $legacyIdNode->getAttribute('data-date-id') : null;
 
             $dates[] = [
+                'legacy_id' => $legacyId ?: null,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'price' => $this->parsePrice($cells[4]->textContent),
+                'price' => $prices !== [] ? end($prices) : null,
                 'transport_code' => $this->extractTransportCode($xpath, $cells[1]),
-                'catering' => $this->nullableText($cells[2]->textContent),
-                'accommodation' => $this->nullableText($cells[3]->textContent),
+                'catering' => $this->cellLabel($xpath, $cells[2]),
+                'accommodation' => $this->cellLabel($xpath, $cells[3]),
+                'extras' => $legacyId ? ($bookingOptions[$legacyId]['extras'] ?? []) : [],
             ];
         }
 
@@ -164,18 +205,46 @@ class LegacyAdriaOfferParser
     }
 
     /**
+     * Parses "2026.09.25. - 2026.10.01.", "2027.05.01. - 04." and
+     * "2026.10.30. - 11.02." (the end omits the parts equal to the start).
+     *
      * @return array{0: ?string, 1: ?string}
      */
     private function parseDateRange(string $text): array
     {
-        preg_match_all('/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?/u', $text, $matches, PREG_SET_ORDER);
+        if (! preg_match('/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?(?:\s*-\s*(?:(\d{4})\.\s*)?(?:(\d{1,2})\.\s*)?(\d{1,2})\.?)?/u', $text, $match)) {
+            return [null, null];
+        }
 
-        $isoDates = array_map(
-            fn (array $match): string => sprintf('%04d-%02d-%02d', (int) $match[1], (int) $match[2], (int) $match[3]),
-            $matches,
-        );
+        [$startYear, $startMonth, $startDay] = [(int) $match[1], (int) $match[2], (int) $match[3]];
+        $start = $this->isoDate($startYear, $startMonth, $startDay);
 
-        return [$isoDates[0] ?? null, $isoDates[1] ?? ($isoDates[0] ?? null)];
+        if (($match[6] ?? '') === '') {
+            return [$start, $start];
+        }
+
+        $endMonth = ($match[5] ?? '') !== '' ? (int) $match[5] : $startMonth;
+        $endYear = ($match[4] ?? '') !== '' ? (int) $match[4] : ($endMonth < $startMonth ? $startYear + 1 : $startYear);
+
+        return [$start, $this->isoDate($endYear, $endMonth, (int) $match[6]) ?? $start];
+    }
+
+    private function isoDate(int $year, int $month, int $day): ?string
+    {
+        return checkdate($month, $day, $year) ? sprintf('%04d-%02d-%02d', $year, $month, $day) : null;
+    }
+
+    /**
+     * All prices in a price cell, in order: a discounted date shows the
+     * struck-through original first and the current (bookable) price last.
+     *
+     * @return array<int, float>
+     */
+    private function parsePrices(string $text): array
+    {
+        preg_match_all('/(\d{1,3}(?:\.\d{3})+|\d+)\s*,-\s*Ft/u', $text, $matches);
+
+        return array_map(fn (string $amount): float => (float) str_replace('.', '', $amount), $matches[1]);
     }
 
     private function parsePrice(string $text): ?float
@@ -187,6 +256,17 @@ class LegacyAdriaOfferParser
         $digits = str_replace('.', '', $match[1]);
 
         return $digits === '' ? null : (float) $digits;
+    }
+
+    /**
+     * The visible label of a catering/accommodation cell, without the hidden
+     * popover explanation rendered next to it.
+     */
+    private function cellLabel(DOMXPath $xpath, DOMElement $cell): ?string
+    {
+        $label = $xpath->query('.//*[contains(@class,"popover-info")]//span', $cell)->item(0);
+
+        return $this->nullableText($label !== null ? $label->textContent : $cell->textContent);
     }
 
     private function extractTransportCode(DOMXPath $xpath, DOMElement $cell): ?string
@@ -405,12 +485,15 @@ class LegacyAdriaOfferParser
         return $node ? $this->normalizeWhitespace($node->textContent) : '';
     }
 
+    /**
+     * The last path segment of the offer URL. parse_url() is avoided because
+     * it mangles multibyte characters (legacy slugs may contain e.g. "–").
+     */
     private function seoNameFromUrl(string $url): string
     {
-        $path = trim((string) parse_url($url, PHP_URL_PATH), '/');
-        $segments = explode('/', $path);
+        $path = trim((string) preg_replace('/[?#].*$/s', '', $url), '/');
 
-        return (string) end($segments);
+        return rawurldecode(Str::afterLast($path, '/'));
     }
 
     private function loadDocument(string $html): DOMDocument
