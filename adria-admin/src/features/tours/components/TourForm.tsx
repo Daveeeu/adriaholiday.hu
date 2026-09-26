@@ -18,7 +18,10 @@ import {
   getAllBookingFormTemplates,
   getBookingFormTemplateOptions,
 } from '@/features/booking-form-templates/lib/booking-form-templates.api';
-import type { BookingFormFieldVisibility } from '@/features/booking-form-templates/lib/booking-form-templates.types';
+import {
+  BOOKING_FORM_INPUT_GROUP_LABELS,
+  BOOKING_FORM_VISIBILITY_LABELS,
+} from '@/features/booking-form-templates/lib/booking-form.constants';
 import { TOUR_DATE_STATUSES } from '../lib/tours.constants';
 import type { Tour, TourFormValues } from '../lib/tours.types';
 import { TourContentSections } from './TourContentSections';
@@ -28,12 +31,6 @@ import { TourGallerySection } from './TourGallerySection';
 import { TourProgramDaysSection } from './TourProgramDaysSection';
 import { TourPriceItemsSection } from './TourPriceItemsSection';
 import { TourSeoSection } from './TourSeoSection';
-
-const bookingFormVisibilityLabels: Record<BookingFormFieldVisibility, string> = {
-  required: 'Kötelező',
-  optional: 'Opcionális',
-  hidden: 'Rejtett',
-};
 
 type TourFormProps = {
   form: UseFormReturn<TourFormValues>;
@@ -205,6 +202,10 @@ export function TourForm({ form, tour }: TourFormProps) {
   const selectedBookingFormTemplate = bookingFormTemplates.find(
     (template) => String(template.id) === bookingFormTemplateId,
   );
+  const defaultBookingFormTemplate = bookingFormTemplates.find(
+    (template) => template.isDefault && template.active,
+  );
+  const previewBookingFormTemplate = selectedBookingFormTemplate ?? defaultBookingFormTemplate;
 
   return (
     <div className="space-y-5">
@@ -725,8 +726,8 @@ export function TourForm({ form, tour }: TourFormProps) {
         title="Foglalási űrlap beállításai"
         description="Válaszd ki, milyen sablon alapján kérje be a publikus foglalási űrlap az adatokat."
         countLabel={
-          selectedBookingFormTemplate
-            ? `${selectedBookingFormTemplate.fields.filter((field) => field.visibility !== 'hidden').length} látható mező`
+          previewBookingFormTemplate
+            ? `${previewBookingFormTemplate.fields.filter((field) => field.visibility !== 'hidden').length} látható mező`
             : undefined
         }
         open={openSections.bookingForm}
@@ -748,13 +749,21 @@ export function TourForm({ form, tour }: TourFormProps) {
             description="A sablonokat a Foglalások / Foglalási űrlap sablonok oldalon lehet létrehozni és szerkeszteni. A listában csak az aktív sablonok választhatók."
           />
 
-          {selectedBookingFormTemplate ? (
+          {!selectedBookingFormTemplate ? (
+            <p className="text-sm text-muted-foreground">
+              {defaultBookingFormTemplate
+                ? `Nincs sablon kiválasztva – az alapértelmezett sablon (${defaultBookingFormTemplate.name}) mezői jelennek meg.`
+                : 'Nincs sablon kiválasztva, és alapértelmezett sablon sincs beállítva – a beépített alap mezők jelennek meg.'}
+            </p>
+          ) : null}
+
+          {previewBookingFormTemplate ? (
             <div className="rounded-xl border bg-background p-3">
               <div className="text-sm font-medium text-foreground">
-                Mezők előnézete – {selectedBookingFormTemplate.name}
+                Mezők előnézete – {previewBookingFormTemplate.name}
               </div>
               <div className="mt-3 space-y-2">
-                {selectedBookingFormTemplate.fields
+                {previewBookingFormTemplate.fields
                   .slice()
                   .sort((a, b) => a.sortOrder - b.sortOrder)
                   .map((field) => (
@@ -765,7 +774,7 @@ export function TourForm({ form, tour }: TourFormProps) {
                       <div>
                         <div className="text-sm font-medium">{field.label}</div>
                         <div className="text-xs text-muted-foreground">
-                          {field.inputGroup === 'contact' ? 'Kapcsolattartó' : 'Utas'}
+                          {BOOKING_FORM_INPUT_GROUP_LABELS[field.inputGroup]}
                         </div>
                       </div>
                       <span
@@ -776,17 +785,13 @@ export function TourForm({ form, tour }: TourFormProps) {
                           field.visibility === 'hidden' && 'bg-slate-100 text-slate-500',
                         )}
                       >
-                        {bookingFormVisibilityLabels[field.visibility]}
+                        {BOOKING_FORM_VISIBILITY_LABELS[field.visibility]}
                       </span>
                     </div>
                   ))}
               </div>
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Nincs sablon kiválasztva – a foglalási űrlap alapértelmezett mezőit fogja megjeleníteni.
-            </p>
-          )}
+          ) : null}
         </div>
       </TourPanelSection>
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Services\Booking\BookingFormFieldResolver;
 use App\Support\RichTextSanitizer;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
         }
 
         $data = parent::toArray($request);
-        unset($data['inclusions']);
+        unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate']);
 
         $sanitizeContent = function (?string $value, bool $jsonAsNull = false): ?string {
             $trimmed = trim((string) $value);
@@ -87,6 +88,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'departureDate' => $firstDate?->start_date?->toDateString(),
             'departureDateLabel' => $departureDateLabel,
             'link' => '/ajanlat/'.($tour->seo_name ?: Str::slug((string) $tour->name)),
+            'bookingFormFields' => app(BookingFormFieldResolver::class)->resolve($tour),
         ]);
     }
 }

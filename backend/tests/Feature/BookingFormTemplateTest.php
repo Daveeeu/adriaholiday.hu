@@ -28,13 +28,17 @@ class BookingFormTemplateTest extends TestCase
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 
-    public function test_seeding_creates_bus_and_flight_templates_with_expected_visibility(): void
+    public function test_seeding_creates_bus_flight_and_default_templates_with_expected_visibility(): void
     {
         $this->seed(BookingFormFieldSeeder::class);
         $this->seed(BookingFormTemplateSeeder::class);
 
-        $this->assertDatabaseCount('booking_form_fields', 15);
-        $this->assertDatabaseCount('booking_form_templates', 2);
+        $this->assertDatabaseCount('booking_form_fields', 18);
+        $this->assertDatabaseCount('booking_form_templates', 3);
+        $this->assertSame(
+            ['alapertelmezett'],
+            BookingFormTemplate::query()->where('is_default', true)->pluck('slug')->all(),
+        );
 
         $busTemplate = BookingFormTemplate::query()->where('slug', 'buszos-ut')->firstOrFail();
         $flightTemplate = BookingFormTemplate::query()->where('slug', 'repulos-ut')->firstOrFail();
@@ -54,6 +58,63 @@ class BookingFormTemplateTest extends TestCase
         $this->assertSame('required', $flightVisibility['document_number']);
         $this->assertSame('required', $flightVisibility['passenger_birth_date']);
         $this->assertSame('hidden', $flightVisibility['contact_city']);
+        $this->assertSame('optional', $flightVisibility['extra_single_room']);
+        $this->assertSame('optional', $flightVisibility['note']);
+    }
+
+    public function test_tour_without_template_uses_the_default_template(): void
+    {
+        $this->seed(BookingFormFieldSeeder::class);
+        $this->seed(BookingFormTemplateSeeder::class);
+
+        $default = BookingFormTemplate::query()->where('is_default', true)->firstOrFail();
+        $consent = BookingFormField::query()->create([
+            'key' => 'extra_terms',
+            'label' => 'Elfogadom az utazási feltételeket',
+            'field_type' => 'checkbox',
+            'input_group' => 'extra',
+        ]);
+        $default->templateFields()->create(['booking_form_field_id' => $consent->id, 'visibility' => 'required', 'sort_order' => 99]);
+
+        $tour = Tour::factory()->create(['active' => true, 'seo_name' => 'sablon-nelkul', 'booking_form_template_id' => null]);
+
+        $fields = collect($this->getJson('/api/portfolio/offers/sablon-nelkul')->assertOk()->json('bookingFormFields'));
+
+        $this->assertSame('Egyágyas felár', $fields->firstWhere('key', 'extra_single_room')['label']);
+        $this->assertSame('+122.000 Ft', $fields->firstWhere('key', 'extra_single_room')['priceLabel']);
+        $this->assertSame('extra', $fields->firstWhere('key', 'note')['inputGroup']);
+        $this->assertSame('required', $fields->firstWhere('key', 'extra_terms')['visibility']);
+
+        $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01']],
+        ])->assertStatus(422)->assertJsonValidationErrors(['formData.extra_terms']);
+    }
+
+    public function test_marking_a_template_as_default_unmarks_the_previous_default(): void
+    {
+        $this->seed(BookingFormFieldSeeder::class);
+        $this->seed(BookingFormTemplateSeeder::class);
+        $this->actingAsBookingFormTemplateAdmin(['booking-form-templates.update']);
+
+        $bus = BookingFormTemplate::query()->where('slug', 'buszos-ut')->firstOrFail();
+        $field = BookingFormField::query()->where('key', 'contact_name')->firstOrFail();
+
+        $this->patchJson("/api/admin/booking-form-templates/{$bus->id}", [
+            'name' => $bus->name,
+            'isDefault' => true,
+            'fields' => [['fieldId' => $field->id, 'visibility' => 'required', 'sortOrder' => 1]],
+        ])->assertOk()->assertJsonPath('data.isDefault', true);
+
+        $this->assertSame(
+            ['buszos-ut'],
+            BookingFormTemplate::query()->where('is_default', true)->pluck('slug')->all(),
+        );
     }
 
     public function test_tour_can_be_assigned_a_booking_form_template(): void

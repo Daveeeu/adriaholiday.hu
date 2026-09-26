@@ -19,6 +19,7 @@ class StoreBookingFormTemplateRequest extends FormRequest
             'slug' => $slug !== '' ? $slug : Str::slug($name),
             'description' => $this->input('description'),
             'active' => $this->boolean('active', true),
+            'is_default' => $this->boolean('is_default', $this->boolean('isDefault')),
             'fields' => collect($this->input('fields', []))->map(function (array $field, int $index): array {
                 return [
                     'field_id' => $field['field_id'] ?? $field['fieldId'] ?? null,
@@ -41,6 +42,7 @@ class StoreBookingFormTemplateRequest extends FormRequest
             'slug' => ['required', 'string', 'max:255', Rule::unique('booking_form_templates', 'slug')],
             'description' => ['nullable', 'string'],
             'active' => ['boolean'],
+            'is_default' => ['boolean'],
             'fields' => ['nullable', 'array'],
             'fields.*.field_id' => ['required', 'integer', 'exists:booking_form_fields,id'],
             'fields.*.visibility' => ['required', 'string', Rule::in(BookingFormField::VISIBILITIES)],

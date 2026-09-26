@@ -15,13 +15,15 @@ use Illuminate\Validation\ValidationException;
 class BookingFormFieldService
 {
     /**
-     * @param  array{label: string, field_type: string, input_group: string, options?: array<int, string>|null}  $data
+     * @param  array{label: string, description?: string|null, price_label?: string|null, field_type: string, input_group: string, options?: array<int, string>|null}  $data
      */
     public function create(array $data): BookingFormField
     {
         return BookingFormField::create([
             'key' => $this->generateUniqueKey($data['input_group'], $data['label']),
             'label' => $data['label'],
+            'description' => $data['description'] ?? null,
+            'price_label' => $data['price_label'] ?? null,
             'field_type' => $data['field_type'],
             'input_group' => $data['input_group'],
             'options' => $this->normalizeOptions($data['field_type'], $data['options'] ?? null),
@@ -30,7 +32,7 @@ class BookingFormFieldService
     }
 
     /**
-     * @param  array{label: string, field_type: string, input_group: string, options?: array<int, string>|null}  $data
+     * @param  array{label: string, description?: string|null, price_label?: string|null, field_type: string, input_group: string, options?: array<int, string>|null}  $data
      */
     public function update(BookingFormField $field, array $data): BookingFormField
     {
@@ -42,6 +44,8 @@ class BookingFormFieldService
 
         $field->update([
             'label' => $data['label'],
+            'description' => $data['description'] ?? null,
+            'price_label' => $data['price_label'] ?? null,
             'field_type' => $data['field_type'],
             'input_group' => $data['input_group'],
             'options' => $this->normalizeOptions($data['field_type'], $data['options'] ?? null),
@@ -95,7 +99,7 @@ class BookingFormFieldService
      */
     private function normalizeOptions(string $fieldType, ?array $options): ?array
     {
-        if ($fieldType !== 'select') {
+        if (! BookingFormField::usesOptions($fieldType)) {
             return null;
         }
 

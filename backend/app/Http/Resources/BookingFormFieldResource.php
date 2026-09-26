@@ -13,6 +13,8 @@ class BookingFormFieldResource extends JsonResource
             'id' => $this->id,
             'key' => $this->key,
             'label' => $this->label,
+            'description' => $this->description,
+            'priceLabel' => $this->price_label,
             'fieldType' => $this->field_type,
             'inputGroup' => $this->input_group,
             'sortOrder' => (int) $this->sort_order,

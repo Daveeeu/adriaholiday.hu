@@ -112,7 +112,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     gallery: offer.gallery ?? [],
     priceInformation: offer.priceInformation,
     priceBox,
-    bookingFormTemplate: offer.bookingFormTemplate ?? null,
+    bookingFormFields: offer.bookingFormFields ?? [],
   };
 }
 

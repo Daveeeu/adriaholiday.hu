@@ -1,3 +1,4 @@
+import type { BookingFormField } from '../booking/booking-form-fields';
 import { getPortfolioApiBaseUrl, PortfolioApiError } from './portfolio-api';
 
 export type PortfolioMedia = {
@@ -72,27 +73,6 @@ export type PortfolioOfferGalleryItem = {
   image?: PortfolioMedia | null;
 };
 
-export type BookingFormFieldVisibility = 'required' | 'optional' | 'hidden';
-
-export type PortfolioBookingFormTemplateField = {
-  id: number | string;
-  fieldId: number | string;
-  key: string;
-  label: string;
-  fieldType: string;
-  inputGroup: 'contact' | 'passenger';
-  options: string[] | null;
-  visibility: BookingFormFieldVisibility;
-  sortOrder: number;
-};
-
-export type PortfolioBookingFormTemplate = {
-  id: number | string;
-  name: string;
-  slug: string;
-  fields: PortfolioBookingFormTemplateField[];
-};
-
 export type PortfolioOfferDetail = {
   id: number | string;
   name: string;
@@ -159,8 +139,7 @@ export type PortfolioOfferDetail = {
   departureDate?: string | null;
   departureDateLabel?: string | null;
   link?: string | null;
-  bookingFormTemplateId?: number | string | null;
-  bookingFormTemplate?: PortfolioBookingFormTemplate | null;
+  bookingFormFields?: BookingFormField[];
 };
 
 type PortfolioOfferDetailResponse = PortfolioOfferDetail;

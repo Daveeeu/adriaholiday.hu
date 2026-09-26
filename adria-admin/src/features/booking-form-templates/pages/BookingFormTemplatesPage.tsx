@@ -20,6 +20,7 @@ import { useAuthStore } from '@/store/auth-store';
 
 import { BookingFormFieldsSection } from '../components/BookingFormFieldsSection';
 import { BookingFormTemplateSidePanel } from '../components/BookingFormTemplateSidePanel';
+import { DefaultTemplateBadge } from '../components/DefaultTemplateBadge';
 import {
   bookingFormFieldsQueryKey,
   bookingFormTemplatesQueryKey,
@@ -200,7 +201,10 @@ function BookingFormTemplatesSection() {
                 data.items.map((template) => (
                   <TableRow key={template.id}>
                     <TableCell className="font-medium">
-                      {template.name}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {template.name}
+                        {template.isDefault ? <DefaultTemplateBadge /> : null}
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {template.slug}

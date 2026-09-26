@@ -32,12 +32,14 @@ import {
   type BookingFormTemplateFormValues,
   type BookingFormTemplateUpsertInput,
 } from '../lib/booking-form-templates.types';
+import { DefaultTemplateBadge } from './DefaultTemplateBadge';
 
 const templateFormSchema = z.object({
   name: z.string().trim().min(2, 'A név megadása kötelező.'),
   slug: z.string().trim(),
   description: z.string(),
   active: z.boolean(),
+  isDefault: z.boolean(),
   fields: z.array(
     z.object({
       fieldId: z.union([z.string(), z.number()]),
@@ -94,16 +96,19 @@ function BookingFormTemplateDetailView({
             <h3 className="text-lg font-semibold">{template.name}</h3>
             <p className="text-sm text-muted-foreground">{template.slug}</p>
           </div>
-          <span
-            className={cn(
-              'rounded-full px-3 py-1 text-xs font-semibold',
-              template.active
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-slate-100 text-slate-700',
-            )}
-          >
-            {template.active ? 'Aktív' : 'Inaktív'}
-          </span>
+          <div className="flex flex-wrap justify-end gap-2">
+            {template.isDefault ? <DefaultTemplateBadge /> : null}
+            <span
+              className={cn(
+                'rounded-full px-3 py-1 text-xs font-semibold',
+                template.active
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-slate-100 text-slate-700',
+              )}
+            >
+              {template.active ? 'Aktív' : 'Inaktív'}
+            </span>
+          </div>
         </div>
         {template.description ? (
           <p className="text-sm text-muted-foreground">
@@ -289,24 +294,48 @@ export function BookingFormTemplateSidePanel({
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="active"
-                    render={({ field }) => (
-                      <FormItem>
-                        <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={(event) =>
-                              field.onChange(event.target.checked)
-                            }
-                          />
-                          Aktív
-                        </label>
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="active"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={(event) =>
+                                field.onChange(event.target.checked)
+                              }
+                            />
+                            Aktív
+                          </label>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="isDefault"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={(event) =>
+                                field.onChange(event.target.checked)
+                              }
+                            />
+                            Alapértelmezett sablon
+                          </label>
+                          <p className="text-xs text-muted-foreground">
+                            Ezt kapják azok az utazások, amelyekhez nincs sablon
+                            kiválasztva. Egyszerre csak egy lehet.
+                          </p>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <section className="rounded-2xl border bg-card p-4">
                     <div className="space-y-1">

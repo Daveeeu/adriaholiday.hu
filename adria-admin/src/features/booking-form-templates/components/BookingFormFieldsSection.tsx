@@ -18,6 +18,7 @@ import { useAuthStore } from '@/store/auth-store';
 import {
   BOOKING_FORM_FIELD_TYPE_LABELS,
   BOOKING_FORM_INPUT_GROUP_LABELS,
+  BOOKING_FORM_OPTION_FIELD_TYPES,
 } from '../lib/booking-form.constants';
 import {
   bookingFormFieldsQueryKey,
@@ -144,6 +145,13 @@ export function BookingFormFieldsSection() {
                 <TableRow key={field.id}>
                   <TableCell>
                     <div className="font-medium">{field.label}</div>
+                    {field.description || field.priceLabel ? (
+                      <div className="text-xs text-muted-foreground">
+                        {[field.description, field.priceLabel]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </div>
+                    ) : null}
                     {field.isSystem ? (
                       <div className="text-xs text-muted-foreground">
                         Rendszermező
@@ -155,7 +163,9 @@ export function BookingFormFieldsSection() {
                   </TableCell>
                   <TableCell>
                     {BOOKING_FORM_FIELD_TYPE_LABELS[field.fieldType]}
-                    {field.fieldType === 'select' && field.options?.length ? (
+                    {BOOKING_FORM_OPTION_FIELD_TYPES.includes(
+                      field.fieldType,
+                    ) && field.options?.length ? (
                       <div className="text-xs text-muted-foreground">
                         {field.options.join(', ')}
                       </div>

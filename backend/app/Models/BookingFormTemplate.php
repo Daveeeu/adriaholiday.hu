@@ -16,10 +16,12 @@ class BookingFormTemplate extends Model
         'slug',
         'description',
         'active',
+        'is_default',
     ];
 
     protected $casts = [
         'active' => 'boolean',
+        'is_default' => 'boolean',
     ];
 
     public function templateFields(): HasMany

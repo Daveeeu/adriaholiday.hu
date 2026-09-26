@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\BookingFormField;
 use App\Models\BookingFormTemplate;
+use App\Support\Booking\DefaultBookingForm;
 use Illuminate\Database\Seeder;
 
 class BookingFormTemplateSeeder extends Seeder
@@ -22,6 +23,9 @@ class BookingFormTemplateSeeder extends Seeder
             'document_type' => 'hidden',
             'document_number' => 'hidden',
             'document_expiry' => 'hidden',
+            'extra_single_room' => 'optional',
+            'extra_cancellation_insurance' => 'optional',
+            'extra_payment_method' => 'optional',
         ]);
 
         $this->seedTemplate('Repülős út', 'repulos-ut', [
@@ -36,17 +40,27 @@ class BookingFormTemplateSeeder extends Seeder
             'document_type' => 'required',
             'document_number' => 'required',
             'document_expiry' => 'required',
+            'extra_single_room' => 'optional',
+            'extra_cancellation_insurance' => 'optional',
+            'extra_payment_method' => 'optional',
         ]);
+
+        $this->seedTemplate(
+            DefaultBookingForm::TEMPLATE_NAME,
+            DefaultBookingForm::TEMPLATE_SLUG,
+            DefaultBookingForm::TEMPLATE_VISIBILITY,
+            isDefault: true,
+        );
     }
 
     /**
      * @param  array<string, string>  $visibilityByFieldKey
      */
-    private function seedTemplate(string $name, string $slug, array $visibilityByFieldKey): void
+    private function seedTemplate(string $name, string $slug, array $visibilityByFieldKey, bool $isDefault = false): void
     {
         $template = BookingFormTemplate::query()->updateOrCreate(
             ['slug' => $slug],
-            ['name' => $name, 'active' => true],
+            ['name' => $name, 'active' => true, 'is_default' => $isDefault],
         );
 
         $template->templateFields()->delete();

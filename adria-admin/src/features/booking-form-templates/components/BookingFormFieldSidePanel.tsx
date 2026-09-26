@@ -20,7 +20,9 @@ import { Textarea } from '@/components/ui/textarea';
 
 import {
   BOOKING_FORM_FIELD_TYPE_LABELS,
+  BOOKING_FORM_INPUT_GROUP_HINTS,
   BOOKING_FORM_INPUT_GROUP_LABELS,
+  BOOKING_FORM_OPTION_FIELD_TYPES,
 } from '../lib/booking-form.constants';
 import type {
   BookingFormField,
@@ -38,6 +40,10 @@ function parseOptions(optionsText: string): string[] {
     .filter((option) => option !== '');
 }
 
+function usesOptions(fieldType: BookingFormFieldType): boolean {
+  return BOOKING_FORM_OPTION_FIELD_TYPES.includes(fieldType);
+}
+
 const fieldFormSchema = z
   .object({
     label: z
@@ -45,6 +51,8 @@ const fieldFormSchema = z
       .trim()
       .min(2, 'A mező nevének megadása kötelező.')
       .max(255),
+    description: z.string().trim().max(500),
+    priceLabel: z.string().trim().max(100),
     fieldType: z.enum([
       'text',
       'textarea',
@@ -53,19 +61,21 @@ const fieldFormSchema = z
       'date',
       'number',
       'select',
+      'radio',
+      'checkbox',
     ]),
-    inputGroup: z.enum(['contact', 'passenger']),
+    inputGroup: z.enum(['contact', 'passenger', 'extra']),
     optionsText: z.string(),
   })
   .superRefine((values, context) => {
     if (
-      values.fieldType === 'select' &&
+      usesOptions(values.fieldType) &&
       parseOptions(values.optionsText).length === 0
     ) {
       context.addIssue({
         code: 'custom',
         path: ['optionsText'],
-        message: 'Legördülő listához legalább egy lehetőséget meg kell adni.',
+        message: 'Ehhez a típushoz legalább egy lehetőséget meg kell adni.',
       });
     }
   });
@@ -77,6 +87,8 @@ function getFieldFormDefaults(
 ): FieldFormValues {
   return {
     label: field?.label ?? '',
+    description: field?.description ?? '',
+    priceLabel: field?.priceLabel ?? '',
     fieldType: field?.fieldType ?? 'text',
     inputGroup: field?.inputGroup ?? 'passenger',
     optionsText: (field?.options ?? []).join('\n'),
@@ -86,10 +98,13 @@ function getFieldFormDefaults(
 function toUpsertInput(values: FieldFormValues): BookingFormFieldUpsertInput {
   return {
     label: values.label.trim(),
+    description: values.description.trim(),
+    priceLabel: values.priceLabel.trim(),
     fieldType: values.fieldType,
     inputGroup: values.inputGroup,
-    options:
-      values.fieldType === 'select' ? parseOptions(values.optionsText) : [],
+    options: usesOptions(values.fieldType)
+      ? parseOptions(values.optionsText)
+      : [],
   };
 }
 
@@ -209,14 +224,16 @@ export function BookingFormFieldSidePanel({
                       {Object.entries(BOOKING_FORM_INPUT_GROUP_LABELS).map(
                         ([value, label]) => (
                           <option key={value} value={value}>
-                            {value === 'passenger'
-                              ? `${label} (minden utasnál külön)`
-                              : label}
+                            {label}
                           </option>
                         ),
                       )}
                     </Select>
                   </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    Megjelenik{' '}
+                    {BOOKING_FORM_INPUT_GROUP_HINTS[inputField.value]}.
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -253,7 +270,15 @@ export function BookingFormFieldSidePanel({
             />
           </div>
 
-          {fieldType === 'select' ? (
+          {fieldType === 'checkbox' ? (
+            <p className="rounded-xl border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+              Az ügyfél bejelölheti (igen) vagy üresen hagyhatja (nem). Ha a
+              sablonban kötelezőre állítod, csak bejelölve küldhető el a
+              foglalás – pl. az utazási feltételek elfogadásához.
+            </p>
+          ) : null}
+
+          {usesOptions(fieldType) ? (
             <FormField
               control={form.control}
               name="optionsText"
@@ -272,6 +297,44 @@ export function BookingFormFieldSidePanel({
               )}
             />
           ) : null}
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field: inputField }) => (
+              <FormItem>
+                <FormLabel>Leírás (opcionális)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="pl. Külön szoba igénylése."
+                    {...inputField}
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Rövid magyarázat a mező alatt az ügyfélnek.
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="priceLabel"
+            render={({ field: inputField }) => (
+              <FormItem>
+                <FormLabel>Ár felirat (opcionális)</FormLabel>
+                <FormControl>
+                  <Input placeholder="pl. +122.000 Ft" {...inputField} />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Csak tájékoztató szöveg a mező mellett, a végösszeget nem
+                  módosítja.
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {field ? (
             <p className="text-xs text-muted-foreground">

@@ -8,14 +8,14 @@ use App\Http\Requests\Admin\BookingFormTemplate\StoreBookingFormTemplateRequest;
 use App\Http\Requests\Admin\BookingFormTemplate\UpdateBookingFormTemplateRequest;
 use App\Http\Resources\BookingFormTemplateResource;
 use App\Models\BookingFormTemplate;
+use App\Services\Booking\BookingFormTemplateService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class BookingFormTemplateController extends Controller
 {
     use RespondsWithPagination;
 
-    public function __construct()
+    public function __construct(private readonly BookingFormTemplateService $templateService)
     {
         $this->authorizeResource(BookingFormTemplate::class, 'bookingFormTemplate');
         $this->middleware('permission:booking-form-templates.viewAny')->only('index');
@@ -49,20 +49,7 @@ class BookingFormTemplateController extends Controller
 
     public function store(StoreBookingFormTemplateRequest $request)
     {
-        $validated = $request->validated();
-
-        $template = DB::transaction(function () use ($validated): BookingFormTemplate {
-            $template = BookingFormTemplate::create([
-                'name' => $validated['name'],
-                'slug' => $validated['slug'],
-                'description' => $validated['description'] ?? null,
-                'active' => $validated['active'] ?? true,
-            ]);
-
-            $this->syncFields($template, $validated['fields'] ?? []);
-
-            return $template;
-        });
+        $template = $this->templateService->create($request->validated());
 
         return new BookingFormTemplateResource($template->load('templateFields.field'));
     }
@@ -74,20 +61,9 @@ class BookingFormTemplateController extends Controller
 
     public function update(UpdateBookingFormTemplateRequest $request, BookingFormTemplate $bookingFormTemplate)
     {
-        $validated = $request->validated();
+        $template = $this->templateService->update($bookingFormTemplate, $request->validated());
 
-        DB::transaction(function () use ($bookingFormTemplate, $validated): void {
-            $bookingFormTemplate->update([
-                'name' => $validated['name'],
-                'slug' => $validated['slug'],
-                'description' => $validated['description'] ?? null,
-                'active' => $validated['active'] ?? true,
-            ]);
-
-            $this->syncFields($bookingFormTemplate, $validated['fields'] ?? []);
-        });
-
-        return new BookingFormTemplateResource($bookingFormTemplate->refresh()->load('templateFields.field'));
+        return new BookingFormTemplateResource($template->refresh()->load('templateFields.field'));
     }
 
     public function destroy(BookingFormTemplate $bookingFormTemplate)
@@ -95,18 +71,5 @@ class BookingFormTemplateController extends Controller
         $bookingFormTemplate->delete();
 
         return response()->noContent();
-    }
-
-    private function syncFields(BookingFormTemplate $template, array $fields): void
-    {
-        $template->templateFields()->delete();
-
-        foreach (array_values($fields) as $index => $field) {
-            $template->templateFields()->create([
-                'booking_form_field_id' => $field['field_id'],
-                'visibility' => $field['visibility'] ?? 'optional',
-                'sort_order' => $field['sort_order'] ?? ($index + 1),
-            ]);
-        }
     }
 }

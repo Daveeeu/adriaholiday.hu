@@ -15,6 +15,7 @@ class BookingFormTemplateResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'active' => (bool) $this->active,
+            'isDefault' => (bool) $this->is_default,
             'fields' => $this->whenLoaded('templateFields', fn () => $this->templateFields
                 ->sortBy('sort_order')
                 ->values()
@@ -26,6 +27,8 @@ class BookingFormTemplateResource extends JsonResource
                     'fieldType' => $templateField->field?->field_type,
                     'inputGroup' => $templateField->field?->input_group,
                     'options' => $templateField->field?->options,
+                    'description' => $templateField->field?->description,
+                    'priceLabel' => $templateField->field?->price_label,
                     'visibility' => $templateField->visibility,
                     'sortOrder' => (int) $templateField->sort_order,
                 ])

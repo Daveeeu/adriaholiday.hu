@@ -14,6 +14,8 @@ class StoreBookingFormFieldRequest extends FormRequest
 
         $this->merge([
             'label' => trim((string) $this->input('label', '')),
+            'description' => $this->nullableTrimmed($this->input('description')),
+            'price_label' => $this->nullableTrimmed($this->input('price_label', $this->input('priceLabel'))),
             'field_type' => $this->input('field_type', $this->input('fieldType')),
             'input_group' => $this->input('input_group', $this->input('inputGroup')),
             'options' => is_array($options)
@@ -35,9 +37,16 @@ class StoreBookingFormFieldRequest extends FormRequest
     {
         return [
             'label' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:500'],
+            'price_label' => ['nullable', 'string', 'max:100'],
             'field_type' => ['required', 'string', Rule::in(BookingFormField::FIELD_TYPES)],
             'input_group' => ['required', 'string', Rule::in(BookingFormField::INPUT_GROUPS)],
-            'options' => ['nullable', 'array', 'max:50', 'required_if:field_type,select'],
+            'options' => [
+                'nullable',
+                'array',
+                'max:50',
+                Rule::requiredIf(fn (): bool => BookingFormField::usesOptions((string) $this->input('field_type'))),
+            ],
             'options.*' => ['string', 'max:255', 'distinct'],
         ];
     }
@@ -45,8 +54,15 @@ class StoreBookingFormFieldRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'options.required_if' => 'Legördülő mezőhöz legalább egy választási lehetőséget meg kell adni.',
+            'options.required' => 'Legördülő listához és választógombokhoz legalább egy lehetőséget meg kell adni.',
             'options.*.distinct' => 'A választási lehetőségek nem ismétlődhetnek.',
         ];
+    }
+
+    private function nullableTrimmed(mixed $value): ?string
+    {
+        $trimmed = trim((string) $value);
+
+        return $trimmed === '' ? null : $trimmed;
     }
 }

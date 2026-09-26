@@ -11,9 +11,28 @@ class BookingFormField extends Model
 {
     use LogsModelActivity;
 
-    public const FIELD_TYPES = ['text', 'textarea', 'email', 'tel', 'date', 'number', 'select'];
+    public const FIELD_TYPES = ['text', 'textarea', 'email', 'tel', 'date', 'number', 'select', 'radio', 'checkbox'];
 
-    public const INPUT_GROUPS = ['contact', 'passenger'];
+    /**
+     * Field types whose value must be one of the field's options.
+     */
+    public const OPTION_FIELD_TYPES = ['select', 'radio'];
+
+    /**
+     * Stored value of a ticked checkbox; an unticked checkbox stores nothing.
+     */
+    public const CHECKBOX_CHECKED_VALUE = 'Igen';
+
+    /**
+     * contact: asked once, on the contact step.
+     * passenger: asked for every passenger.
+     * extra: asked once, on the final step (extra options, note, consents).
+     */
+    public const INPUT_GROUPS = ['contact', 'passenger', 'extra'];
+
+    public const PASSENGER_GROUP = 'passenger';
+
+    public const EXTRA_GROUP = 'extra';
 
     public const VISIBILITIES = ['required', 'optional', 'hidden'];
 
@@ -26,6 +45,8 @@ class BookingFormField extends Model
     protected $fillable = [
         'key',
         'label',
+        'description',
+        'price_label',
         'field_type',
         'input_group',
         'sort_order',
@@ -36,6 +57,11 @@ class BookingFormField extends Model
         'sort_order' => 'integer',
         'options' => 'array',
     ];
+
+    public static function usesOptions(string $fieldType): bool
+    {
+        return in_array($fieldType, self::OPTION_FIELD_TYPES, true);
+    }
 
     public function isSystem(): bool
     {

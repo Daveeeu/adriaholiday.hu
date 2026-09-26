@@ -1,6 +1,6 @@
 export type BookingFormFieldVisibility = 'required' | 'optional' | 'hidden';
 
-export type BookingFormInputGroup = 'contact' | 'passenger';
+export type BookingFormInputGroup = 'contact' | 'passenger' | 'extra';
 
 export type BookingFormFieldType =
   | 'text'
@@ -9,12 +9,16 @@ export type BookingFormFieldType =
   | 'tel'
   | 'date'
   | 'number'
-  | 'select';
+  | 'select'
+  | 'radio'
+  | 'checkbox';
 
 export type BookingFormField = {
   id: string | number;
   key: string;
   label: string;
+  description: string | null;
+  priceLabel: string | null;
   fieldType: BookingFormFieldType;
   inputGroup: BookingFormInputGroup;
   sortOrder: number;
@@ -24,6 +28,8 @@ export type BookingFormField = {
 
 export type BookingFormFieldUpsertInput = {
   label: string;
+  description: string;
+  priceLabel: string;
   fieldType: BookingFormFieldType;
   inputGroup: BookingFormInputGroup;
   options: string[];
@@ -37,6 +43,8 @@ export type BookingFormTemplateField = {
   fieldType: BookingFormFieldType;
   inputGroup: BookingFormInputGroup;
   options: string[] | null;
+  description: string | null;
+  priceLabel: string | null;
   visibility: BookingFormFieldVisibility;
   sortOrder: number;
 };
@@ -47,6 +55,7 @@ export type BookingFormTemplate = {
   slug: string;
   description: string | null;
   active: boolean;
+  isDefault: boolean;
   fields: BookingFormTemplateField[];
   createdAt: string;
   updatedAt: string;
@@ -63,6 +72,7 @@ export type BookingFormTemplateFormValues = {
   slug: string;
   description: string;
   active: boolean;
+  isDefault: boolean;
   fields: BookingFormTemplateFieldInput[];
 };
 
@@ -109,6 +119,7 @@ export function getBookingFormTemplateFormDefaults(
     slug: template?.slug ?? '',
     description: template?.description ?? '',
     active: template?.active ?? true,
+    isDefault: template?.isDefault ?? false,
     fields,
   };
 }

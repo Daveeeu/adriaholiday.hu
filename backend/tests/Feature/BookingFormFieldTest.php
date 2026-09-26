@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\NewTourBookingOfficeNotification;
 use App\Models\Booking;
 use App\Models\BookingFormField;
 use App\Models\BookingFormTemplate;
@@ -240,6 +241,103 @@ class BookingFormFieldTest extends TestCase
         $this->getJson("/api/admin/bookings/{$booking->id}")
             ->assertOk()
             ->assertJsonFragment(['key' => 'contact_address', 'label' => 'Lakcím (utca, házszám)', 'value' => 'Fő utca 1.']);
+    }
+
+    public function test_admin_can_create_extra_checkbox_and_radio_fields(): void
+    {
+        $this->actingAsAdmin(self::ALL_PERMISSIONS);
+
+        $this->postJson('/api/admin/booking-form-fields', [
+            'label' => 'Tengerre néző szoba',
+            'description' => ' Kérésre, felár ellenében. ',
+            'priceLabel' => '+15.000 Ft',
+            'fieldType' => 'checkbox',
+            'inputGroup' => 'extra',
+            'options' => ['Felesleges'],
+        ])->assertCreated()
+            ->assertJsonPath('data.key', 'extra_tengerre_nezo_szoba')
+            ->assertJsonPath('data.description', 'Kérésre, felár ellenében.')
+            ->assertJsonPath('data.priceLabel', '+15.000 Ft')
+            ->assertJsonPath('data.options', null);
+
+        $this->postJson('/api/admin/booking-form-fields', [
+            'label' => 'Transzfer',
+            'fieldType' => 'radio',
+            'inputGroup' => 'extra',
+            'options' => [],
+        ])->assertStatus(422)->assertJsonValidationErrors(['options']);
+
+        $this->postJson('/api/admin/booking-form-fields', [
+            'label' => 'Transzfer',
+            'fieldType' => 'radio',
+            'inputGroup' => 'extra',
+            'priceLabel' => '',
+            'options' => ['Nem kérek', 'Reptéri transzfer'],
+        ])->assertCreated()
+            ->assertJsonPath('data.options', ['Nem kérek', 'Reptéri transzfer'])
+            ->assertJsonPath('data.priceLabel', null);
+    }
+
+    public function test_public_booking_validates_and_stores_extra_options(): void
+    {
+        BookingFormField::query()->create([
+            'key' => 'extra_terms',
+            'label' => 'Elfogadom az utazási feltételeket',
+            'field_type' => 'checkbox',
+            'input_group' => 'extra',
+        ]);
+
+        $tour = $this->tourWithTemplate([
+            'contact_name' => 'required',
+            'contact_email' => 'required',
+            'contact_phone' => 'required',
+            'extra_terms' => 'required',
+            'extra_single_room' => 'optional',
+            'extra_payment_method' => 'optional',
+            'extra_cancellation_insurance' => 'hidden',
+            'note' => 'optional',
+        ]);
+
+        $contact = [
+            'contact_name' => 'Kovács Anna',
+            'contact_email' => 'anna@example.com',
+            'contact_phone' => '+36301234567',
+        ];
+
+        $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [...$contact, 'extra_single_room' => 'talán', 'extra_payment_method' => 'Bitcoin'],
+        ])->assertStatus(422)->assertJsonValidationErrors([
+            'formData.extra_terms',
+            'formData.extra_single_room',
+            'formData.extra_payment_method',
+        ]);
+
+        $response = $this->postJson('/api/bookings', [
+            'tourId' => $tour->id,
+            'formData' => [
+                ...$contact,
+                'extra_terms' => BookingFormField::CHECKBOX_CHECKED_VALUE,
+                'extra_single_room' => BookingFormField::CHECKBOX_CHECKED_VALUE,
+                'extra_payment_method' => 'Átutalás',
+                'extra_cancellation_insurance' => BookingFormField::CHECKBOX_CHECKED_VALUE,
+                'note' => 'Ablak mellé kérnénk.',
+            ],
+            'note' => 'Ablak mellé kérnénk.',
+        ]);
+
+        $response->assertCreated();
+
+        $booking = Booking::findOrFail($response->json('id'));
+        $formData = $booking->payload['formData'];
+        $this->assertSame('Igen', $formData['extra_single_room']);
+        $this->assertSame('Átutalás', $formData['extra_payment_method']);
+        $this->assertArrayNotHasKey('extra_cancellation_insurance', $formData);
+        $this->assertSame('Ablak mellé kérnénk.', $booking->notes);
+
+        $email = (new NewTourBookingOfficeNotification($booking, $tour))->render();
+        $this->assertStringContainsString('Egyágyas felár: Igen', $email);
+        $this->assertStringContainsString('Fizetési mód: Átutalás', $email);
     }
 
     /**

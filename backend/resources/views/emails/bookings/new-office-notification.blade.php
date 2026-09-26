@@ -1,7 +1,3 @@
-@php
-    $formData = collect($booking->payload['formData'] ?? []);
-    $passengers = collect($booking->payload['passengers'] ?? []);
-@endphp
 <x-mail::message>
 # Új foglalás érkezett
 
@@ -17,6 +13,14 @@ Indulás: {{ $booking->departure_date->format('Y.m.d.') }}
 - Telefon: {{ $booking->phone ?? '-' }}
 - Utasok száma: {{ $booking->passenger_count ?? '-' }}
 
+@if ($extras !== [])
+## Extra opciók
+
+@foreach ($extras as $extra)
+- {{ $extra['label'] }}: {{ $extra['value'] }}
+@endforeach
+
+@endif
 @if ($booking->message)
 ## Megjegyzés
 

@@ -4,29 +4,18 @@ namespace App\Services\Booking;
 
 use App\Models\BookingFormField;
 use App\Models\Tour;
+use App\Support\Booking\DefaultBookingForm;
 use DateTimeImmutable;
 
 /**
- * Validates a public booking submission's dynamic fields against the
- * booking form template assigned to the tour (or a sane default field
- * set when no template is assigned), checks each value against its field
- * type, and strips any values that don't belong to a visible (required or
- * optional) field.
+ * Validates a public booking submission's dynamic fields against the form
+ * resolved for the tour (see BookingFormFieldResolver), checks each value
+ * against its field type, and strips any values that don't belong to a
+ * visible (required or optional) field.
  */
 class BookingFormValidationService
 {
-    /**
-     * @var array<int, array{key: string, label: string, fieldType: string, inputGroup: string, options: array<int, string>|null, visibility: string}>
-     */
-    private const DEFAULT_FIELDS = [
-        ['key' => 'contact_name', 'label' => 'Teljes név', 'fieldType' => 'text', 'inputGroup' => 'contact', 'options' => null, 'visibility' => 'required'],
-        ['key' => 'contact_email', 'label' => 'E-mail', 'fieldType' => 'email', 'inputGroup' => 'contact', 'options' => null, 'visibility' => 'required'],
-        ['key' => 'contact_phone', 'label' => 'Telefonszám', 'fieldType' => 'tel', 'inputGroup' => 'contact', 'options' => null, 'visibility' => 'required'],
-        ['key' => 'contact_city', 'label' => 'Város', 'fieldType' => 'text', 'inputGroup' => 'contact', 'options' => null, 'visibility' => 'optional'],
-        ['key' => 'passenger_name', 'label' => 'Utas neve', 'fieldType' => 'text', 'inputGroup' => 'passenger', 'options' => null, 'visibility' => 'required'],
-        ['key' => 'passenger_birth_date', 'label' => 'Születési dátum', 'fieldType' => 'date', 'inputGroup' => 'passenger', 'options' => null, 'visibility' => 'required'],
-        ['key' => 'passenger_nationality', 'label' => 'Állampolgárság', 'fieldType' => 'text', 'inputGroup' => 'passenger', 'options' => null, 'visibility' => 'optional'],
-    ];
+    public function __construct(private readonly BookingFormFieldResolver $fieldResolver) {}
 
     /**
      * Labels for every known field key, so stored bookings stay readable even
@@ -37,7 +26,7 @@ class BookingFormValidationService
     public static function fieldLabels(): array
     {
         return array_merge(
-            collect(self::DEFAULT_FIELDS)->pluck('label', 'key')->all(),
+            collect(DefaultBookingForm::FIELDS)->pluck('label', 'key')->all(),
             BookingFormField::query()->pluck('label', 'key')->all(),
         );
     }
@@ -49,18 +38,14 @@ class BookingFormValidationService
      */
     public function validate(Tour $tour, array $formData, array $passengers): array
     {
-        $fields = $this->resolveFields($tour);
+        $fields = $this->fieldResolver->resolve($tour);
 
         $errors = [];
         $filteredFormData = [];
         $passengerFieldDefs = [];
 
         foreach ($fields as $fieldDef) {
-            if ($fieldDef['visibility'] === 'hidden') {
-                continue;
-            }
-
-            if ($fieldDef['inputGroup'] !== 'contact') {
+            if ($fieldDef['inputGroup'] === BookingFormField::PASSENGER_GROUP) {
                 $passengerFieldDefs[] = $fieldDef;
 
                 continue;
@@ -112,30 +97,6 @@ class BookingFormValidationService
     }
 
     /**
-     * @return array<int, array{key: string, label: string, fieldType: string, inputGroup: string, options: array<int, string>|null, visibility: string}>
-     */
-    private function resolveFields(Tour $tour): array
-    {
-        $template = $tour->bookingFormTemplate;
-
-        if (! $template) {
-            return self::DEFAULT_FIELDS;
-        }
-
-        return $template->templateFields
-            ->filter(fn ($templateField): bool => $templateField->field !== null)
-            ->map(fn ($templateField): array => [
-                'key' => $templateField->field->key,
-                'label' => $templateField->field->label,
-                'fieldType' => $templateField->field->field_type,
-                'inputGroup' => $templateField->field->input_group,
-                'options' => $templateField->field->options,
-                'visibility' => $templateField->visibility,
-            ])
-            ->all();
-    }
-
-    /**
      * @param  array{label: string, fieldType: string, options: array<int, string>|null, visibility: string}  $fieldDef
      */
     private function validateValue(array $fieldDef, string $value): ?string
@@ -143,14 +104,21 @@ class BookingFormValidationService
         $label = $fieldDef['label'];
 
         if ($value === '') {
-            return $fieldDef['visibility'] === 'required' ? "A(z) \"{$label}\" mező megadása kötelező." : null;
+            if ($fieldDef['visibility'] !== 'required') {
+                return null;
+            }
+
+            return $fieldDef['fieldType'] === 'checkbox'
+                ? "A(z) \"{$label}\" bejelölése kötelező."
+                : "A(z) \"{$label}\" mező megadása kötelező.";
         }
 
         $isValid = match ($fieldDef['fieldType']) {
             'email' => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
             'date' => $this->isValidDate($value),
             'number' => is_numeric($value),
-            'select' => in_array($value, $fieldDef['options'] ?? [], true),
+            'select', 'radio' => in_array($value, $fieldDef['options'] ?? [], true),
+            'checkbox' => $value === BookingFormField::CHECKBOX_CHECKED_VALUE,
             default => true,
         };
 
