@@ -64,6 +64,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
         price: date.priceBox?.price ?? date.price ?? offer.priceBox?.price ?? offer.price ?? null,
         displayedPrice: date.priceBox?.displayedPrice ?? null,
         priceBox: date.priceBox ?? null,
+        extras: date.extras ?? [],
       }))
     : [
         {
@@ -74,6 +75,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
           price: offer.priceBox?.price ?? offer.price ?? null,
           displayedPrice: priceBox?.displayedPrice ?? null,
           priceBox,
+          extras: [],
         },
       ];
 
@@ -113,6 +115,11 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     priceInformation: offer.priceInformation,
     priceBox,
     bookingFormFields: offer.bookingFormFields ?? [],
+    departurePlaces: offer.departurePlaces.map((place) => ({
+      id: place.id,
+      name: place.name,
+      fee: place.fee ?? 0,
+    })),
   };
 }
 

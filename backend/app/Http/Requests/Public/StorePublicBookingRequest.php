@@ -17,6 +17,8 @@ class StorePublicBookingRequest extends FormRequest
             'passengers' => $this->input('passengers', []),
             'note' => $this->input('note'),
             'coupon_code' => $this->input('coupon_code', $this->input('couponCode')),
+            'departure_place_id' => $this->input('departure_place_id', $this->input('departurePlaceId')),
+            'extra_ids' => $this->input('extra_ids', $this->input('extraIds', [])),
             'type' => $this->input('type', 'tour_booking'),
         ]);
     }
@@ -51,6 +53,9 @@ class StorePublicBookingRequest extends FormRequest
             'passengers.*.*' => ['nullable', 'string', 'max:500'],
             'note' => ['nullable', 'string', 'max:2000'],
             'coupon_code' => ['nullable', 'string', 'max:100'],
+            'departure_place_id' => ['nullable', 'integer'],
+            'extra_ids' => ['nullable', 'array', 'max:30'],
+            'extra_ids.*' => ['integer', 'distinct'],
             'type' => ['nullable', 'string', Rule::in(['tour_booking', 'tour_inquiry'])],
         ];
     }
@@ -75,6 +80,11 @@ class StorePublicBookingRequest extends FormRequest
             'passengers.*.*.max' => 'A megadott érték túl hosszú.',
             'note.max' => 'A megjegyzés túl hosszú.',
             'type.in' => 'Érvénytelen foglalástípus.',
+            'departure_place_id.integer' => 'Érvénytelen felszállási hely.',
+            'extra_ids.array' => 'Érvénytelen felár lista.',
+            'extra_ids.max' => 'Túl sok felár lett kiválasztva.',
+            'extra_ids.*.integer' => 'Érvénytelen felár azonosító.',
+            'extra_ids.*.distinct' => 'Egy felár csak egyszer választható.',
         ];
     }
 }

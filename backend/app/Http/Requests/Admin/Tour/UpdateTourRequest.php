@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests\Admin\Tour;
 
+use App\Http\Requests\Admin\Tour\Concerns\ValidatesTourDateExtras;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateTourRequest extends FormRequest
 {
+    use ValidatesTourDateExtras;
+
     protected function prepareForValidation(): void
     {
         $this->merge([
@@ -129,6 +132,7 @@ class UpdateTourRequest extends FormRequest
                     'price_box_available_seats' => $date['price_box_available_seats'] ?? $priceBox['availableSeats'] ?? null,
                     'price_box_capacity' => $date['price_box_capacity'] ?? $priceBox['capacity'] ?? null,
                     'status' => $date['status'] ?? 'planned',
+                    'extras' => $this->normalizeDateExtras($date['extras'] ?? []),
                 ];
             })->all(),
             'partner_bonuses' => collect($this->input('partner_bonuses', $this->input('partnerBonuses', [])))->map(function (array $bonus, int $index): array {
@@ -257,6 +261,7 @@ class UpdateTourRequest extends FormRequest
             'partner_bonuses.*.sort_order' => ['nullable', 'integer', 'min:0'],
             'partner_bonuses.*.label' => ['required_with:partner_bonuses', 'string', 'max:255'],
             'partner_bonuses.*.value' => ['nullable', 'string', 'max:255'],
+            ...$this->dateExtraRules(),
         ];
     }
 }

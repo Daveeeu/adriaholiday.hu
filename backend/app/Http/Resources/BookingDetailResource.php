@@ -33,6 +33,7 @@ class BookingDetailResource extends BookingResource
             ] : null),
             'adminNote' => $this->admin_note,
             'seatsReserved' => (bool) $this->seats_reserved,
+            'pricing' => $payload['pricing'] ?? null,
             'formDataFields' => collect($payload['formData'] ?? [])
                 ->map(fn ($value, $key) => [
                     'key' => $key,

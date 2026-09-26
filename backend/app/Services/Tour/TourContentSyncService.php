@@ -3,11 +3,13 @@
 namespace App\Services\Tour;
 
 use App\Models\Tour;
+use App\Models\TourDate;
 use App\Models\TourProgramDay;
 use App\Support\RichTextSanitizer;
+use App\Support\Tour\TourExtraPriceUnit;
 
 /**
- * Persists the "child" records of a Tour (dates, partner bonuses, program days,
+ * Persists the "child" records of a Tour (dates with their extras, partner bonuses, program days,
  * gallery items, price items) using a consistent replace-and-recreate strategy.
  *
  * Shared by the admin TourController (manual editing) and the legacy content
@@ -20,7 +22,7 @@ class TourContentSyncService
         $tour->dates()->withTrashed()->get()->each->forceDelete();
 
         foreach ($dates as $date) {
-            $tour->dates()->create([
+            $tourDate = $tour->dates()->create([
                 'start_date' => $date['start_date'] ?? null,
                 'end_date' => $date['end_date'] ?? null,
                 'price' => $date['price_box_price'] ?? $date['price'] ?? null,
@@ -32,6 +34,32 @@ class TourContentSyncService
                 'price_box_available_seats' => $date['price_box_available_seats'] ?? null,
                 'price_box_capacity' => $date['price_box_capacity'] ?? null,
                 'status' => $date['status'] ?? 'planned',
+            ]);
+
+            $this->createDateExtras($tourDate, $date['extras'] ?? []);
+        }
+    }
+
+    /**
+     * @param  array<int, array{name?: string, price?: float|int|string|null, price_unit?: string|null, mandatory?: bool|null, sort_order?: int|null}>  $extras
+     */
+    private function createDateExtras(TourDate $tourDate, array $extras): void
+    {
+        foreach (array_values($extras) as $index => $extra) {
+            $name = trim(strip_tags((string) ($extra['name'] ?? '')));
+
+            if ($name === '' || ! is_numeric($extra['price'] ?? null)) {
+                continue;
+            }
+
+            $tourDate->extras()->create([
+                'name' => $name,
+                'price' => (float) $extra['price'],
+                'price_unit' => in_array($extra['price_unit'] ?? null, TourExtraPriceUnit::all(), true)
+                    ? $extra['price_unit']
+                    : TourExtraPriceUnit::PER_PERSON,
+                'mandatory' => (bool) ($extra['mandatory'] ?? false),
+                'sort_order' => (int) ($extra['sort_order'] ?? ($index + 1)),
             ]);
         }
     }

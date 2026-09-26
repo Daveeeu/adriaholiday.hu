@@ -10,13 +10,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Creates a Booking from a validated public booking submission: checks
- * the tour date still has enough free seats, persists the booking, and
- * triggers the office/customer notification emails.
+ * Creates a Booking from a validated public booking submission: prices it
+ * on the server, checks the tour date still has enough free seats,
+ * persists the booking, and triggers the office/customer notification emails.
  */
 class PublicBookingService
 {
-    public function __construct(private readonly BookingNotificationService $notifications) {}
+    public function __construct(
+        private readonly BookingNotificationService $notifications,
+        private readonly TourBookingPriceCalculator $priceCalculator,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $validated
@@ -26,10 +29,24 @@ class PublicBookingService
     {
         $requestedSeats = max(count($result['passengers']), (int) ($validated['participants'] ?? 0), 1);
 
-        $booking = DB::transaction(function () use ($tour, $validated, $result, $requestedSeats): Booking {
-            $seatsReserved = $this->reserveCapacity($validated['tour_date_id'] ?? null, $requestedSeats);
+        $tourDate = ! empty($validated['tour_date_id'])
+            ? TourDate::query()->find($validated['tour_date_id'])
+            : null;
 
-            return $this->createBooking($tour, $validated, $result, $seatsReserved);
+        $pricing = ($validated['type'] ?? 'tour_booking') === 'tour_booking'
+            ? $this->priceCalculator->calculate(
+                $tour,
+                $tourDate,
+                $requestedSeats,
+                isset($validated['departure_place_id']) ? (int) $validated['departure_place_id'] : null,
+                $validated['extra_ids'] ?? [],
+            )
+            : null;
+
+        $booking = DB::transaction(function () use ($tour, $tourDate, $validated, $result, $requestedSeats, $pricing): Booking {
+            $seatsReserved = $this->reserveCapacity($tourDate?->id, $requestedSeats);
+
+            return $this->createBooking($tour, $tourDate, $validated, $result, $seatsReserved, $pricing);
         });
 
         $this->notifications->sendNewBookingNotifications($booking, $tour);
@@ -74,16 +91,13 @@ class PublicBookingService
     /**
      * @param  array<string, mixed>  $validated
      * @param  array{formData: array<string, mixed>, passengers: array<int, array<string, mixed>>}  $result
+     * @param  array<string, mixed>|null  $pricing  breakdown from TourBookingPriceCalculator
      */
-    private function createBooking(Tour $tour, array $validated, array $result, bool $seatsReserved): Booking
+    private function createBooking(Tour $tour, ?TourDate $tourDate, array $validated, array $result, bool $seatsReserved, ?array $pricing): Booking
     {
         $type = $validated['type'] ?? 'tour_booking';
         $formData = $result['formData'];
         $passengers = $result['passengers'];
-
-        $tourDate = ! empty($validated['tour_date_id'])
-            ? TourDate::query()->find($validated['tour_date_id'])
-            : null;
 
         return Booking::create([
             'booking_type' => $type,
@@ -102,12 +116,15 @@ class PublicBookingService
             'notes' => $formData['note'] ?? null,
             'message' => $validated['note'] ?? null,
             'coupon_code' => $validated['coupon_code'] ?? null,
+            'total_amount' => $pricing['total'] ?? null,
+            'currency' => $pricing['currency'] ?? 'HUF',
             'payload' => [
                 'bookingFormTemplateId' => $tour->booking_form_template_id,
                 'tourDateId' => $validated['tour_date_id'] ?? null,
                 'participants' => $validated['participants'] ?? null,
                 'formData' => $formData,
                 'passengers' => $passengers,
+                'pricing' => $pricing,
             ],
         ]);
     }

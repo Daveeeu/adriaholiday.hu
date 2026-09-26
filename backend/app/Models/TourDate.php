@@ -3,14 +3,16 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\TourDateFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TourDate extends Model
 {
-    /** @use HasFactory<\Database\Factories\TourDateFactory> */
+    /** @use HasFactory<TourDateFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [
@@ -42,5 +44,10 @@ class TourDate extends Model
     public function tour(): BelongsTo
     {
         return $this->belongsTo(Tour::class);
+    }
+
+    public function extras(): HasMany
+    {
+        return $this->hasMany(TourDateExtra::class)->orderBy('sort_order')->orderBy('id');
     }
 }

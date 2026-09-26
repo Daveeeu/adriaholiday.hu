@@ -3,6 +3,13 @@ import { Check, ShieldCheck } from "lucide-react";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import BookingFieldInput from "./BookingFieldInput";
+import BookingOptionsPanel from "./BookingOptionsPanel";
+import {
+  estimateBookingPrice,
+  formatHuf,
+  type BookingDeparturePlace,
+  type BookingExtra,
+} from "./booking-pricing";
 import {
   emptyValues,
   fieldsOfGroup,
@@ -77,6 +84,7 @@ type BookingTrip = {
   hotel?: string | null;
   couponable?: boolean;
   bookingFormFields?: BookingFormField[];
+  departurePlaces?: BookingDeparturePlace[];
 };
 
 type BookingDateOption = {
@@ -84,7 +92,11 @@ type BookingDateOption = {
   label: string;
   status?: string | null;
   seatsLeft?: number | null;
+  extras?: BookingExtra[];
 };
+
+const NO_EXTRAS: BookingExtra[] = [];
+const NO_DEPARTURE_PLACES: BookingDeparturePlace[] = [];
 
 type BookingSectionProps = {
   selectedDate: BookingDateOption;
@@ -103,6 +115,35 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const [fieldErrors, setFieldErrors] = useState<FieldErrorState>(NO_ERRORS);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | number | null>(null);
+  const [departurePlaceId, setDeparturePlaceId] = useState("");
+  const [departurePlaceError, setDeparturePlaceError] = useState<string | null>(null);
+  const [extraSelection, setExtraSelection] = useState<{ dateId: BookingDateOption["id"]; ids: number[] }>({
+    dateId: selectedDate.id,
+    ids: [],
+  });
+
+  const departurePlaces = trip.departurePlaces ?? NO_DEPARTURE_PLACES;
+  const extras = selectedDate.extras ?? NO_EXTRAS;
+  // Extras belong to a date, so a selection made for another date no longer applies.
+  const selectedExtraIds = useMemo(
+    () => (extraSelection.dateId === selectedDate.id ? extraSelection.ids : []),
+    [extraSelection, selectedDate.id],
+  );
+  const selectedDeparturePlace =
+    departurePlaces.find((place) => String(place.id) === departurePlaceId) ?? null;
+  const priceEstimate = useMemo(
+    () =>
+      estimateBookingPrice({
+        basePrice: priceBox?.price ?? null,
+        passengers: passengers.length,
+        departurePlace: selectedDeparturePlace,
+        extras,
+        selectedExtraIds,
+      }),
+    [priceBox?.price, passengers.length, selectedDeparturePlace, extras, selectedExtraIds],
+  );
+  const displayedTotal =
+    priceEstimate.total !== null ? formatHuf(priceEstimate.total) : priceBox?.displayedPrice ?? null;
 
   const fields: BookingFormField[] = useMemo(() => trip.bookingFormFields ?? [], [trip]);
   const contactFields = useMemo(() => fieldsOfGroup(fields, "contact"), [fields]);
@@ -130,6 +171,33 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       entity: { type: "tour", slug: trip.slug },
       metadata: { transport: trip.transport },
     });
+  }
+
+  function changeDeparturePlace(id: string) {
+    markStarted();
+    setDeparturePlaceId(id);
+    setDeparturePlaceError(null);
+  }
+
+  function toggleExtra(id: number) {
+    markStarted();
+    setExtraSelection({
+      dateId: selectedDate.id,
+      ids: selectedExtraIds.includes(id)
+        ? selectedExtraIds.filter((extraId) => extraId !== id)
+        : [...selectedExtraIds, id],
+    });
+  }
+
+  /** A tour with departure places needs one chosen before it can be booked. */
+  function validateDeparturePlace(): boolean {
+    if (departurePlaces.length > 0 && !selectedDeparturePlace) {
+      setDeparturePlaceError("Válassz felszállási helyet.");
+      return false;
+    }
+
+    setDeparturePlaceError(null);
+    return true;
   }
 
   function setFormValue(key: string, value: string) {
@@ -180,6 +248,10 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   }
 
   function nextStep() {
+    if (step === 1 && !validateDeparturePlace()) {
+      return;
+    }
+
     if (step === STEP_OF_GROUP.contact) {
       const errors = requiredFieldErrors(contactFields, formValues);
       setFieldErrors((current) => ({ ...current, form: errors }));
@@ -202,6 +274,11 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   async function handleSubmit() {
+    if (!validateDeparturePlace()) {
+      setStep(1);
+      return;
+    }
+
     const errors = validateAll();
     setFieldErrors(errors);
 
@@ -225,6 +302,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         passengers,
         note: formValues.note,
         couponCode: couponCode.trim() || undefined,
+        departurePlaceId: selectedDeparturePlace?.id ?? null,
+        extraIds: selectedExtraIds,
         type: "tour_booking",
       });
 
@@ -255,6 +334,13 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
 
         setFieldErrors(errors);
         setErrorMessage(submitError.message);
+
+        const optionError = submitError.errors.departurePlaceId?.[0] ?? submitError.errors.extraIds?.[0];
+        if (optionError) {
+          setDeparturePlaceError(submitError.errors.departurePlaceId?.[0] ?? null);
+          setStep(1);
+          return;
+        }
 
         const errorStep = firstStepWithError(fields, errors);
         if (errorStep !== null) {
@@ -363,6 +449,16 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                       value={priceBox?.displayedPrice ?? ""}
                     />
                   </div>
+
+                  <BookingOptionsPanel
+                    departurePlaces={departurePlaces}
+                    departurePlaceId={departurePlaceId}
+                    onDeparturePlaceChange={changeDeparturePlace}
+                    departurePlaceError={departurePlaceError ?? undefined}
+                    extras={extras}
+                    selectedExtraIds={selectedExtraIds}
+                    onToggleExtra={toggleExtra}
+                  />
                 </StepPanel>
               )}
 
@@ -448,6 +544,20 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                         <BookingFieldInput field={COUPON_FIELD} value={couponCode} onChange={setCouponCode} />
                       </div>
                     ) : null}
+
+                    {priceEstimate.lines.length > 0 ? (
+                      <div className="rounded-2xl bg-[#f5f9fc] border border-gray-100 p-5">
+                        <div className="font-bold text-[#0f172a] mb-3">Árösszesítő</div>
+                        <ul className="space-y-2 text-sm">
+                          {priceEstimate.lines.map((line) => (
+                            <li key={line.key} className="flex justify-between gap-4">
+                              <span className="text-gray-600">{line.label}</span>
+                              <span className="font-bold text-[#0f172a] whitespace-nowrap">{formatHuf(line.amount)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                   </div>
 
                   {errorMessage ? (
@@ -461,9 +571,9 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
               <div className="mt-8 border-t border-gray-100 pt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <div className="text-sm text-gray-500">Összesen</div>
-                  {priceBox?.displayedPrice ? (
+                  {displayedTotal ? (
                     <div className="text-3xl font-extrabold text-[#00a878]">
-                      {priceBox.displayedPrice}
+                      {displayedTotal}
                     </div>
                   ) : null}
                 </div>
@@ -522,7 +632,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       <div className="text-white/50 text-sm mb-1">Teljes összeg</div>
 
       <div className="text-4xl md:text-5xl font-extrabold text-[#00c389] whitespace-nowrap">
-        {priceBox?.displayedPrice}
+        {displayedTotal}
       </div>
     </div>
   </div>

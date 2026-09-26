@@ -93,6 +93,11 @@ export const TOUR_DATE_STATUSES = [
   { value: 'sold_out', label: 'Betelt' },
 ] as const;
 
+export const TOUR_EXTRA_PRICE_UNITS = [
+  { value: 'per_person', label: 'Fő után' },
+  { value: 'per_booking', label: 'Foglalásonként' },
+] as const;
+
 export const TOUR_BOOLEAN_LABELS = {
   true: 'Igen',
   false: 'Nem',

@@ -54,7 +54,17 @@ class PortfolioOfferController extends Controller
         $tour = Tour::query()
             ->where('active', true)
             ->where('seo_name', $slug)
-            ->with(['region', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media'])
+            ->with([
+                'region',
+                'bookingFormTemplate.templateFields.field',
+                'dates.extras',
+                'partnerBonuses',
+                'departurePlaces' => fn ($query) => $query->where('active', true)->orderBy('name'),
+                'media',
+                'priceItems',
+                'programDays',
+                'galleryItems.media',
+            ])
             ->first();
 
         if (! $tour) {

@@ -772,6 +772,70 @@ class AdminToursTest extends TestCase
             ->toMediaCollection('slider');
     }
 
+    public function test_tour_dates_persist_their_extras_and_duplicate_copies_them(): void
+    {
+        $this->actingAsTourAdmin();
+        Permission::findOrCreate('tours.duplicate', 'web');
+        auth()->user()->givePermissionTo('tours.duplicate');
+
+        $response = $this->postJson('/api/admin/tours', $this->payload([
+            'name' => 'Felár teszt',
+            'seo_name' => 'felar-teszt',
+            'dates' => [
+                [
+                    'startDate' => '2026-11-28',
+                    'endDate' => '2026-11-29',
+                    'price' => 45900,
+                    'status' => 'planned',
+                    'extras' => [
+                        ['name' => 'Vacsora', 'price' => 8800, 'priceUnit' => 'per_person', 'mandatory' => false],
+                        ['name' => 'Repülőjegy', 'price' => 30000, 'priceUnit' => 'per_person', 'mandatory' => true],
+                        ['name' => 'Egyágyas felár', 'price' => 13800, 'priceUnit' => 'per_booking'],
+                    ],
+                ],
+            ],
+        ]));
+
+        $response->assertCreated();
+        $response->assertJsonPath('data.dates.0.extras.0.name', 'Vacsora');
+        $response->assertJsonPath('data.dates.0.extras.1.mandatory', true);
+        $response->assertJsonPath('data.dates.0.extras.2.priceUnit', 'per_booking');
+        $response->assertJsonPath('data.dates.0.extras.2.price', 13800);
+
+        $tourId = $response->json('data.id');
+        $this->getJson("/api/admin/tours/{$tourId}")->assertJsonCount(3, 'data.dates.0.extras');
+
+        $duplicate = $this->postJson("/api/admin/tours/{$tourId}/duplicate");
+        $duplicate->assertCreated();
+        $duplicate->assertJsonCount(3, 'data.dates.0.extras');
+        $duplicate->assertJsonPath('data.dates.0.extras.1.name', 'Repülőjegy');
+    }
+
+    public function test_tour_date_extras_are_validated(): void
+    {
+        $this->actingAsTourAdmin();
+
+        $response = $this->postJson('/api/admin/tours', $this->payload([
+            'seo_name' => 'felar-validacio',
+            'dates' => [
+                [
+                    'startDate' => '2026-11-28',
+                    'endDate' => '2026-11-29',
+                    'extras' => [
+                        ['name' => '', 'price' => -1, 'priceUnit' => 'per_night'],
+                    ],
+                ],
+            ],
+        ]));
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors([
+            'dates.0.extras.0.name',
+            'dates.0.extras.0.price',
+            'dates.0.extras.0.price_unit',
+        ]);
+    }
+
     private function actingAsTourAdmin(): void
     {
         $permissions = ['tours.viewAny', 'tours.view', 'tours.create', 'tours.update'];

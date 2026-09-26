@@ -21,6 +21,7 @@ class TourDateResource extends JsonResource
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'priceBox' => $priceBox,
             'status' => $this->status,
+            'extras' => TourDateExtraResource::collection($this->relationLoaded('extras') ? $this->extras : collect())->resolve($request),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
         ];

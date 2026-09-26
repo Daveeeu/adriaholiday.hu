@@ -17,6 +17,18 @@ export type TourPartnerOfferStatus =
 export type TourRegionGroupType = (typeof TOUR_REGION_GROUP_TYPES)[number]['value'];
 export type TourSeasonalMenuType = (typeof TOUR_SEASONAL_MENU_TYPES)[number]['value'];
 
+export type TourExtraPriceUnit = 'per_person' | 'per_booking';
+
+/** A priced supplement ("felár") offered on a tour date. */
+export type TourDateExtra = {
+  id: number;
+  name: string;
+  price: number;
+  priceUnit: TourExtraPriceUnit;
+  mandatory: boolean;
+  sortOrder: number;
+};
+
 export type TourDate = {
   id: string;
   startDate: string;
@@ -25,6 +37,7 @@ export type TourDate = {
   displayedPrice?: string | null;
   priceBox?: TourPriceBox | null;
   status: TourDateStatus;
+  extras?: TourDateExtra[];
 };
 
 export type TourPartnerBonus = {
@@ -352,6 +365,18 @@ export const tourFormSchema = z.object({
         availableSeats: z.string(),
         capacity: z.string(),
       }),
+      extras: z.array(
+        z.object({
+          clientId: z.string(),
+          name: z.string().trim().min(1, 'A felár neve kötelező.'),
+          price: z
+            .string()
+            .trim()
+            .regex(/^\d+(\.\d+)?$/, 'Adj meg egy nem negatív árat.'),
+          priceUnit: z.enum(['per_person', 'per_booking']),
+          mandatory: z.boolean(),
+        }),
+      ),
     }),
   ),
   partnerBonuses: z.array(
@@ -383,6 +408,13 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       availableSeats: date.priceBox?.availableSeats?.toString() ?? '',
       capacity: date.priceBox?.capacity?.toString() ?? '',
     },
+    extras: (date.extras ?? []).map((extra) => ({
+      clientId: createClientId(),
+      name: extra.name,
+      price: extra.price.toString(),
+      priceUnit: extra.priceUnit,
+      mandatory: extra.mandatory,
+    })),
   }));
 
   const partnerBonuses = (tour?.partnerBonuses ?? []).map((bonus, index) => ({

@@ -13,6 +13,7 @@ use App\Http\Resources\TourDetailResource;
 use App\Http\Resources\TourResource;
 use App\Models\Tour;
 use App\Models\TourDate;
+use App\Models\TourDateExtra;
 use App\Models\TourPriceItem;
 use App\Models\TourProgramDay;
 use App\Services\Tour\TourContentSyncService;
@@ -153,12 +154,12 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
 
-        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates.extras', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function show(Tour $tour)
     {
-        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates.extras', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function update(UpdateTourRequest $request, Tour $tour)
@@ -225,7 +226,7 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
 
-        return new TourDetailResource($tour->refresh()->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($tour->refresh()->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates.extras', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function destroy(Tour $tour)
@@ -259,7 +260,7 @@ class TourController extends Controller
             $copy->sort_order = $tour->sort_order + 1;
             $copy->push();
 
-            $tour->load(['dates', 'partnerBonuses', 'departurePlaces', 'priceItems', 'programDays', 'galleryItems.media']);
+            $tour->load(['dates.extras', 'partnerBonuses', 'departurePlaces', 'priceItems', 'programDays', 'galleryItems.media']);
             $this->tourContentSync->syncDates($copy, $tour->dates->map(fn (TourDate $date): array => [
                 'start_date' => $date->start_date?->toDateString(),
                 'end_date' => $date->end_date?->toDateString(),
@@ -272,6 +273,13 @@ class TourController extends Controller
                 'price_box_available_seats' => $date->price_box_available_seats,
                 'price_box_capacity' => $date->price_box_capacity,
                 'status' => $date->status,
+                'extras' => $date->extras->map(fn (TourDateExtra $extra): array => [
+                    'name' => $extra->name,
+                    'price' => $extra->price,
+                    'price_unit' => $extra->price_unit,
+                    'mandatory' => $extra->mandatory,
+                    'sort_order' => $extra->sort_order,
+                ])->all(),
             ])->all());
             $this->tourContentSync->syncPartnerBonuses($copy, $tour->partnerBonuses->map(fn ($bonus): array => [
                 'sort_order' => $bonus->sort_order,
@@ -308,7 +316,7 @@ class TourController extends Controller
             return $copy;
         });
 
-        return new TourDetailResource($duplicate->load(['region', 'dates', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourDetailResource($duplicate->load(['region', 'dates.extras', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function reorder(ReorderToursRequest $request)

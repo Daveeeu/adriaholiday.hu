@@ -13,6 +13,18 @@ Indulás: {{ $booking->departure_date->format('Y.m.d.') }}
 - Telefon: {{ $booking->phone ?? '-' }}
 - Utasok száma: {{ $booking->passenger_count ?? '-' }}
 
+@if ($pricingLines !== [])
+## Árösszesítő
+
+@foreach ($pricingLines as $line)
+- {{ $line }}
+@endforeach
+@if ($pricingTotal !== null)
+
+**Végösszeg: {{ $pricingTotal }}**
+@endif
+
+@endif
 @if ($extras !== [])
 ## Extra opciók
 

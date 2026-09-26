@@ -120,6 +120,25 @@ export type BookingEmailLog = {
   createdAt: string;
 };
 
+/** Server-calculated price snapshot stored when the booking was placed. */
+export type TourBookingPricing = {
+  currency: string;
+  passengers: number;
+  basePrice: number | null;
+  baseTotal: number | null;
+  departurePlace: { id: number; name: string; fee: number; total: number } | null;
+  extras: Array<{
+    id: number;
+    name: string;
+    price: number;
+    priceUnit: 'per_person' | 'per_booking';
+    mandatory: boolean;
+    quantity: number;
+    total: number;
+  }>;
+  total: number | null;
+};
+
 export type TourBookingDetail = TourBooking & {
   tourId: string | null;
   tour: TourBookingTourSummary | null;
@@ -131,6 +150,7 @@ export type TourBookingDetail = TourBooking & {
   seatsReserved: boolean;
   formDataFields: BookingDynamicField[];
   passengerFields: BookingDynamicField[][];
+  pricing: TourBookingPricing | null;
   payload: Record<string, unknown> | null;
   updatedAt: string;
 };

@@ -19,6 +19,18 @@ export type PortfolioMedia = {
   title?: string | null;
 };
 
+export type PortfolioOfferExtraPriceUnit = 'per_person' | 'per_booking';
+
+/** A priced supplement ("felár") offered on a tour date. */
+export type PortfolioOfferDateExtra = {
+  id: number;
+  name: string;
+  price: number;
+  priceUnit: PortfolioOfferExtraPriceUnit;
+  mandatory: boolean;
+  sortOrder: number;
+};
+
 export type PortfolioOfferDetailDate = {
   id: number | string;
   tourId?: number | string;
@@ -28,6 +40,7 @@ export type PortfolioOfferDetailDate = {
   displayedPrice?: string | null;
   priceBox?: PortfolioPriceBox | null;
   status?: string | null;
+  extras?: PortfolioOfferDateExtra[];
 };
 
 export type PortfolioPriceBox = {

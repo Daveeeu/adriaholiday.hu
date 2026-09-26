@@ -11,6 +11,8 @@ export type SubmitBookingPayload = {
   passengers: BookingPassenger[];
   note?: string;
   couponCode?: string;
+  departurePlaceId?: number | string | null;
+  extraIds?: number[];
   type?: 'tour_booking' | 'tour_inquiry';
 };
 

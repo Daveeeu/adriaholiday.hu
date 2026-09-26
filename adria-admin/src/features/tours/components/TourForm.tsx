@@ -29,6 +29,7 @@ import { TourCreatableSelectField } from './TourCreatableSelectField';
 import { TourFilterSections } from './TourFilterSections';
 import { TourGallerySection } from './TourGallerySection';
 import { TourProgramDaysSection } from './TourProgramDaysSection';
+import { TourDateExtrasEditor } from './TourDateExtrasEditor';
 import { TourPriceItemsSection } from './TourPriceItemsSection';
 import { TourSeoSection } from './TourSeoSection';
 
@@ -690,6 +691,8 @@ export function TourForm({ form, tour }: TourFormProps) {
                   )}
                 />
               </div>
+
+              <TourDateExtrasEditor form={form} dateIndex={index} dateCount={dates.fields.length} />
             </div>
           ))}
 
@@ -713,6 +716,7 @@ export function TourForm({ form, tour }: TourFormProps) {
                       availableSeats: '',
                       capacity: '',
                     },
+                    extras: [],
                   })
                 }
               >

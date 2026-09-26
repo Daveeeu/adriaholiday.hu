@@ -6,6 +6,7 @@ import { BookingDynamicFieldsCard } from './booking-detail/booking-dynamic-field
 import { BookingEmailHistoryCard } from './booking-detail/booking-email-history-card';
 import { BookingExportActions } from './booking-detail/booking-export-actions';
 import { BookingPassengersCard } from './booking-detail/booking-passengers-card';
+import { BookingPricingCard } from './booking-detail/booking-pricing-card';
 import { BookingRawDataAccordion } from './booking-detail/booking-raw-data-accordion';
 import { BookingStatusCard } from './booking-detail/booking-status-card';
 import { BookingSummaryCard } from './booking-detail/booking-summary-card';
@@ -21,6 +22,7 @@ export function TourBookingDetailPanel({ booking }: { booking: TourBookingDetail
         <div className="space-y-4">
           <BookingSummaryCard booking={booking} />
           <BookingTourCard booking={booking} />
+          <BookingPricingCard booking={booking} />
           <BookingContactCard booking={booking} />
           <BookingPassengersCard booking={booking} />
           <BookingDynamicFieldsCard booking={booking} />
