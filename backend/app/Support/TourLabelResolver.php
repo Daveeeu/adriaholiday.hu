@@ -5,9 +5,10 @@ namespace App\Support;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
 use App\Models\Region;
-use App\Models\TourRegionGroup;
 use App\Models\TourReferenceOption;
+use App\Models\TourRegionGroup;
 use App\Models\TourSeasonalGroup;
+use Illuminate\Support\Collection;
 
 class TourLabelResolver
 {
@@ -40,6 +41,21 @@ class TourLabelResolver
      * @var array<string, string|null>
      */
     private static array $blogCategoryLabels = [];
+
+    /**
+     * Forgets every memoized label. The memo lives for the whole PHP process,
+     * so anything that reuses the process across independent units of work
+     * (e.g. the test suite) must call this between them.
+     */
+    public static function flush(): void
+    {
+        self::$referenceOptionLabels = [];
+        self::$regionLabels = [];
+        self::$regionGroupLabels = [];
+        self::$seasonalGroupLabels = [];
+        self::$blogTagLabels = [];
+        self::$blogCategoryLabels = [];
+    }
 
     /**
      * @return array<int, array{id: string, label: string}>
@@ -228,7 +244,7 @@ class TourLabelResolver
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, mixed>|array<int, mixed>|null  $translations
+     * @param  Collection<int, mixed>|array<int, mixed>|null  $translations
      */
     private static function translationLabel($translations): ?string
     {
