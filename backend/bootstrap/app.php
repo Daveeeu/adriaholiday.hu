@@ -29,6 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureUserIsActive::class,
         ]);
 
+        // Production traffic reaches PHP-FPM through the edge proxy and the
+        // nginx container, both on private Docker networks. Trusting them makes
+        // request()->ip() the real client (rate limiters key on it) and lets
+        // X-Forwarded-Proto mark the request as HTTPS.
+        $middleware->trustProxies(at: ['PRIVATE_SUBNETS']);
+
         $middleware->redirectGuestsTo('/admin');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
