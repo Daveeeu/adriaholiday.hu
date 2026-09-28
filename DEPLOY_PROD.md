@@ -64,7 +64,7 @@ cp backend/.env.production.example backend/.env.production
 - `DB_USERNAME`
 - `DB_PASSWORD`
 - `REDIS_PASSWORD`
-- `QUEUE_WORKER_*`
+- `QUEUE_WORKER_*` (a `QUEUE_WORKER_QUEUE` tartalmazza az `analytics` queue-t is: `default,analytics`)
 
 ### `backend/.env.production`
 
@@ -86,6 +86,9 @@ cp backend/.env.production.example backend/.env.production
 - `QUEUE_CONNECTION=redis`
 - `LOG_CHANNEL=stack`
 - `LOG_STACK=stderr,daily`
+- `MAIL_*` (valós SMTP host, user, jelszó)
+- `BOOKING_OFFICE_EMAIL` – erre a címre mennek a foglalási és ajánlatkérési értesítők; üresen hagyva az iroda **nem kap** értesítést
+- `SESSION_SECURE_COOKIE=true`
 - `ANALYTICS_*`
 - `META_*`
 - opcionális: `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD`
