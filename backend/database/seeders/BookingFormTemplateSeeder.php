@@ -23,8 +23,8 @@ class BookingFormTemplateSeeder extends Seeder
             'document_type' => 'hidden',
             'document_number' => 'hidden',
             'document_expiry' => 'hidden',
-            'extra_single_room' => 'optional',
-            'extra_cancellation_insurance' => 'optional',
+            'extra_single_room' => 'hidden',
+            'extra_cancellation_insurance' => 'hidden',
             'extra_payment_method' => 'optional',
         ]);
 
@@ -40,8 +40,8 @@ class BookingFormTemplateSeeder extends Seeder
             'document_type' => 'required',
             'document_number' => 'required',
             'document_expiry' => 'required',
-            'extra_single_room' => 'optional',
-            'extra_cancellation_insurance' => 'optional',
+            'extra_single_room' => 'hidden',
+            'extra_cancellation_insurance' => 'hidden',
             'extra_payment_method' => 'optional',
         ]);
 

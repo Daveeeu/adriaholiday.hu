@@ -55,8 +55,12 @@ class LegacyTourImporter
         $tagIds = $this->resolveReferenceOptionCodes('tag', $data->tags);
         $travelModeId = $data->travelModeCode !== null ? $this->resolveTravelMode($data->travelModeCode) : null;
         $departurePlaceIds = $this->resolveDeparturePlaceIds($data->departurePlaceNames);
+        $departurePlaceFees = collect($data->departurePlaceFees)
+            ->filter(fn (float $fee, string $name): bool => isset($departurePlaceIds[trim($name)]))
+            ->mapWithKeys(fn (float $fee, string $name): array => [$departurePlaceIds[trim($name)] => $fee])
+            ->all();
 
-        DB::transaction(function () use ($data, $existing, $galleryMedia, $regionId, $countryIds, $categoryIds, $tagIds, $travelModeId, $departurePlaceIds): void {
+        DB::transaction(function () use ($data, $existing, $galleryMedia, $regionId, $countryIds, $categoryIds, $tagIds, $travelModeId, $departurePlaceIds, $departurePlaceFees): void {
             $tour = $existing ?? new Tour;
 
             if ($existing?->trashed()) {
@@ -65,6 +69,8 @@ class LegacyTourImporter
 
             if ($existing === null) {
                 $tour->active = true;
+                // Every legacy tour accepted the e-mail coupon.
+                $tour->couponable = true;
             }
 
             $tour->fill([
@@ -73,16 +79,21 @@ class LegacyTourImporter
                 'short_description' => RichTextSanitizer::sanitize($data->shortDescription),
                 'notes' => RichTextSanitizer::sanitize($data->notesHtml),
                 'discounts' => RichTextSanitizer::sanitize($data->discountsHtml),
-                'region_id' => $regionId,
                 'travel_mode_id' => $travelModeId,
                 'catering' => $data->catering,
                 'accommodation' => $data->accommodation,
-                'country_ids' => $countryIds,
                 'category_ids' => $categoryIds,
                 'tag_ids' => $tagIds,
                 'price' => $data->price,
                 'displayed_price' => $data->price !== null ? number_format($data->price, 0, ',', '.').' Ft' : null,
             ]);
+
+            // Countries come from the crawl context, which a single --slug import
+            // lacks; an update must not wipe the country and region it already has.
+            if ($data->countrySlugs !== [] || $existing === null) {
+                $tour->fill(['region_id' => $regionId, 'country_ids' => $countryIds]);
+            }
+
             $tour->save();
 
             $this->tourContentSync->syncDates($tour, array_map(fn (array $date): array => [
@@ -90,6 +101,7 @@ class LegacyTourImporter
                 'end_date' => $date['end_date'],
                 'price' => $date['price'],
                 'price_box_price' => $date['price'],
+                'price_box_discount_badge' => $date['discount_badge'] ?? null,
                 'status' => 'planned',
                 'extras' => $date['extras'] ?? [],
             ], $data->dates));
@@ -107,7 +119,7 @@ class LegacyTourImporter
 
             $this->tourContentSync->syncPriceItems($tour, $data->priceItems);
 
-            $tour->departurePlaces()->sync($departurePlaceIds);
+            $this->tourContentSync->syncDeparturePlaces($tour, array_values($departurePlaceIds), $departurePlaceFees);
         });
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
@@ -208,7 +220,7 @@ class LegacyTourImporter
 
     /**
      * @param  array<int, string>  $names
-     * @return array<int, int>
+     * @return array<string, int> departure place id keyed by name
      */
     private function resolveDeparturePlaceIds(array $names): array
     {
@@ -225,10 +237,10 @@ class LegacyTourImporter
                 ['name' => $name],
                 ['active' => true],
             );
-            $ids[] = $place->id;
+            $ids[$name] = $place->id;
         }
 
-        return array_values(array_unique($ids));
+        return $ids;
     }
 
     private function firstOrCreateReferenceOption(string $type, string $code, string $name): void

@@ -5,11 +5,18 @@ import { type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import BookingFieldInput from "./BookingFieldInput";
 import BookingOptionsPanel from "./BookingOptionsPanel";
 import {
+  chargedExtras,
   estimateBookingPrice,
   formatHuf,
+  isCancellationInsuranceAvailable,
+  travelDays,
+  visibleExtras,
   type BookingDeparturePlace,
   type BookingExtra,
+  type BookingInsuranceChoice,
+  type BookingInsurances,
 } from "./booking-pricing";
+import { parseDiscountPercent } from "../content/discount-badge";
 import {
   emptyValues,
   fieldsOfGroup,
@@ -85,6 +92,7 @@ type BookingTrip = {
   couponable?: boolean;
   bookingFormFields?: BookingFormField[];
   departurePlaces?: BookingDeparturePlace[];
+  bookingInsurances?: BookingInsurances | null;
 };
 
 type BookingDateOption = {
@@ -93,7 +101,17 @@ type BookingDateOption = {
   status?: string | null;
   seatsLeft?: number | null;
   extras?: BookingExtra[];
+  startDate?: string | null;
+  endDate?: string | null;
 };
+
+type ExtraSelection = {
+  dateId: BookingDateOption["id"];
+  ids: number[];
+  choices: Record<number, string>;
+};
+
+const NO_INSURANCE: BookingInsuranceChoice = { travel: false, cancellation: false };
 
 const NO_EXTRAS: BookingExtra[] = [];
 const NO_DEPARTURE_PLACES: BookingDeparturePlace[] = [];
@@ -117,30 +135,54 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const [bookingId, setBookingId] = useState<string | number | null>(null);
   const [departurePlaceId, setDeparturePlaceId] = useState("");
   const [departurePlaceError, setDeparturePlaceError] = useState<string | null>(null);
-  const [extraSelection, setExtraSelection] = useState<{ dateId: BookingDateOption["id"]; ids: number[] }>({
+  const [extraSelection, setExtraSelection] = useState<ExtraSelection>({
     dateId: selectedDate.id,
     ids: [],
+    choices: {},
   });
+  const [extraChoiceError, setExtraChoiceError] = useState<string | null>(null);
+  const [insuranceChoice, setInsuranceChoice] = useState<BookingInsuranceChoice>(NO_INSURANCE);
 
   const departurePlaces = trip.departurePlaces ?? NO_DEPARTURE_PLACES;
   const extras = selectedDate.extras ?? NO_EXTRAS;
+  const passengerCount = Math.max(1, passengers.length);
+  const insurances = trip.bookingInsurances ?? null;
+  const startDate = selectedDate.startDate ?? null;
+  const endDate = selectedDate.endDate ?? null;
+  const travelInsuranceAvailable = insurances !== null && travelDays(startDate, endDate) !== null;
+  const cancellationInsuranceAvailable = isCancellationInsuranceAvailable(startDate, insurances);
   // Extras belong to a date, so a selection made for another date no longer applies.
-  const selectedExtraIds = useMemo(
-    () => (extraSelection.dateId === selectedDate.id ? extraSelection.ids : []),
-    [extraSelection, selectedDate.id],
-  );
+  const currentSelection = extraSelection.dateId === selectedDate.id ? extraSelection : null;
+  const selectedExtraIds = useMemo(() => currentSelection?.ids ?? [], [currentSelection]);
+  const extraChoices = useMemo(() => currentSelection?.choices ?? {}, [currentSelection]);
   const selectedDeparturePlace =
     departurePlaces.find((place) => String(place.id) === departurePlaceId) ?? null;
   const priceEstimate = useMemo(
     () =>
       estimateBookingPrice({
         basePrice: priceBox?.price ?? null,
-        passengers: passengers.length,
+        discountPercent: parseDiscountPercent(priceBox?.discountBadge),
+        passengers: passengerCount,
         departurePlace: selectedDeparturePlace,
         extras,
         selectedExtraIds,
+        insurances,
+        insuranceChoice,
+        startDate,
+        endDate,
       }),
-    [priceBox?.price, passengers.length, selectedDeparturePlace, extras, selectedExtraIds],
+    [
+      priceBox?.price,
+      priceBox?.discountBadge,
+      passengerCount,
+      selectedDeparturePlace,
+      extras,
+      selectedExtraIds,
+      insurances,
+      insuranceChoice,
+      startDate,
+      endDate,
+    ],
   );
   const displayedTotal =
     priceEstimate.total !== null ? formatHuf(priceEstimate.total) : priceBox?.displayedPrice ?? null;
@@ -186,7 +228,40 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       ids: selectedExtraIds.includes(id)
         ? selectedExtraIds.filter((extraId) => extraId !== id)
         : [...selectedExtraIds, id],
+      choices: extraChoices,
     });
+  }
+
+  function changeExtraChoice(id: number, choice: string) {
+    markStarted();
+    setExtraChoiceError(null);
+    setExtraSelection({
+      dateId: selectedDate.id,
+      ids: selectedExtraIds,
+      choices: { ...extraChoices, [id]: choice },
+    });
+  }
+
+  function changeInsurance(choice: BookingInsuranceChoice) {
+    markStarted();
+    setInsuranceChoice(choice);
+  }
+
+  /** Charged extras offering choices (e.g. single room: alone / roommate) need one picked. */
+  function validateExtraChoices(): boolean {
+    const missing = chargedExtras(extras, selectedExtraIds, passengerCount).find(
+      (extra) => extra.choices.length > 0 && !extra.choices.includes(extraChoices[extra.id] ?? ""),
+    );
+
+    setExtraChoiceError(missing ? `Válassz egy lehetőséget: ${missing.name}.` : null);
+
+    return !missing;
+  }
+
+  function validateBookingOptions(): boolean {
+    const departureValid = validateDeparturePlace();
+
+    return validateExtraChoices() && departureValid;
   }
 
   /** A tour with departure places needs one chosen before it can be booked. */
@@ -248,7 +323,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   }
 
   function nextStep() {
-    if (step === 1 && !validateDeparturePlace()) {
+    if (step === 1 && !validateBookingOptions()) {
       return;
     }
 
@@ -274,7 +349,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   async function handleSubmit() {
-    if (!validateDeparturePlace()) {
+    if (!validateBookingOptions()) {
       setStep(1);
       return;
     }
@@ -304,6 +379,13 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         couponCode: couponCode.trim() || undefined,
         departurePlaceId: selectedDeparturePlace?.id ?? null,
         extraIds: selectedExtraIds,
+        extraChoices: Object.fromEntries(
+          chargedExtras(extras, selectedExtraIds, passengerCount)
+            .filter((extra) => extraChoices[extra.id])
+            .map((extra) => [extra.id, extraChoices[extra.id]]),
+        ),
+        travelInsurance: travelInsuranceAvailable && insuranceChoice.travel,
+        cancellationInsurance: cancellationInsuranceAvailable && insuranceChoice.cancellation,
         type: "tour_booking",
       });
 
@@ -335,10 +417,22 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         setFieldErrors(errors);
         setErrorMessage(submitError.message);
 
-        const optionError = submitError.errors.departurePlaceId?.[0] ?? submitError.errors.extraIds?.[0];
-        if (optionError) {
+        const optionErrorKeys = [
+          "departurePlaceId",
+          "extraIds",
+          "extraChoices",
+          "travelInsurance",
+          "cancellationInsurance",
+        ];
+        if (optionErrorKeys.some((key) => submitError.errors[key]?.[0])) {
           setDeparturePlaceError(submitError.errors.departurePlaceId?.[0] ?? null);
+          setExtraChoiceError(submitError.errors.extraChoices?.[0] ?? null);
           setStep(1);
+          return;
+        }
+
+        if (submitError.errors.couponCode?.[0]) {
+          setStep(4);
           return;
         }
 
@@ -455,9 +549,18 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                     departurePlaceId={departurePlaceId}
                     onDeparturePlaceChange={changeDeparturePlace}
                     departurePlaceError={departurePlaceError ?? undefined}
-                    extras={extras}
+                    extras={visibleExtras(extras, passengerCount)}
+                    passengers={passengerCount}
                     selectedExtraIds={selectedExtraIds}
                     onToggleExtra={toggleExtra}
+                    extraChoices={extraChoices}
+                    onExtraChoiceChange={changeExtraChoice}
+                    extraChoiceError={extraChoiceError ?? undefined}
+                    insurances={insurances}
+                    insuranceChoice={insuranceChoice}
+                    onInsuranceChange={changeInsurance}
+                    travelInsuranceAvailable={travelInsuranceAvailable}
+                    cancellationInsuranceAvailable={cancellationInsuranceAvailable}
                   />
                 </StepPanel>
               )}
@@ -549,13 +652,19 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                       <div className="rounded-2xl bg-[#f5f9fc] border border-gray-100 p-5">
                         <div className="font-bold text-[#0f172a] mb-3">Árösszesítő</div>
                         <ul className="space-y-2 text-sm">
-                          {priceEstimate.lines.map((line) => (
+                          {[...priceEstimate.lines, ...priceEstimate.insuranceLines].map((line) => (
                             <li key={line.key} className="flex justify-between gap-4">
                               <span className="text-gray-600">{line.label}</span>
                               <span className="font-bold text-[#0f172a] whitespace-nowrap">{formatHuf(line.amount)}</span>
                             </li>
                           ))}
                         </ul>
+                        {trip.couponable ? (
+                          <p className="mt-3 text-xs text-gray-500">
+                            A kupon értékét a foglalás beküldésekor vonjuk le a végösszegből. Amennyiben foglaláskor nem adja
+                            meg kuponkódját, visszamenőleg nem áll módunkban érvényesíteni.
+                          </p>
+                        ) : null}
                       </div>
                     ) : null}
                   </div>

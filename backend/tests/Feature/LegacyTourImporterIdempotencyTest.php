@@ -46,13 +46,14 @@ class LegacyTourImporterIdempotencyTest extends TestCase
                     'legacy_id' => 12250, 'start_date' => '2026-09-25', 'end_date' => '2026-10-01', 'price' => 269600.0,
                     'transport_code' => 'bus', 'catering' => 'félpanzió', 'accommodation' => 'Hotel***',
                     'extras' => [
-                        ['name' => 'Vacsora', 'price' => 12000.0, 'price_unit' => 'per_person', 'mandatory' => false],
-                        ['name' => 'Egyágyas felár', 'price' => 45900.0, 'price_unit' => 'per_booking', 'mandatory' => false],
+                        ['name' => 'Vacsora', 'price' => 12000.0, 'price_unit' => 'per_person', 'charge_rule' => 'optional', 'choices' => []],
+                        ['name' => 'Egyágyas felár', 'price' => 45900.0, 'price_unit' => 'per_booking', 'charge_rule' => 'solo_traveller', 'choices' => ['Egyedül', 'Szobatárssal']],
                     ],
+                    'discount_badge' => '-10%',
                 ],
                 [
                     'legacy_id' => 12251, 'start_date' => '2026-10-10', 'end_date' => '2026-10-16', 'price' => 279600.0,
-                    'transport_code' => 'bus', 'catering' => 'félpanzió', 'accommodation' => 'Hotel***', 'extras' => [],
+                    'transport_code' => 'bus', 'catering' => 'félpanzió', 'accommodation' => 'Hotel***', 'extras' => [], 'discount_badge' => null,
                 ],
             ],
             programDays: [
@@ -70,6 +71,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
             catering: 'félpanzió',
             accommodation: 'Hotel***',
             departurePlaceNames: ['Miskolc', 'Budapest'],
+            departurePlaceFees: ['Budapest' => 4700.0],
             notesHtml: '<p>Útiokmány szükséges.</p>',
             discountsHtml: null,
             price: 269600.0,
@@ -90,9 +92,14 @@ class LegacyTourImporterIdempotencyTest extends TestCase
 
         $firstDate = $tour->dates()->with('extras')->orderBy('start_date')->firstOrFail();
         $this->assertEquals(269600, $firstDate->price_box_price);
-        $this->assertNull($firstDate->price_box_discount_badge);
+        $this->assertSame('-10%', $firstDate->price_box_discount_badge);
         $this->assertSame(['Vacsora', 'Egyágyas felár'], $firstDate->extras->pluck('name')->all());
         $this->assertSame('per_booking', $firstDate->extras[1]->price_unit);
+        $this->assertSame('solo_traveller', $firstDate->extras[1]->charge_rule);
+        $this->assertSame(['Egyedül', 'Szobatárssal'], $firstDate->extras[1]->choices);
+        $this->assertTrue($tour->couponable);
+        $this->assertEquals(4700, $tour->departurePlaces->firstWhere('name', 'Budapest')->pivot->fee);
+        $this->assertNull($tour->departurePlaces->firstWhere('name', 'Miskolc')->pivot->fee);
         $this->assertCount(2, $tour->programDays);
         $this->assertCount(2, $tour->galleryItems);
         $this->assertCount(2, $tour->priceItems);
@@ -135,5 +142,23 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         $this->assertSame(2, Media::query()->count());
         $this->assertSame(1, TourDeparturePlace::query()->where('name', 'Miskolc')->count());
         $this->assertSame(1, TourReferenceOption::query()->where('type', 'country')->where('code', 'al')->count());
+    }
+
+    public function test_single_offer_update_without_crawl_context_keeps_countries_and_region(): void
+    {
+        $importer = app(LegacyTourImporter::class);
+        $importer->import($this->offerData(), updateExisting: false);
+        $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
+        $countryIds = $tour->country_ids;
+        $regionId = $tour->region_id;
+
+        $data = $this->offerData();
+        $withoutContext = new LegacyOfferData(...[...get_object_vars($data), 'countrySlugs' => []]);
+        $importer->import($withoutContext, updateExisting: true);
+
+        $tour->refresh();
+        $this->assertSame($countryIds, $tour->country_ids);
+        $this->assertSame($regionId, $tour->region_id);
+        $this->assertNotSame([], $tour->country_ids);
     }
 }

@@ -43,8 +43,6 @@ final class DefaultBookingForm
         'passenger_name' => 'required',
         'passenger_birth_date' => 'required',
         'passenger_nationality' => 'optional',
-        'extra_single_room' => 'optional',
-        'extra_cancellation_insurance' => 'optional',
         'extra_payment_method' => 'optional',
         'note' => 'optional',
     ];

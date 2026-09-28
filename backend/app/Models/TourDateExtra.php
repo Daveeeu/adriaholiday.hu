@@ -17,13 +17,14 @@ class TourDateExtra extends Model
         'name',
         'price',
         'price_unit',
-        'mandatory',
+        'charge_rule',
+        'choices',
         'sort_order',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
-        'mandatory' => 'boolean',
+        'choices' => 'array',
         'sort_order' => 'integer',
     ];
 

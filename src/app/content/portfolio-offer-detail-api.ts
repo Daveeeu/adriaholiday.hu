@@ -21,14 +21,28 @@ export type PortfolioMedia = {
 
 export type PortfolioOfferExtraPriceUnit = 'per_person' | 'per_booking';
 
+/**
+ * optional: charged when selected; mandatory: always charged;
+ * solo_traveller: charged automatically when exactly one passenger travels.
+ */
+export type PortfolioOfferExtraChargeRule = 'optional' | 'mandatory' | 'solo_traveller';
+
 /** A priced supplement ("felár") offered on a tour date. */
 export type PortfolioOfferDateExtra = {
   id: number;
   name: string;
   price: number;
   priceUnit: PortfolioOfferExtraPriceUnit;
-  mandatory: boolean;
+  chargeRule: PortfolioOfferExtraChargeRule;
+  /** When not empty, the customer picks one of these once the extra is charged. */
+  choices: string[];
   sortOrder: number;
+};
+
+/** Insurances offered on every booking, as configured by the office. */
+export type PortfolioBookingInsurances = {
+  travelInsurance: { name: string; dailyFee: number };
+  cancellationInsurance: { name: string; percent: number; minDaysBeforeDeparture: number };
 };
 
 export type PortfolioOfferDetailDate = {
@@ -131,6 +145,8 @@ export type PortfolioOfferDetail = {
     name: string;
     city: string;
     fee?: number | null;
+    /** Overrides the general fee on this tour. */
+    tourFee?: number | null;
   }>;
   partnerBonuses: Array<{
     id: number | string;
@@ -153,6 +169,7 @@ export type PortfolioOfferDetail = {
   departureDateLabel?: string | null;
   link?: string | null;
   bookingFormFields?: BookingFormField[];
+  bookingInsurances?: PortfolioBookingInsurances | null;
 };
 
 type PortfolioOfferDetailResponse = PortfolioOfferDetail;

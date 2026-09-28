@@ -19,13 +19,20 @@ export type TourSeasonalMenuType = (typeof TOUR_SEASONAL_MENU_TYPES)[number]['va
 
 export type TourExtraPriceUnit = 'per_person' | 'per_booking';
 
+/**
+ * optional: charged when the customer selects it; mandatory: always charged;
+ * solo_traveller: charged automatically when exactly one passenger travels.
+ */
+export type TourExtraChargeRule = 'optional' | 'mandatory' | 'solo_traveller';
+
 /** A priced supplement ("felár") offered on a tour date. */
 export type TourDateExtra = {
   id: number;
   name: string;
   price: number;
   priceUnit: TourExtraPriceUnit;
-  mandatory: boolean;
+  chargeRule: TourExtraChargeRule;
+  choices: string[];
   sortOrder: number;
 };
 
@@ -336,6 +343,14 @@ export const tourFormSchema = z.object({
   groupId: z.string(),
   seasonalGroupId: z.string(),
   departurePlaceIds: z.array(z.string()),
+  /** Per-tour fee by departure place id; empty uses the place's general fee. */
+  departurePlaceFees: z.record(
+    z.string(),
+    z
+      .string()
+      .trim()
+      .regex(/^(\d+(\.\d+)?)?$/, 'Adj meg egy nem negatív összeget.'),
+  ),
   countryIds: z.array(z.string()),
   tagIds: z.array(z.string()),
   categoryIds: z.array(z.string()),
@@ -374,7 +389,9 @@ export const tourFormSchema = z.object({
             .trim()
             .regex(/^\d+(\.\d+)?$/, 'Adj meg egy nem negatív árat.'),
           priceUnit: z.enum(['per_person', 'per_booking']),
-          mandatory: z.boolean(),
+          chargeRule: z.enum(['optional', 'mandatory', 'solo_traveller']),
+          /** One choice per line. */
+          choices: z.string(),
         }),
       ),
     }),
@@ -413,7 +430,8 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       name: extra.name,
       price: extra.price.toString(),
       priceUnit: extra.priceUnit,
-      mandatory: extra.mandatory,
+      chargeRule: extra.chargeRule,
+      choices: extra.choices.join('\n'),
     })),
   }));
 
@@ -510,6 +528,12 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     groupId: tour?.groupId ?? '',
     seasonalGroupId: tour?.seasonalGroupId ?? '',
     departurePlaceIds: tour?.departurePlaceIds ?? [],
+    departurePlaceFees: Object.fromEntries(
+      (tour?.departurePlaces ?? []).map((place) => [
+        String(place.id),
+        place.tourFee !== null && place.tourFee !== undefined ? String(place.tourFee) : '',
+      ]),
+    ),
     countryIds: tour?.countryIds ?? [],
     tagIds: tour?.tagIds ?? [],
     categoryIds: tour?.categoryIds ?? [],
@@ -684,10 +708,12 @@ export type TourDeparturePlace = {
   name: string;
   city: string;
   fee: string;
+  /** Fee on the tour the place was loaded with, overriding the general fee. */
+  tourFee?: number | null;
   travelCount: number;
 };
 
-export type TourDeparturePlaceFormValues = Omit<TourDeparturePlace, 'id' | 'travelCount'>;
+export type TourDeparturePlaceFormValues = Omit<TourDeparturePlace, 'id' | 'travelCount' | 'tourFee'>;
 
 export type TourDeparturePlaceListQuery = {
   page: number;

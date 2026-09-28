@@ -32,6 +32,15 @@ export function BookingPricingCard({
     });
   }
 
+  if (pricing.discount) {
+    rows.push({
+      key: 'discount',
+      label: `${pricing.discount.label} (-${pricing.discount.percent}%)`,
+      detail: null,
+      amount: -pricing.discount.amount,
+    });
+  }
+
   if (pricing.departurePlace) {
     rows.push({
       key: 'departure',
@@ -47,9 +56,32 @@ export function BookingPricingCard({
   pricing.extras.forEach((extra) => {
     rows.push({
       key: `extra-${extra.id}`,
-      label: extra.mandatory ? `${extra.name} (kötelező)` : extra.name,
-      detail: `${extra.quantity} × ${format(extra.price)}`,
+      label:
+        extra.chargeRule === 'mandatory'
+          ? `${extra.name} (kötelező)`
+          : extra.name,
+      detail: [`${extra.quantity} × ${format(extra.price)}`, extra.choice]
+        .filter(Boolean)
+        .join(' – '),
       amount: extra.total,
+    });
+  });
+
+  if (pricing.coupon) {
+    rows.push({
+      key: 'coupon',
+      label: `Kupon (${pricing.coupon.code})`,
+      detail: null,
+      amount: -pricing.coupon.amount,
+    });
+  }
+
+  pricing.insurances.forEach((insurance) => {
+    rows.push({
+      key: `insurance-${insurance.key}`,
+      label: insurance.name,
+      detail: insurance.detail,
+      amount: insurance.total,
     });
   });
 

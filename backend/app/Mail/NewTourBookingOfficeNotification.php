@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Booking;
 use App\Models\BookingFormField;
 use App\Models\Tour;
+use App\Support\Tour\TourExtraChargeRule;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -60,6 +61,10 @@ class NewTourBookingOfficeNotification extends Mailable
             $lines[] = sprintf('Részvételi díj: %d fő × %s = %s', $pricing['passengers'], $this->formatPrice($pricing['basePrice']), $this->formatPrice($pricing['baseTotal']));
         }
 
+        if ($pricing['discount'] !== null) {
+            $lines[] = sprintf('%s (-%s%%): -%s', $pricing['discount']['label'], $pricing['discount']['percent'], $this->formatPrice($pricing['discount']['amount']));
+        }
+
         if ($pricing['departurePlace'] !== null) {
             $place = $pricing['departurePlace'];
             $lines[] = $place['total'] > 0
@@ -69,13 +74,22 @@ class NewTourBookingOfficeNotification extends Mailable
 
         foreach ($pricing['extras'] as $extra) {
             $lines[] = sprintf(
-                '%s%s: %d × %s = %s',
+                '%s%s: %d × %s = %s%s',
                 $extra['name'],
-                $extra['mandatory'] ? ' (kötelező)' : '',
+                $extra['chargeRule'] === TourExtraChargeRule::MANDATORY ? ' (kötelező)' : '',
                 $extra['quantity'],
                 $this->formatPrice($extra['price']),
                 $this->formatPrice($extra['total']),
+                $extra['choice'] !== null ? " – {$extra['choice']}" : '',
             );
+        }
+
+        if ($pricing['coupon'] !== null) {
+            $lines[] = sprintf('Kupon (%s): -%s', $pricing['coupon']['code'], $this->formatPrice($pricing['coupon']['amount']));
+        }
+
+        foreach ($pricing['insurances'] as $insurance) {
+            $lines[] = sprintf('%s (%s): %s', $insurance['name'], $insurance['detail'], $this->formatPrice($insurance['total']));
         }
 
         return $lines;

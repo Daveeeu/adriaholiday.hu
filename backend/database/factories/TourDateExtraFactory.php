@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\TourDate;
 use App\Models\TourDateExtra;
+use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,7 +18,8 @@ class TourDateExtraFactory extends Factory
             'name' => fake()->randomElement(['Vacsora', 'Egyágyas felár', 'Fakultatív program']),
             'price' => fake()->numberBetween(5, 50) * 1000,
             'price_unit' => TourExtraPriceUnit::PER_PERSON,
-            'mandatory' => false,
+            'charge_rule' => TourExtraChargeRule::OPTIONAL,
+            'choices' => null,
             'sort_order' => 0,
         ];
     }

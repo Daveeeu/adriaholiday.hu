@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\SiteSetting;
+use App\Support\Booking\BookingInsuranceSettings;
 use Illuminate\Database\Seeder;
 
 class SiteSettingsSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach ($this->defaults() as $setting) {
+        foreach ([...$this->defaults(), ...$this->bookingDefaults()] as $setting) {
             SiteSetting::query()->updateOrCreate(
                 [
                     'group' => $setting['group'],
@@ -71,5 +72,22 @@ class SiteSettingsSeeder extends Seeder
             ['group' => 'legal', 'key' => 'terms_content', 'type' => 'text', 'is_public' => true, 'value' => "Az ÁSZF oldal a foglalási, fizetési, lemondási és felelősségi feltételek összefoglaló helye.\n\nA production indulás előtt cseréld ezt a mintaszöveget a végleges jogi tartalomra."],
             ['group' => 'legal', 'key' => 'cookie_content', 'type' => 'text', 'is_public' => true, 'value' => "A cookie tájékoztató mutassa be a feltétlenül szükséges, analitikai és marketing sütik célját.\n\nÍrd le, hogyan módosítható a hozzájárulás, és mely szolgáltatók kapnak adatot a sütikből."],
         ];
+    }
+
+    /**
+     * @return array<int, array{group: string, key: string, type: string, is_public: bool, value: mixed}>
+     */
+    private function bookingDefaults(): array
+    {
+        return collect(BookingInsuranceSettings::DEFAULTS)
+            ->map(fn (array $setting, string $key): array => [
+                'group' => BookingInsuranceSettings::GROUP,
+                'key' => $key,
+                'type' => $setting['type'],
+                'is_public' => true,
+                'value' => $setting['value'],
+            ])
+            ->values()
+            ->all();
     }
 }

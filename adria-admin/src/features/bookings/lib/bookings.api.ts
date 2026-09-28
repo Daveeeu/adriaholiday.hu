@@ -157,6 +157,11 @@ function mapTourInquiry(resource: BookingResource): TourInquiry {
     message: resource.message ?? resource.notes ?? '',
     offerName: resource.offerName ?? '',
     appointmentTime: resource.appointmentTime ?? '',
+    requestedFrom: resource.arrival ?? null,
+    requestedTo: resource.departure ?? null,
+    passengerCount: resource.passengerCount ?? null,
+    city: resource.city ?? '',
+    address: resource.address ?? '',
     createdAt: resource.createdAt,
     status: resource.status as TourInquiry['status'],
   };

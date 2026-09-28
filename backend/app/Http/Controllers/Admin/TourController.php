@@ -147,7 +147,7 @@ class TourController extends Controller
             $this->tourContentSync->syncProgramDays($tour, $validated['program_days'] ?? []);
             $this->tourContentSync->syncGalleryItems($tour, $validated['gallery'] ?? []);
             $this->tourContentSync->syncPriceItems($tour, $validated['price_items'] ?? []);
-            $tour->departurePlaces()->sync($validated['departure_place_ids'] ?? []);
+            $this->tourContentSync->syncDeparturePlaces($tour, $validated['departure_place_ids'] ?? [], $validated['departure_place_fees'] ?? []);
 
             return $tour;
         });
@@ -221,7 +221,7 @@ class TourController extends Controller
             $this->tourContentSync->syncProgramDays($tour, $validated['program_days'] ?? []);
             $this->tourContentSync->syncGalleryItems($tour, $validated['gallery'] ?? []);
             $this->tourContentSync->syncPriceItems($tour, $validated['price_items'] ?? []);
-            $tour->departurePlaces()->sync($validated['departure_place_ids'] ?? []);
+            $this->tourContentSync->syncDeparturePlaces($tour, $validated['departure_place_ids'] ?? [], $validated['departure_place_fees'] ?? []);
         });
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
@@ -277,7 +277,8 @@ class TourController extends Controller
                     'name' => $extra->name,
                     'price' => $extra->price,
                     'price_unit' => $extra->price_unit,
-                    'mandatory' => $extra->mandatory,
+                    'charge_rule' => $extra->charge_rule,
+                    'choices' => $extra->choices ?? [],
                     'sort_order' => $extra->sort_order,
                 ])->all(),
             ])->all());
@@ -311,7 +312,11 @@ class TourController extends Controller
                 'sort_order' => $item->sort_order,
                 'active' => $item->active,
             ])->all());
-            $copy->departurePlaces()->sync($tour->departurePlaces->pluck('id')->all());
+            $this->tourContentSync->syncDeparturePlaces(
+                $copy,
+                $tour->departurePlaces->pluck('id')->all(),
+                $tour->departurePlaces->mapWithKeys(fn ($place): array => [$place->id => $place->pivot->fee])->all(),
+            );
 
             return $copy;
         });

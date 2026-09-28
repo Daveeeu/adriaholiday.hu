@@ -68,6 +68,11 @@ export type SiteSettingsFormValues = {
   metaPixelEnabled: boolean;
   metaPixelId: string;
   newsletterCouponValue: number;
+  travelInsuranceName: string;
+  travelInsuranceDailyFee: number;
+  cancellationInsuranceName: string;
+  cancellationInsurancePercent: number;
+  cancellationInsuranceMinDays: number;
   imprintUrl: string;
   privacyUrl: string;
   termsUrl: string;

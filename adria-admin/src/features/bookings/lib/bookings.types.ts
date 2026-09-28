@@ -126,16 +126,22 @@ export type TourBookingPricing = {
   passengers: number;
   basePrice: number | null;
   baseTotal: number | null;
+  discount: { label: string; percent: number; amount: number } | null;
   departurePlace: { id: number; name: string; fee: number; total: number } | null;
   extras: Array<{
     id: number;
     name: string;
     price: number;
     priceUnit: 'per_person' | 'per_booking';
-    mandatory: boolean;
+    chargeRule: 'optional' | 'mandatory' | 'solo_traveller';
+    choice: string | null;
     quantity: number;
     total: number;
   }>;
+  coupon: { id: number; code: string; amount: number } | null;
+  tripTotal: number | null;
+  insurances: Array<{ key: string; name: string; detail: string; total: number }>;
+  insuranceTotal: number;
   total: number | null;
 };
 
@@ -163,6 +169,12 @@ export interface TourInquiry {
   message: string;
   offerName: string;
   appointmentTime: string;
+  /** Custom period and group size of a public group quote request. */
+  requestedFrom: string | null;
+  requestedTo: string | null;
+  passengerCount: number | null;
+  city: string;
+  address: string;
   createdAt: string;
   status: InquiryStatus;
 }
@@ -251,7 +263,10 @@ export type TourBookingFormValues = Omit<
   adminNote: string;
 };
 
-export type TourInquiryFormValues = Omit<TourInquiry, 'id' | 'createdAt'>;
+export type TourInquiryFormValues = Omit<
+  TourInquiry,
+  'id' | 'createdAt' | 'requestedFrom' | 'requestedTo' | 'passengerCount' | 'city' | 'address'
+>;
 
 export type ApartmentBookingFormValues = Omit<
   ApartmentBooking,

@@ -788,9 +788,15 @@ class AdminToursTest extends TestCase
                     'price' => 45900,
                     'status' => 'planned',
                     'extras' => [
-                        ['name' => 'Vacsora', 'price' => 8800, 'priceUnit' => 'per_person', 'mandatory' => false],
-                        ['name' => 'Repülőjegy', 'price' => 30000, 'priceUnit' => 'per_person', 'mandatory' => true],
-                        ['name' => 'Egyágyas felár', 'price' => 13800, 'priceUnit' => 'per_booking'],
+                        ['name' => 'Vacsora', 'price' => 8800, 'priceUnit' => 'per_person', 'chargeRule' => 'optional'],
+                        ['name' => 'Repülőjegy', 'price' => 30000, 'priceUnit' => 'per_person', 'chargeRule' => 'mandatory'],
+                        [
+                            'name' => 'Egyágyas felár',
+                            'price' => 13800,
+                            'priceUnit' => 'per_booking',
+                            'chargeRule' => 'solo_traveller',
+                            'choices' => "Egyedül szeretnék lenni a szobában\r\nSzeretnék szobatársat\n",
+                        ],
                     ],
                 ],
             ],
@@ -798,7 +804,9 @@ class AdminToursTest extends TestCase
 
         $response->assertCreated();
         $response->assertJsonPath('data.dates.0.extras.0.name', 'Vacsora');
-        $response->assertJsonPath('data.dates.0.extras.1.mandatory', true);
+        $response->assertJsonPath('data.dates.0.extras.1.chargeRule', 'mandatory');
+        $response->assertJsonPath('data.dates.0.extras.2.chargeRule', 'solo_traveller');
+        $response->assertJsonPath('data.dates.0.extras.2.choices', ['Egyedül szeretnék lenni a szobában', 'Szeretnék szobatársat']);
         $response->assertJsonPath('data.dates.0.extras.2.priceUnit', 'per_booking');
         $response->assertJsonPath('data.dates.0.extras.2.price', 13800);
 
@@ -809,6 +817,33 @@ class AdminToursTest extends TestCase
         $duplicate->assertCreated();
         $duplicate->assertJsonCount(3, 'data.dates.0.extras');
         $duplicate->assertJsonPath('data.dates.0.extras.1.name', 'Repülőjegy');
+        $duplicate->assertJsonPath('data.dates.0.extras.2.choices.1', 'Szeretnék szobatársat');
+    }
+
+    public function test_departure_places_keep_their_per_tour_fee_on_save_and_duplicate(): void
+    {
+        $this->actingAsTourAdmin();
+        Permission::findOrCreate('tours.duplicate', 'web');
+        auth()->user()->givePermissionTo('tours.duplicate');
+
+        $bok = TourDeparturePlace::query()->create(['active' => true, 'name' => 'Budapest BOK csarnok', 'city' => 'Budapest', 'fee' => null]);
+        $miskolc = TourDeparturePlace::query()->create(['active' => true, 'name' => 'Miskolc', 'city' => 'Miskolc', 'fee' => 1000]);
+
+        $response = $this->postJson('/api/admin/tours', $this->payload([
+            'seo_name' => 'felszallasi-dij-teszt',
+            'departure_place_ids' => [$bok->id, $miskolc->id],
+            'departurePlaceFees' => [$bok->id => 4700, $miskolc->id => ''],
+        ]));
+
+        $response->assertCreated();
+        $places = collect($response->json('data.departurePlaces'))->keyBy('name');
+        $this->assertEquals(4700, $places['Budapest BOK csarnok']['tourFee']);
+        $this->assertNull($places['Miskolc']['tourFee']);
+        $this->assertEquals(1000, $places['Miskolc']['fee']);
+
+        $duplicate = $this->postJson('/api/admin/tours/'.$response->json('data.id').'/duplicate');
+        $duplicate->assertCreated();
+        $this->assertEquals(4700, collect($duplicate->json('data.departurePlaces'))->firstWhere('name', 'Budapest BOK csarnok')['tourFee']);
     }
 
     public function test_tour_date_extras_are_validated(): void
@@ -822,7 +857,7 @@ class AdminToursTest extends TestCase
                     'startDate' => '2026-11-28',
                     'endDate' => '2026-11-29',
                     'extras' => [
-                        ['name' => '', 'price' => -1, 'priceUnit' => 'per_night'],
+                        ['name' => '', 'price' => -1, 'priceUnit' => 'per_night', 'chargeRule' => 'sometimes'],
                     ],
                 ],
             ],
@@ -833,6 +868,7 @@ class AdminToursTest extends TestCase
             'dates.0.extras.0.name',
             'dates.0.extras.0.price',
             'dates.0.extras.0.price_unit',
+            'dates.0.extras.0.charge_rule',
         ]);
     }
 

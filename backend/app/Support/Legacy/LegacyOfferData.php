@@ -7,7 +7,7 @@ namespace App\Support\Legacy;
  * Immutable by design: the parser is pure (HTML in, data out) and this DTO
  * is the contract between LegacyAdriaOfferParser and LegacyTourImporter.
  *
- * @phpstan-type LegacyOfferDate array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: array<int, array{name: string, price: float, price_unit: string, mandatory: bool}>}
+ * @phpstan-type LegacyOfferDate array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}
  * @phpstan-type LegacyOfferProgramDay array{day_number: int, title: string, description: string}
  * @phpstan-type LegacyOfferPriceItem array{type: string, text: string}
  */
@@ -15,13 +15,14 @@ final class LegacyOfferData
 {
     /**
      * @param  array<int, string>  $galleryImageUrls
-     * @param  array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: array<int, array{name: string, price: float, price_unit: string, mandatory: bool}>}>  $dates
+     * @param  array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>  $dates
      * @param  array<int, array{day_number: int, title: string, description: string}>  $programDays
      * @param  array<int, array{type: string, text: string}>  $priceItems
      * @param  array<int, string>  $tags
      * @param  array<int, string>  $categories
      * @param  array<int, string>  $countrySlugs
      * @param  array<int, string>  $departurePlaceNames
+     * @param  array<string, float>  $departurePlaceFees  per-tour fee per passenger keyed by departure place name
      */
     public function __construct(
         public readonly string $sourceUrl,
@@ -39,6 +40,7 @@ final class LegacyOfferData
         public readonly ?string $catering,
         public readonly ?string $accommodation,
         public readonly array $departurePlaceNames,
+        public readonly array $departurePlaceFees,
         public readonly ?string $notesHtml,
         public readonly ?string $discountsHtml,
         public readonly ?float $price,

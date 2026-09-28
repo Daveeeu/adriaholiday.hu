@@ -30,6 +30,7 @@ import {
 import { normalizeSelectOption } from '../lib/tour-select-options.api';
 import type { SelectOption, Tour, TourFormValues } from '../lib/tours.types';
 import { TourCreatableSelectField } from './TourCreatableSelectField';
+import { TourDeparturePlaceFeesEditor } from './TourDeparturePlaceFeesEditor';
 
 type TourFilterSectionsProps = {
   form: UseFormReturn<TourFormValues>;
@@ -185,6 +186,9 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
           createFn={createDeparturePlaceOption}
           fallbackOptions={departurePlaceFallbackOptions}
         />
+        <div className="md:col-span-2 md:order-last">
+          <TourDeparturePlaceFeesEditor form={form} tour={tour} />
+        </div>
         <TourCreatableSelectField
           control={form.control}
           name="countryIds"

@@ -65,6 +65,8 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
         displayedPrice: date.priceBox?.displayedPrice ?? null,
         priceBox: date.priceBox ?? null,
         extras: date.extras ?? [],
+        startDate: date.startDate ?? null,
+        endDate: date.endDate ?? null,
       }))
     : [
         {
@@ -76,6 +78,8 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
           displayedPrice: priceBox?.displayedPrice ?? null,
           priceBox,
           extras: [],
+          startDate: null,
+          endDate: null,
         },
       ];
 
@@ -118,8 +122,10 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     departurePlaces: offer.departurePlaces.map((place) => ({
       id: place.id,
       name: place.name,
-      fee: place.fee ?? 0,
+      fee: place.tourFee ?? place.fee ?? 0,
     })),
+    bookingInsurances: offer.bookingInsurances ?? null,
+    hasBookableDates: offer.dates.length > 0,
   };
 }
 

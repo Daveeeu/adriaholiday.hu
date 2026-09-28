@@ -147,7 +147,7 @@ class Tour extends Model implements HasMedia
 
     public function departurePlaces(): BelongsToMany
     {
-        return $this->belongsToMany(TourDeparturePlace::class, 'tour_departure_place_tour');
+        return $this->belongsToMany(TourDeparturePlace::class, 'tour_departure_place_tour')->withPivot('fee');
     }
 
     public function registerMediaCollections(): void

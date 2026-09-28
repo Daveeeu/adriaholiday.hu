@@ -6,6 +6,7 @@ use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourProgramDay;
 use App\Support\RichTextSanitizer;
+use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
 
 /**
@@ -41,7 +42,7 @@ class TourContentSyncService
     }
 
     /**
-     * @param  array<int, array{name?: string, price?: float|int|string|null, price_unit?: string|null, mandatory?: bool|null, sort_order?: int|null}>  $extras
+     * @param  array<int, array{name?: string, price?: float|int|string|null, price_unit?: string|null, charge_rule?: string|null, choices?: array<int, string>|null, sort_order?: int|null}>  $extras
      */
     private function createDateExtras(TourDate $tourDate, array $extras): void
     {
@@ -58,10 +59,45 @@ class TourContentSyncService
                 'price_unit' => in_array($extra['price_unit'] ?? null, TourExtraPriceUnit::all(), true)
                     ? $extra['price_unit']
                     : TourExtraPriceUnit::PER_PERSON,
-                'mandatory' => (bool) ($extra['mandatory'] ?? false),
+                'charge_rule' => in_array($extra['charge_rule'] ?? null, TourExtraChargeRule::all(), true)
+                    ? $extra['charge_rule']
+                    : TourExtraChargeRule::OPTIONAL,
+                'choices' => $this->normalizeChoices($extra['choices'] ?? []),
                 'sort_order' => (int) ($extra['sort_order'] ?? ($index + 1)),
             ]);
         }
+    }
+
+    /**
+     * @param  array<int, mixed>  $choices
+     * @return array<int, string>|null
+     */
+    private function normalizeChoices(array $choices): ?array
+    {
+        $normalized = collect($choices)
+            ->map(fn (mixed $choice): string => trim(strip_tags((string) $choice)))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return $normalized !== [] ? $normalized : null;
+    }
+
+    /**
+     * Attaches the tour's departure places with their optional per-tour fee,
+     * which overrides the place's general fee on this tour only.
+     *
+     * @param  array<int, int|string>  $departurePlaceIds
+     * @param  array<int|string, float|int|string|null>  $fees  keyed by departure place id
+     */
+    public function syncDeparturePlaces(Tour $tour, array $departurePlaceIds, array $fees = []): void
+    {
+        $tour->departurePlaces()->sync(collect($departurePlaceIds)
+            ->mapWithKeys(fn (int|string $id): array => [
+                (int) $id => ['fee' => is_numeric($fees[$id] ?? null) ? (float) $fees[$id] : null],
+            ])
+            ->all());
     }
 
     public function syncPartnerBonuses(Tour $tour, array $bonuses): void

@@ -93,6 +93,12 @@ export const TOUR_DATE_STATUSES = [
   { value: 'sold_out', label: 'Betelt' },
 ] as const;
 
+export const TOUR_EXTRA_CHARGE_RULES = [
+  { value: 'optional', label: 'Ha a foglaló kéri' },
+  { value: 'mandatory', label: 'Mindig (kötelező)' },
+  { value: 'solo_traveller', label: 'Egyedül utazónak' },
+] as const;
+
 export const TOUR_EXTRA_PRICE_UNITS = [
   { value: 'per_person', label: 'Fő után' },
   { value: 'per_booking', label: 'Foglalásonként' },

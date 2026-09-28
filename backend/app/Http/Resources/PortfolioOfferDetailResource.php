@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Services\Booking\BookingFormFieldResolver;
+use App\Support\Booking\BookingInsuranceSettings;
 use App\Support\RichTextSanitizer;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
@@ -89,6 +90,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'departureDateLabel' => $departureDateLabel,
             'link' => '/ajanlat/'.($tour->seo_name ?: Str::slug((string) $tour->name)),
             'bookingFormFields' => app(BookingFormFieldResolver::class)->resolve($tour),
+            'bookingInsurances' => BookingInsuranceSettings::load()->toArray(),
         ]);
     }
 }

@@ -14,7 +14,8 @@ class TourDateExtraResource extends JsonResource
             'name' => $this->name,
             'price' => (float) $this->price,
             'priceUnit' => $this->price_unit,
-            'mandatory' => (bool) $this->mandatory,
+            'chargeRule' => $this->charge_rule,
+            'choices' => $this->choices ?? [],
             'sortOrder' => (int) $this->sort_order,
         ];
     }

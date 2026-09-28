@@ -15,6 +15,7 @@ class TourDeparturePlaceResource extends JsonResource
             'name' => $this->name,
             'city' => $this->city,
             'fee' => $this->fee !== null ? (float) $this->fee : null,
+            'tourFee' => $this->pivot?->fee !== null ? (float) $this->pivot->fee : null,
             'travelCount' => (int) ($this->tours_count ?? 0),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),

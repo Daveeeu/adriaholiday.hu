@@ -2,13 +2,13 @@
 
 namespace App\Http\Requests\Admin\Tour;
 
-use App\Http\Requests\Admin\Tour\Concerns\ValidatesTourDateExtras;
+use App\Http\Requests\Admin\Tour\Concerns\ValidatesTourBookingOptions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreTourRequest extends FormRequest
 {
-    use ValidatesTourDateExtras;
+    use ValidatesTourBookingOptions;
 
     protected function prepareForValidation(): void
     {
@@ -114,6 +114,7 @@ class StoreTourRequest extends FormRequest
                 ];
             })->all(),
             'departure_place_ids' => $this->input('departure_place_ids', $this->input('departurePlaceIds', [])),
+            'departure_place_fees' => $this->input('departure_place_fees', $this->input('departurePlaceFees', [])),
             'country_ids' => $this->input('country_ids', $this->input('countryIds', [])),
             'tag_ids' => $this->input('tag_ids', $this->input('tagIds', [])),
             'category_ids' => $this->input('category_ids', $this->input('categoryIds', [])),
@@ -259,7 +260,7 @@ class StoreTourRequest extends FormRequest
             'partner_bonuses.*.sort_order' => ['nullable', 'integer', 'min:0'],
             'partner_bonuses.*.label' => ['required_with:partner_bonuses', 'string', 'max:255'],
             'partner_bonuses.*.value' => ['nullable', 'string', 'max:255'],
-            ...$this->dateExtraRules(),
+            ...$this->bookingOptionRules(),
         ];
     }
 }

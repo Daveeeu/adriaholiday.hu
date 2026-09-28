@@ -19,6 +19,9 @@ class StorePublicBookingRequest extends FormRequest
             'coupon_code' => $this->input('coupon_code', $this->input('couponCode')),
             'departure_place_id' => $this->input('departure_place_id', $this->input('departurePlaceId')),
             'extra_ids' => $this->input('extra_ids', $this->input('extraIds', [])),
+            'extra_choices' => $this->input('extra_choices', $this->input('extraChoices', [])),
+            'travel_insurance' => $this->boolean('travel_insurance', $this->boolean('travelInsurance')),
+            'cancellation_insurance' => $this->boolean('cancellation_insurance', $this->boolean('cancellationInsurance')),
             'type' => $this->input('type', 'tour_booking'),
         ]);
     }
@@ -56,6 +59,10 @@ class StorePublicBookingRequest extends FormRequest
             'departure_place_id' => ['nullable', 'integer'],
             'extra_ids' => ['nullable', 'array', 'max:30'],
             'extra_ids.*' => ['integer', 'distinct'],
+            'extra_choices' => ['nullable', 'array', 'max:30'],
+            'extra_choices.*' => ['string', 'max:255'],
+            'travel_insurance' => ['boolean'],
+            'cancellation_insurance' => ['boolean'],
             'type' => ['nullable', 'string', Rule::in(['tour_booking', 'tour_inquiry'])],
         ];
     }
@@ -85,6 +92,8 @@ class StorePublicBookingRequest extends FormRequest
             'extra_ids.max' => 'Túl sok felár lett kiválasztva.',
             'extra_ids.*.integer' => 'Érvénytelen felár azonosító.',
             'extra_ids.*.distinct' => 'Egy felár csak egyszer választható.',
+            'extra_choices.array' => 'Érvénytelen felár választás.',
+            'extra_choices.*.max' => 'A megadott érték túl hosszú.',
         ];
     }
 }

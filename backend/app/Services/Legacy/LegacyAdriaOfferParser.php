@@ -56,7 +56,7 @@ class LegacyAdriaOfferParser
 
     /**
      * @param  array{countries?: array<int, string>, categories?: array<int, string>}  $context
-     * @param  array<int, array<string, mixed>>  $bookingOptions  raw booking options responses keyed by legacy date id
+     * @param  array<int, array{options: array<string, mixed>, quote: array<string, mixed>}>  $bookingOptions  raw legacy booking data keyed by legacy date id
      */
     public function parse(string $html, string $sourceUrl, array $context = [], array $bookingOptions = []): LegacyOfferData
     {
@@ -65,7 +65,10 @@ class LegacyAdriaOfferParser
 
         $name = $this->firstText($xpath, '//h1');
         $seoName = $this->seoNameFromUrl($sourceUrl);
-        $parsedOptions = array_map(fn (array $response): array => $this->bookingOptionsParser->parse($response), $bookingOptions);
+        $parsedOptions = array_map(
+            fn (array $response): array => $this->bookingOptionsParser->parse($response['options'], $response['quote'] ?? []),
+            $bookingOptions,
+        );
         $dates = $this->extractDates($xpath, $parsedOptions);
         $program = $this->extractProgramParagraphs($xpath);
         $bookableDeparturePlaces = collect($parsedOptions)
@@ -74,6 +77,12 @@ class LegacyAdriaOfferParser
             ->values()
             ->all();
         $datePrices = array_values(array_filter(array_column($dates, 'price'), fn (?float $price): bool => $price !== null));
+        $onSiteFees = collect($parsedOptions)
+            ->flatMap(fn (array $options): array => $options['onSiteFees'])
+            ->unique()
+            ->map(fn (string $fee): array => ['type' => 'excluded', 'text' => $fee])
+            ->values()
+            ->all();
 
         return new LegacyOfferData(
             sourceUrl: $sourceUrl,
@@ -83,7 +92,7 @@ class LegacyAdriaOfferParser
             galleryImageUrls: $this->extractGalleryImageUrls($xpath, $sourceUrl),
             dates: $dates,
             programDays: $program['days'],
-            priceItems: $program['priceItems'],
+            priceItems: [...$program['priceItems'], ...$onSiteFees],
             tags: $this->extractKeywords($xpath),
             categories: $this->extractCategories($xpath, $context),
             countrySlugs: array_values(array_unique($context['countries'] ?? [])),
@@ -91,6 +100,7 @@ class LegacyAdriaOfferParser
             catering: $dates[0]['catering'] ?? null,
             accommodation: $dates[0]['accommodation'] ?? null,
             departurePlaceNames: $bookableDeparturePlaces !== [] ? $bookableDeparturePlaces : $program['departurePlaces'],
+            departurePlaceFees: $this->departurePlaceFees($dates, $parsedOptions),
             notesHtml: $program['notesHtml'],
             discountsHtml: $program['discountsHtml'],
             price: $datePrices !== [] ? min($datePrices) : $program['price'],
@@ -164,8 +174,8 @@ class LegacyAdriaOfferParser
     }
 
     /**
-     * @param  array<int, array{departurePlaces: array<int, array{name: string, price: float|null}>, extras: array<int, array{name: string, price: float, price_unit: string, mandatory: bool}>}>  $bookingOptions
-     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: array<int, array{name: string, price: float, price_unit: string, mandatory: bool}>}>
+     * @param  array<int, array{departurePlaces: array<int, array{name: string, price: float|null}>, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, lastMinutePercent: float|null}>  $bookingOptions
+     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>
      */
     private function extractDates(DOMXPath $xpath, array $bookingOptions): array
     {
@@ -198,10 +208,43 @@ class LegacyAdriaOfferParser
                 'catering' => $this->cellLabel($xpath, $cells[2]),
                 'accommodation' => $this->cellLabel($xpath, $cells[3]),
                 'extras' => $legacyId ? ($bookingOptions[$legacyId]['extras'] ?? []) : [],
+                'discount_badge' => $legacyId && isset($bookingOptions[$legacyId]['lastMinutePercent'])
+                    ? '-'.rtrim(rtrim(number_format($bookingOptions[$legacyId]['lastMinutePercent'], 2, ',', ''), '0'), ',').'%'
+                    : null,
             ];
         }
 
         return $dates;
+    }
+
+    /**
+     * The legacy booking form prices each departure place per date; a place
+     * costing more than the date's price (e.g. "Budapest BOK csarnok") carries
+     * the difference as its per-tour fee.
+     *
+     * @param  array<int, array{legacy_id: ?int, price: ?float}>  $dates
+     * @param  array<int, array{departurePlaces: array<int, array{name: string, price: float|null}>}>  $bookingOptions
+     * @return array<string, float> fee per passenger keyed by departure place name
+     */
+    private function departurePlaceFees(array $dates, array $bookingOptions): array
+    {
+        $fees = [];
+
+        foreach ($dates as $date) {
+            if ($date['legacy_id'] === null || $date['price'] === null) {
+                continue;
+            }
+
+            foreach ($bookingOptions[$date['legacy_id']]['departurePlaces'] ?? [] as $place) {
+                $fee = ($place['price'] ?? $date['price']) - $date['price'];
+
+                if ($fee > 0) {
+                    $fees[$place['name']] = max($fees[$place['name']] ?? 0.0, $fee);
+                }
+            }
+        }
+
+        return $fees;
     }
 
     /**

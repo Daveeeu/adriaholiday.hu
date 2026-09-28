@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Booking;
 use App\Models\BookingFormField;
 use App\Models\BookingFormTemplate;
+use App\Models\Coupon;
 use App\Models\Tour;
 use App\Models\User;
 use Database\Seeders\BookingFormFieldSeeder;
@@ -58,7 +59,9 @@ class BookingFormTemplateTest extends TestCase
         $this->assertSame('required', $flightVisibility['document_number']);
         $this->assertSame('required', $flightVisibility['passenger_birth_date']);
         $this->assertSame('hidden', $flightVisibility['contact_city']);
-        $this->assertSame('optional', $flightVisibility['extra_single_room']);
+        // Priced by the tour date's extras and the booking insurances instead.
+        $this->assertSame('hidden', $flightVisibility['extra_single_room']);
+        $this->assertSame('hidden', $flightVisibility['extra_cancellation_insurance']);
         $this->assertSame('optional', $flightVisibility['note']);
     }
 
@@ -80,8 +83,9 @@ class BookingFormTemplateTest extends TestCase
 
         $fields = collect($this->getJson('/api/portfolio/offers/sablon-nelkul')->assertOk()->json('bookingFormFields'));
 
-        $this->assertSame('Egyágyas felár', $fields->firstWhere('key', 'extra_single_room')['label']);
-        $this->assertSame('+122.000 Ft', $fields->firstWhere('key', 'extra_single_room')['priceLabel']);
+        $this->assertNull($fields->firstWhere('key', 'extra_single_room'));
+        $this->assertNull($fields->firstWhere('key', 'extra_cancellation_insurance'));
+        $this->assertSame('Fizetési mód', $fields->firstWhere('key', 'extra_payment_method')['label']);
         $this->assertSame('extra', $fields->firstWhere('key', 'note')['inputGroup']);
         $this->assertSame('required', $fields->firstWhere('key', 'extra_terms')['visibility']);
 
@@ -197,6 +201,7 @@ class BookingFormTemplateTest extends TestCase
             'booking_form_template_id' => $template->id,
             'couponable' => true,
         ]);
+        Coupon::query()->create(['active' => true, 'name' => 'Nyári kupon', 'code' => 'NYAR10', 'value' => 10000, 'used' => false]);
 
         $response = $this->postJson('/api/bookings', [
             'tourId' => $tour->id,

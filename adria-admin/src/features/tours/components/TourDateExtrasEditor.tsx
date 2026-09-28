@@ -11,9 +11,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { createClientId } from '@/lib/client-id';
 
-import { TOUR_EXTRA_PRICE_UNITS } from '../lib/tours.constants';
+import {
+  TOUR_EXTRA_CHARGE_RULES,
+  TOUR_EXTRA_PRICE_UNITS,
+} from '../lib/tours.constants';
 import type { TourFormValues } from '../lib/tours.types';
 
 type TourDateExtrasEditorProps = {
@@ -91,7 +95,7 @@ export function TourDateExtrasEditor({
       {fields.map((field, extraIndex) => (
         <div
           key={field.fieldKey}
-          className="grid gap-3 rounded-lg border bg-muted/30 p-3 md:grid-cols-[2fr_1fr_1fr_auto_auto] md:items-end"
+          className="grid gap-3 rounded-lg border bg-muted/30 p-3 md:grid-cols-[2fr_1fr_1fr_1.4fr_auto] md:items-end"
         >
           <FormField
             control={form.control}
@@ -148,19 +152,23 @@ export function TourDateExtrasEditor({
           />
           <FormField
             control={form.control}
-            name={`dates.${dateIndex}.extras.${extraIndex}.mandatory`}
+            name={`dates.${dateIndex}.extras.${extraIndex}.chargeRule`}
             render={({ field: extraField }) => (
               <FormItem>
-                <label className="flex h-10 items-center gap-2 rounded-xl border bg-background px-3 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={extraField.value}
-                    onChange={(event) =>
-                      extraField.onChange(event.target.checked)
-                    }
-                  />
-                  Kötelező
-                </label>
+                <FormLabel>Mikor kell fizetni?</FormLabel>
+                <FormControl>
+                  <select
+                    className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+                    {...extraField}
+                  >
+                    {TOUR_EXTRA_CHARGE_RULES.map((rule) => (
+                      <option key={rule.value} value={rule.value}>
+                        {rule.label}
+                      </option>
+                    ))}
+                  </select>
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -173,6 +181,30 @@ export function TourDateExtrasEditor({
           >
             <Trash2 className="size-4" />
           </Button>
+          <FormField
+            control={form.control}
+            name={`dates.${dateIndex}.extras.${extraIndex}.choices`}
+            render={({ field: extraField }) => (
+              <FormItem className="md:col-span-5">
+                <FormLabel>
+                  Választási lehetőségek (opcionális, soronként egy)
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    rows={2}
+                    placeholder={
+                      'Egyedül szeretnék lenni a szobában\nSzeretnék szobatársat'
+                    }
+                    {...extraField}
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Ha megadod, a foglaló a felár mellé ezek közül választ egyet.
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       ))}
 
@@ -186,7 +218,8 @@ export function TourDateExtrasEditor({
             name: '',
             price: '',
             priceUnit: 'per_person',
-            mandatory: false,
+            chargeRule: 'optional',
+            choices: '',
           })
         }
       >

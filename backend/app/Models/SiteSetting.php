@@ -18,6 +18,7 @@ class SiteSetting extends Model
         'analytics',
         'legal',
         'newsletter',
+        'booking',
     ];
 
     public const TYPES = [

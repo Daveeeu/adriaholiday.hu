@@ -73,6 +73,11 @@ const settingsSchema = z.object({
   metaPixelEnabled: z.boolean(),
   metaPixelId: z.string().trim(),
   newsletterCouponValue: z.coerce.number().min(0, 'A kupon értéke nem lehet negatív.'),
+  travelInsuranceName: z.string().trim().min(1, 'A biztosítás neve kötelező.'),
+  travelInsuranceDailyFee: z.coerce.number().min(0, 'A díj nem lehet negatív.'),
+  cancellationInsuranceName: z.string().trim().min(1, 'A biztosítás neve kötelező.'),
+  cancellationInsurancePercent: z.coerce.number().min(0, 'A díj nem lehet negatív.').max(100, 'Legfeljebb 100% lehet.'),
+  cancellationInsuranceMinDays: z.coerce.number().int().min(0, 'Nem lehet negatív.'),
   imprintUrl: z.string().trim(),
   privacyUrl: z.string().trim(),
   termsUrl: z.string().trim(),
@@ -106,6 +111,11 @@ const emptyValues: SiteSettingsFormValues = {
   metaPixelEnabled: false,
   metaPixelId: '',
   newsletterCouponValue: 0,
+  travelInsuranceName: '',
+  travelInsuranceDailyFee: 0,
+  cancellationInsuranceName: '',
+  cancellationInsurancePercent: 0,
+  cancellationInsuranceMinDays: 0,
   imprintUrl: '',
   privacyUrl: '',
   termsUrl: '',
@@ -510,6 +520,30 @@ export function SettingsPage() {
               <CardContent className="grid gap-4">
                 <FormField control={form.control} name="newsletterCouponValue" render={({ field }) => (
                   <FormItem><FormLabel>Kupon értéke (Ft)</FormLabel><FormControl><Input type="number" min={0} step={1} {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Foglalási biztosítások</CardTitle>
+                <CardDescription>A foglaláskor választható utas- és útlemondási biztosítás díja, a végösszeg ezekkel számol.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2">
+                <FormField control={form.control} name="travelInsuranceName" render={({ field }) => (
+                  <FormItem><FormLabel>Utasbiztosítás neve</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="travelInsuranceDailyFee" render={({ field }) => (
+                  <FormItem><FormLabel>Utasbiztosítás díja (Ft / fő / nap)</FormLabel><FormControl><Input type="number" min={0} step={1} {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="cancellationInsuranceName" render={({ field }) => (
+                  <FormItem><FormLabel>Útlemondási biztosítás neve</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="cancellationInsurancePercent" render={({ field }) => (
+                  <FormItem><FormLabel>Útlemondási biztosítás (az utazás díjának %-a)</FormLabel><FormControl><Input type="number" min={0} max={100} step={0.1} {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="cancellationInsuranceMinDays" render={({ field }) => (
+                  <FormItem><FormLabel>Útlemondási biztosítás legkésőbb (nappal indulás előtt)</FormLabel><FormControl><Input type="number" min={0} step={1} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>

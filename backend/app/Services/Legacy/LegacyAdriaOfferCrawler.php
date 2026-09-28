@@ -78,30 +78,61 @@ class LegacyAdriaOfferCrawler
     }
 
     /**
-     * Fetches the booking options (departure places, extras) the legacy
-     * booking form loads for each tour date.
+     * Fetches, per tour date, the booking options the legacy booking form
+     * loads (departure places, extras) and a one-passenger price quote,
+     * which carries the resort fee and the Last Minute discount.
      *
      * @param  array<int, int>  $legacyDateIds
-     * @return array<int, array<string, mixed>> decoded responses keyed by legacy date id
+     * @return array<int, array{options: array<string, mixed>, quote: array<string, mixed>}> keyed by legacy date id
      *
      * @throws LegacyFetchException
      */
     public function fetchBookingOptions(array $legacyDateIds): array
     {
-        $options = [];
+        $bookingOptions = [];
 
         foreach ($legacyDateIds as $legacyDateId) {
-            $url = $this->resolveUrl('roundtrip/get_datas?'.http_build_query(['offer_date_id' => $legacyDateId]));
-            $decoded = json_decode($this->fetchHtml($url), true);
+            $options = $this->fetchJson('roundtrip/get_datas', ['offer_date_id' => $legacyDateId]);
+            preg_match('/<option value="?(\d+)"?>/', (string) ($options['felszallas_items'] ?? ''), $departure);
 
-            if (! is_array($decoded)) {
-                throw new LegacyFetchException("Invalid booking options response for legacy date {$legacyDateId}");
-            }
-
-            $options[$legacyDateId] = $decoded;
+            $bookingOptions[$legacyDateId] = [
+                'options' => $options,
+                'quote' => $this->fetchJson('roundtrip/get_roundtrip_price', [
+                    'offer_date_id' => $legacyDateId,
+                    'reservation_felszallas' => $departure[1] ?? '',
+                    'reservation_person' => 1,
+                    'reservation_resort_fee' => 1,
+                    'reservation_resort_fee_eur' => 1,
+                    'reservation_last_minute' => 1,
+                    // The legacy endpoint emits PHP notices instead of JSON when any field of its form is missing.
+                    'reservation_online_discount' => 0,
+                    'travel_insurance_eub' => 0,
+                    'cancellation_insurance_eub' => 0,
+                    'travel_email_coupon' => 0,
+                    'travel_email_coupon_code' => '',
+                ]),
+            ];
         }
 
-        return $options;
+        return $bookingOptions;
+    }
+
+    /**
+     * @param  array<string, int|string>  $query
+     * @return array<string, mixed>
+     *
+     * @throws LegacyFetchException
+     */
+    private function fetchJson(string $path, array $query): array
+    {
+        $url = $this->resolveUrl($path.'?'.http_build_query($query));
+        $decoded = json_decode($this->fetchHtml($url), true);
+
+        if (! is_array($decoded)) {
+            throw new LegacyFetchException("Invalid JSON response from {$url}");
+        }
+
+        return $decoded;
     }
 
     /**

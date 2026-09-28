@@ -137,16 +137,22 @@ class LegacyAdriaOfferParserTest extends TestCase
 
         $data = $parser->parse($this->html(), self::SOURCE_URL, [], [
             12250 => [
-                'felszallas_items' => '<option value="">Kérem válasszon!</option><option value=96>269.600 Ft/fő budapesti indulással</option>',
-                'extra_prices_items' => '<div class="row"><div class="col-sm-4"><div class="no-margin"><input class="price_changer extra_price_changer" data-id="1" type="checkbox"> Vacsora</div></div><div class="col-sm-4"><p class="no-margin">12.000 Ft/fő</p></div></div>',
+                'options' => [
+                    'felszallas_items' => '<option value="">Kérem válasszon!</option><option value=96>269.600 Ft/fő budapesti indulással</option><option value=97>274.300 Ft/fő Budapest BOK csarnok</option>',
+                    'extra_prices_items' => '<div class="row"><div class="col-sm-4"><div class="no-margin"><input class="price_changer extra_price_changer" data-id="1" type="checkbox"> Vacsora</div></div><div class="col-sm-4"><p class="no-margin">12.000 Ft/fő</p></div></div>',
+                ],
+                'quote' => ['resort_fee_value_person' => 0, 'resort_fee_eur_value_person' => '8', 'last_minute_value_text' => 5],
             ],
         ]);
 
         $this->assertSame(12250, $data->dates[0]['legacy_id']);
         $this->assertSame([
-            ['name' => 'Vacsora', 'price' => 12000.0, 'price_unit' => 'per_person', 'mandatory' => false],
+            ['name' => 'Vacsora', 'price' => 12000.0, 'price_unit' => 'per_person', 'charge_rule' => 'optional', 'choices' => []],
         ], $data->dates[0]['extras']);
-        $this->assertSame(['budapesti indulással'], $data->departurePlaceNames);
+        $this->assertSame('-5%', $data->dates[0]['discount_badge']);
+        $this->assertSame(['budapesti indulással', 'Budapest BOK csarnok'], $data->departurePlaceNames);
+        $this->assertSame(['Budapest BOK csarnok' => 4700.0], $data->departurePlaceFees);
+        $this->assertContains(['type' => 'excluded', 'text' => 'Üdülőhelyi illeték: 8 EUR/fő, helyszínen fizetendő'], $data->priceItems);
     }
 
     public function test_it_parses_short_date_ranges_current_discounted_prices_and_labels_without_popover_text(): void

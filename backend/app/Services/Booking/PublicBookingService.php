@@ -3,16 +3,18 @@
 namespace App\Services\Booking;
 
 use App\Models\Booking;
+use App\Models\Coupon;
 use App\Models\Tour;
 use App\Models\TourDate;
+use App\Support\Booking\TourBookingSelection;
 use App\Support\Booking\TourBookingStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
  * Creates a Booking from a validated public booking submission: prices it
- * on the server, checks the tour date still has enough free seats,
- * persists the booking, and triggers the office/customer notification emails.
+ * on the server, checks the tour date still has enough free seats, redeems
+ * the coupon, persists the booking, and triggers the notification emails.
  */
 class PublicBookingService
 {
@@ -34,17 +36,12 @@ class PublicBookingService
             : null;
 
         $pricing = ($validated['type'] ?? 'tour_booking') === 'tour_booking'
-            ? $this->priceCalculator->calculate(
-                $tour,
-                $tourDate,
-                $requestedSeats,
-                isset($validated['departure_place_id']) ? (int) $validated['departure_place_id'] : null,
-                $validated['extra_ids'] ?? [],
-            )
+            ? $this->priceCalculator->calculate($tour, $tourDate, TourBookingSelection::fromValidated($validated, $requestedSeats))
             : null;
 
         $booking = DB::transaction(function () use ($tour, $tourDate, $validated, $result, $requestedSeats, $pricing): Booking {
             $seatsReserved = $this->reserveCapacity($tourDate?->id, $requestedSeats);
+            $this->redeemCoupon($pricing['coupon']['id'] ?? null);
 
             return $this->createBooking($tour, $tourDate, $validated, $result, $seatsReserved, $pricing);
         });
@@ -86,6 +83,27 @@ class PublicBookingService
         $tourDate->decrement('price_box_available_seats', $requestedSeats);
 
         return true;
+    }
+
+    /**
+     * Marks the priced coupon as used inside the booking transaction, locking
+     * it so two simultaneous bookings cannot both redeem it.
+     */
+    private function redeemCoupon(?int $couponId): void
+    {
+        if ($couponId === null) {
+            return;
+        }
+
+        $coupon = Coupon::query()->whereKey($couponId)->where('used', false)->lockForUpdate()->first();
+
+        if ($coupon === null) {
+            throw ValidationException::withMessages([
+                'couponCode' => 'A megadott kuponkód már fel lett használva.',
+            ]);
+        }
+
+        $coupon->update(['used' => true]);
     }
 
     /**
