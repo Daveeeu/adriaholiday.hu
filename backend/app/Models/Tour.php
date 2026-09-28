@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Tour extends Model implements HasMedia
 {
@@ -148,6 +149,17 @@ class Tour extends Model implements HasMedia
     public function departurePlaces(): BelongsToMany
     {
         return $this->belongsToMany(TourDeparturePlace::class, 'tour_departure_place_tour')->withPivot('fee');
+    }
+
+    /**
+     * The image shown on the tour's page header and listing cards: the
+     * dedicated slider image, else the first active gallery image (imported
+     * and admin-created tours usually only have a gallery).
+     */
+    public function mainImage(): ?Media
+    {
+        return $this->getFirstMedia('slider')
+            ?? $this->galleryItems->where('active', true)->whereNotNull('media')->sortBy('sort_order')->first()?->media;
     }
 
     public function registerMediaCollections(): void

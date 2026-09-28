@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Tour;
 use App\Support\PriceBoxData;
 use App\Support\TourLabelResolver;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
@@ -30,8 +31,8 @@ class PortfolioFeaturedTourResource extends JsonResource
         }
 
         try {
-            $start = \Carbon\Carbon::parse($startDate);
-            $end = \Carbon\Carbon::parse($endDate);
+            $start = Carbon::parse($startDate);
+            $end = Carbon::parse($endDate);
         } catch (\Throwable) {
             return $fallback;
         }
@@ -48,7 +49,7 @@ class PortfolioFeaturedTourResource extends JsonResource
         $meta = $this->meta($tour);
         $priceBox = PriceBoxData::fromTour($tour);
         $firstDate = $tour->dates->sortBy('start_date')->first();
-        $media = $tour->getFirstMedia('slider');
+        $media = $tour->mainImage();
         $departureDate = $firstDate?->start_date?->toDateString();
         $duration = $this->formattedDuration(
             $firstDate?->start_date?->toDateString(),

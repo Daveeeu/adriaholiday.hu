@@ -15,7 +15,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
     {
         $tour = $this->resource;
         $meta = TourMeta::extract($tour);
-        $media = $tour->getFirstMedia('slider');
+        $media = $tour->mainImage();
         $firstDate = $tour->dates->sortBy('start_date')->first();
         $priceItems = $tour->priceItems->where('active', true)->sortBy('sort_order')->values();
         $departureDateLabel = $meta['departureDateLabel'] ?? null;

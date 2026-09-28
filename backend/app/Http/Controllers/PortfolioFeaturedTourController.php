@@ -15,7 +15,7 @@ class PortfolioFeaturedTourController extends Controller
         $tours = Tour::query()
             ->where('active', true)
             ->where('featured', true)
-            ->with(['region', 'dates', 'media'])
+            ->with(['region', 'dates', 'media', 'galleryItems.media'])
             ->orderBy('sort_order')
             ->orderByDesc('created_at')
             ->limit($limit)
