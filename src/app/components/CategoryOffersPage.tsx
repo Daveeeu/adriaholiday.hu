@@ -25,6 +25,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
+import { DEFAULT_HERO_IMAGE } from "../content/default-images";
 import ActiveOfferSearch from "./ActiveOfferSearch";
 import CountryFlag from "./CountryFlag";
 import {
@@ -430,10 +431,7 @@ export default function CategoryOffersPage({
     <div className="min-h-screen bg-[#f5f9fc]">
       <section className="relative h-[520px] overflow-hidden">
         <img
-          src={
-            heroImage ??
-            "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;1600x900;"
-          }
+          src={heroImage ?? DEFAULT_HERO_IMAGE}
           alt={title}
           className="absolute inset-0 h-full w-full object-cover"
           loading="eager"

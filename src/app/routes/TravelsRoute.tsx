@@ -2,13 +2,13 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
 import CategoryOffersPage from "../components/CategoryOffersPage";
+import { DEFAULT_HERO_IMAGE } from "../content/default-images";
 import { useAnalytics } from "../analytics/useAnalytics";
 import Seo from "../seo/Seo";
 import { absoluteUrl } from "../seo/site";
 
 const TITLE = "Utazások";
 const SUBTITLE = "Válogass a legfrissebb ajánlataink közül, és találd meg a következő élményt.";
-const HERO_IMAGE = "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;1600x900;";
 const CANONICAL_PATH = "/utazasok";
 
 export default function TravelsRoute() {
@@ -33,7 +33,7 @@ export default function TravelsRoute() {
         title={TITLE}
         description={SUBTITLE}
         canonicalPath={CANONICAL_PATH}
-        ogImageUrl={HERO_IMAGE}
+        ogImageUrl={DEFAULT_HERO_IMAGE}
         jsonLd={[
           {
             "@context": "https://schema.org",
@@ -65,7 +65,7 @@ export default function TravelsRoute() {
       <CategoryOffersPage
         title={TITLE}
         subtitle={SUBTITLE}
-        heroImage={HERO_IMAGE}
+        heroImage={DEFAULT_HERO_IMAGE}
         onBack={() => {
           trackEvent("cta_click", {
             entity: {

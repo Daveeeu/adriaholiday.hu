@@ -1,9 +1,10 @@
 import { ArrowRight, Calendar, Clock, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 import { EditableText } from "../content/EditableFields";
+import { DEFAULT_HERO_IMAGE } from "../content/default-images";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import {
   fetchPortfolioBlogArticles,
@@ -22,62 +23,6 @@ interface BlogArticle {
   readingTime: string;
   featured?: boolean;
 }
-
-const articlesFallback: BlogArticle[] = [
-  {
-    id: "1",
-    title: "Horvátország 10 legszebb strandja",
-    excerpt:
-      "Kristálytiszta víz, rejtett öblök és mediterrán hangulat — fedezd fel Horvátország legszebb tengerpartjait.",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/brela.jpeg&op=;1200x900;",
-    category: "Tengerpartok",
-    categorySlug: "tengerpartok",
-    slug: "horvatorszag-10-legszebb-strandja",
-    publishedAtLabel: "2026. január 25",
-    readingTime: "5 perc",
-    featured: true,
-  },
-  {
-    id: "2",
-    title: "Karneváli maszkok Velencében",
-    excerpt:
-      "A velencei karnevál története, legendás maszkjai és a város különleges hangulata.",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/carnival_venice_italy031-2.jpg&op=;800x720;",
-    category: "Városnézés",
-    categorySlug: "varosnezes",
-    slug: "karnevali-maszkok-velenceben",
-    publishedAtLabel: "2026. január 19",
-    readingTime: "4 perc",
-  },
-  {
-    id: "3",
-    title: "Érdekes szobrok a nagyvilágban",
-    excerpt:
-      "Különleges és ikonikus szobrok, amelyek mellett utazás közben egyszer mindenképp érdemes megállni.",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/28279603_1824636157580731_3729580786296626111_n.jpg&op=;800x720;",
-    category: "Világ érdekességei",
-    categorySlug: "vilag-erdekessegei",
-    slug: "erdekes-szobrok-a-nagyvilagban",
-    publishedAtLabel: "2026. április 12",
-    readingTime: "6 perc",
-  },
-  {
-    id: "4",
-    title: "Miért ismert világszerte a kubai szivar?",
-    excerpt:
-      "Hagyomány, kézművesség és kubai kultúra — ezért vált legendává a kubai szivar.",
-    image:
-      "https://adriaholiday.hu/framework/img.php?p=files/shutterstock_301377860%20%28002%29.jpg&op=;800x720;",
-    category: "Gasztronómia",
-    categorySlug: "gasztronomia",
-    slug: "miert-ismert-vilagszerte-a-kubai-szivar",
-    publishedAtLabel: "2026. november 25",
-    readingTime: "5 perc",
-  },
-];
 
 const getCategoryColor = (category: string) => {
   switch (category) {
@@ -122,9 +67,7 @@ function normalizePortfolioArticles(
     id: String(article.id),
     title: article.title,
     excerpt: article.excerpt,
-    image:
-      article.image ??
-      "https://adriaholiday.hu/framework/img.php?p=files/brela.jpeg&op=;1200x900;",
+    image: article.image ?? DEFAULT_HERO_IMAGE,
     category: article.category ?? "Utazási tippek",
     categorySlug: article.categorySlug ?? "utazasi-tippek",
     slug: article.slug,
@@ -158,13 +101,11 @@ export default function TravelBlog() {
     };
   }, []);
 
-  const articles = useMemo(() => {
-    if (portfolioArticles && portfolioArticles.length > 0) {
-      return portfolioArticles;
-    }
+  const articles = portfolioArticles ?? [];
 
-    return articlesFallback;
-  }, [portfolioArticles]);
+  if (portfolioArticles !== null && articles.length === 0) {
+    return null;
+  }
 
   const featuredArticle = articles[0];
   const regularArticles = articles.slice(1, 4);

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 
 import CategoryOffersPage from "../components/CategoryOffersPage";
 import { useAnalytics } from "../analytics/useAnalytics";
+import { DEFAULT_HERO_IMAGE } from "../content/default-images";
 import { fetchPortfolioHomepageOffers } from "../content/portfolio-homepage-offers-api";
 import Seo from "../seo/Seo";
 import { absoluteUrl } from "../seo/site";
@@ -40,7 +41,7 @@ export default function CategoryRoute() {
             "Válogass a legfrissebb ajánlataink közül, és találd meg a következő élményt.",
           heroImage: card.image?.url
             ? card.image.url
-            : "https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;1600x900;",
+            : DEFAULT_HERO_IMAGE,
         });
       })
       .catch(() => {
