@@ -9,3 +9,6 @@ adria-admin/.env.production
 adria-admin/.env.local
 adria-admin/.env.*.local
 !adria-admin/.env.example
+
+# Stale build output; Vite builds into backend/public/{portfolio,admin}
+/dist
