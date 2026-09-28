@@ -14,7 +14,9 @@ Route::get('/korutazasok/{slug}', function (string $slug) {
     return redirect("/ajanlat/{$slug}", 301);
 })->where('slug', '.*');
 
-Route::get('/admin/{any?}', function (Request $request) {
+$serveAdminSpa = fn () => response()->file(public_path('admin/index.html'));
+
+Route::get('/admin/{any?}', function (Request $request) use ($serveAdminSpa) {
     if (
         $request->is('admin/assets/*')
         || $request->is('admin/favicon.ico')
@@ -24,34 +26,11 @@ Route::get('/admin/{any?}', function (Request $request) {
         abort(404);
     }
 
-    return response()->file(public_path('admin/index.html'));
+    return $serveAdminSpa();
 })->where('any', '.*');
 
-Route::get('/media/{any?}', function (Request $request) {
-    if (
-        $request->is('admin/assets/*')
-        || $request->is('admin/favicon.ico')
-        || $request->is('admin/robots.txt')
-        || $request->is('admin/manifest*')
-    ) {
-        abort(404);
-    }
-
-    return response()->file(public_path('admin/index.html'));
-})->where('any', '.*');
-
-Route::get('/gallery/{any?}', function (Request $request) {
-    if (
-        $request->is('admin/assets/*')
-        || $request->is('admin/favicon.ico')
-        || $request->is('admin/robots.txt')
-        || $request->is('admin/manifest*')
-    ) {
-        abort(404);
-    }
-
-    return response()->file(public_path('admin/index.html'));
-})->where('any', '.*');
+Route::get('/media/{any?}', $serveAdminSpa)->where('any', '.*');
+Route::get('/gallery/{any?}', $serveAdminSpa)->where('any', '.*');
 
 Route::get('/{any?}', function (Request $request) {
     if (

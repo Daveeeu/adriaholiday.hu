@@ -27,6 +27,14 @@ class FrontendFallbackTest extends TestCase
             ->assertHeader('content-type', 'text/html; charset=UTF-8');
     }
 
+    public function test_media_and_gallery_deep_links_serve_admin_spa_index(): void
+    {
+        $adminIndex = file_get_contents(public_path('admin/index.html'));
+
+        $this->assertSame($adminIndex, $this->get('/media/42')->assertOk()->streamedContent());
+        $this->assertSame($adminIndex, $this->get('/gallery')->assertOk()->streamedContent());
+    }
+
     public function test_api_and_static_asset_paths_do_not_fall_back_to_spa(): void
     {
         $this->get('/api/does-not-exist')->assertNotFound();
