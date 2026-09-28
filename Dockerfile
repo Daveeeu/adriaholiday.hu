@@ -32,6 +32,7 @@ RUN npm run build --prefix ./adria-admin
 
 FROM nginx:1.29-alpine AS runtime
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx-security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY --from=portfolio-build /app/backend/public /var/www/backend/public
 # adria-admin's vite.config.ts outDir resolves to backend/public/admin (not
 # adria-admin/dist), so that's what actually exists after the build above.
