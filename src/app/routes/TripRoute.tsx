@@ -42,6 +42,8 @@ function formatDateLabel(date: PortfolioOfferDetailDate) {
   return `${formatCalendarDate(date.startDate)} - ${formatCalendarDate(date.endDate).slice(5)}`;
 }
 
+export type TripDetail = ReturnType<typeof mapOfferToTrip>;
+
 function mapOfferToTrip(offer: PortfolioOfferDetail) {
   const primaryImage = offer.image?.url || offer.sliderImage?.url || "";
   const priceBox = offer.priceBox ?? null;

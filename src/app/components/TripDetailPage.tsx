@@ -1,6 +1,6 @@
 // TripDetailPage.tsx
 
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -24,23 +24,24 @@ import OfferPrintableVersion from "./OfferPrintableVersion";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
+import type { PortfolioFeaturedTour } from "../content/portfolio-featured-tours-api";
+import type { TripDetail } from "../routes/TripRoute";
 import OfferCard from "./OfferCard";
 import BookingSection from "../booking/BookingSection";
 import GroupInquirySection from "../booking/GroupInquirySection";
 import { parseDiscountPercent } from "../content/discount-badge";
 
 interface TripDetailPageProps {
-  trip: any;
-  relatedTrips?: Array<{
-    seoName?: string;
-    name: string;
-    country?: string | null;
-    displayedPrice?: string | null;
-    image?: { url?: string | null; thumbnailUrl?: string | null } | null;
-    link?: string | null;
-  }>;
+  trip: TripDetail;
+  relatedTrips?: PortfolioFeaturedTour[];
   onBack: () => void;
 }
+
+type IconLabelValueProps = {
+  icon: ReactNode;
+  label: ReactNode;
+  value: ReactNode;
+};
 
 function mergePriceBoxes(
   base?: PortfolioPriceBox | null,
@@ -73,23 +74,13 @@ function mergePriceBoxes(
 
 export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: TripDetailPageProps) {
   const { trackEvent } = useAnalytics();
-  const dateOptions = trip.dateOptions || [
-    {
-      id: "default",
-      label: trip.departure || trip.date || "Érdeklődjön",
-      status: trip.guaranteed ? "Garantált indulás" : "Elérhető",
-      seatsLeft: trip.seatsLeft ?? null,
-      price: trip.priceBox?.price ?? null,
-      displayedPrice: trip.priceBox?.displayedPrice ?? null,
-      priceBox: trip.priceBox ?? null,
-    },
-  ];
+  const dateOptions = trip.dateOptions;
 
   // Tours without scheduled dates can only be requested as a group quote.
   const bookingSectionId = trip.hasBookableDates ? "foglalas" : "ajanlatkeres";
   const [selectedDateId, setSelectedDateId] = useState(dateOptions[0].id);
   const selectedDate =
-    dateOptions.find((item: any) => item.id === selectedDateId) ||
+    dateOptions.find((item) => item.id === selectedDateId) ||
     dateOptions[0];
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
@@ -297,7 +288,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   </div>
 
                   <div className="space-y-3">
-                    {dateOptions.map((date: any) => {
+                    {dateOptions.map((date) => {
                       const active = selectedDateId === date.id;
 
                       return (
@@ -413,7 +404,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   );
 }
 
-function Pill({ children, active = false }: any) {
+function Pill({ children, active = false }: { children: ReactNode; active?: boolean }) {
   return (
     <div
       className={`px-4 py-2 rounded-full backdrop-blur-xl text-sm font-semibold border border-white/10 flex items-center gap-2 ${
@@ -513,7 +504,7 @@ function PriceBox({
   );
 }
 
-function HeroInfoCard({ icon, label, value }: any) {
+function HeroInfoCard({ icon, label, value }: IconLabelValueProps) {
   return (
     <div className="rounded-[24px] bg-white/10 backdrop-blur-xl border border-white/10 p-5">
       <div className="text-[#00c389] mb-3">{icon}</div>
@@ -523,7 +514,7 @@ function HeroInfoCard({ icon, label, value }: any) {
   );
 }
 
-function InfoBox({ icon, label, value }: any) {
+function InfoBox({ icon, label, value }: IconLabelValueProps) {
   return (
     <div className="rounded-[24px] bg-[#f5f9fc] p-5 min-h-[150px]">
       <div className="text-[#00c389] mb-3">{icon}</div>
@@ -533,7 +524,7 @@ function InfoBox({ icon, label, value }: any) {
   );
 }
 
-function SectionEyebrow({ title }: any) {
+function SectionEyebrow({ title }: { title: ReactNode }) {
   return (
     <div className="inline-flex items-center gap-2 text-[#00a878] text-sm font-bold mb-4">
       <TrendingUp className="w-4 h-4" />
@@ -542,7 +533,7 @@ function SectionEyebrow({ title }: any) {
   );
 }
 
-function SidebarInfo({ icon, text }: any) {
+function SidebarInfo({ icon, text }: { icon: ReactNode; text: ReactNode }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-[#f5f9fc] p-4">
       <div className="text-[#00c389]">{icon}</div>
@@ -615,11 +606,17 @@ function PriceInformationCard({ title, items, positive = false }: { title: strin
   );
 }
 
-function SimilarTrips({ currentTrip, relatedTrips }: any) {
-  const items = (relatedTrips ?? [])
-    .filter((offer: any) => offer.seoName !== currentTrip.slug)
+function SimilarTrips({
+  currentTrip,
+  relatedTrips,
+}: {
+  currentTrip: TripDetail;
+  relatedTrips: PortfolioFeaturedTour[];
+}) {
+  const items = relatedTrips
+    .filter((offer) => offer.seoName !== currentTrip.slug)
     .slice(0, 3)
-    .map((offer: any) => toUnifiedOfferCardModel(offer));
+    .map((offer) => toUnifiedOfferCardModel(offer));
 
   if (items.length === 0) {
     return null;

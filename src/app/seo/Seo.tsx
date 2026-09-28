@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { absoluteUrl } from "./site";
 
-type JsonLd = Record<string, any>;
+type JsonLd = Record<string, unknown>;
 
 export default function Seo({
   title,
