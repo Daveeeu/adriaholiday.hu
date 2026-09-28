@@ -17,8 +17,7 @@ class TourBookingCustomerConfirmation extends Mailable
     public function __construct(
         public readonly Booking $booking,
         public readonly Tour $tour,
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

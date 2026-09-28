@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Mail\NewTourBookingOfficeNotification;
 use App\Mail\TourBookingCustomerConfirmation;
+use App\Models\AnalyticsEvent;
 use App\Models\Booking;
 use App\Models\Tour;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -500,8 +502,8 @@ class AdminBookingTest extends TestCase
 
         $booking = Booking::factory()->create(['booking_type' => 'tour_booking', 'status' => 'new']);
 
-        \App\Models\AnalyticsEvent::query()->create([
-            'event_id' => (string) \Illuminate\Support\Str::uuid(),
+        AnalyticsEvent::query()->create([
+            'event_id' => (string) Str::uuid(),
             'session_id' => 'sess-1',
             'visitor_id' => 'visitor-1',
             'event_name' => 'booking_success',

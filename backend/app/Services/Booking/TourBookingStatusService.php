@@ -28,7 +28,7 @@ class TourBookingStatusService
             ]);
         }
 
-        DB::transaction(function () use ($booking, $currentStatus, $nextStatus): void {
+        DB::transaction(function () use ($booking, $nextStatus): void {
             $seatsReserved = $booking->seats_reserved;
 
             if ($nextStatus === TourBookingStatus::CONFIRMED && ! $seatsReserved) {

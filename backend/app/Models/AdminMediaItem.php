@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class AdminMediaItem extends Model implements HasMedia
 {
@@ -20,7 +21,7 @@ class AdminMediaItem extends Model implements HasMedia
         $this->addMediaCollection('library')->singleFile()->useDisk(config('media-library.disk_name'));
     }
 
-    public function registerMediaConversions(?\Spatie\MediaLibrary\MediaCollections\Models\Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumbnail')
             ->fit(Fit::Crop, 480, 320)

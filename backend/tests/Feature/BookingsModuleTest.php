@@ -2,9 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Booking;
 use App\Models\ContactMessage;
-use App\Models\Coupon;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

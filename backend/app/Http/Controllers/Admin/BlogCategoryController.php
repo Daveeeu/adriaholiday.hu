@@ -113,7 +113,7 @@ class BlogCategoryController extends Controller
     }
 
     /**
-     * @param array<string, array<string, mixed>> $translations
+     * @param  array<string, array<string, mixed>>  $translations
      */
     private function syncTranslations(BlogCategory $category, array $translations): void
     {

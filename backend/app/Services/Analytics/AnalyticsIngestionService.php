@@ -10,8 +10,7 @@ class AnalyticsIngestionService
 {
     public function __construct(
         private readonly MetaEventMapper $metaEventMapper,
-    ) {
-    }
+    ) {}
 
     public function capture(StoreAnalyticsEventRequest $request): array
     {

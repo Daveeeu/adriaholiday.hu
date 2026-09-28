@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\PartnerBannerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PartnerBanner extends Model
 {
-    /** @use HasFactory<\Database\Factories\PartnerBannerFactory> */
+    /** @use HasFactory<PartnerBannerFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [

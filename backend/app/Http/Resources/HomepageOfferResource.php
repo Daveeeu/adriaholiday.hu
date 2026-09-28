@@ -3,8 +3,8 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 class HomepageOfferResource extends JsonResource
 {

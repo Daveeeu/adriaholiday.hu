@@ -29,6 +29,7 @@ if (str_starts_with($uri, '/admin')) {
 
     if (file_exists($publicPath.'/admin/index.html')) {
         readfile($publicPath.'/admin/index.html');
+
         return true;
     }
 }

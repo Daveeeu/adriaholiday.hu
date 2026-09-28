@@ -11,8 +11,7 @@ class MetaConversionsApiDestination implements AnalyticsDestination
     public function __construct(
         private readonly MetaConversionsApiService $metaConversionsApiService,
         private readonly MetaEventMapper $metaEventMapper,
-    ) {
-    }
+    ) {}
 
     public function supports(AnalyticsEvent $event): bool
     {

@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\ApartmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Concerns\LogsModelActivity;
 
 class Apartment extends Model
 {
-    /** @use HasFactory<\Database\Factories\ApartmentFactory> */
+    /** @use HasFactory<ApartmentFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [

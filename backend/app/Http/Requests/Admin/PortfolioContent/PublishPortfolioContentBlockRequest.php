@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin\PortfolioContent;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PublishPortfolioContentBlockRequest extends FormRequest

@@ -11,8 +11,7 @@ class MetaConversionsApiService
 {
     public function __construct(
         private readonly HttpFactory $http,
-    ) {
-    }
+    ) {}
 
     public function send(AnalyticsEvent $event, string $metaEventName): void
     {

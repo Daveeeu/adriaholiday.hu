@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\AnalyticsEvent;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -17,7 +18,7 @@ class AnalyticsFunnelReportTest extends TestCase
     {
         parent::setUp();
 
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $this->seed(RolePermissionSeeder::class);
 
         $user = User::query()->where('email', 'info@jandldavid.hu')->firstOrFail();
         Sanctum::actingAs($user);
@@ -90,15 +91,15 @@ class AnalyticsFunnelReportTest extends TestCase
 
                 AnalyticsEvent::query()->forceCreate([
                     'event_id' => sprintf('22222222-2222-2222-2222-%012d', $index++),
-                    'session_id' => 'session-' . $index,
-                    'visitor_id' => 'visitor-' . $index,
+                    'session_id' => 'session-'.$index,
+                    'visitor_id' => 'visitor-'.$index,
                     'user_id' => null,
                     'event_name' => $item['event_name'],
                     'entity_type' => str_contains($item['event_name'], 'page_view') ? null : 'tour',
                     'entity_id' => null,
                     'entity_slug' => $item['entity_slug'] ?? null,
-                    'page_url' => 'https://adriaholiday.hu' . ($item['page_path'] ?? '/ajanlat/' . ($item['entity_slug'] ?? 'offer-alfa')),
-                    'page_path' => $item['page_path'] ?? '/ajanlat/' . ($item['entity_slug'] ?? 'offer-alfa'),
+                    'page_url' => 'https://adriaholiday.hu'.($item['page_path'] ?? '/ajanlat/'.($item['entity_slug'] ?? 'offer-alfa')),
+                    'page_path' => $item['page_path'] ?? '/ajanlat/'.($item['entity_slug'] ?? 'offer-alfa'),
                     'referrer' => 'https://google.com',
                     'utm_source' => 'google',
                     'utm_medium' => 'cpc',

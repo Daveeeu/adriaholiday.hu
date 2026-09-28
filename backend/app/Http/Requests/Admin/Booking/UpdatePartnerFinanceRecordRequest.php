@@ -2,6 +2,4 @@
 
 namespace App\Http\Requests\Admin\Booking;
 
-class UpdatePartnerFinanceRecordRequest extends StorePartnerFinanceRecordRequest
-{
-}
+class UpdatePartnerFinanceRecordRequest extends StorePartnerFinanceRecordRequest {}

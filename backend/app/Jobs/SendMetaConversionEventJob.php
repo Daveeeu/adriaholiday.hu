@@ -16,8 +16,7 @@ class SendMetaConversionEventJob implements ShouldQueue
 
     public function __construct(
         public readonly int $analyticsEventId,
-    ) {
-    }
+    ) {}
 
     public function handle(
         MetaConversionsApiService $metaConversionsApiService,

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\TourPartnerBonusFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TourPartnerBonus extends Model
 {
-    /** @use HasFactory<\Database\Factories\TourPartnerBonusFactory> */
+    /** @use HasFactory<TourPartnerBonusFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [

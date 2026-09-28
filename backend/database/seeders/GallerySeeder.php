@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Gallery;
 use App\Models\Location;
-use Database\Seeders\Concerns\CreatesPlaceholderMedia;
 use App\Support\MediaCategory;
+use Database\Seeders\Concerns\CreatesPlaceholderMedia;
 use Illuminate\Database\Seeder;
 
 class GallerySeeder extends Seeder

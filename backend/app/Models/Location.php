@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\LocationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Concerns\LogsModelActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Location extends Model
 {
-    /** @use HasFactory<\Database\Factories\LocationFactory> */
+    /** @use HasFactory<LocationFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [

@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\RegionFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Region extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\RegionFactory> */
+    /** @use HasFactory<RegionFactory> */
     use HasFactory, InteractsWithMedia, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [
@@ -60,7 +62,7 @@ class Region extends Model implements HasMedia
         $this->addMediaCollection('portfolio-image')->singleFile()->useDisk(config('media-library.disk_name'));
     }
 
-    public function registerMediaConversions(?\Spatie\MediaLibrary\MediaCollections\Models\Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumbnail')
             ->fit(Fit::Crop, 640, 360)

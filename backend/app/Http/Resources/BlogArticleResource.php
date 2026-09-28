@@ -4,8 +4,8 @@ namespace App\Http\Resources;
 
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 class BlogArticleResource extends JsonResource
 {

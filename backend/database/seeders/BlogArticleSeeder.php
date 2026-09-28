@@ -5,11 +5,11 @@ namespace Database\Seeders;
 use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
+use App\Support\MediaCategory;
 use Database\Seeders\Concerns\CreatesPlaceholderMedia;
 use Database\Seeders\Concerns\SeedsMediaFromUrl;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use App\Support\MediaCategory;
 
 class BlogArticleSeeder extends Seeder
 {

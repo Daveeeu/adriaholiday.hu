@@ -10,8 +10,8 @@ use App\Http\Requests\Admin\Tour\UpdateTourPartnerOfferStatusRequest;
 use App\Http\Resources\TourPartnerOfferResource;
 use App\Models\TourPartnerOffer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TourPartnerOfferController extends Controller
 {

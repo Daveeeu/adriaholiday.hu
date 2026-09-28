@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\HomepageOfferFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Concerns\LogsModelActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 class HomepageOffer extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\HomepageOfferFactory> */
+    /** @use HasFactory<HomepageOfferFactory> */
     use HasFactory, InteractsWithMedia, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [

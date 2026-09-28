@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\BlogCategory;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class BlogCategorySeeder extends Seeder
 {
@@ -28,7 +29,7 @@ class BlogCategorySeeder extends Seeder
 
         foreach ($categories as $index => $categoryItem) {
             $categoryName = is_array($categoryItem) ? $categoryItem['name'] : $categoryItem;
-            $seoName = is_array($categoryItem) ? $categoryItem['seo_name'] : \Illuminate\Support\Str::slug($categoryName);
+            $seoName = is_array($categoryItem) ? $categoryItem['seo_name'] : Str::slug($categoryName);
 
             $category = BlogCategory::query()->updateOrCreate(
                 ['seo_name' => $seoName],

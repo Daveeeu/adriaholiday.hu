@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\BlogCategoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Concerns\LogsModelActivity;
 
 class BlogCategory extends Model
 {
-    /** @use HasFactory<\Database\Factories\BlogCategoryFactory> */
+    /** @use HasFactory<BlogCategoryFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [

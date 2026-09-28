@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\TourReferenceOptionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TourReferenceOption extends Model
 {
-    /** @use HasFactory<\Database\Factories\TourReferenceOptionFactory> */
+    /** @use HasFactory<TourReferenceOptionFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [

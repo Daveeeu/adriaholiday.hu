@@ -15,7 +15,7 @@ class PartnerBannerFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company() . ' Banner',
+            'name' => $this->faker->company().' Banner',
             'url' => $this->faker->url(),
             'image' => $this->faker->imageUrl(1200, 628),
             'width' => $this->faker->randomElement([300, 728, 970, 1200]),

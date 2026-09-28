@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class AuthFlowTest extends TestCase
@@ -20,7 +20,7 @@ class AuthFlowTest extends TestCase
             'password' => Hash::make('password'),
         ]);
 
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $this->seed(RolePermissionSeeder::class);
         $user->assignRole('Admin');
 
         $login = $this->postJson('/api/auth/login', [
@@ -58,7 +58,7 @@ class AuthFlowTest extends TestCase
 
     public function test_login_validation_and_failed_credentials_return_422(): void
     {
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $this->seed(RolePermissionSeeder::class);
 
         $this->postJson('/api/auth/login', [
             'email' => 'missing@example.com',
@@ -80,7 +80,7 @@ class AuthFlowTest extends TestCase
             'email' => 'ratelimit@example.com',
             'password' => Hash::make('password'),
         ]);
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $this->seed(RolePermissionSeeder::class);
         $user->assignRole('Admin');
 
         for ($i = 0; $i < 5; $i++) {
@@ -109,7 +109,7 @@ class AuthFlowTest extends TestCase
 
     public function test_admin_api_without_session_returns_json_401(): void
     {
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $this->seed(RolePermissionSeeder::class);
 
         $this->get('/api/admin/apartments')
             ->assertUnauthorized()

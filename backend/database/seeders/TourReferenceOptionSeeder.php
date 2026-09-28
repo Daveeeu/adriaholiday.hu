@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\TourReferenceOption;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class TourReferenceOptionSeeder extends Seeder
 {

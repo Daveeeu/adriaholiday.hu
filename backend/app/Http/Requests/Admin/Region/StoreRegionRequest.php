@@ -4,7 +4,6 @@ namespace App\Http\Requests\Admin\Region;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class StoreRegionRequest extends FormRequest

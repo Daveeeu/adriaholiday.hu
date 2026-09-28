@@ -2,6 +2,4 @@
 
 namespace App\Http\Requests\Admin\Booking;
 
-class UpdatePartnerBannerRequest extends StorePartnerBannerRequest
-{
-}
+class UpdatePartnerBannerRequest extends StorePartnerBannerRequest {}

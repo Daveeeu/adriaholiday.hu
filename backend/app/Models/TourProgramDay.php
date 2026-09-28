@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\TourProgramDayFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TourProgramDay extends Model
 {
-    /** @use HasFactory<\Database\Factories\TourProgramDayFactory> */
+    /** @use HasFactory<TourProgramDayFactory> */
     use HasFactory;
 
     protected $fillable = [

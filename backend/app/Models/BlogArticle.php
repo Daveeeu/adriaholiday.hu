@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\BlogArticleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Concerns\LogsModelActivity;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class BlogArticle extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\BlogArticleFactory> */
+    /** @use HasFactory<BlogArticleFactory> */
     use HasFactory, InteractsWithMedia, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [
@@ -59,7 +61,7 @@ class BlogArticle extends Model implements HasMedia
         $this->addMediaCollection('cover')->singleFile()->useDisk(config('media-library.disk_name'));
     }
 
-    public function registerMediaConversions(?\Spatie\MediaLibrary\MediaCollections\Models\Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumbnail')
             ->fit(Fit::Crop, 480, 320)

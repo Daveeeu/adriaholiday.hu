@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use Database\Factories\TourSeasonalGroupFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TourSeasonalGroup extends Model
 {
-    /** @use HasFactory<\Database\Factories\TourSeasonalGroupFactory> */
+    /** @use HasFactory<TourSeasonalGroupFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
     protected $fillable = [

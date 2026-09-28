@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MediaResource;
 use App\Models\Region;
 use App\Support\PublicContentCache;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class PortfolioRegionController extends Controller
                         'slug' => $region->slug,
                         'name' => $region->name,
                         'image' => $media?->getUrl() ?: $region->portfolio_image_url ?: $region->hero_image_url,
-                        'imageMedia' => $media ? new \App\Http\Resources\MediaResource($media) : null,
+                        'imageMedia' => $media ? new MediaResource($media) : null,
                         'description' => $region->portfolio_short_description ?: $region->summary,
                         'apartmentCount' => (int) $region->apartments_count,
                         'portfolioFeatured' => (bool) $region->portfolio_featured,
@@ -68,7 +69,7 @@ class PortfolioRegionController extends Controller
             'slug' => $region->slug,
             'name' => $region->name,
             'image' => $media?->getUrl() ?: $region->portfolio_image_url ?: $region->hero_image_url,
-            'imageMedia' => $media ? new \App\Http\Resources\MediaResource($media) : null,
+            'imageMedia' => $media ? new MediaResource($media) : null,
             'description' => $region->portfolio_short_description ?: $region->summary,
             'fullDescription' => $region->description,
             'apartmentCount' => (int) $region->apartments_count,

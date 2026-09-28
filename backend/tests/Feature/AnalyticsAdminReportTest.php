@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\AnalyticsEvent;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -17,7 +18,7 @@ class AnalyticsAdminReportTest extends TestCase
     {
         parent::setUp();
 
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $this->seed(RolePermissionSeeder::class);
 
         $user = User::query()->where('email', 'info@jandldavid.hu')->firstOrFail();
         Sanctum::actingAs($user);
@@ -103,8 +104,8 @@ class AnalyticsAdminReportTest extends TestCase
 
             AnalyticsEvent::query()->forceCreate([
                 'event_id' => sprintf('11111111-1111-1111-1111-%012d', $index + 1),
-                'session_id' => 'session-' . ($index % 3),
-                'visitor_id' => 'visitor-' . ($index % 4),
+                'session_id' => 'session-'.($index % 3),
+                'visitor_id' => 'visitor-'.($index % 4),
                 'user_id' => null,
                 'event_name' => $row['event_name'],
                 'entity_type' => $row['entity_type'],

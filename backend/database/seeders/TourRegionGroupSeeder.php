@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Gallery;
 use App\Models\TourRegionGroup;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class TourRegionGroupSeeder extends Seeder
 {

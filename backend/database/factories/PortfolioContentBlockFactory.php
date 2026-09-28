@@ -15,7 +15,7 @@ class PortfolioContentBlockFactory extends Factory
     public function definition(): array
     {
         return [
-            'key' => 'home.example.' . $this->faker->unique()->slug(),
+            'key' => 'home.example.'.$this->faker->unique()->slug(),
             'page' => 'home',
             'section' => 'example',
             'label' => $this->faker->sentence(3),

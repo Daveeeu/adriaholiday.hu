@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Admin\Booking;
 
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Support\Booking\TourBookingStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,7 +15,7 @@ class StoreBookingRequest extends FormRequest
         $this->merge([
             'booking_type' => $bookingType,
             'status' => $this->input('status', match ($bookingType) {
-                'tour_booking' => \App\Support\Booking\TourBookingStatus::NEW,
+                'tour_booking' => TourBookingStatus::NEW,
                 default => 'new',
             }),
             'payment_status' => $this->input('payment_status', $this->input('paymentStatus')),
@@ -76,7 +76,7 @@ class StoreBookingRequest extends FormRequest
         $statusRules = ['required', 'string', 'max:255'];
 
         if ($this->input('booking_type') === 'tour_booking') {
-            $statusRules[] = Rule::in(\App\Support\Booking\TourBookingStatus::all());
+            $statusRules[] = Rule::in(TourBookingStatus::all());
         }
 
         return [

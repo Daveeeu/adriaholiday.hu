@@ -13,9 +13,7 @@ class NewsletterCouponMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public readonly Coupon $coupon)
-    {
-    }
+    public function __construct(public readonly Coupon $coupon) {}
 
     public function envelope(): Envelope
     {

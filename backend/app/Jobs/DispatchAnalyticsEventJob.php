@@ -13,8 +13,7 @@ class DispatchAnalyticsEventJob implements ShouldQueue
 
     public function __construct(
         public readonly int $analyticsEventId,
-    ) {
-    }
+    ) {}
 
     public function handle(AnalyticsFanoutService $fanoutService): void
     {

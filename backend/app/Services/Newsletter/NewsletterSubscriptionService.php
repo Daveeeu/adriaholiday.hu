@@ -19,9 +19,7 @@ use Illuminate\Support\Str;
  */
 class NewsletterSubscriptionService
 {
-    public function __construct(private readonly LoggedMailer $mailer)
-    {
-    }
+    public function __construct(private readonly LoggedMailer $mailer) {}
 
     public function subscribe(string $email): bool
     {
@@ -76,7 +74,7 @@ class NewsletterSubscriptionService
     private function generateCouponCode(): string
     {
         do {
-            $code = 'HIR-' . strtoupper(Str::random(6));
+            $code = 'HIR-'.strtoupper(Str::random(6));
         } while (Coupon::query()->where('code', $code)->exists());
 
         return $code;
