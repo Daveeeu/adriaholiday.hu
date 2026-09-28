@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -95,21 +95,25 @@ export function TourQuickCreateDialog({
   const supportsCity = kind === 'departure-place';
   const supportsFee = kind === 'departure-place';
 
-  useEffect(() => {
-    if (!open || !kind) {
-      return;
-    }
+  // Reset the form whenever the dialog opens for a new kind or search text.
+  const resetKey = open && kind ? `${kind}:${inputValue}` : null;
+  const [appliedResetKey, setAppliedResetKey] = useState<string | null>(null);
 
-    setName(inputValue);
-    setCode(slugifyTourText(inputValue));
-    setCountryCode('');
-    setCity(inputValue);
-    setFee('');
-    setActive(true);
-    setCodeTouched(false);
-    setError(null);
-    setSubmitting(false);
-  }, [inputValue, kind, open]);
+  if (appliedResetKey !== resetKey) {
+    setAppliedResetKey(resetKey);
+
+    if (resetKey !== null) {
+      setName(inputValue);
+      setCode(slugifyTourText(inputValue));
+      setCountryCode('');
+      setCity(inputValue);
+      setFee('');
+      setActive(true);
+      setCodeTouched(false);
+      setError(null);
+      setSubmitting(false);
+    }
+  }
 
   const kindLabel = useMemo(() => (kind ? KIND_LABELS[kind] : ''), [kind]);
 

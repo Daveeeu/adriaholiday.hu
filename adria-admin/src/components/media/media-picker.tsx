@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   File,
   FileImage,
@@ -124,10 +124,13 @@ export function MediaPicker({
   const previewUrl = getPreviewUrl(value);
   const previewType = getMediaFileType({ url: previewUrl });
 
-  useEffect(() => {
+  const [appliedDefaultCategory, setAppliedDefaultCategory] = useState(defaultCategory);
+
+  if (appliedDefaultCategory !== defaultCategory) {
+    setAppliedDefaultCategory(defaultCategory);
     setLibraryCategory(defaultCategory);
     setUploadCategory(defaultCategory);
-  }, [defaultCategory]);
+  }
 
   const mediaQuery = useQuery({
     queryKey: ['admin-media', librarySearch, libraryCategory, allowedTypes.join(',')],
@@ -188,14 +191,11 @@ export function MediaPicker({
     }
   };
 
-  const emptyState = useMemo(
-    () => (
-      <div className="flex h-56 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed bg-muted/20 text-sm text-muted-foreground">
-        {getMediaIcon(previewType)}
-        {previewType === 'image' ? 'Nincs kiválasztott kép' : 'Nincs kiválasztott fájl'}
-      </div>
-    ),
-    [previewType],
+  const emptyState = (
+    <div className="flex h-56 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed bg-muted/20 text-sm text-muted-foreground">
+      {getMediaIcon(previewType)}
+      {previewType === 'image' ? 'Nincs kiválasztott kép' : 'Nincs kiválasztott fájl'}
+    </div>
   );
 
   return (

@@ -160,7 +160,7 @@ function LinkArrayEditor({
   onAdd: () => void;
   onRemove: (index: number) => void;
   baseName: 'headerNavigation' | 'footerQuickLinks';
-  control: Control<SiteSettingsFormValues, any, any>;
+  control: Control<SiteSettingsFormValues>;
 }) {
   return (
     <Card>

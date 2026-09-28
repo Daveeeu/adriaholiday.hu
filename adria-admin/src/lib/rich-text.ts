@@ -187,7 +187,7 @@ function sanitizeStyleValue(property: string, value: string): string | null {
   }
 
   if (property === 'font-family') {
-    return /^[a-z0-9\s,"'\-]+$/i.test(value) ? value : null;
+    return /^[a-z0-9\s,"'-]+$/i.test(value) ? value : null;
   }
 
   return /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z][a-z-]*)$/i.test(value)

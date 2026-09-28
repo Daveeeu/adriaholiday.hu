@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Check,
@@ -209,7 +209,11 @@ function MediaUploadDialog({
   const [title, setTitle] = useState('');
   const fileType = file ? getMediaFileType({ mimeType: file.type, fileName: file.name }) : null;
 
-  useEffect(() => {
+  const [wasOpen, setWasOpen] = useState(open);
+
+  if (wasOpen !== open) {
+    setWasOpen(open);
+
     if (!open) {
       setFile(null);
       setIsDragActive(false);
@@ -217,7 +221,7 @@ function MediaUploadDialog({
       setAlt('');
       setTitle('');
     }
-  }, [open]);
+  }
 
   const uploadMutation = useMutation({
     mutationFn: async () => {
@@ -361,17 +365,19 @@ function MediaDetailSheet({
   const [copyState, setCopyState] = useState<'idle' | 'done'>('idle');
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
-  useEffect(() => {
-    if (!media) {
-      return;
-    }
+  const [draftMedia, setDraftMedia] = useState(media);
 
-    setDraftCategory((media.category as MediaCategory) ?? 'general');
-    setDraftAlt(media.alt ?? '');
-    setDraftTitle(media.title ?? '');
-    setCopyState('idle');
-    setConfirmDeleteOpen(false);
-  }, [media]);
+  if (draftMedia !== media) {
+    setDraftMedia(media);
+
+    if (media) {
+      setDraftCategory((media.category as MediaCategory) ?? 'general');
+      setDraftAlt(media.alt ?? '');
+      setDraftTitle(media.title ?? '');
+      setCopyState('idle');
+      setConfirmDeleteOpen(false);
+    }
+  }
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -693,14 +699,20 @@ export function GalleriesPage() {
       }),
   });
 
-  useEffect(() => {
+  const listFilterKey = `${search}|${category}|${sort}`;
+  const [appliedListFilterKey, setAppliedListFilterKey] = useState(listFilterKey);
+  const [selectionPage, setSelectionPage] = useState(page);
+
+  if (appliedListFilterKey !== listFilterKey) {
+    setAppliedListFilterKey(listFilterKey);
     setPage(1);
     setSelectedMediaIds([]);
-  }, [search, category, sort]);
+  }
 
-  useEffect(() => {
+  if (selectionPage !== page) {
+    setSelectionPage(page);
     setSelectedMediaIds([]);
-  }, [page]);
+  }
 
   const selectedMediaQuery = useQuery({
     queryKey: ['admin-media', selectedMediaId],

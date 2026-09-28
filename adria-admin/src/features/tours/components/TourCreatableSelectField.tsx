@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import AsyncCreatableSelect from 'react-select/async-creatable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
@@ -76,19 +76,14 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
     queryFn: () => queryFn(),
   });
 
-  useEffect(() => {
-    setLocalOptions((current) => mergeOptions(current, data));
-  }, [data]);
-
-  useEffect(() => {
-    if (fallbackOptions.length === 0) {
-      return;
-    }
-
-    setLocalOptions((current) => mergeOptions(current, fallbackOptions.map(normalizeSelectOption)));
-  }, [fallbackOptions]);
-
-  const options = useMemo(() => localOptions.map(toReactSelectOption), [localOptions]);
+  // Locally created options stay listed until the refetched query includes them.
+  const options = useMemo(
+    () =>
+      mergeOptions(mergeOptions(localOptions, data), fallbackOptions.map(normalizeSelectOption)).map(
+        toReactSelectOption,
+      ),
+    [localOptions, data, fallbackOptions],
+  );
 
   return (
     <FormField
@@ -147,7 +142,7 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                 }}
                 placeholder={placeholder}
                 options={options}
-                value={selectedValue as any}
+                value={selectedValue}
                 onChange={(nextValue) => {
                   if (isMulti) {
                     const nextOptions = Array.isArray(nextValue)

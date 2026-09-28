@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
@@ -192,18 +192,14 @@ export function PortfolioFilterChipsPage() {
     },
   });
 
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
-
-  useEffect(() => {
-    if (dialogOpen) {
-      const nextValues = getFormValues(selectedChip);
-      setFormValues(nextValues);
-      setPriceConfig(getPriceConfigState(nextValues.filterConfig));
-      setCustomConfigText(JSON.stringify(nextValues.filterConfig ?? {}, null, 2));
-    }
-  }, [dialogOpen, selectedChip]);
+  const openDialog = (chip?: PortfolioFilterChip) => {
+    const nextValues = getFormValues(chip);
+    setSelectedChip(chip);
+    setFormValues(nextValues);
+    setPriceConfig(getPriceConfigState(nextValues.filterConfig));
+    setCustomConfigText(JSON.stringify(nextValues.filterConfig ?? {}, null, 2));
+    setDialogOpen(true);
+  };
 
   const createMutation = useMutation({
     mutationFn: createPortfolioFilterChip,
@@ -427,10 +423,7 @@ export function PortfolioFilterChipsPage() {
           </div>
           {canCreate ? (
             <Button
-              onClick={() => {
-                setSelectedChip(undefined);
-                setDialogOpen(true);
-              }}
+              onClick={() => openDialog()}
             >
               <Plus className="size-4" />
               Új filter chip
@@ -440,7 +433,10 @@ export function PortfolioFilterChipsPage() {
         <div className="mt-4">
           <Input
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
             placeholder="Keresés címke, slug vagy scope alapján..."
           />
         </div>
@@ -490,10 +486,7 @@ export function PortfolioFilterChipsPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => {
-                              setSelectedChip(chip);
-                              setDialogOpen(true);
-                            }}
+                            onClick={() => openDialog(chip)}
                           >
                             <Pencil className="size-4" />
                           </Button>
