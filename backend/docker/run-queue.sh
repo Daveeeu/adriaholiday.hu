@@ -11,7 +11,7 @@ php artisan config:cache
 php artisan queue:restart || true
 
 exec php artisan queue:work redis \
-  --queue="${QUEUE_WORKER_QUEUE:-default}" \
+  --queue="${QUEUE_WORKER_QUEUE:-default,analytics}" \
   --sleep="${QUEUE_WORKER_SLEEP:-3}" \
   --tries="${QUEUE_WORKER_TRIES:-3}" \
   --timeout="${QUEUE_WORKER_TIMEOUT:-120}" \
