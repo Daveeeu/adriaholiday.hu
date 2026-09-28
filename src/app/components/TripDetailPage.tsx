@@ -26,6 +26,8 @@ import { type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
 import OfferCard from "./OfferCard";
 import BookingSection from "../booking/BookingSection";
+import GroupInquirySection from "../booking/GroupInquirySection";
+import { parseDiscountPercent } from "../content/discount-badge";
 
 interface TripDetailPageProps {
   trip: any;
@@ -83,6 +85,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
     },
   ];
 
+  // Tours without scheduled dates can only be requested as a group quote.
+  const bookingSectionId = trip.hasBookableDates ? "foglalas" : "ajanlatkeres";
   const [selectedDateId, setSelectedDateId] = useState(dateOptions[0].id);
   const selectedDate =
     dateOptions.find((item: any) => item.id === selectedDateId) ||
@@ -216,7 +220,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                       placement: "hero_pricebox",
                     },
                   });
-                  document.getElementById("foglalas")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  document.getElementById(bookingSectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
               />
             </div>
@@ -259,11 +263,15 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
               <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
 
-              <BookingSection
-                selectedDate={selectedDate}
-                trip={trip}
-                priceBox={priceBox}
-              />
+              {trip.hasBookableDates ? (
+                <BookingSection
+                  selectedDate={selectedDate}
+                  trip={trip}
+                  priceBox={priceBox}
+                />
+              ) : null}
+
+              <GroupInquirySection trip={trip} initiallyOpen={!trip.hasBookableDates} />
             </div>
 
             <aside className="space-y-6">
@@ -383,7 +391,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                         },
                       });
                       document
-                        .getElementById("foglalas")
+                        .getElementById(bookingSectionId)
                         ?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
                     className="group/cta flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] font-bold text-white shadow-[0_14px_34px_rgba(0,195,137,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_44px_rgba(0,195,137,0.4)]"
@@ -417,24 +425,6 @@ function Pill({ children, active = false }: any) {
       {children}
     </div>
   );
-}
-
-function parseDiscountPercent(discountBadge?: string | null): number | null {
-  if (!discountBadge) {
-    return null;
-  }
-
-  const match = discountBadge.match(/(-?\d+(?:[.,]\d+)?)\s*%/);
-  if (!match) {
-    return null;
-  }
-
-  const value = Number(match[1].replace(',', '.'));
-  if (!Number.isFinite(value) || value === 0) {
-    return null;
-  }
-
-  return Math.abs(value);
 }
 
 function formatDiscountedDisplayedPrice(

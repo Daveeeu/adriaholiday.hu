@@ -49,6 +49,7 @@ use App\Http\Controllers\PortfolioRegionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
 use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\PublicNewsletterController;
+use App\Http\Controllers\PublicTourInquiryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
@@ -71,6 +72,7 @@ Route::get('portfolio/offers/{slug}', [PortfolioOfferController::class, 'show'])
 Route::get('portfolio/offers/{slug}/pdf', PortfolioOfferPdfController::class)->middleware('throttle:offer-pdf');
 Route::post('analytics/events', AnalyticsEventController::class);
 Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('throttle:bookings');
+Route::post('tour-inquiries', [PublicTourInquiryController::class, 'store'])->middleware('throttle:bookings');
 Route::post('newsletter/subscribe', [PublicNewsletterController::class, 'store'])->middleware('throttle:newsletter');
 
 Route::prefix('auth')->group(function (): void {

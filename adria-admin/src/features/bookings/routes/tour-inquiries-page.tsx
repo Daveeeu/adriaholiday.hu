@@ -14,7 +14,7 @@ import {
   updateTourInquiryRecord,
 } from '../lib/bookings.api';
 import type { TourInquiry, TourInquiryFormValues } from '../lib/bookings.types';
-import { formatDateTime } from '../lib/bookings.utils';
+import { formatDate, formatDateTime } from '../lib/bookings.utils';
 import { getInquiryStatusLabel } from '../lib/bookings.constants';
 import type { DataTableColumn } from '../components/data-table';
 
@@ -30,6 +30,16 @@ function statusTone(status: TourInquiry['status']) {
     default:
       return 'success';
   }
+}
+
+function requestedPeriod(item: TourInquiry) {
+  if (!item.requestedFrom) {
+    return '—';
+  }
+
+  return item.requestedTo && item.requestedTo !== item.requestedFrom
+    ? `${formatDate(item.requestedFrom)} – ${formatDate(item.requestedTo)}`
+    : formatDate(item.requestedFrom);
 }
 
 function initialDraft(record?: TourInquiry | null): TourInquiryFormValues {
@@ -50,6 +60,8 @@ const columns = [
   { key: 'email', label: 'Email', sortable: true, render: (item: TourInquiry) => item.email },
   { key: 'offer', label: 'Ajánlat', sortable: true, render: (item: TourInquiry) => item.offerName },
   { key: 'time', label: 'Időpont', sortable: true, render: (item: TourInquiry) => formatDateTime(item.appointmentTime) },
+  { key: 'requestedPeriod', label: 'Kért időszak', sortable: false, render: (item: TourInquiry) => requestedPeriod(item) },
+  { key: 'passengers', label: 'Létszám', sortable: false, render: (item: TourInquiry) => (item.passengerCount ? `${item.passengerCount} fő` : '—') },
   { key: 'createdAt', label: 'Létrehozva', sortable: true, render: (item: TourInquiry) => formatDateTime(item.createdAt) },
   {
     key: 'status',
@@ -136,6 +148,9 @@ export function TourInquiriesPage() {
                   <DetailItem label="Email" value={record.email} />
                   <DetailItem label="Telefon" value={record.phone} />
                   <DetailItem label="Ajánlat" value={record.offerName} />
+                  <DetailItem label="Kért időszak" value={requestedPeriod(record)} />
+                  <DetailItem label="Létszám" value={record.passengerCount ? `${record.passengerCount} fő` : '—'} />
+                  <DetailItem label="Cím" value={[record.city, record.address].filter(Boolean).join(', ') || '—'} />
                   <DetailItem label="Létrehozva" value={formatDateTime(record.createdAt)} />
                   <DetailItem
                     label="Státusz"
