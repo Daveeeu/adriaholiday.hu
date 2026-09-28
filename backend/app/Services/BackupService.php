@@ -113,7 +113,7 @@ class BackupService
 
     private function backupStorage(string $storagePath, string $timestamp): bool
     {
-        $source = storage_path('app/public');
+        $source = (string) config('backup.media_path');
 
         if (! File::isDirectory($source)) {
             Log::warning("backup:run — storage source directory does not exist, skipping: {$source}");

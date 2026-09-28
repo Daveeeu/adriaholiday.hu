@@ -24,7 +24,10 @@ class BackupCommandTest extends TestCase
         $this->backupPath = storage_path('framework/testing/backup-'.uniqid());
         config(['backup.path' => $this->backupPath]);
 
-        $this->mediaSource = storage_path('app/public');
+        // Never point this at storage/app/public: tearDown deletes it, and
+        // that is where the local media library keeps every uploaded image.
+        $this->mediaSource = storage_path('framework/testing/backup-media-'.uniqid());
+        config(['backup.media_path' => $this->mediaSource]);
         File::ensureDirectoryExists($this->mediaSource);
         File::put($this->mediaSource.'/sample.txt', 'sample media file');
     }
@@ -32,7 +35,7 @@ class BackupCommandTest extends TestCase
     protected function tearDown(): void
     {
         File::deleteDirectory($this->backupPath);
-        File::deleteDirectory(storage_path('app/public'));
+        File::deleteDirectory($this->mediaSource);
 
         parent::tearDown();
     }
