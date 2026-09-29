@@ -45,6 +45,12 @@ export type PortfolioBookingInsurances = {
   cancellationInsurance: { name: string; percent: number; minDaysBeforeDeparture: number };
 };
 
+/** How much of the booking is paid online (Barion) right after booking. */
+export type PortfolioBookingPayment = {
+  kind: "full" | "deposit";
+  depositPercent: number;
+};
+
 export type PortfolioOfferDetailDate = {
   id: number | string;
   tourId?: number | string;
@@ -170,6 +176,7 @@ export type PortfolioOfferDetail = {
   link?: string | null;
   bookingFormFields?: BookingFormField[];
   bookingInsurances?: PortfolioBookingInsurances | null;
+  bookingPayment?: PortfolioBookingPayment | null;
 };
 
 type PortfolioOfferDetailResponse = PortfolioOfferDetail;

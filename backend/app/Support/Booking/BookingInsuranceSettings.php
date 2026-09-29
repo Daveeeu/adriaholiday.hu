@@ -39,11 +39,7 @@ final class BookingInsuranceSettings
 
     public static function load(): self
     {
-        $values = SiteSetting::query()
-            ->where('group', self::GROUP)
-            ->whereIn('key', array_keys(self::DEFAULTS))
-            ->get()
-            ->mapWithKeys(fn (SiteSetting $setting): array => [$setting->key => $setting->decodedValue()]);
+        $values = SiteSetting::valuesOf(self::GROUP, array_keys(self::DEFAULTS));
 
         $value = fn (string $key): mixed => $values->get($key) ?? self::DEFAULTS[$key]['value'];
 

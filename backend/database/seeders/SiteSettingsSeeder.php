@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\SiteSetting;
 use App\Support\Booking\BookingInsuranceSettings;
+use App\Support\Booking\BookingPaymentSettings;
 use Illuminate\Database\Seeder;
 
 class SiteSettingsSeeder extends Seeder
@@ -79,7 +80,7 @@ class SiteSettingsSeeder extends Seeder
      */
     private function bookingDefaults(): array
     {
-        return collect(BookingInsuranceSettings::DEFAULTS)
+        return collect([...BookingInsuranceSettings::DEFAULTS, ...BookingPaymentSettings::DEFAULTS])
             ->map(fn (array $setting, string $key): array => [
                 'group' => BookingInsuranceSettings::GROUP,
                 'key' => $key,

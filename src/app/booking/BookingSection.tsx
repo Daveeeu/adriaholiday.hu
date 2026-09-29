@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ShieldCheck } from "lucide-react";
+import { Check, CreditCard, ShieldCheck } from "lucide-react";
 import { useAnalytics } from "../analytics/useAnalytics";
-import { type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
+import { type PortfolioBookingPayment, type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import BookingFieldInput from "./BookingFieldInput";
 import BookingOptionsPanel from "./BookingOptionsPanel";
 import {
@@ -93,6 +93,7 @@ type BookingTrip = {
   bookingFormFields?: BookingFormField[];
   departurePlaces?: BookingDeparturePlace[];
   bookingInsurances?: BookingInsurances | null;
+  bookingPayment?: PortfolioBookingPayment | null;
 };
 
 type BookingDateOption = {
@@ -129,7 +130,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const [formValues, setFormValues] = useState<BookingFieldValues>({});
   const [couponCode, setCouponCode] = useState("");
   const [passengers, setPassengers] = useState<BookingFieldValues[]>([]);
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "submitting" | "redirecting" | "success" | "error">("idle");
   const [fieldErrors, setFieldErrors] = useState<FieldErrorState>(NO_ERRORS);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | number | null>(null);
@@ -147,6 +148,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const extras = selectedDate.extras ?? NO_EXTRAS;
   const passengerCount = Math.max(1, passengers.length);
   const insurances = trip.bookingInsurances ?? null;
+  const onlinePayment = trip.bookingPayment ?? null;
   const startDate = selectedDate.startDate ?? null;
   const endDate = selectedDate.endDate ?? null;
   const travelInsuranceAvailable = insurances !== null && travelDays(startDate, endDate) !== null;
@@ -390,11 +392,18 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       });
 
       setBookingId(response.id);
-      setStatus("success");
       trackEvent("booking_success", {
         entity: { type: "tour", slug: trip.slug },
         metadata: { booking_id: response.id, participants: passengers.length },
       });
+
+      if (response.paymentUrl) {
+        setStatus("redirecting");
+        window.location.assign(response.paymentUrl);
+        return;
+      }
+
+      setStatus("success");
     } catch (submitError) {
       setStatus("error");
 
@@ -453,6 +462,25 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     }
   }
 
+  if (status === "redirecting") {
+    return (
+      <section id="foglalas" className="scroll-mt-[92px]">
+        <div className="rounded-[40px] bg-[#07111f] p-8 md:p-12 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#00c389]/15 text-[#00c389]">
+            <CreditCard className="w-8 h-8" />
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-3">
+            Foglalásodat rögzítettük!
+          </h2>
+          <p className="text-white/65 text-lg max-w-xl mx-auto">
+            Foglalásod azonosítója: <span className="font-bold text-white">#{bookingId}</span>.
+            Átirányítunk a Barion biztonságos fizetőoldalára…
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   if (status === "success") {
     return (
       <section id="foglalas" className="scroll-mt-[92px]">
@@ -466,6 +494,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
           <p className="text-white/65 text-lg max-w-xl mx-auto">
             Foglalásod azonosítója: <span className="font-bold text-white">#{bookingId}</span>.
             Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
+            {onlinePayment ? " A fizetés részleteiről is tőle kapsz tájékoztatást." : null}
           </p>
         </div>
       </section>
@@ -685,6 +714,14 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                       {displayedTotal}
                     </div>
                   ) : null}
+                  {onlinePayment ? (
+                    <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
+                      <CreditCard className="w-4 h-4 text-[#00a878]" />
+                      {onlinePayment.kind === "deposit"
+                        ? `A foglalás után ${onlinePayment.depositPercent}% előleget fizetsz online, Barionnal.`
+                        : "A foglalás után a teljes összeget online fizeted, Barionnal."}
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="flex gap-3">
@@ -701,7 +738,13 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                     disabled={status === "submitting"}
                     className="h-12 px-7 rounded-xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-bold disabled:opacity-60"
                   >
-                    {status === "submitting" ? "Küldés..." : step < 4 ? "Következő" : "Foglalás elküldése"}
+                    {status === "submitting"
+                      ? "Küldés..."
+                      : step < 4
+                        ? "Következő"
+                        : onlinePayment
+                          ? "Foglalás és fizetés"
+                          : "Foglalás elküldése"}
                   </button>
                 </div>
               </div>

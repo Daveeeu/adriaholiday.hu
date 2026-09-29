@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Public\StorePublicBookingRequest;
 use App\Models\Tour;
 use App\Services\Booking\BookingFormValidationService;
+use App\Services\Booking\BookingPaymentService;
 use App\Services\Booking\PublicBookingService;
 use Illuminate\Validation\ValidationException;
 
@@ -14,6 +15,7 @@ class PublicBookingController extends Controller
         StorePublicBookingRequest $request,
         BookingFormValidationService $validationService,
         PublicBookingService $bookingService,
+        BookingPaymentService $paymentService,
     ) {
         $validated = $request->validated();
 
@@ -36,6 +38,7 @@ class PublicBookingController extends Controller
         return response()->json([
             'id' => $booking->id,
             'status' => $booking->status,
+            'paymentUrl' => $paymentService->start($booking),
         ], 201);
     }
 }

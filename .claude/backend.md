@@ -839,6 +839,16 @@ Group quote requests for a custom date (min. `TourInquiry::MIN_PASSENGERS` = 20 
 
 ---
 
+# Online Booking Payment (Barion)
+
+Tour bookings are paid online through the Barion Smart Gateway right after booking. `App\Services\Booking\BookingPaymentService` owns the flow; `App\Services\Payment\Barion\BarionClient` is the only class that talks to Barion (v2 `Payment/Start`, v4 `Payment/{id}/PaymentState`, POSKey in the `x-pos-key` header). Credentials live in `config/services.php` → `barion` (`BARION_ENVIRONMENT` = `test`/`prod`, `BARION_POS_KEY`, `BARION_PAYEE_EMAIL`, optional `BARION_REDIRECT_URL`, default `APP_URL/fizetes/eredmeny`). Without a POSKey and payee online payment is off and bookings behave as before.
+
+How much is paid online is admin-configurable in the `booking` site settings group (`App\Support\Booking\BookingPaymentSettings`: `online_payment_enabled`, `online_payment_kind` = `full`/`deposit`, `online_payment_deposit_percent`); HUF amounts are rounded to whole forints.
+
+Every attempt is a `BookingPayment` row (`status`: `pending` → `started` → `succeeded`/`failed`, see `App\Support\Payment\BookingPaymentStatus`). `POST /api/bookings` returns the gateway URL as `paymentUrl` (null when nothing is paid online or Barion refused — the booking still stands as `unpaid`). Barion's callback (`POST /api/payments/barion/callback`) and the public result page (`GET /api/payments/barion/{paymentId}`) only trigger `BookingPaymentService::sync()`, which reads the state from Barion and credits `paid_amount` / `payment_status` (`paid` or `partial`) exactly once under row locks — never trust the incoming request. A failed attempt can be replaced via `POST /api/payments/barion/{paymentId}/retry`; an open or succeeded one cannot, so a booking never has two open payments. Payments are addressed by Barion's unguessable payment id, and the public payload carries no personal data.
+
+---
+
 # Newsletter Subscription (signup coupon)
 
 Public `POST /api/newsletter/subscribe` (throttled via the `newsletter` rate limiter) creates a `NewsletterSubscriber` and issues it a one-time `Coupon` (code prefixed `HIR-`, `name: 'Hírlevél feliratkozás'` so it's identifiable in the admin Coupons list), then emails it via `NewsletterCouponMail`. All of this is orchestrated by `App\Services\Newsletter\NewsletterSubscriptionService`, which is idempotent — resubscribing an existing email is a no-op (no second coupon, no resend).

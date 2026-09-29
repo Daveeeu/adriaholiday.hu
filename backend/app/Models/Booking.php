@@ -110,4 +110,9 @@ class Booking extends Model
     {
         return $this->hasMany(EmailLog::class)->orderByDesc('created_at');
     }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(BookingPayment::class)->orderByDesc('created_at')->orderByDesc('id');
+    }
 }

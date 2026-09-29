@@ -46,6 +46,8 @@ export type SiteSettingsResponse = {
   items: SiteSettingItem[];
 };
 
+export type OnlinePaymentKind = 'full' | 'deposit';
+
 export type SiteSettingsFormValues = {
   siteName: string;
   logo: SiteSettingsMedia;
@@ -73,6 +75,9 @@ export type SiteSettingsFormValues = {
   cancellationInsuranceName: string;
   cancellationInsurancePercent: number;
   cancellationInsuranceMinDays: number;
+  onlinePaymentEnabled: boolean;
+  onlinePaymentKind: OnlinePaymentKind;
+  onlinePaymentDepositPercent: number;
   imprintUrl: string;
   privacyUrl: string;
   termsUrl: string;

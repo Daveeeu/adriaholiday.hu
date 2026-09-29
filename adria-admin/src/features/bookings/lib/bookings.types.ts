@@ -145,6 +145,20 @@ export type TourBookingPricing = {
   total: number | null;
 };
 
+/** One online (Barion) payment attempt of a booking. */
+export type TourBookingPayment = {
+  id: number;
+  provider: string;
+  providerPaymentId: string | null;
+  status: 'pending' | 'started' | 'succeeded' | 'failed';
+  providerStatus: string | null;
+  kind: 'full' | 'deposit';
+  amount: number;
+  currency: string;
+  completedAt: string | null;
+  createdAt: string;
+};
+
 export type TourBookingDetail = TourBooking & {
   tourId: string | null;
   tour: TourBookingTourSummary | null;
@@ -157,6 +171,7 @@ export type TourBookingDetail = TourBooking & {
   formDataFields: BookingDynamicField[];
   passengerFields: BookingDynamicField[][];
   pricing: TourBookingPricing | null;
+  payments: TourBookingPayment[];
   payload: Record<string, unknown> | null;
   updatedAt: string;
 };

@@ -48,6 +48,7 @@ use App\Http\Controllers\PortfolioPromotionController;
 use App\Http\Controllers\PortfolioRegionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\PublicBookingPaymentController;
 use App\Http\Controllers\PublicNewsletterController;
 use App\Http\Controllers\PublicTourInquiryController;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +73,11 @@ Route::get('portfolio/offers/{slug}', [PortfolioOfferController::class, 'show'])
 Route::get('portfolio/offers/{slug}/pdf', PortfolioOfferPdfController::class)->middleware('throttle:offer-pdf');
 Route::post('analytics/events', AnalyticsEventController::class);
 Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('throttle:bookings');
+Route::post('payments/barion/callback', [PublicBookingPaymentController::class, 'callback'])->name('payments.barion.callback');
+Route::middleware('throttle:payments')->group(function (): void {
+    Route::get('payments/barion/{bookingPayment:provider_payment_id}', [PublicBookingPaymentController::class, 'show']);
+    Route::post('payments/barion/{bookingPayment:provider_payment_id}/retry', [PublicBookingPaymentController::class, 'retry']);
+});
 Route::post('tour-inquiries', [PublicTourInquiryController::class, 'store'])->middleware('throttle:bookings');
 Route::post('newsletter/subscribe', [PublicNewsletterController::class, 'store'])->middleware('throttle:newsletter');
 

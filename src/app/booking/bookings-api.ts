@@ -37,6 +37,21 @@ export type SubmitTourInquiryPayload = {
 export type SubmitBookingResponse = {
   id: number | string;
   status: string;
+  /** Barion gateway to send the customer to; null when there is nothing to pay online. */
+  paymentUrl?: string | null;
+};
+
+export type BookingPaymentStatus = "pending" | "started" | "succeeded" | "failed";
+
+export type BookingPaymentResult = {
+  paymentId: string;
+  status: BookingPaymentStatus;
+  kind: "full" | "deposit";
+  amount: number;
+  currency: string;
+  bookingId: number;
+  tourName: string | null;
+  canRetry: boolean;
 };
 
 export class BookingApiError extends Error {
@@ -60,23 +75,43 @@ export class BookingValidationError extends BookingApiError {
 }
 
 export function submitBooking(payload: SubmitBookingPayload): Promise<SubmitBookingResponse> {
-  return post('/bookings', payload);
+  return request('POST', '/bookings', payload);
 }
 
 /** Group quote request for a custom date (min. 20 passengers). */
 export function submitTourInquiry(payload: SubmitTourInquiryPayload): Promise<SubmitBookingResponse> {
-  return post('/tour-inquiries', payload);
+  return request('POST', '/tour-inquiries', payload);
 }
 
-async function post(path: string, payload: unknown): Promise<SubmitBookingResponse> {
+/** Current state of a Barion payment, identified by the id Barion appends to the return URL. */
+export async function fetchBookingPayment(paymentId: string): Promise<BookingPaymentResult> {
+  const response = await request<{ data: BookingPaymentResult }>(
+    'GET',
+    `/payments/barion/${encodeURIComponent(paymentId)}`,
+  );
+
+  return response.data;
+}
+
+/** Starts a new payment in place of a failed one and returns the Barion gateway URL. */
+export async function retryBookingPayment(paymentId: string): Promise<string> {
+  const response = await request<{ paymentUrl: string }>(
+    'POST',
+    `/payments/barion/${encodeURIComponent(paymentId)}/retry`,
+  );
+
+  return response.paymentUrl;
+}
+
+async function request<T>(method: 'GET' | 'POST', path: string, payload?: unknown): Promise<T> {
   const response = await fetch(`${getPortfolioApiBaseUrl()}${path}`, {
-    method: 'POST',
+    method,
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/json',
+      ...(payload !== undefined ? { 'Content-Type': 'application/json' } : {}),
     },
     credentials: 'include',
-    body: JSON.stringify(payload),
+    body: payload !== undefined ? JSON.stringify(payload) : undefined,
   });
 
   if (!response.ok) {
@@ -84,7 +119,7 @@ async function post(path: string, payload: unknown): Promise<SubmitBookingRespon
     const message =
       typeof body?.message === 'string' && body.message.trim() !== ''
         ? body.message
-        : `A beküldés sikertelen volt (${response.status}).`;
+        : `A kérés sikertelen volt (${response.status}).`;
 
     if (response.status === 422 && body?.errors && typeof body.errors === 'object') {
       throw new BookingValidationError(response.status, message, body.errors as Record<string, string[]>);
@@ -93,5 +128,5 @@ async function post(path: string, payload: unknown): Promise<SubmitBookingRespon
     throw new BookingApiError(response.status, message);
   }
 
-  return (await response.json()) as SubmitBookingResponse;
+  return (await response.json()) as T;
 }

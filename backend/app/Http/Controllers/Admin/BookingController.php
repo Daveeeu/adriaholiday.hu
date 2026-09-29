@@ -251,7 +251,7 @@ class BookingController extends Controller
     private function detailRelationsFor(?string $bookingType): array
     {
         return match ($bookingType) {
-            'tour_booking' => ['tour.bookingFormTemplate.templateFields.field', 'tourDate'],
+            'tour_booking' => ['tour.bookingFormTemplate.templateFields.field', 'tourDate', 'payments'],
             'apartment_booking' => ['apartment'],
             'tour_inquiry' => ['tour', 'region'],
             default => ['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate'],

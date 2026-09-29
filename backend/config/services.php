@@ -35,6 +35,15 @@ return [
         ],
     ],
 
+    'barion' => [
+        'environment' => env('BARION_ENVIRONMENT', 'test'),
+        'pos_key' => env('BARION_POS_KEY'),
+        'payee' => env('BARION_PAYEE_EMAIL'),
+        // Where Barion sends the customer back; defaults to APP_URL/fizetes/eredmeny.
+        'redirect_url' => env('BARION_REDIRECT_URL'),
+        'timeout' => env('BARION_TIMEOUT', 15),
+    ],
+
     'legacy_adria' => [
         'base_url' => env('LEGACY_ADRIA_BASE_URL', 'https://adriaholiday.hu'),
         'user_agent' => env('LEGACY_ADRIA_USER_AGENT', 'AdriaHolidayLegacyImporter/1.0 (+https://adriaholiday.hu)'),

@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Plus, Save, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useFieldArray, useForm, type Control } from 'react-hook-form';
+import { useFieldArray, useForm, useWatch, type Control } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -78,6 +78,9 @@ const settingsSchema = z.object({
   cancellationInsuranceName: z.string().trim().min(1, 'A biztosítás neve kötelező.'),
   cancellationInsurancePercent: z.coerce.number().min(0, 'A díj nem lehet negatív.').max(100, 'Legfeljebb 100% lehet.'),
   cancellationInsuranceMinDays: z.coerce.number().int().min(0, 'Nem lehet negatív.'),
+  onlinePaymentEnabled: z.boolean(),
+  onlinePaymentKind: z.enum(['full', 'deposit']),
+  onlinePaymentDepositPercent: z.coerce.number().min(1, 'Legalább 1% legyen.').max(100, 'Legfeljebb 100% lehet.'),
   imprintUrl: z.string().trim(),
   privacyUrl: z.string().trim(),
   termsUrl: z.string().trim(),
@@ -116,6 +119,9 @@ const emptyValues: SiteSettingsFormValues = {
   cancellationInsuranceName: '',
   cancellationInsurancePercent: 0,
   cancellationInsuranceMinDays: 0,
+  onlinePaymentEnabled: false,
+  onlinePaymentKind: 'full',
+  onlinePaymentDepositPercent: 30,
   imprintUrl: '',
   privacyUrl: '',
   termsUrl: '',
@@ -225,6 +231,7 @@ export function SettingsPage() {
     resolver: zodResolver(settingsSchema) as never,
     defaultValues: emptyValues,
   });
+  const onlinePaymentKind = useWatch({ control: form.control, name: 'onlinePaymentKind' });
 
   const { data, isLoading } = useQuery({
     queryKey: ['site-settings'],
@@ -544,6 +551,53 @@ export function SettingsPage() {
                 )} />
                 <FormField control={form.control} name="cancellationInsuranceMinDays" render={({ field }) => (
                   <FormItem><FormLabel>Útlemondási biztosítás legkésőbb (nappal indulás előtt)</FormLabel><FormControl><Input type="number" min={0} step={1} {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Online fizetés (Barion)</CardTitle>
+                <CardDescription>
+                  Foglalás után az ügyfél a Barion fizetőoldalán fizet. Csak akkor működik, ha a szerveren be van állítva a Barion POSKey és a fogadó e-mail cím.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-3">
+                <FormField control={form.control} name="onlinePaymentEnabled" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Online fizetés</FormLabel>
+                    <FormControl>
+                      <label className="flex items-center gap-3 rounded-xl border border-input px-3 py-2 text-sm">
+                        <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
+                        Bekapcsolva
+                      </label>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="onlinePaymentKind" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Online fizetendő összeg</FormLabel>
+                    <FormControl>
+                      <select
+                        className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        {...field}
+                      >
+                        <option value="full">Teljes összeg</option>
+                        <option value="deposit">Előleg</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="onlinePaymentDepositPercent" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Előleg (a végösszeg %-a)</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={1} max={100} step={1} disabled={onlinePaymentKind !== 'deposit'} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )} />
               </CardContent>
             </Card>

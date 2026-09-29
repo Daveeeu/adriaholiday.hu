@@ -17,6 +17,7 @@ const BlogArticleRoute = lazy(() => import("./app/routes/BlogArticleRoute"));
 const RegionRoute = lazy(() => import("./app/routes/RegionRoute"));
 const TravelsRoute = lazy(() => import("./app/routes/TravelsRoute"));
 const NotFoundRoute = lazy(() => import("./app/routes/NotFoundRoute"));
+const PaymentResultRoute = lazy(() => import("./app/routes/PaymentResultRoute"));
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,7 @@ const router = createBrowserRouter([
         path: "sutik",
         element: <StaticPage title="Süti kezelés" canonicalPath="/sutik" />,
       },
+      { path: "fizetes/eredmeny", element: <PaymentResultRoute /> },
       { path: "*", element: <NotFoundRoute /> },
     ],
   },

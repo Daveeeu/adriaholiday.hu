@@ -34,6 +34,7 @@ class BookingDetailResource extends BookingResource
             'adminNote' => $this->admin_note,
             'seatsReserved' => (bool) $this->seats_reserved,
             'pricing' => $payload['pricing'] ?? null,
+            'payments' => $this->whenLoaded('payments', fn () => BookingPaymentResource::collection($this->payments)->resolve()),
             'formDataFields' => collect($payload['formData'] ?? [])
                 ->map(fn ($value, $key) => [
                     'key' => $key,

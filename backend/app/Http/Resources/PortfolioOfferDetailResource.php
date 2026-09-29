@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Services\Booking\BookingFormFieldResolver;
+use App\Services\Booking\BookingPaymentService;
 use App\Support\Booking\BookingInsuranceSettings;
 use App\Support\RichTextSanitizer;
 use App\Support\TourMeta;
@@ -91,6 +92,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'link' => '/ajanlat/'.($tour->seo_name ?: Str::slug((string) $tour->name)),
             'bookingFormFields' => app(BookingFormFieldResolver::class)->resolve($tour),
             'bookingInsurances' => BookingInsuranceSettings::load()->toArray(),
+            'bookingPayment' => app(BookingPaymentService::class)->publicOptions($tour->price_box_currency ?: 'HUF'),
         ]);
     }
 }

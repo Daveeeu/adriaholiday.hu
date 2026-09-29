@@ -127,6 +127,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
       fee: place.tourFee ?? place.fee ?? 0,
     })),
     bookingInsurances: offer.bookingInsurances ?? null,
+    bookingPayment: offer.bookingPayment ?? null,
     hasBookableDates: offer.dates.length > 0,
   };
 }

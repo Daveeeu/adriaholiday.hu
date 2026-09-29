@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class SiteSetting extends Model
 {
@@ -45,6 +46,22 @@ class SiteSetting extends Model
     public function scopePublic($query)
     {
         return $query->where('is_public', true);
+    }
+
+    /**
+     * Decoded values of the given keys of a group, keyed by setting key;
+     * keys without a stored row are missing from the result.
+     *
+     * @param  array<int, string>  $keys
+     * @return Collection<string, mixed>
+     */
+    public static function valuesOf(string $group, array $keys): Collection
+    {
+        return self::query()
+            ->where('group', $group)
+            ->whereIn('key', $keys)
+            ->get()
+            ->mapWithKeys(fn (SiteSetting $setting): array => [$setting->key => $setting->decodedValue()]);
     }
 
     public function decodedValue(): mixed

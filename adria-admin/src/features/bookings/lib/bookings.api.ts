@@ -23,6 +23,7 @@ import type {
   TourBooking,
   TourBookingDetail,
   TourBookingFormValues,
+  TourBookingPayment,
   TourBookingPricing,
   TourBookingTourDate,
   TourBookingTourSummary,
@@ -103,6 +104,7 @@ type BookingDetailResource = BookingResource & {
   formDataFields: BookingDynamicField[];
   passengerFields: BookingDynamicField[][];
   pricing?: TourBookingPricing | null;
+  payments?: TourBookingPayment[];
 };
 
 function mapTourBooking(resource: BookingResource): TourBooking {
@@ -143,6 +145,7 @@ function mapTourBookingDetail(resource: BookingDetailResource): TourBookingDetai
     formDataFields: resource.formDataFields ?? [],
     passengerFields: resource.passengerFields ?? [],
     pricing: resource.pricing ?? null,
+    payments: resource.payments ?? [],
     payload: resource.payload,
     updatedAt: resource.updatedAt,
   };
