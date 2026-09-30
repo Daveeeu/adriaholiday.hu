@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router";
+import BarionPixel from "../components/BarionPixel";
 import CookieConsentBanner from "../components/CookieConsentBanner";
 import PromotionToast from "../components/PromotionToast";
 import Footer from "../components/Footer";
@@ -31,6 +32,7 @@ export default function RootLayout() {
             </div>
             <Footer />
             <CookieConsentBanner />
+            <BarionPixel />
             {isHome ? <PromotionToast /> : null}
           </PortfolioContentProvider>
         </SiteSettingsProvider>

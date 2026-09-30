@@ -186,6 +186,7 @@ class BookingFormFieldTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',
@@ -217,6 +218,7 @@ class BookingFormFieldTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',
@@ -305,6 +307,7 @@ class BookingFormFieldTest extends TestCase
         ];
 
         $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [...$contact, 'extra_single_room' => 'talán', 'extra_payment_method' => 'Bitcoin'],
         ])->assertStatus(422)->assertJsonValidationErrors([
@@ -314,6 +317,7 @@ class BookingFormFieldTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 ...$contact,

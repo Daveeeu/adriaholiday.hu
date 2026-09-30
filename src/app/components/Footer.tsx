@@ -5,6 +5,7 @@ import { Link } from "react-router";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { trackEvent } from "../analytics/trackEvent";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import BarionPaymentBanner from "./BarionPaymentBanner";
 
 function ExternalLink({
   href,
@@ -155,6 +156,13 @@ export default function Footer() {
             </ul>
           </motion.div>
         </div>
+
+        {settings.onlinePaymentEnabled ? (
+          <div className="mb-8 flex flex-col items-center gap-3 md:items-start">
+            <span className="text-sm text-white/50">Biztonságos online fizetés</span>
+            <BarionPaymentBanner variant="dark" />
+          </div>
+        ) : null}
 
         <motion.div
           className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4"

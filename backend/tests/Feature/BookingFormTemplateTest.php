@@ -90,6 +90,7 @@ class BookingFormTemplateTest extends TestCase
         $this->assertSame('required', $fields->firstWhere('key', 'extra_terms')['visibility']);
 
         $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',
@@ -147,6 +148,7 @@ class BookingFormTemplateTest extends TestCase
         $tour = Tour::factory()->create(['booking_form_template_id' => $template->id]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'participants' => 1,
             'formData' => [
@@ -169,6 +171,7 @@ class BookingFormTemplateTest extends TestCase
         $tour = Tour::factory()->create(['booking_form_template_id' => $template->id]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'participants' => 1,
             'formData' => [
@@ -204,6 +207,7 @@ class BookingFormTemplateTest extends TestCase
         Coupon::query()->create(['active' => true, 'name' => 'Nyári kupon', 'code' => 'NYAR10', 'value' => 10000, 'used' => false]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'participants' => 1,
             'formData' => [
@@ -288,6 +292,7 @@ class BookingFormTemplateTest extends TestCase
         $tour = Tour::factory()->create(['active' => false]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',
@@ -311,6 +316,7 @@ class BookingFormTemplateTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'tourDateId' => $date->id,
             'formData' => [
@@ -336,6 +342,7 @@ class BookingFormTemplateTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'tourDateId' => $date->id,
             'formData' => [
@@ -355,6 +362,7 @@ class BookingFormTemplateTest extends TestCase
         $tour = Tour::factory()->create(['active' => true, 'booking_form_template_id' => null]);
 
         $missing = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',
@@ -366,6 +374,7 @@ class BookingFormTemplateTest extends TestCase
         $missing->assertJsonValidationErrors(['formData.contact_email', 'formData.contact_phone', 'passengers']);
 
         $valid = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',
@@ -389,6 +398,7 @@ class BookingFormTemplateTest extends TestCase
         $tour = Tour::factory()->create(['booking_form_template_id' => $template->id]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',
@@ -416,6 +426,7 @@ class BookingFormTemplateTest extends TestCase
         $tour = Tour::factory()->create(['active' => true]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'participants' => 0,
             'formData' => [
@@ -437,6 +448,7 @@ class BookingFormTemplateTest extends TestCase
         $passengers = array_fill(0, 21, ['passenger_name' => 'Utas']);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',

@@ -260,6 +260,7 @@ class TourBookingPaymentTest extends TestCase
     private function bookingPayload(): array
     {
         return [
+            'termsAccepted' => true,
             'tourId' => $this->tour->id,
             'tourDateId' => $this->tourDate->id,
             'formData' => [

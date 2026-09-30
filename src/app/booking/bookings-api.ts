@@ -17,6 +17,8 @@ export type SubmitBookingPayload = {
   travelInsurance?: boolean;
   cancellationInsurance?: boolean;
   type?: 'tour_booking' | 'tour_inquiry';
+  /** The customer accepted the terms (ÁSZF) and the privacy policy. */
+  termsAccepted: boolean;
 };
 
 export type SubmitTourInquiryPayload = {

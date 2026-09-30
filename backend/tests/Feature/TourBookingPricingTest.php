@@ -72,6 +72,7 @@ class TourBookingPricingTest extends TestCase
     private function bookingPayload(array $overrides = [], int $passengers = 2): array
     {
         return array_merge([
+            'termsAccepted' => true,
             'tourId' => $this->tour->id,
             'tourDateId' => $this->tourDate->id,
             'departurePlaceId' => $this->bok->id,
@@ -96,6 +97,17 @@ class TourBookingPricingTest extends TestCase
         $response->assertCreated();
 
         return Booking::query()->findOrFail($response->json('id'))->payload['pricing'];
+    }
+
+    public function test_booking_requires_accepting_the_terms_and_records_when_they_were_accepted(): void
+    {
+        $this->postJson('/api/bookings', $this->bookingPayload(['termsAccepted' => false]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['terms_accepted']);
+
+        $response = $this->postJson('/api/bookings', $this->bookingPayload())->assertCreated();
+
+        $this->assertNotNull(Booking::query()->findOrFail($response->json('id'))->payload['termsAcceptedAt']);
     }
 
     public function test_total_includes_base_price_per_tour_departure_fee_mandatory_and_selected_extras(): void

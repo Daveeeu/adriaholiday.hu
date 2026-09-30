@@ -78,6 +78,7 @@ export type SiteSettingsFormValues = {
   onlinePaymentEnabled: boolean;
   onlinePaymentKind: OnlinePaymentKind;
   onlinePaymentDepositPercent: number;
+  barionPixelId: string;
   imprintUrl: string;
   privacyUrl: string;
   termsUrl: string;

@@ -21,6 +21,8 @@ final class BookingPaymentSettings
         'online_payment_enabled' => ['type' => 'boolean', 'value' => true],
         'online_payment_kind' => ['type' => 'string', 'value' => BookingPaymentKind::FULL],
         'online_payment_deposit_percent' => ['type' => 'number', 'value' => 30],
+        // Base Barion Pixel (fraud prevention), loaded by the public site on every page.
+        'barion_pixel_id' => ['type' => 'string', 'value' => ''],
     ];
 
     public function __construct(

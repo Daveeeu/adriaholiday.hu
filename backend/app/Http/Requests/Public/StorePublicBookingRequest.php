@@ -23,6 +23,7 @@ class StorePublicBookingRequest extends FormRequest
             'travel_insurance' => $this->boolean('travel_insurance', $this->boolean('travelInsurance')),
             'cancellation_insurance' => $this->boolean('cancellation_insurance', $this->boolean('cancellationInsurance')),
             'type' => $this->input('type', 'tour_booking'),
+            'terms_accepted' => $this->boolean('terms_accepted', $this->boolean('termsAccepted')),
         ]);
     }
 
@@ -64,6 +65,7 @@ class StorePublicBookingRequest extends FormRequest
             'travel_insurance' => ['boolean'],
             'cancellation_insurance' => ['boolean'],
             'type' => ['nullable', 'string', Rule::in(['tour_booking', 'tour_inquiry'])],
+            'terms_accepted' => ['accepted'],
         ];
     }
 
@@ -94,6 +96,7 @@ class StorePublicBookingRequest extends FormRequest
             'extra_ids.*.distinct' => 'Egy felár csak egyszer választható.',
             'extra_choices.array' => 'Érvénytelen felár választás.',
             'extra_choices.*.max' => 'A megadott érték túl hosszú.',
+            'terms_accepted.accepted' => 'Az ÁSZF és az adatkezelési tájékoztató elfogadása kötelező.',
         ];
     }
 }

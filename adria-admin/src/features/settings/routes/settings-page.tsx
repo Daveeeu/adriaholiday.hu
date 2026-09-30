@@ -81,6 +81,10 @@ const settingsSchema = z.object({
   onlinePaymentEnabled: z.boolean(),
   onlinePaymentKind: z.enum(['full', 'deposit']),
   onlinePaymentDepositPercent: z.coerce.number().min(1, 'Legalább 1% legyen.').max(100, 'Legfeljebb 100% lehet.'),
+  barionPixelId: z
+    .string()
+    .trim()
+    .regex(/^(BP-[A-Za-z0-9]{10}-\d{2})?$/, 'Formátum: BP-0000000000-00'),
   imprintUrl: z.string().trim(),
   privacyUrl: z.string().trim(),
   termsUrl: z.string().trim(),
@@ -122,6 +126,7 @@ const emptyValues: SiteSettingsFormValues = {
   onlinePaymentEnabled: false,
   onlinePaymentKind: 'full',
   onlinePaymentDepositPercent: 30,
+  barionPixelId: '',
   imprintUrl: '',
   privacyUrl: '',
   termsUrl: '',
@@ -596,6 +601,14 @@ export function SettingsPage() {
                     <FormControl>
                       <Input type="number" min={1} max={100} step={1} disabled={onlinePaymentKind !== 'deposit'} {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="barionPixelId" render={({ field }) => (
+                  <FormItem className="md:col-span-3">
+                    <FormLabel>Barion Pixel azonosító</FormLabel>
+                    <FormControl><Input {...field} placeholder="BP-0000000000-00" /></FormControl>
+                    <CardDescription>A Base Barion Pixel (csalásmegelőzés) minden publikus oldalon betöltődik, ha meg van adva.</CardDescription>
                     <FormMessage />
                   </FormItem>
                 )} />

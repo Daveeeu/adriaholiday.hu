@@ -39,6 +39,7 @@ class AdminBookingTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'tourDateId' => $date->id,
             'formData' => [
@@ -65,6 +66,7 @@ class AdminBookingTest extends TestCase
         $tour = Tour::factory()->create(['active' => true]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',
@@ -152,6 +154,7 @@ class AdminBookingTest extends TestCase
         ]);
 
         $payload = [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'tourDateId' => $date->id,
             'formData' => [
@@ -193,6 +196,7 @@ class AdminBookingTest extends TestCase
         ]);
 
         $payload = [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'tourDateId' => $date->id,
             'formData' => [
@@ -242,6 +246,7 @@ class AdminBookingTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'tourDateId' => $date->id,
             'formData' => [
@@ -464,6 +469,7 @@ class AdminBookingTest extends TestCase
         $tour = Tour::factory()->create(['active' => true]);
 
         $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
             'tourId' => $tour->id,
             'formData' => [
                 'contact_name' => 'Kovács Anna',

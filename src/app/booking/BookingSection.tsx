@@ -27,6 +27,8 @@ import {
   type BookingFormField,
 } from "./booking-form-fields";
 import { submitBooking, BookingApiError, BookingValidationError } from "./bookings-api";
+import BarionPaymentBanner from "../components/BarionPaymentBanner";
+import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 
 type FieldErrorState = {
   form: BookingFieldErrors;
@@ -45,6 +47,8 @@ const COUPON_FIELD: BookingFormField = {
   priceLabel: null,
   visibility: "optional",
 };
+
+const TERMS_REQUIRED_MESSAGE = "Az ÁSZF és az adatkezelési tájékoztató elfogadása kötelező.";
 
 const STEP_OF_GROUP: Record<BookingFieldGroup, number> = {
   contact: 2,
@@ -129,6 +133,9 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const [hasStarted, setHasStarted] = useState(false);
   const [formValues, setFormValues] = useState<BookingFieldValues>({});
   const [couponCode, setCouponCode] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState<string | null>(null);
+  const { settings } = useSiteSettings();
   const [passengers, setPassengers] = useState<BookingFieldValues[]>([]);
   const [status, setStatus] = useState<"idle" | "submitting" | "redirecting" | "success" | "error">("idle");
   const [fieldErrors, setFieldErrors] = useState<FieldErrorState>(NO_ERRORS);
@@ -365,6 +372,12 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       return;
     }
 
+    if (!termsAccepted) {
+      setTermsError(TERMS_REQUIRED_MESSAGE);
+      setStep(4);
+      return;
+    }
+
     setStatus("submitting");
     setErrorMessage(null);
 
@@ -389,6 +402,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         travelInsurance: travelInsuranceAvailable && insuranceChoice.travel,
         cancellationInsurance: cancellationInsuranceAvailable && insuranceChoice.cancellation,
         type: "tour_booking",
+        termsAccepted,
       });
 
       setBookingId(response.id);
@@ -440,6 +454,13 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
           return;
         }
 
+        const termsMessage = submitError.errors.terms_accepted?.[0] ?? submitError.errors.termsAccepted?.[0];
+        if (termsMessage) {
+          setTermsError(termsMessage);
+          setStep(4);
+          return;
+        }
+
         if (submitError.errors.couponCode?.[0]) {
           setStep(4);
           return;
@@ -476,6 +497,9 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
             Foglalásod azonosítója: <span className="font-bold text-white">#{bookingId}</span>.
             Átirányítunk a Barion biztonságos fizetőoldalára…
           </p>
+          <div className="mt-6 flex justify-center">
+            <BarionPaymentBanner variant="dark" />
+          </div>
         </div>
       </section>
     );
@@ -696,6 +720,32 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                         ) : null}
                       </div>
                     ) : null}
+
+                    <div>
+                      <label className="flex items-start gap-3 text-sm text-[#0f172a] cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={termsAccepted}
+                          onChange={(event) => {
+                            setTermsAccepted(event.target.checked);
+                            setTermsError(null);
+                          }}
+                          className="mt-1 accent-[#00c389]"
+                        />
+                        <span>
+                          Az{" "}
+                          <a href={settings.termsUrl || "/aszf"} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
+                            Általános Szerződési Feltételeket
+                          </a>{" "}
+                          és az{" "}
+                          <a href={settings.privacyUrl || "/adatvedelem"} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
+                            adatkezelési tájékoztatót
+                          </a>{" "}
+                          elolvastam és elfogadom.*
+                        </span>
+                      </label>
+                      {termsError ? <p className="mt-2 text-sm font-medium text-red-600">{termsError}</p> : null}
+                    </div>
                   </div>
 
                   {errorMessage ? (
@@ -722,6 +772,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                         : "A foglalás után a teljes összeget online fizeted, Barionnal."}
                     </div>
                   ) : null}
+                  {onlinePayment && step === 4 ? <BarionPaymentBanner variant="light" className="mt-3" /> : null}
                 </div>
 
                 <div className="flex gap-3">

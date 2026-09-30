@@ -29,6 +29,8 @@ const emptySettings: ResolvedSiteSettings = {
   defaultSeoDescription: "",
   defaultOgImage: null,
   newsletterCouponValue: 0,
+  onlinePaymentEnabled: false,
+  barionPixelId: "",
   imprintUrl: "",
   privacyUrl: "",
   termsUrl: "",
@@ -92,6 +94,8 @@ function resolveSettings(payload: PublicSiteSettingsPayload): ResolvedSiteSettin
       ? payload.seo.default_og_image
       : null,
     newsletterCouponValue: asNumber(payload.newsletter?.coupon_value),
+    onlinePaymentEnabled: payload.booking?.online_payment_enabled === true,
+    barionPixelId: asString(payload.booking?.barion_pixel_id),
     imprintUrl: asString(payload.legal?.imprint_url),
     privacyUrl: asString(payload.legal?.privacy_url),
     termsUrl: asString(payload.legal?.terms_url),

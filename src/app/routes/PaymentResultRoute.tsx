@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, Clock, CreditCard, Home, RotateCcw, X } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
 
+import BarionPaymentBanner from "../components/BarionPaymentBanner";
 import Seo from "../seo/Seo";
 import {
   BookingApiError,
@@ -103,6 +104,10 @@ export default function PaymentResultRoute() {
           <PaymentResultBody state={state} />
 
           {retryError ? <p className="mt-4 text-sm font-medium text-rose-600">{retryError}</p> : null}
+
+          <div className="mt-8 flex justify-center">
+            <BarionPaymentBanner variant="light" />
+          </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             {state.kind === "loaded" && state.payment.canRetry ? (

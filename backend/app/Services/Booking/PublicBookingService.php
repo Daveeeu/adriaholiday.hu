@@ -143,6 +143,8 @@ class PublicBookingService
                 'formData' => $formData,
                 'passengers' => $passengers,
                 'pricing' => $pricing,
+                // Proof that the customer accepted the terms and the privacy policy.
+                'termsAcceptedAt' => now()->toIso8601String(),
             ],
         ]);
     }
