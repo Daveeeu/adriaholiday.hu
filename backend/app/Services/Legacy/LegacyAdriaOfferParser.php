@@ -94,7 +94,7 @@ class LegacyAdriaOfferParser
             programDays: $program['days'],
             priceItems: [...$program['priceItems'], ...$onSiteFees],
             tags: $this->extractKeywords($xpath),
-            categories: $this->extractCategories($xpath, $context),
+            categories: $this->extractCategories($context),
             countrySlugs: array_values(array_unique($context['countries'] ?? [])),
             travelModeCode: $dates[0]['transport_code'] ?? null,
             catering: $dates[0]['catering'] ?? null,
@@ -351,31 +351,19 @@ class LegacyAdriaOfferParser
     }
 
     /**
+     * Categories come only from the crawl context: the offer page's breadcrumb
+     * links a single country, never the tour group the offer is listed in.
+     *
      * @param  array{countries?: array<int, string>, categories?: array<int, string>}  $context
      * @return array<int, string>
      */
-    private function extractCategories(DOMXPath $xpath, array $context): array
+    private function extractCategories(array $context): array
     {
-        $slugs = $context['categories'] ?? [];
-
-        if ($slugs !== []) {
-            return collect($slugs)
-                ->map(fn (string $slug): string => self::CATEGORY_NAMES[$slug] ?? Str::headline($slug))
-                ->unique()
-                ->values()
-                ->all();
-        }
-
-        $links = $xpath->query('//div[contains(concat(" ", normalize-space(@class), " "), " breadcrumb ")]/a[contains(@class,"section")]');
-
-        if ($links->length < 2) {
-            return [];
-        }
-
-        $lastLink = $links->item($links->length - 1);
-        $label = $lastLink instanceof DOMElement ? $this->normalizeWhitespace($lastLink->textContent) : '';
-
-        return $label !== '' && ! in_array($label, ['Főoldal', 'Körutazások'], true) ? [$label] : [];
+        return collect($context['categories'] ?? [])
+            ->map(fn (string $slug): string => self::CATEGORY_NAMES[$slug] ?? Str::headline($slug))
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

@@ -101,7 +101,7 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertGreaterThanOrEqual(10, count($data->tags));
     }
 
-    public function test_it_prefers_crawl_context_categories_over_breadcrumb(): void
+    public function test_it_takes_countries_and_categories_from_crawl_context(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), self::SOURCE_URL, [
             'countries' => ['albania'],
@@ -112,11 +112,12 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertSame(['Körutazás', 'Tengerparti üdülések'], $data->categories);
     }
 
-    public function test_it_falls_back_to_breadcrumb_category_without_crawl_context(): void
+    public function test_it_takes_no_categories_or_countries_from_the_breadcrumb_without_crawl_context(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), self::SOURCE_URL);
 
-        $this->assertSame(['Tengerparti üdülések'], $data->categories);
+        $this->assertSame([], $data->categories);
+        $this->assertSame([], $data->countrySlugs);
     }
 
     public function test_it_collects_leftover_paragraphs_as_notes(): void

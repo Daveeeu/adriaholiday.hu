@@ -82,16 +82,20 @@ class LegacyTourImporter
                 'travel_mode_id' => $travelModeId,
                 'catering' => $data->catering,
                 'accommodation' => $data->accommodation,
-                'category_ids' => $categoryIds,
                 'tag_ids' => $tagIds,
                 'price' => $data->price,
                 'displayed_price' => $data->price !== null ? number_format($data->price, 0, ',', '.').' Ft' : null,
             ]);
 
-            // Countries come from the crawl context, which a single --slug import
-            // lacks; an update must not wipe the country and region it already has.
+            // Countries and categories come from the crawl context, which an offer
+            // missing from every listing page lacks; an update must not wipe the
+            // ones the tour already has.
             if ($data->countrySlugs !== [] || $existing === null) {
                 $tour->fill(['region_id' => $regionId, 'country_ids' => $countryIds]);
+            }
+
+            if ($data->categories !== [] || $existing === null) {
+                $tour->fill(['category_ids' => $categoryIds]);
             }
 
             $tour->save();

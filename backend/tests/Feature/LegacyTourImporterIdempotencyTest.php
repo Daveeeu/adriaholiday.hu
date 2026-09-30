@@ -144,21 +144,24 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         $this->assertSame(1, TourReferenceOption::query()->where('type', 'country')->where('code', 'al')->count());
     }
 
-    public function test_single_offer_update_without_crawl_context_keeps_countries_and_region(): void
+    public function test_update_without_crawl_context_keeps_countries_region_and_categories(): void
     {
         $importer = app(LegacyTourImporter::class);
         $importer->import($this->offerData(), updateExisting: false);
         $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
         $countryIds = $tour->country_ids;
         $regionId = $tour->region_id;
+        $categoryIds = $tour->category_ids;
 
         $data = $this->offerData();
-        $withoutContext = new LegacyOfferData(...[...get_object_vars($data), 'countrySlugs' => []]);
+        $withoutContext = new LegacyOfferData(...[...get_object_vars($data), 'countrySlugs' => [], 'categories' => []]);
         $importer->import($withoutContext, updateExisting: true);
 
         $tour->refresh();
         $this->assertSame($countryIds, $tour->country_ids);
         $this->assertSame($regionId, $tour->region_id);
+        $this->assertSame($categoryIds, $tour->category_ids);
         $this->assertNotSame([], $tour->country_ids);
+        $this->assertSame(['tengerparti-udulesek'], $tour->category_ids);
     }
 }

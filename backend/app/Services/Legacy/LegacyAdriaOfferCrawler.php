@@ -72,6 +72,26 @@ class LegacyAdriaOfferCrawler
         return $offers;
     }
 
+    /**
+     * The crawl context (countries, categories) of one offer, found by walking
+     * the same listing pages as discoverOfferUrls(): the offer page itself only
+     * names a single country in its breadcrumb and never its tour group.
+     *
+     * @return array{countries: array<int, string>, categories: array<int, string>}
+     */
+    public function discoverOfferContext(string $offerUrl): array
+    {
+        $target = rawurldecode($offerUrl);
+
+        foreach ($this->discoverOfferUrls() as $url => $context) {
+            if (rawurldecode($url) === $target) {
+                return $context;
+            }
+        }
+
+        return ['countries' => [], 'categories' => []];
+    }
+
     public function offerUrlForSlug(string $slug): string
     {
         return $this->resolveUrl('korutazasok/'.trim($slug, '/'));

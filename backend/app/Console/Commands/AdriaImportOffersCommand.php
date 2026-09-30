@@ -31,7 +31,7 @@ class AdriaImportOffersCommand extends Command
         $slug = $this->option('slug');
 
         $offers = $slug !== null
-            ? [$crawler->offerUrlForSlug($slug) => ['countries' => [], 'categories' => []]]
+            ? $this->singleOffer($crawler, $crawler->offerUrlForSlug($slug))
             : $crawler->discoverOfferUrls();
 
         if ($limit !== null) {
@@ -104,6 +104,20 @@ class AdriaImportOffersCommand extends Command
         }
 
         return $errors === [] ? self::SUCCESS : self::FAILURE;
+    }
+
+    /**
+     * @return array<string, array{countries: array<int, string>, categories: array<int, string>}>
+     */
+    private function singleOffer(LegacyAdriaOfferCrawler $crawler, string $url): array
+    {
+        $context = $crawler->discoverOfferContext($url);
+
+        if ($context['countries'] === [] && $context['categories'] === []) {
+            $this->warn("{$url} is not listed on any legacy listing page; its countries and categories are left unchanged.");
+        }
+
+        return [$url => $context];
     }
 
     private function printDryRunSummary(LegacyOfferData $data): void
