@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 
 import LoadingScreen from "../components/LoadingScreen";
+import RichTextContent from "../components/RichTextContent";
 import StaticPage from "./StaticPage";
 import Seo from "../seo/Seo";
 import {
@@ -251,10 +252,7 @@ export default function BlogArticleRoute() {
                   />
                 ) : null}
 
-                <div
-                  className="prose prose-lg max-w-none prose-headings:text-[#0f172a] prose-headings:tracking-[-0.03em] prose-p:text-gray-700 prose-p:leading-8 prose-a:text-[#00a878] prose-strong:text-[#0f172a] prose-ul:text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: article.content }}
-                />
+                <RichTextContent html={article.content} size="lg" />
               </article>
 
               <aside className="space-y-5">

@@ -439,6 +439,23 @@ Subsection
 
 Avoid inconsistent font sizes.
 
+## Rich Text Content (Public Website)
+
+Admin-authored HTML (offer descriptions, blog articles) is rendered with
+
+```
+src/app/components/RichTextContent.tsx
+```
+
+It applies the brand styling on top of the `@tailwindcss/typography` plugin
+(registered in `src/styles/tailwind.css`).
+
+Never repeat long `prose-*` class lists in pages.
+
+Pass only page-specific overrides via `className`, and use `size="lg"` for long-form reading.
+
+The component expects HTML that has already been sanitized.
+
 ---
 
 # Spacing
