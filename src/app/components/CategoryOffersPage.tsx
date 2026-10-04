@@ -21,11 +21,12 @@ import {
   Waves,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
 import { DEFAULT_HERO_IMAGE } from "../content/default-images";
+import { useInfiniteScrollTrigger } from "../hooks/useInfiniteScrollTrigger";
 import ActiveOfferSearch from "./ActiveOfferSearch";
 import CountryFlag from "./CountryFlag";
 import {
@@ -38,6 +39,7 @@ import {
   type PortfolioCategoryCountryOption,
   type PortfolioCategoryFilterChip,
   type PortfolioOfferCard,
+  type PortfolioOfferListParams,
 } from "../content/portfolio-offers-api";
 import {
   hasOfferSearchCriteria,
@@ -64,7 +66,6 @@ type OfferFilters = {
   quickFilters: string[];
   countries: string[];
   order: string;
-  page: string;
 };
 
 type OfferViewModel = {
@@ -74,6 +75,7 @@ type OfferViewModel = {
 
 const DEFAULT_ORDER = "sort_order";
 const WARMEST_ORDER = "warmest";
+const PER_PAGE = 12;
 
 const FILTER_ICON_MAP: Record<string, LucideIcon> = {
   waves: Waves,
@@ -123,6 +125,11 @@ function displayCount(value: number) {
   return value > 0 ? `${value}+` : "0";
 }
 
+/** An empty page also ends the list, guarding against a total count that is out of sync. */
+function hasNextPage(loadedPage: number, pageItems: PortfolioOfferCard[], totalCount: number) {
+  return pageItems.length > 0 && loadedPage * PER_PAGE < totalCount;
+}
+
 function offerViewModel(offer: PortfolioOfferCard): OfferViewModel {
   return {
     raw: offer,
@@ -161,12 +168,16 @@ export default function CategoryOffersPage({
   const [countryOptions, setCountryOptions] = useState<PortfolioCategoryCountryOption[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
-  const [perPage] = useState(12);
+  const [hasMorePages, setHasMorePages] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasLoadMoreError, setHasLoadMoreError] = useState(false);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const [isLoadingCountries, setIsLoadingCountries] = useState(true);
   const [hasError, setHasError] = useState(false);
   const filterSectionRef = useRef<HTMLDivElement | null>(null);
+  /** Incremented on every filter change so stale "load more" responses are discarded. */
+  const listGenerationRef = useRef(0);
   const analyticsEntity = { type: categorySlug ? "category" : "offer_list", slug: categorySlug ?? null };
 
   const filters = useMemo<OfferFilters>(
@@ -174,7 +185,6 @@ export default function CategoryOffersPage({
       quickFilters: parseListParam(searchParams.get("filters")),
       countries: parseListParam(searchParams.get("country")),
       order: searchParams.get("order") ?? DEFAULT_ORDER,
-      page: searchParams.get("page") ?? "1",
     }),
     [searchParams],
   );
@@ -195,24 +205,34 @@ export default function CategoryOffersPage({
     [filters.countries],
   );
 
+  const fetchOfferPage = useCallback(
+    (pageToLoad: number) => {
+      const offerParams: PortfolioOfferListParams = {
+        ...searchApiParams,
+        page: pageToLoad,
+        perPage: PER_PAGE,
+        order: filters.order,
+        filters: serializedFilters,
+        country: serializedCountries,
+      };
+
+      return categorySlug
+        ? fetchPortfolioCategoryOffers(categorySlug, offerParams)
+        : fetchPortfolioOffers(offerParams);
+    },
+    [categorySlug, filters.order, searchApiParams, serializedCountries, serializedFilters],
+  );
+
   useEffect(() => {
     let cancelled = false;
+    listGenerationRef.current += 1;
 
     setIsLoading(true);
+    setIsLoadingMore(false);
     setHasError(false);
+    setHasLoadMoreError(false);
 
-    const offerParams = {
-      ...searchApiParams,
-      page: Math.max(1, Number(filters.page) || 1),
-      perPage,
-      order: filters.order,
-      filters: serializedFilters,
-      country: serializedCountries,
-    };
-
-    (categorySlug
-      ? fetchPortfolioCategoryOffers(categorySlug, offerParams)
-      : fetchPortfolioOffers(offerParams))
+    fetchOfferPage(1)
       .then((response) => {
         if (cancelled) {
           return;
@@ -221,7 +241,8 @@ export default function CategoryOffersPage({
         setItems(response.items ?? []);
         setRecommended(response.recommended ?? []);
         setTotalCount(response.totalCount ?? 0);
-        setPage(response.page ?? 1);
+        setPage(1);
+        setHasMorePages(hasNextPage(1, response.items ?? [], response.totalCount ?? 0));
       })
       .catch(() => {
         if (cancelled) {
@@ -231,6 +252,7 @@ export default function CategoryOffersPage({
         setItems([]);
         setRecommended([]);
         setTotalCount(0);
+        setHasMorePages(false);
         setHasError(true);
       })
       .finally(() => {
@@ -242,7 +264,54 @@ export default function CategoryOffersPage({
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, filters.order, filters.page, perPage, searchApiParams, serializedCountries, serializedFilters]);
+  }, [fetchOfferPage]);
+
+  const canLoadMore = !isLoading && !isLoadingMore && !hasError && !hasLoadMoreError && hasMorePages;
+
+  const loadMore = useCallback(() => {
+    if (!canLoadMore) {
+      return;
+    }
+
+    const generation = listGenerationRef.current;
+    const nextPage = page + 1;
+
+    setIsLoadingMore(true);
+
+    fetchOfferPage(nextPage)
+      .then((response) => {
+        if (generation !== listGenerationRef.current) {
+          return;
+        }
+
+        const nextItems = response.items ?? [];
+
+        setItems((current) => {
+          const knownIds = new Set(current.map((item) => item.id));
+          return [...current, ...nextItems.filter((item) => !knownIds.has(item.id))];
+        });
+        setTotalCount(response.totalCount ?? 0);
+        setPage(nextPage);
+        setHasMorePages(hasNextPage(nextPage, nextItems, response.totalCount ?? 0));
+      })
+      .catch(() => {
+        if (generation === listGenerationRef.current) {
+          setHasLoadMoreError(true);
+        }
+      })
+      .finally(() => {
+        if (generation === listGenerationRef.current) {
+          setIsLoadingMore(false);
+        }
+      });
+  }, [canLoadMore, fetchOfferPage, page]);
+
+  const retryLoadMore = () => setHasLoadMoreError(false);
+
+  const loadMoreSentinelRef = useInfiniteScrollTrigger<HTMLDivElement>({
+    enabled: canLoadMore,
+    onTrigger: loadMore,
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -306,8 +375,10 @@ export default function CategoryOffersPage({
     };
   }, [categorySlug, searchApiParams, serializedCountries, serializedFilters]);
 
-  const replaceSearchState = (values: Record<string, string | undefined>, resetPage = true) => {
+  const replaceSearchState = (values: Record<string, string | undefined>) => {
     const next = new URLSearchParams(searchParams);
+    // Legacy paginated links carried a page parameter; the list now always starts from the top.
+    next.delete("page");
 
     Object.entries(values).forEach(([key, value]) => {
       if (!value) {
@@ -317,10 +388,6 @@ export default function CategoryOffersPage({
 
       next.set(key, value);
     });
-
-    if (resetPage) {
-      next.set("page", "1");
-    }
 
     setSearchParams(next, { replace: true, preventScrollReset: true });
   };
@@ -333,7 +400,7 @@ export default function CategoryOffersPage({
       },
     });
 
-    setSearchParams(new URLSearchParams({ page: "1" }), {
+    setSearchParams(new URLSearchParams(), {
       replace: true,
       preventScrollReset: true,
     });
@@ -396,17 +463,6 @@ export default function CategoryOffersPage({
     });
 
     replaceSearchState({ [key]: undefined });
-  };
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
-  const canGoBack = page > 1;
-  const canGoForward = page < totalPages;
-
-  const goToPage = (nextPage: number) => {
-    const next = new URLSearchParams(searchParams);
-    next.set("page", String(Math.max(1, nextPage)));
-    setSearchParams(next, { replace: true, preventScrollReset: true });
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const itemCards = useMemo(() => items.map(offerViewModel), [items]);
@@ -696,7 +752,29 @@ export default function CategoryOffersPage({
                 ))}
               </div>
 
-              {showHighlights && spotlightOffer ? (
+              <div ref={loadMoreSentinelRef} aria-hidden="true" />
+
+              {isLoadingMore ? (
+                <div className="mt-10 flex items-center justify-center gap-3 text-slate-600" role="status">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#00c389]" />
+                  <span className="text-sm font-medium">További ajánlatok betöltése...</span>
+                </div>
+              ) : null}
+
+              {hasLoadMoreError ? (
+                <div className="mt-10 flex flex-col items-center gap-3 text-center">
+                  <p className="text-sm text-red-700">Nem sikerült betölteni a további ajánlatokat.</p>
+                  <button
+                    type="button"
+                    onClick={retryLoadMore}
+                    className="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-[#00c389]/30 hover:text-[#00a878]"
+                  >
+                    Újrapróbálás
+                  </button>
+                </div>
+              ) : null}
+
+              {showHighlights && spotlightOffer && !hasMorePages ? (
                 <div className="relative mb-10 mt-10 overflow-hidden rounded-[40px]">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#07111f] via-[#0b1830] to-[#10283f]" />
                   <div className="absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full bg-[#00c389]/20 blur-3xl" />
@@ -757,31 +835,6 @@ export default function CategoryOffersPage({
                 </div>
               ) : null}
 
-              <div className="mt-10 flex items-center justify-between gap-4">
-                <button
-                  type="button"
-                  onClick={() => canGoBack && goToPage(page - 1)}
-                  disabled={!canGoBack}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-all hover:border-[#00c389]/30 hover:text-[#00a878] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Előző oldal
-                </button>
-
-                <div className="text-sm text-slate-500">
-                  Oldal {page} / {totalPages}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => canGoForward && goToPage(page + 1)}
-                  disabled={!canGoForward}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(0,195,137,0.22)] transition-all hover:shadow-[0_18px_56px_rgba(0,195,137,0.3)] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Következő oldal
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
             </div>
           </section>
         </>
