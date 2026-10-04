@@ -17,6 +17,15 @@ return new class extends Migration
 {
     public function up(): void
     {
+        $isSeededInstall = DB::table('site_settings')
+            ->where('group', LegalPageContent::GROUP)
+            ->whereIn('key', array_keys(LegalPageContent::FILES))
+            ->exists();
+
+        if (! $isSeededInstall) {
+            return;
+        }
+
         foreach (CompanyContact::DEFAULTS as $key => $setting) {
             $this->store(CompanyContact::GROUP, $key, $setting['type'], $setting['value']);
         }
