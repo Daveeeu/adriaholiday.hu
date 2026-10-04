@@ -25,6 +25,7 @@ function toPayload(values: SiteSettingsFormValues): Array<{
     { group: 'contact', key: 'email', type: 'string', isPublic: true, value: values.email },
     { group: 'contact', key: 'address', type: 'text', isPublic: true, value: values.address },
     { group: 'contact', key: 'whatsapp', type: 'string', isPublic: true, value: values.whatsapp },
+    { group: 'contact', key: 'opening_hours', type: 'text', isPublic: true, value: values.openingHours },
     { group: 'social', key: 'facebook', type: 'string', isPublic: true, value: values.facebook },
     { group: 'social', key: 'instagram', type: 'string', isPublic: true, value: values.instagram },
     { group: 'social', key: 'tiktok', type: 'string', isPublic: true, value: values.tiktok },
@@ -53,11 +54,11 @@ function toPayload(values: SiteSettingsFormValues): Array<{
     { group: 'legal', key: 'privacy_url', type: 'string', isPublic: true, value: values.privacyUrl },
     { group: 'legal', key: 'terms_url', type: 'string', isPublic: true, value: values.termsUrl },
     { group: 'legal', key: 'cookie_url', type: 'string', isPublic: true, value: values.cookieUrl },
-    { group: 'legal', key: 'contact_content', type: 'text', isPublic: true, value: values.contactContent },
-    { group: 'legal', key: 'imprint_content', type: 'text', isPublic: true, value: values.imprintContent },
-    { group: 'legal', key: 'privacy_content', type: 'text', isPublic: true, value: values.privacyContent },
-    { group: 'legal', key: 'terms_content', type: 'text', isPublic: true, value: values.termsContent },
-    { group: 'legal', key: 'cookie_content', type: 'text', isPublic: true, value: values.cookieContent },
+    { group: 'legal', key: 'contact_content', type: 'richtext', isPublic: true, value: values.contactContent },
+    { group: 'legal', key: 'imprint_content', type: 'richtext', isPublic: true, value: values.imprintContent },
+    { group: 'legal', key: 'privacy_content', type: 'richtext', isPublic: true, value: values.privacyContent },
+    { group: 'legal', key: 'terms_content', type: 'richtext', isPublic: true, value: values.termsContent },
+    { group: 'legal', key: 'cookie_content', type: 'richtext', isPublic: true, value: values.cookieContent },
   ];
 }
 
@@ -114,6 +115,7 @@ export function toSiteSettingsFormValues(settings: SiteSettingItem[]): SiteSetti
     email: getStringValue(settings, 'contact', 'email'),
     address: getStringValue(settings, 'contact', 'address'),
     whatsapp: getStringValue(settings, 'contact', 'whatsapp'),
+    openingHours: getStringValue(settings, 'contact', 'opening_hours'),
     facebook: getStringValue(settings, 'social', 'facebook'),
     instagram: getStringValue(settings, 'social', 'instagram'),
     tiktok: getStringValue(settings, 'social', 'tiktok'),

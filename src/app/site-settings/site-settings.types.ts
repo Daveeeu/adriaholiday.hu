@@ -21,7 +21,7 @@ export type SiteMedia = {
 export type PublicSiteSettingsPayload = {
   general?: { site_name?: string };
   brand?: { logo?: SiteMedia };
-  contact?: { phone?: string; email?: string; address?: string; whatsapp?: string };
+  contact?: { phone?: string; email?: string; address?: string; whatsapp?: string; opening_hours?: string };
   social?: { facebook?: string; instagram?: string; tiktok?: string };
   header?: { navigation?: SiteLinkItem[] };
   footer?: { description?: string; copyright?: string; quick_links?: SiteLinkItem[] };
@@ -49,6 +49,7 @@ export type ResolvedSiteSettings = {
   email: string;
   address: string;
   whatsapp: string;
+  openingHours: string;
   facebook: string;
   instagram: string;
   tiktok: string;
@@ -68,6 +69,7 @@ export type ResolvedSiteSettings = {
   privacyUrl: string;
   termsUrl: string;
   cookieUrl: string;
+  /** Rich text (sanitized HTML) of the static contact and legal pages. */
   contactContent: string;
   imprintContent: string;
   privacyContent: string;

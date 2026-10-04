@@ -24,4 +24,13 @@ class RichTextSanitizerTest extends TestCase
 
         $this->assertSame('<p><strong>kiemelt</strong> <em>dőlt</em> <a href="https://example.com" target="_blank">link</a></p>', $sanitized);
     }
+
+    public function test_it_keeps_phone_links_and_drops_malformed_ones(): void
+    {
+        $input = '<p><a href="tel:+3646508688">+36 46 508 688</a> <a href="tel:alert(1)">rossz</a></p>';
+
+        $sanitized = RichTextSanitizer::sanitize($input);
+
+        $this->assertSame('<p><a href="tel:+3646508688">+36 46 508 688</a> <a>rossz</a></p>', $sanitized);
+    }
 }

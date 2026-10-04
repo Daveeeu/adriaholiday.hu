@@ -3,6 +3,7 @@ import type { MediaAsset } from '@/services/media-service';
 export type SiteSettingType =
   | 'string'
   | 'text'
+  | 'richtext'
   | 'json'
   | 'boolean'
   | 'number'
@@ -55,6 +56,7 @@ export type SiteSettingsFormValues = {
   email: string;
   address: string;
   whatsapp: string;
+  openingHours: string;
   facebook: string;
   instagram: string;
   tiktok: string;

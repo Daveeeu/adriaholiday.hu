@@ -851,6 +851,12 @@ Barion shop approval requirements met in code: the official Barion payment banne
 
 ---
 
+# Company Data and Legal Pages
+
+The public contact details live in the `contact` site settings group (`App\Support\CompanyContact`: `phone`, `email`, `address`, `whatsapp`, `opening_hours`). The texts of the Kapcsolat, Impresszum, Adatvédelem, ÁSZF and Süti pages are `legal.*_content` settings of type `richtext` (`App\Support\LegalPageContent`); their defaults — taken over from the legacy adriaholiday.hu site — are HTML files in `backend/database/content/legal/`, read by both `SiteSettingsSeeder` and the `import_legacy_company_and_legal_content` data migration. `richtext` values are sanitized with `RichTextSanitizer` when stored (`SiteSetting::encodeValue()`) and again with `sanitizeRichTextHtml()` when rendered by `src/app/routes/StaticPage.tsx`; admins edit them with the rich text editor on the settings page.
+
+---
+
 # Newsletter Subscription (signup coupon)
 
 Public `POST /api/newsletter/subscribe` (throttled via the `newsletter` rate limiter) creates a `NewsletterSubscriber` and issues it a one-time `Coupon` (code prefixed `HIR-`, `name: 'Hírlevél feliratkozás'` so it's identifiable in the admin Coupons list), then emails it via `NewsletterCouponMail`. All of this is orchestrated by `App\Services\Newsletter\NewsletterSubscriptionService`, which is idempotent — resubscribing an existing email is a no-op (no second coupon, no resend).

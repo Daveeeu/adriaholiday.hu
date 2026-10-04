@@ -1,16 +1,10 @@
-import { Mail, MapPin, Phone, MessageCircle } from "lucide-react";
+import { Clock, Mail, MapPin, Phone, MessageCircle } from "lucide-react";
 import { Link } from "react-router";
 
+import { sanitizeRichTextHtml } from "@/lib/rich-text";
 import Seo from "../seo/Seo";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { absoluteUrl } from "../seo/site";
-
-function paragraphs(content: string) {
-  return content
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter((paragraph) => paragraph !== "");
-}
 
 export default function StaticPage({
   title,
@@ -42,7 +36,7 @@ export default function StaticPage({
     "/sutik": "Tájékoztató az Adria Holiday oldalon használt sütikről és hozzájáruláskezelésről.",
   };
 
-  const content = pageContentMap[path] ?? "";
+  const contentHtml = sanitizeRichTextHtml(pageContentMap[path]);
   const description = pageDescriptionMap[path] ?? (settings.siteName ? `${title} – ${settings.siteName}` : title);
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -86,60 +80,72 @@ export default function StaticPage({
             {title}
           </h1>
 
-          <div className="mt-8 space-y-5 text-[1.05rem] leading-8 text-[#475569]">
-            {children ?? (
-              paragraphs(content).length > 0 ? (
-                paragraphs(content).map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))
-              ) : (
-                <p>
-                  A részletes oldal tartalma jelenleg frissítés alatt áll. Add meg a végleges szöveget az admin
-                  felületen a Site Settings oldalon.
-                </p>
-              )
-            )}
+          {path === "/kapcsolat" ? (
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {settings.phone ? (
+                <a
+                  href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+                  className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
+                >
+                  <Phone className="mt-1 size-5 text-[#00a878]" />
+                  <span>{settings.phone}</span>
+                </a>
+              ) : null}
+              {settings.email ? (
+                <a
+                  href={`mailto:${settings.email}`}
+                  className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
+                >
+                  <Mail className="mt-1 size-5 text-[#00a878]" />
+                  <span className="break-all">{settings.email}</span>
+                </a>
+              ) : null}
+              {settings.whatsapp ? (
+                <a
+                  href={`https://wa.me/${settings.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
+                >
+                  <MessageCircle className="mt-1 size-5 text-[#00a878]" />
+                  <span>WhatsApp: {settings.whatsapp}</span>
+                </a>
+              ) : null}
+              {settings.address ? (
+                <div className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]">
+                  <MapPin className="mt-1 size-5 text-[#00a878]" />
+                  <span className="whitespace-pre-line">{settings.address}</span>
+                </div>
+              ) : null}
+              {settings.openingHours ? (
+                <div className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]">
+                  <Clock className="mt-1 size-5 text-[#00a878]" />
+                  <span className="whitespace-pre-line">{settings.openingHours}</span>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
-            {path === "/kapcsolat" ? (
-              <div className="grid gap-4 pt-4 md:grid-cols-2">
-                {settings.phone ? (
-                  <a
-                    href={`tel:${settings.phone.replace(/\s+/g, "")}`}
-                    className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
-                  >
-                    <Phone className="mt-1 size-5 text-[#00a878]" />
-                    <span>{settings.phone}</span>
-                  </a>
-                ) : null}
-                {settings.email ? (
-                  <a
-                    href={`mailto:${settings.email}`}
-                    className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
-                  >
-                    <Mail className="mt-1 size-5 text-[#00a878]" />
-                    <span>{settings.email}</span>
-                  </a>
-                ) : null}
-                {settings.whatsapp ? (
-                  <a
-                    href={`https://wa.me/${settings.whatsapp}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
-                  >
-                    <MessageCircle className="mt-1 size-5 text-[#00a878]" />
-                    <span>WhatsApp: {settings.whatsapp}</span>
-                  </a>
-                ) : null}
-                {settings.address ? (
-                  <div className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]">
-                    <MapPin className="mt-1 size-5 text-[#00a878]" />
-                    <span className="whitespace-pre-line">{settings.address}</span>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
+          {children ? (
+            <div className="mt-8 space-y-5 text-[1.05rem] leading-8 text-[#475569]">{children}</div>
+          ) : (
+            contentHtml !== "" ? (
+              <div
+                className="mt-8 space-y-4 text-[1.05rem] leading-8 text-[#475569]
+                  [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-[#0f172a]
+                  [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:tracking-tight [&_h3]:text-[#0f172a]
+                  [&_strong]:font-semibold [&_strong]:text-[#0f172a]
+                  [&_a]:font-semibold [&_a]:text-[#00a878] [&_a:hover]:text-[#0f8fc9]
+                  [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6
+                  [&_li]:marker:text-[#00c389]"
+                dangerouslySetInnerHTML={{ __html: contentHtml }}
+              />
+            ) : (
+              <p className="mt-8 text-[1.05rem] leading-8 text-[#475569]">
+                Az oldal tartalma jelenleg frissítés alatt áll.
+              </p>
+            )
+          )}
 
           <div className="mt-10">
             <Link

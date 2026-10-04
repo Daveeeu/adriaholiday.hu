@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { PageLoader } from '@/components/common/page-loader';
 import { MediaPickerField } from '@/features/portfolio-content/components/MediaPickerField';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -19,6 +20,14 @@ import { uploadMedia } from '@/services/media-service';
 
 import { getSiteSettings, toSiteSettingsFormValues, updateSiteSettings } from '../lib/site-settings.api';
 import type { SiteSettingsFormValues, SiteSettingsMedia } from '../lib/site-settings.types';
+
+const LEGAL_CONTENT_FIELDS = [
+  { name: 'contactContent', label: 'Kapcsolat tartalom', placeholder: 'Kapcsolatfelvételi információk...' },
+  { name: 'imprintContent', label: 'Impresszum tartalom', placeholder: 'Cégadatok, üzemeltető...' },
+  { name: 'privacyContent', label: 'Adatkezelés tartalom', placeholder: 'Adatkezelési tájékoztató...' },
+  { name: 'termsContent', label: 'ÁSZF tartalom', placeholder: 'Szerződési feltételek...' },
+  { name: 'cookieContent', label: 'Cookie tartalom', placeholder: 'Cookie tájékoztató...' },
+] as const satisfies ReadonlyArray<{ name: keyof SiteSettingsFormValues; label: string; placeholder: string }>;
 
 const linkSchema = z.object({
   label: z.string().trim().min(1, 'A címke megadása kötelező.'),
@@ -58,6 +67,7 @@ const settingsSchema = z.object({
   email: z.string().trim().email('Adj meg érvényes e-mail címet.').or(z.literal('')),
   address: z.string().trim(),
   whatsapp: z.string().trim(),
+  openingHours: z.string().trim(),
   facebook: z.string().trim(),
   instagram: z.string().trim(),
   tiktok: z.string().trim(),
@@ -103,6 +113,7 @@ const emptyValues: SiteSettingsFormValues = {
   email: '',
   address: '',
   whatsapp: '',
+  openingHours: '',
   facebook: '',
   instagram: '',
   tiktok: '',
@@ -349,19 +360,20 @@ export function SettingsPage() {
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
                 <FormField control={form.control} name="phone" render={({ field }) => (
-                  <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} placeholder="+36 1 234 5678" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} placeholder="+36 46 508 688" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} placeholder="info@adriaholiday.hu" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} placeholder="adriaholiday@adriaholiday.hu" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="whatsapp" render={({ field }) => (
                   <FormItem><FormLabel>WhatsApp</FormLabel><FormControl><Input {...field} placeholder="36123456789" /></FormControl><FormMessage /></FormItem>
                 )} />
-                <div className="md:col-span-2">
-                  <FormField control={form.control} name="address" render={({ field }) => (
-                    <FormItem><FormLabel>Address</FormLabel><FormControl><Textarea {...field} placeholder="1051 Budapest&#10;Példa utca 12." /></FormControl><FormMessage /></FormItem>
-                  )} />
-                </div>
+                <FormField control={form.control} name="address" render={({ field }) => (
+                  <FormItem><FormLabel>Address</FormLabel><FormControl><Textarea {...field} placeholder="3530 Miskolc, Városház tér 22." /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="openingHours" render={({ field }) => (
+                  <FormItem><FormLabel>Nyitvatartás</FormLabel><FormControl><Textarea {...field} placeholder="Hétfő–Péntek: 08:00–16:00&#10;Szombat–Vasárnap: zárva" /></FormControl><FormMessage /></FormItem>
+                )} />
               </CardContent>
             </Card>
           </div>
@@ -640,24 +652,20 @@ export function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Legal page content</CardTitle>
-              <CardDescription>Publikus placeholder vagy végleges tartalom a statikus oldalakhoz.</CardDescription>
+              <CardDescription>A Kapcsolat, Impresszum, Adatkezelés, ÁSZF és Süti oldalak szövege.</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              <FormField control={form.control} name="contactContent" render={({ field }) => (
-                <FormItem><FormLabel>Kapcsolat tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Kapcsolatfelvételi információk..." /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="imprintContent" render={({ field }) => (
-                <FormItem><FormLabel>Impresszum tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Cégadatok, üzemeltető..." /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="privacyContent" render={({ field }) => (
-                <FormItem><FormLabel>Adatkezelés tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Adatkezelési tájékoztató..." /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="termsContent" render={({ field }) => (
-                <FormItem><FormLabel>ÁSZF tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Szerződési feltételek..." /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={form.control} name="cookieContent" render={({ field }) => (
-                <FormItem><FormLabel>Cookie tartalom</FormLabel><FormControl><Textarea {...field} rows={6} placeholder="Cookie tájékoztató..." /></FormControl><FormMessage /></FormItem>
-              )} />
+            <CardContent className="grid gap-6">
+              {LEGAL_CONTENT_FIELDS.map(({ name, label, placeholder }) => (
+                <FormField key={name} control={form.control} name={name} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{label}</FormLabel>
+                    <FormControl>
+                      <RichTextEditor minHeight={220} allowPreview placeholder={placeholder} value={field.value} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              ))}
             </CardContent>
           </Card>
 

@@ -245,6 +245,10 @@ class RichTextSanitizer
             return null;
         }
 
+        if (preg_match('/^tel:\+?[0-9\s\-()\/]{3,}$/i', $value)) {
+            return $value;
+        }
+
         if (
             str_starts_with($value, '/')
             || str_starts_with($value, '#')

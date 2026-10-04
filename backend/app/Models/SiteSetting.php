@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\RichTextSanitizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -25,6 +26,7 @@ class SiteSetting extends Model
     public const TYPES = [
         'string',
         'text',
+        'richtext',
         'json',
         'boolean',
         'number',
@@ -87,6 +89,10 @@ class SiteSetting extends Model
     {
         if ($value === null || $value === '') {
             return null;
+        }
+
+        if ($type === 'richtext') {
+            return is_string($value) ? (RichTextSanitizer::sanitize($value) ?: null) : null;
         }
 
         return match ($type) {

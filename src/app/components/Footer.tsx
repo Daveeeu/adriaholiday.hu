@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Facebook, Instagram, Mail, MapPin, Phone, Music2 } from "lucide-react";
+import { Clock, Facebook, Instagram, Mail, MapPin, Phone, Music2 } from "lucide-react";
 import { Link } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
@@ -41,6 +41,13 @@ export default function Footer() {
       ? { icon: Mail, href: `mailto:${settings.email}`, label: "Email" }
       : null,
   ].filter(Boolean) as Array<{ icon: typeof Facebook; href: string; label: string }>;
+
+  const legalLinks = [
+    { label: "ÁSZF", to: settings.termsUrl },
+    { label: "Adatvédelem", to: settings.privacyUrl },
+    { label: "Impresszum", to: settings.imprintUrl },
+    { label: "Süti kezelés", to: settings.cookieUrl },
+  ].filter((link) => link.to !== "");
 
   return (
     <footer className="relative bg-gradient-to-br from-[#0A1628] via-[#0F1E35] to-[#1A2942] text-white overflow-hidden">
@@ -138,7 +145,7 @@ export default function Footer() {
                   </div>
                   <a
                     href={`mailto:${settings.email}`}
-                    className="text-[15px] pt-1.5"
+                    className="text-[15px] pt-1.5 break-all"
                     onClick={() => trackEvent("email_click", { metadata: { placement: "footer" } })}
                   >
                     {settings.email}
@@ -151,6 +158,14 @@ export default function Footer() {
                     <MapPin className="w-4 h-4 text-[#00c389]" strokeWidth={2} />
                   </div>
                   <span className="text-[15px] pt-1.5 whitespace-pre-line">{settings.address}</span>
+                </motion.li>
+              ) : null}
+              {settings.openingHours ? (
+                <motion.li className="flex items-start gap-3 text-white/70" whileHover={{ x: 2 }}>
+                  <div className="w-9 h-9 rounded-lg bg-[#00c389]/10 flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-4 h-4 text-[#00c389]" strokeWidth={2} />
+                  </div>
+                  <span className="text-[15px] pt-1.5 whitespace-pre-line">{settings.openingHours}</span>
                 </motion.li>
               ) : null}
             </ul>
@@ -174,17 +189,12 @@ export default function Footer() {
           {settings.footerCopyright ? (
             <p className="text-white/50 text-sm">{settings.footerCopyright}</p>
           ) : <span />}
-          <div className="flex gap-6 text-sm text-white/50">
-            {settings.imprintUrl ? (
-              <motion.div className="hover:text-[#00c389] transition-colors" whileHover={{ y: -2 }}>
-                <Link to={settings.imprintUrl}>Impresszum</Link>
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/50">
+            {legalLinks.map((link) => (
+              <motion.div key={link.to} className="hover:text-[#00c389] transition-colors" whileHover={{ y: -2 }}>
+                <Link to={link.to}>{link.label}</Link>
               </motion.div>
-            ) : null}
-            {settings.cookieUrl ? (
-              <motion.div className="hover:text-[#00c389] transition-colors" whileHover={{ y: -2 }}>
-                <Link to={settings.cookieUrl}>Süti kezelés</Link>
-              </motion.div>
-            ) : null}
+            ))}
             <motion.div className="hover:text-[#00c389] transition-colors" whileHover={{ y: -2 }}>
               <button type="button" onClick={openConsentPreferences}>
                 Süti beállítások módosítása
