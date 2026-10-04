@@ -9,6 +9,8 @@ import {
 
 import { isRichTextEmpty, sanitizeRichTextHtml } from "@/lib/rich-text";
 
+import RichTextContent from "./RichTextContent";
+
 type OfferContentSectionProps = {
   title: string;
   content?: string | null;
@@ -88,27 +90,9 @@ export default function OfferContentSection({
 
       <div className="rounded-[34px] border border-[#e7eef5] bg-white shadow-[0_12px_42px_rgba(15,23,42,0.05)]">
         <div className="p-6 md:p-8 lg:p-9">
-          <div
-            className="prose prose-slate max-w-none
-              prose-headings:text-[#0f172a]
-              prose-headings:tracking-tight
-              prose-h2:text-2xl prose-h2:font-bold prose-h2:mb-4
-              prose-h3:text-xl prose-h3:font-bold prose-h3:mb-3 prose-h3:mt-8
-              prose-p:text-[1.02rem] prose-p:leading-8 prose-p:text-[#475569]
-              prose-strong:text-[#0f172a]
-              prose-a:text-[#00a878] prose-a:font-semibold prose-a:no-underline hover:prose-a:text-[#0f8fc9]
-              prose-ul:my-5 prose-ul:space-y-2
-              prose-ol:my-5 prose-ol:space-y-2
-              prose-ul:pl-5 prose-ol:pl-5
-              prose-li:text-[#475569] prose-li:leading-7
-              prose-li:marker:text-[#00c389]
-              prose-table:w-full prose-table:overflow-hidden prose-table:rounded-[24px] prose-table:border prose-table:border-[#dbe9f7]
-              prose-thead:bg-[#f5f9fc]
-              prose-th:border-b prose-th:border-[#dbe9f7] prose-th:px-4 prose-th:py-3 prose-th:text-left prose-th:text-xs prose-th:font-bold prose-th:uppercase prose-th:tracking-[0.16em] prose-th:text-[#546174]
-              prose-td:border-b prose-td:border-[#eef5fb] prose-td:px-4 prose-td:py-3 prose-td:text-sm prose-td:text-[#334155]
-              prose-tr:last:border-0
-              [&_table]:block [&_table]:overflow-x-auto"
-            dangerouslySetInnerHTML={{ __html: html }}
+          <RichTextContent
+            html={html}
+            className="prose-h2:mb-4 prose-h2:text-2xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-xl prose-p:text-[1.02rem] prose-li:leading-7"
           />
         </div>
       </div>
