@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\PortfolioSpaController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Http\Request;
@@ -32,18 +33,4 @@ Route::get('/admin/{any?}', function (Request $request) use ($serveAdminSpa) {
 Route::get('/media/{any?}', $serveAdminSpa)->where('any', '.*');
 Route::get('/gallery/{any?}', $serveAdminSpa)->where('any', '.*');
 
-Route::get('/{any?}', function (Request $request) {
-    if (
-        $request->is('api/*')
-        || $request->is('admin/assets/*')
-        || $request->is('portfolio/assets/*')
-        || $request->is('storage/*')
-        || $request->is('favicon.ico')
-        || $request->is('robots.txt')
-        || $request->is('sitemap.xml')
-    ) {
-        abort(404);
-    }
-
-    return response()->file(public_path('portfolio/index.html'));
-})->where('any', '.*');
+Route::get('/{any?}', PortfolioSpaController::class)->where('any', '.*');

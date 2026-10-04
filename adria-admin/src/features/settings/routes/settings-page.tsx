@@ -84,7 +84,7 @@ const settingsSchema = z.object({
   barionPixelId: z
     .string()
     .trim()
-    .regex(/^(BP-[A-Za-z0-9]{10}-\d{2})?$/, 'Formátum: BP-0000000000-00'),
+    .regex(/^(BP-[A-Za-z0-9]{10}-[A-Za-z0-9]{2})?$/, 'Formátum: BP-0000000000-00'),
   imprintUrl: z.string().trim(),
   privacyUrl: z.string().trim(),
   termsUrl: z.string().trim(),

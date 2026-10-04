@@ -28,7 +28,7 @@ export type PublicSiteSettingsPayload = {
   cta?: { primary_text?: string; primary_link?: string };
   seo?: { default_title?: string; default_description?: string; default_og_image?: SiteMedia };
   newsletter?: { coupon_value?: number };
-  booking?: { online_payment_enabled?: boolean; barion_pixel_id?: string | null };
+  booking?: { online_payment_enabled?: boolean };
   legal?: {
     imprint_url?: string;
     privacy_url?: string;
@@ -64,8 +64,6 @@ export type ResolvedSiteSettings = {
   newsletterCouponValue: number;
   /** Online payment (Barion) is switched on; the Barion payment banner is shown. */
   onlinePaymentEnabled: boolean;
-  /** Base Barion Pixel id (BP-xxxxxxxxxx-xx), empty when not configured. */
-  barionPixelId: string;
   imprintUrl: string;
   privacyUrl: string;
   termsUrl: string;
