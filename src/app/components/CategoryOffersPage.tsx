@@ -21,7 +21,7 @@ import {
   Waves,
   type LucideIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
@@ -76,6 +76,8 @@ type OfferViewModel = {
 const DEFAULT_ORDER = "sort_order";
 const WARMEST_ORDER = "warmest";
 const PER_PAGE = 12;
+/** The choice help banner follows the first batch, where undecided visitors start to scroll on. */
+const CHOICE_HELP_AFTER_CARD_COUNT = PER_PAGE;
 
 const FILTER_ICON_MAP: Record<string, LucideIcon> = {
   waves: Waves,
@@ -90,14 +92,6 @@ const FILTER_ICON_MAP: Record<string, LucideIcon> = {
 
 function safeTrim(value: string | null | undefined) {
   return (value ?? "").trim();
-}
-
-function uniqueCountryCount(items: PortfolioOfferCard[]) {
-  return new Set(
-    items
-      .map((item) => safeTrim(item.country))
-      .filter((value) => value !== ""),
-  ).size;
 }
 
 function parseListParam(value: string | null) {
@@ -479,6 +473,10 @@ export default function CategoryOffersPage({
     filters.quickFilters.length > 0 || filters.countries.length > 0 || hasActiveSearch;
   const hasActiveFilters = hasActiveQuickFilters || filters.order !== DEFAULT_ORDER;
   const showHighlights = hasResults && !hasActiveQuickFilters;
+  const availableCountryCount = countryOptions.filter((option) => !option.disabled).length;
+  const choiceHelpBannerIndex = showHighlights
+    ? Math.min(CHOICE_HELP_AFTER_CARD_COUNT, itemCards.length) - 1
+    : -1;
   const resultCountLabel = hasActiveFilters
     ? `${totalCount} elérhető utazás a kiválasztott szűrők alapján.`
     : `${totalCount} elérhető utazás.`;
@@ -522,7 +520,7 @@ export default function CategoryOffersPage({
 
             <div className="mt-10 flex flex-wrap gap-4">
               <HeroStatCard label="Ajánlat" value={displayCount(totalCount)} />
-              <HeroStatCard label="Ország" value={displayCount(uniqueCountryCount(items))} />
+              <HeroStatCard label="Ország" value={displayCount(availableCountryCount)} />
               <HeroStatCard label="Tapasztalat" value="22+ év" />
             </div>
           </div>
@@ -743,12 +741,20 @@ export default function CategoryOffersPage({
               </div>
 
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                {itemCards.map((offer) => (
-                  <ResultOfferCard
-                    key={`result-${offer.card.id}`}
-                    offer={offer}
-                    onOfferSelect={onOfferSelect}
-                  />
+                {itemCards.map((offer, index) => (
+                  <Fragment key={`result-${offer.card.id}`}>
+                    <ResultOfferCard offer={offer} onOfferSelect={onOfferSelect} />
+                    {index === choiceHelpBannerIndex && spotlightOffer ? (
+                      <div className="col-span-full">
+                        <ChoiceHelpBanner
+                          offer={spotlightOffer}
+                          totalCount={totalCount}
+                          countryCount={availableCountryCount}
+                          onOfferSelect={onOfferSelect}
+                        />
+                      </div>
+                    ) : null}
+                  </Fragment>
                 ))}
               </div>
 
@@ -773,68 +779,6 @@ export default function CategoryOffersPage({
                   </button>
                 </div>
               ) : null}
-
-              {showHighlights && spotlightOffer && !hasMorePages ? (
-                <div className="relative mb-10 mt-10 overflow-hidden rounded-[40px]">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#07111f] via-[#0b1830] to-[#10283f]" />
-                  <div className="absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full bg-[#00c389]/20 blur-3xl" />
-                  <div className="absolute bottom-0 left-0 h-[280px] w-[280px] rounded-full bg-[#16b8ff]/15 blur-3xl" />
-
-                  <div className="relative z-10 flex flex-col gap-10 px-8 py-10 md:px-12 md:py-12 xl:flex-row xl:items-center xl:justify-between">
-                    <div className="max-w-3xl">
-                      <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md">
-                        <Sparkles className="h-4 w-4 text-[#00c389]" />
-                        SZEMÉLYRE SZABOTT AJÁNLÁS
-                      </div>
-                      <h3
-                        className="mb-5 text-white"
-                        style={{
-                          fontSize: "clamp(2rem, 4vw, 3.5rem)",
-                          fontWeight: 750,
-                          lineHeight: 1.05,
-                          letterSpacing: "-0.04em",
-                        }}
-                      >
-                        Nem tudod melyik utat válaszd?
-                      </h3>
-                      <p className="max-w-2xl text-lg leading-relaxed text-white/72">
-                        Segítünk megtalálni a hozzád illő utazást ár, időtartam, élmény és úti cél alapján.
-                        Pár kattintás és már mutatjuk is a legjobb ajánlatokat.
-                      </p>
-                      <div className="mt-7 flex flex-wrap gap-3">
-                        {spotlightHighlights(spotlightOffer).map((item) => (
-                          <div
-                            key={item}
-                            className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-white/85 backdrop-blur-md"
-                          >
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex min-w-[320px] flex-col gap-5">
-                      <div className="grid grid-cols-2 gap-4">
-                        <MetricCard value={displayCount(totalCount)} label="Elérhető körutazás" />
-                        <MetricCard value={displayCount(uniqueCountryCount(items))} label="Európai ország" />
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => onOfferSelect(spotlightOffer.card.seoName)}
-                        className="group relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-7 py-5 text-white shadow-[0_20px_50px_rgba(0,195,137,0.28)]"
-                      >
-                        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-                        <span className="relative flex items-center justify-center gap-3 text-lg font-semibold">
-                          Segíts választani
-                          <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
             </div>
           </section>
         </>
@@ -1220,6 +1164,79 @@ function ResultMetaItem({
     <div className="flex min-w-0 items-center gap-2 rounded-xl bg-[#f5f9fc] px-3 py-2 text-gray-700">
       <span className="shrink-0 text-[#00c389]">{icon}</span>
       <span className="truncate text-xs font-semibold">{value}</span>
+    </div>
+  );
+}
+
+function ChoiceHelpBanner({
+  offer,
+  totalCount,
+  countryCount,
+  onOfferSelect,
+}: {
+  offer: OfferViewModel;
+  totalCount: number;
+  countryCount: number;
+  onOfferSelect: (slug: string) => void;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-[40px]">
+      <div className="absolute inset-0 bg-gradient-to-r from-[#07111f] via-[#0b1830] to-[#10283f]" />
+      <div className="absolute -right-20 -top-20 h-[320px] w-[320px] rounded-full bg-[#00c389]/20 blur-3xl" />
+      <div className="absolute bottom-0 left-0 h-[280px] w-[280px] rounded-full bg-[#16b8ff]/15 blur-3xl" />
+
+      <div className="relative z-10 flex flex-col gap-10 px-8 py-10 md:px-12 md:py-12 xl:flex-row xl:items-center xl:justify-between">
+        <div className="max-w-3xl">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md">
+            <Sparkles className="h-4 w-4 text-[#00c389]" />
+            SZEMÉLYRE SZABOTT AJÁNLÁS
+          </div>
+          <h3
+            className="mb-5 text-white"
+            style={{
+              fontSize: "clamp(2rem, 4vw, 3.5rem)",
+              fontWeight: 750,
+              lineHeight: 1.05,
+              letterSpacing: "-0.04em",
+            }}
+          >
+            Nem tudod melyik utat válaszd?
+          </h3>
+          <p className="max-w-2xl text-lg leading-relaxed text-white/72">
+            Segítünk megtalálni a hozzád illő utazást ár, időtartam, élmény és úti cél alapján.
+            Pár kattintás és már mutatjuk is a legjobb ajánlatokat.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            {spotlightHighlights(offer).map((item) => (
+              <div
+                key={item}
+                className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-white/85 backdrop-blur-md"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex w-full flex-col gap-5 xl:w-auto xl:min-w-[320px]">
+          <div className="grid grid-cols-2 gap-4">
+            <MetricCard value={displayCount(totalCount)} label="Elérhető körutazás" />
+            <MetricCard value={displayCount(countryCount)} label="Európai ország" />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onOfferSelect(offer.card.seoName)}
+            className="group relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-7 py-5 text-white shadow-[0_20px_50px_rgba(0,195,137,0.28)]"
+          >
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+            <span className="relative flex items-center justify-center gap-3 text-lg font-semibold">
+              Segíts választani
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
