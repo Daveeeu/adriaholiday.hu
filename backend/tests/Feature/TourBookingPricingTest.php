@@ -3,12 +3,14 @@
 namespace Tests\Feature;
 
 use App\Mail\NewTourBookingOfficeNotification;
+use App\Mail\TourBookingCustomerConfirmation;
 use App\Models\Booking;
 use App\Models\Coupon;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
+use App\Models\TourReferenceOption;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -271,5 +273,34 @@ class TourBookingPricingTest extends TestCase
         $this->assertStringContainsString('ALFA Compass utasbiztosítás', $html);
         // 45 900 + 4 700 + 30 000 + 13 800 − 5 000 + 540 × 2 days
         $this->assertStringContainsString('Végösszeg: 90.480 Ft', $html);
+    }
+
+    public function test_customer_confirmation_lists_the_booking_and_how_to_pay_by_bank_transfer(): void
+    {
+        config(['services.barion.pos_key' => null]);
+        TourReferenceOption::query()->create(['type' => 'country', 'code' => 'si', 'name' => 'Szlovénia', 'active' => true, 'sort_order' => 0]);
+        $this->tour->update(['country_ids' => ['si'], 'accommodation' => 'Hotel***', 'catering' => 'reggeli', 'travel_mode_id' => 'bus']);
+
+        $response = $this->postJson('/api/bookings', $this->bookingPayload([
+            'extraChoices' => [$this->singleRoom->id => self::ALONE],
+        ], passengers: 1));
+
+        $booking = Booking::query()->findOrFail($response->json('id'));
+        $html = (new TourBookingCustomerConfirmation($booking, $this->tour))->render();
+
+        $this->assertStringContainsString('Kedves Kovács Anna!', $html);
+        $this->assertStringContainsString('Utas 1', $html);
+        $this->assertStringContainsString('Hotel***', $html);
+        $this->assertStringContainsString('Autóbusszal', $html);
+        $this->assertStringContainsString('Budapest BOK csarnok', $html);
+        $this->assertStringContainsString('Egyágyas felár (1 × 13.800 Ft) – '.self::ALONE, $html);
+        // 45 900 + 4 700 + 30 000 + 13 800
+        $this->assertStringContainsString('94.400 Ft', $html);
+        $this->assertStringContainsString('biztosítást nem rendelt', $html);
+        $this->assertStringContainsString('OTP 11734004-20467221', $html);
+        $this->assertStringContainsString(today()->addDays(3)->format('Y.m.d.'), $html);
+        $this->assertStringContainsString('https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/szlovenia', $html);
+        $this->assertStringContainsString('/aszf', $html);
+        $this->assertStringContainsString('BFKH eng.szám: U-000412', $html);
     }
 }

@@ -81,6 +81,10 @@ export type SiteSettingsFormValues = {
   onlinePaymentKind: OnlinePaymentKind;
   onlinePaymentDepositPercent: number;
   barionPixelId: string;
+  bankAccountNumber: string;
+  bankAccountHolder: string;
+  paymentDueDays: number;
+  agencyLicenseNumber: string;
   imprintUrl: string;
   privacyUrl: string;
   termsUrl: string;

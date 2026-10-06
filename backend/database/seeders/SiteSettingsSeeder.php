@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\SiteSetting;
+use App\Support\Booking\BookingConfirmationSettings;
 use App\Support\Booking\BookingInsuranceSettings;
 use App\Support\Booking\BookingPaymentSettings;
 use App\Support\CompanyContact;
@@ -114,12 +115,17 @@ class SiteSettingsSeeder extends Seeder
      */
     private function bookingDefaults(): array
     {
-        return collect([...BookingInsuranceSettings::DEFAULTS, ...BookingPaymentSettings::DEFAULTS])
+        $public = collect([...BookingInsuranceSettings::DEFAULTS, ...BookingPaymentSettings::DEFAULTS])
+            ->map(fn (array $setting): array => [...$setting, 'is_public' => true]);
+        $private = collect(BookingConfirmationSettings::DEFAULTS)
+            ->map(fn (array $setting): array => [...$setting, 'is_public' => false]);
+
+        return $public->merge($private)
             ->map(fn (array $setting, string $key): array => [
                 'group' => BookingInsuranceSettings::GROUP,
                 'key' => $key,
                 'type' => $setting['type'],
-                'is_public' => true,
+                'is_public' => $setting['is_public'],
                 'value' => $setting['value'],
             ])
             ->values()

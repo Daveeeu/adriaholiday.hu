@@ -5,7 +5,7 @@ namespace App\Mail;
 use App\Models\Booking;
 use App\Models\BookingFormField;
 use App\Models\Tour;
-use App\Support\Tour\TourExtraChargeRule;
+use App\Support\Booking\BookingPriceSummary;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -30,83 +30,18 @@ class NewTourBookingOfficeNotification extends Mailable
 
     public function content(): Content
     {
+        $prices = BookingPriceSummary::of($this->booking);
+
         return new Content(
             markdown: 'emails.bookings.new-office-notification',
             with: [
                 'booking' => $this->booking,
                 'tour' => $this->tour,
                 'extras' => $this->extraSelections(),
-                'pricingLines' => $this->pricingLines(),
-                'pricingTotal' => $this->pricingTotal(),
+                'pricingLines' => $prices?->lines() ?? [],
+                'pricingTotal' => $prices?->total(),
             ],
         );
-    }
-
-    /**
-     * Human-readable lines of the server-calculated price breakdown.
-     *
-     * @return array<int, string>
-     */
-    private function pricingLines(): array
-    {
-        $pricing = $this->booking->payload['pricing'] ?? null;
-
-        if (! is_array($pricing)) {
-            return [];
-        }
-
-        $lines = [];
-
-        if ($pricing['basePrice'] !== null) {
-            $lines[] = sprintf('Részvételi díj: %d fő × %s = %s', $pricing['passengers'], $this->formatPrice($pricing['basePrice']), $this->formatPrice($pricing['baseTotal']));
-        }
-
-        if ($pricing['discount'] !== null) {
-            $lines[] = sprintf('%s (-%s%%): -%s', $pricing['discount']['label'], $pricing['discount']['percent'], $this->formatPrice($pricing['discount']['amount']));
-        }
-
-        if ($pricing['departurePlace'] !== null) {
-            $place = $pricing['departurePlace'];
-            $lines[] = $place['total'] > 0
-                ? sprintf('Felszállás: %s – %s', $place['name'], $this->formatPrice($place['total']))
-                : sprintf('Felszállás: %s', $place['name']);
-        }
-
-        foreach ($pricing['extras'] as $extra) {
-            $lines[] = sprintf(
-                '%s%s: %d × %s = %s%s',
-                $extra['name'],
-                $extra['chargeRule'] === TourExtraChargeRule::MANDATORY ? ' (kötelező)' : '',
-                $extra['quantity'],
-                $this->formatPrice($extra['price']),
-                $this->formatPrice($extra['total']),
-                $extra['choice'] !== null ? " – {$extra['choice']}" : '',
-            );
-        }
-
-        if ($pricing['coupon'] !== null) {
-            $lines[] = sprintf('Kupon (%s): -%s', $pricing['coupon']['code'], $this->formatPrice($pricing['coupon']['amount']));
-        }
-
-        foreach ($pricing['insurances'] as $insurance) {
-            $lines[] = sprintf('%s (%s): %s', $insurance['name'], $insurance['detail'], $this->formatPrice($insurance['total']));
-        }
-
-        return $lines;
-    }
-
-    private function pricingTotal(): ?string
-    {
-        $total = $this->booking->payload['pricing']['total'] ?? null;
-
-        return $total !== null ? $this->formatPrice((float) $total) : null;
-    }
-
-    private function formatPrice(float $amount): string
-    {
-        $currency = strtoupper((string) ($this->booking->payload['pricing']['currency'] ?? 'HUF'));
-
-        return number_format($amount, 0, ',', '.').' '.($currency === 'HUF' ? 'Ft' : $currency);
     }
 
     /**
