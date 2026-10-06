@@ -353,7 +353,7 @@ class BookingFormFieldTest extends TestCase
             'formData' => [
                 ...$contact,
                 'extra_terms' => BookingFormField::CHECKBOX_CHECKED_VALUE,
-                'extra_payment_method' => 'Banki befizetés / átutalás',
+                'extra_payment_method' => 'Online bankkártyás fizetés (Barion)',
             ],
         ])->assertStatus(422)->assertJsonValidationErrors(['formData.extra_payment_method']);
 
@@ -364,7 +364,7 @@ class BookingFormFieldTest extends TestCase
                 ...$contact,
                 'extra_terms' => BookingFormField::CHECKBOX_CHECKED_VALUE,
                 'extra_single_room' => BookingFormField::CHECKBOX_CHECKED_VALUE,
-                'extra_payment_method' => 'Online bankkártyás fizetés (Barion)',
+                'extra_payment_method' => 'Banki befizetés / átutalás',
                 'extra_cancellation_insurance' => BookingFormField::CHECKBOX_CHECKED_VALUE,
                 'note' => 'Ablak mellé kérnénk.',
             ],
@@ -376,13 +376,13 @@ class BookingFormFieldTest extends TestCase
         $booking = Booking::findOrFail($response->json('id'));
         $formData = $booking->payload['formData'];
         $this->assertSame('Igen', $formData['extra_single_room']);
-        $this->assertSame('Online bankkártyás fizetés (Barion)', $formData['extra_payment_method']);
+        $this->assertSame('Banki befizetés / átutalás', $formData['extra_payment_method']);
         $this->assertArrayNotHasKey('extra_cancellation_insurance', $formData);
         $this->assertSame('Ablak mellé kérnénk.', $booking->notes);
 
         $email = (new NewTourBookingOfficeNotification($booking, $tour))->render();
         $this->assertStringContainsString('Egyágyas felár: Igen', $email);
-        $this->assertStringContainsString('Fizetési mód: Online bankkártyás fizetés (Barion)', $email);
+        $this->assertStringContainsString('Fizetési mód: Banki befizetés / átutalás', $email);
     }
 
     /**

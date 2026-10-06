@@ -26,7 +26,7 @@ class BookingFormFieldSeeder extends Seeder
             ['key' => 'passenger_address', 'label' => 'Lakcím', 'field_type' => 'text', 'input_group' => 'passenger', 'sort_order' => 15],
             ['key' => 'extra_single_room', 'label' => 'Egyágyas felár', 'field_type' => 'checkbox', 'input_group' => 'extra', 'sort_order' => 16, 'description' => 'Külön szoba igénylése.', 'price_label' => '+122.000 Ft'],
             ['key' => 'extra_cancellation_insurance', 'label' => 'Útlemondási biztosítás', 'field_type' => 'checkbox', 'input_group' => 'extra', 'sort_order' => 17, 'description' => 'Biztosítás lemondás esetére.', 'price_label' => '+ díj alapján'],
-            ['key' => 'extra_payment_method', 'label' => 'Fizetési mód', 'field_type' => 'radio', 'input_group' => 'extra', 'sort_order' => 18, 'options' => ['Online bankkártyás fizetés (Barion)', 'Banki befizetés / átutalás'], 'disabled_options' => ['Banki befizetés / átutalás']],
+            ['key' => 'extra_payment_method', 'label' => 'Fizetési mód', 'field_type' => 'radio', 'input_group' => 'extra', 'sort_order' => 18, 'options' => ['Online bankkártyás fizetés (Barion)', 'Banki befizetés / átutalás'], 'disabled_options' => ['Online bankkártyás fizetés (Barion)']],
             ['key' => 'note', 'label' => 'Megjegyzés', 'field_type' => 'textarea', 'input_group' => 'extra', 'sort_order' => 19],
         ];
 
