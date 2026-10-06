@@ -24,9 +24,12 @@ use Illuminate\Support\Str;
  */
 class LegacyAdriaOfferParser
 {
+    /**
+     * Legacy tour group slug => name of the portfolio category its offers belong to.
+     */
     private const CATEGORY_NAMES = [
-        'korutazas' => 'Körutazás',
-        'tengerparti-udulesek' => 'Tengerparti üdülések',
+        'korutazas' => 'Körutazások',
+        'tengerparti-udulesek' => 'Tengerpartok',
         'advent' => 'Adventi barangolások',
     ];
 

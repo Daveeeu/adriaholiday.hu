@@ -129,7 +129,7 @@ class LegacyAdriaOfferParserTest extends TestCase
         ]);
 
         $this->assertSame(['albania'], $data->countrySlugs);
-        $this->assertSame(['Körutazás', 'Tengerparti üdülések', 'Adventi barangolások'], $data->categories);
+        $this->assertSame(['Körutazások', 'Tengerpartok', 'Adventi barangolások'], $data->categories);
     }
 
     public function test_it_takes_no_categories_or_countries_from_the_breadcrumb_without_crawl_context(): void

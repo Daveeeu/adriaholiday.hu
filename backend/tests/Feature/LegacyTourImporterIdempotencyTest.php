@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BlogCategory;
 use App\Models\Tour;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
@@ -65,7 +66,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
                 ['type' => 'excluded', 'text' => 'belépők'],
             ],
             tags: ['Albánia', 'utazás Belgrád'],
-            categories: ['Tengerparti üdülések'],
+            categories: ['Tengerpartok'],
             countrySlugs: ['albania'],
             travelModeCode: 'bus',
             catering: 'félpanzió',
@@ -162,6 +163,25 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         $this->assertSame($regionId, $tour->region_id);
         $this->assertSame($categoryIds, $tour->category_ids);
         $this->assertNotSame([], $tour->country_ids);
-        $this->assertSame(['tengerparti-udulesek'], $tour->category_ids);
+        $this->assertSame([(string) BlogCategory::query()->where('seo_name', 'tengerpartok')->value('id')], $tour->category_ids);
+    }
+
+    public function test_categories_link_existing_portfolio_categories_and_create_missing_ones(): void
+    {
+        $existing = BlogCategory::query()->create(['active' => true, 'column' => '1', 'sort_order' => 0, 'seo_name' => 'tengerpartok']);
+
+        $data = $this->offerData();
+        app(LegacyTourImporter::class)->import(
+            new LegacyOfferData(...[...get_object_vars($data), 'categories' => ['Tengerpartok', 'Adventi barangolások']]),
+            updateExisting: false,
+        );
+
+        $created = BlogCategory::query()->where('seo_name', 'adventi-barangolasok')->with('translations')->firstOrFail();
+        $this->assertSame(
+            [(string) $existing->id, (string) $created->id],
+            Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail()->category_ids,
+        );
+        $this->assertSame('Adventi barangolások', $created->translations->firstWhere('locale', 'hu')?->name);
+        $this->assertSame(1, BlogCategory::query()->where('seo_name', 'tengerpartok')->count());
     }
 }

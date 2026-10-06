@@ -2,6 +2,7 @@
 
 namespace App\Services\Legacy;
 
+use App\Models\BlogCategory;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Models\TourDeparturePlace;
@@ -51,7 +52,7 @@ class LegacyTourImporter
 
         $regionId = $this->resolveRegionId($data->countrySlugs);
         $countryIds = $this->resolveCountryCodes($data->countrySlugs);
-        $categoryIds = $this->resolveReferenceOptionCodes('category', $data->categories);
+        $categoryIds = $this->resolveCategoryIds($data->categories);
         $tagIds = $this->resolveReferenceOptionCodes('tag', $data->tags);
         $travelModeId = $data->travelModeCode !== null ? $this->resolveTravelMode($data->travelModeCode) : null;
         $departurePlaceIds = $this->resolveDeparturePlaceIds($data->departurePlaceNames);
@@ -212,6 +213,23 @@ class LegacyTourImporter
         }
 
         return array_values(array_unique($codes));
+    }
+
+    /**
+     * Tour categories are the portfolio (blog) categories the offer listing pages filter by.
+     *
+     * @param  array<int, string>  $names
+     * @return array<int, string> category ids
+     */
+    private function resolveCategoryIds(array $names): array
+    {
+        return collect($names)
+            ->map(fn (string $name): string => trim($name))
+            ->filter(fn (string $name): bool => Str::slug($name) !== '')
+            ->map(fn (string $name): string => (string) BlogCategory::firstOrCreateForName($name)->id)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     private function resolveTravelMode(string $code): string
