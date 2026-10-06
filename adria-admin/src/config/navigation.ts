@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   BarChart3,
   Megaphone,
+  MessageSquareQuote,
   Settings,
   ShieldCheck,
   Ticket,
@@ -75,6 +76,12 @@ export const staticNavigationItems: NavigationItem[] = [
     labelKey: 'nav.portfolioContent',
     icon: PencilLine,
     permission: 'portfolio-content.view',
+  },
+  {
+    to: '/testimonials',
+    labelKey: 'nav.testimonials',
+    icon: MessageSquareQuote,
+    permission: 'testimonials.viewAny',
   },
   {
     labelKey: 'nav.blog',

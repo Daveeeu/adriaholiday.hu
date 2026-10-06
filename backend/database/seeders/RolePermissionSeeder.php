@@ -48,6 +48,7 @@ class RolePermissionSeeder extends Seeder
             ...$permissionGroups['blogTags'],
             ...$permissionGroups['homepageOffers'],
             ...$permissionGroups['portfolioContent'],
+            ...$permissionGroups['testimonials'],
             ...$permissionGroups['media'],
         ]);
 
@@ -62,6 +63,7 @@ class RolePermissionSeeder extends Seeder
             ...$permissionGroups['tourDeparturePlaces'],
             ...$permissionGroups['media'],
             ...$permissionGroups['bookingFormTemplates'],
+            ...$permissionGroups['testimonials'],
             'portfolio-content.view', 'portfolio-content.update',
         ]);
 
@@ -100,6 +102,7 @@ class RolePermissionSeeder extends Seeder
             'siteSettings' => ['site-settings.view', 'site-settings.update'],
             'selectOptions' => ['select-options.view'],
             'tourReferenceOptions' => ['tour-reference-options.create'],
+            'testimonials' => ['testimonials.viewAny', 'testimonials.view', 'testimonials.create', 'testimonials.update', 'testimonials.delete'],
             'portfolioFilterChips' => ['portfolio-filter-chips.viewAny', 'portfolio-filter-chips.view', 'portfolio-filter-chips.create', 'portfolio-filter-chips.update', 'portfolio-filter-chips.delete'],
             'regions' => ['regions.viewAny', 'regions.view', 'regions.create', 'regions.update', 'regions.delete'],
             'locations' => ['locations.viewAny', 'locations.view', 'locations.create', 'locations.update', 'locations.delete'],

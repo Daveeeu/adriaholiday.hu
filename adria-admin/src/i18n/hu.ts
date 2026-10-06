@@ -17,6 +17,7 @@ export const hu = {
   'nav.apartments.edit': 'Apartman szerkesztése',
   'nav.bookings': 'Foglalások',
   'nav.buses': 'Buszok',
+  'nav.testimonials': 'Rólunk írták',
   'nav.galleries': 'Galériák',
   'nav.emailTemplates': 'E-mail sablonok',
   'nav.guests': 'Vendégek',

@@ -112,6 +112,11 @@ const BusesPage = lazy(() =>
     default: module.BusesPage,
   })),
 );
+const TestimonialsPage = lazy(() =>
+  import('@/features/testimonials/routes/testimonials-page').then((module) => ({
+    default: module.TestimonialsPage,
+  })),
+);
 const EmailTemplatesPage = lazy(() =>
   import('@/features/email-templates/routes/email-templates-page').then(
     (module) => ({ default: module.EmailTemplatesPage }),
@@ -379,6 +384,11 @@ const router = createBrowserRouter(
           path: 'buses',
           element: withPermission('/buses', <BusesPage />),
           handle: { crumbKey: 'nav.buses' },
+        },
+        {
+          path: 'testimonials',
+          element: withPermission('/testimonials', <TestimonialsPage />),
+          handle: { crumbKey: 'nav.testimonials' },
         },
         {
           path: 'media',

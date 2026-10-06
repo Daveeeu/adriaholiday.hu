@@ -50,6 +50,7 @@ class SitemapController extends Controller
             '/portfolio',
             '/blog',
             '/rolunk',
+            '/rolunk-irtak',
             '/kapcsolat',
             '/aszf',
             '/adatvedelem',

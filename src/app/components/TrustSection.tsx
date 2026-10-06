@@ -1,14 +1,15 @@
 import { motion, useInView } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import {
+  ArrowRight,
   Award,
   Star,
-  Quote,
   Shield,
 } from "lucide-react";
+import { Link } from "react-router";
 
 import GoogleRatingBadge from "./GoogleRatingBadge";
-import { EditableMedia } from "../content/EditableFields";
+import TestimonialCarousel from "./TestimonialCarousel";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
@@ -49,50 +50,6 @@ const statsFallback: Stat[] = [
     suffix: "/5",
     label: "Értékelés",
     description: "Valódi utasvélemények alapján kiemelkedő élmény.",
-  },
-];
-
-interface Review {
-  id: string;
-  name: string;
-  location: string;
-  rating: number;
-  text: string;
-  image: string;
-}
-
-const reviewsFallback: Review[] = [
-  {
-    id: "1",
-    name: "B. Angéla",
-    location: "Ausztria körutazás",
-    rating: 5,
-    text: "Őszinte köszönetemet fejezem ki az ausztriai 4 napos utazásunk megszervezéséért. Minden részlet gördülékenyen volt megszervezve, az idegenvezető fantasztikus volt, a sofőrök pedig végig biztonságos és kényelmes utazást biztosítottak.",
-    image: "https://i.pravatar.cc/150?img=32",
-  },
-  {
-    id: "2",
-    name: "B. Istvánné",
-    location: "Bosznia körutazás",
-    rating: 5,
-    text: "Felejthetetlen csodás napokat töltöttünk el az Önök jóvoltából. A programok, a szállások és az étkezések is kiválóak voltak. Az idegenvezető rendkívül felkészült és segítőkész volt.",
-    image: "https://i.pravatar.cc/150?img=47",
-  },
-  {
-    id: "3",
-    name: "Annamária",
-    location: "London repülős út",
-    rating: 5,
-    text: "Szuperül éreztük magunkat, gyönyörű időt kaptunk és az idegenvezetőnk egy főnyeremény volt. Kedves, türelmes és figyelmes embert ismertünk meg benne. Biztosan nem ez volt az utolsó közös utunk.",
-    image: "https://i.pravatar.cc/150?img=12",
-  },
-  {
-    id: "4",
-    name: "H. Katalin",
-    location: "Cseh kastélyok",
-    rating: 5,
-    text: "Rendkívül jól éreztem magam. Az utazás teljesen zökkenőmentes volt, a sofőrök segítőkészek voltak, az idegenvezető pedig óriási tudással és kedvességgel vezette végig az utat.",
-    image: "https://i.pravatar.cc/150?img=24",
   },
 ];
 
@@ -145,26 +102,9 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
 
 export default function TrustSection() {
   const { getValue } = usePortfolioContent();
-  const [currentReview, setCurrentReview] = useState(0);
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
 
   const stats = getValue("home.trust.stats", statsFallback) as Stat[];
-  const reviews = getValue("home.trust.reviews", reviewsFallback) as Review[];
-  const reviewMedia = reviewsFallback.map((review, index) =>
-    getValue(`home.trust.review.${index + 1}.image`, {
-      url: review.image,
-      alt: review.name,
-      title: review.name,
-    }) as { url?: string; alt?: string; title?: string },
-  );
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentReview((prev) => (prev + 1) % reviews.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, [reviews.length]);
 
   return (
     <section className="relative py-16 md:py-20 bg-gradient-to-b from-[#f5fffb] via-[#fbfdff] to-white overflow-hidden">
@@ -296,77 +236,17 @@ export default function TrustSection() {
             <p className="text-gray-600 text-lg leading-relaxed max-w-md mx-auto lg:mx-0">
               Valódi élmények valódi utazóktól — a bizalom nálunk nem csak ígéret.
             </p>
+
+            <Link
+              to="/rolunk-irtak"
+              className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-full bg-white border border-gray-200 text-[#0f172a] font-semibold shadow-sm hover:border-[#00c389]/40 hover:text-[#00a878] transition-colors"
+            >
+              Összes levél
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </motion.div>
 
-          <div className="relative overflow-hidden">
-            <motion.div
-              className="flex"
-              animate={{ x: `-${currentReview * 100}%` }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              {reviews.map((review, index) => (
-                <div key={`${review.name}-${index}`} className="min-w-full px-1 md:px-4">
-                  <motion.div
-                    className="relative bg-white/92 backdrop-blur-xl rounded-[32px] p-8 md:p-10 border border-gray-100 shadow-[0_12px_44px_rgba(15,23,42,0.08)]"
-                    whileHover={{ y: -4 }}
-                  >
-                    <div className="absolute top-7 right-7 w-14 h-14 rounded-full bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 flex items-center justify-center">
-                      <Quote className="w-6 h-6 text-[#00c389]" />
-                    </div>
-
-                    <div className="flex items-center gap-5 mb-6 pr-16">
-                      <EditableMedia
-                        fieldKey={`home.trust.review.${index + 1}.image`}
-                        fallback={{
-                          url: reviewMedia[index]?.url ?? review.image,
-                          alt: reviewMedia[index]?.alt ?? review.name,
-                          title: reviewMedia[index]?.title ?? review.name,
-                        }}
-                        className="shrink-0"
-                        mediaClassName="w-16 h-16 rounded-full border-4 border-[#00c389]/15 object-cover"
-                      />
-
-                      <div>
-                        <h4 className="text-[#0f172a] text-lg font-bold">
-                          {review.name}
-                        </h4>
-                        <p className="text-gray-500 text-sm">{review.location}</p>
-                      </div>
-
-                      <div className="ml-auto hidden sm:flex gap-1">
-                        {[...Array(review.rating)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className="w-5 h-5 fill-[#00c389] text-[#00c389]"
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="w-20 h-[2px] bg-gradient-to-r from-[#00c389] to-transparent opacity-50 mb-6" />
-
-                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
-                      "{review.text}"
-                    </p>
-                  </motion.div>
-                </div>
-              ))}
-            </motion.div>
-
-            <div className="flex justify-center gap-2 mt-7">
-              {reviews.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentReview(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentReview === index
-                      ? "w-8 bg-gradient-to-r from-[#00c389] to-[#16b8ff]"
-                      : "w-2 bg-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+          <TestimonialCarousel />
         </div>
       </div>
     </section>

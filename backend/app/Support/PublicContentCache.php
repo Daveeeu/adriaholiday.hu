@@ -27,6 +27,8 @@ class PublicContentCache
 
     public const SITE_SETTINGS = 'site-settings';
 
+    public const TESTIMONIALS = 'testimonials';
+
     public static function remember(string $scope, string $suffix, int $seconds, Closure $resolver): mixed
     {
         $version = (int) Cache::get(self::versionKey($scope), 1);
