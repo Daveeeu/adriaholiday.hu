@@ -1,7 +1,10 @@
 import AboutDifference from "../components/about/AboutDifference";
+import AboutGroups from "../components/about/AboutGroups";
 import AboutHero from "../components/about/AboutHero";
-import AboutStory from "../components/about/AboutStory";
+import AboutIntro from "../components/about/AboutIntro";
+import AboutLetters from "../components/about/AboutLetters";
 import AboutTeam from "../components/about/AboutTeam";
+import AboutTimeline from "../components/about/AboutTimeline";
 import AboutValues from "../components/about/AboutValues";
 import Seo from "../seo/Seo";
 import { absoluteUrl } from "../seo/site";
@@ -37,9 +40,12 @@ export default function AboutRoute() {
         ]}
       />
       <AboutHero />
+      <AboutIntro />
+      <AboutTimeline />
       <AboutDifference />
-      <AboutStory />
       <AboutTeam />
+      <AboutLetters />
+      <AboutGroups />
       <AboutValues />
     </div>
   );

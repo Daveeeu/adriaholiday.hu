@@ -12,6 +12,20 @@ export type AboutStat = {
   label: string;
 };
 
+export type AboutMilestone = {
+  year: string;
+  title: string;
+  description: string;
+};
+
+export type AboutTeamMember = {
+  name: string;
+  role: string;
+};
+
+/** Six portraits; each member's photo is its own image field (about.team.member.{n}.image). */
+export const TEAM_SIZE = 6;
+
 export const aboutFallback = {
   hero: {
     eyebrow: "RÓLUNK",
@@ -25,6 +39,44 @@ export const aboutFallback = {
       { value: "10 000+", label: "elégedett utas" },
       { value: "2–3 év", label: "buszaink átlagos kora" },
     ] satisfies AboutStat[],
+  },
+  intro: {
+    statement: "Minőséget nyújtani elfogadható, korrekt árakon.",
+    text: "Ennyi a lényeg, és két évtizede ehhez tartjuk magunkat. Az Adria Holiday csapata azon dolgozik, hogy utasaink pihenjenek, feltöltődjenek, közben tanuljanak is valamit a helyekről, ahol járnak – és jó kedvvel emlékezzenek vissza a velünk töltött napokra.",
+  },
+  timeline: {
+    eyebrow: "A TÖRTÉNETÜNK",
+    titleParts: [
+      { text: "Két évtized," },
+      { text: "egy irány", variant: "gradient" },
+    ] satisfies PortfolioHeadingPart[],
+    items: [
+      {
+        year: "2003",
+        title: "Az első indulás",
+        description: "Európai kulturális körutazásokkal kezdtünk: kevés út, sok odafigyelés. Ez a felállás azóta is működik.",
+      },
+      {
+        year: "Az első nyártól",
+        title: "Bibione, minden évben",
+        description: "Az első évtől szerepel a kínálatunkban. Vannak utasaink, akik minden nyáron velünk mennek.",
+      },
+      {
+        year: "Évről évre",
+        title: "Bővülő térkép",
+        description: "A körutak mellé tengerparti üdülések, adventi utak, repülős városlátogatások és egzotikus úti célok kerültek.",
+      },
+      {
+        year: "Csoportoknak",
+        title: "Céges és közösségi utak",
+        description: "Csapatépítő út, kulturális program vagy külföldi partnerek kalauzolása – egyedi igények szerint szervezzük.",
+      },
+      {
+        year: "Ma",
+        title: "10 000+ utas után",
+        description: "Újszerű buszokkal, ismerős idegenvezetőkkel és ugyanazzal az elvvel: igényes utazás, elérhető áron.",
+      },
+    ] satisfies AboutMilestone[],
   },
   difference: {
     eyebrow: "MIBEN VAGYUNK MÁSOK?",
@@ -76,7 +128,18 @@ export const aboutFallback = {
       { text: "Akik az utazásaidat" },
       { text: "megszervezik", variant: "gradient" },
     ] satisfies PortfolioHeadingPart[],
-    description: "Hét ember, egy közös cél: hogy az első érdeklődéstől a hazaérkezésig gondtalanul utazz.",
+    description: "Az első érdeklődéstől a hazaérkezésig ők foglalkoznak veled. Nem call center – név szerint ismerjük az utasainkat.",
+    members: Array.from({ length: TEAM_SIZE }, () => ({ name: "", role: "" })) satisfies AboutTeamMember[],
+  },
+  groups: {
+    eyebrow: "CÉGEKNEK ÉS CSOPORTOKNAK",
+    titleParts: [
+      { text: "Saját út," },
+      { text: "saját programmal", variant: "gradient" },
+    ] satisfies PortfolioHeadingPart[],
+    description: "Munkahelyi közösségek, egyesületek, osztálykirándulások: legyen szó vidám csapatépítésről, kulturális programról vagy külföldi partnerek hazai kalauzolásáról, az útvonalat és a programot az igényeitekhez igazítjuk.",
+    ctaLabel: "Ajánlatot kérek",
+    ctaUrl: "/kapcsolat",
   },
   values: {
     titleParts: [
