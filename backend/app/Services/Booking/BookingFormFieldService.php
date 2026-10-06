@@ -15,10 +15,12 @@ use Illuminate\Validation\ValidationException;
 class BookingFormFieldService
 {
     /**
-     * @param  array{label: string, description?: string|null, price_label?: string|null, field_type: string, input_group: string, options?: array<int, string>|null}  $data
+     * @param  array{label: string, description?: string|null, price_label?: string|null, field_type: string, input_group: string, options?: array<int, string>|null, disabled_options?: array<int, string>|null}  $data
      */
     public function create(array $data): BookingFormField
     {
+        $options = $this->normalizeOptions($data['field_type'], $data['options'] ?? null);
+
         return BookingFormField::create([
             'key' => $this->generateUniqueKey($data['input_group'], $data['label']),
             'label' => $data['label'],
@@ -26,13 +28,14 @@ class BookingFormFieldService
             'price_label' => $data['price_label'] ?? null,
             'field_type' => $data['field_type'],
             'input_group' => $data['input_group'],
-            'options' => $this->normalizeOptions($data['field_type'], $data['options'] ?? null),
+            'options' => $options,
+            'disabled_options' => $this->normalizeDisabledOptions($options, $data['disabled_options'] ?? null),
             'sort_order' => (int) BookingFormField::query()->max('sort_order') + 1,
         ]);
     }
 
     /**
-     * @param  array{label: string, description?: string|null, price_label?: string|null, field_type: string, input_group: string, options?: array<int, string>|null}  $data
+     * @param  array{label: string, description?: string|null, price_label?: string|null, field_type: string, input_group: string, options?: array<int, string>|null, disabled_options?: array<int, string>|null}  $data
      */
     public function update(BookingFormField $field, array $data): BookingFormField
     {
@@ -42,13 +45,16 @@ class BookingFormFieldService
             ]);
         }
 
+        $options = $this->normalizeOptions($data['field_type'], $data['options'] ?? null);
+
         $field->update([
             'label' => $data['label'],
             'description' => $data['description'] ?? null,
             'price_label' => $data['price_label'] ?? null,
             'field_type' => $data['field_type'],
             'input_group' => $data['input_group'],
-            'options' => $this->normalizeOptions($data['field_type'], $data['options'] ?? null),
+            'options' => $options,
+            'disabled_options' => $this->normalizeDisabledOptions($options, $data['disabled_options'] ?? null),
         ]);
 
         return $field;
@@ -109,5 +115,19 @@ class BookingFormFieldService
             ->unique()
             ->values()
             ->all();
+    }
+
+    /**
+     * The listed-but-not-selectable options, kept only while they are still options.
+     *
+     * @param  array<int, string>|null  $options
+     * @param  array<int, string>|null  $disabledOptions
+     * @return array<int, string>|null
+     */
+    private function normalizeDisabledOptions(?array $options, ?array $disabledOptions): ?array
+    {
+        $disabled = array_values(array_intersect($options ?? [], $disabledOptions ?? []));
+
+        return $disabled !== [] ? $disabled : null;
     }
 }

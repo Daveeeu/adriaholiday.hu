@@ -28,6 +28,8 @@ export type BookingFormField = {
   fieldType: BookingFieldType;
   inputGroup: BookingFieldGroup;
   options: string[] | null;
+  /** Options listed but not selectable yet ("Fejlesztés alatt"). */
+  disabledOptions?: string[];
   description: string | null;
   priceLabel: string | null;
   visibility: BookingFieldVisibility;
@@ -44,8 +46,24 @@ export function fieldsOfGroup(fields: BookingFormField[], group: BookingFieldGro
   return fields.filter((field) => field.inputGroup === group);
 }
 
-export function emptyValues(fields: BookingFormField[]): BookingFieldValues {
-  return Object.fromEntries(fields.map((field) => [field.key, ""]));
+export function selectableOptions(field: BookingFormField): string[] {
+  const disabled = field.disabledOptions ?? [];
+
+  return (field.options ?? []).filter((option) => !disabled.includes(option));
+}
+
+/**
+ * Starting values of the given fields: empty, except a radio field with a single
+ * selectable option, which starts with that option chosen.
+ */
+export function initialValues(fields: BookingFormField[]): BookingFieldValues {
+  return Object.fromEntries(
+    fields.map((field) => {
+      const selectable = field.fieldType === "radio" ? selectableOptions(field) : [];
+
+      return [field.key, selectable.length === 1 ? selectable[0] : ""];
+    }),
+  );
 }
 
 export function requiredFieldErrors(fields: BookingFormField[], values: BookingFieldValues): BookingFieldErrors {

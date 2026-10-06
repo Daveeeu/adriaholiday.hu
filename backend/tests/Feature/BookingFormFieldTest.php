@@ -107,6 +107,36 @@ class BookingFormFieldTest extends TestCase
         ])->assertCreated()->assertJsonPath('data.options', ['Ablak', 'Folyosó']);
     }
 
+    public function test_options_can_be_listed_as_not_selectable(): void
+    {
+        $this->actingAsAdmin(self::ALL_PERMISSIONS);
+
+        $this->postJson('/api/admin/booking-form-fields', [
+            'label' => 'Szállás',
+            'fieldType' => 'radio',
+            'inputGroup' => 'extra',
+            'options' => ['Hotel', 'Apartman'],
+            'disabledOptions' => ['Kemping'],
+        ])->assertStatus(422)->assertJsonValidationErrors(['disabled_options.0']);
+
+        $field = $this->postJson('/api/admin/booking-form-fields', [
+            'label' => 'Szállás',
+            'fieldType' => 'radio',
+            'inputGroup' => 'extra',
+            'options' => ['Hotel', 'Apartman'],
+            'disabledOptions' => ['Apartman'],
+        ])->assertCreated()->assertJsonPath('data.disabledOptions', ['Apartman'])->json('data');
+
+        // Renaming the option drops it from the not selectable ones.
+        $this->patchJson("/api/admin/booking-form-fields/{$field['id']}", [
+            'label' => 'Szállás',
+            'fieldType' => 'radio',
+            'inputGroup' => 'extra',
+            'options' => ['Hotel', 'Apartmanház'],
+            'disabledOptions' => [],
+        ])->assertOk()->assertJsonPath('data.disabledOptions', []);
+    }
+
     public function test_options_are_dropped_for_non_select_fields(): void
     {
         $this->actingAsAdmin(self::ALL_PERMISSIONS);
@@ -316,6 +346,17 @@ class BookingFormFieldTest extends TestCase
             'formData.extra_payment_method',
         ]);
 
+        // Listed on the form but not selectable yet.
+        $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
+            'tourId' => $tour->id,
+            'formData' => [
+                ...$contact,
+                'extra_terms' => BookingFormField::CHECKBOX_CHECKED_VALUE,
+                'extra_payment_method' => 'Banki befizetés / átutalás',
+            ],
+        ])->assertStatus(422)->assertJsonValidationErrors(['formData.extra_payment_method']);
+
         $response = $this->postJson('/api/bookings', [
             'termsAccepted' => true,
             'tourId' => $tour->id,
@@ -323,7 +364,7 @@ class BookingFormFieldTest extends TestCase
                 ...$contact,
                 'extra_terms' => BookingFormField::CHECKBOX_CHECKED_VALUE,
                 'extra_single_room' => BookingFormField::CHECKBOX_CHECKED_VALUE,
-                'extra_payment_method' => 'Átutalás',
+                'extra_payment_method' => 'Online bankkártyás fizetés (Barion)',
                 'extra_cancellation_insurance' => BookingFormField::CHECKBOX_CHECKED_VALUE,
                 'note' => 'Ablak mellé kérnénk.',
             ],
@@ -335,13 +376,13 @@ class BookingFormFieldTest extends TestCase
         $booking = Booking::findOrFail($response->json('id'));
         $formData = $booking->payload['formData'];
         $this->assertSame('Igen', $formData['extra_single_room']);
-        $this->assertSame('Átutalás', $formData['extra_payment_method']);
+        $this->assertSame('Online bankkártyás fizetés (Barion)', $formData['extra_payment_method']);
         $this->assertArrayNotHasKey('extra_cancellation_insurance', $formData);
         $this->assertSame('Ablak mellé kérnénk.', $booking->notes);
 
         $email = (new NewTourBookingOfficeNotification($booking, $tour))->render();
         $this->assertStringContainsString('Egyágyas felár: Igen', $email);
-        $this->assertStringContainsString('Fizetési mód: Átutalás', $email);
+        $this->assertStringContainsString('Fizetési mód: Online bankkártyás fizetés (Barion)', $email);
     }
 
     /**

@@ -18,7 +18,7 @@ class BookingFormFieldResolver
     /**
      * Visible (required or optional) fields in display order.
      *
-     * @return array<int, array{key: string, label: string, fieldType: string, inputGroup: string, options: array<int, string>|null, description: string|null, priceLabel: string|null, visibility: string}>
+     * @return array<int, array{key: string, label: string, fieldType: string, inputGroup: string, options: array<int, string>|null, disabledOptions?: array<int, string>, description: string|null, priceLabel: string|null, visibility: string}>
      */
     public function resolve(Tour $tour): array
     {
@@ -38,6 +38,7 @@ class BookingFormFieldResolver
                 'fieldType' => $templateField->field->field_type,
                 'inputGroup' => $templateField->field->input_group,
                 'options' => $templateField->field->options,
+                'disabledOptions' => $templateField->field->disabled_options ?? [],
                 'description' => $templateField->field->description,
                 'priceLabel' => $templateField->field->price_label,
                 'visibility' => $templateField->visibility,

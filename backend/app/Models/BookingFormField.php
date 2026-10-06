@@ -51,11 +51,13 @@ class BookingFormField extends Model
         'input_group',
         'sort_order',
         'options',
+        'disabled_options',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
         'options' => 'array',
+        'disabled_options' => 'array',
     ];
 
     public static function usesOptions(string $fieldType): bool

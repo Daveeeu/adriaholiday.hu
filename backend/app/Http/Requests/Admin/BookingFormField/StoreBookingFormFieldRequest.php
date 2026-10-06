@@ -11,6 +11,7 @@ class StoreBookingFormFieldRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $options = $this->input('options');
+        $disabledOptions = $this->input('disabled_options', $this->input('disabledOptions'));
 
         $this->merge([
             'label' => trim((string) $this->input('label', '')),
@@ -25,6 +26,13 @@ class StoreBookingFormFieldRequest extends FormRequest
                     ->values()
                     ->all()
                 : $options,
+            'disabled_options' => is_array($disabledOptions)
+                ? collect($disabledOptions)
+                    ->map(fn ($option) => is_string($option) ? trim($option) : $option)
+                    ->filter(fn ($option) => $option !== '' && $option !== null)
+                    ->values()
+                    ->all()
+                : $disabledOptions,
         ]);
     }
 
@@ -48,6 +56,8 @@ class StoreBookingFormFieldRequest extends FormRequest
                 Rule::requiredIf(fn (): bool => BookingFormField::usesOptions((string) $this->input('field_type'))),
             ],
             'options.*' => ['string', 'max:255', 'distinct'],
+            'disabled_options' => ['nullable', 'array', 'max:50'],
+            'disabled_options.*' => ['string', 'distinct', Rule::in((array) $this->input('options', []))],
         ];
     }
 
@@ -56,6 +66,7 @@ class StoreBookingFormFieldRequest extends FormRequest
         return [
             'options.required' => 'Legördülő listához és választógombokhoz legalább egy lehetőséget meg kell adni.',
             'options.*.distinct' => 'A választási lehetőségek nem ismétlődhetnek.',
+            'disabled_options.*.in' => 'Csak a felsorolt lehetőségek közül lehet letiltani.',
         ];
     }
 

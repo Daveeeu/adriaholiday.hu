@@ -23,6 +23,8 @@ export type BookingFormField = {
   inputGroup: BookingFormInputGroup;
   sortOrder: number;
   options: string[] | null;
+  /** Options listed but not selectable on the website ("Fejlesztés alatt"). */
+  disabledOptions: string[];
   isSystem: boolean;
 };
 
@@ -33,6 +35,7 @@ export type BookingFormFieldUpsertInput = {
   fieldType: BookingFormFieldType;
   inputGroup: BookingFormInputGroup;
   options: string[];
+  disabledOptions: string[];
 };
 
 export type BookingFormTemplateField = {

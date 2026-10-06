@@ -1,5 +1,7 @@
 import { CHECKBOX_CHECKED_VALUE, type BookingFormField } from "./booking-form-fields";
 
+const UNAVAILABLE_OPTION_NOTE = "Fejlesztés alatt";
+
 type BookingFieldInputProps = {
   field: BookingFormField;
   value: string;
@@ -53,24 +55,36 @@ export default function BookingFieldInput({ field, value, onChange, error }: Boo
         <FieldDescription field={field} className="-mt-1 mb-3" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(field.options ?? []).map((option) => (
-            <label
-              key={option}
-              className={`flex items-center gap-3 rounded-2xl border p-5 cursor-pointer hover:border-[#00c389]/40 hover:bg-[#00c389]/5 transition-all ${
-                error ? "border-red-300" : "border-gray-200"
-              }`}
-            >
-              <input
-                type="radio"
-                name={field.key}
-                value={option}
-                checked={value === option}
-                onChange={() => onChange(option)}
-                className="accent-[#00c389]"
-              />
-              <span className="font-bold text-[#0f172a]">{option}</span>
-            </label>
-          ))}
+          {(field.options ?? []).map((option) => {
+            const unavailable = field.disabledOptions?.includes(option) ?? false;
+
+            return (
+              <label
+                key={option}
+                className={`flex items-center gap-3 rounded-2xl border p-5 transition-all ${
+                  unavailable
+                    ? "cursor-not-allowed border-gray-200 bg-gray-50 opacity-60"
+                    : `cursor-pointer hover:border-[#00c389]/40 hover:bg-[#00c389]/5 ${error ? "border-red-300" : "border-gray-200"}`
+                }`}
+              >
+                <input
+                  type="radio"
+                  name={field.key}
+                  value={option}
+                  checked={!unavailable && value === option}
+                  disabled={unavailable}
+                  onChange={() => onChange(option)}
+                  className="accent-[#00c389]"
+                />
+                <span>
+                  <span className="block font-bold text-[#0f172a]">{option}</span>
+                  {unavailable ? (
+                    <span className="block text-xs font-semibold text-gray-500">{UNAVAILABLE_OPTION_NOTE}</span>
+                  ) : null}
+                </span>
+              </label>
+            );
+          })}
         </div>
 
         <FieldError error={error} />
@@ -102,11 +116,15 @@ export default function BookingFieldInput({ field, value, onChange, error }: Boo
           className={`${fieldClassName} h-14 bg-white`}
         >
           <option value="">Válassz...</option>
-          {(field.options ?? []).map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
+          {(field.options ?? []).map((option) => {
+            const unavailable = field.disabledOptions?.includes(option) ?? false;
+
+            return (
+              <option key={option} value={option} disabled={unavailable}>
+                {unavailable ? `${option} (${UNAVAILABLE_OPTION_NOTE})` : option}
+              </option>
+            );
+          })}
         </select>
       ) : (
         <input

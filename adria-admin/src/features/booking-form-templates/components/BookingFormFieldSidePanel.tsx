@@ -66,6 +66,7 @@ const fieldFormSchema = z
     ]),
     inputGroup: z.enum(['contact', 'passenger', 'extra']),
     optionsText: z.string(),
+    disabledOptions: z.array(z.string()),
   })
   .superRefine((values, context) => {
     if (
@@ -92,19 +93,25 @@ function getFieldFormDefaults(
     fieldType: field?.fieldType ?? 'text',
     inputGroup: field?.inputGroup ?? 'passenger',
     optionsText: (field?.options ?? []).join('\n'),
+    disabledOptions: field?.disabledOptions ?? [],
   };
 }
 
 function toUpsertInput(values: FieldFormValues): BookingFormFieldUpsertInput {
+  const options = usesOptions(values.fieldType)
+    ? parseOptions(values.optionsText)
+    : [];
+
   return {
     label: values.label.trim(),
     description: values.description.trim(),
     priceLabel: values.priceLabel.trim(),
     fieldType: values.fieldType,
     inputGroup: values.inputGroup,
-    options: usesOptions(values.fieldType)
-      ? parseOptions(values.optionsText)
-      : [],
+    options,
+    disabledOptions: values.disabledOptions.filter((option) =>
+      options.includes(option),
+    ),
   };
 }
 
@@ -137,6 +144,7 @@ export function BookingFormFieldSidePanel({
   }, [field, form, open]);
 
   const fieldType = useWatch({ control: form.control, name: 'fieldType' });
+  const optionsText = useWatch({ control: form.control, name: 'optionsText' });
   const isSystem = field?.isSystem ?? false;
 
   return (
@@ -293,6 +301,45 @@ export function BookingFormFieldSidePanel({
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : null}
+
+          {usesOptions(fieldType) && parseOptions(optionsText).length > 0 ? (
+            <FormField
+              control={form.control}
+              name="disabledOptions"
+              render={({ field: inputField }) => (
+                <FormItem>
+                  <FormLabel>Nem választható lehetőségek</FormLabel>
+                  <div className="space-y-2">
+                    {parseOptions(optionsText).map((option) => (
+                      <label
+                        key={option}
+                        className="flex items-center gap-2 text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={inputField.value.includes(option)}
+                          onChange={(event) =>
+                            inputField.onChange(
+                              event.target.checked
+                                ? [...inputField.value, option]
+                                : inputField.value.filter(
+                                    (disabled) => disabled !== option,
+                                  ),
+                            )
+                          }
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    A bejelölt lehetőségek a weboldalon szürkén, „Fejlesztés
+                    alatt” felirattal jelennek meg, és nem választhatók.
+                  </p>
                 </FormItem>
               )}
             />

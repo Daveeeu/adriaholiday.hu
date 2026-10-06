@@ -97,7 +97,7 @@ class BookingFormValidationService
     }
 
     /**
-     * @param  array{label: string, fieldType: string, options: array<int, string>|null, visibility: string}  $fieldDef
+     * @param  array{label: string, fieldType: string, options: array<int, string>|null, disabledOptions?: array<int, string>, visibility: string}  $fieldDef
      */
     private function validateValue(array $fieldDef, string $value): ?string
     {
@@ -117,7 +117,8 @@ class BookingFormValidationService
             'email' => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
             'date' => $this->isValidDate($value),
             'number' => is_numeric($value),
-            'select', 'radio' => in_array($value, $fieldDef['options'] ?? [], true),
+            'select', 'radio' => in_array($value, $fieldDef['options'] ?? [], true)
+                && ! in_array($value, $fieldDef['disabledOptions'] ?? [], true),
             'checkbox' => $value === BookingFormField::CHECKBOX_CHECKED_VALUE,
             default => true,
         };

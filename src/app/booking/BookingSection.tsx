@@ -18,7 +18,7 @@ import {
 } from "./booking-pricing";
 import { parseDiscountPercent } from "../content/discount-badge";
 import {
-  emptyValues,
+  initialValues,
   fieldsOfGroup,
   requiredFieldErrors,
   type BookingFieldErrors,
@@ -131,7 +131,9 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const { trackEvent } = useAnalytics();
   const [step, setStep] = useState(1);
   const [hasStarted, setHasStarted] = useState(false);
-  const [formValues, setFormValues] = useState<BookingFieldValues>({});
+  const [formValues, setFormValues] = useState<BookingFieldValues>(() =>
+    initialValues((trip.bookingFormFields ?? []).filter((field) => field.inputGroup !== "passenger")),
+  );
   const [couponCode, setCouponCode] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
@@ -202,7 +204,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const extraFields = useMemo(() => fieldsOfGroup(fields, "extra"), [fields]);
 
   useEffect(() => {
-    setPassengers((current) => (current.length > 0 ? current : [emptyValues(passengerFields)]));
+    setPassengers((current) => (current.length > 0 ? current : [initialValues(passengerFields)]));
   }, [passengerFields]);
 
   const steps = [
@@ -300,7 +302,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
 
   function addPassenger() {
     setPassengers((current) => {
-      const next = [...current, emptyValues(passengerFields)];
+      const next = [...current, initialValues(passengerFields)];
       trackEvent("participants_change", {
         entity: { type: "tour", slug: trip.slug },
         metadata: { participants: next.length },
