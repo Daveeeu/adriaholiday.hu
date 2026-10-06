@@ -18,6 +18,19 @@ class LegacyAdriaOfferCrawlerTest extends TestCase
         ]);
 
         Http::fake([
+            // The home page mixes relative and absolute (http) group links.
+            'legacy.test/' => Http::response($this->listing([
+                'korutazasok/csoport/korutazas',
+                'korutazasok/csoport/tengerparti-udulesek',
+                'http://legacy.test/korutazasok/csoport/advent',
+                'korutazasok/regio/ausztria',
+            ])),
+            'legacy.test/korutazasok/csoport/advent' => Http::response($this->listing([
+                'korutazasok/csoport/advent/ausztria',
+            ])),
+            'legacy.test/korutazasok/csoport/advent/ausztria' => Http::response($this->offers([
+                'korutazasok/advent-a-becsi-alpokban',
+            ])),
             'legacy.test/korutazasok/csoport/korutazas' => Http::response($this->listing([
                 'korutazasok/csoport/korutazas/spanyolorszag',
                 'korutazasok/csoport/korutazas/marokko',
@@ -28,6 +41,7 @@ class LegacyAdriaOfferCrawlerTest extends TestCase
             ])),
             'legacy.test/korutazasok/csoport/korutazas/marokko' => Http::response($this->offers([
                 'korutazasok/spanyolorszag-es-marokko-varazsa',
+                'korutazasok/advent-a-becsi-alpokban',
             ])),
             'legacy.test/korutazasok/csoport/tengerparti-udulesek' => Http::response($this->listing([
                 'korutazasok/csoport/tengerparti-udulesek/albania',
@@ -46,6 +60,16 @@ class LegacyAdriaOfferCrawlerTest extends TestCase
 
         $this->assertSame(['spanyolorszag', 'marokko'], $context['countries']);
         $this->assertSame(['korutazas'], $context['categories']);
+    }
+
+    public function test_it_discovers_tour_groups_linked_from_the_home_page(): void
+    {
+        $crawler = app(LegacyAdriaOfferCrawler::class);
+
+        $context = $crawler->discoverOfferContext($crawler->offerUrlForSlug('advent-a-becsi-alpokban'));
+
+        $this->assertSame(['marokko', 'ausztria'], $context['countries']);
+        $this->assertSame(['korutazas', 'advent'], $context['categories']);
     }
 
     public function test_it_matches_an_offer_url_regardless_of_percent_encoding(): void

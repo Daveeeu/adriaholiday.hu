@@ -27,7 +27,13 @@ class LegacyAdriaOfferParser
     private const CATEGORY_NAMES = [
         'korutazas' => 'Körutazás',
         'tengerparti-udulesek' => 'Tengerparti üdülések',
+        'advent' => 'Adventi barangolások',
     ];
+
+    /**
+     * Length limit of a program day title (tour_program_days.title).
+     */
+    private const PROGRAM_DAY_TITLE_MAX_LENGTH = 255;
 
     private const TRANSPORT_CODES = ['bus', 'plane', 'train'];
 
@@ -394,12 +400,7 @@ class LegacyAdriaOfferParser
                 }
 
                 if (preg_match('/^(\d{1,2})\.\s*NAP\.?\s*(.*)$/iu', $first, $match)) {
-                    $title = trim($match[2]) !== '' ? trim($match[2]) : $first;
-                    $days[] = [
-                        'day_number' => (int) $match[1],
-                        'title' => $title,
-                        'description' => implode(' ', array_slice($lines, 1)),
-                    ];
+                    $days[] = $this->programDay((int) $match[1], trim($match[2]), $lines, $node);
 
                     continue;
                 }
@@ -464,6 +465,56 @@ class LegacyAdriaOfferParser
             'discountsHtml' => $discountsParts !== [] ? implode("\n", $discountsParts) : null,
             'price' => $priceFromText,
         ];
+    }
+
+    /**
+     * A day paragraph is usually "N. NAP Title<br>Description", but some offers put the whole
+     * day on one line ("<strong>1.nap</strong> Description…"); there the bold part is the title.
+     * A day without a usable title is titled after its number, since a program day needs one.
+     *
+     * @param  array<int, string>  $lines
+     * @return array{day_number: int, title: string, description: string}
+     */
+    private function programDay(int $dayNumber, string $heading, array $lines, DOMElement $node): array
+    {
+        $title = $heading;
+        $description = implode(' ', array_slice($lines, 1));
+
+        if (count($lines) === 1) {
+            $boldPrefix = $this->boldText($node);
+            $hasBoldPrefix = $boldPrefix !== '' && Str::startsWith($lines[0], $boldPrefix);
+            $title = $hasBoldPrefix
+                ? trim((string) preg_replace('/^\d{1,2}\.\s*NAP\.?\s*/iu', '', $boldPrefix))
+                : '';
+            $description = $hasBoldPrefix ? trim(Str::after($lines[0], $boldPrefix)) : $heading;
+        }
+
+        if (mb_strlen($title) > self::PROGRAM_DAY_TITLE_MAX_LENGTH) {
+            $description = trim($title.' '.$description);
+            $title = '';
+        }
+
+        return [
+            'day_number' => $dayNumber,
+            'title' => $title !== '' ? $title : "{$dayNumber}. nap",
+            'description' => $description,
+        ];
+    }
+
+    /**
+     * The text of the paragraph's bold runs, joined in document order.
+     */
+    private function boldText(DOMElement $node): string
+    {
+        $text = '';
+
+        $outermostBoldRuns = './/*[(self::strong or self::b) and not(ancestor::strong or ancestor::b)]';
+
+        foreach ((new DOMXPath($node->ownerDocument))->query($outermostBoldRuns, $node) as $bold) {
+            $text .= $bold->textContent;
+        }
+
+        return $this->normalizeWhitespace($text);
     }
 
     /**

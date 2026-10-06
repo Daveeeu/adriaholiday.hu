@@ -11,18 +11,12 @@ use Throwable;
 /**
  * Discovers offer detail URLs on the legacy adriaholiday.hu site and fetches
  * raw HTML and per-date booking options, with a rate-limited, identified HTTP client (no sitemap/API exists
- * on the legacy site, so discovery walks the two tour group listing pages and
+ * on the legacy site, so discovery walks the tour group listing pages linked from the home page and
  * their per-country sub-pages).
  */
 class LegacyAdriaOfferCrawler
 {
-    /**
-     * Tour group roots, each of which links to its own set of per-country pages.
-     */
-    private const GROUP_ROOTS = [
-        'korutazasok/csoport/korutazas' => 'korutazas',
-        'korutazasok/csoport/tengerparti-udulesek' => 'tengerparti-udulesek',
-    ];
+    private const GROUP_PATH_PREFIX = 'korutazasok/csoport/';
 
     private readonly string $baseUrl;
 
@@ -185,7 +179,9 @@ class LegacyAdriaOfferCrawler
     {
         $paths = [];
 
-        foreach (self::GROUP_ROOTS as $rootPath => $category) {
+        foreach ($this->discoverGroupSlugs() as $category) {
+            $rootPath = self::GROUP_PATH_PREFIX.$category;
+
             try {
                 $rootHtml = $this->fetchHtml($this->resolveUrl($rootPath));
             } catch (LegacyFetchException $exception) {
@@ -203,6 +199,58 @@ class LegacyAdriaOfferCrawler
         }
 
         return $paths;
+    }
+
+    /**
+     * Slugs of the tour groups (e.g. "korutazas", "advent") the home page links to; every offer
+     * gets the groups whose listing pages it appears on as its categories.
+     *
+     * @return array<int, string>
+     */
+    private function discoverGroupSlugs(): array
+    {
+        try {
+            $homeHtml = $this->fetchHtml($this->resolveUrl(''));
+        } catch (LegacyFetchException $exception) {
+            report($exception);
+
+            return [];
+        }
+
+        $xpath = new DOMXPath($this->loadDocument($homeHtml));
+        $slugs = [];
+
+        foreach ($xpath->query('//a[@href]') as $node) {
+            $path = $this->sitePath($node->getAttribute('href'));
+
+            if (! Str::startsWith($path, self::GROUP_PATH_PREFIX)) {
+                continue;
+            }
+
+            $slug = trim(Str::after($path, self::GROUP_PATH_PREFIX), '/');
+
+            if ($slug !== '' && ! Str::contains($slug, '/')) {
+                $slugs[] = $slug;
+            }
+        }
+
+        return array_values(array_unique($slugs));
+    }
+
+    /**
+     * A link's path relative to the legacy site root; the site mixes relative links with
+     * absolute ones on either scheme.
+     */
+    private function sitePath(string $href): string
+    {
+        $href = trim($href);
+        $host = (string) parse_url($this->baseUrl, PHP_URL_HOST);
+
+        if ($host !== '' && preg_match('#^(?:https?:)?//'.preg_quote($host, '#').'(?=/|$)#i', $href, $match)) {
+            $href = substr($href, strlen($match[0]));
+        }
+
+        return ltrim($href, '/');
     }
 
     /**

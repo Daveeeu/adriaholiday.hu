@@ -101,15 +101,35 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertGreaterThanOrEqual(10, count($data->tags));
     }
 
+    public function test_it_separates_the_bold_title_of_a_single_line_program_day_from_its_description(): void
+    {
+        $longHeading = str_repeat('Hosszú napleírás egyetlen sorban. ', 10);
+        $html = '<html><body><div class="program-content">'
+            .'<p><strong>1.nap</strong> Indulás a hajnali órákban, útközben Portogruaro.</p>'
+            .'<p><strong>2. NAP SAN MARINO</strong> Reggeli után kirándulás a törpeállamba.</p>'
+            .'<p>3. nap Hazautazás Bolognán keresztül.</p>'
+            .'<p>4. NAP '.$longHeading.'<br>Este érkezés.</p>'
+            .'</div></body></html>';
+
+        $days = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL)->programDays;
+
+        $this->assertSame([
+            ['day_number' => 1, 'title' => '1. nap', 'description' => 'Indulás a hajnali órákban, útközben Portogruaro.'],
+            ['day_number' => 2, 'title' => 'SAN MARINO', 'description' => 'Reggeli után kirándulás a törpeállamba.'],
+            ['day_number' => 3, 'title' => '3. nap', 'description' => 'Hazautazás Bolognán keresztül.'],
+            ['day_number' => 4, 'title' => '4. nap', 'description' => trim($longHeading).' Este érkezés.'],
+        ], $days);
+    }
+
     public function test_it_takes_countries_and_categories_from_crawl_context(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), self::SOURCE_URL, [
             'countries' => ['albania'],
-            'categories' => ['korutazas', 'tengerparti-udulesek'],
+            'categories' => ['korutazas', 'tengerparti-udulesek', 'advent'],
         ]);
 
         $this->assertSame(['albania'], $data->countrySlugs);
-        $this->assertSame(['Körutazás', 'Tengerparti üdülések'], $data->categories);
+        $this->assertSame(['Körutazás', 'Tengerparti üdülések', 'Adventi barangolások'], $data->categories);
     }
 
     public function test_it_takes_no_categories_or_countries_from_the_breadcrumb_without_crawl_context(): void
