@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Lottie from "lottie-react";
 
 import { useLottieAnimation } from "../hooks/useLottieAnimation";
@@ -9,6 +9,45 @@ import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 
+type StepContent = {
+  number: string;
+  icon: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+};
+
+const STEP_CONTENT_FALLBACK: StepContent[] = [
+  {
+    number: "01",
+    icon: "compass",
+    eyebrow: "Felfedezés",
+    title: "Válassz utat",
+    description:
+      "Böngéssz gondosan összeállított utazásaink között, és találd meg a hozzád illő úti célt.",
+  },
+  {
+    number: "02",
+    icon: "calendar",
+    eyebrow: "Foglalás",
+    title: "Foglalj online",
+    description: "Foglalj gyorsan, átláthatóan és biztonságosan néhány kattintással.",
+  },
+  {
+    number: "03",
+    icon: "bus",
+    eyebrow: "Utazás",
+    title: "Indulj velünk",
+    description: "Dőlj hátra, mi intézzük a részleteket — neked csak az élmény marad.",
+  },
+];
+
+const STEP_COLORS = [
+  "from-[#00c389] to-[#16b8ff]",
+  "from-[#16b8ff] to-[#0ea5e9]",
+  "from-[#0ea5e9] to-[#00c389]",
+];
+
 export default function HowItWorks() {
   const { getValue } = usePortfolioContent();
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
@@ -16,42 +55,16 @@ export default function HowItWorks() {
   const earthPlaneAnimation = useLottieAnimation("rotating-earth-and-paper-plane.json");
   const onlinePlaneAnimation = useLottieAnimation("earth.json");
 
-  const stepsFallback = useMemo(
-    () => [
-      {
-        number: "01",
-        lottieAnimation: loadingAnimation,
-        icon: "compass",
-        eyebrow: "Felfedezés",
-        title: "Válassz utat",
-        description:
-          "Böngéssz gondosan összeállított utazásaink között, és találd meg a hozzád illő úti célt.",
-        color: "from-[#00c389] to-[#16b8ff]",
-      },
-      {
-        number: "02",
-        lottieAnimation: onlinePlaneAnimation,
-        icon: "calendar",
-        eyebrow: "Foglalás",
-        title: "Foglalj online",
-        description:
-          "Foglalj gyorsan, átláthatóan és biztonságosan néhány kattintással.",
-        color: "from-[#16b8ff] to-[#0ea5e9]",
-      },
-      {
-        number: "03",
-        lottieAnimation: earthPlaneAnimation,
-        icon: "bus",
-        eyebrow: "Utazás",
-        title: "Indulj velünk",
-        description:
-          "Dőlj hátra, mi intézzük a részleteket — neked csak az élmény marad.",
-        color: "from-[#0ea5e9] to-[#00c389]",
-      },
-    ],
-    [loadingAnimation, onlinePlaneAnimation, earthPlaneAnimation],
-  );
-  const steps = getValue("home.howItWorks.steps", stepsFallback) as typeof stepsFallback;
+  const stepContent = getValue("home.howItWorks.steps", STEP_CONTENT_FALLBACK) as StepContent[];
+  const stepAnimations = [loadingAnimation, onlinePlaneAnimation, earthPlaneAnimation];
+
+  // CMS content carries only text and icon names; the visual design (gradient
+  // and animation) is owned by the component and assigned by step position.
+  const steps = stepContent.map((content, index) => ({
+    ...content,
+    color: STEP_COLORS[index % STEP_COLORS.length],
+    lottieAnimation: stepAnimations[index % stepAnimations.length],
+  }));
 
   return (
     <section className="relative py-20 md:py-24 overflow-hidden bg-gradient-to-b from-white via-[#f3fbff] to-[#f5fffb]">
