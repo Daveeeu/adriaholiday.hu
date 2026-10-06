@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { EditableMedia } from "../content/EditableFields";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+import TestimonialQuoteCard from "./TestimonialQuoteCard";
 
 export default function ExperienceSection() {
   const { getValue } = usePortfolioContent();
@@ -9,10 +10,6 @@ export default function ExperienceSection() {
     url: "https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200&q=90",
     alt: "Tengerpart az Adrián",
   }) as { url?: string; alt?: string };
-  const quoteImage = getValue("home.experience.quote.image", {
-    url: "https://i.pravatar.cc/150?img=47",
-    alt: "B. Istvánné",
-  }) as { url?: string; alt?: string; title?: string };
   const overlayEyebrow = String(
     getValue("home.experience.overlay.eyebrow", "Dalmácia • Horvátország"),
   );
@@ -116,55 +113,8 @@ export default function ExperienceSection() {
                 </div>
               </motion.div>
 
-              {/* Floating Quote Card - Premium Glassmorphism */}
-              <motion.div
-                className="absolute -bottom-8 -right-8 max-w-sm bg-white/95 backdrop-blur-xl rounded-[24px] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/40"
-                initial={{ opacity: 0, y: 40, scale: 0.9 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.8, type: "spring" }}
-              >
-                <div className="flex items-start gap-4">
-                  <EditableMedia
-                    fieldKey="home.experience.quote.image"
-                    fallback={{
-                      url: quoteImage.url ?? "https://i.pravatar.cc/150?img=47",
-                      alt: quoteImage.alt ?? "B. Istvánné",
-                      title: quoteImage.title ?? "B. Istvánné",
-                    }}
-                    className="shrink-0"
-                    mediaClassName="w-14 h-14 rounded-full border-2 border-[#00c389]/20 object-cover"
-                  />
-
-                  <div className="flex-1">
-                    <p
-                      className="text-gray-700 italic mb-3"
-                      style={{
-                        fontSize: "0.9375rem",
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      "Felejthetetlen csodás napokat töltöttünk el az Önök jóvoltából."
-                    </p>
-
-                    <div>
-                      <p
-                        className="text-gray-900"
-                        style={{
-                          fontSize: "0.875rem",
-                          fontWeight: 700,
-                        }}
-                      >
-                        B. Istvánné
-                      </p>
-
-                      <p className="text-gray-500 text-xs">
-                        Bosznia körutazás
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              {/* Floating quote from a random guest letter */}
+              <TestimonialQuoteCard className="absolute -bottom-8 -right-8 max-w-sm bg-white/95 backdrop-blur-xl rounded-[24px] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/40" />
             </div>
           </motion.div>
 

@@ -35,6 +35,13 @@ export async function fetchPortfolioTestimonials(page = 1, perPage = 12): Promis
   return (await response.json()) as PortfolioTestimonialsResponse;
 }
 
+/** The first sentence of the excerpt, short enough for a pull quote. */
+export function testimonialQuote(testimonial: PortfolioTestimonial, maxLength = 140): string {
+  const sentence = testimonial.excerpt.match(/^.+?[.!?](?=\s|$)/u)?.[0] ?? testimonial.excerpt;
+
+  return sentence.length > maxLength ? `${sentence.slice(0, maxLength).replace(/\s+\S*$/u, '')}…` : sentence;
+}
+
 export function testimonialAnchor(id: number): string {
   return `level-${id}`;
 }
