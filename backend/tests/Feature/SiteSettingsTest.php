@@ -2,10 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdminMediaItem;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\SiteSettingsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -34,6 +38,32 @@ class SiteSettingsTest extends TestCase
         $this->assertSame('Adria Holiday', $response['general']['site_name'] ?? null);
         $this->assertSame('/kapcsolat', $response['cta']['primary_link'] ?? null);
         $this->assertArrayNotHasKey('analytics', $response);
+    }
+
+    public function test_media_settings_serve_the_current_urls_of_the_stored_media_item(): void
+    {
+        Storage::fake(config('media-library.disk_name'));
+        $media = AdminMediaItem::create()
+            ->addMedia(UploadedFile::fake()->image('logo.png', 320, 90))
+            ->toMediaCollection('library');
+
+        // Saved on another host, e.g. a local install whose data was moved to production.
+        SiteSetting::query()->where('group', 'brand')->where('key', 'logo')->update([
+            'value' => SiteSetting::encodeValue('media', [
+                'id' => $media->id,
+                'url' => 'http://adriaholiday.lan/storage/'.$media->id.'/logo.png',
+            ]),
+        ]);
+        SiteSetting::query()->where('group', 'seo')->where('key', 'default_og_image')->update([
+            'value' => SiteSetting::encodeValue('media', ['id' => 999999, 'url' => 'http://adriaholiday.lan/missing.png']),
+        ]);
+
+        $response = $this->getJson('/api/portfolio/site-settings')->assertOk();
+
+        $response->assertJsonPath('brand.logo.id', $media->id)
+            ->assertJsonPath('brand.logo.url', $media->getUrl())
+            ->assertJsonPath('seo.default_og_image', null);
+        $this->assertStringNotContainsString('adriaholiday.lan', $response->content());
     }
 
     public function test_private_setting_does_not_leak_to_public_endpoint(): void

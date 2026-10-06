@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Http\Resources\MediaResource;
 use App\Support\RichTextSanitizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class SiteSetting extends Model
 {
@@ -68,7 +70,23 @@ class SiteSetting extends Model
 
     public function decodedValue(): mixed
     {
-        return self::decodeValue($this->value, $this->type);
+        $value = self::decodeValue($this->value, $this->type);
+
+        return $this->type === 'media' ? self::currentMedia($value) : $value;
+    }
+
+    /**
+     * A media setting stores a snapshot of the chosen media item, whose absolute URLs go stale
+     * once the site runs on another domain; the item's current data is served instead.
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function currentMedia(mixed $stored): ?array
+    {
+        $mediaId = is_array($stored) ? ($stored['id'] ?? null) : null;
+        $media = is_numeric($mediaId) ? Media::query()->find((int) $mediaId) : null;
+
+        return $media !== null ? (new MediaResource($media))->resolve() : null;
     }
 
     public static function decodeValue(?string $value, ?string $type): mixed
