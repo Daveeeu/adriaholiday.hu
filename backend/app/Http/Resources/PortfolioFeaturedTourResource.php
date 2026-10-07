@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Tour;
 use App\Support\PriceBoxData;
 use App\Support\TourLabelResolver;
 use App\Support\TourMeta;
@@ -53,8 +54,24 @@ class PortfolioFeaturedTourResource extends JsonResource
             'departureDateCount' => (int) $tour->dates->count(),
             'country' => TourMeta::country($tour),
             'categories' => TourLabelResolver::blogCategoryItems($tour->category_ids ?? []),
-            'discountBadge' => $tour->dates->sortBy('start_date')->pluck('price_box_discount_badge')->filter()->first()
-                ?? $priceBox['discountBadge'] ?? null,
+            'discountBadge' => $this->discountBadge($tour, $priceBox),
         ];
+    }
+
+    /**
+     * The tour's promotion, from its earliest discounted date: a percentage
+     * badge, or the label of a struck-through price ("Előfoglalási akció").
+     */
+    private function discountBadge(Tour $tour, ?array $priceBox): ?string
+    {
+        $date = $tour->dates
+            ->sortBy('start_date')
+            ->first(fn ($date): bool => filled($date->price_box_discount_badge) || ($date->price_box_original_price !== null && (float) $date->price_box_original_price > (float) $date->price));
+
+        if ($date === null) {
+            return $priceBox['discountBadge'] ?? null;
+        }
+
+        return $date->price_box_discount_badge ?: ($date->price_box_label ?: 'Akció');
     }
 }

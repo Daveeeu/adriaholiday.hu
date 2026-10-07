@@ -349,7 +349,17 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                             ) : null}
                             {date.displayedPrice || date.priceBox?.displayedPrice ? (
                               <span className="px-2.5 py-1 rounded-full bg-white text-gray-900 font-bold">
+                                {date.priceBox?.originalDisplayedPrice ? (
+                                  <s className="mr-1.5 font-semibold text-gray-400">
+                                    {date.priceBox.originalDisplayedPrice}
+                                  </s>
+                                ) : null}
                                 {date.displayedPrice || date.priceBox?.displayedPrice}
+                              </span>
+                            ) : null}
+                            {date.priceBox?.label ? (
+                              <span className="px-2.5 py-1 rounded-full bg-red-50 text-red-600 font-bold">
+                                {date.priceBox.label}
                               </span>
                             ) : null}
                           </div>
@@ -471,22 +481,32 @@ function PriceBox({
           priceBox.priceSuffix,
         )
       : null;
-  const hasDiscount = Boolean(priceBox.discountBadge && discountedDisplayedPrice);
+  // A percentage badge discounts the price here; a promotion stored with its
+  // pre-promotion price ("Előfoglalási akció") already has the lower price.
+  const struckPrice = discountedDisplayedPrice
+    ? priceBox.displayedPrice
+    : priceBox.originalDisplayedPrice;
+  const badge = discountedDisplayedPrice ? priceBox.discountBadge : priceBox.label;
+  const hasDiscount = Boolean(struckPrice);
   const priceLabel = hasDiscount ? "Akciós ár" : "Ár";
 
   return (
     <div className="rounded-[30px] bg-gradient-to-br from-[#07111f] to-[#0d2240] p-6 text-white shadow-[0_24px_60px_rgba(7,17,31,0.24)]">
       <div className="text-white/50 text-sm mb-2">{priceLabel}</div>
 
-      {hasDiscount ? (
-        <div className="flex items-center gap-3 mb-2">
-          <div className="relative text-white/35 text-3xl font-bold">
-            {priceBox.displayedPrice}
-            <div className="absolute left-0 right-0 top-1/2 h-[3px] rounded-full bg-red-500" />
-          </div>
-          <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-xs font-bold">
-            {priceBox.discountBadge}
-          </div>
+      {hasDiscount || badge ? (
+        <div className="flex flex-wrap items-center gap-3 mb-2">
+          {hasDiscount ? (
+            <div className="relative text-white/35 text-3xl font-bold">
+              {struckPrice}
+              <div className="absolute left-0 right-0 top-1/2 h-[3px] rounded-full bg-red-500" />
+            </div>
+          ) : null}
+          {badge ? (
+            <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-xs font-bold">
+              {badge}
+            </div>
+          ) : null}
         </div>
       ) : null}
 

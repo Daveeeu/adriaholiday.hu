@@ -23,8 +23,10 @@ class TourContentSyncService
     private const DATE_FIELDS = [
         'start_date',
         'end_date',
+        'price_box_original_price',
         'price_box_displayed_price',
         'price_box_discount_badge',
+        'price_box_label',
         'price_box_min_participants',
         'price_box_max_participants',
         'price_box_available_seats',

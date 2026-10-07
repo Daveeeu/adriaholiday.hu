@@ -84,4 +84,14 @@ class TourDisplayAttributesTest extends TestCase
             ->assertJsonPath('items.0.categories', [['id' => (string) $seaside->id, 'label' => 'Tengerpartok']])
             ->assertJsonPath('items.0.discountBadge', '-10%');
     }
+
+    public function test_a_struck_price_promotion_counts_as_the_cards_discount(): void
+    {
+        $tour = $this->flightTour(['featured' => true]);
+        $tour->dates()->firstOrFail()->update(['price_box_original_price' => 760000, 'price_box_label' => 'Előfoglalási akció']);
+
+        $this->getJson('/api/portfolio/featured-tours')
+            ->assertOk()
+            ->assertJsonPath('items.0.discountBadge', 'Előfoglalási akció');
+    }
 }

@@ -112,7 +112,11 @@ class LegacyTourImporter
                 'end_date' => $date['end_date'],
                 'price' => $date['price'],
                 'price_box_price' => $date['price'],
+                'price_box_original_price' => $date['original_price'] ?? null,
                 'price_box_discount_badge' => $date['discount_badge'] ?? null,
+                'price_box_label' => $date['label'] ?? null,
+                // Only a sold-out mark is taken over; any other status is the admin's.
+                ...(($date['sold_out'] ?? false) ? ['status' => 'sold_out'] : []),
                 // A date closed for booking has unknown extras: keep the stored ones.
                 ...($date['extras'] !== null ? ['extras' => $date['extras']] : []),
             ], $data->dates));

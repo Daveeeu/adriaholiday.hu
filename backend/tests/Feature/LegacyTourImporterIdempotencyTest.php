@@ -265,4 +265,26 @@ class LegacyTourImporterIdempotencyTest extends TestCase
 
         $this->assertSame(['Egyágyas felár', 'Vacsora', 'Reptéri transzfer'], $date->fresh()->extras->pluck('name')->all());
     }
+
+    public function test_dates_take_over_the_struck_price_label_and_sold_out_mark(): void
+    {
+        $importer = app(LegacyTourImporter::class);
+        $importer->import($this->offerData(), updateExisting: false);
+        $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
+        $tour->dates()->whereDate('start_date', '2026-10-10')->update(['status' => 'available']);
+
+        $data = $this->offerData();
+        $dates = $data->dates;
+        $dates[0] = [...$dates[0], 'original_price' => 289600.0, 'label' => 'Előfoglalási akció'];
+        $dates[1] = [...$dates[1], 'sold_out' => true];
+        $importer->import(new LegacyOfferData(...[...get_object_vars($data), 'dates' => $dates]), updateExisting: true);
+
+        $this->getJson('/api/portfolio/offers/albania-makedoniaval-fuszerezve')
+            ->assertOk()
+            ->assertJsonPath('dates.0.priceBox.originalPrice', 289600)
+            ->assertJsonPath('dates.0.priceBox.originalDisplayedPrice', '289 600 Ft')
+            ->assertJsonPath('dates.0.priceBox.label', 'Előfoglalási akció')
+            ->assertJsonPath('dates.0.status', 'planned')
+            ->assertJsonPath('dates.1.status', 'sold_out');
+    }
 }

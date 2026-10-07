@@ -31,8 +31,10 @@ class PriceBoxData
     {
         return self::build([
             'price' => $date->price_box_price ?? $date->price,
+            'originalPrice' => $date->price_box_original_price,
             'displayedPrice' => $date->price_box_displayed_price,
             'discountBadge' => $date->price_box_discount_badge,
+            'label' => $date->price_box_label,
             'minParticipants' => $date->price_box_min_participants,
             'maxParticipants' => $date->price_box_max_participants,
             'availableSeats' => $date->price_box_available_seats,
@@ -55,6 +57,7 @@ class PriceBoxData
 
         foreach ([
             'priceSuffix',
+            'label',
             'discountBadge',
             'discountText',
             'urgencyText',
@@ -90,6 +93,14 @@ class PriceBoxData
         $data['price'] = $price;
         $data['displayedPrice'] = $displayedPrice;
         $data['currency'] = $currency;
+
+        // The pre-promotion price, struck through next to the price; only
+        // meaningful above it.
+        $originalPrice = is_numeric($data['originalPrice'] ?? null) ? (float) $data['originalPrice'] : null;
+        $data['originalPrice'] = $originalPrice !== null && $price !== null && $originalPrice > $price ? $originalPrice : null;
+        $data['originalDisplayedPrice'] = $data['originalPrice'] !== null
+            ? self::displayedPrice($data['originalPrice'], null, $currency, $data['priceSuffix'] ?? null)
+            : null;
 
         if (! self::hasAnyValue($data)) {
             return null;

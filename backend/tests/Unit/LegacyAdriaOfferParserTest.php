@@ -299,6 +299,28 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertSame(74900.0, $data->price);
     }
 
+    public function test_it_reads_the_struck_price_and_the_note_under_a_date_price(): void
+    {
+        $cell = fn (string $prices, string $note): string => '<td><div role="button"><div style="display: inline-block">'
+            .$prices.($note !== '' ? '<div style="color:#ff0000;">'.$note.'</div>' : '')
+            .'</div></div><div class="d-none popover-data"><div class="popover-title">Információ</div></div></td>';
+        $row = fn (string $date, string $priceCell, int $id): string => "<tr><td>{$date}</td><td><i class=\"fa fa-bus\"></i></td><td>reggeli</td><td>Hotel***</td>{$priceCell}"
+            ."<td><span data-date-id=\"{$id}\">Foglalás</span></td></tr>";
+        $html = '<html><body><h1>Bosznia</h1><table class="table hotels-details-inner-dates"><tr><th>Időpont</th></tr>'
+            .$row('2027.05.06. - 09.', $cell('<span style="text-decoration: line-through">136.600,-Ft/fő-től</span><br><span>129.600,-Ft/fő-től</span>', 'Előfoglalási akció'), 1)
+            .$row('2026.10.23. - 25.', $cell('<span>159.800,-Ft/fő-től</span>', 'Őszi szünet'), 2)
+            .$row('2026.10.22. - 25.', $cell('<span>118.600,-Ft/fő-től</span>', 'Betelt!'), 3)
+            .$row('2027.06.10. - 13.', $cell('<span>129.600,-Ft/fő-től</span>', ''), 4)
+            .'</table></body></html>';
+
+        $dates = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL)->dates;
+
+        $this->assertSame([129600.0, 136600.0, 'Előfoglalási akció', false], [$dates[0]['price'], $dates[0]['original_price'], $dates[0]['label'], $dates[0]['sold_out']]);
+        $this->assertSame([null, 'Őszi szünet', false], [$dates[1]['original_price'], $dates[1]['label'], $dates[1]['sold_out']]);
+        $this->assertSame([null, true], [$dates[2]['label'], $dates[2]['sold_out']]);
+        $this->assertSame([null, null, false], [$dates[3]['original_price'], $dates[3]['label'], $dates[3]['sold_out']]);
+    }
+
     public function test_it_keeps_multibyte_characters_of_the_legacy_slug(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), 'https://adriaholiday.hu/korutazasok/umbria-–-italia-zold-szive-2019');

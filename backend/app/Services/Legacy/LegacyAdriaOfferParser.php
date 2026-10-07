@@ -180,7 +180,7 @@ class LegacyAdriaOfferParser
 
     /**
      * @param  array<int, array{departurePlaces: array<int, array{name: string, price: float|null}>, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, lastMinutePercent: float|null}>  $bookingOptions
-     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>
+     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, accommodation: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>
      */
     private function extractDates(DOMXPath $xpath, array $bookingOptions): array
     {
@@ -201,6 +201,8 @@ class LegacyAdriaOfferParser
 
             [$startDate, $endDate] = $this->parseDateRange($this->normalizeWhitespace($cells[0]->textContent));
             $prices = $this->parsePrices($cells[4]->textContent);
+            $label = $this->priceLabel($xpath, $cells[4]);
+            $isSoldOut = $label !== null && Str::contains(Str::lower($label), 'betelt');
             $legacyIdNode = $xpath->query('.//*[@data-date-id]', $row)->item(0);
             $legacyId = $legacyIdNode instanceof DOMElement ? (int) $legacyIdNode->getAttribute('data-date-id') : null;
 
@@ -209,6 +211,9 @@ class LegacyAdriaOfferParser
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'price' => $prices !== [] ? end($prices) : null,
+                'original_price' => count($prices) > 1 && $prices[0] > end($prices) ? $prices[0] : null,
+                'label' => $isSoldOut ? null : $label,
+                'sold_out' => $isSoldOut,
                 'transport_code' => $this->extractTransportCode($xpath, $cells[1]),
                 'catering' => $this->cellLabel($xpath, $cells[2]),
                 'accommodation' => $this->cellLabel($xpath, $cells[3]),
@@ -294,6 +299,18 @@ class LegacyAdriaOfferParser
         preg_match_all('/(\d{1,3}(?:\.\d{3})+|\d+)\s*,-\s*Ft/u', $text, $matches);
 
         return array_map(fn (string $amount): float => (float) str_replace('.', '', $amount), $matches[1]);
+    }
+
+    /**
+     * The note under a date's price ("Előfoglalási akció", "Őszi szünet",
+     * "Betelt!"): the price cell's visible text besides its prices.
+     */
+    private function priceLabel(DOMXPath $xpath, DOMElement $cell): ?string
+    {
+        $visible = $xpath->query('.//div[@role="button"]/div[1]', $cell)->item(0) ?? $cell;
+        $text = (string) preg_replace('/(\d{1,3}(?:\.\d{3})+|\d+)\s*,-\s*Ft(\/fő)?(-tól|-től)?/u', ' ', $visible->textContent);
+
+        return $this->nullableText($text);
     }
 
     /**

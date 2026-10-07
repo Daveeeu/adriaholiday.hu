@@ -690,6 +690,35 @@ export function TourForm({ form, tour }: TourFormProps) {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name={`dates.${index}.priceBox.originalPrice`}
+                  render={({ field: dateField }) => (
+                    <FormItem>
+                      <FormLabel>Eredeti ár (áthúzva)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} placeholder="136600" {...dateField} />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        Akciónál az akció előtti ár; csak az árnál nagyobb érték látszik.
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`dates.${index}.priceBox.label`}
+                  render={({ field: dateField }) => (
+                    <FormItem>
+                      <FormLabel>Címke az ár mellett</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Előfoglalási akció" {...dateField} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <TourDateExtrasEditor form={form} dateIndex={index} dateCount={dates.fields.length} />
@@ -711,6 +740,8 @@ export function TourForm({ form, tour }: TourFormProps) {
                       price: '',
                       displayedPrice: '',
                       discountBadge: '',
+                      originalPrice: '',
+                      label: '',
                       minParticipants: '',
                       maxParticipants: '',
                       availableSeats: '',

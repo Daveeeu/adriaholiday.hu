@@ -87,6 +87,10 @@ export type TourPriceBox = {
   capacity: number | null;
   ctaPrimaryLabel: string | null;
   ctaSecondaryLabel: string | null;
+  /** Dates only: the pre-promotion price, shown struck through. */
+  originalPrice?: number | null;
+  /** Dates only: a short note shown with the price ("Előfoglalási akció"). */
+  label?: string | null;
 };
 
 export type TourPriceBoxFormValue = {
@@ -375,6 +379,11 @@ export const tourFormSchema = z.object({
         price: z.string(),
         displayedPrice: z.string(),
         discountBadge: z.string(),
+        originalPrice: z
+          .string()
+          .trim()
+          .regex(/^(\d+(\.\d+)?)?$/, 'Adj meg egy nem negatív árat.'),
+        label: z.string().trim().max(64, 'Legfeljebb 64 karakter.'),
         minParticipants: z.string(),
         maxParticipants: z.string(),
         availableSeats: z.string(),
@@ -420,6 +429,8 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       price: date.priceBox?.price?.toString() ?? '',
       displayedPrice: date.priceBox?.displayedPrice ?? '',
       discountBadge: date.priceBox?.discountBadge ?? '',
+      originalPrice: date.priceBox?.originalPrice?.toString() ?? '',
+      label: date.priceBox?.label ?? '',
       minParticipants: date.priceBox?.minParticipants?.toString() ?? '',
       maxParticipants: date.priceBox?.maxParticipants?.toString() ?? '',
       availableSeats: date.priceBox?.availableSeats?.toString() ?? '',

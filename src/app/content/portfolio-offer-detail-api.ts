@@ -70,6 +70,11 @@ export type PortfolioPriceBox = {
   priceSuffix?: string | null;
   discountBadge?: string | null;
   discountText?: string | null;
+  /** A date's pre-promotion price, shown struck through. */
+  originalPrice?: number | null;
+  originalDisplayedPrice?: string | null;
+  /** A short note shown with a date's price ("Előfoglalási akció"). */
+  label?: string | null;
   urgencyText?: string | null;
   ratingText?: string | null;
   minParticipants?: number | null;
