@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogArticle;
+use App\Models\BlogCategory;
 use App\Models\HomepageOffer;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Support\PublicContentCache;
+use App\Support\Seo\PublicSiteUrl;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -47,7 +49,6 @@ class SitemapController extends Controller
         $paths = [
             '/',
             '/utazasok',
-            '/portfolio',
             '/blog',
             '/rolunk',
             '/rolunk-irtak',
@@ -71,19 +72,29 @@ class SitemapController extends Controller
      */
     private function categoryPages(): Collection
     {
+        $categorySlugs = BlogCategory::query()
+            ->where('active', true)
+            ->with('translations')
+            ->get()
+            ->flatMap(fn (BlogCategory $category): array => [$category->seo_name, ...$category->translations->pluck('seo_name')->all()])
+            ->filter()
+            ->unique()
+            ->all();
+
         return HomepageOffer::query()
             ->where('active', true)
             ->with('translations')
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
-            ->map(function (HomepageOffer $offer): ?array {
+            ->map(function (HomepageOffer $offer) use ($categorySlugs): ?array {
                 $translation = $offer->translations->firstWhere('locale', 'hu')
                     ?? $offer->translations->first();
 
                 $path = $this->categoryPath($offer->link, $translation?->seo_name);
 
-                if ($path === null) {
+                // Cards may link to a category that does not exist (yet); that page answers 404.
+                if ($path === null || ! in_array(Str::after($path, '/kategoriak/'), $categorySlugs, true)) {
                     return null;
                 }
 
@@ -187,8 +198,6 @@ class SitemapController extends Controller
 
     private function absoluteUrl(string $path): string
     {
-        $base = rtrim((string) config('app.url', 'https://adriaholiday.hu'), '/');
-
-        return $base.($path === '/' ? '/' : '/'.ltrim($path, '/'));
+        return PublicSiteUrl::to($path);
     }
 }

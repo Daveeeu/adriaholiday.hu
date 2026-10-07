@@ -15,7 +15,7 @@ class BarionPixelTest extends TestCase
     {
         $this->setPixelId('BP-h0u2v3lcwu-A3');
 
-        $html = $this->get('/ajanlat/barmi')->assertOk()->getContent();
+        $html = $this->get('/kapcsolat')->assertOk()->getContent();
 
         $this->assertStringContainsString('window["barion_pixel_id"] = "BP-h0u2v3lcwu-A3";', $html);
         $this->assertStringContainsString('https://pixel.barion.com/bp.js', $html);

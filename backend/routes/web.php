@@ -11,6 +11,8 @@ Route::get('/health', HealthController::class);
 Route::get('/robots.txt', RobotsController::class);
 Route::get('/sitemap.xml', SitemapController::class);
 Route::redirect('/korutazasok', '/utazasok', 301);
+// The former duplicate of the home page.
+Route::redirect('/portfolio', '/', 301);
 Route::get('/korutazasok/{slug}', function (string $slug) {
     return redirect("/ajanlat/{$slug}", 301);
 })->where('slug', '.*');

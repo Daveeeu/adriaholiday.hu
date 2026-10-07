@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Seo\PublicSiteUrl;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class RobotsController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
-        $base = rtrim((string) config('app.url', 'https://adriaholiday.hu'), '/');
+        // Only the canonical host may be crawled; staging and aliases are closed.
+        $rules = PublicSiteUrl::isCanonicalHost($request)
+            ? ['Allow: /', 'Disallow: /admin', 'Disallow: /api', 'Disallow: /fizetes/']
+            : ['Disallow: /'];
 
         $body = implode("\n", [
             'User-agent: *',
-            'Allow: /',
-            'Disallow: /admin',
-            'Disallow: /api',
-            "Sitemap: {$base}/sitemap.xml",
+            ...$rules,
+            'Sitemap: '.PublicSiteUrl::to('/sitemap.xml'),
             '',
         ]);
 
-        return response($body, 200, [
-            'Content-Type' => 'text/plain; charset=UTF-8',
-        ]);
+        return response($body, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
 }
