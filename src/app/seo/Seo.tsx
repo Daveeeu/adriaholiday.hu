@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
-import { absoluteUrl } from "./site";
+import { absoluteUrl, isCanonicalHost } from "./site";
 
 type JsonLd = Record<string, unknown>;
 
@@ -36,7 +36,7 @@ export default function Seo({
   const imageUrl =
     ogImageUrl ?? settings.defaultOgImage?.sizes?.large ?? settings.defaultOgImage?.url ?? absoluteUrl(DEFAULT_OG_IMAGE_PATH);
 
-  const robots = noIndex
+  const robots = noIndex || !isCanonicalHost()
     ? "noindex,nofollow"
     : "index,follow,max-image-preview:large";
 
