@@ -131,11 +131,11 @@ export default function TravelCategories() {
                 onMouseLeave={() => setHoveredId(null)}
               >
                 <motion.div
-                  className="relative overflow-hidden rounded-[24px] border border-gray-100/50 bg-white/90 shadow-[0_2px_20px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-500 hover:shadow-[0_12px_48px_rgba(0,195,137,0.15)]"
-                  whileHover={{ y: -8 }}
+                  className="relative isolate overflow-hidden rounded-[24px] border border-gray-100/50 bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] transition-shadow duration-500 group-hover:shadow-[0_12px_48px_rgba(0,195,137,0.15)]"
+                  animate={{ y: hoveredId === category.id ? -8 : 0 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 >
-                  <div className="relative h-72 overflow-hidden">
+                  <div className="relative isolate h-72 overflow-hidden">
                     <motion.img
                       {...responsiveImage(category.image)}
                       sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
