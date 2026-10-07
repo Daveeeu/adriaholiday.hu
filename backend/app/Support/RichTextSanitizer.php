@@ -24,6 +24,7 @@ class RichTextSanitizer
         'blockquote',
         'a',
         'span',
+        'img',
     ];
 
     private const ALLOWED_STYLES = [
@@ -106,6 +107,12 @@ class RichTextSanitizer
             return;
         }
 
+        if ($tag === 'img') {
+            self::appendImage($source, $output, $target);
+
+            return;
+        }
+
         $element = $output->createElement($tag);
 
         foreach (iterator_to_array($source->attributes ?? []) as $attribute) {
@@ -144,6 +151,36 @@ class RichTextSanitizer
 
         self::appendChildren($source, $output, $element);
         $target->appendChild($element);
+    }
+
+    /**
+     * An image is kept only with a site-relative or https source; it keeps its
+     * alt text, title and size and loads lazily.
+     */
+    private static function appendImage(DOMNode $source, DOMDocument $output, DOMElement $target): void
+    {
+        $src = $source instanceof DOMElement ? trim($source->getAttribute('src')) : '';
+
+        if (! preg_match('~^(?:/(?!/)|https://)~i', $src) || filter_var(str_starts_with($src, '/') ? 'https://x'.$src : $src, FILTER_VALIDATE_URL) === false) {
+            return;
+        }
+
+        $image = $output->createElement('img');
+        $image->setAttribute('src', $src);
+        $image->setAttribute('alt', trim($source->getAttribute('alt')));
+
+        if (($title = trim($source->getAttribute('title'))) !== '') {
+            $image->setAttribute('title', $title);
+        }
+
+        foreach (['width', 'height'] as $dimension) {
+            if (preg_match('/^\d{1,4}$/', trim($source->getAttribute($dimension)))) {
+                $image->setAttribute($dimension, trim($source->getAttribute($dimension)));
+            }
+        }
+
+        $image->setAttribute('loading', 'lazy');
+        $target->appendChild($image);
     }
 
     private static function sanitizeStyle(string $style): ?string

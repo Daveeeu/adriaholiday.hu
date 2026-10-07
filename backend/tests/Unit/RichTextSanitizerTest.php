@@ -33,4 +33,21 @@ class RichTextSanitizerTest extends TestCase
 
         $this->assertSame('<p><a href="tel:+3646508688">+36 46 508 688</a> <a>rossz</a></p>', $sanitized);
     }
+
+    public function test_images_keep_a_safe_source_and_load_lazily(): void
+    {
+        $html = RichTextSanitizer::sanitize(
+            '<p><img src="/storage/12/beach.jpg" alt="Strand" width="800" onerror="alert(1)">'
+            .'<img src="https://example.com/a.jpg" alt="">'
+            .'<img src="javascript:alert(1)">'
+            .'<img src="data:image/png;base64,AAAA">'
+            .'<img src="//evil.example/x.jpg">'
+            .'<img src="http://insecure.example/x.jpg"></p>'
+        );
+
+        $this->assertSame(
+            '<p><img src="/storage/12/beach.jpg" alt="Strand" width="800" loading="lazy"><img src="https://example.com/a.jpg" alt="" loading="lazy"></p>',
+            $html,
+        );
+    }
 }
