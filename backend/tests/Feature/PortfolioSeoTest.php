@@ -85,6 +85,25 @@ class PortfolioSeoTest extends TestCase
         $this->assertStringNotContainsString('Allow: /', $staging);
     }
 
+    public function test_legacy_site_urls_redirect_to_their_new_pages(): void
+    {
+        $redirects = [
+            '/korutazasok/latogatas-portugaliaban' => '/ajanlat/latogatas-portugaliaban',
+            '/korutazasok/csoport/korutazas' => '/kategoriak/korutazasok',
+            '/korutazasok/csoport/korutazas/albania' => '/kategoriak/korutazasok',
+            '/korutazasok/csoport/tengerparti-udulesek/albania' => '/kategoriak/tengerpartok',
+            '/korutazasok/csoport/advent/ausztria' => '/kategoriak/adventi-barangolasok',
+            '/korutazasok/regio/Szlov%C3%A1kia' => '/utazasok',
+            '/korutazasok/akcio' => '/utazasok',
+            '/altalanos-szerzodesi-feltetelek' => '/aszf',
+            '/adatkezelesi-szabalyzat' => '/adatvedelem',
+        ];
+
+        foreach ($redirects as $from => $to) {
+            $this->visit($from)->assertStatus(301)->assertRedirect($to);
+        }
+    }
+
     public function test_the_former_portfolio_duplicate_redirects_home(): void
     {
         $this->visit('/portfolio')->assertRedirect('/')->assertStatus(301);

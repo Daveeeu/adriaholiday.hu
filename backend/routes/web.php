@@ -11,6 +11,16 @@ Route::get('/health', HealthController::class);
 Route::get('/robots.txt', RobotsController::class);
 Route::get('/sitemap.xml', SitemapController::class);
 Route::redirect('/korutazasok', '/utazasok', 301);
+// Legacy adriaholiday.hu URLs, so links and search results keep working after the switch.
+Route::get('/korutazasok/csoport/{group}/{country?}', function (string $group) {
+    $categories = ['korutazas' => 'korutazasok', 'tengerparti-udulesek' => 'tengerpartok', 'advent' => 'adventi-barangolasok'];
+
+    return redirect(isset($categories[$group]) ? "/kategoriak/{$categories[$group]}" : '/utazasok', 301);
+})->where('country', '.*');
+Route::redirect('/korutazasok/regio/{country}', '/utazasok', 301)->where('country', '.*');
+Route::redirect('/korutazasok/akcio', '/utazasok', 301);
+Route::redirect('/altalanos-szerzodesi-feltetelek', '/aszf', 301);
+Route::redirect('/adatkezelesi-szabalyzat', '/adatvedelem', 301);
 // The former duplicate of the home page.
 Route::redirect('/portfolio', '/', 301);
 Route::get('/korutazasok/{slug}', function (string $slug) {
