@@ -39,7 +39,7 @@ export type NavigationItem = NavigationLink | NavigationGroup;
 
 export const staticNavigationItems: NavigationItem[] = [
   { to: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard, exact: true },
-  { to: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
+  { to: '/analytics', labelKey: 'nav.analytics', icon: BarChart3, permission: 'analytics.view' },
   {
     labelKey: 'nav.apartments',
     icon: Building2,
@@ -70,6 +70,7 @@ export const staticNavigationItems: NavigationItem[] = [
     to: '/portfolio-filter-chips',
     labelKey: 'nav.portfolioFilterChips',
     icon: Megaphone,
+    permission: 'portfolio-filter-chips.viewAny',
   },
   {
     to: '/portfolio-editor',
@@ -206,7 +207,7 @@ export const staticNavigationItems: NavigationItem[] = [
     icon: GalleryVerticalEnd,
     permission: 'galleries.viewAny',
   },
-  { to: '/email-templates', labelKey: 'nav.emailTemplates', icon: Mail },
+  { to: '/email-templates', labelKey: 'nav.emailTemplates', icon: Mail, permission: 'site-settings.view' },
   {
     to: '/settings',
     labelKey: 'nav.settings',

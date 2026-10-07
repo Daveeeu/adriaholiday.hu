@@ -1,9 +1,24 @@
-import { useMemo } from 'react';
-import { ArrowRight, Building2, CalendarDays, Mail, Megaphone, Ticket } from 'lucide-react';
+import { useMemo, type ReactNode } from 'react';
+import {
+  ArrowRight,
+  Building2,
+  CalendarDays,
+  Mail,
+  Megaphone,
+  Ticket,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { getRoutePermission } from '@/config/navigation-permissions';
+import { useAuthStore } from '@/store/auth-store';
 
 import {
   getApartmentBookings,
@@ -31,13 +46,34 @@ type OverviewCard = {
   icon: typeof CalendarDays;
 };
 
+function useCanOpen(path: string): boolean {
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const permission = getRoutePermission(path);
+
+  return permission === undefined || hasPermission(permission);
+}
+
+function CardIfPermitted({
+  path,
+  children,
+}: {
+  path: string;
+  children: ReactNode;
+}) {
+  return useCanOpen(path) ? children : null;
+}
+
+/** The section's item count, fetched only when the user may open that section. */
 function useTotalCount<T extends { totalCount: number }>(
+  path: string,
   queryKey: readonly unknown[],
   queryFn: () => Promise<T>,
 ) {
+  const enabled = useCanOpen(path);
   const { data, isLoading } = useQuery({
     queryKey,
     queryFn,
+    enabled,
   });
 
   return {
@@ -46,33 +82,48 @@ function useTotalCount<T extends { totalCount: number }>(
 }
 
 export function BookingsOverviewPage() {
-  const tourBookings = useTotalCount(['bookings', 'tour-bookings', 'count'], () =>
-    getTourBookings(countQuery),
+  const tourBookings = useTotalCount(
+    '/bookings/tour-bookings',
+    ['bookings', 'tour-bookings', 'count'],
+    () => getTourBookings(countQuery),
   );
-  const tourInquiries = useTotalCount(['bookings', 'tour-inquiries', 'count'], () =>
-    getTourInquiries(countQuery),
+  const tourInquiries = useTotalCount(
+    '/bookings/tour-inquiries',
+    ['bookings', 'tour-inquiries', 'count'],
+    () => getTourInquiries(countQuery),
   );
-  const apartmentBookings = useTotalCount(['bookings', 'apartment-bookings', 'count'], () =>
-    getApartmentBookings(countQuery),
+  const apartmentBookings = useTotalCount(
+    '/bookings/apartment-bookings',
+    ['bookings', 'apartment-bookings', 'count'],
+    () => getApartmentBookings(countQuery),
   );
-  const partnerFinances = useTotalCount(['bookings', 'partner-finances', 'count'], () =>
-    getPartnerFinances(countQuery),
+  const partnerFinances = useTotalCount(
+    '/bookings/partner-finances',
+    ['bookings', 'partner-finances', 'count'],
+    () => getPartnerFinances(countQuery),
   );
-  const banners = useTotalCount(['bookings', 'banner-generator', 'count'], () =>
-    getBanners(countQuery),
+  const banners = useTotalCount(
+    '/bookings/banner-generator',
+    ['bookings', 'banner-generator', 'count'],
+    () => getBanners(countQuery),
   );
-  const messages = useTotalCount(['bookings', 'messages', 'count'], () =>
-    getMessages(countQuery),
+  const messages = useTotalCount(
+    '/bookings/messages',
+    ['bookings', 'messages', 'count'],
+    () => getMessages(countQuery),
   );
-  const coupons = useTotalCount(['bookings', 'coupons', 'count'], () =>
-    getCoupons(countQuery),
+  const coupons = useTotalCount(
+    '/bookings/coupons',
+    ['bookings', 'coupons', 'count'],
+    () => getCoupons(countQuery),
   );
 
   const cards = useMemo<OverviewCard[]>(
     () => [
       {
         title: 'Körutazás foglalások',
-        description: 'A fő körutazás foglalási lista és a kapcsolódó szerkesztőpanel.',
+        description:
+          'A fő körutazás foglalási lista és a kapcsolódó szerkesztőpanel.',
         to: '/bookings/tour-bookings',
         count: tourBookings.count,
         icon: CalendarDays,
@@ -144,38 +195,44 @@ export function BookingsOverviewPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,195,137,0.12),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(22,184,255,0.1),transparent_32%)]" />
         <div className="relative space-y-2">
           <p className="text-sm font-medium text-primary">Foglalások</p>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Foglalások áttekintés</h1>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            Foglalások áttekintés
+          </h1>
           <p className="max-w-3xl text-sm text-muted-foreground">
-            Innen éred el a bookings modul minden alrészét. A kártyák az aktuális
-            darabszámokat mutatják.
+            Innen éred el a bookings modul minden alrészét. A kártyák az
+            aktuális darabszámokat mutatják.
           </p>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
-          <Link key={card.to} to={card.to} className="group block">
-            <Card className="h-full overflow-hidden border-border/60 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_20px_60px_rgba(15,23,42,0.10)]">
-              <CardHeader className="space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 text-[#00a878]">
-                    <card.icon className="size-5" />
+          <CardIfPermitted key={card.to} path={card.to}>
+            <Link to={card.to} className="group block">
+              <Card className="h-full overflow-hidden border-border/60 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_20px_60px_rgba(15,23,42,0.10)]">
+                <CardHeader className="space-y-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 text-[#00a878]">
+                      <card.icon className="size-5" />
+                    </div>
+                    <div className="rounded-full border bg-muted/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      {card.count}
+                    </div>
                   </div>
-                  <div className="rounded-full border bg-muted/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    {card.count}
+                  <div className="space-y-1">
+                    <CardTitle className="text-xl">{card.title}</CardTitle>
+                    <CardDescription className="min-h-10">
+                      {card.description}
+                    </CardDescription>
                   </div>
-                </div>
-                <div className="space-y-1">
-                  <CardTitle className="text-xl">{card.title}</CardTitle>
-                  <CardDescription className="min-h-10">{card.description}</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="flex items-center justify-between pt-0 text-sm font-medium text-muted-foreground">
-                <span>Megnyitás</span>
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-              </CardContent>
-            </Card>
-          </Link>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between pt-0 text-sm font-medium text-muted-foreground">
+                  <span>Megnyitás</span>
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                </CardContent>
+              </Card>
+            </Link>
+          </CardIfPermitted>
         ))}
       </div>
     </div>

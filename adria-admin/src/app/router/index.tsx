@@ -406,7 +406,7 @@ const router = createBrowserRouter(
         },
         {
           path: 'email-templates',
-          element: <EmailTemplatesPage />,
+          element: withPermission('/email-templates', <EmailTemplatesPage />),
           handle: { crumbKey: 'nav.emailTemplates' },
         },
         {

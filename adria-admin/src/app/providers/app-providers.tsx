@@ -17,7 +17,8 @@ function AuthEventBridge() {
 
   useEffect(() => {
     return onAuthForbidden(() => {
-      toast.error('Nincs jogosultság ehhez a művelethez.');
+      // One toast however many requests of the page are refused at once.
+      toast.error('Nincs jogosultság ehhez a művelethez.', { id: 'auth-forbidden' });
     });
   }, []);
 
