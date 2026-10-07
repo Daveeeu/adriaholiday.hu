@@ -2,60 +2,23 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Tour;
 use App\Support\PriceBoxData;
 use App\Support\TourLabelResolver;
-use Carbon\Carbon;
+use App\Support\TourMeta;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 
 class PortfolioFeaturedTourResource extends JsonResource
 {
-    private function meta(Tour $tour): array
-    {
-        $notes = trim((string) $tour->notes);
-        if ($notes === '') {
-            return [];
-        }
-
-        $decoded = json_decode($notes, true);
-
-        return is_array($decoded) ? $decoded : [];
-    }
-
-    private function formattedDuration(?string $startDate, ?string $endDate, ?string $fallback = null): ?string
-    {
-        if ($startDate === null || $endDate === null) {
-            return $fallback;
-        }
-
-        try {
-            $start = Carbon::parse($startDate);
-            $end = Carbon::parse($endDate);
-        } catch (\Throwable) {
-            return $fallback;
-        }
-
-        $days = max(1, $start->diffInDays($end) + 1);
-        $nights = max(0, $days - 1);
-
-        return "{$days} nap / {$nights} éj";
-    }
-
     public function toArray(Request $request): array
     {
         $tour = $this->resource;
-        $meta = $this->meta($tour);
+        $meta = TourMeta::extract($tour);
         $priceBox = PriceBoxData::fromTour($tour);
         $firstDate = $tour->dates->sortBy('start_date')->first();
         $media = $tour->mainImage();
         $departureDate = $firstDate?->start_date?->toDateString();
-        $duration = $this->formattedDuration(
-            $firstDate?->start_date?->toDateString(),
-            $firstDate?->end_date?->toDateString(),
-            $meta['duration'] ?? null,
-        );
         $displayedPrice = $priceBox['displayedPrice'] ?? null;
         $departureDateLabel = $meta['departureDateLabel'] ?? null;
         if ($departureDateLabel === null) {
@@ -76,19 +39,19 @@ class PortfolioFeaturedTourResource extends JsonResource
             'price' => $priceBox['price'] ?? ($tour->price !== null ? (float) $tour->price : null),
             'displayedPrice' => $displayedPrice,
             'image' => $media ? new MediaResource($media) : null,
-            'duration' => $duration,
+            'duration' => TourMeta::duration($tour),
             'departureDate' => $departureDate,
             'departureDateLabel' => $departureDateLabel,
             'link' => '/ajanlat/'.($tour->seo_name ?: Str::slug((string) $tour->name)),
             'badge' => $meta['badge'] ?? null,
-            'transport' => $meta['transport'] ?? null,
+            'transport' => TourMeta::transport($tour),
             'programTypeLabel' => TourLabelResolver::referenceOptionLabel('program-type', $tour->program_type_id),
-            'accommodation' => $meta['accommodation'] ?? null,
-            'meals' => $meta['meals'] ?? null,
+            'accommodation' => TourMeta::accommodation($tour),
+            'meals' => TourMeta::meals($tour),
             'seatsLeft' => isset($meta['seatsLeft']) ? (int) $meta['seatsLeft'] : null,
             'additionalDates' => (bool) ($meta['additionalDates'] ?? ($tour->dates->count() > 1)),
             'departureDateCount' => (int) $tour->dates->count(),
-            'country' => $meta['country'] ?? $tour->region?->name,
+            'country' => TourMeta::country($tour),
         ];
     }
 }

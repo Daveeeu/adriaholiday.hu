@@ -40,7 +40,7 @@ class TourPdfService
             'programDays' => $tour->programDays,
             'includedItems' => $tour->priceItems->where('type', 'included')->values(),
             'excludedItems' => $tour->priceItems->where('type', 'excluded')->values(),
-            'duration' => $meta['duration'] ?? 'Többnapos út',
+            'duration' => TourMeta::duration($tour) ?? 'Többnapos út',
             'departureLabel' => $departureLabel,
             'transportLabel' => TourMeta::transportLabel($tour) ?? 'Érdeklődjön',
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,

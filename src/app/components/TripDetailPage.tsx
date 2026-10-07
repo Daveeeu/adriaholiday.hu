@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Users,
   Flame,
+  Plane,
 } from "lucide-react";
 import OfferGallerySection from "./OfferGallerySection";
 import OfferProgramTimeline from "./OfferProgramTimeline";
@@ -169,9 +170,9 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
             />
             <HeroInfoCard icon={<Clock />} label="Időtartam" value={trip.duration} />
             <HeroInfoCard
-              icon={<Bus />}
+              icon={trip.transport === "plane" ? <Plane /> : <Bus />}
               label="Utazás"
-              value={trip.transport === "bus" ? "Buszos út" : "Repülős út"}
+              value={trip.transport === "plane" ? "Repülős út" : "Buszos út"}
             />
             <HeroInfoCard icon={<Utensils />} label="Ellátás" value={trip.meals} />
           </div>
