@@ -1,8 +1,6 @@
-import { Clock, Mail, MapPin, Phone, MessageCircle } from "lucide-react";
 import { Link } from "react-router";
 
 import { sanitizeRichTextHtml } from "@/lib/rich-text";
-import ContactForm from "../components/ContactForm";
 import Seo from "../seo/Seo";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { absoluteUrl } from "../seo/site";
@@ -22,7 +20,6 @@ export default function StaticPage({
   const path = canonicalPath ?? "/";
 
   const pageContentMap: Record<string, string> = {
-    "/kapcsolat": settings.contactContent,
     "/impresszum": settings.imprintContent,
     "/adatvedelem": settings.privacyContent,
     "/aszf": settings.termsContent,
@@ -30,7 +27,6 @@ export default function StaticPage({
   };
 
   const pageDescriptionMap: Record<string, string> = {
-    "/kapcsolat": "Kapcsolatfelvételi lehetőségek, ügyfélszolgálati elérhetőségek és ajánlatkérési információk.",
     "/impresszum": "Az Adria Holiday szolgáltatói és üzemeltetői adatai.",
     "/adatvedelem": "Az Adria Holiday adatkezelési tájékoztatója és adatvédelmi gyakorlata.",
     "/aszf": "Az Adria Holiday általános szerződési feltételei.",
@@ -81,52 +77,6 @@ export default function StaticPage({
             {title}
           </h1>
 
-          {path === "/kapcsolat" ? (
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              {settings.phone ? (
-                <a
-                  href={`tel:${settings.phone.replace(/\s+/g, "")}`}
-                  className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
-                >
-                  <Phone className="mt-1 size-5 text-[#00a878]" />
-                  <span>{settings.phone}</span>
-                </a>
-              ) : null}
-              {settings.email ? (
-                <a
-                  href={`mailto:${settings.email}`}
-                  className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
-                >
-                  <Mail className="mt-1 size-5 text-[#00a878]" />
-                  <span className="break-all">{settings.email}</span>
-                </a>
-              ) : null}
-              {settings.whatsapp ? (
-                <a
-                  href={`https://wa.me/${settings.whatsapp}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]"
-                >
-                  <MessageCircle className="mt-1 size-5 text-[#00a878]" />
-                  <span>WhatsApp: {settings.whatsapp}</span>
-                </a>
-              ) : null}
-              {settings.address ? (
-                <div className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]">
-                  <MapPin className="mt-1 size-5 text-[#00a878]" />
-                  <span className="whitespace-pre-line">{settings.address}</span>
-                </div>
-              ) : null}
-              {settings.openingHours ? (
-                <div className="flex items-start gap-3 rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] p-4 text-[#0f172a]">
-                  <Clock className="mt-1 size-5 text-[#00a878]" />
-                  <span className="whitespace-pre-line">{settings.openingHours}</span>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-
           {children ? (
             <div className="mt-8 space-y-5 text-[1.05rem] leading-8 text-[#475569]">{children}</div>
           ) : (
@@ -147,12 +97,6 @@ export default function StaticPage({
               </p>
             )
           )}
-
-          {path === "/kapcsolat" ? (
-            <div className="mt-10">
-              <ContactForm />
-            </div>
-          ) : null}
 
           <div className="mt-10">
             <Link

@@ -12,7 +12,7 @@ import {
 const EMPTY: ContactMessageInput = { name: "", email: "", phone: "", message: "", privacyAccepted: false, website: "" };
 
 const inputClassName =
-  "w-full rounded-2xl border border-[#dbe7f1] bg-white px-4 py-3 text-[#0f172a] outline-none transition focus:border-[#00c389] focus:ring-4 focus:ring-[#00c389]/10";
+  "w-full rounded-2xl border border-[#dbe7f1] bg-[#f8fcff] px-4 py-3 text-[#0f172a] outline-none transition focus:border-[#00c389] focus:ring-4 focus:ring-[#00c389]/10";
 
 function FieldError({ message }: { message?: string }) {
   return message ? <span className="mt-1.5 block text-sm font-medium text-red-500">{message}</span> : null;
@@ -60,8 +60,11 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={submit} noValidate className="space-y-4 rounded-[28px] border border-[#dbe7f1] bg-[#f8fcff] p-6 md:p-8">
-      <h2 className="text-2xl font-bold tracking-tight text-[#0f172a]">Írj nekünk</h2>
+    <form onSubmit={submit} noValidate className="space-y-4 rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.12)] md:p-9">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight text-[#0f172a] md:text-3xl">Írj nekünk</h2>
+        <p className="mt-1 text-[#64748b]">Kérdés, ajánlatkérés vagy csoportos út – a megadott elérhetőségen válaszolunk.</p>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block">

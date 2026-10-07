@@ -11,6 +11,7 @@ const HomeRoute = lazy(() => import("./app/routes/HomeRoute"));
 const StaticPage = lazy(() => import("./app/routes/StaticPage"));
 const AboutRoute = lazy(() => import("./app/routes/AboutRoute"));
 const TestimonialsRoute = lazy(() => import("./app/routes/TestimonialsRoute"));
+const ContactRoute = lazy(() => import("./app/routes/ContactRoute"));
 const CategoryRoute = lazy(() => import("./app/routes/CategoryRoute"));
 const TripRoute = lazy(() => import("./app/routes/TripRoute"));
 const BlogRoute = lazy(() => import("./app/routes/BlogRoute"));
@@ -44,10 +45,7 @@ const router = createBrowserRouter([
       { path: "blog/:slug", element: <BlogArticleRoute /> },
       { path: "rolunk", element: <AboutRoute /> },
       { path: "rolunk-irtak", element: <TestimonialsRoute /> },
-      {
-        path: "kapcsolat",
-        element: <StaticPage title="Kapcsolat" canonicalPath="/kapcsolat" />,
-      },
+      { path: "kapcsolat", element: <ContactRoute /> },
       { path: "aszf", element: <StaticPage title="ÁSZF" canonicalPath="/aszf" /> },
       {
         path: "adatvedelem",
