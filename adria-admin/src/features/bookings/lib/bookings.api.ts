@@ -333,6 +333,25 @@ export function downloadTourBookingPdf(bookingId: string | number) {
   return apiClient.download(`/api/admin/bookings/tour-bookings/${bookingId}/pdf`, `foglalas-${bookingId}.pdf`);
 }
 
+/** Opens the browser's print dialog for the booking's PDF. */
+export async function printTourBookingPdf(bookingId: string | number) {
+  const { blob } = await apiClient.file(`/api/admin/bookings/tour-bookings/${bookingId}/pdf`);
+  const url = URL.createObjectURL(blob);
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  frame.src = url;
+  frame.onload = () => {
+    frame.contentWindow?.focus();
+    frame.contentWindow?.print();
+    // The dialog blocks until closed in most browsers; clean up well after it.
+    window.setTimeout(() => {
+      frame.remove();
+      URL.revokeObjectURL(url);
+    }, 60_000);
+  };
+  document.body.appendChild(frame);
+}
+
 export function exportTourBookingsCsv(): Promise<string> {
   return apiClient.get<string>('/api/admin/bookings/tour-bookings/export');
 }

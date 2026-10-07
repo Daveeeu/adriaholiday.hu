@@ -162,13 +162,20 @@ function attachmentFileName(response: Response): string | null {
   return encoded ? decodeURIComponent(encoded) : plain ?? null;
 }
 
-/** Downloads a file the API serves (e.g. a generated PDF) and saves it in the browser. */
-async function download(path: string, fallbackFileName: string, options?: RequestOptions): Promise<void> {
+/** A file the API serves (e.g. a generated PDF), with the name the server gives it. */
+async function file(path: string, options?: RequestOptions): Promise<{ blob: Blob; fileName: string | null }> {
   const response = await send('GET', path, options);
-  const url = URL.createObjectURL(await response.blob());
+
+  return { blob: await response.blob(), fileName: attachmentFileName(response) };
+}
+
+/** Downloads a file the API serves and saves it in the browser. */
+async function download(path: string, fallbackFileName: string, options?: RequestOptions): Promise<void> {
+  const { blob, fileName } = await file(path, options);
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = attachmentFileName(response) ?? fallbackFileName;
+  link.download = fileName ?? fallbackFileName;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -191,6 +198,7 @@ export const apiClient = {
   put<T>(path: string, body?: unknown, options?: RequestOptions) {
     return request<T>('PUT', path, { ...options, body });
   },
+  file,
   download,
 };
 

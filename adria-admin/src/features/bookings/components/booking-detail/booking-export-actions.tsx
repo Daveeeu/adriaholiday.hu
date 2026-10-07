@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 
-import { downloadTourBookingPdf } from '../../lib/bookings.api';
+import { downloadTourBookingPdf, printTourBookingPdf } from '../../lib/bookings.api';
 import type { TourBookingDetail } from '../../lib/bookings.types';
 
 function downloadJson(booking: TourBookingDetail) {
@@ -22,6 +22,10 @@ export function BookingExportActions({ booking }: { booking: TourBookingDetail }
     mutationFn: () => downloadTourBookingPdf(booking.id),
     onError: () => toast.error('Nem sikerült elkészíteni a PDF-et.'),
   });
+  const printMutation = useMutation({
+    mutationFn: () => printTourBookingPdf(booking.id),
+    onError: () => toast.error('Nem sikerült elkészíteni a nyomtatandó PDF-et.'),
+  });
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -33,7 +37,7 @@ export function BookingExportActions({ booking }: { booking: TourBookingDetail }
         <FileJson className="size-4" />
         JSON
       </Button>
-      <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>
+      <Button type="button" variant="outline" size="sm" disabled={printMutation.isPending} onClick={() => printMutation.mutate()}>
         <Printer className="size-4" />
         Nyomtatás
       </Button>
