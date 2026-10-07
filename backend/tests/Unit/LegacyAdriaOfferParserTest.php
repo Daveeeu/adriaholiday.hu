@@ -121,6 +121,89 @@ class LegacyAdriaOfferParserTest extends TestCase
         ], $days);
     }
 
+    public function test_paragraphs_after_a_day_heading_continue_that_day(): void
+    {
+        $html = '<html><body><div class="program-content">'
+            .'<p><strong>1. NAP VOLCJI POTOK - LJUBLJANA -&nbsp;</strong>Virágok és alpesi panorámák</p>'
+            .'<p>Kora reggel útnak indulunk az arborétumba.</p>'
+            .'<p><strong>2. NAP BLEDI-TÓ</strong></p>'
+            .'<p>Reggel a Vintgar-szurdokot keressük fel.</p>'
+            .'<p>A program tartalmaz időjárásfüggő látványosságokat.</p>'
+            .'<p>Részvételi díj: 75.600 Ft/fő</p>'
+            .'<p>A belépőjegy árak tájékoztató jellegűek.</p>'
+            .'</div></body></html>';
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+
+        $this->assertSame([
+            [
+                'day_number' => 1,
+                'title' => 'VOLCJI POTOK - LJUBLJANA',
+                'description' => "<p>Virágok és alpesi panorámák</p>\n<p>Kora reggel útnak indulunk az arborétumba.</p>",
+            ],
+            ['day_number' => 2, 'title' => 'BLEDI-TÓ', 'description' => '<p>Reggel a Vintgar-szurdokot keressük fel.</p>'],
+        ], $data->programDays);
+        $this->assertSame(
+            "<p>A program tartalmaz időjárásfüggő látványosságokat.</p>\n<p>A belépőjegy árak tájékoztató jellegűek.</p>",
+            $data->notesHtml,
+        );
+    }
+
+    public function test_a_paragraph_after_the_last_day_is_a_note_unless_every_day_continues(): void
+    {
+        $html = '<html><body><div class="program-content">'
+            .'<p>1. NAP<br>Indulás Budapestről.</p>'
+            .'<p>a.) Fakultatív kirándulás Windsorba.</p>'
+            .'<p>2. NAP<br>Városnézés.</p>'
+            .'<p>3. NAP<br>Hazautazás.</p>'
+            .'<p>A programváltoztatás jogát fenntartjuk.</p>'
+            .'</div></body></html>';
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+
+        $this->assertSame("<p>Indulás Budapestről.</p>\n<p>a.) Fakultatív kirándulás Windsorba.</p>", $data->programDays[0]['description']);
+        $this->assertSame('Városnézés.', $data->programDays[1]['description']);
+        $this->assertSame('Hazautazás.', $data->programDays[2]['description']);
+        $this->assertSame('<p>A programváltoztatás jogát fenntartjuk.</p>', $data->notesHtml);
+    }
+
+    public function test_price_sections_are_read_line_by_line_across_paragraphs(): void
+    {
+        $html = '<html><body><div class="program-content">'
+            .'<p>1. NAP<br>Indulás.</p>'
+            .'<p>Részvételi díj: 94.600 Ft/fő helyett 89.900 Ft/fő<br>Előfoglalási kedvezmény 2026.10.31-ig<br>Az ár tartalmazza:<br style="box-sizing: border-box;" />- autóbuszközlekedés<br>- 2 reggeli</p>'
+            .'<p>Milyen költségek merülhetnek fel?</p>'
+            .'<p>- belépők<br>- kedvezményes vacsora: 8.000 Ft/fő</p>'
+            .'<p>Felszállási lehetőség: Miskolc</p>'
+            .'</div></body></html>';
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+
+        $this->assertSame([
+            ['type' => 'included', 'text' => 'autóbuszközlekedés'],
+            ['type' => 'included', 'text' => '2 reggeli'],
+            ['type' => 'excluded', 'text' => 'belépők'],
+            ['type' => 'excluded', 'text' => 'kedvezményes vacsora: 8.000 Ft/fő'],
+        ], $data->priceItems);
+        $this->assertSame('<p>Előfoglalási kedvezmény 2026.10.31-ig</p>', $data->discountsHtml);
+        $this->assertSame('<p>Felszállási lehetőség: Miskolc</p>', $data->notesHtml);
+        $this->assertSame(94600.0, $data->price);
+    }
+
+    public function test_a_price_sentence_lists_what_the_price_includes_and_excludes(): void
+    {
+        $html = '<html><body><div class="program-content">'
+            .'<p>Részvételi díj: 179.800 Ft/fő, mely tartalmazza az utazást autóbusszal és az idegenvezetés díját. Nem tartalmazza a belépőjegyek díját.</p>'
+            .'</div></body></html>';
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+
+        $this->assertSame([
+            ['type' => 'included', 'text' => 'Az utazást autóbusszal és az idegenvezetés díját'],
+            ['type' => 'excluded', 'text' => 'A belépőjegyek díját'],
+        ], $data->priceItems);
+    }
+
     public function test_it_takes_countries_and_categories_from_crawl_context(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), self::SOURCE_URL, [

@@ -15,7 +15,7 @@ class AdriaImportOffersCommand extends Command
     protected $signature = 'adria:import-offers
         {--dry-run : Parse offers without writing to the database or downloading images}
         {--limit= : Limit the number of offers processed}
-        {--slug= : Import a single offer by its legacy slug, skipping crawling}
+        {--slug=* : Import only these offers, given by their legacy slug (repeatable)}
         {--update-existing : Refresh tours that were already imported (matched by seo_name). Without this flag, existing tours are skipped.}';
 
     protected $description = 'Import tours, images, content and booking options (extras, departure places) from the legacy adriaholiday.hu website.';
@@ -28,10 +28,10 @@ class AdriaImportOffersCommand extends Command
         $dryRun = (bool) $this->option('dry-run');
         $updateExisting = (bool) $this->option('update-existing');
         $limit = $this->option('limit') !== null ? max(0, (int) $this->option('limit')) : null;
-        $slug = $this->option('slug');
+        $slugs = $this->option('slug');
 
-        $offers = $slug !== null
-            ? $this->singleOffer($crawler, $crawler->offerUrlForSlug($slug))
+        $offers = $slugs !== []
+            ? $this->selectedOffers($crawler, $slugs)
             : $crawler->discoverOfferUrls();
 
         if ($limit !== null) {
@@ -107,17 +107,25 @@ class AdriaImportOffersCommand extends Command
     }
 
     /**
+     * The selected offers with their crawl context, discovered in one crawl.
+     *
+     * @param  array<int, string>  $slugs
      * @return array<string, array{countries: array<int, string>, categories: array<int, string>}>
      */
-    private function singleOffer(LegacyAdriaOfferCrawler $crawler, string $url): array
+    private function selectedOffers(LegacyAdriaOfferCrawler $crawler, array $slugs): array
     {
-        $context = $crawler->discoverOfferContext($url);
+        $offers = $crawler->discoverOfferContexts(array_map(
+            fn (string $slug): string => $crawler->offerUrlForSlug($slug),
+            $slugs,
+        ));
 
-        if ($context['countries'] === [] && $context['categories'] === []) {
-            $this->warn("{$url} is not listed on any legacy listing page; its countries and categories are left unchanged.");
+        foreach ($offers as $url => $context) {
+            if ($context['countries'] === [] && $context['categories'] === []) {
+                $this->warn("{$url} is not listed on any legacy listing page; its countries and categories are left unchanged.");
+            }
         }
 
-        return [$url => $context];
+        return $offers;
     }
 
     private function printDryRunSummary(LegacyOfferData $data): void

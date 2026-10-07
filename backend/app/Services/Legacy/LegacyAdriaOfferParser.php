@@ -3,7 +3,6 @@
 namespace App\Services\Legacy;
 
 use App\Support\Legacy\LegacyOfferData;
-use App\Support\RichTextSanitizer;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
@@ -13,10 +12,8 @@ use Illuminate\Support\Str;
  * Pure HTML -> data parser for a single legacy adriaholiday.hu offer detail page.
  * No I/O: takes the already-fetched HTML and returns a LegacyOfferData DTO.
  *
- * The offer page has no structured "program days" / "price includes" / "notes"
- * sections — they are all just <p> blocks inside one rich-text tab, so this
- * parser classifies each paragraph by its leading text pattern instead of by
- * CSS selector.
+ * The program tab (days, price includes, notes) is read by
+ * LegacyOfferProgramReader.
  *
  * Booking options (extras, departure places) are not part of the page; the
  * caller fetches them per legacy date id (see legacyDateIds()) and passes the
@@ -32,11 +29,6 @@ class LegacyAdriaOfferParser
         'tengerparti-udulesek' => 'Tengerpartok',
         'advent' => 'Adventi barangolások',
     ];
-
-    /**
-     * Length limit of a program day title (tour_program_days.title).
-     */
-    private const PROGRAM_DAY_TITLE_MAX_LENGTH = 255;
 
     private const TRANSPORT_CODES = ['bus', 'plane', 'train'];
 
@@ -184,7 +176,7 @@ class LegacyAdriaOfferParser
 
     /**
      * @param  array<int, array{departurePlaces: array<int, array{name: string, price: float|null}>, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, lastMinutePercent: float|null}>  $bookingOptions
-     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>
+     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, transport_code: ?string, catering: ?string, accommodation: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>
      */
     private function extractDates(DOMXPath $xpath, array $bookingOptions): array
     {
@@ -216,7 +208,8 @@ class LegacyAdriaOfferParser
                 'transport_code' => $this->extractTransportCode($xpath, $cells[1]),
                 'catering' => $this->cellLabel($xpath, $cells[2]),
                 'accommodation' => $this->cellLabel($xpath, $cells[3]),
-                'extras' => $legacyId ? ($bookingOptions[$legacyId]['extras'] ?? []) : [],
+                // A date without a legacy id is closed for booking: its extras are unknown, not none.
+                'extras' => $legacyId ? ($bookingOptions[$legacyId]['extras'] ?? []) : null,
                 'discount_badge' => $legacyId && isset($bookingOptions[$legacyId]['lastMinutePercent'])
                     ? '-'.rtrim(rtrim(number_format($bookingOptions[$legacyId]['lastMinutePercent'], 2, ',', ''), '0'), ',').'%'
                     : null,
@@ -299,17 +292,6 @@ class LegacyAdriaOfferParser
         return array_map(fn (string $amount): float => (float) str_replace('.', '', $amount), $matches[1]);
     }
 
-    private function parsePrice(string $text): ?float
-    {
-        if (! preg_match('/(\d{1,3}(?:\.\d{3})*)/u', $text, $match)) {
-            return null;
-        }
-
-        $digits = str_replace('.', '', $match[1]);
-
-        return $digits === '' ? null : (float) $digits;
-    }
-
     /**
      * The visible label of a catering/accommodation cell, without the hidden
      * popover explanation rendered next to it.
@@ -382,168 +364,7 @@ class LegacyAdriaOfferParser
     {
         $container = $xpath->query('//div[contains(@class,"program-content")]')->item(0);
 
-        $days = [];
-        $priceItems = [];
-        $departurePlaces = [];
-        $notesParts = [];
-        $discountsParts = [];
-        $priceFromText = null;
-
-        if ($container instanceof DOMElement) {
-            foreach ($container->childNodes as $node) {
-                if (! $node instanceof DOMElement || strtolower($node->tagName) !== 'p') {
-                    continue;
-                }
-
-                $lines = $this->paragraphLines($node);
-                $first = $lines[0] ?? '';
-
-                if ($first === '') {
-                    continue;
-                }
-
-                if (preg_match('/^(\d{1,2})\.\s*NAP\.?\s*(.*)$/iu', $first, $match)) {
-                    $days[] = $this->programDay((int) $match[1], trim($match[2]), $lines, $node);
-
-                    continue;
-                }
-
-                if ($this->containsCi($first, 'ár tartalmazza')) {
-                    foreach (array_slice($lines, 1) as $line) {
-                        $text = $this->stripBullet($line);
-
-                        if ($text !== '') {
-                            $priceItems[] = ['type' => 'included', 'text' => $text];
-                        }
-                    }
-
-                    continue;
-                }
-
-                if ($this->containsCi($first, 'további költségek') || $this->containsCi($first, 'nem tartalmazza')) {
-                    foreach (array_slice($lines, 1) as $line) {
-                        $text = $this->stripBullet($line);
-
-                        if ($text !== '') {
-                            $priceItems[] = ['type' => 'excluded', 'text' => $text];
-                        }
-                    }
-
-                    continue;
-                }
-
-                if ($this->containsCi($first, 'csatlakozási lehetőségek')) {
-                    $rest = implode(' ', $lines);
-                    $afterColon = Str::contains($rest, ':') ? Str::after($rest, ':') : $rest;
-                    $departurePlaces = collect(explode(',', $afterColon))
-                        ->map(fn (string $place): string => trim($place))
-                        ->filter(fn (string $place): bool => $place !== '')
-                        ->values()
-                        ->all();
-
-                    continue;
-                }
-
-                if ($this->containsCi($first, 'részvételi díj')) {
-                    $priceFromText = $this->parsePrice($first);
-
-                    continue;
-                }
-
-                if ($this->containsCi($first, 'kedvezmény')) {
-                    $discountsParts[] = $this->sanitizeParagraph($node);
-
-                    continue;
-                }
-
-                $notesParts[] = $this->sanitizeParagraph($node);
-            }
-        }
-
-        return [
-            'days' => $days,
-            'priceItems' => $priceItems,
-            'departurePlaces' => $departurePlaces,
-            'notesHtml' => $notesParts !== [] ? implode("\n", $notesParts) : null,
-            'discountsHtml' => $discountsParts !== [] ? implode("\n", $discountsParts) : null,
-            'price' => $priceFromText,
-        ];
-    }
-
-    /**
-     * A day paragraph is usually "N. NAP Title<br>Description", but some offers put the whole
-     * day on one line ("<strong>1.nap</strong> Description…"); there the bold part is the title.
-     * A day without a usable title is titled after its number, since a program day needs one.
-     *
-     * @param  array<int, string>  $lines
-     * @return array{day_number: int, title: string, description: string}
-     */
-    private function programDay(int $dayNumber, string $heading, array $lines, DOMElement $node): array
-    {
-        $title = $heading;
-        $description = implode(' ', array_slice($lines, 1));
-
-        if (count($lines) === 1) {
-            $boldPrefix = $this->boldText($node);
-            $hasBoldPrefix = $boldPrefix !== '' && Str::startsWith($lines[0], $boldPrefix);
-            $title = $hasBoldPrefix
-                ? trim((string) preg_replace('/^\d{1,2}\.\s*NAP\.?\s*/iu', '', $boldPrefix))
-                : '';
-            $description = $hasBoldPrefix ? trim(Str::after($lines[0], $boldPrefix)) : $heading;
-        }
-
-        if (mb_strlen($title) > self::PROGRAM_DAY_TITLE_MAX_LENGTH) {
-            $description = trim($title.' '.$description);
-            $title = '';
-        }
-
-        return [
-            'day_number' => $dayNumber,
-            'title' => $title !== '' ? $title : "{$dayNumber}. nap",
-            'description' => $description,
-        ];
-    }
-
-    /**
-     * The text of the paragraph's bold runs, joined in document order.
-     */
-    private function boldText(DOMElement $node): string
-    {
-        $text = '';
-
-        $outermostBoldRuns = './/*[(self::strong or self::b) and not(ancestor::strong or ancestor::b)]';
-
-        foreach ((new DOMXPath($node->ownerDocument))->query($outermostBoldRuns, $node) as $bold) {
-            $text .= $bold->textContent;
-        }
-
-        return $this->normalizeWhitespace($text);
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function paragraphLines(DOMElement $node): array
-    {
-        $html = $node->ownerDocument?->saveHTML($node) ?: '';
-        $html = (string) preg_replace('/<br\s*\/?>/i', "\n", $html);
-        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-        $lines = array_map(fn (string $line): string => $this->normalizeWhitespace($line), explode("\n", $text));
-
-        return array_values(array_filter($lines, fn (string $line): bool => $line !== ''));
-    }
-
-    private function sanitizeParagraph(DOMElement $node): string
-    {
-        $html = $node->ownerDocument?->saveHTML($node) ?: '';
-
-        return (string) RichTextSanitizer::sanitize($html);
-    }
-
-    private function stripBullet(string $line): string
-    {
-        return trim((string) preg_replace('/^[-•–]\s*/u', '', $line));
+        return LegacyOfferProgramReader::read($container instanceof DOMElement ? $container : null);
     }
 
     private function nullableText(string $text): ?string
@@ -556,11 +377,6 @@ class LegacyAdriaOfferParser
     private function normalizeWhitespace(string $text): string
     {
         return trim((string) preg_replace('/\s+/u', ' ', $text));
-    }
-
-    private function containsCi(string $haystack, string $needle): bool
-    {
-        return Str::contains(Str::lower($haystack), Str::lower($needle));
     }
 
     private function firstText(DOMXPath $xpath, string $query): string

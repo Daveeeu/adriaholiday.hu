@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\BlogCategory;
+use App\Models\Booking;
 use App\Models\Tour;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
@@ -183,5 +184,68 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         );
         $this->assertSame('Adventi barangolások', $created->translations->firstWhere('locale', 'hu')?->name);
         $this->assertSame(1, BlogCategory::query()->where('seo_name', 'tengerpartok')->count());
+    }
+
+    public function test_update_refreshes_dates_in_place_so_bookings_keep_their_date(): void
+    {
+        $importer = app(LegacyTourImporter::class);
+        $importer->import($this->offerData(), updateExisting: false);
+        $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
+        $bookedDate = $tour->dates()->orderBy('start_date')->firstOrFail();
+        $bookedDate->update(['status' => 'available', 'price_box_available_seats' => 12]);
+        $booking = Booking::factory()->create(['tour_id' => $tour->id, 'tour_date_id' => $bookedDate->id]);
+
+        $data = $this->offerData();
+        $repriced = [['price' => 259600.0, 'extras' => []] + $data->dates[0]];
+        $importer->import(new LegacyOfferData(...[...get_object_vars($data), 'dates' => $repriced]), updateExisting: true);
+
+        $bookedDate->refresh();
+        $this->assertSame([$bookedDate->id], $tour->dates()->pluck('id')->all());
+        $this->assertSame($bookedDate->id, $booking->fresh()->tour_date_id);
+        $this->assertEquals(259600, $bookedDate->price);
+        $this->assertEquals(259600, $bookedDate->price_box_price);
+        $this->assertSame('available', $bookedDate->status);
+        $this->assertSame(12, $bookedDate->price_box_available_seats);
+        $this->assertCount(0, $bookedDate->extras);
+    }
+
+    public function test_update_keeps_categories_added_on_the_new_site(): void
+    {
+        $importer = app(LegacyTourImporter::class);
+        $importer->import($this->offerData(), updateExisting: false);
+        $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
+        $flights = BlogCategory::firstOrCreateForName('Repülős körutazások');
+        $tour->update(['category_ids' => [...$tour->category_ids, (string) $flights->id]]);
+        $categoryIds = $tour->category_ids;
+
+        $importer->import($this->offerData(), updateExisting: true);
+
+        $this->assertSame($categoryIds, $tour->fresh()->category_ids);
+    }
+
+    public function test_update_of_an_offer_closed_for_booking_keeps_its_booking_options(): void
+    {
+        $importer = app(LegacyTourImporter::class);
+        $importer->import($this->offerData(), updateExisting: false);
+
+        $data = $this->offerData();
+        $closedDates = array_map(fn (array $date): array => [...$date, 'legacy_id' => null, 'extras' => null], $data->dates);
+        $importer->import(new LegacyOfferData(...[
+            ...get_object_vars($data),
+            'dates' => $closedDates,
+            'travelModeCode' => null,
+            'catering' => null,
+            'accommodation' => null,
+            'departurePlaceNames' => ['Miskolc-Mezőkövesd'],
+            'departurePlaceFees' => [],
+        ]), updateExisting: true);
+
+        $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
+        $this->assertSame(['Vacsora', 'Egyágyas felár'], $tour->dates()->orderBy('start_date')->firstOrFail()->extras->pluck('name')->all());
+        $this->assertEqualsCanonicalizing(['Miskolc', 'Budapest'], $tour->departurePlaces->pluck('name')->all());
+        $this->assertSame('bus', $tour->travel_mode_id);
+        $this->assertSame('félpanzió', $tour->catering);
+        $this->assertSame('Hotel***', $tour->accommodation);
+        $this->assertFalse(TourDeparturePlace::query()->where('name', 'Miskolc-Mezőkövesd')->exists());
     }
 }

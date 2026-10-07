@@ -67,23 +67,29 @@ class LegacyAdriaOfferCrawler
     }
 
     /**
-     * The crawl context (countries, categories) of one offer, found by walking
-     * the same listing pages as discoverOfferUrls(): the offer page itself only
-     * names a single country in its breadcrumb and never its tour group.
+     * The crawl context (countries, categories) of the given offers, found in
+     * one walk of the same listing pages as discoverOfferUrls(): the offer
+     * page itself only names a single country in its breadcrumb and never its
+     * tour group. An offer missing from every listing page gets an empty one.
      *
-     * @return array{countries: array<int, string>, categories: array<int, string>}
+     * @param  array<int, string>  $offerUrls
+     * @return array<string, array{countries: array<int, string>, categories: array<int, string>}> keyed by the given URL
      */
-    public function discoverOfferContext(string $offerUrl): array
+    public function discoverOfferContexts(array $offerUrls): array
     {
-        $target = rawurldecode($offerUrl);
+        $listed = [];
 
         foreach ($this->discoverOfferUrls() as $url => $context) {
-            if (rawurldecode($url) === $target) {
-                return $context;
-            }
+            $listed[rawurldecode($url)] = $context;
         }
 
-        return ['countries' => [], 'categories' => []];
+        $contexts = [];
+
+        foreach ($offerUrls as $offerUrl) {
+            $contexts[$offerUrl] = $listed[rawurldecode($offerUrl)] ?? ['countries' => [], 'categories' => []];
+        }
+
+        return $contexts;
     }
 
     public function offerUrlForSlug(string $slug): string

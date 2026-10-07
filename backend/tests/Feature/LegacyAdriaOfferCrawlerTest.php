@@ -56,7 +56,8 @@ class LegacyAdriaOfferCrawlerTest extends TestCase
     {
         $crawler = app(LegacyAdriaOfferCrawler::class);
 
-        $context = $crawler->discoverOfferContext($crawler->offerUrlForSlug('spanyolorszag-es-marokko-varazsa'));
+        $url = $crawler->offerUrlForSlug('spanyolorszag-es-marokko-varazsa');
+        $context = $crawler->discoverOfferContexts([$url])[$url];
 
         $this->assertSame(['spanyolorszag', 'marokko'], $context['countries']);
         $this->assertSame(['korutazas'], $context['categories']);
@@ -66,7 +67,8 @@ class LegacyAdriaOfferCrawlerTest extends TestCase
     {
         $crawler = app(LegacyAdriaOfferCrawler::class);
 
-        $context = $crawler->discoverOfferContext($crawler->offerUrlForSlug('advent-a-becsi-alpokban'));
+        $url = $crawler->offerUrlForSlug('advent-a-becsi-alpokban');
+        $context = $crawler->discoverOfferContexts([$url])[$url];
 
         $this->assertSame(['marokko', 'ausztria'], $context['countries']);
         $this->assertSame(['korutazas', 'advent'], $context['categories']);
@@ -76,7 +78,8 @@ class LegacyAdriaOfferCrawlerTest extends TestCase
     {
         $crawler = app(LegacyAdriaOfferCrawler::class);
 
-        $context = $crawler->discoverOfferContext('https://legacy.test/korutazasok/a-sorrentoi-felsziget-csodai-%28hotel%29');
+        $url = 'https://legacy.test/korutazasok/a-sorrentoi-felsziget-csodai-%28hotel%29';
+        $context = $crawler->discoverOfferContexts([$url])[$url];
 
         $this->assertSame(['albania'], $context['countries']);
         $this->assertSame(['tengerparti-udulesek'], $context['categories']);
@@ -86,7 +89,8 @@ class LegacyAdriaOfferCrawlerTest extends TestCase
     {
         $crawler = app(LegacyAdriaOfferCrawler::class);
 
-        $context = $crawler->discoverOfferContext($crawler->offerUrlForSlug('unlisted-offer'));
+        $url = $crawler->offerUrlForSlug('unlisted-offer');
+        $context = $crawler->discoverOfferContexts([$url])[$url];
 
         $this->assertSame(['countries' => [], 'categories' => []], $context);
     }

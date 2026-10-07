@@ -54,14 +54,17 @@ class LegacyTourImporter
         $countryIds = $this->resolveCountryCodes($data->countrySlugs);
         $categoryIds = $this->resolveCategoryIds($data->categories);
         $tagIds = $this->resolveReferenceOptionCodes('tag', $data->tags);
-        $travelModeId = $data->travelModeCode !== null ? $this->resolveTravelMode($data->travelModeCode) : null;
-        $departurePlaceIds = $this->resolveDeparturePlaceIds($data->departurePlaceNames);
+        $travelModeId = $data->travelModeCode !== null ? $this->resolveTravelMode($data->travelModeCode) : $existing?->travel_mode_id;
+        // Once every date is closed for booking the legacy site offers no departure
+        // places, only a free-text list of towns: keep what the tour already has.
+        $syncDeparturePlaces = $existing === null || $this->isBookable($data);
+        $departurePlaceIds = $syncDeparturePlaces ? $this->resolveDeparturePlaceIds($data->departurePlaceNames) : [];
         $departurePlaceFees = collect($data->departurePlaceFees)
             ->filter(fn (float $fee, string $name): bool => isset($departurePlaceIds[trim($name)]))
             ->mapWithKeys(fn (float $fee, string $name): array => [$departurePlaceIds[trim($name)] => $fee])
             ->all();
 
-        DB::transaction(function () use ($data, $existing, $galleryMedia, $regionId, $countryIds, $categoryIds, $tagIds, $travelModeId, $departurePlaceIds, $departurePlaceFees): void {
+        DB::transaction(function () use ($data, $existing, $galleryMedia, $regionId, $countryIds, $categoryIds, $tagIds, $travelModeId, $syncDeparturePlaces, $departurePlaceIds, $departurePlaceFees): void {
             $tour = $existing ?? new Tour;
 
             if ($existing?->trashed()) {
@@ -81,23 +84,26 @@ class LegacyTourImporter
                 'notes' => RichTextSanitizer::sanitize($data->notesHtml),
                 'discounts' => RichTextSanitizer::sanitize($data->discountsHtml),
                 'travel_mode_id' => $travelModeId,
-                'catering' => $data->catering,
-                'accommodation' => $data->accommodation,
+                'catering' => $data->catering ?? $existing?->catering,
+                'accommodation' => $data->accommodation ?? $existing?->accommodation,
                 'tag_ids' => $tagIds,
                 'price' => $data->price,
                 'displayed_price' => $data->price !== null ? number_format($data->price, 0, ',', '.').' Ft' : null,
             ]);
 
-            // Countries and categories come from the crawl context, which an offer
-            // missing from every listing page lacks; an update must not wipe the
-            // ones the tour already has.
+            // Countries come from the crawl context, which an offer missing from
+            // every listing page lacks; an update must not wipe the ones the tour
+            // already has.
             if ($data->countrySlugs !== [] || $existing === null) {
                 $tour->fill(['region_id' => $regionId, 'country_ids' => $countryIds]);
             }
 
-            if ($data->categories !== [] || $existing === null) {
-                $tour->fill(['category_ids' => $categoryIds]);
-            }
+            // The legacy site only knows its own tour groups, so categories added
+            // on the new site (e.g. "Repülős körutazások") survive an update.
+            $tour->fill(['category_ids' => array_values(array_unique([
+                ...($existing?->category_ids ?? []),
+                ...$categoryIds,
+            ]))]);
 
             $tour->save();
 
@@ -107,8 +113,8 @@ class LegacyTourImporter
                 'price' => $date['price'],
                 'price_box_price' => $date['price'],
                 'price_box_discount_badge' => $date['discount_badge'] ?? null,
-                'status' => 'planned',
-                'extras' => $date['extras'] ?? [],
+                // A date closed for booking has unknown extras: keep the stored ones.
+                ...($date['extras'] !== null ? ['extras' => $date['extras']] : []),
             ], $data->dates));
 
             $this->tourContentSync->syncProgramDays($tour, $data->programDays);
@@ -124,7 +130,9 @@ class LegacyTourImporter
 
             $this->tourContentSync->syncPriceItems($tour, $data->priceItems);
 
-            $this->tourContentSync->syncDeparturePlaces($tour, array_values($departurePlaceIds), $departurePlaceFees);
+            if ($syncDeparturePlaces) {
+                $this->tourContentSync->syncDeparturePlaces($tour, array_values($departurePlaceIds), $departurePlaceFees);
+            }
         });
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
@@ -271,5 +279,10 @@ class LegacyTourImporter
             ['type' => $type, 'code' => $code],
             ['name' => $name, 'active' => true, 'sort_order' => 0],
         );
+    }
+
+    private function isBookable(LegacyOfferData $data): bool
+    {
+        return collect($data->dates)->contains(fn (array $date): bool => $date['legacy_id'] !== null);
     }
 }
