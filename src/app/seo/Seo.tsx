@@ -5,6 +5,9 @@ import { absoluteUrl } from "./site";
 
 type JsonLd = Record<string, unknown>;
 
+/** Shared preview image when neither the page nor the settings give one. */
+const DEFAULT_OG_IMAGE_PATH = "/portfolio/og-image.jpg";
+
 export default function Seo({
   title,
   description,
@@ -30,7 +33,8 @@ export default function Seo({
     ? `${effectiveTitle} | ${siteName}`
     : effectiveTitle;
   const canonicalUrl = absoluteUrl(canonicalPath);
-  const imageUrl = ogImageUrl ?? settings.defaultOgImage?.sizes?.large ?? settings.defaultOgImage?.url;
+  const imageUrl =
+    ogImageUrl ?? settings.defaultOgImage?.sizes?.large ?? settings.defaultOgImage?.url ?? absoluteUrl(DEFAULT_OG_IMAGE_PATH);
 
   const robots = noIndex
     ? "noindex,nofollow"

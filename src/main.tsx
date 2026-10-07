@@ -28,16 +28,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomeRoute canonicalPath="/" /> },
       { path: "utazasok", element: <TravelsRoute /> },
-      {
-        path: "portfolio",
-        element: (
-          <HomeRoute
-            canonicalPath="/portfolio"
-            title="Portfólió"
-            description="Prémium buszos és repülős utazások Európa legszebb úti céljaihoz."
-          />
-        ),
-      },
       { path: "kategoriak/:categorySlug", element: <CategoryRoute /> },
       { path: "regiok/:regionSlug", element: <RegionRoute /> },
       { path: "ajanlat/:offerSlug", element: <TripRoute /> },
@@ -46,7 +36,7 @@ const router = createBrowserRouter([
       { path: "rolunk", element: <AboutRoute /> },
       { path: "rolunk-irtak", element: <TestimonialsRoute /> },
       { path: "kapcsolat", element: <ContactRoute /> },
-      { path: "aszf", element: <StaticPage title="ÁSZF" canonicalPath="/aszf" /> },
+      { path: "aszf", element: <StaticPage title="Általános szerződési feltételek" canonicalPath="/aszf" /> },
       {
         path: "adatvedelem",
         element: <StaticPage title="Adatvédelem" canonicalPath="/adatvedelem" />,
@@ -57,7 +47,7 @@ const router = createBrowserRouter([
       },
       {
         path: "sutik",
-        element: <StaticPage title="Süti kezelés" canonicalPath="/sutik" />,
+        element: <StaticPage title="Sütikezelés" canonicalPath="/sutik" />,
       },
       { path: "fizetes/eredmeny", element: <PaymentResultRoute /> },
       { path: "*", element: <NotFoundRoute /> },
