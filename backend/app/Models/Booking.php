@@ -101,9 +101,12 @@ class Booking extends Model
         return $this->belongsTo(Tour::class);
     }
 
+    /**
+     * Includes a date since removed from the tour: the booking was made for it.
+     */
     public function tourDate(): BelongsTo
     {
-        return $this->belongsTo(TourDate::class);
+        return $this->belongsTo(TourDate::class)->withTrashed();
     }
 
     public function emailLogs(): HasMany

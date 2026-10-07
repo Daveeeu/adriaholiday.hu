@@ -122,6 +122,7 @@ class StoreTourRequest extends FormRequest
                 $priceBox = $date['priceBox'] ?? [];
 
                 return [
+                    'id' => $date['id'] ?? null,
                     'start_date' => $date['start_date'] ?? $date['startDate'] ?? null,
                     'end_date' => $date['end_date'] ?? $date['endDate'] ?? null,
                     'price' => $date['price'] ?? $priceBox['price'] ?? null,
@@ -245,6 +246,7 @@ class StoreTourRequest extends FormRequest
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['nullable', 'string', 'max:255'],
             'dates' => ['nullable', 'array'],
+            'dates.*.id' => ['nullable'],
             'dates.*.start_date' => ['nullable', 'date'],
             'dates.*.end_date' => ['nullable', 'date', 'after_or_equal:dates.*.start_date'],
             'dates.*.price' => ['nullable', 'numeric'],

@@ -6,6 +6,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogCategoryTranslation;
 use App\Models\BlogTag;
 use App\Models\BlogTagTranslation;
+use App\Models\Booking;
 use App\Models\HomepageOffer;
 use App\Models\HomepageOfferTranslation;
 use App\Models\Region;
@@ -522,7 +523,7 @@ class AdminToursTest extends TestCase
             'sort_order' => 2,
             'active' => 1,
         ]);
-        $this->assertDatabaseMissing('tour_dates', [
+        $this->assertSoftDeleted('tour_dates', [
             'tour_id' => $tourId,
             'start_date' => '2026-05-28 00:00:00',
             'end_date' => '2026-05-31 00:00:00',
@@ -818,6 +819,39 @@ class AdminToursTest extends TestCase
         $duplicate->assertJsonCount(3, 'data.dates.0.extras');
         $duplicate->assertJsonPath('data.dates.0.extras.1.name', 'Repülőjegy');
         $duplicate->assertJsonPath('data.dates.0.extras.2.choices.1', 'Szeretnék szobatársat');
+    }
+
+    public function test_saving_a_tour_keeps_its_dates_so_bookings_stay_linked(): void
+    {
+        $this->actingAsTourAdmin();
+        $date = ['startDate' => '2026-11-28', 'endDate' => '2026-11-29', 'price' => 45900, 'status' => 'planned'];
+        $tourId = $this->postJson('/api/admin/tours', $this->payload([
+            'seo_name' => 'foglalt-ut',
+            'dates' => [$date, ['startDate' => '2026-12-05', 'endDate' => '2026-12-06', 'price' => 45900, 'status' => 'planned']],
+        ]))->assertCreated()->json('data.id');
+        $tour = Tour::query()->findOrFail($tourId);
+        $bookedDate = $tour->dates()->orderBy('start_date')->firstOrFail();
+        $booking = Booking::factory()->create(['tour_id' => $tour->id, 'tour_date_id' => $bookedDate->id]);
+
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload([
+            'seo_name' => 'foglalt-ut',
+            'dates' => [
+                ['id' => (string) $bookedDate->id, ...$date, 'startDate' => '2026-11-27', 'price' => 49900],
+                ['id' => 'client-generated-id', 'startDate' => '2027-01-09', 'endDate' => '2027-01-10', 'price' => 39900, 'status' => 'planned'],
+            ],
+        ]))->assertOk();
+
+        $this->assertSame($bookedDate->id, $booking->fresh()->tour_date_id);
+        $this->assertSame('2026-11-27', $bookedDate->fresh()->start_date->toDateString());
+
+        $removedDate = TourDate::withTrashed()->where('tour_id', $tourId)->whereDate('start_date', '2026-12-05')->firstOrFail();
+        $this->assertTrue($removedDate->trashed());
+        $lateBooking = Booking::factory()->create(['tour_id' => $tour->id, 'tour_date_id' => $removedDate->id]);
+        $this->assertSame('2026-12-05', $lateBooking->tourDate->start_date->toDateString());
+        $this->assertEquals(49900, $bookedDate->fresh()->price);
+        $this->assertSame(['2026-11-27', '2027-01-09'], $tour->dates()->orderBy('start_date')->get()->map(
+            fn (TourDate $tourDate): string => $tourDate->start_date->toDateString(),
+        )->all());
     }
 
     public function test_departure_places_keep_their_per_tour_fee_on_save_and_duplicate(): void

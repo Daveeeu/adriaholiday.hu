@@ -8,37 +8,78 @@ use App\Models\TourProgramDay;
 use App\Support\RichTextSanitizer;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
+use Illuminate\Support\Collection;
 
 /**
  * Persists the "child" records of a Tour (dates with their extras, partner bonuses, program days,
- * gallery items, price items) using a consistent replace-and-recreate strategy.
+ * gallery items, price items). Dates are updated in place because bookings
+ * reference them; the other records use a replace-and-recreate strategy.
  *
  * Shared by the admin TourController (manual editing) and the legacy content
  * importer, so both paths write identical, validated shapes to the database.
  */
 class TourContentSyncService
 {
+    private const DATE_FIELDS = [
+        'start_date',
+        'end_date',
+        'price_box_displayed_price',
+        'price_box_discount_badge',
+        'price_box_min_participants',
+        'price_box_max_participants',
+        'price_box_available_seats',
+        'price_box_capacity',
+        'status',
+    ];
+
+    /**
+     * Updates each requested date in place when it matches a stored one (by
+     * id, else by its start and end date), so bookings keep pointing at their
+     * date; stored dates nobody asked for are removed and the rest created.
+     * Fields a requested date leaves out keep their stored value.
+     *
+     * @param  array<int, array<string, mixed>>  $dates
+     */
     public function syncDates(Tour $tour, array $dates): void
     {
-        $tour->dates()->withTrashed()->get()->each->forceDelete();
+        $unmatched = $tour->dates()->get()->keyBy('id');
 
         foreach ($dates as $date) {
-            $tourDate = $tour->dates()->create([
-                'start_date' => $date['start_date'] ?? null,
-                'end_date' => $date['end_date'] ?? null,
-                'price' => $date['price_box_price'] ?? $date['price'] ?? null,
-                'price_box_price' => $date['price_box_price'] ?? $date['price'] ?? null,
-                'price_box_displayed_price' => $date['price_box_displayed_price'] ?? null,
-                'price_box_discount_badge' => $date['price_box_discount_badge'] ?? null,
-                'price_box_min_participants' => $date['price_box_min_participants'] ?? null,
-                'price_box_max_participants' => $date['price_box_max_participants'] ?? null,
-                'price_box_available_seats' => $date['price_box_available_seats'] ?? null,
-                'price_box_capacity' => $date['price_box_capacity'] ?? null,
-                'status' => $date['status'] ?? 'planned',
-            ]);
+            $tourDate = $this->matchingDate($unmatched, $date) ?? new TourDate(['status' => 'planned']);
+            $unmatched->forget($tourDate->id);
 
-            $this->createDateExtras($tourDate, $date['extras'] ?? []);
+            $tourDate->fill(array_intersect_key($date, array_flip(self::DATE_FIELDS)));
+
+            if (array_key_exists('price', $date) || array_key_exists('price_box_price', $date)) {
+                $tourDate->price = $tourDate->price_box_price = $date['price_box_price'] ?? $date['price'] ?? null;
+            }
+
+            $tourDate->status ??= 'planned';
+            $tour->dates()->save($tourDate);
+
+            if (array_key_exists('extras', $date)) {
+                $tourDate->extras()->delete();
+                $this->createDateExtras($tourDate, $date['extras'] ?? []);
+            }
         }
+
+        $unmatched->each->delete();
+    }
+
+    /**
+     * @param  Collection<int, TourDate>  $candidates
+     * @param  array<string, mixed>  $date
+     */
+    private function matchingDate(Collection $candidates, array $date): ?TourDate
+    {
+        $id = $date['id'] ?? null;
+
+        if (is_numeric($id) && $candidates->has((int) $id)) {
+            return $candidates->get((int) $id);
+        }
+
+        return $candidates->first(fn (TourDate $candidate): bool => $candidate->start_date?->toDateString() === ($date['start_date'] ?? null)
+            && $candidate->end_date?->toDateString() === ($date['end_date'] ?? null));
     }
 
     /**
