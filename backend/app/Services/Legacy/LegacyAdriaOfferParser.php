@@ -22,12 +22,16 @@ use Illuminate\Support\Str;
 class LegacyAdriaOfferParser
 {
     /**
-     * Legacy tour group slug => name of the portfolio category its offers belong to.
+     * Legacy tour group slug (or crawl context passed to the import command)
+     * => name of the portfolio category its offers belong to.
      */
     private const CATEGORY_NAMES = [
         'korutazas' => 'Körutazások',
         'tengerparti-udulesek' => 'Tengerpartok',
         'advent' => 'Adventi barangolások',
+        'osztalykirandulas' => 'Osztálykirándulások',
+        // A legacy admin region, shown on the new site as a category.
+        'repulos-utak' => 'Repülős körutazások',
     ];
 
     private const TRANSPORT_CODES = ['bus', 'plane', 'train'];

@@ -28,6 +28,7 @@ class LegacyCountryDictionary
         'gruzia' => ['code' => 'ge', 'name' => 'Grúzia', 'region_slug' => null],
         'hollandia' => ['code' => 'nl', 'name' => 'Hollandia', 'region_slug' => null],
         'horvatorszag' => ['code' => 'hr', 'name' => 'Horvátország', 'region_slug' => 'croatia'],
+        'karpatalja' => ['code' => 'ua', 'name' => 'Ukrajna', 'region_slug' => null],
         'lengyelorszag' => ['code' => 'pl', 'name' => 'Lengyelország', 'region_slug' => null],
         'marokko' => ['code' => 'ma', 'name' => 'Marokkó', 'region_slug' => null],
         'montenegro' => ['code' => 'me', 'name' => 'Montenegró', 'region_slug' => 'montenegro'],

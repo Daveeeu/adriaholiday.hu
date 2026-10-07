@@ -16,6 +16,8 @@ class AdriaImportOffersCommand extends Command
         {--dry-run : Parse offers without writing to the database or downloading images}
         {--limit= : Limit the number of offers processed}
         {--slug=* : Import only these offers, given by their legacy slug (repeatable)}
+        {--country=* : Extra legacy country slug for the selected offers, e.g. belfold (repeatable)}
+        {--category=* : Extra legacy tour group slug for the selected offers, e.g. osztalykirandulas (repeatable)}
         {--update-existing : Refresh tours that were already imported (matched by seo_name). Without this flag, existing tours are skipped.}';
 
     protected $description = 'Import tours, images, content and booking options (extras, departure places) from the legacy adriaholiday.hu website.';
@@ -119,7 +121,16 @@ class AdriaImportOffersCommand extends Command
             $slugs,
         ));
 
+        // Listing pages miss what only the legacy admin shows: school trips are
+        // active but listed nowhere, and an offer's other tour groups. The
+        // options add those, as set in the legacy admin.
         foreach ($offers as $url => $context) {
+            $context = [
+                'countries' => array_values(array_unique([...$context['countries'], ...$this->option('country')])),
+                'categories' => array_values(array_unique([...$context['categories'], ...$this->option('category')])),
+            ];
+            $offers[$url] = $context;
+
             if ($context['countries'] === [] && $context['categories'] === []) {
                 $this->warn("{$url} is not listed on any legacy listing page; its countries and categories are left unchanged.");
             }

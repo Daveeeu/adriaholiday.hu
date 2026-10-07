@@ -810,6 +810,8 @@ php artisan adria:import-offers
     {--dry-run}
     {--limit=}
     {--slug=*}          (repeatable: --slug=a --slug=b)
+    {--country=*}       extra legacy country slug for the selected offers
+    {--category=*}      extra legacy tour group slug for the selected offers
     {--update-existing}
 ```
 
@@ -825,6 +827,8 @@ Split into single-purpose services under `App\Services\Legacy` (never put scrapi
 Idempotency: tours are matched by `seo_name`. Without `--update-existing`, an existing tour is skipped (never overwrites admin edits); with it, the tour's legacy content is refreshed via `TourContentSyncService` — never duplicated. Dates are matched by start and end date and updated in place, so bookings keep their `tour_date_id` and admin-managed date fields (status, available seats, capacity) survive; program days, gallery and price items are replaced. What the legacy site cannot know is kept: categories are merged (e.g. "Repülős körutazások" added on the new site stays), and once a tour is closed for booking (no date has a legacy id) its extras, departure places, travel mode, catering and accommodation are left as they are. `--dry-run` never touches the DB or downloads images; it only prints what the parser extracted.
 
 Run `php artisan adria:import-offers --update-existing` to bring every tour in line with the legacy site again (it also creates offers added there since).
+
+The listing pages do not show everything the legacy admin (`/admin/?p=roundtrip`) marks active: school trips ("Osztálykirándulás") are listed nowhere, and an offer's other groups (e.g. also a school trip) or the "Repülős utak" admin region never appear in its crawl context. Import those with `--slug` plus `--country` / `--category`, which are added to the crawl context: e.g. `--country=belfold --category=osztalykirandulas` for the domestic school trips, `--category=repulos-utak` for the flight tours (→ "Repülős körutazások"). Group slugs map to categories in `LegacyAdriaOfferParser::CATEGORY_NAMES`, country slugs to countries in `LegacyCountryDictionary`.
 
 Config: `config('services.legacy_adria')` (`LEGACY_ADRIA_BASE_URL`, `LEGACY_ADRIA_USER_AGENT`, `LEGACY_ADRIA_DELAY_MS`, `LEGACY_ADRIA_TIMEOUT`).
 
