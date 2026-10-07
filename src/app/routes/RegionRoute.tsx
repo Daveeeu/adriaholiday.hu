@@ -9,6 +9,7 @@ import { absoluteUrl } from "../seo/site";
 import { fetchPortfolioRegionDetail, type PortfolioRegionCard } from "../content/portfolio-regions-api";
 import { fetchPortfolioRegionOffers, type PortfolioOfferCard } from "../content/portfolio-offers-api";
 import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
+import { responsiveImage } from "../lib/responsiveImage";
 
 function OfferCard({ offer }: { offer: PortfolioOfferCard }) {
   const card = toUnifiedOfferCardModel(offer);
@@ -22,7 +23,8 @@ function OfferCard({ offer }: { offer: PortfolioOfferCard }) {
       <div className="relative h-64 overflow-hidden">
         {card.imageUrl ? (
           <img
-            src={card.imageUrl}
+            {...responsiveImage(card.imageUrl)}
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             alt={card.title}
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
@@ -166,7 +168,8 @@ export default function RegionRoute() {
       <section className="relative h-[480px] overflow-hidden">
         {region.image ? (
           <img
-            src={region.image}
+            {...responsiveImage(region.image)}
+            sizes="100vw"
             alt={region.name}
             className="absolute inset-0 h-full w-full object-cover"
             loading="eager"

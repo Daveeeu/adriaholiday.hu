@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import type { PortfolioOfferGalleryItem } from '../content/portfolio-offer-detail-api';
+import { responsiveImage } from "../lib/responsiveImage";
 
 type OfferGallerySectionProps = {
   title?: string | null;
@@ -61,10 +62,12 @@ function GalleryBigImage({
         {imageExists ? (
           <>
             <img
-              src={imageUrl}
+              {...responsiveImage(imageUrl)}
+              sizes="(min-width: 1024px) 66vw, 100vw"
               alt={altText}
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,17,31,0.08)_0%,rgba(7,17,31,0.18)_45%,rgba(7,17,31,0.82)_100%)]" />
           </>
@@ -138,10 +141,12 @@ function GalleryThumbnail({
       <div className="relative aspect-square bg-[#07111f]">
         {imageExists ? (
           <img
-            src={imageUrl}
+            {...responsiveImage(imageUrl)}
+            sizes="(min-width: 1024px) 25vw, 50vw"
             alt={altText}
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="absolute inset-0 bg-[linear-gradient(145deg,#07111f,#0d2240_58%,#12315d)]" />
@@ -392,7 +397,8 @@ export default function OfferGallerySection({
                   <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0d2240] shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
                     {hasImage(selectedLightboxItem) ? (
                       <img
-                        src={getImageUrl(selectedLightboxItem)}
+                        {...responsiveImage(getImageUrl(selectedLightboxItem))}
+                        sizes="(min-width: 1024px) 1024px, 100vw"
                         alt={(selectedLightboxItem.alt || selectedLightboxItem.title || 'Galéria kép').trim()}
                         className="max-h-[68vh] w-full object-cover"
                       />

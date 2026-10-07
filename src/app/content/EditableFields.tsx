@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Link } from 'react-router';
 import type { CSSProperties, ElementType, ReactNode } from 'react';
 
+import { responsiveImage } from '../lib/responsiveImage';
 import { usePortfolioContent } from './PortfolioContentProvider';
 import type {
   PortfolioContentFieldType,
@@ -114,36 +115,17 @@ export function EditableRichText({
   );
 }
 
-export function EditableImage({
-  fieldKey,
-  fallback,
-  className = '',
-  imgClassName = '',
-}: {
-  fieldKey: string;
-  fallback: { url: string; alt: string; title?: string };
-  className?: string;
-  imgClassName?: string;
-}) {
-  return (
-    <EditableMedia
-      fieldKey={fieldKey}
-      fallback={fallback}
-      kind="image"
-      className={className}
-      mediaClassName={imgClassName}
-    />
-  );
-}
-
 export function EditableOptionalImage({
   fieldKey,
   placeholderLabel,
+  sizes,
   className = '',
   imgClassName = '',
 }: {
   fieldKey: string;
   placeholderLabel: string;
+  /** The rendered width, so the browser can pick a fitting web-sized copy. */
+  sizes: string;
   className?: string;
   imgClassName?: string;
 }) {
@@ -166,7 +148,15 @@ export function EditableOptionalImage({
 
   return (
     <EditableFrame target={{ kind: 'field', fieldKey }} className={className}>
-      <img src={value.url} alt={value.alt ?? ''} title={value.title} className={imgClassName} loading="lazy" />
+      <img
+        {...responsiveImage(value.url)}
+        sizes={sizes}
+        alt={value.alt ?? ''}
+        title={value.title}
+        className={imgClassName}
+        loading="lazy"
+        decoding="async"
+      />
     </EditableFrame>
   );
 }
@@ -175,12 +165,18 @@ export function EditableMedia({
   fieldKey,
   fallback,
   kind,
+  sizes = '100vw',
+  priority = false,
   className = '',
   mediaClassName = '',
 }: {
   fieldKey: string;
   fallback: { url: string; alt?: string; title?: string; mimeType?: string | null };
   kind?: 'image' | 'video';
+  /** The rendered width, so the browser can pick a fitting web-sized copy. */
+  sizes?: string;
+  /** Above-the-fold images load eagerly and first; the rest wait until they are near the viewport. */
+  priority?: boolean;
   className?: string;
   mediaClassName?: string;
 }) {
@@ -212,7 +208,16 @@ export function EditableMedia({
           playsInline
         />
       ) : (
-        <img src={media.url} alt={media.alt} title={media.title} className={mediaClassName} />
+        <img
+          {...responsiveImage(media.url)}
+          sizes={sizes}
+          alt={media.alt}
+          title={media.title}
+          className={mediaClassName}
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
+          decoding="async"
+        />
       )}
     </EditableFrame>
   );

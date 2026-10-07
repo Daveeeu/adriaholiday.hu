@@ -11,6 +11,7 @@ import {
 import { usePortfolioContent } from '../content/PortfolioContentProvider';
 import { resolveCategorySlugFromOfferLink } from '../content/portfolio-offer-routing';
 import MotionLink from './MotionLink';
+import { responsiveImage } from "../lib/responsiveImage";
 
 type TravelCategoryCard = {
   id: string;
@@ -136,7 +137,10 @@ export default function TravelCategories() {
                 >
                   <div className="relative h-72 overflow-hidden">
                     <motion.img
-                      src={category.image}
+                      {...responsiveImage(category.image)}
+                      sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+                      loading="lazy"
+                      decoding="async"
                       alt={category.title}
                       className="h-full w-full object-cover"
                       animate={{

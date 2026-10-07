@@ -13,6 +13,7 @@ import {
   type PortfolioBlogArticleDetail,
 } from "../content/portfolio-blog-api";
 import { absoluteUrl } from "../seo/site";
+import { responsiveImage } from "../lib/responsiveImage";
 
 function ArticleLinkCard({
   article,
@@ -233,7 +234,8 @@ export default function BlogArticleRoute() {
             {article.image ? (
               <div className="relative h-[260px] md:h-[420px]">
                 <img
-                  src={article.image}
+                  {...responsiveImage(article.image)}
+                  sizes="(min-width: 1200px) 1100px, 100vw"
                   alt={article.title}
                   className="h-full w-full object-cover"
                   loading="eager"

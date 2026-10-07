@@ -7,6 +7,7 @@ import { renderContentIcon } from "@/app/content/icon-map";
 import { sanitizeRichTextHtml } from "@/lib/rich-text";
 
 import type { PortfolioOfferProgramDay } from "@/app/content/portfolio-offer-detail-api";
+import { responsiveImage } from "../lib/responsiveImage";
 
 type OfferProgramTimelineProps = {
   programDays?: PortfolioOfferProgramDay[] | null;
@@ -134,10 +135,12 @@ export default function OfferProgramTimeline({
                     <div className="relative overflow-hidden rounded-[26px] min-h-[190px] p-5 flex flex-col justify-between group/preview">
                       {day.image ? (
                         <img
-                          src={day.image}
+                          {...responsiveImage(day.image)}
+                          sizes="(min-width: 1024px) 33vw, 100vw"
                           alt={day.title}
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/preview:scale-110"
                           loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <div className="absolute inset-0 bg-[linear-gradient(145deg,#07111f,#0d2240_58%,#12315d)]" />

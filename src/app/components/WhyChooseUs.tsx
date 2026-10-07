@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import Lottie from "lottie-react";
+import LazyLottie from "./LazyLottie";
 import {
   Users,
   Award,
@@ -185,7 +185,7 @@ export default function WhyChooseUs() {
               <div className="absolute bottom-[-100px] right-[-100px] w-[260px] h-[260px] bg-[#16b8ff]/10 blur-3xl rounded-full" />
 
               {worldMapAnimation ? (
-                <Lottie
+                <LazyLottie
                   animationData={worldMapAnimation}
                   loop
                   autoplay

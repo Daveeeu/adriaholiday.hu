@@ -51,6 +51,7 @@ import {
   toUnifiedOfferCardModel,
   type UnifiedOfferCardModel,
 } from "../content/portfolio-offer-card-model";
+import { responsiveImage } from "../lib/responsiveImage";
 
 type CategoryOffersPageProps = {
   /** Omit to list offers across all categories instead of scoping to one. */
@@ -517,7 +518,8 @@ export default function CategoryOffersPage({
     <div className="min-h-screen bg-[#f5f9fc]">
       <section className="relative h-[520px] overflow-hidden">
         <img
-          src={heroImage ?? DEFAULT_HERO_IMAGE}
+          {...responsiveImage(heroImage ?? DEFAULT_HERO_IMAGE)}
+          sizes="100vw"
           alt={title}
           className="absolute inset-0 h-full w-full object-cover"
           loading="eager"
@@ -865,7 +867,8 @@ function SpotlightOfferCard({
     <div className="relative min-h-[430px] overflow-hidden rounded-[34px] shadow-[0_22px_70px_rgba(15,23,42,0.11)]">
       {offer.card.imageUrl ? (
         <img
-          src={offer.card.imageUrl}
+          {...responsiveImage(offer.card.imageUrl)}
+          sizes="(min-width: 1024px) 50vw, 100vw"
           alt={offer.card.imageAlt ?? offer.card.name}
           className="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
@@ -1043,7 +1046,8 @@ function RecommendedOfferCard({
     <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="block group relative h-[270px] overflow-hidden rounded-[28px] text-left shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
       {offer.card.imageUrl ? (
         <img
-          src={offer.card.imageUrl}
+          {...responsiveImage(offer.card.imageUrl)}
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
           alt={offer.card.imageAlt ?? offer.card.name}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
@@ -1108,7 +1112,8 @@ function ResultOfferCard({
       <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="relative block h-[240px] w-full overflow-hidden text-left">
         {offer.card.imageUrl ? (
           <img
-            src={offer.card.imageUrl}
+{...responsiveImage(offer.card.imageUrl)}
+            sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
             alt={offer.card.imageAlt ?? offer.card.name}
             className="h-full w-full object-cover"
             loading="lazy"

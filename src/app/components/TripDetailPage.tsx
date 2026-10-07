@@ -30,6 +30,7 @@ import OfferCard from "./OfferCard";
 import BookingSection from "../booking/BookingSection";
 import GroupInquirySection from "../booking/GroupInquirySection";
 import { parseDiscountPercent } from "../content/discount-badge";
+import { responsiveImage } from "../lib/responsiveImage";
 
 interface TripDetailPageProps {
   trip: TripDetail;
@@ -108,7 +109,10 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={trip.image}
+            {...responsiveImage(trip.image)}
+            sizes="100vw"
+            fetchPriority="high"
+            decoding="async"
             alt={trip.title}
             className="w-full h-full object-cover"
           />

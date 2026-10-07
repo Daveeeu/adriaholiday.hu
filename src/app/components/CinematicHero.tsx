@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { useRef } from "react";
-import Lottie from "lottie-react";
+import LazyLottie from "./LazyLottie";
 
 import HeroSearchForm from "./HeroSearchForm";
 import { useLottieAnimation } from "../hooks/useLottieAnimation";
@@ -64,6 +64,7 @@ export default function CinematicHero() {
               title: "Napsütötte homokos tengerpart türkizkék vízzel",
             }}
             kind="image"
+            priority
             className="h-full w-full"
             mediaClassName="w-full h-full object-cover object-[85%_center]"
           />
@@ -308,7 +309,7 @@ export default function CinematicHero() {
                 }}
               >
                 {earthPlaneAnimation ? (
-                  <Lottie
+                  <LazyLottie
                     animationData={earthPlaneAnimation}
                     loop
                     speed={0.025}

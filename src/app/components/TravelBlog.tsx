@@ -10,6 +10,7 @@ import {
   fetchPortfolioBlogArticles,
   type PortfolioBlogArticleCard,
 } from "../content/portfolio-blog-api";
+import { responsiveImage } from "../lib/responsiveImage";
 
 interface BlogArticle {
   id: string;
@@ -204,7 +205,10 @@ export default function TravelBlog() {
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               >
                 <motion.img
-                  src={featuredArticle.image}
+                  {...responsiveImage(featuredArticle.image)}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  loading="lazy"
+                  decoding="async"
                   alt={featuredArticle.title}
                   className="absolute inset-0 h-full w-full object-cover"
                   animate={{ scale: hoveredId === featuredArticle.id ? 1.05 : 1 }}
@@ -339,7 +343,10 @@ export default function TravelBlog() {
                 <div className="grid grid-cols-1 sm:grid-cols-[190px_1fr] lg:grid-cols-1 xl:grid-cols-[190px_1fr]">
                   <div className="relative h-48 overflow-hidden sm:h-full lg:h-44 xl:h-full">
                     <motion.img
-                      src={article.image}
+                      {...responsiveImage(article.image)}
+                      sizes="(min-width: 1280px) 190px, (min-width: 1024px) 33vw, (min-width: 640px) 190px, 100vw"
+                      loading="lazy"
+                      decoding="async"
                       alt={article.title}
                       className="h-full w-full object-cover"
                       animate={{ scale: hoveredId === article.id ? 1.08 : 1 }}

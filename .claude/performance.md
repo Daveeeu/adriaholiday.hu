@@ -387,6 +387,16 @@ Never load original images into tables.
 
 Use thumbnails.
 
+On the public website, render every content image through `responsiveImage()`
+(`src/app/lib/responsiveImage.ts`) and give it a `sizes` attribute. Uploads under
+`/storage` then get a `srcset` of WebP copies from `/img/{width}/{path}.webp`
+(`ResizedImageService`, widths 400/800/1200/1920). Laravel creates each copy once
+and nginx serves it from disk afterwards.
+
+Only the above-the-fold image loads eagerly with `fetchPriority="high"`; every other image uses `loading="lazy"`.
+
+Heavy decorative libraries (Lottie) are loaded on demand (`LazyLottie`).
+
 ---
 
 ## Icons

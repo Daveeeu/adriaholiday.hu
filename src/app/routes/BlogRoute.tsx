@@ -9,6 +9,7 @@ import {
   type PortfolioBlogArticleCard,
 } from "../content/portfolio-blog-api";
 import { absoluteUrl } from "../seo/site";
+import { responsiveImage } from "../lib/responsiveImage";
 
 function ArticleCard({ article }: { article: PortfolioBlogArticleCard }) {
   return (
@@ -17,7 +18,8 @@ function ArticleCard({ article }: { article: PortfolioBlogArticleCard }) {
         <div className="relative h-64 overflow-hidden">
           {article.image ? (
             <img
-              src={article.image}
+              {...responsiveImage(article.image)}
+              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               alt={article.title}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
@@ -155,7 +157,8 @@ export default function BlogRoute() {
                 <div className="relative min-h-[380px]">
                   {featured.image ? (
                     <img
-                      src={featured.image}
+                      {...responsiveImage(featured.image)}
+                      sizes="(min-width: 1024px) 50vw, 100vw"
                       alt={featured.title}
                       className="absolute inset-0 h-full w-full object-cover"
                       loading="eager"

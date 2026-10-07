@@ -8,7 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import Lottie from "lottie-react";
+import LazyLottie from "./LazyLottie";
 
 import { useLottieAnimation } from "../hooks/useLottieAnimation";
 import { EditableText } from "../content/EditableFields";
@@ -117,7 +117,7 @@ export default function Newsletter() {
             transition={{ duration: 1.4 }}
           >
             {worldMapAnimation ? (
-              <Lottie animationData={worldMapAnimation} loop className="w-full h-full" />
+              <LazyLottie animationData={worldMapAnimation} loop className="w-full h-full" />
             ) : null}
           </motion.div>
 

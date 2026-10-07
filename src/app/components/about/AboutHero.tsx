@@ -42,6 +42,7 @@ export default function AboutHero() {
           <EditableOptionalImage
             fieldKey={IMAGE_KEY}
             placeholderLabel="Háttérkép feltöltése"
+            sizes="224px"
             imgClassName="h-32 w-full rounded-2xl object-cover"
           />
         </div>

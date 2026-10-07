@@ -73,6 +73,7 @@ export default function ExperienceSection() {
                       alt: image.alt ?? "Tengerpart az Adrián",
                       title: image.alt ?? "Tengerpart az Adrián",
                     }}
+                    sizes="(min-width: 1024px) 55vw, 100vw"
                     className="w-full h-full"
                     mediaClassName="w-full h-full object-cover"
                   />

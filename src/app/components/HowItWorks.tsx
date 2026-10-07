@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
-import Lottie from "lottie-react";
+import LazyLottie from "./LazyLottie";
 
 import { useLottieAnimation } from "../hooks/useLottieAnimation";
 import { EditableText } from "../content/EditableFields";
@@ -180,7 +180,7 @@ export default function HowItWorks() {
 
                         <div className="relative w-28 h-28">
                           {step.lottieAnimation ? (
-                            <Lottie animationData={step.lottieAnimation} loop autoplay />
+                            <LazyLottie animationData={step.lottieAnimation} loop autoplay />
                           ) : null}
                         </div>
 

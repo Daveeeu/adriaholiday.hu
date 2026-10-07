@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 
 import { EditableFrame, EditableOptionalImage } from "../../content/EditableFields";
 import { usePortfolioContent } from "../../content/PortfolioContentProvider";
+import { responsiveImage } from "../../lib/responsiveImage";
 import AboutSectionHeader from "./AboutSectionHeader";
 import { aboutFallback, TEAM_SIZE, useContentList, type AboutTeamMember } from "./about-content";
 
@@ -54,9 +55,11 @@ export default function AboutTeam() {
               >
                 {image?.url ? (
                   <img
-                    src={image.url}
+                    {...responsiveImage(image.url)}
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                     alt={member.name || image.alt || ""}
                     loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 ) : (
@@ -70,6 +73,7 @@ export default function AboutTeam() {
                     <EditableOptionalImage
                       fieldKey={memberImageKey(index)}
                       placeholderLabel={`${index + 1}. fotó feltöltése`}
+                      sizes="400px"
                       imgClassName="h-10 w-full rounded-xl object-cover opacity-80"
                     />
                   </div>
@@ -90,12 +94,14 @@ export default function AboutTeam() {
           <EditableOptionalImage
             fieldKey="about.team.image"
             placeholderLabel="Csapatfotó feltöltése"
+            sizes="(min-width: 768px) 60vw, 100vw"
             className="rounded-[28px]"
             imgClassName="aspect-[16/10] w-full rounded-[28px] object-cover shadow-[0_24px_70px_rgba(15,23,42,0.11)]"
           />
           <EditableOptionalImage
             fieldKey="about.office.image"
             placeholderLabel="Irodafotó feltöltése"
+            sizes="(min-width: 768px) 40vw, 100vw"
             className="rounded-[28px]"
             imgClassName="aspect-[16/10] w-full rounded-[28px] object-cover shadow-[0_24px_70px_rgba(15,23,42,0.11)] md:aspect-auto md:h-full"
           />

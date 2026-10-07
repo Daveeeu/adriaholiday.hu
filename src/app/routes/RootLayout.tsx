@@ -24,7 +24,8 @@ export default function RootLayout() {
               <Header />
             </div>
             <MobileNav />
-            <div className={isHome ? "pt-0" : "pt-0 md:pt-[76px]"}>
+            {/* At least a screen tall, so the footer never shows (and then jumps away) while a page loads. */}
+            <div className={`min-h-screen ${isHome ? "pt-0" : "pt-0 md:pt-[76px]"}`}>
               <Suspense fallback={<LoadingScreen />}>
                 <Outlet />
               </Suspense>
