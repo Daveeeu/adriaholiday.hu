@@ -153,13 +153,13 @@ class PortfolioSeoResolver
             ->first();
 
         if ($article === null) {
-            return SeoPage::notFound("/blog/{$slug}");
+            return $this->legacyArticleRedirect($slug) ?? SeoPage::notFound("/blog/{$slug}");
         }
 
         $translation = $article->translations->firstWhere('seo_name', $slug);
         $title = (string) ($translation?->title ?: $article->image_title);
         $path = "/blog/{$slug}";
-        $image = $article->getFirstMedia('cover')?->getUrl() ?: $article->image;
+        $image = $this->absolute($article->getFirstMedia('cover')?->getUrl() ?: $article->image);
         $description = $this->plain($translation?->excerpt) ?: $this->plain($translation?->content) ?: $title;
 
         return new SeoPage(
@@ -184,6 +184,24 @@ class PortfolioSeoResolver
                 ]),
             ],
         );
+    }
+
+    /**
+     * Legacy post URLs carried the post id after the URL name ("…-27"); they move
+     * to the URL without it.
+     */
+    private function legacyArticleRedirect(string $slug): ?SeoPage
+    {
+        if (! preg_match('/^(.+)-\d+$/', $slug, $match)) {
+            return null;
+        }
+
+        $exists = BlogArticle::query()
+            ->where('active', true)
+            ->whereHas('translations', fn ($query) => $query->where('seo_name', $match[1]))
+            ->exists();
+
+        return $exists ? SeoPage::movedTo("/blog/{$match[1]}") : null;
     }
 
     private function category(string $slug): SeoPage
@@ -250,6 +268,11 @@ class PortfolioSeoResolver
                 'item' => PublicSiteUrl::to($item[1]),
             ], $items, array_keys($items)),
         ];
+    }
+
+    private function absolute(?string $url): ?string
+    {
+        return $url !== null && str_starts_with($url, '/') ? PublicSiteUrl::to($url) : $url;
     }
 
     private function plain(?string $html): string

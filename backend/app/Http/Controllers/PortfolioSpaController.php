@@ -7,6 +7,7 @@ use App\Services\Seo\PortfolioSeoResolver;
 use App\Support\Seo\PublicSiteUrl;
 use App\Support\Seo\SeoHeadRenderer;
 use App\Support\Seo\SeoPage;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Throwable;
@@ -35,10 +36,15 @@ class PortfolioSpaController extends Controller
         BarionPixel $barionPixel,
         PortfolioSeoResolver $seo,
         SeoHeadRenderer $head,
-    ): Response {
+    ): Response|RedirectResponse {
         abort_if($request->is(...self::RESERVED_PATHS), 404);
 
         [$page, $siteName] = $this->seo($seo, $request);
+
+        if ($page->redirectTo !== null) {
+            return redirect($page->redirectTo, 301);
+        }
+
         $indexable = PublicSiteUrl::isCanonicalHost($request);
         $html = $head->render((string) file_get_contents(public_path('portfolio/index.html')), $page, $siteName, $indexable);
         $pixel = $barionPixel->snippet();

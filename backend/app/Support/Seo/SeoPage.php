@@ -20,7 +20,16 @@ final class SeoPage
         public readonly array $jsonLd = [],
         public readonly bool $noIndex = false,
         public readonly int $status = 200,
+        public readonly ?string $redirectTo = null,
     ) {}
+
+    /**
+     * A moved page: answered with a permanent redirect instead of the app.
+     */
+    public static function movedTo(string $path): self
+    {
+        return new self('', '', $path, status: 301, redirectTo: $path);
+    }
 
     public static function notFound(string $path): self
     {

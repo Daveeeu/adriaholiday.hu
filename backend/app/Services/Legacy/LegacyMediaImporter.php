@@ -42,7 +42,7 @@ class LegacyMediaImporter
     }
 
     /**
-     * @param  array{alt?: ?string, title?: ?string, caption?: ?string}  $meta
+     * @param  array{alt?: ?string, title?: ?string, caption?: ?string, category?: MediaCategory}  $meta  category defaults to tours
      *
      * @throws LegacyFetchException
      */
@@ -71,6 +71,7 @@ class LegacyMediaImporter
 
         $fileName = $this->fileNameFromUrl($absoluteUrl);
         $title = $meta['title'] ?? pathinfo($fileName, PATHINFO_FILENAME);
+        $category = ($meta['category'] ?? MediaCategory::TOURS)->value;
 
         $item = AdminMediaItem::create();
         $media = $item->addMediaFromString($response->body())
@@ -79,14 +80,14 @@ class LegacyMediaImporter
             ->toMediaCollection('library');
 
         $media->forceFill([
-            'category' => MediaCategory::TOURS->value,
+            'category' => $category,
             'source_context' => self::SOURCE_CONTEXT,
             'alt' => $meta['alt'] ?? null,
             'title' => $title,
         ]);
         $media->custom_properties = array_filter([
             ...($media->custom_properties ?? []),
-            'category' => MediaCategory::TOURS->value,
+            'category' => $category,
             'source_context' => self::SOURCE_CONTEXT,
             'alt' => $meta['alt'] ?? null,
             'title' => $title,
@@ -111,7 +112,8 @@ class LegacyMediaImporter
     private function fileNameFromUrl(string $url): string
     {
         $path = parse_url($url, PHP_URL_PATH) ?: null;
-        $name = $path !== null ? basename($path) : '';
+        // Legacy file names are percent-encoded in the URL ("Prague_%28…%29.jpg").
+        $name = $path !== null ? basename(rawurldecode($path)) : '';
 
         return $name !== '' ? $name : Str::random(16).'.jpg';
     }
