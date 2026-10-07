@@ -2,6 +2,7 @@ import { Clock, Mail, MapPin, Phone, MessageCircle } from "lucide-react";
 import { Link } from "react-router";
 
 import { sanitizeRichTextHtml } from "@/lib/rich-text";
+import ContactForm from "../components/ContactForm";
 import Seo from "../seo/Seo";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { absoluteUrl } from "../seo/site";
@@ -146,6 +147,12 @@ export default function StaticPage({
               </p>
             )
           )}
+
+          {path === "/kapcsolat" ? (
+            <div className="mt-10">
+              <ContactForm />
+            </div>
+          ) : null}
 
           <div className="mt-10">
             <Link

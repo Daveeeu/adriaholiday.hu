@@ -51,6 +51,7 @@ use App\Http\Controllers\PortfolioSiteSettingController;
 use App\Http\Controllers\PortfolioTestimonialController;
 use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\PublicBookingPaymentController;
+use App\Http\Controllers\PublicContactMessageController;
 use App\Http\Controllers\PublicNewsletterController;
 use App\Http\Controllers\PublicTourInquiryController;
 use Illuminate\Support\Facades\Route;
@@ -83,6 +84,7 @@ Route::middleware('throttle:payments')->group(function (): void {
 });
 Route::post('tour-inquiries', [PublicTourInquiryController::class, 'store'])->middleware('throttle:bookings');
 Route::post('newsletter/subscribe', [PublicNewsletterController::class, 'store'])->middleware('throttle:newsletter');
+Route::post('contact-messages', [PublicContactMessageController::class, 'store'])->middleware('throttle:contact');
 
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
