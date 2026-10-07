@@ -1,12 +1,10 @@
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { useRef } from "react";
-import { Link } from "react-router";
+import MotionLink from "./MotionLink";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { EditableMedia } from "../content/EditableFields";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
-
-const MotionLink = motion.create(Link);
 
 export default function EmotionalStory() {
   const { getValue } = usePortfolioContent();

@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { EditableMedia } from "../content/EditableFields";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+import MotionLink from "./MotionLink";
 import TestimonialQuoteCard from "./TestimonialQuoteCard";
 
 export default function ExperienceSection() {
@@ -34,6 +35,7 @@ export default function ExperienceSection() {
     { value: "4.9", label: "Értékelés" },
   ]) as Array<{ value: string; label: string }>;
   const cta = String(getValue("home.experience.cta.label", "Ismerj meg minket"));
+  const ctaUrl = String(getValue("home.experience.cta.url", "/rolunk"));
   return (
     <section className="relative py-16 md:py-20 bg-gradient-to-b from-white via-[#fbfffd] to-[#f7fbff] overflow-hidden">
       {/* Premium Editorial Background */}
@@ -217,8 +219,9 @@ export default function ExperienceSection() {
               viewport={{ once: true }}
               transition={{ delay: 1 }}
             >
-              <motion.button
-                className="group px-8 py-4 bg-gray-900 text-white rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] overflow-hidden relative"
+              <MotionLink
+                to={ctaUrl}
+                className="group inline-block px-8 py-4 bg-gray-900 text-white rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] overflow-hidden relative"
                 whileHover={{
                   scale: 1.02,
                   boxShadow: "0 12px 48px rgba(0,0,0,0.2)",
@@ -241,7 +244,7 @@ export default function ExperienceSection() {
                     →
                   </motion.span>
                 </span>
-              </motion.button>
+              </MotionLink>
             </motion.div>
           </motion.div>
         </div>

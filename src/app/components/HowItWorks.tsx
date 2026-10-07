@@ -8,6 +8,7 @@ import { EditableText } from "../content/EditableFields";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
+import MotionLink from "./MotionLink";
 
 type StepContent = {
   number: string;
@@ -56,6 +57,7 @@ export default function HowItWorks() {
   const onlinePlaneAnimation = useLottieAnimation("earth.json");
 
   const stepContent = getValue("home.howItWorks.steps", STEP_CONTENT_FALLBACK) as StepContent[];
+  const ctaUrl = String(getValue("home.howItWorks.cta.url", "/utazasok"));
   const stepAnimations = [loadingAnimation, onlinePlaneAnimation, earthPlaneAnimation];
 
   // CMS content carries only text and icon names; the visual design (gradient
@@ -243,8 +245,9 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           transition={{ delay: 0.35, duration: 0.6 }}
         >
-              <motion.button
-                className="group relative px-8 py-4 rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white shadow-[0_14px_42px_rgba(0,195,137,0.27)] overflow-hidden"
+              <MotionLink
+                to={ctaUrl}
+                className="group relative inline-block px-8 py-4 rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white shadow-[0_14px_42px_rgba(0,195,137,0.27)] overflow-hidden"
                 whileHover={{ scale: 1.025, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -263,7 +266,7 @@ export default function HowItWorks() {
               />
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
-          </motion.button>
+          </MotionLink>
         </motion.div>
       </div>
     </section>
