@@ -208,6 +208,9 @@ export type Tour = {
   program: string;
   inclusions: string;
   paymentProgram: string;
+  teaser: string;
+  tickets: string;
+  optionalPrograms: string;
   prices: string;
   discounts: string;
   notes: string;
@@ -280,6 +283,9 @@ export const tourFormSchema = z.object({
   program: z.string(),
   inclusions: z.string(),
   paymentProgram: z.string(),
+  teaser: z.string(),
+  tickets: z.string(),
+  optionalPrograms: z.string(),
   prices: z.string(),
   discounts: z.string(),
   notes: z.string(),
@@ -495,6 +501,9 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     program: tour?.program ?? '',
     inclusions: tour?.inclusions ?? '',
     paymentProgram: tour?.paymentProgram ?? '',
+    teaser: tour?.teaser ?? '',
+    tickets: tour?.tickets ?? '',
+    optionalPrograms: tour?.optionalPrograms ?? '',
     prices: tour?.prices ?? '',
     discounts: tour?.discounts ?? '',
     notes: tour?.notes ?? '',

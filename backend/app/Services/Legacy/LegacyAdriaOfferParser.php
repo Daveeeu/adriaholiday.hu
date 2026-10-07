@@ -3,6 +3,7 @@
 namespace App\Services\Legacy;
 
 use App\Support\Legacy\LegacyOfferData;
+use App\Support\RichTextSanitizer;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
@@ -35,6 +36,16 @@ class LegacyAdriaOfferParser
     ];
 
     private const TRANSPORT_CODES = ['bus', 'plane', 'train'];
+
+    /**
+     * Tabs shown next to "A Program", told by their title since their
+     * number varies per offer.
+     */
+    private const TAB_FIELDS = [
+        'kedvcsináló' => 'teaser',
+        'belépőjegy' => 'tickets',
+        'fakultatív' => 'optional_programs',
+    ];
 
     public function __construct(private readonly LegacyBookingOptionsParser $bookingOptionsParser = new LegacyBookingOptionsParser) {}
 
@@ -89,10 +100,13 @@ class LegacyAdriaOfferParser
             ->values()
             ->all();
 
+        $tabs = $this->extractTabs($xpath);
+
         return new LegacyOfferData(
             sourceUrl: $sourceUrl,
             seoName: $seoName,
             name: $name !== '' ? $name : $seoName,
+            subtitle: $this->nullableText($this->firstText($xpath, '//h1/following-sibling::h2[1]')),
             shortDescription: $this->extractShortDescription($xpath),
             galleryImageUrls: $this->extractGalleryImageUrls($xpath, $sourceUrl),
             dates: $dates,
@@ -109,7 +123,44 @@ class LegacyAdriaOfferParser
             notesHtml: $program['notesHtml'],
             discountsHtml: $program['discountsHtml'],
             price: $datePrices !== [] ? min($datePrices) : $program['price'],
+            teaserHtml: $tabs['teaser'],
+            ticketsHtml: $tabs['tickets'],
+            optionalProgramsHtml: $tabs['optional_programs'],
         );
+    }
+
+    /**
+     * The sanitized HTML of the "Kedvcsináló", "Belépőjegyek" and
+     * "Fakultatív program" tabs (null when missing or empty). A tab laid out
+     * with a side gallery keeps only its text column.
+     *
+     * @return array{teaser: ?string, tickets: ?string, optional_programs: ?string}
+     */
+    private function extractTabs(DOMXPath $xpath): array
+    {
+        $tabs = ['teaser' => null, 'tickets' => null, 'optional_programs' => null];
+
+        foreach ($xpath->query('//a[starts-with(@href, "#tabs-")]') as $link) {
+            $title = Str::lower($this->normalizeWhitespace($link->textContent));
+            $field = collect(self::TAB_FIELDS)->first(fn (string $field, string $prefix): bool => Str::startsWith($title, $prefix));
+            $pane = $xpath->query('//*[@id="'.substr((string) $link->getAttribute('href'), 1).'"]')->item(0);
+
+            if ($field === null || ! $pane instanceof DOMElement) {
+                continue;
+            }
+
+            $content = $xpath->query('.//*[contains(@class, "tab-column")]', $pane)->item(0) ?? $pane;
+            $html = '';
+
+            foreach ($content->childNodes as $child) {
+                $html .= $content->ownerDocument->saveHTML($child);
+            }
+
+            $sanitized = RichTextSanitizer::sanitize($html);
+            $tabs[$field] = $this->nullableText(strip_tags((string) $sanitized)) !== null ? $sanitized : null;
+        }
+
+        return $tabs;
     }
 
     private function extractShortDescription(DOMXPath $xpath): ?string

@@ -14,6 +14,12 @@ const ALLOWED_TAGS = new Set([
   'p',
   'span',
   'strong',
+  'table',
+  'tbody',
+  'td',
+  'th',
+  'thead',
+  'tr',
   'u',
   'ul',
 ]);
@@ -48,6 +54,10 @@ function sanitizeAttribute(tagName: string, name: string, value: string): string
 
   if (name === 'style') {
     return null;
+  }
+
+  if ((tagName === 'td' || tagName === 'th') && (name === 'colspan' || name === 'rowspan')) {
+    return /^[1-9]\d?$/.test(value) ? value : null;
   }
 
   return null;

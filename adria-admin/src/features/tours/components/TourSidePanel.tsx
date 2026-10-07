@@ -333,6 +333,33 @@ function TourDetailView({ tour }: { tour: Tour }) {
           </div>
           <div className="rounded-xl border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              Kedvcsináló
+            </div>
+            <RichTextPreview
+              value={tour.teaser || ''}
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
+          </div>
+          <div className="rounded-xl border bg-background p-3">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              Fakultatív programok
+            </div>
+            <RichTextPreview
+              value={tour.optionalPrograms || ''}
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
+          </div>
+          <div className="rounded-xl border bg-background p-3">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              Belépőjegyek
+            </div>
+            <RichTextPreview
+              value={tour.tickets || ''}
+              className="mt-2 border-0 bg-transparent p-0 rounded-none"
+            />
+          </div>
+          <div className="rounded-xl border bg-background p-3">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
               Árak
             </div>
             <RichTextPreview

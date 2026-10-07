@@ -122,6 +122,12 @@ export type PortfolioOfferDetail = {
   program?: string | null;
   inclusions?: string | null;
   paymentProgram?: string | null;
+  /** The legacy "Kedvcsináló" tab. */
+  teaser?: string | null;
+  /** The legacy "Belépőjegyek" tab: entrance fees, often a table. */
+  tickets?: string | null;
+  /** The legacy "Fakultatív program" tab. */
+  optionalPrograms?: string | null;
   prices?: string | null;
   discounts?: string | null;
   notes?: string | null;

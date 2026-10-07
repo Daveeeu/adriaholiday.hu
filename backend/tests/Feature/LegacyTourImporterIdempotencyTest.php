@@ -38,6 +38,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
             sourceUrl: 'https://adriaholiday.hu/korutazasok/albania-makedoniaval-fuszerezve',
             seoName: 'albania-makedoniaval-fuszerezve',
             name: 'Albánia, a Balkán Riviérája',
+            subtitle: 'Makedóniával fűszerezve',
             shortDescription: 'Belgrád-Shkoder-Berat-Tirana-Kruja-Durres-Skopje-Ohrid-Vlora',
             galleryImageUrls: [
                 'https://adriaholiday.hu/uploads/gallery/16205/photo-1.jpg',
@@ -301,5 +302,23 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         $importer->import($data, updateExisting: true);
 
         $this->assertSame('planned', $tour->dates()->whereDate('start_date', '2026-10-10')->value('status'));
+    }
+
+    public function test_the_subtitle_and_legacy_tabs_are_imported(): void
+    {
+        $data = $this->offerData();
+        app(LegacyTourImporter::class)->import(new LegacyOfferData(...[
+            ...get_object_vars($data),
+            'teaserHtml' => '<p>Van olyan utazás…</p>',
+            'ticketsHtml' => '<table><tbody><tr><td>Tower</td><td>25 GBP</td></tr></tbody></table>',
+            'optionalProgramsHtml' => '<p>a.) Windsor</p>',
+        ]), updateExisting: false);
+
+        $this->getJson('/api/portfolio/offers/albania-makedoniaval-fuszerezve')
+            ->assertOk()
+            ->assertJsonPath('subtitle', 'Makedóniával fűszerezve')
+            ->assertJsonPath('teaser', '<p>Van olyan utazás…</p>')
+            ->assertJsonPath('tickets', '<table><tbody><tr><td>Tower</td><td>25 GBP</td></tr></tbody></table>')
+            ->assertJsonPath('optionalPrograms', '<p>a.) Windsor</p>');
     }
 }

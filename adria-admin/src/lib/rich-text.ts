@@ -13,6 +13,12 @@ const ALLOWED_TAGS = new Set([
   'blockquote',
   'a',
   'span',
+  'table',
+  'thead',
+  'tbody',
+  'tr',
+  'th',
+  'td',
 ]);
 
 const ALLOWED_STYLES = new Set([
@@ -108,6 +114,13 @@ export function sanitizeRichTextHtml(value?: string | null): string {
         const sanitizedStyle = sanitizeStyle(attributeValue);
         if (sanitizedStyle) {
           next.setAttribute('style', sanitizedStyle);
+        }
+        return;
+      }
+
+      if ((tag === 'td' || tag === 'th') && (name === 'colspan' || name === 'rowspan')) {
+        if (/^[1-9]\d?$/.test(attributeValue)) {
+          next.setAttribute(name, attributeValue);
         }
         return;
       }

@@ -321,6 +321,36 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertSame([null, null, false], [$dates[3]['original_price'], $dates[3]['label'], $dates[3]['sold_out']]);
     }
 
+    public function test_it_reads_the_subtitle_and_the_teaser_tickets_and_optional_program_tabs(): void
+    {
+        $html = '<html><body><h1>London</h1><h2>a királyok városa</h2>'
+            .'<ul><li><a href="#tabs-1">A Program</a></li><li><a href="#tabs-3">Fakultatív program</a></li>'
+            .'<li><a href="#tabs-2">Belépőjegyek</a></li><li><a href="#tabs-4">Kedvcsináló</a></li></ul>'
+            .'<div id="tabs-1"><div class="program-content"><p>1. NAP<br>Indulás.</p></div></div>'
+            .'<div id="tabs-2"><p align="center"> </p><table border="1"><tbody><tr><td><p>Tower of London</p></td><td colspan="2"><p>25 GBP</p></td></tr></tbody></table></div>'
+            .'<div id="tabs-3"><p style="text-align: justify;">a.) Windsor 8.400 Ft/fő</p></div>'
+            .'<div id="tabs-4"><div class="row"><div class="tab-gallery col-sm-3"><img src="x.jpg"></div>'
+            .'<div class="tab-column col-sm-9"><p>Van olyan utazás, ahol már maga az út is látványosság.</p></div></div></div>'
+            .'</body></html>';
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+
+        $this->assertSame('a királyok városa', $data->subtitle);
+        $this->assertSame('<p>Van olyan utazás, ahol már maga az út is látványosság.</p>', $data->teaserHtml);
+        $this->assertSame('<p style="text-align: justify">a.) Windsor 8.400 Ft/fő</p>', $data->optionalProgramsHtml);
+        $this->assertStringContainsString('<table><tbody><tr><td><p>Tower of London</p></td><td colspan="2"><p>25 GBP</p></td></tr></tbody></table>', (string) $data->ticketsHtml);
+    }
+
+    public function test_an_offer_without_extra_tabs_has_none(): void
+    {
+        $data = (new LegacyAdriaOfferParser)->parse('<html><body><h1>Prága</h1><div class="program-content"></div></body></html>', self::SOURCE_URL);
+
+        $this->assertNull($data->subtitle);
+        $this->assertNull($data->teaserHtml);
+        $this->assertNull($data->ticketsHtml);
+        $this->assertNull($data->optionalProgramsHtml);
+    }
+
     public function test_it_keeps_multibyte_characters_of_the_legacy_slug(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), 'https://adriaholiday.hu/korutazasok/umbria-–-italia-zold-szive-2019');

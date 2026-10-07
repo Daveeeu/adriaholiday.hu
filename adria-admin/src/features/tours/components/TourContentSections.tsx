@@ -156,6 +156,27 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
         />
         <TextareaField
           form={form}
+          name="teaser"
+          label="Kedvcsináló"
+          placeholder="Hangulatos bevezető az utazáshoz"
+          minHeight={220}
+        />
+        <TextareaField
+          form={form}
+          name="optionalPrograms"
+          label="Fakultatív programok"
+          placeholder="Választható, külön fizetendő programok"
+          minHeight={220}
+        />
+        <TextareaField
+          form={form}
+          name="tickets"
+          label="Belépőjegyek"
+          placeholder="Belépőjegy árak (táblázat is lehet)"
+          minHeight={220}
+        />
+        <TextareaField
+          form={form}
           name="inclusions"
           label="További szolgáltatási információk"
           placeholder="Kiegészítő, nem árhoz kötött információk"

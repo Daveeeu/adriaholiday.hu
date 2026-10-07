@@ -11,6 +11,7 @@ import { FontFamily } from '@tiptap/extension-text-style/font-family';
 import { FontSize } from '@tiptap/extension-text-style/font-size';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { TextAlign } from '@tiptap/extension-text-align';
+import { TableKit } from '@tiptap/extension-table';
 import {
   AlignCenter,
   AlignJustify,
@@ -193,6 +194,9 @@ export function RichTextEditor({
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      // Imported content (e.g. entrance fee lists) contains tables; keeping
+      // them in the schema stops a save from flattening them.
+      TableKit.configure({ table: { resizable: false } }),
       Placeholder.configure({
         placeholder: placeholder ?? 'Tartalom',
       }),

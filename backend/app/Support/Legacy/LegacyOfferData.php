@@ -33,6 +33,7 @@ final class LegacyOfferData
         public readonly string $sourceUrl,
         public readonly string $seoName,
         public readonly string $name,
+        public readonly ?string $subtitle,
         public readonly ?string $shortDescription,
         public readonly array $galleryImageUrls,
         public readonly array $dates,
@@ -49,5 +50,8 @@ final class LegacyOfferData
         public readonly ?string $notesHtml,
         public readonly ?string $discountsHtml,
         public readonly ?float $price,
+        public readonly ?string $teaserHtml = null,
+        public readonly ?string $ticketsHtml = null,
+        public readonly ?string $optionalProgramsHtml = null,
     ) {}
 }

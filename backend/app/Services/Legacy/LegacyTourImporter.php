@@ -79,6 +79,10 @@ class LegacyTourImporter
 
             $tour->fill([
                 'name' => $data->name,
+                'subtitle' => $data->subtitle,
+                'teaser' => $data->teaserHtml,
+                'tickets' => $data->ticketsHtml,
+                'optional_programs' => $data->optionalProgramsHtml,
                 'seo_name' => $data->seoName,
                 'short_description' => RichTextSanitizer::sanitize($data->shortDescription),
                 'notes' => RichTextSanitizer::sanitize($data->notesHtml),

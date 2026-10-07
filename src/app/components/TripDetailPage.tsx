@@ -240,10 +240,16 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 gallery={trip.gallery}
               />
 
+              <OfferContentSection title="Kedvcsináló" content={trip.teaser} />
+
               <OfferProgramTimeline
                 programDays={trip.programDays}
                 intro={trip.programBefore}
               />
+
+              <OfferContentSection title="Fakultatív programok" content={trip.optionalPrograms} />
+
+              <OfferContentSection title="Belépőjegyek" content={trip.tickets} />
 
               <OfferContentSection
                 title="Kiegészítő / fizető programok"

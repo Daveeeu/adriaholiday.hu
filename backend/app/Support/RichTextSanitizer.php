@@ -25,6 +25,12 @@ class RichTextSanitizer
         'a',
         'span',
         'img',
+        'table',
+        'thead',
+        'tbody',
+        'tr',
+        'th',
+        'td',
     ];
 
     private const ALLOWED_STYLES = [
@@ -128,6 +134,14 @@ class RichTextSanitizer
 
                 if ($sanitizedStyle !== null) {
                     $element->setAttribute('style', $sanitizedStyle);
+                }
+
+                continue;
+            }
+
+            if (in_array($tag, ['td', 'th'], true) && in_array($name, ['colspan', 'rowspan'], true)) {
+                if (preg_match('/^[1-9]\d?$/', $value)) {
+                    $element->setAttribute($name, $value);
                 }
 
                 continue;
