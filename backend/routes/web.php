@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\PortfolioSpaController;
+use App\Http\Controllers\ResizedImageController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Http\Request;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', HealthController::class);
 Route::get('/robots.txt', RobotsController::class);
 Route::get('/sitemap.xml', SitemapController::class);
+// Web-sized copies of public images; nginx serves them straight from disk once created.
+Route::get('/img/{width}/{path}.webp', ResizedImageController::class)
+    ->whereNumber('width')
+    ->where('path', '.+');
 Route::redirect('/korutazasok', '/utazasok', 301);
 // Legacy adriaholiday.hu URLs, so links and search results keep working after the switch.
 Route::get('/korutazasok/csoport/{group}/{country?}', function (string $group) {
