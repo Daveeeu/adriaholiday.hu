@@ -4,10 +4,8 @@ import CursorGlow from "../components/CursorGlow";
 import FloatingParticles from "../components/FloatingParticles";
 import ScrollProgress from "../components/ScrollProgress";
 import StickyMobileCTA from "../components/StickyMobileCTA";
-import { useNavigate } from "react-router";
 import Seo from "../seo/Seo";
 import { Suspense, lazy, useEffect } from "react";
-import { resolveCategorySlugFromOfferLink } from "../content/portfolio-offer-routing";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { absoluteUrl } from "../seo/site";
 
@@ -39,7 +37,6 @@ export default function HomeRoute({
   title?: string;
   description?: string;
 }) {
-  const navigate = useNavigate();
   const { settings } = useSiteSettings();
 
   useEffect(() => {
@@ -76,9 +73,6 @@ export default function HomeRoute({
           },
         ]}
       />
-      <h1 className="sr-only">
-        Adria Holiday – Prémium buszos és repülős utazások
-      </h1>
       <AmbientBackground />
       <FloatingParticles />
       <ScrollProgress />
@@ -90,12 +84,7 @@ export default function HomeRoute({
 
       <section className="ah-snap-section">
         <Suspense fallback={<SectionFallback />}>
-          <TravelCategories
-            onCategorySelect={(categorySlug) => {
-              navigate(`/kategoriak/${resolveCategorySlugFromOfferLink(categorySlug)}`);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          />
+          <TravelCategories />
         </Suspense>
       </section>
 

@@ -9,10 +9,8 @@ import {
   type PortfolioHomepageOffer,
 } from '../content/portfolio-homepage-offers-api';
 import { usePortfolioContent } from '../content/PortfolioContentProvider';
-
-interface TravelCategoriesProps {
-  onCategorySelect: (category: string) => void;
-}
+import { resolveCategorySlugFromOfferLink } from '../content/portfolio-offer-routing';
+import MotionLink from './MotionLink';
 
 type TravelCategoryCard = {
   id: string;
@@ -22,9 +20,7 @@ type TravelCategoryCard = {
   link: string;
 };
 
-export default function TravelCategories({
-  onCategorySelect,
-}: TravelCategoriesProps) {
+export default function TravelCategories() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [homepageOffers, setHomepageOffers] = useState<PortfolioHomepageOffer[] | null>(null);
   const [loadError, setLoadError] = useState(false);
@@ -121,9 +117,10 @@ export default function TravelCategories({
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
             {displayCards.map((category, index) => (
-              <motion.button
+              <MotionLink
                 key={category.id}
-                onClick={() => onCategorySelect(category.link)}
+                to={`/kategoriak/${resolveCategorySlugFromOfferLink(category.link)}`}
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="group block text-left"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -202,7 +199,7 @@ export default function TravelCategories({
                     transition={{ duration: 0.3 }}
                   />
                 </motion.div>
-              </motion.button>
+              </MotionLink>
             ))}
           </div>
         )}

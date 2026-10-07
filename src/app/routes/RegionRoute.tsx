@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 
 import LoadingScreen from "../components/LoadingScreen";
 import StaticPage from "./StaticPage";
@@ -10,20 +10,14 @@ import { fetchPortfolioRegionDetail, type PortfolioRegionCard } from "../content
 import { fetchPortfolioRegionOffers, type PortfolioOfferCard } from "../content/portfolio-offers-api";
 import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
 
-function OfferCard({
-  offer,
-  onSelect,
-}: {
-  offer: PortfolioOfferCard;
-  onSelect: (slug: string) => void;
-}) {
+function OfferCard({ offer }: { offer: PortfolioOfferCard }) {
   const card = toUnifiedOfferCardModel(offer);
 
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(offer.seoName)}
-      className="group overflow-hidden rounded-[28px] border border-gray-100 bg-white text-left shadow-[0_12px_34px_rgba(15,23,42,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(15,23,42,0.1)]"
+    <Link
+      to={`/ajanlat/${offer.seoName}`}
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      className="group block overflow-hidden rounded-[28px] border border-gray-100 bg-white text-left shadow-[0_12px_34px_rgba(15,23,42,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(15,23,42,0.1)]"
     >
       <div className="relative h-64 overflow-hidden">
         {card.imageUrl ? (
@@ -54,12 +48,11 @@ function OfferCard({
           </span>
         </div>
       </div>
-    </button>
+    </Link>
   );
 }
 
 export default function RegionRoute() {
-  const navigate = useNavigate();
   const { regionSlug } = useParams();
   const [region, setRegion] = useState<PortfolioRegionCard | null>(null);
   const [offers, setOffers] = useState<PortfolioOfferCard[]>([]);
@@ -184,14 +177,13 @@ export default function RegionRoute() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#07111f]/90 via-[#07111f]/56 to-[#07111f]/22" />
         <div className="relative z-10 mx-auto flex h-full max-w-[1400px] items-end px-8 pb-16 md:px-12 lg:px-20">
           <div className="max-w-3xl">
-            <button
-              type="button"
-              onClick={() => navigate("/utazasok")}
+            <Link
+              to="/utazasok"
               className="mb-8 flex items-center gap-2 text-white/80 transition-colors hover:text-white"
             >
               <ArrowLeft className="size-4" />
               <span className="text-sm font-medium">Vissza az utazásokhoz</span>
-            </button>
+            </Link>
 
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/10 px-4 py-2 text-sm font-bold text-[#7ff2ca] backdrop-blur-md">
               <MapPin className="size-4" />
@@ -233,14 +225,7 @@ export default function RegionRoute() {
           ) : (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
               {offers.map((offer) => (
-                <OfferCard
-                  key={offer.id}
-                  offer={offer}
-                  onSelect={(slug) => {
-                    navigate(`/ajanlat/${slug}`);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                />
+                <OfferCard key={offer.id} offer={offer} />
               ))}
             </div>
           )}

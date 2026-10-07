@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router";
 
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import {
@@ -13,6 +12,7 @@ import {
   type UnifiedOfferCardModel,
 } from "../content/portfolio-offer-card-model";
 import FeaturedCard from "./FeaturedCard";
+import MotionLink from "./MotionLink";
 import FeaturedHeroCard from "./FeaturedHeroCard";
 
 const filters = [
@@ -25,7 +25,6 @@ const filters = [
 ];
 
 export default function FeaturedOffers() {
-  const navigate = useNavigate();
   const { isEditorEnabled } = usePortfolioContent();
   const [selectedFilter, setSelectedFilter] = useState("Összes ajánlat");
   const [tours, setTours] = useState<PortfolioFeaturedTour[] | null>(null);
@@ -214,11 +213,11 @@ export default function FeaturedOffers() {
             viewport={{ once: true }}
             transition={{ delay: 0.25 }}
           >
-            <motion.button
-              className="group rounded-2xl border border-gray-200 bg-white px-8 py-4 text-gray-900 shadow-md transition-all hover:border-[#00c389] hover:shadow-lg"
+            <MotionLink
+              to="/utazasok"
+              className="group inline-block rounded-2xl border border-gray-200 bg-white px-8 py-4 text-gray-900 shadow-md transition-all hover:border-[#00c389] hover:shadow-lg"
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate("/utazasok")}
             >
               <span className="flex items-center gap-2 text-base font-semibold">
                 Összes ajánlat megtekintése
@@ -227,7 +226,7 @@ export default function FeaturedOffers() {
                   strokeWidth={2.5}
                 />
               </span>
-            </motion.button>
+            </MotionLink>
           </motion.div>
         ) : null}
       </div>

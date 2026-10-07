@@ -21,8 +21,8 @@ import {
   Waves,
   type LucideIcon,
 } from "lucide-react";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Link, useSearchParams } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
 import { DEFAULT_HERO_IMAGE } from "../content/default-images";
@@ -144,6 +144,38 @@ function spotlightHighlights(offer: OfferViewModel) {
     offer.card.departureCountText ?? "Fix program",
     offer.card.transportLabel ?? "Szervezett utazás",
   ];
+}
+
+/**
+ * A real link to an offer, so crawlers can follow it and it opens in a new tab on
+ * ctrl/middle click; a plain click goes through onSelect (tracking, scroll).
+ */
+function OfferLink({
+  slug,
+  onSelect,
+  className,
+  children,
+}: {
+  slug: string;
+  onSelect: (slug: string) => void;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      to={`/ajanlat/${slug}`}
+      className={className}
+      onClick={(event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+        event.preventDefault();
+        onSelect(slug);
+      }}
+    >
+      {children}
+    </Link>
+  );
 }
 
 export default function CategoryOffersPage({
@@ -890,16 +922,12 @@ function SpotlightOfferCard({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => onOfferSelect(offer.card.seoName)}
-              className="group rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-6 py-4 text-white shadow-[0_18px_34px_rgba(0,195,137,0.24)]"
-            >
+            <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="inline-block group rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-6 py-4 text-white shadow-[0_18px_34px_rgba(0,195,137,0.24)]">
               <span className="flex items-center gap-2 text-sm font-semibold">
                 Részletek
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
-            </button>
+            </OfferLink>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-2 text-xs">
@@ -1012,11 +1040,7 @@ function RecommendedOfferCard({
   onOfferSelect: (slug: string) => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => onOfferSelect(offer.card.seoName)}
-      className="group relative h-[270px] overflow-hidden rounded-[28px] text-left shadow-[0_14px_40px_rgba(15,23,42,0.08)]"
-    >
+    <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="block group relative h-[270px] overflow-hidden rounded-[28px] text-left shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
       {offer.card.imageUrl ? (
         <img
           src={offer.card.imageUrl}
@@ -1045,7 +1069,7 @@ function RecommendedOfferCard({
           <div className="font-bold text-white">{offer.card.displayedPrice ?? "Ár hamarosan"}</div>
         </div>
       </div>
-    </button>
+    </OfferLink>
   );
 }
 
@@ -1081,11 +1105,7 @@ function ResultOfferCard({
 
   return (
     <div className="group overflow-hidden rounded-[30px] border border-gray-100 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)] transition-all hover:shadow-[0_18px_60px_rgba(0,195,137,0.12)]">
-      <button
-        type="button"
-        onClick={() => onOfferSelect(offer.card.seoName)}
-        className="relative block h-[240px] w-full overflow-hidden text-left"
-      >
+      <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="relative block h-[240px] w-full overflow-hidden text-left">
         {offer.card.imageUrl ? (
           <img
             src={offer.card.imageUrl}
@@ -1111,7 +1131,7 @@ function ResultOfferCard({
             <p className="mt-2 line-clamp-2 text-sm text-white/75">{offer.card.description}</p>
           ) : null}
         </div>
-      </button>
+      </OfferLink>
 
       <div className="p-6">
         <div className="mb-5 grid grid-cols-2 gap-3">
@@ -1137,16 +1157,12 @@ function ResultOfferCard({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => onOfferSelect(offer.card.seoName)}
-            className="group/btn shrink-0 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-5 py-3 text-white shadow-lg"
-          >
+          <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="inline-block group/btn shrink-0 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-5 py-3 text-white shadow-lg">
             <span className="flex items-center gap-2 text-sm font-semibold">
               Részletek
               <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
             </span>
-          </button>
+          </OfferLink>
         </div>
       </div>
     </div>
@@ -1224,17 +1240,13 @@ function ChoiceHelpBanner({
             <MetricCard value={displayCount(countryCount)} label="Európai ország" />
           </div>
 
-          <button
-            type="button"
-            onClick={() => onOfferSelect(offer.card.seoName)}
-            className="group relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-7 py-5 text-white shadow-[0_20px_50px_rgba(0,195,137,0.28)]"
-          >
+          <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="inline-block group relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-7 py-5 text-white shadow-[0_20px_50px_rgba(0,195,137,0.28)]">
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
             <span className="relative flex items-center justify-center gap-3 text-lg font-semibold">
               Segíts választani
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </span>
-          </button>
+          </OfferLink>
         </div>
       </div>
     </div>
