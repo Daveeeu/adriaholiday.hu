@@ -112,7 +112,7 @@ export default function OfferProgramTimeline({
                       </h3>
 
                       <div
-                        className="text-gray-600 leading-relaxed max-w-3xl [&_p]:mb-0 [&_p]:leading-relaxed"
+                        className="text-gray-600 leading-relaxed max-w-3xl [&_p]:mb-0 [&_p]:leading-relaxed [&_p+p]:mt-3"
                         dangerouslySetInnerHTML={{
                           __html: descriptionHtml(day.description, intro),
                         }}
