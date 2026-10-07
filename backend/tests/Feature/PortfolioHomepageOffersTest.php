@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BlogCategory;
 use App\Models\HomepageOffer;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
@@ -18,6 +19,23 @@ class PortfolioHomepageOffersTest extends TestCase
         parent::setUp();
 
         $this->seed(DatabaseSeeder::class);
+
+        // The seeded cards link to category pages; give each of them its category.
+        HomepageOffer::query()->pluck('link')->each(fn (string $link) => BlogCategory::query()->firstOrCreate(
+            ['seo_name' => basename($link)],
+            ['active' => true, 'column' => '1', 'sort_order' => 0],
+        ));
+    }
+
+    public function test_cards_linking_to_a_missing_category_are_left_out(): void
+    {
+        $card = HomepageOffer::query()->orderBy('sort_order')->firstOrFail();
+        BlogCategory::query()->where('seo_name', basename((string) $card->link))->delete();
+
+        $response = $this->getJson('/api/portfolio/homepage-offers')->assertOk();
+
+        $this->assertNotContains($card->id, array_column($response->json('items'), 'id'));
+        $response->assertJsonCount(5, 'items');
     }
 
     public function test_public_portfolio_homepage_offers_returns_active_offers_in_sort_order(): void

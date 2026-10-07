@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogArticle;
-use App\Models\BlogCategory;
 use App\Models\HomepageOffer;
 use App\Models\Region;
 use App\Models\Tour;
+use App\Support\PortfolioCategoryLinks;
 use App\Support\PublicContentCache;
 use App\Support\Seo\PublicSiteUrl;
 use Illuminate\Http\Response;
@@ -72,14 +72,7 @@ class SitemapController extends Controller
      */
     private function categoryPages(): Collection
     {
-        $categorySlugs = BlogCategory::query()
-            ->where('active', true)
-            ->with('translations')
-            ->get()
-            ->flatMap(fn (BlogCategory $category): array => [$category->seo_name, ...$category->translations->pluck('seo_name')->all()])
-            ->filter()
-            ->unique()
-            ->all();
+        $categorySlugs = PortfolioCategoryLinks::existingSlugs();
 
         return HomepageOffer::query()
             ->where('active', true)
@@ -94,7 +87,7 @@ class SitemapController extends Controller
                 $path = $this->categoryPath($offer->link, $translation?->seo_name);
 
                 // Cards may link to a category that does not exist (yet); that page answers 404.
-                if ($path === null || ! in_array(Str::after($path, '/kategoriak/'), $categorySlugs, true)) {
+                if ($path === null || ! PortfolioCategoryLinks::leadsToPage($path, $categorySlugs)) {
                     return null;
                 }
 
