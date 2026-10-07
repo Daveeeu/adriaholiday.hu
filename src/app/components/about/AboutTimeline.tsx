@@ -49,7 +49,7 @@ export default function AboutTimeline() {
                   >
                     <span className="absolute left-[11px] top-2 h-4 w-4 rounded-full border-4 border-[#071321] bg-gradient-to-br from-[#34d399] to-[#38bdf8] shadow-[0_0_24px_rgba(52,211,153,0.6)] md:left-1/2 md:-translate-x-1/2" />
 
-                    <div className={`col-start-2 md:col-start-auto ${isRight ? "md:col-start-2" : "md:text-right"}`}>
+                    <div className={`col-start-2 ${isRight ? "md:col-start-2" : "md:col-start-1 md:text-right"}`}>
                       <p className="bg-gradient-to-r from-[#34d399] to-[#38bdf8] bg-clip-text text-sm font-bold uppercase tracking-[0.2em] text-transparent">
                         {milestone.year}
                       </p>
