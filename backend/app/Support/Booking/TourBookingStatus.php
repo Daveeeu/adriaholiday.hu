@@ -20,6 +20,21 @@ final class TourBookingStatus
     public const EXPIRED = 'expired';
 
     /**
+     * The status as the admin shows it.
+     */
+    public static function label(string $status): string
+    {
+        return match ($status) {
+            self::NEW => 'Új',
+            self::CONTACTED => 'Felvéve a kapcsolat',
+            self::CONFIRMED => 'Megerősítve',
+            self::CANCELLED => 'Lemondva',
+            self::EXPIRED => 'Lejárt',
+            default => $status,
+        };
+    }
+
+    /**
      * @return array<int, string>
      */
     public static function all(): array

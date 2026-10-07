@@ -15,6 +15,10 @@ use App\Http\Resources\BookingResource;
 use App\Models\AnalyticsEvent;
 use App\Models\Booking;
 use App\Services\Booking\TourBookingStatusService;
+use App\Support\Booking\BookingDocumentData;
+use App\Support\Booking\TourBookingStatus;
+use App\Support\DocumentBranding;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Activity;
@@ -27,7 +31,7 @@ class BookingController extends Controller
     {
         $this->authorizeResource(Booking::class, 'booking');
         $this->middleware('permission:bookings.viewAny')->only('index');
-        $this->middleware('permission:bookings.view')->only(['show', 'activities', 'analytics', 'emails']);
+        $this->middleware('permission:bookings.view')->only(['show', 'activities', 'analytics', 'emails', 'pdf']);
         $this->middleware('permission:bookings.create')->only('store');
         $this->middleware('permission:bookings.update')->only('update');
         $this->middleware('permission:bookings.delete')->only('destroy');
@@ -205,6 +209,25 @@ class BookingController extends Controller
         $this->ensureBookingTypeMatches($request, $booking);
 
         return BookingEmailLogResource::collection($booking->emailLogs);
+    }
+
+    /**
+     * The booking's details as a branded PDF (trip, contact, passengers, price,
+     * insurance, payment, status and admin note).
+     */
+    public function pdf(Request $request, Booking $booking)
+    {
+        $this->ensureBookingTypeMatches($request, $booking);
+        $this->authorize('view', $booking);
+
+        $document = new BookingDocumentData($booking->loadMissing('tourDate'), $booking->tour);
+
+        return Pdf::loadView('pdf.booking', [
+            ...$document->toArray(),
+            'statusLabel' => TourBookingStatus::label((string) $booking->status),
+            'branding' => DocumentBranding::resolve(),
+            'generatedAt' => now()->format('Y.m.d. H:i'),
+        ])->download('foglalas-'.Str::slug($booking->offer_code ?: (string) $booking->id).'.pdf');
     }
 
     public function export(Request $request)

@@ -328,6 +328,11 @@ export async function getTourBookingEmails(id: string): Promise<BookingEmailLog[
   return Array.isArray(response) ? response : response.data;
 }
 
+/** Downloads the booking's details as a branded PDF. */
+export function downloadTourBookingPdf(bookingId: string | number) {
+  return apiClient.download(`/api/admin/bookings/tour-bookings/${bookingId}/pdf`, `foglalas-${bookingId}.pdf`);
+}
+
 export function exportTourBookingsCsv(): Promise<string> {
   return apiClient.get<string>('/api/admin/bookings/tour-bookings/export');
 }

@@ -1,8 +1,10 @@
+import { useMutation } from '@tanstack/react-query';
 import { FileJson, Printer, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 
+import { downloadTourBookingPdf } from '../../lib/bookings.api';
 import type { TourBookingDetail } from '../../lib/bookings.types';
 
 function downloadJson(booking: TourBookingDetail) {
@@ -16,9 +18,14 @@ function downloadJson(booking: TourBookingDetail) {
 }
 
 export function BookingExportActions({ booking }: { booking: TourBookingDetail }) {
+  const pdfMutation = useMutation({
+    mutationFn: () => downloadTourBookingPdf(booking.id),
+    onError: () => toast.error('Nem sikerült elkészíteni a PDF-et.'),
+  });
+
   return (
     <div className="flex flex-wrap gap-2">
-      <Button type="button" variant="outline" size="sm" onClick={() => toast.info('A PDF export hamarosan elérhető lesz.')}>
+      <Button type="button" variant="outline" size="sm" disabled={pdfMutation.isPending} onClick={() => pdfMutation.mutate()}>
         <FileText className="size-4" />
         PDF
       </Button>
