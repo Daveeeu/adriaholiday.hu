@@ -1,4 +1,4 @@
-import { Copy, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Copy, Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, type UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -29,14 +29,15 @@ type TourDateExtrasEditorProps = {
 /**
  * Priced supplements ("felárak") of one tour date. Prices can differ per
  * date, so each date keeps its own list; copying makes setting up a tour
- * with many identical dates quick.
+ * with many identical dates quick. The list order is the order the booking
+ * form shows them in, two per row.
  */
 export function TourDateExtrasEditor({
   form,
   dateIndex,
   dateCount,
 }: TourDateExtrasEditorProps) {
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control: form.control,
     name: `dates.${dateIndex}.extras`,
     keyName: 'fieldKey',
@@ -75,7 +76,8 @@ export function TourDateExtrasEditor({
           <h4 className="text-sm font-semibold">Felárak</h4>
           <p className="text-xs text-muted-foreground">
             A foglaláskor választható vagy kötelezően felszámított tételek ennél
-            az időpontnál.
+            az időpontnál. A foglalásnál ebben a sorrendben, soronként kettesével
+            jelennek meg.
           </p>
         </div>
 
@@ -172,15 +174,37 @@ export function TourDateExtrasEditor({
               </FormItem>
             )}
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            aria-label="Felár törlése"
-            onClick={() => remove(extraIndex)}
-          >
-            <Trash2 className="size-4" />
-          </Button>
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label="Felár feljebb"
+              disabled={extraIndex === 0}
+              onClick={() => move(extraIndex, extraIndex - 1)}
+            >
+              <ArrowUp className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label="Felár lejjebb"
+              disabled={extraIndex === fields.length - 1}
+              onClick={() => move(extraIndex, extraIndex + 1)}
+            >
+              <ArrowDown className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label="Felár törlése"
+              onClick={() => remove(extraIndex)}
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
           <FormField
             control={form.control}
             name={`dates.${dateIndex}.extras.${extraIndex}.choices`}

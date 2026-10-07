@@ -58,12 +58,41 @@ class TourContentSyncService
             $tour->dates()->save($tourDate);
 
             if (array_key_exists('extras', $date)) {
+                $extras = $this->keepStoredExtraOrder($tourDate, $date['extras'] ?? []);
                 $tourDate->extras()->delete();
-                $this->createDateExtras($tourDate, $date['extras'] ?? []);
+                $this->createDateExtras($tourDate, $extras);
             }
         }
 
         $unmatched->each->delete();
+    }
+
+    /**
+     * Extras sent without a sort order (the legacy import) keep the position
+     * an admin gave the extra of the same name, so a re-import does not undo
+     * a reordering; new ones go after them. The admin form always sends one.
+     *
+     * @param  array<int, array<string, mixed>>  $extras
+     * @return array<int, array<string, mixed>>
+     */
+    private function keepStoredExtraOrder(TourDate $tourDate, array $extras): array
+    {
+        if (! $tourDate->exists || collect($extras)->every(fn (array $extra): bool => isset($extra['sort_order']))) {
+            return $extras;
+        }
+
+        $storedOrder = $tourDate->extras()->pluck('sort_order', 'name');
+        $nextOrder = (int) $storedOrder->max();
+
+        return collect($extras)
+            ->values()
+            ->map(fn (array $extra): array => [
+                ...$extra,
+                'sort_order' => $extra['sort_order'] ?? $storedOrder->get(trim((string) ($extra['name'] ?? ''))) ?? ++$nextOrder,
+            ])
+            ->sortBy('sort_order')
+            ->values()
+            ->all();
     }
 
     /**

@@ -248,4 +248,21 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         $this->assertSame('Hotel***', $tour->accommodation);
         $this->assertFalse(TourDeparturePlace::query()->where('name', 'Miskolc-Mezőkövesd')->exists());
     }
+
+    public function test_update_keeps_the_extra_order_set_in_the_admin(): void
+    {
+        $importer = app(LegacyTourImporter::class);
+        $importer->import($this->offerData(), updateExisting: false);
+        $date = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail()
+            ->dates()->orderBy('start_date')->firstOrFail();
+        $date->extras()->where('name', 'Vacsora')->update(['sort_order' => 2]);
+        $date->extras()->where('name', 'Egyágyas felár')->update(['sort_order' => 1]);
+
+        $data = $this->offerData();
+        $dates = $data->dates;
+        $dates[0]['extras'][] = ['name' => 'Reptéri transzfer', 'price' => 9000.0, 'price_unit' => 'per_person', 'charge_rule' => 'optional', 'choices' => []];
+        $importer->import(new LegacyOfferData(...[...get_object_vars($data), 'dates' => $dates]), updateExisting: true);
+
+        $this->assertSame(['Egyágyas felár', 'Vacsora', 'Reptéri transzfer'], $date->fresh()->extras->pluck('name')->all());
+    }
 }
