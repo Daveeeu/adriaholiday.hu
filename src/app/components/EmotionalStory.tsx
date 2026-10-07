@@ -1,9 +1,12 @@
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { useRef } from "react";
+import { Link } from "react-router";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { EditableMedia } from "../content/EditableFields";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+
+const MotionLink = motion.create(Link);
 
 export default function EmotionalStory() {
   const { getValue } = usePortfolioContent();
@@ -19,6 +22,7 @@ export default function EmotionalStory() {
       "Nem csak úti célokat mutatunk meg. Élményeket adunk, amelyek évekkel később is veled maradnak.",
     ),
   );
+  const ctaUrl = String(getValue("home.story.cta.url", "/utazasok"));
   const ctaLabel = String(
     getValue("home.story.cta.label", "Fedezd fel az utakat"),
   );
@@ -165,8 +169,9 @@ export default function EmotionalStory() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <motion.button
-              className="group relative px-9 py-4 bg-white/10 backdrop-blur-2xl text-white rounded-[24px] border border-white/15 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+            <MotionLink
+              to={ctaUrl}
+              className="group relative inline-block px-9 py-4 bg-white/10 backdrop-blur-2xl text-white rounded-[24px] border border-white/15 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
               whileHover={{
                 scale: 1.03,
                 borderColor: "rgba(0,195,137,0.45)",
@@ -214,7 +219,7 @@ export default function EmotionalStory() {
                   <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
                 </motion.div>
               </span>
-            </motion.button>
+            </MotionLink>
           </motion.div>
 
           {/* Footer Quote */}
