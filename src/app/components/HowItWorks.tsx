@@ -1,6 +1,5 @@
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
 import LazyLottie from "./LazyLottie";
 
 import { useLottieAnimation } from "../hooks/useLottieAnimation";
@@ -9,6 +8,7 @@ import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import MotionLink from "./MotionLink";
+import { HOVER_HOST } from "../lib/hoverHost";
 
 type StepContent = {
   number: string;
@@ -49,9 +49,22 @@ const STEP_COLORS = [
   "from-[#0ea5e9] to-[#00c389]",
 ];
 
+const STEP_LIFT: Variants = { rest: { y: 0 }, hover: { y: -6 } };
+
+const ICON_LIFT: Variants = { rest: { y: 0 }, hover: { y: -4 } };
+
+const BADGE_WIGGLE: Variants = {
+  rest: { rotate: 0 },
+  hover: { rotate: [0, 6, -6, 0], transition: { duration: 2.2, repeat: Infinity, ease: "easeInOut" } },
+};
+
+const STEP_OUTLINE: Variants = {
+  rest: { boxShadow: "inset 0 0 0 0px rgba(0,195,137,0)" },
+  hover: { boxShadow: "inset 0 0 0 1.5px rgba(0,195,137,0.16)" },
+};
+
 export default function HowItWorks() {
   const { getValue } = usePortfolioContent();
-  const [hoveredStep, setHoveredStep] = useState<number | null>(null);
   const loadingAnimation = useLottieAnimation("loading.json");
   const earthPlaneAnimation = useLottieAnimation("rotating-earth-and-paper-plane.json");
   const onlinePlaneAnimation = useLottieAnimation("earth.json");
@@ -138,103 +151,93 @@ export default function HowItWorks() {
           <div className="hidden lg:block absolute top-[98px] left-[17%] right-[17%] h-px bg-gradient-to-r from-transparent via-[#16b8ff]/35 to-transparent" />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 items-stretch">
-            {steps.map((step, index) => {
-              const isHovered = hoveredStep === index;
-
-              return (
-                <motion.article
-                  key={step.number}
-                  className="group relative min-h-[405px] rounded-[34px] bg-white/86 backdrop-blur-xl border border-white shadow-[0_18px_60px_rgba(15,23,42,0.08)] p-7 md:p-8 overflow-hidden"
-                  initial={{ opacity: 0, y: 34 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{
-                    duration: 0.65,
-                    delay: index * 0.1,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  whileHover={{ y: -6 }}
-                  onMouseEnter={() => setHoveredStep(index)}
-                  onMouseLeave={() => setHoveredStep(null)}
-                >
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-0 group-hover:opacity-[0.045] transition-opacity duration-500`}
-                  />
-
-                  <div
-                    className={`absolute top-4 right-5 text-[118px] font-black leading-none bg-gradient-to-br ${step.color} bg-clip-text text-transparent opacity-[0.055] pointer-events-none select-none`}
+            {steps.map((step, index) => (
+              <motion.div
+                key={step.number}
+                className="h-full"
+                initial={{ opacity: 0, y: 34 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{
+                  duration: 0.65,
+                  delay: index * 0.1,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+              >
+                <motion.div className="h-full" {...HOVER_HOST}>
+                  <motion.article
+                    className="group relative h-full min-h-[405px] rounded-[34px] bg-white/86 backdrop-blur-xl border border-white shadow-[0_18px_60px_rgba(15,23,42,0.08)] p-7 md:p-8 overflow-hidden"
+                    variants={STEP_LIFT}
+                    transition={{ type: "spring", stiffness: 360, damping: 26 }}
                   >
-                    {step.number}
-                  </div>
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-0 group-hover:opacity-[0.045] transition-opacity duration-500`}
+                    />
 
-                  <div className="relative z-10 flex flex-col h-full">
-                    <motion.div
-                      className="relative mb-7"
-                      animate={{
-                        y: isHovered ? -4 : 0,
-                      }}
-                      transition={{ type: "spring", stiffness: 360, damping: 26 }}
+                    <div
+                      className={`absolute top-4 right-5 text-[118px] font-black leading-none bg-gradient-to-br ${step.color} bg-clip-text text-transparent opacity-[0.055] pointer-events-none select-none`}
                     >
-                      <div className="relative w-[138px] h-[138px] rounded-[30px] bg-gradient-to-br from-[#f4fffb] to-[#eef8ff] border border-white shadow-[0_15px_42px_rgba(15,23,42,0.08)] flex items-center justify-center overflow-hidden">
-                        <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-[0.08]`} />
+                      {step.number}
+                    </div>
 
-                        <div className="relative w-28 h-28">
-                          {step.lottieAnimation ? (
-                            <LazyLottie animationData={step.lottieAnimation} loop autoplay />
-                          ) : null}
+                    <div className="relative z-10 flex flex-col h-full">
+                      <motion.div
+                        className="relative mb-7"
+                        variants={ICON_LIFT}
+                        transition={{ type: "spring", stiffness: 360, damping: 26 }}
+                      >
+                        <div className="relative w-[138px] h-[138px] rounded-[30px] bg-gradient-to-br from-[#f4fffb] to-[#eef8ff] border border-white shadow-[0_15px_42px_rgba(15,23,42,0.08)] flex items-center justify-center overflow-hidden">
+                          <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-[0.08]`} />
+
+                          <div className="relative w-28 h-28">
+                            {step.lottieAnimation ? (
+                              <LazyLottie animationData={step.lottieAnimation} loop autoplay />
+                            ) : null}
+                          </div>
+
+                          <motion.div
+                            className={`absolute top-3 right-3 w-10 h-10 rounded-full bg-gradient-to-br ${step.color} text-white flex items-center justify-center shadow-lg`}
+                            variants={BADGE_WIGGLE}
+                          >
+                            {renderContentIcon(step.icon, "w-4 h-4")}
+                          </motion.div>
+                        </div>
+                      </motion.div>
+
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="inline-flex items-center justify-center px-4 py-2 rounded-2xl bg-[#f8fafc] shadow-sm">
+                          <span className={`bg-gradient-to-r ${step.color} bg-clip-text text-transparent text-base font-black tracking-[0.08em]`}>
+                            {step.number}
+                          </span>
                         </div>
 
-                        <motion.div
-                          className={`absolute top-3 right-3 w-10 h-10 rounded-full bg-gradient-to-br ${step.color} text-white flex items-center justify-center shadow-lg`}
-                          animate={{ rotate: isHovered ? [0, 6, -6, 0] : 0 }}
-                          transition={{
-                            duration: 2.2,
-                            repeat: isHovered ? Infinity : 0,
-                            ease: "easeInOut",
-                          }}
-                        >
-                          {renderContentIcon(step.icon, "w-4 h-4")}
-                        </motion.div>
-                      </div>
-                    </motion.div>
-
-                    <div className="flex items-center gap-3 mb-5">
-                      <div className="inline-flex items-center justify-center px-4 py-2 rounded-2xl bg-[#f8fafc] shadow-sm">
-                        <span className={`bg-gradient-to-r ${step.color} bg-clip-text text-transparent text-base font-black tracking-[0.08em]`}>
-                          {step.number}
+                        <span className="text-sm font-semibold text-gray-500">
+                          {step.eyebrow}
                         </span>
                       </div>
 
-                      <span className="text-sm font-semibold text-gray-500">
-                        {step.eyebrow}
-                      </span>
+                      <h3 className="text-[#0f172a] text-[1.8rem] font-bold tracking-[-0.035em] leading-tight mb-4">
+                        {step.title}
+                      </h3>
+
+                      <p className="text-gray-600 text-base leading-relaxed mb-8">
+                        {step.description}
+                      </p>
+
+                      <div className="mt-auto">
+                        <div className={`h-[4px] w-full rounded-full bg-gradient-to-r ${step.color} opacity-75`} />
+                      </div>
                     </div>
 
-                    <h3 className="text-[#0f172a] text-[1.8rem] font-bold tracking-[-0.035em] leading-tight mb-4">
-                      {step.title}
-                    </h3>
-
-                    <p className="text-gray-600 text-base leading-relaxed mb-8">
-                      {step.description}
-                    </p>
-
-                    <div className="mt-auto">
-                      <div className={`h-[4px] w-full rounded-full bg-gradient-to-r ${step.color} opacity-75`} />
-                    </div>
-                  </div>
-
-                  <motion.div
-                    className="absolute inset-0 rounded-[34px] pointer-events-none"
-                    animate={{
-                      boxShadow: isHovered
-                        ? "inset 0 0 0 1.5px rgba(0,195,137,0.16)"
-                        : "inset 0 0 0 0px rgba(0,195,137,0)",
-                    }}
-                    transition={{ duration: 0.25 }}
-                  />
-                </motion.article>
-              );
-            })}
+                    <motion.div
+                      className="absolute inset-0 rounded-[34px] pointer-events-none"
+                      variants={STEP_OUTLINE}
+                      transition={{ duration: 0.25 }}
+                    />
+                  </motion.article>
+                </motion.div>
+              </motion.div>
+            ))}
           </div>
         </div>
 

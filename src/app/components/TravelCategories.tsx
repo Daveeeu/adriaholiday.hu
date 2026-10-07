@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, type Variants } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { EditableText } from '../content/EditableFields';
@@ -11,6 +11,7 @@ import {
 import { usePortfolioContent } from '../content/PortfolioContentProvider';
 import { resolveCategorySlugFromOfferLink } from '../content/portfolio-offer-routing';
 import MotionLink from './MotionLink';
+import { HOVER_HOST } from "../lib/hoverHost";
 import { responsiveImage } from "../lib/responsiveImage";
 
 type TravelCategoryCard = {
@@ -21,8 +22,21 @@ type TravelCategoryCard = {
   link: string;
 };
 
+const CARD_LIFT: Variants = { rest: { y: 0 }, hover: { y: -8 } };
+
+const IMAGE_ZOOM: Variants = { rest: { scale: 1 }, hover: { scale: 1.08 } };
+
+const ARROW_HIGHLIGHT: Variants = {
+  rest: { x: 0, backgroundColor: 'rgba(255, 255, 255, 0.15)' },
+  hover: { x: 4, backgroundColor: 'rgba(0, 195, 137, 0.9)' },
+};
+
+const CARD_OUTLINE: Variants = {
+  rest: { boxShadow: 'inset 0 0 0 0px rgba(0, 195, 137, 0)' },
+  hover: { boxShadow: 'inset 0 0 0 2px rgba(0, 195, 137, 0.2)' },
+};
+
 export default function TravelCategories() {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [homepageOffers, setHomepageOffers] = useState<PortfolioHomepageOffer[] | null>(null);
   const [loadError, setLoadError] = useState(false);
   const { isEditorEnabled } = usePortfolioContent();
@@ -118,92 +132,81 @@ export default function TravelCategories() {
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
             {displayCards.map((category, index) => (
-              <MotionLink
+              <motion.div
                 key={category.id}
-                to={`/kategoriak/${resolveCategorySlugFromOfferLink(category.link)}`}
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="group block text-left"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
-                onMouseEnter={() => setHoveredId(category.id)}
-                onMouseLeave={() => setHoveredId(null)}
               >
-                <motion.div
-                  className="relative isolate overflow-hidden rounded-[24px] border border-gray-100/50 bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] transition-shadow duration-500 group-hover:shadow-[0_12px_48px_rgba(0,195,137,0.15)]"
-                  animate={{ y: hoveredId === category.id ? -8 : 0 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                <MotionLink
+                  to={`/kategoriak/${resolveCategorySlugFromOfferLink(category.link)}`}
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="group block text-left"
+                  {...HOVER_HOST}
                 >
-                  <div className="relative isolate h-72 overflow-hidden">
-                    <motion.img
-                      {...responsiveImage(category.image)}
-                      sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
-                      loading="lazy"
-                      decoding="async"
-                      alt={category.title}
-                      className="h-full w-full object-cover"
-                      animate={{
-                        scale: hoveredId === category.id ? 1.08 : 1,
-                      }}
-                      transition={{
-                        duration: 0.8,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                    />
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/75 via-[#0f172a]/25 to-transparent" />
-
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3
-                        className="mb-2 text-white"
-                        style={{
-                          fontSize: '1.45rem',
-                          fontWeight: 700,
-                          letterSpacing: '-0.02em',
-                          lineHeight: 1.2,
+                  <motion.div
+                    className="relative isolate overflow-hidden rounded-[24px] border border-gray-100/50 bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] transition-shadow duration-500 group-hover:shadow-[0_12px_48px_rgba(0,195,137,0.15)]"
+                    variants={CARD_LIFT}
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  >
+                    <div className="relative isolate h-72 overflow-hidden">
+                      <motion.img
+                        {...responsiveImage(category.image)}
+                        sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+                        loading="lazy"
+                        decoding="async"
+                        alt={category.title}
+                        className="h-full w-full object-cover"
+                        variants={IMAGE_ZOOM}
+                        transition={{
+                          duration: 0.8,
+                          ease: [0.16, 1, 0.3, 1],
                         }}
-                      >
-                        {category.title}
-                      </h3>
+                      />
 
-                      <div className="flex items-center justify-between">
-                        <div className="max-w-[75%] text-sm font-medium text-white/80">
-                          {category.description}
-                        </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/75 via-[#0f172a]/25 to-transparent" />
 
-                        <motion.div
-                          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm"
-                          animate={{
-                            x: hoveredId === category.id ? 4 : 0,
-                            backgroundColor:
-                              hoveredId === category.id
-                                ? 'rgba(0, 195, 137, 0.9)'
-                                : 'rgba(255, 255, 255, 0.15)',
+                      <div className="absolute bottom-0 left-0 right-0 p-6">
+                        <h3
+                          className="mb-2 text-white"
+                          style={{
+                            fontSize: '1.45rem',
+                            fontWeight: 700,
+                            letterSpacing: '-0.02em',
+                            lineHeight: 1.2,
                           }}
-                          transition={{ duration: 0.3 }}
                         >
-                          <ArrowRight
-                            className="h-4 w-4 text-white"
-                            strokeWidth={2.5}
-                          />
-                        </motion.div>
+                          {category.title}
+                        </h3>
+
+                        <div className="flex items-center justify-between">
+                          <div className="max-w-[75%] text-sm font-medium text-white/80">
+                            {category.description}
+                          </div>
+
+                          <motion.div
+                            className="flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm"
+                            variants={ARROW_HIGHLIGHT}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <ArrowRight
+                              className="h-4 w-4 text-white"
+                              strokeWidth={2.5}
+                            />
+                          </motion.div>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <motion.div
-                    className="pointer-events-none absolute inset-0 rounded-[24px]"
-                    animate={{
-                      boxShadow:
-                        hoveredId === category.id
-                          ? 'inset 0 0 0 2px rgba(0, 195, 137, 0.2)'
-                          : 'inset 0 0 0 0px rgba(0, 195, 137, 0)',
-                    }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </motion.div>
-              </MotionLink>
+                    <motion.div
+                      className="pointer-events-none absolute inset-0 rounded-[24px]"
+                      variants={CARD_OUTLINE}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </motion.div>
+                </MotionLink>
+              </motion.div>
             ))}
           </div>
         )}

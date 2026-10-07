@@ -1,4 +1,4 @@
-import { motion, useInView } from "motion/react";
+import { motion, useInView, type Variants } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import {
   ArrowRight,
@@ -13,6 +13,7 @@ import TestimonialCarousel from "./TestimonialCarousel";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
+import { HOVER_HOST } from "../lib/hoverHost";
 
 interface Stat {
   icon: string;
@@ -100,9 +101,15 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
   );
 }
 
+// Every other card sits lower (xl:translate-y-4) and lifts downwards.
+const STAT_LIFT_UP: Variants = { rest: { y: 0 }, hover: { y: -8 } };
+
+const STAT_LIFT_DOWN: Variants = { rest: { y: 0 }, hover: { y: 8 } };
+
+const STAT_ICON_TILT: Variants = { rest: { scale: 1, rotate: 0 }, hover: { scale: 1.08, rotate: 4 } };
+
 export default function TrustSection() {
   const { getValue } = usePortfolioContent();
-  const [hoveredStat, setHoveredStat] = useState<number | null>(null);
 
   const stats = getValue("home.trust.stats", statsFallback) as Stat[];
 
@@ -155,49 +162,48 @@ export default function TrustSection() {
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
-              className={`group relative bg-white/92 backdrop-blur-xl rounded-[28px] p-6 border border-gray-100 overflow-hidden shadow-[0_12px_42px_rgba(15,23,42,0.06)] hover:shadow-[0_22px_65px_rgba(0,195,137,0.14)] transition-all duration-500 ${
-                index % 2 === 1 ? "xl:translate-y-4" : ""
-              }`}
+              className={index % 2 === 1 ? "xl:translate-y-4" : undefined}
               initial={{ opacity: 0, y: 22 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.08 }}
-              whileHover={{ y: index % 2 === 1 ? 8 : -8 }}
-              onMouseEnter={() => setHoveredStat(index)}
-              onMouseLeave={() => setHoveredStat(null)}
             >
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-              <div className="flex items-start justify-between gap-4 mb-5">
+              <motion.div className="h-full" {...HOVER_HOST}>
                 <motion.div
-                  className="relative inline-flex items-center justify-center w-14 h-14 rounded-[20px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 border border-[#00c389]/10"
-                  animate={{
-                    scale: hoveredStat === index ? 1.08 : 1,
-                    rotate: hoveredStat === index ? 4 : 0,
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="group relative h-full bg-white/92 backdrop-blur-xl rounded-[28px] p-6 border border-gray-100 overflow-hidden shadow-[0_12px_42px_rgba(15,23,42,0.06)] hover:shadow-[0_22px_65px_rgba(0,195,137,0.14)] transition-shadow duration-500"
+                  variants={index % 2 === 1 ? STAT_LIFT_DOWN : STAT_LIFT_UP}
                 >
-                  <div className="text-[#00c389]">{renderContentIcon(stat.icon, "w-6 h-6")}</div>
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                  <div className="flex items-start justify-between gap-4 mb-5">
+                    <motion.div
+                      className="relative inline-flex items-center justify-center w-14 h-14 rounded-[20px] bg-gradient-to-br from-[#00c389]/10 to-[#16b8ff]/10 border border-[#00c389]/10"
+                      variants={STAT_ICON_TILT}
+                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    >
+                      <div className="text-[#00c389]">{renderContentIcon(stat.icon, "w-6 h-6")}</div>
+                    </motion.div>
+
+                    <span className="text-[11px] font-bold tracking-[0.2em] text-gray-300">
+                      0{index + 1}
+                    </span>
+                  </div>
+
+                  <div className="mb-3">
+                    <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                  </div>
+
+                  <h3 className="text-[#0f172a] text-lg font-bold mb-2">
+                    {stat.label}
+                  </h3>
+
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {stat.description}
+                  </p>
+
+                  <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-[#00c389] to-[#16b8ff]" />
                 </motion.div>
-
-                <span className="text-[11px] font-bold tracking-[0.2em] text-gray-300">
-                  0{index + 1}
-                </span>
-              </div>
-
-              <div className="mb-3">
-                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-              </div>
-
-              <h3 className="text-[#0f172a] text-lg font-bold mb-2">
-                {stat.label}
-              </h3>
-
-              <p className="text-gray-500 text-sm leading-relaxed">
-                {stat.description}
-              </p>
-
-              <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-[#00c389] to-[#16b8ff]" />
+              </motion.div>
             </motion.div>
           ))}
         </motion.div>
