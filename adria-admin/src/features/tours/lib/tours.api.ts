@@ -45,6 +45,11 @@ export async function getTours(
   });
 }
 
+/** Downloads the tour's branded program PDF (the one visitors get on the offer page). */
+export function downloadTourPdf(tour: { id: string | number; seoName?: string | null }) {
+  return apiClient.download(`/api/admin/tours/${tour.id}/pdf`, `${tour.seoName || `ut-${tour.id}`}-program.pdf`);
+}
+
 export async function getTourById(id: string): Promise<TourDetail> {
   const response = await apiClient.get<Tour | ResourceEnvelope<Tour>>(
     `/api/admin/tours/${id}`,

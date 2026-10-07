@@ -181,6 +181,7 @@ Route::prefix('admin')
 
         Route::apiResource('tours', TourController::class);
         Route::patch('tours/{tour}/status', [TourController::class, 'status']);
+        Route::get('tours/{tour}/pdf', [TourController::class, 'pdf']);
         Route::post('tours/{tour}/duplicate', [TourController::class, 'duplicate']);
         Route::patch('tours/reorder', [TourController::class, 'reorder']);
         Route::post('tours/{tour}/move', [TourController::class, 'move']);

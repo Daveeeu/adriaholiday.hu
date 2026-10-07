@@ -11,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowUpDown,
   Copy,
+  FileDown,
   Eye,
   Pencil,
   Power,
@@ -41,6 +42,7 @@ import type { Tour, TourFormValues, TourListQuery } from '../lib/tours.types';
 import {
   createTour,
   deleteTour,
+  downloadTourPdf,
   duplicateTourOffer,
   getTours,
   getTourById,
@@ -130,6 +132,7 @@ export function ToursPage() {
   const canDelete = hasPermission('tours.delete');
   const canUpdateStatus = hasPermission('tours.status');
   const canDuplicate = hasPermission('tours.duplicate');
+  const canDownloadPdf = hasPermission('tours.view');
   const canReorder = hasPermission('tours.reorder');
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([
@@ -258,6 +261,11 @@ export function ToursPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: toursQueryKey });
     },
+  });
+
+  const pdfMutation = useMutation({
+    mutationFn: downloadTourPdf,
+    onError: () => toast.error('Nem sikerült elkészíteni a PDF-et.'),
   });
 
   const duplicateMutation = useMutation({
@@ -457,6 +465,18 @@ export function ToursPage() {
                 <Power className="size-4" />
               </Button>
             ) : null}
+            {canDownloadPdf ? (
+              <Button
+                variant="outline"
+                size="icon"
+                title="Program PDF letöltése"
+                aria-label="Program PDF letöltése"
+                disabled={pdfMutation.isPending && pdfMutation.variables?.id === row.original.id}
+                onClick={() => pdfMutation.mutate(row.original)}
+              >
+                <FileDown className="size-4" />
+              </Button>
+            ) : null}
             {canDuplicate ? (
               <Button
                 variant="outline"
@@ -513,6 +533,7 @@ export function ToursPage() {
     ],
     [
       canDelete,
+      canDownloadPdf,
       canDuplicate,
       canReorder,
       canUpdate,
@@ -520,6 +541,7 @@ export function ToursPage() {
       deleteMutation,
       duplicateMutation,
       moveMutation,
+      pdfMutation,
       statusMutation,
     ],
   );

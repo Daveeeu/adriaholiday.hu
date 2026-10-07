@@ -100,11 +100,11 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
 }
 
-export async function request<T>(
-  method: string,
-  path: string,
-  options: BodyRequestOptions = {},
-): Promise<T> {
+/**
+ * Sends an authenticated request and returns the raw response once it is OK;
+ * refused requests notify the auth handlers and throw an ApiError.
+ */
+async function send(method: string, path: string, options: BodyRequestOptions = {}): Promise<Response> {
   const headers = new Headers(options.headers);
   headers.set('Accept', 'application/json');
 
@@ -142,7 +142,37 @@ export async function request<T>(
     throw new ApiError(message, response.status, payload);
   }
 
-  return parseResponse<T>(response);
+  return response;
+}
+
+export async function request<T>(
+  method: string,
+  path: string,
+  options: BodyRequestOptions = {},
+): Promise<T> {
+  return parseResponse<T>(await send(method, path, options));
+}
+
+/** The file name the server suggests in its Content-Disposition header. */
+function attachmentFileName(response: Response): string | null {
+  const disposition = response.headers.get('content-disposition') ?? '';
+  const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+  const plain = disposition.match(/filename="?([^";]+)"?/i)?.[1];
+
+  return encoded ? decodeURIComponent(encoded) : plain ?? null;
+}
+
+/** Downloads a file the API serves (e.g. a generated PDF) and saves it in the browser. */
+async function download(path: string, fallbackFileName: string, options?: RequestOptions): Promise<void> {
+  const response = await send('GET', path, options);
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = attachmentFileName(response) ?? fallbackFileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 export const apiClient = {
@@ -161,6 +191,7 @@ export const apiClient = {
   put<T>(path: string, body?: unknown, options?: RequestOptions) {
     return request<T>('PUT', path, { ...options, body });
   },
+  download,
 };
 
 export type PaginatedResponse<T> = {

@@ -17,6 +17,7 @@ use App\Models\TourDateExtra;
 use App\Models\TourPriceItem;
 use App\Models\TourProgramDay;
 use App\Services\Tour\TourContentSyncService;
+use App\Services\Tour\TourPdfService;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class TourController extends Controller
     {
         $this->authorizeResource(Tour::class, 'tour');
         $this->middleware('permission:tours.viewAny')->only('index');
-        $this->middleware('permission:tours.view')->only('show');
+        $this->middleware('permission:tours.view')->only(['show', 'pdf']);
         $this->middleware('permission:tours.create')->only('store');
         $this->middleware('permission:tours.update')->only('update');
         $this->middleware('permission:tours.delete')->only('destroy');
@@ -236,6 +237,16 @@ class TourController extends Controller
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
 
         return response()->noContent();
+    }
+
+    /**
+     * The tour's program PDF, the same one visitors download, also for inactive tours.
+     */
+    public function pdf(Tour $tour, TourPdfService $pdf)
+    {
+        $this->authorize('view', $tour);
+
+        return $pdf->download($tour);
     }
 
     public function status(UpdateTourStatusRequest $request, Tour $tour)
