@@ -115,11 +115,14 @@ class LegacyTourImporter
                 'price_box_original_price' => $date['original_price'] ?? null,
                 'price_box_discount_badge' => $date['discount_badge'] ?? null,
                 'price_box_label' => $date['label'] ?? null,
-                // Only a sold-out mark is taken over; any other status is the admin's.
+                // Availability follows the legacy site (see reopenDatesBookableAgain());
+                // any other status is the admin's.
                 ...(($date['sold_out'] ?? false) ? ['status' => 'sold_out'] : []),
                 // A date closed for booking has unknown extras: keep the stored ones.
                 ...($date['extras'] !== null ? ['extras' => $date['extras']] : []),
             ], $data->dates));
+
+            $this->reopenDatesBookableAgain($tour, $data);
 
             $this->tourContentSync->syncProgramDays($tour, $data->programDays);
 
@@ -288,5 +291,24 @@ class LegacyTourImporter
     private function isBookable(LegacyOfferData $data): bool
     {
         return collect($data->dates)->contains(fn (array $date): bool => $date['legacy_id'] !== null);
+    }
+
+    /**
+     * A date sold out earlier that the legacy site takes bookings for again
+     * (it has a booking button and no "Betelt" mark) is bookable again.
+     */
+    private function reopenDatesBookableAgain(Tour $tour, LegacyOfferData $data): void
+    {
+        foreach ($data->dates as $date) {
+            if ($date['legacy_id'] === null || ($date['sold_out'] ?? false)) {
+                continue;
+            }
+
+            $tour->dates()
+                ->whereDate('start_date', (string) $date['start_date'])
+                ->whereDate('end_date', (string) $date['end_date'])
+                ->where('status', 'sold_out')
+                ->update(['status' => 'planned']);
+        }
     }
 }

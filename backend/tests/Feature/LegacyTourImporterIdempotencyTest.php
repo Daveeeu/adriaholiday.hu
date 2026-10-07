@@ -287,4 +287,19 @@ class LegacyTourImporterIdempotencyTest extends TestCase
             ->assertJsonPath('dates.0.status', 'planned')
             ->assertJsonPath('dates.1.status', 'sold_out');
     }
+
+    public function test_a_date_bookable_again_on_the_legacy_site_is_no_longer_sold_out(): void
+    {
+        $importer = app(LegacyTourImporter::class);
+        $data = $this->offerData();
+        $soldOut = $data->dates;
+        $soldOut[1]['sold_out'] = true;
+        $importer->import(new LegacyOfferData(...[...get_object_vars($data), 'dates' => $soldOut]), updateExisting: false);
+        $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
+        $this->assertSame('sold_out', $tour->dates()->whereDate('start_date', '2026-10-10')->value('status'));
+
+        $importer->import($data, updateExisting: true);
+
+        $this->assertSame('planned', $tour->dates()->whereDate('start_date', '2026-10-10')->value('status'));
+    }
 }

@@ -78,12 +78,17 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   const { trackEvent } = useAnalytics();
   const dateOptions = trip.dateOptions;
 
-  // Tours without scheduled dates can only be requested as a group quote.
-  const bookingSectionId = trip.hasBookableDates ? "foglalas" : "ajanlatkeres";
-  const [selectedDateId, setSelectedDateId] = useState(dateOptions[0].id);
+  const [selectedDateId, setSelectedDateId] = useState(
+    (dateOptions.find((date) => date.bookable) ?? dateOptions[0]).id,
+  );
   const selectedDate =
     dateOptions.find((item) => item.id === selectedDateId) ||
     dateOptions[0];
+  // A sold-out or cancelled date, or a tour without a bookable date, can
+  // only be requested as a group quote.
+  const canBook = trip.hasBookableDates && selectedDate.bookable;
+  const bookingSectionId = canBook ? "foglalas" : "ajanlatkeres";
+  const bookLabel = canBook ? "Foglalás" : "Ajánlatot kérek";
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
   const selectedSeats = priceBox?.availableSeats ?? selectedDate.seatsLeft ?? null;
@@ -206,6 +211,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
               <PriceBox
                 priceBox={priceBox}
+                bookLabel={bookLabel}
                 onBookClick={() => {
                   trackEvent("booking_anchor_click", {
                     entity: {
@@ -259,15 +265,24 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
               <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
 
-              {trip.hasBookableDates ? (
+              {canBook ? (
                 <BookingSection
                   selectedDate={selectedDate}
                   trip={trip}
                   priceBox={priceBox}
                 />
+              ) : trip.hasBookableDates ? (
+                <div className="rounded-[28px] border border-red-100 bg-red-50 p-6 text-[#0f172a]">
+                  <div className="font-bold mb-1">
+                    A {selectedDate.label} időpont {selectedDate.status === "Törölve" ? "elmarad" : "betelt"}.
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    Válassz egy másik időpontot, vagy kérj ajánlatot alább.
+                  </p>
+                </div>
               ) : null}
 
-              <GroupInquirySection trip={trip} initiallyOpen={!trip.hasBookableDates} />
+              <GroupInquirySection trip={trip} requestOnly={!canBook} />
             </div>
 
             <aside className="space-y-6">
@@ -402,7 +417,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                     }}
                     className="group/cta flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] font-bold text-white shadow-[0_14px_34px_rgba(0,195,137,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_44px_rgba(0,195,137,0.4)]"
                   >
-                    Foglalás
+                    {bookLabel}
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/cta:translate-x-1" />
                   </button>
                 ) : null}
@@ -459,9 +474,11 @@ function formatDiscountedDisplayedPrice(
 
 function PriceBox({
   priceBox,
+  bookLabel,
   onBookClick,
 }: {
   priceBox?: PortfolioPriceBox | null;
+  bookLabel: string;
   onBookClick: () => void;
 }) {
   if (!priceBox) {
@@ -522,7 +539,7 @@ function PriceBox({
         }}
         className="group/cta mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-lg font-bold text-white shadow-[0_20px_40px_rgba(0,195,137,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_26px_52px_rgba(0,195,137,0.4)]"
       >
-        Foglalás
+        {bookLabel}
         <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover/cta:translate-x-1" />
       </a>
     </div>

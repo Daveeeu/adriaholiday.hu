@@ -44,6 +44,11 @@ function formatDateLabel(date: PortfolioOfferDetailDate) {
 
 export type TripDetail = ReturnType<typeof mapOfferToTrip>;
 
+/** Mirrors the backend: sold-out and cancelled dates take no bookings. */
+function isBookableDateStatus(status?: string | null): boolean {
+  return status !== "sold_out" && status !== "cancelled";
+}
+
 function mapOfferToTrip(offer: PortfolioOfferDetail) {
   const primaryImage = offer.image?.url || offer.sliderImage?.url || "";
   const priceBox = offer.priceBox ?? null;
@@ -62,6 +67,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
               : date.status === "cancelled"
                 ? "Törölve"
                 : "Tervezett",
+        bookable: isBookableDateStatus(date.status),
         seatsLeft: offer.seatsLeft ?? null,
         price: date.priceBox?.price ?? date.price ?? offer.priceBox?.price ?? offer.price ?? null,
         displayedPrice: date.priceBox?.displayedPrice ?? null,
@@ -75,6 +81,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
           id: "default",
           label: offer.departureDateLabel || "Érdeklődjön",
           status: "Elérhető",
+          bookable: true,
           seatsLeft: offer.seatsLeft ?? null,
           price: offer.priceBox?.price ?? offer.price ?? null,
           displayedPrice: priceBox?.displayedPrice ?? null,
@@ -128,7 +135,9 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     })),
     bookingInsurances: offer.bookingInsurances ?? null,
     bookingPayment: offer.bookingPayment ?? null,
-    hasBookableDates: offer.dates.length > 0,
+    // Tours without a bookable date (none scheduled, or all sold out or
+    // cancelled) can only be requested as a group quote.
+    hasBookableDates: offer.dates.some((date) => isBookableDateStatus(date.status)),
   };
 }
 

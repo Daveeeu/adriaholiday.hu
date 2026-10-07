@@ -8,8 +8,8 @@ export const GROUP_INQUIRY_MIN_PASSENGERS = 20;
 
 type GroupInquirySectionProps = {
   trip: { id: number | string; slug: string; title: string };
-  /** A tour without bookable dates can only be requested; otherwise the form opens on demand. */
-  initiallyOpen: boolean;
+  /** The selected date cannot be booked (none scheduled, sold out, cancelled): the request form stays open; otherwise it opens on demand. */
+  requestOnly: boolean;
 };
 
 type InquiryValues = {
@@ -74,9 +74,10 @@ const TEXT_FIELDS: Array<{ key: TextField; label: string; type: string; required
  * legacy site's offer: available for groups of at least 20 people, and the
  * only way to book tours that have no scheduled dates.
  */
-export default function GroupInquirySection({ trip, initiallyOpen }: GroupInquirySectionProps) {
+export default function GroupInquirySection({ trip, requestOnly }: GroupInquirySectionProps) {
   const { trackEvent } = useAnalytics();
-  const [open, setOpen] = useState(initiallyOpen);
+  const [openedOnDemand, setOpen] = useState(false);
+  const open = requestOnly || openedOnDemand;
   const [values, setValues] = useState<InquiryValues>(EMPTY_VALUES);
   const [errors, setErrors] = useState<Partial<Record<keyof InquiryValues, string>>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");

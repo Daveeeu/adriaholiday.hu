@@ -357,6 +357,30 @@ class BookingFormTemplateTest extends TestCase
         $response->assertJsonValidationErrors(['tour_date_id']);
     }
 
+    public function test_public_booking_is_rejected_for_a_sold_out_date(): void
+    {
+        $tour = Tour::factory()->create(['active' => true]);
+        $date = $tour->dates()->create([
+            'start_date' => now()->addMonth(),
+            'end_date' => now()->addMonth()->addDays(7),
+            'status' => 'sold_out',
+        ]);
+
+        $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
+            'tourId' => $tour->id,
+            'tourDateId' => $date->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [['passenger_name' => 'Kovács Anna']],
+        ])->assertStatus(422)->assertJsonValidationErrors(['tour_date_id']);
+
+        $this->assertDatabaseCount('bookings', 0);
+    }
+
     public function test_public_booking_without_template_uses_default_required_fields(): void
     {
         $tour = Tour::factory()->create(['active' => true, 'booking_form_template_id' => null]);
