@@ -10,6 +10,7 @@ import {
 import { isRichTextEmpty, sanitizeRichTextHtml } from "@/lib/rich-text";
 
 import RichTextContent from "./RichTextContent";
+import { JUSTIFIED_TEXT } from "../lib/justifiedText";
 
 type OfferContentSectionProps = {
   title: string;
@@ -18,6 +19,20 @@ type OfferContentSectionProps = {
 
 function resolveSectionMeta(title: string) {
   const normalized = title.toLowerCase();
+
+  if (normalized.includes("kedvcsináló")) {
+    return {
+      eyebrow: "HANGOLÓDÁS",
+      icon: Sparkles,
+    };
+  }
+
+  if (normalized.includes("belépő")) {
+    return {
+      eyebrow: "BELÉPŐK",
+      icon: Ticket,
+    };
+  }
 
   if (normalized.includes("fizető") || normalized.includes("program")) {
     return {
@@ -92,7 +107,7 @@ export default function OfferContentSection({
         <div className="p-6 md:p-8 lg:p-9">
           <RichTextContent
             html={html}
-            className="prose-h2:mb-4 prose-h2:text-2xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-xl prose-p:text-[1.02rem] prose-li:leading-7"
+            className={`prose-h2:mb-4 prose-h2:text-2xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-xl prose-p:text-[1.02rem] prose-li:leading-7 ${JUSTIFIED_TEXT}`}
           />
         </div>
       </div>

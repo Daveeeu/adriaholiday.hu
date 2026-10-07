@@ -7,6 +7,7 @@ import { renderContentIcon } from "@/app/content/icon-map";
 import { sanitizeRichTextHtml } from "@/lib/rich-text";
 
 import type { PortfolioOfferProgramDay } from "@/app/content/portfolio-offer-detail-api";
+import { JUSTIFIED_TEXT } from "../lib/justifiedText";
 import { responsiveImage } from "../lib/responsiveImage";
 
 type OfferProgramTimelineProps = {
@@ -112,7 +113,7 @@ export default function OfferProgramTimeline({
                       </h3>
 
                       <div
-                        className="text-gray-600 leading-relaxed max-w-3xl [&_p]:mb-0 [&_p]:leading-relaxed [&_p+p]:mt-3"
+                        className={`text-gray-600 leading-relaxed max-w-3xl [&_p]:mb-0 [&_p]:leading-relaxed [&_p+p]:mt-3 ${JUSTIFIED_TEXT}`}
                         dangerouslySetInnerHTML={{
                           __html: descriptionHtml(day.description, intro),
                         }}
