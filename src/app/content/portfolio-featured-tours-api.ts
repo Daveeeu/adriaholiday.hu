@@ -37,6 +37,8 @@ export type PortfolioFeaturedTour = {
   seatsLeft?: number | null;
   additionalDates?: boolean;
   country?: string | null;
+  categories?: Array<{ id: string; label: string }>;
+  discountBadge?: string | null;
 };
 
 export type PortfolioFeaturedToursResponse = {

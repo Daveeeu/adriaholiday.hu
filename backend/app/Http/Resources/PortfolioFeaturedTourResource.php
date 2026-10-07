@@ -52,6 +52,9 @@ class PortfolioFeaturedTourResource extends JsonResource
             'additionalDates' => (bool) ($meta['additionalDates'] ?? ($tour->dates->count() > 1)),
             'departureDateCount' => (int) $tour->dates->count(),
             'country' => TourMeta::country($tour),
+            'categories' => TourLabelResolver::blogCategoryItems($tour->category_ids ?? []),
+            'discountBadge' => $tour->dates->sortBy('start_date')->pluck('price_box_discount_badge')->filter()->first()
+                ?? $priceBox['discountBadge'] ?? null,
         ];
     }
 }

@@ -4,6 +4,10 @@ import { ArrowRight } from "lucide-react";
 
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import {
+  ALL_OFFERS_FILTER,
+  buildFeaturedOfferFilters,
+} from "../content/featured-offer-filters";
+import {
   fetchPortfolioFeaturedTours,
   type PortfolioFeaturedTour,
 } from "../content/portfolio-featured-tours-api";
@@ -15,18 +19,9 @@ import FeaturedCard from "./FeaturedCard";
 import MotionLink from "./MotionLink";
 import FeaturedHeroCard from "./FeaturedHeroCard";
 
-const filters = [
-  "Összes ajánlat",
-  "Buszos utak",
-  "Tengerpart",
-  "Körutazások",
-  "Last Minute",
-  "Országok",
-];
-
 export default function FeaturedOffers() {
   const { isEditorEnabled } = usePortfolioContent();
-  const [selectedFilter, setSelectedFilter] = useState("Összes ajánlat");
+  const [selectedFilterKey, setSelectedFilterKey] = useState(ALL_OFFERS_FILTER.key);
   const [tours, setTours] = useState<PortfolioFeaturedTour[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -62,39 +57,14 @@ export default function FeaturedOffers() {
     };
   }, []);
 
-  const filteredOffers = useMemo<UnifiedOfferCardModel[]>(() => {
-    const offers = tours ?? [];
+  const filters = useMemo(() => buildFeaturedOfferFilters(tours ?? []), [tours]);
+  const selectedFilter =
+    filters.find((filter) => filter.key === selectedFilterKey) ?? ALL_OFFERS_FILTER;
 
-    const result = offers.filter((offer) => {
-      if (selectedFilter === "Összes ajánlat") return true;
-
-      if (selectedFilter === "Buszos utak") {
-        return offer.transport === "bus";
-      }
-
-      if (selectedFilter === "Tengerpart") {
-        return /tengerpart|strand/i.test(
-          `${offer.shortDescription} ${offer.listDescription}`,
-        );
-      }
-
-      if (selectedFilter === "Körutazások") {
-        return true;
-      }
-
-      if (selectedFilter === "Last Minute") {
-        return offer.badge === "Last Minute";
-      }
-
-      if (selectedFilter === "Országok") {
-        return Boolean(offer.country);
-      }
-
-      return false;
-    });
-
-    return result.slice(0, 6).map(toUnifiedOfferCardModel);
-  }, [selectedFilter, tours]);
+  const filteredOffers = useMemo<UnifiedOfferCardModel[]>(
+    () => (tours ?? []).filter(selectedFilter.matches).slice(0, 6).map(toUnifiedOfferCardModel),
+    [selectedFilter, tours],
+  );
 
   const emptyState =
     isLoading || filteredOffers.length > 0
@@ -144,12 +114,12 @@ export default function FeaturedOffers() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          {filters.map((filter) => (
+          {filters.length > 1 ? filters.map((filter) => (
             <motion.button
-              key={filter}
-              onClick={() => setSelectedFilter(filter)}
+              key={filter.key}
+              onClick={() => setSelectedFilterKey(filter.key)}
               className={`rounded-full px-5 py-2.5 transition-all ${
-                selectedFilter === filter
+                selectedFilter.key === filter.key
                   ? "bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white shadow-md"
                   : "border border-gray-200 bg-white text-gray-600 hover:border-[#00c389]/40 hover:bg-gray-50"
               }`}
@@ -158,9 +128,9 @@ export default function FeaturedOffers() {
               transition={{ type: "spring", stiffness: 500, damping: 35 }}
               style={{ fontSize: "0.875rem", fontWeight: 500 }}
             >
-              {filter}
+              {filter.label}
             </motion.button>
-          ))}
+          )) : null}
         </motion.div>
 
         {isLoading ? (
@@ -173,7 +143,7 @@ export default function FeaturedOffers() {
           <AnimatePresence mode="popLayout">
             {filteredOffers.length > 0 ? (
               <motion.div
-                key={selectedFilter}
+                key={selectedFilter.key}
                 className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}

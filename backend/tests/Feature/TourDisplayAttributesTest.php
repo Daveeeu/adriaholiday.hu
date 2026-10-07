@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BlogCategory;
 use App\Models\Tour;
 use App\Models\TourReferenceOption;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -70,5 +71,17 @@ class TourDisplayAttributesTest extends TestCase
             ->assertJsonPath('transport', 'bus')
             ->assertJsonPath('meals', 'Reggeli')
             ->assertJsonPath('accommodation', 'Apartman');
+    }
+
+    public function test_offer_cards_carry_their_categories_and_discount_for_the_filters(): void
+    {
+        $seaside = BlogCategory::firstOrCreateForName('Tengerpartok');
+        $tour = $this->flightTour(['featured' => true, 'category_ids' => [(string) $seaside->id]]);
+        $tour->dates()->firstOrFail()->update(['price_box_discount_badge' => '-10%']);
+
+        $this->getJson('/api/portfolio/featured-tours')
+            ->assertOk()
+            ->assertJsonPath('items.0.categories', [['id' => (string) $seaside->id, 'label' => 'Tengerpartok']])
+            ->assertJsonPath('items.0.discountBadge', '-10%');
     }
 }
