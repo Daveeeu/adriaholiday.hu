@@ -162,6 +162,30 @@ class Tour extends Model implements HasMedia
             ?? $this->galleryItems->where('active', true)->whereNotNull('media')->sortBy('sort_order')->first()?->media;
     }
 
+    /**
+     * Images a program day without its own image falls back to: the tour's
+     * active gallery images, leaving out the main image (already shown in
+     * the page header) unless it is the only one.
+     *
+     * @return list<string>
+     */
+    public function programDayFallbackImageUrls(): array
+    {
+        $mainImageId = $this->mainImage()?->id;
+        $urls = $this->galleryItems
+            ->where('active', true)
+            ->whereNotNull('media')
+            ->sortBy('sort_order')
+            ->map(fn (TourGalleryItem $item): array => [$item->media->id, $item->media->getUrl()]);
+
+        $withoutMainImage = $urls->reject(fn (array $image): bool => $image[0] === $mainImageId);
+
+        return ($withoutMainImage->isNotEmpty() ? $withoutMainImage : $urls)
+            ->pluck(1)
+            ->values()
+            ->all();
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('slider')->useDisk(config('media-library.disk_name'));

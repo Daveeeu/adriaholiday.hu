@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Tour;
 use App\Services\Booking\BookingFormFieldResolver;
 use App\Services\Booking\BookingPaymentService;
 use App\Support\Booking\BookingInsuranceSettings;
@@ -68,7 +69,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'prices' => $sanitizeContent($tour->prices),
             'discounts' => $sanitizeContent($tour->discounts),
             'notes' => $sanitizeContent($tour->notes, true),
-            'programDays' => TourProgramDayResource::collection($tour->programDays ?? [])->resolve($request),
+            'programDays' => $this->programDays($tour, $request),
             'priceInformation' => [
                 'included' => $priceItems
                     ->where('type', 'included')
@@ -94,5 +95,34 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'bookingInsurances' => BookingInsuranceSettings::load()->toArray(),
             'bookingPayment' => app(BookingPaymentService::class)->publicOptions($tour->price_box_currency ?: 'HUF'),
         ]);
+    }
+
+    /**
+     * Days without their own image get one of the tour's gallery images, in
+     * turn, so neighbouring days show different pictures of the trip.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function programDays(Tour $tour, Request $request): array
+    {
+        $days = TourProgramDayResource::collection($tour->programDays ?? [])->resolve($request);
+        $fallbackImages = $tour->programDayFallbackImageUrls();
+
+        if ($fallbackImages === []) {
+            return $days;
+        }
+
+        $position = 0;
+
+        return array_map(function (array $day) use ($fallbackImages, &$position): array {
+            if (! $day['active']) {
+                return $day;
+            }
+
+            $day['image'] ??= $fallbackImages[$position % count($fallbackImages)];
+            $position++;
+
+            return $day;
+        }, $days);
     }
 }
