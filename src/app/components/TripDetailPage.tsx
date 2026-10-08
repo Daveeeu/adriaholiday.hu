@@ -39,6 +39,8 @@ interface TripDetailPageProps {
   onBack: () => void;
 }
 
+const DATE_PICKER_ID = "idopontok";
+
 type IconLabelValueProps = {
   icon: ReactNode;
   label: ReactNode;
@@ -172,6 +174,19 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               icon={<Calendar />}
               label="Indulás"
               value={selectedDate.label}
+              note={
+                dateOptions.length > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document.getElementById(DATE_PICKER_ID)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                    className="text-[#5eead4] hover:text-white transition-colors"
+                  >
+                    +{dateOptions.length - 1} további időpont
+                  </button>
+                ) : null
+              }
             />
             <HeroInfoCard icon={<Clock />} label="Időtartam" value={trip.duration} />
             <HeroInfoCard
@@ -308,7 +323,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   </div>
                 </div>
 
-                <div className="mb-6">
+                <div id={DATE_PICKER_ID} className="mb-6 scroll-mt-28">
                   <div className="text-[#0f172a] font-bold mb-3">
                     Válassz időpontot
                   </div>
@@ -552,12 +567,13 @@ function PriceBox({
   );
 }
 
-function HeroInfoCard({ icon, label, value }: IconLabelValueProps) {
+function HeroInfoCard({ icon, label, value, note }: IconLabelValueProps & { note?: ReactNode }) {
   return (
     <div className="rounded-[24px] bg-white/10 backdrop-blur-xl border border-white/10 p-5">
       <div className="text-[#00c389] mb-3">{icon}</div>
       <div className="text-white/60 text-sm mb-1">{label}</div>
       <div className="text-white font-bold">{value}</div>
+      {note ? <div className="mt-1 text-sm font-semibold">{note}</div> : null}
     </div>
   );
 }
