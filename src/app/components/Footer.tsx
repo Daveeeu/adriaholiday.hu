@@ -1,10 +1,11 @@
 import { motion } from "motion/react";
-import { Clock, Facebook, Instagram, Mail, MapPin, Phone, Music2 } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
 import { trackEvent } from "../analytics/trackEvent";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { socialLinks, type SocialLink } from "../site-settings/social-links";
 import BarionPaymentBanner from "./BarionPaymentBanner";
 
 function ExternalLink({
@@ -17,7 +18,7 @@ function ExternalLink({
   children: React.ReactNode;
 }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="flex h-full w-full items-center justify-center">
       {children}
     </a>
   );
@@ -27,20 +28,10 @@ export default function Footer() {
   const { settings } = useSiteSettings();
   const { openConsentPreferences } = useAnalytics();
 
-  const socialItems = [
-    settings.facebook
-      ? { icon: Facebook, href: settings.facebook, label: "Facebook" }
-      : null,
-    settings.instagram
-      ? { icon: Instagram, href: settings.instagram, label: "Instagram" }
-      : null,
-    settings.tiktok
-      ? { icon: Music2, href: settings.tiktok, label: "TikTok" }
-      : null,
-    settings.email
-      ? { icon: Mail, href: `mailto:${settings.email}`, label: "Email" }
-      : null,
-  ].filter(Boolean) as Array<{ icon: typeof Facebook; href: string; label: string }>;
+  const socialItems: SocialLink[] = [
+    ...socialLinks(settings),
+    ...(settings.email ? [{ icon: Mail, href: `mailto:${settings.email}`, label: "Email" }] : []),
+  ];
 
   const legalLinks = [
     { label: "ÁSZF", to: settings.termsUrl },
@@ -91,7 +82,6 @@ export default function Footer() {
                 {socialItems.map((social) => (
                   <motion.div
                     key={social.label}
-                    aria-label={social.label}
                     className="w-11 h-11 rounded-xl bg-white/10 hover:bg-gradient-to-br hover:from-[#00c389] hover:to-[#16b8ff] flex items-center justify-center transition-all duration-300 border border-white/10"
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}

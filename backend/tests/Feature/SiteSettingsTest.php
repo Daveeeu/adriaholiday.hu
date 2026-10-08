@@ -89,6 +89,35 @@ class SiteSettingsTest extends TestCase
         $this->assertStringContainsString('<h2>Adatbiztonság</h2>', $response->json('legal.privacy_content'));
     }
 
+    public function test_public_site_settings_list_the_agency_social_profiles(): void
+    {
+        $this->getJson('/api/portfolio/site-settings')
+            ->assertOk()
+            ->assertJsonPath('social.facebook', 'https://www.facebook.com/adriaholiday')
+            ->assertJsonPath('social.instagram', 'https://www.instagram.com/adriaholidayutazasok/')
+            ->assertJsonPath('social.tiktok', 'https://www.tiktok.com/@adria.holiday');
+    }
+
+    public function test_admin_social_links_must_be_web_addresses(): void
+    {
+        Sanctum::actingAs($this->siteSettingsAdmin());
+
+        $this->putJson('/api/admin/site-settings', [
+            'items' => [
+                ['group' => 'social', 'key' => 'tiktok', 'type' => 'string', 'isPublic' => true, 'value' => 'javascript:alert(1)'],
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('items.0.value');
+
+        $this->putJson('/api/admin/site-settings', [
+            'items' => [
+                ['group' => 'social', 'key' => 'tiktok', 'type' => 'string', 'isPublic' => true, 'value' => 'https://www.tiktok.com/@adria.holiday'],
+                ['group' => 'social', 'key' => 'instagram', 'type' => 'string', 'isPublic' => true, 'value' => ''],
+            ],
+        ])->assertOk();
+    }
+
     public function test_admin_rich_text_setting_is_sanitized(): void
     {
         Sanctum::actingAs($this->siteSettingsAdmin());

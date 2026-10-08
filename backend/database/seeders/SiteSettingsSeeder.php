@@ -45,8 +45,8 @@ class SiteSettingsSeeder extends Seeder
             ['group' => 'general', 'key' => 'site_name', 'type' => 'string', 'is_public' => true, 'value' => 'Adria Holiday'],
             ['group' => 'brand', 'key' => 'logo', 'type' => 'media', 'is_public' => true, 'value' => null],
             ['group' => 'social', 'key' => 'facebook', 'type' => 'string', 'is_public' => true, 'value' => 'https://www.facebook.com/adriaholiday'],
-            ['group' => 'social', 'key' => 'instagram', 'type' => 'string', 'is_public' => true, 'value' => 'https://www.instagram.com/adriaholiday'],
-            ['group' => 'social', 'key' => 'tiktok', 'type' => 'string', 'is_public' => true, 'value' => ''],
+            ['group' => 'social', 'key' => 'instagram', 'type' => 'string', 'is_public' => true, 'value' => 'https://www.instagram.com/adriaholidayutazasok/'],
+            ['group' => 'social', 'key' => 'tiktok', 'type' => 'string', 'is_public' => true, 'value' => 'https://www.tiktok.com/@adria.holiday'],
             ['group' => 'header', 'key' => 'navigation', 'type' => 'json', 'is_public' => true, 'value' => [
                 ['label' => 'Utazások', 'to' => '/utazasok'],
                 ['label' => 'Rólunk', 'to' => '/rolunk'],

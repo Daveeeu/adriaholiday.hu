@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { ArrowUpRight, Clock, Facebook, Instagram, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowUpRight, Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import type { ReactNode } from "react";
 
 import ContactForm from "../components/ContactForm";
@@ -8,6 +8,7 @@ import { sanitizeRichTextHtml } from "@/lib/rich-text";
 import Seo from "../seo/Seo";
 import { absoluteUrl } from "../seo/site";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { socialLinks } from "../site-settings/social-links";
 
 const PATH = "/kapcsolat";
 const TITLE = "Kapcsolat";
@@ -24,6 +25,7 @@ type ContactCard = {
 
 export default function ContactRoute() {
   const { settings } = useSiteSettings();
+  const socials = socialLinks(settings);
   const extraContent = sanitizeRichTextHtml(settings.contactContent);
 
   const cards: ContactCard[] = [
@@ -139,18 +141,13 @@ export default function ContactRoute() {
               );
             })}
 
-            {settings.facebook || settings.instagram ? (
+            {socials.length > 0 ? (
               <div className="flex gap-3 pt-2">
-                {settings.facebook ? (
-                  <a href={settings.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex size-12 items-center justify-center rounded-2xl border border-gray-100 bg-white text-[#0f172a] shadow-sm transition-colors hover:text-[#00a878]">
-                    <Facebook className="size-5" />
+                {socials.map((social) => (
+                  <a key={social.label} href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label} className="flex size-12 items-center justify-center rounded-2xl border border-gray-100 bg-white text-[#0f172a] shadow-sm transition-colors hover:text-[#00a878]">
+                    <social.icon className="size-5" />
                   </a>
-                ) : null}
-                {settings.instagram ? (
-                  <a href={settings.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex size-12 items-center justify-center rounded-2xl border border-gray-100 bg-white text-[#0f172a] shadow-sm transition-colors hover:text-[#00a878]">
-                    <Instagram className="size-5" />
-                  </a>
-                ) : null}
+                ))}
               </div>
             ) : null}
           </motion.div>

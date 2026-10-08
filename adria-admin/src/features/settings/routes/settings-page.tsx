@@ -60,6 +60,11 @@ const mediaSchema = z
   })
   .nullable();
 
+const socialUrlSchema = z
+  .string()
+  .trim()
+  .refine((value) => value === '' || /^https?:\/\/\S+$/i.test(value), 'Adj meg érvényes, http(s)-sel kezdődő webcímet.');
+
 const settingsSchema = z.object({
   siteName: z.string().trim().min(2, 'A webhely neve kötelező.'),
   logo: mediaSchema,
@@ -68,9 +73,9 @@ const settingsSchema = z.object({
   address: z.string().trim(),
   whatsapp: z.string().trim(),
   openingHours: z.string().trim(),
-  facebook: z.string().trim(),
-  instagram: z.string().trim(),
-  tiktok: z.string().trim(),
+  facebook: socialUrlSchema,
+  instagram: socialUrlSchema,
+  tiktok: socialUrlSchema,
   footerDescription: z.string().trim(),
   footerCopyright: z.string().trim(),
   footerQuickLinks: z.array(linkSchema),
