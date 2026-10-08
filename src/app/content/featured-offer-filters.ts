@@ -28,7 +28,7 @@ export function buildFeaturedOfferFilters(
   );
 
   const candidates: FeaturedOfferFilter[] = [
-    { key: "bus", label: "Buszos utak", matches: (tour) => tour.transport === "bus" },
+    { key: "bus", label: "Autóbuszos utak", matches: (tour) => tour.transport === "bus" },
     { key: "plane", label: "Repülős utak", matches: (tour) => tour.transport === "plane" },
     ...[...categories].map(([id, label]) => ({
       key: `category-${id}`,

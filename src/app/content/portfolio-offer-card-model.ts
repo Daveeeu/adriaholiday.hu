@@ -83,7 +83,7 @@ function transportLabel(value?: string | null): string | null {
   }
 
   if (transport === "bus") {
-    return "Buszos út";
+    return "Autóbuszos út";
   }
 
   if (transport === "plane") {

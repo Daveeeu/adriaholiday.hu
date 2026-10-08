@@ -220,7 +220,7 @@ class PortfolioContentBlockSeeder extends Seeder
                 $this->headingPart('Adria', 'gradient'),
                 $this->headingPart('Holiday'),
             ]),
-            ['key' => 'home.footer.description', 'label' => 'Footer leírás', 'type' => 'textarea', 'value' => 'Prémium buszos utazások Európa legszebb úti céljaihoz. 22+ év tapasztalat, 10,000+ elégedett utas, és számtalan felejthetetlen élmény.'],
+            ['key' => 'home.footer.description', 'label' => 'Footer leírás', 'type' => 'textarea', 'value' => 'Prémium autóbuszos utazások Európa legszebb úti céljaihoz. 22+ év tapasztalat, 10,000+ elégedett utas, és számtalan felejthetetlen élmény.'],
             ['key' => 'home.footer.phone', 'label' => 'Footer telefonszám', 'type' => 'text', 'value' => '+36 1 234 5678'],
             ['key' => 'home.footer.email', 'label' => 'Footer e-mail', 'type' => 'text', 'value' => 'info@adriaholiday.hu'],
             ['key' => 'home.footer.address', 'label' => 'Footer cím', 'type' => 'text', 'value' => "1051 Budapest\nPélda utca 12."],

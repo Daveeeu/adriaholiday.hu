@@ -47,7 +47,7 @@ class TourMeta
     {
         return match (self::transport($tour)) {
             'plane' => 'Repülős',
-            'bus' => 'Buszos',
+            'bus' => 'Autóbuszos',
             'train' => 'Vonatos',
             default => null,
         };

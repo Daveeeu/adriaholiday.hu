@@ -52,7 +52,7 @@ class SiteSettingsSeeder extends Seeder
                 ['label' => 'Rólunk', 'to' => '/rolunk'],
                 ['label' => 'Kapcsolat', 'to' => '/kapcsolat'],
             ]],
-            ['group' => 'footer', 'key' => 'description', 'type' => 'text', 'is_public' => true, 'value' => 'Prémium buszos utazások Európa legszebb úti céljaihoz. 22+ év tapasztalat, 10 000+ elégedett utas, és számtalan felejthetetlen élmény.'],
+            ['group' => 'footer', 'key' => 'description', 'type' => 'text', 'is_public' => true, 'value' => 'Prémium autóbuszos utazások Európa legszebb úti céljaihoz. 22+ év tapasztalat, 10 000+ elégedett utas, és számtalan felejthetetlen élmény.'],
             ['group' => 'footer', 'key' => 'copyright', 'type' => 'string', 'is_public' => true, 'value' => '© 2026 Adria Holiday. Minden jog fenntartva.'],
             ['group' => 'footer', 'key' => 'quick_links', 'type' => 'json', 'is_public' => true, 'value' => [
                 ['label' => 'Utazások', 'to' => '/utazasok'],
@@ -64,7 +64,7 @@ class SiteSettingsSeeder extends Seeder
             ['group' => 'cta', 'key' => 'primary_text', 'type' => 'string', 'is_public' => true, 'value' => 'Ajánlatot kérek'],
             ['group' => 'cta', 'key' => 'primary_link', 'type' => 'string', 'is_public' => true, 'value' => '/kapcsolat'],
             ['group' => 'seo', 'key' => 'default_title', 'type' => 'string', 'is_public' => true, 'value' => 'Körutazások és tengerparti nyaralás 2003 óta | Adria Holiday'],
-            ['group' => 'seo', 'key' => 'default_description', 'type' => 'text', 'is_public' => true, 'value' => 'Buszos és repülős körutazások, adventi utak és tengerparti nyaralás 2003 óta. Válogatott szállások, magyar idegenvezetés, online foglalás.'],
+            ['group' => 'seo', 'key' => 'default_description', 'type' => 'text', 'is_public' => true, 'value' => 'Autóbuszos és repülős körutazások, adventi utak és tengerparti nyaralás 2003 óta. Válogatott szállások, magyar idegenvezetés, online foglalás.'],
             ['group' => 'seo', 'key' => 'default_og_image', 'type' => 'media', 'is_public' => true, 'value' => null],
             ['group' => 'analytics', 'key' => 'meta_pixel_enabled', 'type' => 'boolean', 'is_public' => false, 'value' => false],
             ['group' => 'analytics', 'key' => 'meta_pixel_id', 'type' => 'string', 'is_public' => false, 'value' => ''],

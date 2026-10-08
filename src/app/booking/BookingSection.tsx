@@ -589,7 +589,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                     <FormReadonly label="Dátum" value={selectedDate.label} />
                     <FormReadonly
                       label="Utazás módja"
-                      value={trip.transport === "bus" ? "Buszos út" : "Repülős út"}
+                      value={trip.transport === "bus" ? "Autóbuszos út" : "Repülős út"}
                     />
                     <FormReadonly label="Ellátás" value={trip.meals || "-"} />
                     <FormReadonly label="Szállás" value={trip.hotel || "-"} />

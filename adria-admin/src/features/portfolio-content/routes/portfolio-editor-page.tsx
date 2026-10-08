@@ -130,7 +130,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
       titleParts: readHeadingParts(
         titleParts?.draftValue ?? titleParts?.publishedValue ?? null,
         [
-          { text: 'Buszos utak,' , variant: 'default' },
+          { text: 'Autóbuszos utak,' , variant: 'default' },
           { text: 'amikre', variant: 'default' },
           { text: 'emlékezni fogsz', variant: 'gradient' },
         ],

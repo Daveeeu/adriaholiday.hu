@@ -434,7 +434,7 @@ export function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField control={form.control} name="footerDescription" render={({ field }) => (
-                  <FormItem><FormLabel>Leírás</FormLabel><FormControl><Textarea {...field} rows={4} placeholder="Prémium buszos utazások Európa legszebb úti céljaihoz..." /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Leírás</FormLabel><FormControl><Textarea {...field} rows={4} placeholder="Prémium autóbuszos utazások Európa legszebb úti céljaihoz..." /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="footerCopyright" render={({ field }) => (
                   <FormItem><FormLabel>Copyright</FormLabel><FormControl><Input {...field} placeholder="© 2026 Adria Holiday. Minden jog fenntartva." /></FormControl><FormMessage /></FormItem>
@@ -452,7 +452,7 @@ export function SettingsPage() {
                   <FormItem><FormLabel>Default SEO title</FormLabel><FormControl><Input {...field} placeholder="Adria Holiday" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="defaultSeoDescription" render={({ field }) => (
-                  <FormItem><FormLabel>Default SEO description</FormLabel><FormControl><Textarea {...field} placeholder="Prémium buszos és repülős utazások..." /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Default SEO description</FormLabel><FormControl><Textarea {...field} placeholder="Prémium autóbuszos és repülős utazások..." /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>

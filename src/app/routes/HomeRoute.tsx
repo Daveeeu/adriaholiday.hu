@@ -31,7 +31,7 @@ function SectionFallback({ minHeight = "min-h-[320px]" }: { minHeight?: string }
 export default function HomeRoute({
   canonicalPath = "/",
   title = "Prémium utazások",
-  description = "Prémium buszos és repülős utazások Európa legszebb úti céljaihoz.",
+  description = "Prémium autóbuszos és repülős utazások Európa legszebb úti céljaihoz.",
 }: {
   canonicalPath?: string;
   title?: string;

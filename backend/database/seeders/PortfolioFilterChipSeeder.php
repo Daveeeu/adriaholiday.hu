@@ -23,7 +23,7 @@ class PortfolioFilterChipSeeder extends Seeder
 
         $chips = [
             [
-                'label' => 'Buszos utak',
+                'label' => 'Autóbuszos utak',
                 'slug' => 'buszos-utak',
                 'icon' => 'bus',
                 'scope_type' => 'global',

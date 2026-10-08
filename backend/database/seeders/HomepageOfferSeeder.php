@@ -22,7 +22,7 @@ class HomepageOfferSeeder extends Seeder
                 'seo_name' => 'korutazasok',
                 'link' => '/kategoriak/korutazasok',
                 'image' => 'https://adriaholiday.hu/framework/img.php?p=files/bosnia-4683579_1920.jpg&op=;800x450;',
-                'short_description' => 'Válogatott buszos és repülős körutazások Európa legszebb tájaira.',
+                'short_description' => 'Válogatott autóbuszos és repülős körutazások Európa legszebb tájaira.',
             ],
             [
                 'name' => 'Repülős körutazások',
@@ -36,7 +36,7 @@ class HomepageOfferSeeder extends Seeder
                 'seo_name' => 'tengerpart-busz',
                 'link' => '/kategoriak/tengerpart-busz',
                 'image' => 'https://adriaholiday.hu/framework/img.php?p=files/sea-4768869_1920.jpg&op=;800x450;',
-                'short_description' => 'Buszos tengerparti üdülések remek ár-érték aránnyal.',
+                'short_description' => 'Autóbuszos tengerparti üdülések remek ár-érték aránnyal.',
             ],
             [
                 'name' => 'Tengerparti szállások Olaszországban',

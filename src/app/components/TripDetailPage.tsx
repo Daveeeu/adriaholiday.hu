@@ -177,7 +177,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
             <HeroInfoCard
               icon={trip.transport === "plane" ? <Plane /> : <Bus />}
               label="Utazás"
-              value={trip.transport === "plane" ? "Repülős út" : "Buszos út"}
+              value={trip.transport === "plane" ? "Repülős út" : "Autóbuszos út"}
             />
             <HeroInfoCard icon={<Utensils />} label="Ellátás" value={trip.meals} />
           </div>
