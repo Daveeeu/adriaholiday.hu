@@ -186,7 +186,7 @@ export default function CinematicHero() {
               >
                 <EditableText
                   fieldKey="home.hero.subtitle"
-                  fallback="Tengerparti utak, városlátogatások és körutazások tapasztalt szervezéssel, kényelmes autóbuszokkal vagy épp repülővel."
+                  fallback="Városlátogatások, tengerparti utak és körutazások tapasztalt szervezéssel, kényelmes buszokkal."
                   as="span"
                 />
               </motion.p>

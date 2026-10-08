@@ -136,7 +136,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
         ],
       ),
       subtitle: readString(
-        subtitle?.draftValue ?? subtitle?.publishedValue ?? 'Tengerparti utak, városlátogatások és körutazások tapasztalt szervezéssel, kényelmes autóbuszokkal vagy épp repülővel.',
+        subtitle?.draftValue ?? subtitle?.publishedValue ?? 'Városlátogatások, tengerparti utak és körutazások tapasztalt szervezéssel, kényelmes buszokkal.',
       ),
       primaryLabel: readString(primaryLabel?.draftValue ?? primaryLabel?.publishedValue ?? 'Utazások keresése'),
       primaryUrl: readString(primaryUrl?.draftValue ?? primaryUrl?.publishedValue ?? '/utazasok'),

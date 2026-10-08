@@ -52,7 +52,7 @@ class PortfolioContentBlockSeeder extends Seeder
                 $this->headingPart('Utazások, amikre'),
                 $this->headingPart('emlékezni fogsz', 'gradient'),
             ]),
-            ['key' => 'home.hero.subtitle', 'label' => 'Hero alcím leírás', 'type' => 'textarea', 'value' => 'Tengerparti utak, városlátogatások és körutazások tapasztalt szervezéssel, kényelmes autóbuszokkal vagy épp repülővel.'],
+            ['key' => 'home.hero.subtitle', 'label' => 'Hero alcím leírás', 'type' => 'textarea', 'value' => 'Városlátogatások, tengerparti utak és körutazások tapasztalt szervezéssel, kényelmes buszokkal.'],
             ['key' => 'home.hero.image', 'label' => 'Hero háttérkép', 'type' => 'image', 'value_json' => ['alt' => 'Napsütötte homokos tengerpart türkizkék vízzel', 'title' => 'Napsütötte homokos tengerpart türkizkék vízzel']],
             ['key' => 'home.hero.video', 'label' => 'Hero videó', 'type' => 'video', 'value' => null, 'value_json' => null],
             ['key' => 'home.brand.logo', 'label' => 'Márkalogó', 'type' => 'image', 'value_json' => ['alt' => 'Adria Holiday', 'title' => 'Adria Holiday']],
