@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
 use Database\Factories\TourDateFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,6 +44,17 @@ class TourDate extends Model
         'price_box_available_seats' => 'integer',
         'price_box_capacity' => 'integer',
     ];
+
+    /**
+     * Dates not yet departed (or not scheduled yet): the ones the public site
+     * shows and takes bookings for. Departed dates stay stored as history.
+     */
+    public function scopeUpcoming(Builder $query): void
+    {
+        $query->where(fn (Builder $dates) => $dates
+            ->whereNull('start_date')
+            ->orWhereDate('start_date', '>=', today()));
+    }
 
     public function tour(): BelongsTo
     {

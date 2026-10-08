@@ -38,11 +38,13 @@ class TourContentSyncService
      * Updates each requested date in place when it matches a stored one (by
      * id, else by its start and end date), so bookings keep pointing at their
      * date; stored dates nobody asked for are removed and the rest created.
-     * Fields a requested date leaves out keep their stored value.
+     * Fields a requested date leaves out keep their stored value. With
+     * $keepDeparted, stored dates already departed stay even when not asked
+     * for (a source that lists only upcoming dates, like the legacy site).
      *
      * @param  array<int, array<string, mixed>>  $dates
      */
-    public function syncDates(Tour $tour, array $dates): void
+    public function syncDates(Tour $tour, array $dates, bool $keepDeparted = false): void
     {
         $unmatched = $tour->dates()->get()->keyBy('id');
 
@@ -66,7 +68,9 @@ class TourContentSyncService
             }
         }
 
-        $unmatched->each->delete();
+        $unmatched
+            ->reject(fn (TourDate $date): bool => $keepDeparted && $date->start_date !== null && $date->start_date->lt(today()))
+            ->each->delete();
     }
 
     /**

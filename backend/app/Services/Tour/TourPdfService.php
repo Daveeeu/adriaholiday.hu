@@ -22,7 +22,7 @@ class TourPdfService
         $tour->load([
             'programDays' => fn ($query) => $query->where('active', true)->orderBy('sort_order'),
             'priceItems' => fn ($query) => $query->where('active', true)->orderBy('sort_order'),
-            'dates',
+            'dates' => fn ($query) => $query->upcoming(),
         ]);
 
         $meta = TourMeta::extract($tour);

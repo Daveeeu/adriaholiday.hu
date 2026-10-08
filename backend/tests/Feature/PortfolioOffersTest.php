@@ -17,6 +17,8 @@ class PortfolioOffersTest extends TestCase
     {
         parent::setUp();
 
+        // The seeded tours depart in 2026; the public site hides departed dates.
+        $this->travelTo('2026-06-01');
         $this->seed(DatabaseSeeder::class);
     }
 

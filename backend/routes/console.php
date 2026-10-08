@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 Schedule::command('queue:prune-failed --hours=168')->dailyAt('02:15');
 
 Schedule::command('backup:run')->dailyAt('02:00')->withoutOverlapping();
+
+// A tour whose last date departed leaves the public site the next night.
+Schedule::command('tours:sync-expired')->dailyAt('00:10')->withoutOverlapping();

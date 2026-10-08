@@ -124,7 +124,7 @@ class LegacyTourImporter
                 ...(($date['sold_out'] ?? false) ? ['status' => 'sold_out'] : []),
                 // A date closed for booking has unknown extras: keep the stored ones.
                 ...($date['extras'] !== null ? ['extras' => $date['extras']] : []),
-            ], $data->dates));
+            ], $data->dates), keepDeparted: true);
 
             $this->reopenDatesBookableAgain($tour, $data);
 

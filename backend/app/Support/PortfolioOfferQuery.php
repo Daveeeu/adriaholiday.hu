@@ -22,7 +22,7 @@ class PortfolioOfferQuery
     {
         $query = Tour::query()
             ->where('active', true)
-            ->with(['region', 'dates', 'media', 'galleryItems.media']);
+            ->with(['region', 'dates' => fn ($query) => $query->upcoming(), 'media', 'galleryItems.media']);
 
         if ($search = self::stringQuery($request, 'search')) {
             $matchingCountryCodes = self::countryCodesMatchingName($search);

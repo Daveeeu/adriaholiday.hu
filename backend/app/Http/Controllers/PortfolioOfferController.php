@@ -57,7 +57,7 @@ class PortfolioOfferController extends Controller
             ->with([
                 'region',
                 'bookingFormTemplate.templateFields.field',
-                'dates.extras',
+                'dates' => fn ($query) => $query->upcoming()->with('extras'),
                 'partnerBonuses',
                 'departurePlaces' => fn ($query) => $query->where('active', true)->orderBy('name'),
                 'media',

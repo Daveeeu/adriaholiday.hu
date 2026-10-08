@@ -89,6 +89,7 @@ class Tour extends Model implements HasMedia
     protected $casts = [
         'sort_order' => 'integer',
         'active' => 'boolean',
+        'expired_at' => 'datetime',
         'featured' => 'boolean',
         'recommended' => 'boolean',
         'partner_offer' => 'boolean',
@@ -108,6 +109,17 @@ class Tour extends Model implements HasMedia
         'tag_ids' => 'array',
         'category_ids' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        // Switched on again by hand, a tour is no longer one the expiry sync
+        // switched off (see ExpiredTourService).
+        static::saving(function (Tour $tour): void {
+            if ($tour->active && $tour->isDirty('active')) {
+                $tour->expired_at = null;
+            }
+        });
+    }
 
     public function region(): BelongsTo
     {

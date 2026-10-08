@@ -269,6 +269,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
 
     public function test_dates_take_over_the_struck_price_label_and_sold_out_mark(): void
     {
+        $this->travelTo('2026-09-01');
         $importer = app(LegacyTourImporter::class);
         $importer->import($this->offerData(), updateExisting: false);
         $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
@@ -320,5 +321,20 @@ class LegacyTourImporterIdempotencyTest extends TestCase
             ->assertJsonPath('teaser', '<p>Van olyan utazás…</p>')
             ->assertJsonPath('tickets', '<table><tbody><tr><td>Tower</td><td>25 GBP</td></tr></tbody></table>')
             ->assertJsonPath('optionalPrograms', '<p>a.) Windsor</p>');
+    }
+
+    public function test_update_keeps_dates_that_already_departed(): void
+    {
+        $importer = app(LegacyTourImporter::class);
+        $importer->import($this->offerData(), updateExisting: false);
+        $this->travelTo('2026-10-05');
+
+        $data = $this->offerData();
+        $importer->import(new LegacyOfferData(...[...get_object_vars($data), 'dates' => [$data->dates[1]]]), updateExisting: true);
+
+        $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
+        $this->assertSame(['2026-09-25', '2026-10-10'], $tour->dates()->orderBy('start_date')->get()->map(
+            fn ($date): string => $date->start_date->toDateString(),
+        )->all());
     }
 }

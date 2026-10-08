@@ -45,9 +45,12 @@ class StorePublicBookingRequest extends FormRequest
             'tour_date_id' => [
                 'nullable',
                 'integer',
+                // Only an upcoming date that is still on sale can be booked.
                 Rule::exists('tour_dates', 'id')
                     ->where('tour_id', $this->input('tour_id'))
-                    ->whereIn('status', ['planned', 'available']),
+                    ->whereIn('status', ['planned', 'available'])
+                    ->whereNull('deleted_at')
+                    ->where(fn ($query) => $query->whereDate('start_date', '>=', today())),
             ],
             'participants' => ['nullable', 'integer', 'min:1', 'max:20'],
             'form_data' => ['nullable', 'array', 'max:30'],
