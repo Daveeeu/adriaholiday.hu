@@ -63,7 +63,7 @@ export default function ContactForm() {
     <form onSubmit={submit} noValidate className="space-y-4 rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.12)] md:p-9">
       <div>
         <h2 className="text-2xl font-bold tracking-tight text-[#0f172a] md:text-3xl">Írj nekünk</h2>
-        <p className="mt-1 text-[#64748b]">Kérdés, ajánlatkérés vagy csoportos út – a megadott elérhetőségen válaszolunk.</p>
+        <p className="mt-1 text-[#64748b]">Kérdés, ajánlatkérés vagy csoportos utazás – a megadott elérhetőségen válaszolunk.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
