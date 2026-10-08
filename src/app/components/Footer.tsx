@@ -7,6 +7,7 @@ import { trackEvent } from "../analytics/trackEvent";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { socialLinks, type SocialLink } from "../site-settings/social-links";
 import BarionPaymentBanner from "./BarionPaymentBanner";
+import LogoBadge from "./LogoBadge";
 
 function ExternalLink({
   href,
@@ -59,12 +60,7 @@ export default function Footer() {
             {(settings.logo?.url || settings.siteName) ? (
               <motion.div className="mb-4" whileHover={{ scale: 1.02 }}>
                 {settings.logo?.url ? (
-                  <img
-                    src={settings.logo.url}
-                    alt={settings.logo.alt || settings.siteName || "Logo"}
-                    title={settings.logo.title || settings.siteName || undefined}
-                    className="h-12 w-auto max-w-[240px] brightness-0 invert"
-                  />
+                  <LogoBadge logo={settings.logo} siteName={settings.siteName} imageClassName="h-12 max-w-[240px]" />
                 ) : settings.siteName ? (
                   <h3 className="text-[2rem] font-bold tracking-[-0.02em]">{settings.siteName}</h3>
                 ) : null}

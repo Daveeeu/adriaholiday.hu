@@ -4,6 +4,7 @@ import { Phone, ArrowRight } from "lucide-react";
 
 import { trackEvent } from "../analytics/trackEvent";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import LogoBadge from "./LogoBadge";
 
 function isInternalLink(value: string) {
   return value.startsWith("/") || value.startsWith("#");
@@ -15,25 +16,17 @@ function Brand() {
   return (
     <Link to="/" className="inline-flex items-center">
       {settings.siteName ? <span className="sr-only">{settings.siteName}</span> : null}
-      <span
-        className={[
-          "rounded-2xl px-3 py-2",
-          "bg-white/90 backdrop-blur-xl border border-white/60 shadow-[0_10px_30px_rgba(15,23,42,0.08)]",
-        ].join(" ")}
-      >
-        {settings.logo?.url ? (
-          <img
-            src={settings.logo.url}
-            alt={settings.logo.alt || settings.siteName || "Logo"}
-            title={settings.logo.title || settings.siteName || undefined}
-            className="h-9 lg:h-10 w-auto max-w-[220px] lg:max-w-[260px]"
-          />
-        ) : settings.siteName ? (
-          <span className="text-lg font-semibold tracking-tight text-white">
-            {settings.siteName}
-          </span>
-        ) : null}
-      </span>
+      {settings.logo?.url ? (
+        <LogoBadge
+          logo={settings.logo}
+          siteName={settings.siteName}
+          imageClassName="h-9 lg:h-10 max-w-[220px] lg:max-w-[260px]"
+        />
+      ) : settings.siteName ? (
+        <span className="text-lg font-semibold tracking-tight text-white">
+          {settings.siteName}
+        </span>
+      ) : null}
     </Link>
   );
 }
