@@ -147,8 +147,7 @@ export default function OfferProgramTimeline({
                         <div className="absolute inset-0 bg-[linear-gradient(145deg,#07111f,#0d2240_58%,#12315d)]" />
                       )}
 
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#07111f]/78 via-[#07111f]/45 to-[#00c389]/30" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#07111f]/85 via-transparent to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#07111f]/60 to-transparent" />
 
                       <div className="relative w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md text-[#00f0a8] flex items-center justify-center border border-white/10">
                         {renderContentIcon(day.icon, "w-6 h-6")}
