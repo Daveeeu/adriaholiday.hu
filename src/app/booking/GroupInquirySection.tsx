@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Check, Users } from "lucide-react";
 import { useAnalytics } from "../analytics/useAnalytics";
+import { DATE_INPUT_MAX } from "../lib/dateInput";
 import { BookingApiError, BookingValidationError, submitTourInquiry } from "./bookings-api";
 
 /** Groups from this size can ask for a tailored offer on a custom date. */
@@ -180,6 +181,7 @@ export default function GroupInquirySection({ trip, requestOnly }: GroupInquiryS
                 <input
                   type={field.type}
                   min={field.key === "passengerCount" ? GROUP_INQUIRY_MIN_PASSENGERS : undefined}
+                  max={field.type === "date" ? DATE_INPUT_MAX : undefined}
                   value={values[field.key]}
                   onChange={(event) => setValue(field.key, event.target.value)}
                   className={inputClassName(errors[field.key])}

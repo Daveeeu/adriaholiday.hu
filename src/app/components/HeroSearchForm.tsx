@@ -4,6 +4,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
+import { DATE_INPUT_MAX } from "../lib/dateInput";
 import {
   BUDGET_OPTIONS,
   EMPTY_OFFER_SEARCH,
@@ -120,6 +121,7 @@ export default function HeroSearchForm() {
             type="date"
             value={criteria.from}
             min={todayIsoDate()}
+            max={DATE_INPUT_MAX}
             onChange={(event) => updateCriteria("from", event.target.value)}
             className={FIELD_CLASS_NAME}
           />

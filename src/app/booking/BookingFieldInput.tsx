@@ -1,3 +1,4 @@
+import { DATE_INPUT_MAX } from "../lib/dateInput";
 import { CHECKBOX_CHECKED_VALUE, type BookingFormField } from "./booking-form-fields";
 
 const UNAVAILABLE_OPTION_NOTE = "Fejlesztés alatt";
@@ -129,6 +130,7 @@ export default function BookingFieldInput({ field, value, onChange, error }: Boo
       ) : (
         <input
           type={field.fieldType}
+          max={field.fieldType === "date" ? DATE_INPUT_MAX : undefined}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           className={`${fieldClassName} h-14`}
