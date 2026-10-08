@@ -15,6 +15,7 @@ import { JUSTIFIED_TEXT } from "../lib/justifiedText";
 type OfferContentSectionProps = {
   title: string;
   content?: string | null;
+  className?: string;
 };
 
 function resolveSectionMeta(title: string) {
@@ -78,6 +79,7 @@ function resolveSectionMeta(title: string) {
 export default function OfferContentSection({
   title,
   content,
+  className = "",
 }: OfferContentSectionProps) {
   if (isRichTextEmpty(content)) {
     return null;
@@ -93,7 +95,7 @@ export default function OfferContentSection({
   const Icon = meta.icon;
 
   return (
-    <section className="mb-20">
+    <section className={`mb-20 ${className}`}>
       <div className="inline-flex items-center gap-2 text-[#00a878] text-sm font-bold mb-4">
         <Icon className="w-4 h-4" />
         {meta.eyebrow}

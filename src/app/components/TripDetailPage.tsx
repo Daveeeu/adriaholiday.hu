@@ -21,6 +21,7 @@ import {
 import OfferGallerySection from "./OfferGallerySection";
 import OfferProgramTimeline from "./OfferProgramTimeline";
 import OfferContentSection from "./OfferContentSection";
+import OfferTeaserCard from "./OfferTeaserCard";
 import OfferPrintableVersion from "./OfferPrintableVersion";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
@@ -255,7 +256,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 gallery={trip.gallery}
               />
 
-              <OfferContentSection title="Kedvcsináló" content={trip.teaser} />
+              <OfferContentSection title="Kedvcsináló" content={trip.teaser} className="xl:hidden" />
 
               <OfferProgramTimeline
                 programDays={trip.programDays}
@@ -307,7 +308,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
             </div>
 
             <aside className="space-y-6">
-              <div className="sticky top-[92px] rounded-[34px] bg-white border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.08)] p-6">
+              <div className="sticky top-[92px] rounded-[34px] bg-white border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.08)] p-6 xl:max-h-[calc(100vh-110px)] xl:overflow-y-auto">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-[#00c389]/10 text-[#00c389] flex items-center justify-center">
                     <ShieldCheck className="w-6 h-6" />
@@ -322,6 +323,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                     </div>
                   </div>
                 </div>
+
+                <OfferTeaserCard content={trip.teaser} className="hidden xl:block" />
 
                 <div id={DATE_PICKER_ID} className="mb-6 scroll-mt-28">
                   <div className="text-[#0f172a] font-bold mb-3">
