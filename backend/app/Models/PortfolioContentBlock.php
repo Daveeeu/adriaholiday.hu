@@ -35,6 +35,12 @@ class PortfolioContentBlock extends Model implements HasMedia
         'home.trust.review.3.image',
         'home.trust.review.4.image',
         'about.team.image',
+        'about.team.member.1.image',
+        'about.team.member.2.image',
+        'about.team.member.3.image',
+        'about.team.member.4.image',
+        'about.team.member.5.image',
+        'about.team.member.6.image',
         'about.office.image',
     ];
 

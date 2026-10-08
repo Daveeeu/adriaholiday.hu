@@ -61,6 +61,60 @@ class PortfolioContentTest extends TestCase
             ->assertJsonPath('data.key', 'about.team.image');
     }
 
+    public function test_about_page_lists_the_team_members(): void
+    {
+        $response = $this->getJson('/api/portfolio/content?page=about')
+            ->assertOk()
+            ->json();
+
+        $this->assertCount(6, $response['about.team.members']['value'] ?? []);
+        $this->assertSame('Szakálos Zsanett', $response['about.team.members']['value'][0]['name'] ?? null);
+        $this->assertArrayHasKey('about.team.member.6.image', $response);
+    }
+
+    public function test_team_member_portraits_accept_media_uploads(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Super Admin');
+
+        Sanctum::actingAs($user);
+        Storage::fake(config('media-library.disk_name'));
+
+        $this->postJson('/api/admin/portfolio/content/about.team.member.1.image/media', [
+            'file' => UploadedFile::fake()->image('portre.jpg', 600, 800),
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.key', 'about.team.member.1.image');
+    }
+
+    public function test_set_content_image_command_publishes_the_image_with_the_block_alt_text(): void
+    {
+        Storage::fake(config('media-library.disk_name'));
+        $photo = UploadedFile::fake()->image('portre.jpg', 600, 800);
+        $renamed = sys_get_temp_dir().'/Kovács Eszter.JPG';
+        copy($photo->getPathname(), $renamed);
+        $this->beforeApplicationDestroyed(static fn () => @unlink($renamed));
+
+        $this->artisan('adria:set-content-image', ['key' => 'about.team.member.6.image', 'path' => $renamed])
+            ->assertSuccessful();
+
+        $image = $this->getJson('/api/portfolio/content?page=about')
+            ->assertOk()
+            ->json()['about.team.member.6.image']['value'] ?? null;
+
+        $this->assertSame('kovacs-eszter.jpg', $image['fileName'] ?? null);
+        $this->assertSame('Kovács Eszter', $image['alt'] ?? null);
+        $this->assertFileExists($renamed);
+    }
+
+    public function test_set_content_image_command_rejects_non_media_blocks(): void
+    {
+        $photo = UploadedFile::fake()->image('kep.jpg');
+
+        $this->artisan('adria:set-content-image', ['key' => 'about.team.members', 'path' => $photo->getPathname()])
+            ->assertFailed();
+    }
+
     public function test_admin_portfolio_content_returns_seeded_home_block_for_authenticated_user(): void
     {
         $user = User::factory()->create([

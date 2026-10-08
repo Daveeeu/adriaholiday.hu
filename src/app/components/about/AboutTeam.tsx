@@ -82,7 +82,9 @@ export default function AboutTeam() {
                 <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#071321]/90 via-[#071321]/40 to-transparent p-5 pt-16">
                   <EditableFrame target={{ kind: "field", fieldKey: MEMBERS_KEY }} className="rounded-xl">
                     <p className="text-lg font-bold text-white md:text-xl">{member.name || `${index + 1}. csapattag neve`}</p>
-                    <p className="text-sm text-slate-200 transition-colors group-hover:text-[#5eead4]">{member.role || "Beosztás"}</p>
+                    {member.role || isEditorEnabled ? (
+                      <p className="text-sm text-slate-200 transition-colors group-hover:text-[#5eead4]">{member.role || "Beosztás"}</p>
+                    ) : null}
                   </EditableFrame>
                 </figcaption>
               </motion.figure>

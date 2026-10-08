@@ -8,14 +8,14 @@ use App\Http\Requests\Admin\PortfolioContent\UpdatePortfolioContentBlockRequest;
 use App\Http\Requests\Admin\PortfolioContent\UploadPortfolioContentBlockMediaRequest;
 use App\Http\Resources\PortfolioContentBlockResource;
 use App\Models\PortfolioContentBlock;
-use App\Support\MediaCategory;
+use App\Services\PortfolioContent\PortfolioContentService;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 
 class PortfolioContentController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly PortfolioContentService $content)
     {
         $this->middleware('permission:portfolio-content.view')->only(['index']);
         $this->middleware('permission:portfolio-content.update')->only(['update', 'uploadMedia', 'deleteMedia']);
@@ -56,41 +56,19 @@ class PortfolioContentController extends Controller
     public function uploadMedia(UploadPortfolioContentBlockMediaRequest $request, string $key)
     {
         $block = PortfolioContentBlock::query()->where('key', $key)->firstOrFail();
-        $collectionName = $block->draftMediaCollectionName();
 
-        if ($collectionName === null) {
+        if (! $block->isMediaField()) {
             abort(422, 'Ez a blokk nem médiatípus.');
         }
 
-        $block->clearMediaCollection($collectionName);
-
         $file = $request->file('file');
-        $media = $block->addMedia($file)
-            ->usingName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
-            ->usingFileName($file->getClientOriginalName())
-            ->toMediaCollection($collectionName);
-
-        $media->forceFill([
-            'category' => MediaCategory::normalized($request->input('category', MediaCategory::PORTFOLIO->value)),
-            'source_context' => $request->input('sourceContext', 'portfolio_content'),
-            'source_id' => $request->input('sourceId', $block->id),
-            'alt' => $request->input('alt'),
-            'title' => $request->input('title'),
-        ]);
-        $media->custom_properties = array_filter([
-            ...($media->custom_properties ?? []),
-            'category' => MediaCategory::normalized($request->input('category', MediaCategory::PORTFOLIO->value)),
-            'source_context' => $request->input('sourceContext', 'portfolio_content'),
-            'source_id' => $request->input('sourceId', $block->id),
-            'alt' => $request->input('alt'),
-            'title' => $request->input('title'),
-        ], static fn ($value) => $value !== null && $value !== '');
-        $media->save();
-
-        $block->updateDraftMediaMetadata([
-            'alt' => $request->input('alt'),
-            'title' => $request->input('title'),
-        ]);
+        $this->content->storeDraftMedia($block, $file, $file->getClientOriginalName(), $request->safe()->only([
+            'alt',
+            'title',
+            'category',
+            'sourceContext',
+            'sourceId',
+        ]));
 
         return new PortfolioContentBlockResource($block->refresh()->load('media'));
     }
@@ -113,18 +91,7 @@ class PortfolioContentController extends Controller
     {
         $block = PortfolioContentBlock::query()->where('key', $key)->firstOrFail();
 
-        $block->forceFill([
-            'value' => $block->type === 'richtext'
-                ? RichTextSanitizer::sanitize($block->draft_value ?? $block->value)
-                : $block->draft_value ?? $block->value,
-            'value_json' => $block->draft_value_json ?? $block->value_json,
-            'draft_value' => null,
-            'draft_value_json' => null,
-            'is_published' => true,
-            'updated_by' => $request->user()?->id,
-        ])->save();
-
-        $block->publishDraftMedia();
+        $this->content->publish($block, $request->user()?->id);
 
         PublicContentCache::bump(PublicContentCache::HOMEPAGE_CONTENT);
 
@@ -138,18 +105,7 @@ class PortfolioContentController extends Controller
         $blocks = PortfolioContentBlock::query()->forPage($page)->get();
 
         foreach ($blocks as $block) {
-            $block->forceFill([
-                'value' => $block->type === 'richtext'
-                    ? RichTextSanitizer::sanitize($block->draft_value ?? $block->value)
-                    : $block->draft_value ?? $block->value,
-                'value_json' => $block->draft_value_json ?? $block->value_json,
-                'draft_value' => null,
-                'draft_value_json' => null,
-                'is_published' => true,
-                'updated_by' => $request->user()?->id,
-            ])->save();
-
-            $block->publishDraftMedia();
+            $this->content->publish($block, $request->user()?->id);
         }
 
         PublicContentCache::bump(PublicContentCache::HOMEPAGE_CONTENT);
