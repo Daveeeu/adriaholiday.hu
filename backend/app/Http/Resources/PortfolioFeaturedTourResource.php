@@ -21,12 +21,6 @@ class PortfolioFeaturedTourResource extends JsonResource
         $media = $tour->mainImage();
         $departureDate = $firstDate?->start_date?->toDateString();
         $displayedPrice = $priceBox['displayedPrice'] ?? null;
-        $departureDateLabel = $meta['departureDateLabel'] ?? null;
-        if ($departureDateLabel === null) {
-            $departureDateLabel = $firstDate?->start_date && $firstDate?->end_date
-                ? $firstDate->start_date->format('Y.m.d.').' - '.$firstDate->end_date->format('d.')
-                : 'Érdeklődjön';
-        }
 
         return [
             'id' => $tour->id,
@@ -42,7 +36,7 @@ class PortfolioFeaturedTourResource extends JsonResource
             'image' => $media ? new MediaResource($media) : null,
             'duration' => TourMeta::duration($tour),
             'departureDate' => $departureDate,
-            'departureDateLabel' => $departureDateLabel,
+            'departureDateLabel' => TourMeta::departureLabel($tour),
             'link' => '/ajanlat/'.($tour->seo_name ?: Str::slug((string) $tour->name)),
             'badge' => $meta['badge'] ?? null,
             'transport' => TourMeta::transport($tour),

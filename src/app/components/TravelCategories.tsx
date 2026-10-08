@@ -123,7 +123,7 @@ export default function TravelCategories() {
             </p>
             <p className="mt-2 text-sm leading-relaxed text-[#64748b]">
               {loadError
-                ? 'A főoldali ajánlatok nem töltődtek be. Kérjük próbáld újra később.'
+                ? 'A főoldali ajánlatok nem töltődtek be. Kérjük, próbáld újra később.'
                 : isEditorEnabled
                   ? 'A "Főoldali ajánlatok" modulban aktiválj és rendezz ajánlatokat.'
                   : 'A következő ajánlatok hamarosan megjelennek itt.'}

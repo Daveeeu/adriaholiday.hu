@@ -25,15 +25,7 @@ class TourPdfService
             'dates' => fn ($query) => $query->upcoming(),
         ]);
 
-        $meta = TourMeta::extract($tour);
         $priceBox = PriceBoxData::fromTour($tour);
-        $firstDate = $tour->dates->sortBy('start_date')->first();
-
-        $departureLabel = $meta['departureDateLabel'] ?? (
-            $firstDate?->start_date && $firstDate?->end_date
-                ? $firstDate->start_date->format('Y.m.d.').' - '.$firstDate->end_date->format('d.')
-                : 'Érdeklődjön'
-        );
 
         $pdf = Pdf::loadView('pdf.tour-program', [
             'tour' => $tour,
@@ -41,8 +33,8 @@ class TourPdfService
             'includedItems' => $tour->priceItems->where('type', 'included')->values(),
             'excludedItems' => $tour->priceItems->where('type', 'excluded')->values(),
             'duration' => TourMeta::duration($tour) ?? 'Többnapos út',
-            'departureLabel' => $departureLabel,
-            'transportLabel' => TourMeta::transportLabel($tour) ?? 'Érdeklődjön',
+            'departureLabel' => TourMeta::departureLabel($tour),
+            'transportLabel' => TourMeta::transportLabel($tour) ?? TourMeta::INQUIRE_LABEL,
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'generatedAt' => now()->format('Y.m.d. H:i'),
             'branding' => DocumentBranding::resolve(),

@@ -13,12 +13,13 @@ import {
   type PortfolioOfferDetail,
   type PortfolioOfferDetailDate,
 } from "../content/portfolio-offer-detail-api";
+import { INQUIRE_LABEL } from "../content/portfolio-offer-card-model";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { absoluteUrl } from "../seo/site";
 
 function formatCalendarDate(value?: string | null) {
   if (!value) {
-    return "Érdeklődjön";
+    return INQUIRE_LABEL;
   }
 
   const [year, month, day] = value.split("-");
@@ -32,7 +33,7 @@ function formatCalendarDate(value?: string | null) {
 
 function formatDateLabel(date: PortfolioOfferDetailDate) {
   if (!date.startDate) {
-    return "Érdeklődjön";
+    return INQUIRE_LABEL;
   }
 
   if (!date.endDate) {
@@ -58,7 +59,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
         label:
           date.startDate && date.endDate
             ? formatDateLabel(date)
-            : offer.departureDateLabel || "Érdeklődjön",
+            : offer.departureDateLabel || INQUIRE_LABEL,
         status:
           date.status === "available"
             ? "Elérhető"
@@ -79,7 +80,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     : [
         {
           id: "default",
-          label: offer.departureDateLabel || "Érdeklődjön",
+          label: offer.departureDateLabel || INQUIRE_LABEL,
           status: "Elérhető",
           bookable: true,
           seatsLeft: offer.seatsLeft ?? null,
@@ -98,7 +99,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     title: offer.name,
     subtitle: offer.subtitle ?? null,
     country: offer.country ?? offer.region?.name ?? "Utazás",
-    departure: offer.departureDateLabel || dates[0]?.label || "Érdeklődjön",
+    departure: offer.departureDateLabel || dates[0]?.label || INQUIRE_LABEL,
     transport: offer.transport === "plane" ? "plane" : "bus",
     hotel: offer.accommodation || "Információ később",
     meals: offer.meals || "Információ később",

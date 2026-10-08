@@ -128,7 +128,7 @@ export default function GroupInquirySection({ trip, requestOnly }: GroupInquiryS
         });
 
         setErrors(nextErrors);
-        setErrorMessage("Kérjük, javítsa a megjelölt mezőket.");
+        setErrorMessage("Kérjük, javítsd a megjelölt mezőket.");
       } else if (submitError instanceof BookingApiError) {
         setErrorMessage(submitError.message);
       } else {
@@ -166,7 +166,7 @@ export default function GroupInquirySection({ trip, requestOnly }: GroupInquiryS
       {status === "success" ? (
         <div className="mt-6 flex items-center gap-3 rounded-2xl bg-[#00c389]/10 p-5 text-[#0f172a]">
           <Check className="w-5 h-5 text-[#00a878]" />
-          Köszönjük, ajánlatkérését megkaptuk. Kollégáink hamarosan felveszik Önnel a kapcsolatot.
+          Köszönjük, megkaptuk az ajánlatkérésedet. Kollégáink hamarosan felveszik veled a kapcsolatot.
         </div>
       ) : open ? (
         <form onSubmit={handleSubmit} className="mt-6 space-y-5" noValidate>

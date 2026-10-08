@@ -57,7 +57,7 @@ export default function OfferPrintableVersion({ slug }: OfferPrintableVersionPro
 
       {isLoading ? (
         <p className="mt-2 text-center text-xs text-gray-500" role="status">
-          A nyomtatható program elkészítése folyamatban van, kérem várjon…
+          A nyomtatható program elkészítése folyamatban van, kérlek, várj…
         </p>
       ) : null}
 

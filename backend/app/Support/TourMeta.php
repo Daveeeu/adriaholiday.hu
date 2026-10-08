@@ -15,6 +15,11 @@ use Illuminate\Support\Str;
 class TourMeta
 {
     /**
+     * Shown instead of a departure date or price the tour does not have yet.
+     */
+    public const INQUIRE_LABEL = 'Érdeklődj nálunk';
+
+    /**
      * @return array<string, mixed>
      */
     public static function extract(Tour $tour): array
@@ -75,6 +80,24 @@ class TourMeta
         $nights = $days - 1;
 
         return "{$days} nap / {$nights} éj";
+    }
+
+    /**
+     * "2026.07.12. - 19.", from the tour's earliest date unless the legacy meta names it.
+     */
+    public static function departureLabel(Tour $tour): string
+    {
+        $legacyLabel = self::filled(self::extract($tour)['departureDateLabel'] ?? null);
+
+        if ($legacyLabel !== null) {
+            return $legacyLabel;
+        }
+
+        $firstDate = $tour->dates->sortBy('start_date')->first();
+
+        return $firstDate?->start_date && $firstDate->end_date
+            ? $firstDate->start_date->format('Y.m.d.').' - '.$firstDate->end_date->format('d.')
+            : self::INQUIRE_LABEL;
     }
 
     /**

@@ -76,7 +76,7 @@ export default function Newsletter() {
       setFeedback(
         error instanceof NewsletterApiError
           ? error.message
-          : "Váratlan hiba történt, kérjük próbáld meg később.",
+          : "Váratlan hiba történt, kérjük, próbáld meg később.",
       );
     }
   }

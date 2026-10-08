@@ -8,7 +8,7 @@ import Seo from "../seo/Seo";
 import { absoluteUrl } from "../seo/site";
 import { fetchPortfolioRegionDetail, type PortfolioRegionCard } from "../content/portfolio-regions-api";
 import { fetchPortfolioRegionOffers, type PortfolioOfferCard } from "../content/portfolio-offers-api";
-import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
+import { INQUIRE_LABEL, toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
 import { responsiveImage } from "../lib/responsiveImage";
 
 function OfferCard({ offer }: { offer: PortfolioOfferCard }) {
@@ -42,7 +42,7 @@ function OfferCard({ offer }: { offer: PortfolioOfferCard }) {
         <div className="flex items-center justify-between gap-4 pt-2">
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Induló ár</div>
-            <div className="text-lg font-bold text-[#0f172a]">{card.priceText ?? "Érdeklődjön"}</div>
+            <div className="text-lg font-bold text-[#0f172a]">{card.priceText ?? INQUIRE_LABEL}</div>
           </div>
           <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#00a878]">
             Részletek

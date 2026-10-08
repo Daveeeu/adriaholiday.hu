@@ -392,7 +392,7 @@
                 </td>
                 <td class="price">
                     Ár
-                    <strong>{{ $displayedPrice ?? 'Érdeklődjön' }}</strong>
+                    <strong>{{ $displayedPrice ?? \App\Support\TourMeta::INQUIRE_LABEL }}</strong>
                 </td>
             </tr>
         </table>

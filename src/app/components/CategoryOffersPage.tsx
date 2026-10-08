@@ -48,6 +48,7 @@ import {
   type OfferSearchCriteria,
 } from "../content/offer-search";
 import {
+  INQUIRE_LABEL,
   toUnifiedOfferCardModel,
   type UnifiedOfferCardModel,
 } from "../content/portfolio-offer-card-model";
@@ -960,7 +961,7 @@ function SpotlightOfferCard({
             </div>
 
             <div className="mb-5 grid grid-cols-2 gap-3">
-              <SpotlightInfo icon={<Calendar />} label="Indulás" value={offer.card.departureLabel ?? "Érdeklődjön"} />
+              <SpotlightInfo icon={<Calendar />} label="Indulás" value={offer.card.departureLabel ?? INQUIRE_LABEL} />
               <SpotlightInfo icon={<Clock />} label="Időtartam" value={offer.card.durationLabel ?? "Többnapos út"} />
               <SpotlightInfo icon={<Utensils />} label="Ellátás" value={offer.card.mealsLabel ?? "Információ később"} />
               <SpotlightInfo
@@ -1069,7 +1070,7 @@ function RecommendedOfferCard({
       <div className="absolute bottom-5 left-5 right-5">
         <h4 className="mb-3 text-xl font-bold leading-tight text-white">{offer.card.name}</h4>
         <div className="flex items-center justify-between gap-4">
-          <div className="text-sm text-white/85">{offer.card.departureLabel ?? "Érdeklődjön"}</div>
+          <div className="text-sm text-white/85">{offer.card.departureLabel ?? INQUIRE_LABEL}</div>
           <div className="font-bold text-white">{offer.card.displayedPrice ?? "Ár hamarosan"}</div>
         </div>
       </div>
@@ -1088,7 +1089,7 @@ function ResultOfferCard({
     {
       key: "departure",
       icon: <Calendar className="h-4 w-4" />,
-      value: offer.card.departureLabel ?? "Érdeklődjön",
+      value: offer.card.departureLabel ?? INQUIRE_LABEL,
     },
     {
       key: "duration",

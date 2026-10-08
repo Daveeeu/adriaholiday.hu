@@ -1,5 +1,8 @@
 import type { PortfolioOfferCard } from "./portfolio-offers-api";
 
+/** Shown instead of a departure date or price the tour does not have yet. */
+export const INQUIRE_LABEL = "Érdeklődj nálunk";
+
 export type UnifiedOfferCardModel = {
   id: number | string;
   seoName: string;

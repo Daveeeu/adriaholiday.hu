@@ -37,7 +37,7 @@
 
         {{-- Greeting --}}
         <p style="{{ $font }}margin:0 0 8px;color:#0f172a;font-size:16px;">Kedves {{ $customerName }}!</p>
-        <p style="{{ $font }}margin:0 0 24px;color:#334155;font-size:15px;line-height:1.6;">Köszönjük foglalását, melyet ezúton visszaigazolunk. Alább megtalálja utazása és a fizetés minden részletét.</p>
+        <p style="{{ $font }}margin:0 0 24px;color:#334155;font-size:15px;line-height:1.6;">Köszönjük a foglalásodat, ezúton visszaigazoljuk. Alább megtalálod az utazás és a fizetés minden részletét.</p>
 
         {{-- Trip --}}
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="{{ $card }}margin-bottom:16px;">
@@ -149,7 +149,7 @@
                     </table>
                     @if ($bankTransfer)
                         <p style="{{ $font }}margin:14px 0 0;padding:12px 14px;background:#f8fafc;border-radius:12px;color:#334155;font-size:13px;line-height:1.6;">
-                            Kérjük, az átutalás közlemény rovatában tüntesse fel a megrendelő nevét, az utazás pontos nevét és az indulás dátumát.
+                            Kérjük, az átutalás közlemény rovatában tüntesd fel a megrendelő nevét, az utazás pontos nevét és az indulás dátumát.
                             Az utazási szerződést és a számlát az előleg beérkezését követően küldjük.
                         </p>
                     @endif
@@ -166,13 +166,13 @@
                     @foreach ($entryRequirementLinks as $link)
                         <p style="{{ $font }}margin:0 0 4px;font-size:14px;"><a href="{{ $link['url'] }}" style="color:#0891b2;font-weight:600;text-decoration:none;">{{ $link['country'] }} →</a></p>
                     @endforeach
-                    <p style="{{ $font }}margin:8px 0 14px;color:#64748b;font-size:13px;line-height:1.6;">Kérjük, kövesse figyelemmel a fenti linket az aktuális szabályok ismerete végett. A célország beutazási és egészségügyi feltételeinek ismerete és a feltételek megléte az utazók felelőssége.</p>
+                    <p style="{{ $font }}margin:8px 0 14px;color:#64748b;font-size:13px;line-height:1.6;">Kérjük, kövesd figyelemmel a fenti linket, hogy mindig ismerd az aktuális szabályokat. A célország beutazási és egészségügyi feltételeinek ismerete és a feltételek megléte az utazók felelőssége.</p>
                 @endif
                 <p style="{{ $font }}margin:0;font-size:14px;"><a href="{{ $termsUrl }}" style="color:#0891b2;font-weight:600;text-decoration:none;">Általános Szerződési Feltételek →</a></p>
             </td></tr>
         </table>
 
-        <p style="{{ $font }}margin:0 0 4px;color:#334155;font-size:15px;">Kérdés esetén állunk rendelkezésére.</p>
+        <p style="{{ $font }}margin:0 0 4px;color:#334155;font-size:15px;">Ha kérdésed van, szívesen segítünk.</p>
         <p style="{{ $font }}margin:0 0 28px;color:#334155;font-size:15px;">Üdvözlettel:<br><strong style="color:#0f172a;">{{ $company['name'] }}</strong></p>
 
         {{-- Footer --}}

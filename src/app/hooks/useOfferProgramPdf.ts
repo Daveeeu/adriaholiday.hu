@@ -12,7 +12,7 @@ type ProgramPdfState =
 
 type CachedPdf = { slug: string; url: string };
 
-const UNEXPECTED_ERROR_MESSAGE = "Váratlan hiba történt, kérjük próbáld meg később.";
+const UNEXPECTED_ERROR_MESSAGE = "Váratlan hiba történt, kérjük, próbáld meg később.";
 
 /**
  * Generates an offer's printable program PDF on demand and lets the visitor download or print it.

@@ -20,13 +20,6 @@ class PortfolioOfferDetailResource extends TourDetailResource
         $media = $tour->mainImage();
         $firstDate = $tour->dates->sortBy('start_date')->first();
         $priceItems = $tour->priceItems->where('active', true)->sortBy('sort_order')->values();
-        $departureDateLabel = $meta['departureDateLabel'] ?? null;
-
-        if ($departureDateLabel === null) {
-            $departureDateLabel = $firstDate?->start_date && $firstDate?->end_date
-                ? $firstDate->start_date->format('Y.m.d.').' - '.$firstDate->end_date->format('d.')
-                : 'Érdeklődjön';
-        }
 
         $data = parent::toArray($request);
         unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate']);
@@ -92,7 +85,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
                     ->all(),
             ],
             'departureDate' => $firstDate?->start_date?->toDateString(),
-            'departureDateLabel' => $departureDateLabel,
+            'departureDateLabel' => TourMeta::departureLabel($tour),
             'link' => '/ajanlat/'.($tour->seo_name ?: Str::slug((string) $tour->name)),
             'bookingFormFields' => app(BookingFormFieldResolver::class)->resolve($tour),
             'bookingInsurances' => BookingInsuranceSettings::load()->toArray(),

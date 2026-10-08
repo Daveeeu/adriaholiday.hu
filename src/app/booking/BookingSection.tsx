@@ -716,8 +716,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                         </ul>
                         {trip.couponable ? (
                           <p className="mt-3 text-xs text-gray-500">
-                            A kupon értékét a foglalás beküldésekor vonjuk le a végösszegből. Amennyiben foglaláskor nem adja
-                            meg kuponkódját, visszamenőleg nem áll módunkban érvényesíteni.
+                            A kupon értékét a foglalás beküldésekor vonjuk le a végösszegből. Ha foglaláskor nem adod meg a
+                            kuponkódodat, utólag sajnos nem tudjuk érvényesíteni.
                           </p>
                         ) : null}
                       </div>
