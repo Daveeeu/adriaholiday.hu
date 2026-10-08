@@ -284,8 +284,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
               <PriceInformationSection priceInformation={trip.priceInformation} />
 
-              <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
-
               {canBook ? (
                 <BookingSection
                   selectedDate={selectedDate}
@@ -304,6 +302,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               ) : null}
 
               <GroupInquirySection trip={trip} requestOnly={!canBook} />
+
+              <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
             </div>
 
             <aside className="space-y-6">
@@ -687,7 +687,7 @@ function SimilarTrips({
   }
 
   return (
-    <section className="mb-24">
+    <section className="mt-24">
       <SectionEyebrow title="HASONLÓ UTAK" />
 
       <h2 className="text-5xl font-bold text-[#0f172a] mb-4 tracking-tight">
