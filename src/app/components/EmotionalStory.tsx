@@ -25,7 +25,7 @@ export default function EmotionalStory() {
     getValue("home.story.cta.label", "Fedezd fel az utakat"),
   );
   const quote = String(
-    getValue("home.story.quote", "Több mint 22 éve teremtünk felejthetetlen pillanatokat."),
+    getValue("home.story.quote", "Több mint 23 éve teremtünk felejthetetlen pillanatokat."),
   );
 
   return (

@@ -185,7 +185,7 @@
                 @if ($company['license'] !== '')
                     <br>{{ $company['license'] }}
                 @endif
-                <br><span style="color:#00a878;font-weight:700;">20 éve az UTAZÓK szolgálatában!</span>
+                <br><span style="color:#00a878;font-weight:700;">23 éve az UTAZÓK szolgálatában!</span>
             </td></tr>
         </table>
 

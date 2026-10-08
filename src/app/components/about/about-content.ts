@@ -42,12 +42,12 @@ export const aboutFallback = {
   },
   intro: {
     statement: "Minőséget nyújtani elfogadható, korrekt árakon.",
-    text: "Ennyi a lényeg, és két évtizede ehhez tartjuk magunkat. Az Adria Holiday csapata azon dolgozik, hogy utasaink pihenjenek, feltöltődjenek, közben tanuljanak is valamit a helyekről, ahol járnak – és jó kedvvel emlékezzenek vissza a velünk töltött napokra.",
+    text: "Ennyi a lényeg, és 23 éve ehhez tartjuk magunkat. Az Adria Holiday csapata azon dolgozik, hogy utasaink pihenjenek, feltöltődjenek, közben tanuljanak is valamit a helyekről, ahol járnak – és jó kedvvel emlékezzenek vissza a velünk töltött napokra.",
   },
   timeline: {
     eyebrow: "A TÖRTÉNETÜNK",
     titleParts: [
-      { text: "Két évtized," },
+      { text: "23 év," },
       { text: "egy irány", variant: "gradient" },
     ] satisfies PortfolioHeadingPart[],
     items: [
@@ -118,7 +118,7 @@ export const aboutFallback = {
       {
         icon: "compass",
         title: "Hűek maradtunk önmagunkhoz",
-        description: "Legfontosabb mérföldkövünk, hogy két évtized után is megőriztük eredeti elképzelésünket: igényes utazás, elérhető áron.",
+        description: "Legfontosabb mérföldkövünk, hogy 23 év után is megőriztük eredeti elképzelésünket: igényes utazás, elérhető áron.",
       },
     ] satisfies AboutItem[],
   },
@@ -148,7 +148,7 @@ export const aboutFallback = {
     ] satisfies PortfolioHeadingPart[],
     items: [
       { icon: "shieldCheck", title: "Biztonság", description: "Gondos szervezés az indulástól a hazaérkezésig." },
-      { icon: "award", title: "Megbízhatóság", description: "Több mint két évtized tapasztalata és visszatérő utasok ezrei." },
+      { icon: "award", title: "Megbízhatóság", description: "Több mint 23 év tapasztalata és visszatérő utasok ezrei." },
       { icon: "sparkles", title: "Élményvágy", description: "Utak, amelyekre évek múlva is szívesen emlékszel." },
     ] satisfies AboutItem[],
     ctaLabel: "Fedezd fel utazásainkat",

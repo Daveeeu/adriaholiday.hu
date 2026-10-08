@@ -144,7 +144,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
       secondaryUrl: readString(secondaryUrl?.draftValue ?? secondaryUrl?.publishedValue ?? '/utazasok'),
       stats: safeStringify(stats?.draftValue ?? stats?.publishedValue ?? [
         { value: '10 000+', label: 'elégedett utas' },
-        { value: '22+', label: 'év tapasztalat' },
+        { value: '23+', label: 'év tapasztalat' },
         { value: '4.9/5', label: 'értékelés' },
         { value: '100%', label: 'kényelmes utazás' },
       ]),

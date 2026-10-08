@@ -32,7 +32,7 @@ export default function CinematicHero() {
   );
   const heroStats = getValue("home.hero.stats", [
     { value: "10 000+", label: "elégedett utas" },
-    { value: "22+", label: "év tapasztalat" },
+    { value: "23+", label: "év tapasztalat" },
     { value: "4.9/5", label: "értékelés" },
     { value: "100%", label: "kényelmes utazás" },
   ]) as Array<{ value: string; label: string }>;

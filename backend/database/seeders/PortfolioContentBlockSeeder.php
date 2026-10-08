@@ -62,7 +62,7 @@ class PortfolioContentBlockSeeder extends Seeder
             ['key' => 'home.hero.cta.secondary.url', 'label' => 'Hero második gomb link', 'type' => 'url', 'value' => '/utazasok'],
             ['key' => 'home.hero.stats', 'label' => 'Hero statisztikák', 'type' => 'json', 'value_json' => [
                 ['value' => '10 000+', 'label' => 'elégedett utas'],
-                ['value' => '22+', 'label' => 'év tapasztalat'],
+                ['value' => '23+', 'label' => 'év tapasztalat'],
                 ['value' => '4.9/5', 'label' => 'értékelés'],
                 ['value' => '100%', 'label' => 'kényelmes utazás'],
             ]],
@@ -83,7 +83,7 @@ class PortfolioContentBlockSeeder extends Seeder
             ['key' => 'home.story.description', 'label' => 'Story leírás', 'type' => 'textarea', 'value' => 'Nem csak úti célokat mutatunk meg. Élményeket adunk, amelyek évekkel később is veled maradnak.'],
             ['key' => 'home.story.cta.label', 'label' => 'Story gomb szöveg', 'type' => 'text', 'value' => 'Fedezd fel az utakat'],
             ['key' => 'home.story.cta.url', 'label' => 'Story gomb link', 'type' => 'url', 'value' => '/utazasok'],
-            ['key' => 'home.story.quote', 'label' => 'Story idézet', 'type' => 'text', 'value' => 'Több mint 22 éve teremtünk felejthetetlen pillanatokat.'],
+            ['key' => 'home.story.quote', 'label' => 'Story idézet', 'type' => 'text', 'value' => 'Több mint 23 éve teremtünk felejthetetlen pillanatokat.'],
             ['key' => 'home.experience.eyebrow', 'label' => 'Experience előtag', 'type' => 'text', 'value' => 'MIÉRT AZ ADRIA HOLIDAY'],
             $this->headingBlock('home.experience.titleParts', 'Experience cím', [
                 $this->headingPart('Élményeket adunk,'),
@@ -98,7 +98,7 @@ class PortfolioContentBlockSeeder extends Seeder
             ['key' => 'home.experience.description.two', 'label' => 'Experience szöveg 2', 'type' => 'textarea', 'value' => 'Minden út gondosan megtervezett, minden részlet átgondolt — te csak élvezd a pillanatot. Családok, párok, barátok — mindenkinek megtaláljuk a tökéletes utat.'],
             ['key' => 'home.experience.stats', 'label' => 'Experience statisztikák', 'type' => 'json', 'value_json' => [
                 ['value' => '10K+', 'label' => 'Elégedett utas'],
-                ['value' => '22+', 'label' => 'Év tapasztalat'],
+                ['value' => '23+', 'label' => 'Év tapasztalat'],
                 ['value' => '4.9', 'label' => 'Értékelés'],
             ]],
             ['key' => 'home.experience.image', 'label' => 'Experience kép', 'type' => 'image', 'value_json' => ['alt' => 'Tengerpart az Adrián', 'title' => 'Tengerpart az Adrián']],
@@ -117,7 +117,7 @@ class PortfolioContentBlockSeeder extends Seeder
                 ['title' => 'Magyar idegenvezetők', 'description' => 'Tapasztalt kísérők segítenek az út során.', 'icon' => 'users'],
                 ['title' => 'Több felszállási pont', 'description' => 'Budapestről és vidékről is indulunk.', 'icon' => 'mapPin'],
                 ['title' => 'Garantált indulások', 'description' => 'Biztonságos, kiszámítható utazások.', 'icon' => 'shield'],
-                ['title' => '22+ év tapasztalat', 'description' => 'Megbízható háttér és szakértelem.', 'icon' => 'calendar'],
+                ['title' => '23+ év tapasztalat', 'description' => 'Megbízható háttér és szakértelem.', 'icon' => 'calendar'],
             ]],
             ['key' => 'home.whyChooseUs.values', 'label' => 'Why choose us értékek', 'type' => 'json', 'value_json' => [
                 ['title' => 'Utazás szívvel-lélekkel', 'text' => 'Mert mi magunk is szeretünk utazni', 'icon' => 'heart'],
@@ -162,7 +162,7 @@ class PortfolioContentBlockSeeder extends Seeder
             ]),
             ['key' => 'home.trust.stats', 'label' => 'Trust statisztikák', 'type' => 'json', 'value_json' => [
                 ['value' => 10000, 'suffix' => '+', 'label' => 'Elégedett utas', 'description' => 'Akik már velünk utaztak Európa legszebb helyeire.', 'icon' => 'users'],
-                ['value' => 22, 'suffix' => '+ év', 'label' => 'Tapasztalat', 'description' => 'Több mint 22 éve szervezünk utazásokat.', 'icon' => 'award'],
+                ['value' => 23, 'suffix' => '+ év', 'label' => 'Tapasztalat', 'description' => 'Több mint 23 éve szervezünk utazásokat.', 'icon' => 'award'],
                 ['value' => 100, 'suffix' => '+', 'label' => 'Utazás évente', 'description' => 'Folyamatos indulások egész évben.', 'icon' => 'mapPin'],
                 ['value' => 4.9, 'suffix' => '/5', 'label' => 'Értékelés', 'description' => 'Valódi utasvélemények alapján kiemelkedő élmény.', 'icon' => 'star'],
             ]],
@@ -220,7 +220,7 @@ class PortfolioContentBlockSeeder extends Seeder
                 $this->headingPart('Adria', 'gradient'),
                 $this->headingPart('Holiday'),
             ]),
-            ['key' => 'home.footer.description', 'label' => 'Footer leírás', 'type' => 'textarea', 'value' => 'Prémium autóbuszos utazások Európa legszebb úti céljaihoz. 22+ év tapasztalat, 10,000+ elégedett utas, és számtalan felejthetetlen élmény.'],
+            ['key' => 'home.footer.description', 'label' => 'Footer leírás', 'type' => 'textarea', 'value' => 'Prémium autóbuszos utazások Európa legszebb úti céljaihoz. 23+ év tapasztalat, 10,000+ elégedett utas, és számtalan felejthetetlen élmény.'],
             ['key' => 'home.footer.phone', 'label' => 'Footer telefonszám', 'type' => 'text', 'value' => '+36 1 234 5678'],
             ['key' => 'home.footer.email', 'label' => 'Footer e-mail', 'type' => 'text', 'value' => 'info@adriaholiday.hu'],
             ['key' => 'home.footer.address', 'label' => 'Footer cím', 'type' => 'text', 'value' => "1051 Budapest\nPélda utca 12."],
