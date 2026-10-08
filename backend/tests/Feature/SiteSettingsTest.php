@@ -82,7 +82,7 @@ class SiteSettingsTest extends TestCase
 
         $response->assertJsonPath('contact.phone', '+36 46 508 688')
             ->assertJsonPath('contact.email', 'adriaholiday@adriaholiday.hu')
-            ->assertJsonPath('contact.opening_hours', "Hétfő–Péntek: 08:00–16:00\nSzombat–Vasárnap: zárva");
+            ->assertJsonPath('contact.opening_hours', "Hétfő–Péntek: 08:00–17:00\nSzombat–Vasárnap: zárva");
 
         $this->assertStringContainsString('Cégjegyzékszám:</strong> 01-09-433588', $response->json('legal.imprint_content'));
         $this->assertStringContainsString('<h2>Utazási szerződéshez kapcsolódó tájékoztató</h2>', $response->json('legal.terms_content'));

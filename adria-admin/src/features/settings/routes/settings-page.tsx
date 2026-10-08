@@ -385,7 +385,7 @@ export function SettingsPage() {
                   <FormItem><FormLabel>Address</FormLabel><FormControl><Textarea {...field} placeholder="3530 Miskolc, Városház tér 22." /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="openingHours" render={({ field }) => (
-                  <FormItem><FormLabel>Nyitvatartás</FormLabel><FormControl><Textarea {...field} placeholder="Hétfő–Péntek: 08:00–16:00&#10;Szombat–Vasárnap: zárva" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Nyitvatartás</FormLabel><FormControl><Textarea {...field} placeholder="Hétfő–Péntek: 08:00–17:00&#10;Szombat–Vasárnap: zárva" /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>

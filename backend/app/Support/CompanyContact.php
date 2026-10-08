@@ -18,6 +18,6 @@ final class CompanyContact
         'email' => ['type' => 'string', 'value' => 'adriaholiday@adriaholiday.hu'],
         'address' => ['type' => 'text', 'value' => '3530 Miskolc, Városház tér 22.'],
         'whatsapp' => ['type' => 'string', 'value' => ''],
-        'opening_hours' => ['type' => 'text', 'value' => "Hétfő–Péntek: 08:00–16:00\nSzombat–Vasárnap: zárva"],
+        'opening_hours' => ['type' => 'text', 'value' => "Hétfő–Péntek: 08:00–17:00\nSzombat–Vasárnap: zárva"],
     ];
 }
