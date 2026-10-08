@@ -92,6 +92,31 @@ class LegacyAdriaOfferCrawler
         return $contexts;
     }
 
+    /**
+     * The slugs of the legacy homepage's "Kiemelt Ajánlataink!" offers, in
+     * their order on the page.
+     *
+     * @return array<int, string>
+     *
+     * @throws LegacyFetchException
+     */
+    public function discoverFeaturedOfferSlugs(): array
+    {
+        $xpath = new DOMXPath($this->loadDocument($this->fetchHtml($this->resolveUrl(''))));
+        $section = '//section[.//*[contains(@class, "section-title")][contains(normalize-space(.), "Kiemelt")]]';
+        $slugs = [];
+
+        foreach ($xpath->query($section.'//*[contains(concat(" ", normalize-space(@class), " "), " item ")]//a[@href]') as $link) {
+            $path = $this->sitePath($link->getAttribute('href'));
+
+            if (Str::startsWith($path, 'korutazasok/') && ! Str::contains($path, ['csoport', 'regio', 'akcio'])) {
+                $slugs[] = rawurldecode(Str::after($path, 'korutazasok/'));
+            }
+        }
+
+        return array_values(array_unique($slugs));
+    }
+
     public function offerUrlForSlug(string $slug): string
     {
         return $this->resolveUrl('korutazasok/'.trim($slug, '/'));

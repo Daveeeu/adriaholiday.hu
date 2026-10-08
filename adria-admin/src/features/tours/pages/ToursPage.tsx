@@ -59,6 +59,7 @@ function createTourDefaults(overrides?: Partial<Tour>): Tour {
     sortOrder: 1,
     active: true,
     featured: false,
+    featuredOrder: null,
     recommended: false,
     partnerOffer: false,
     imageOffer: false,

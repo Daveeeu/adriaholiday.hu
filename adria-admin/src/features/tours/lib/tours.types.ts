@@ -187,6 +187,8 @@ export type Tour = {
   sortOrder: number;
   active: boolean;
   featured: boolean;
+  /** Position among the homepage's featured offers. */
+  featuredOrder: number | null;
   recommended: boolean;
   partnerOffer: boolean;
   imageOffer: boolean;
@@ -262,6 +264,7 @@ export const tourFormSchema = z.object({
   sortOrder: z.coerce.number().int().min(0),
   active: z.boolean(),
   featured: z.boolean(),
+  featuredOrder: z.string().trim().regex(/^\d{0,3}$/, 'Adj meg egy 0 és 999 közötti számot.'),
   recommended: z.boolean(),
   partnerOffer: z.boolean(),
   imageOffer: z.boolean(),
@@ -480,6 +483,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     sortOrder: tour?.sortOrder ?? 1,
     active: tour?.active ?? true,
     featured: tour?.featured ?? false,
+    featuredOrder: tour?.featuredOrder?.toString() ?? '',
     recommended: tour?.recommended ?? false,
     partnerOffer: tour?.partnerOffer ?? false,
     imageOffer: tour?.imageOffer ?? false,

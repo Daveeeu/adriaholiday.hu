@@ -1,6 +1,13 @@
 import type { UseFormReturn } from 'react-hook-form';
 
-import { FormField, FormItem } from '@/components/ui/form';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 import {
   createCategoryOption,
@@ -238,6 +245,22 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
                 />
                 Kiemelt?
               </label>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="featuredOrder"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kiemelt sorrend</FormLabel>
+              <FormControl>
+                <Input type="number" min={0} max={999} placeholder="1" {...field} />
+              </FormControl>
+              <p className="text-xs text-muted-foreground">
+                A főoldali kiemelt ajánlatok sorrendje; üresen a végére kerül.
+              </p>
+              <FormMessage />
             </FormItem>
           )}
         />

@@ -54,6 +54,7 @@ class TourResource extends JsonResource
             'sortOrder' => (int) $this->sort_order,
             'active' => (bool) $this->active,
             'featured' => (bool) $this->featured,
+            'featuredOrder' => $this->featured_order,
             'recommended' => (bool) $this->recommended,
             'partnerOffer' => (bool) $this->partner_offer,
             'imageOffer' => (bool) $this->image_offer,

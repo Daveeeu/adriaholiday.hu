@@ -19,6 +19,9 @@ import FeaturedCard from "./FeaturedCard";
 import MotionLink from "./MotionLink";
 import FeaturedHeroCard from "./FeaturedHeroCard";
 
+/** Every featured offer, as on the legacy homepage (the API allows 24). */
+const FEATURED_OFFER_LIMIT = 24;
+
 export default function FeaturedOffers() {
   const { isEditorEnabled } = usePortfolioContent();
   const [selectedFilterKey, setSelectedFilterKey] = useState(ALL_OFFERS_FILTER.key);
@@ -29,7 +32,7 @@ export default function FeaturedOffers() {
   useEffect(() => {
     let cancelled = false;
 
-    fetchPortfolioFeaturedTours(6)
+    fetchPortfolioFeaturedTours(FEATURED_OFFER_LIMIT)
       .then((response) => {
         if (cancelled) {
           return;
@@ -62,7 +65,7 @@ export default function FeaturedOffers() {
     filters.find((filter) => filter.key === selectedFilterKey) ?? ALL_OFFERS_FILTER;
 
   const filteredOffers = useMemo<UnifiedOfferCardModel[]>(
-    () => (tours ?? []).filter(selectedFilter.matches).slice(0, 6).map(toUnifiedOfferCardModel),
+    () => (tours ?? []).filter(selectedFilter.matches).map(toUnifiedOfferCardModel),
     [selectedFilter, tours],
   );
 

@@ -829,6 +829,8 @@ Idempotency: tours are matched by `seo_name`. Without `--update-existing`, an ex
 
 Departed dates are history: the legacy site lists only upcoming dates, so the import keeps stored dates that already departed (`syncDates(..., keepDeparted: true)`), and the public site shows and books only `TourDate::upcoming()` dates (offer list, featured, detail, PDF, booking validation).
 
+Featured offers: `php artisan adria:import-featured` makes the homepage's featured offers the legacy homepage's "Kiemelt Ajánlataink!" (`LegacyAdriaOfferCrawler::discoverFeaturedOfferSlugs()` → `LegacyFeaturedOffersImporter`): those tours become featured with `featured_order` = their position, every other tour is unfeatured; an empty or unreadable list changes nothing. `featured_order` (admin: "Kiemelt sorrend") orders `GET /api/portfolio/featured-tours` (up to 24), apart from the general `sort_order`.
+
 Expired tours: `tours:sync-expired` (scheduled daily at 00:10, `App\Services\Tour\ExpiredTourService`) switches off an active tour whose every scheduled date departed and marks it `expired_at`; such a tour is switched back on once it gets an upcoming date. Tours without dates (on request, e.g. school trips) and tours an admin switched off (`expired_at` null) are left alone; switching a tour on by hand clears `expired_at`.
 
 Run `php artisan adria:import-offers --update-existing` to bring every tour in line with the legacy site again (it also creates offers added there since).
