@@ -30,7 +30,10 @@ import type { PortfolioFeaturedTour } from "../content/portfolio-featured-tours-
 import type { TripDetail } from "../routes/TripRoute";
 import OfferCard from "./OfferCard";
 import BookingSection from "../booking/BookingSection";
-import GroupInquirySection from "../booking/GroupInquirySection";
+import GroupInquirySection, {
+  GROUP_INQUIRY_MIN_PASSENGERS,
+  GROUP_INQUIRY_SECTION_ID,
+} from "../booking/GroupInquirySection";
 import { parseDiscountPercent } from "../content/discount-badge";
 import { responsiveImage } from "../lib/responsiveImage";
 
@@ -90,8 +93,20 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   // A sold-out or cancelled date, or a tour without a bookable date, can
   // only be requested as a group quote.
   const canBook = trip.hasBookableDates && selectedDate.bookable;
-  const bookingSectionId = canBook ? "foglalas" : "ajanlatkeres";
+  const bookingSectionId = canBook ? "foglalas" : GROUP_INQUIRY_SECTION_ID;
   const bookLabel = canBook ? "Foglalás" : "Ajánlatot kérek";
+  const [groupInquiryOpened, setGroupInquiryOpened] = useState(false);
+
+  function openGroupInquiry(placement: string) {
+    setGroupInquiryOpened(true);
+    trackEvent("lead_start", {
+      entity: { type: "tour", slug: trip.slug },
+      metadata: { source: "group_inquiry", placement },
+    });
+    requestAnimationFrame(() => {
+      document.getElementById(GROUP_INQUIRY_SECTION_ID)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
   const selectedSeats = priceBox?.availableSeats ?? selectedDate.seatsLeft ?? null;
@@ -240,6 +255,11 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   });
                   document.getElementById(bookingSectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
+                footer={
+                  canBook ? (
+                    <GroupInquiryLink tone="dark" onClick={() => openGroupInquiry("hero_pricebox")} />
+                  ) : null
+                }
               />
             </div>
           </div>
@@ -302,7 +322,12 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 </div>
               ) : null}
 
-              <GroupInquirySection trip={trip} requestOnly={!canBook} />
+              <GroupInquirySection
+                trip={trip}
+                requestOnly={!canBook}
+                opened={groupInquiryOpened}
+                onOpen={() => openGroupInquiry("section")}
+              />
 
               <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
             </div>
@@ -446,6 +471,10 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   </button>
                 ) : null}
 
+                {canBook ? (
+                  <GroupInquiryLink tone="light" onClick={() => openGroupInquiry("sidebar")} />
+                ) : null}
+
                 <OfferPrintableVersion slug={trip.slug} />
 
               </div>
@@ -500,10 +529,12 @@ function PriceBox({
   priceBox,
   bookLabel,
   onBookClick,
+  footer,
 }: {
   priceBox?: PortfolioPriceBox | null;
   bookLabel: string;
   onBookClick: () => void;
+  footer?: ReactNode;
 }) {
   if (!priceBox) {
     return null;
@@ -566,7 +597,33 @@ function PriceBox({
         {bookLabel}
         <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover/cta:translate-x-1" />
       </a>
+
+      {footer}
     </div>
+  );
+}
+
+/** Opens the group quote request form, offered next to every booking button. */
+function GroupInquiryLink({ tone, onClick }: { tone: "dark" | "light"; onClick: () => void }) {
+  const toneClassName =
+    tone === "dark"
+      ? "border-white/15 text-white hover:bg-white/10"
+      : "border-[#00c389]/30 text-[#0f172a] hover:bg-[#00c389]/5";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${toneClassName}`}
+    >
+      <Users className="h-5 w-5 shrink-0 text-[#00c389]" />
+      <span>
+        <span className="block font-bold">Egyedi ajánlatot kérek</span>
+        <span className={`block text-xs ${tone === "dark" ? "text-white/60" : "text-gray-500"}`}>
+          Csoportoknak, egyedi időpontra (min.&nbsp;{GROUP_INQUIRY_MIN_PASSENGERS}&nbsp;fő)
+        </span>
+      </span>
+    </button>
   );
 }
 

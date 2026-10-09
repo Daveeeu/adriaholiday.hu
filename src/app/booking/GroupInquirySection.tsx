@@ -7,10 +7,16 @@ import { BookingApiError, BookingValidationError, submitTourInquiry } from "./bo
 /** Groups from this size can ask for a tailored offer on a custom date. */
 export const GROUP_INQUIRY_MIN_PASSENGERS = 20;
 
+/** Anchor of the section, targeted by the trip page's "Egyedi ajánlat" links. */
+export const GROUP_INQUIRY_SECTION_ID = "ajanlatkeres";
+
 type GroupInquirySectionProps = {
   trip: { id: number | string; slug: string; title: string };
   /** The selected date cannot be booked (none scheduled, sold out, cancelled): the request form stays open; otherwise it opens on demand. */
   requestOnly: boolean;
+  /** The visitor asked for the form (here or from a link elsewhere on the page). */
+  opened: boolean;
+  onOpen: () => void;
 };
 
 type InquiryValues = {
@@ -75,10 +81,9 @@ const TEXT_FIELDS: Array<{ key: TextField; label: string; type: string; required
  * legacy site's offer: available for groups of at least 20 people, and the
  * only way to book tours that have no scheduled dates.
  */
-export default function GroupInquirySection({ trip, requestOnly }: GroupInquirySectionProps) {
+export default function GroupInquirySection({ trip, requestOnly, opened, onOpen }: GroupInquirySectionProps) {
   const { trackEvent } = useAnalytics();
-  const [openedOnDemand, setOpen] = useState(false);
-  const open = requestOnly || openedOnDemand;
+  const open = requestOnly || opened;
   const [values, setValues] = useState<InquiryValues>(EMPTY_VALUES);
   const [errors, setErrors] = useState<Partial<Record<keyof InquiryValues, string>>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
@@ -139,7 +144,7 @@ export default function GroupInquirySection({ trip, requestOnly }: GroupInquiryS
   }
 
   return (
-    <section id="ajanlatkeres" className="scroll-mt-[92px] rounded-[40px] bg-white border border-gray-100 p-6 md:p-8 shadow-[0_16px_50px_rgba(15,23,42,0.06)]">
+    <section id={GROUP_INQUIRY_SECTION_ID} className="scroll-mt-[92px] rounded-[40px] bg-white border border-gray-100 p-6 md:p-8 shadow-[0_16px_50px_rgba(15,23,42,0.06)]">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 shrink-0 rounded-2xl bg-[#00c389]/10 text-[#00c389] flex items-center justify-center">
@@ -156,8 +161,8 @@ export default function GroupInquirySection({ trip, requestOnly }: GroupInquiryS
         {!open && status !== "success" ? (
           <button
             type="button"
-            onClick={() => setOpen(true)}
-            className="h-12 px-6 rounded-xl bg-gray-100 text-[#0f172a] font-bold hover:bg-gray-200 transition-colors"
+            onClick={onOpen}
+            className="h-12 px-6 rounded-xl bg-[#00c389]/10 text-[#00a878] font-bold hover:bg-[#00c389]/20 transition-colors"
           >
             Ajánlatkérés
           </button>
