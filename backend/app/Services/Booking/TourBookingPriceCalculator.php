@@ -8,10 +8,10 @@ use App\Models\TourDate;
 use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
 use App\Support\Booking\BookingInsuranceSettings;
+use App\Support\Booking\TourBookingPassengerOptions;
 use App\Support\Booking\TourBookingSelection;
 use App\Support\DiscountBadge;
 use App\Support\Tour\TourExtraChargeRule;
-use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -21,18 +21,21 @@ use Illuminate\Validation\ValidationException;
  *
  *   base price × passengers − discount (the price box's discount badge)
  *   + departure place fee × passengers
- *   + charged extras (per passenger or once per booking)
+ *   + charged extras (for each passenger who has them, or once per booking)
  *   − coupon
  *   = trip total
- *   + travel insurance (daily fee × passengers × travel days)
- *   + cancellation insurance (percentage of the trip total)
+ *   + travel insurance (daily fee × insured passengers × travel days)
+ *   + cancellation insurance (percentage of each insured passenger's share of the trip total)
  *   = total
  *
- * The returned breakdown is stored on the booking as a snapshot, so later
- * price edits never change what the customer booked.
+ * Per-person extras and insurances are chosen passenger by passenger; the
+ * breakdown lists which passengers (by their index) each one is charged for.
+ * It is stored on the booking as a snapshot, so later price edits never
+ * change what the customer booked.
  *
- * @phpstan-type BookingPriceExtra array{id: int, name: string, price: float, priceUnit: string, chargeRule: string, choice: string|null, quantity: int, total: float}
- * @phpstan-type BookingPriceInsurance array{key: string, name: string, detail: string, total: float}
+ * @phpstan-type BookingPriceExtraPassenger array{index: int, choice: string|null}
+ * @phpstan-type BookingPriceExtra array{id: int, name: string, price: float, priceUnit: string, chargeRule: string, choice: string|null, quantity: int, total: float, passengers: array<int, BookingPriceExtraPassenger>}
+ * @phpstan-type BookingPriceInsurance array{key: string, name: string, detail: string, total: float, passengers: array<int, int>}
  * @phpstan-type BookingPriceBreakdown array{currency: string, passengers: int, basePrice: float|null, baseTotal: float|null, discount: array{label: string, percent: float, amount: float}|null, departurePlace: array{id: int, name: string, fee: float, total: float}|null, extras: array<int, BookingPriceExtra>, coupon: array{id: int, code: string, amount: float}|null, tripTotal: float|null, insurances: array<int, BookingPriceInsurance>, insuranceTotal: float, total: float|null}
  */
 class TourBookingPriceCalculator
@@ -56,8 +59,11 @@ class TourBookingPriceCalculator
             : null;
         $coupon = $this->coupon($tour, $selection->couponCode, $subtotal);
         $tripTotal = $subtotal !== null ? $subtotal - ($coupon['amount'] ?? 0) : null;
+        $passengerShares = $basePrice !== null
+            ? $this->passengerShares($passengers, $basePrice, $discount, $departurePlace, $extras, $coupon)
+            : null;
 
-        $insurances = $this->insurances($tourDate, $selection, $tripTotal);
+        $insurances = $this->insurances($tourDate, $selection, $passengerShares);
         $insuranceTotal = array_sum(array_column($insurances, 'total'));
 
         return [
@@ -149,38 +155,95 @@ class TourBookingPriceCalculator
         /** @var Collection<int, TourDateExtra> $extras */
         $extras = $tourDate?->extras()->get() ?? collect();
 
-        if (array_diff($selection->extraIds, $extras->pluck('id')->all()) !== []) {
+        if (array_diff($selection->referencedExtraIds(), $extras->pluck('id')->all()) !== []) {
             throw ValidationException::withMessages([
                 'extraIds' => 'A kiválasztott felár nem érhető el ehhez az időponthoz.',
             ]);
         }
 
         return $extras
-            ->filter(fn (TourDateExtra $extra): bool => TourExtraChargeRule::chargedAutomatically($extra->charge_rule, $selection->passengers)
-                || (TourExtraChargeRule::selectable($extra->charge_rule) && in_array($extra->id, $selection->extraIds, true)))
-            ->map(function (TourDateExtra $extra) use ($selection): array {
-                $quantity = $extra->price_unit === TourExtraPriceUnit::PER_BOOKING ? 1 : $selection->passengers;
-
-                return [
-                    'id' => $extra->id,
-                    'name' => $extra->name,
-                    'price' => (float) $extra->price,
-                    'priceUnit' => $extra->price_unit,
-                    'chargeRule' => $extra->charge_rule,
-                    'choice' => $this->extraChoice($extra, $selection),
-                    'quantity' => $quantity,
-                    'total' => (float) $extra->price * $quantity,
-                ];
-            })
+            ->map(fn (TourDateExtra $extra): ?array => TourExtraChargeRule::chargedPerPassenger($extra->charge_rule, $extra->price_unit)
+                ? $this->passengerExtra($extra, $selection)
+                : $this->bookingExtra($extra, $selection))
+            ->filter()
             ->values()
             ->all();
+    }
+
+    /**
+     * An extra charged once for the whole booking.
+     *
+     * @return BookingPriceExtra|null
+     */
+    private function bookingExtra(TourDateExtra $extra, TourBookingSelection $selection): ?array
+    {
+        $charged = TourExtraChargeRule::chargedAutomatically($extra->charge_rule, $selection->passengers)
+            || (TourExtraChargeRule::selectable($extra->charge_rule, $selection->passengers) && in_array($extra->id, $selection->bookingExtraIds, true));
+
+        if (! $charged) {
+            return null;
+        }
+
+        return $this->extraLine($extra, 1, $this->extraChoice($extra, $selection->bookingExtraChoices[$extra->id] ?? null), []);
+    }
+
+    /**
+     * A per-person extra, charged for every passenger when automatic, else
+     * for the passengers who selected it.
+     *
+     * @return BookingPriceExtra|null
+     */
+    private function passengerExtra(TourDateExtra $extra, TourBookingSelection $selection): ?array
+    {
+        $automatic = TourExtraChargeRule::chargedAutomatically($extra->charge_rule, $selection->passengers);
+        $selectable = TourExtraChargeRule::selectable($extra->charge_rule, $selection->passengers);
+        $passengers = [];
+
+        for ($index = 0; $index < $selection->passengers; $index++) {
+            $options = $selection->optionsOf($index);
+
+            if ($automatic || ($selectable && in_array($extra->id, $options->extraIds, true))) {
+                $passengers[] = [
+                    'index' => $index,
+                    'choice' => $this->extraChoice($extra, $options->extraChoices[$extra->id] ?? null, $index),
+                ];
+            }
+        }
+
+        if ($passengers === []) {
+            return null;
+        }
+
+        // The line names the choice when every passenger made the same one.
+        $choices = array_unique(array_column($passengers, 'choice'));
+
+        return $this->extraLine($extra, count($passengers), count($choices) === 1 ? $choices[0] : null, $passengers);
+    }
+
+    /**
+     * @param  array<int, array{index: int, choice: string|null}>  $passengers
+     * @return BookingPriceExtra
+     */
+    private function extraLine(TourDateExtra $extra, int $quantity, ?string $choice, array $passengers): array
+    {
+        return [
+            'id' => $extra->id,
+            'name' => $extra->name,
+            'price' => (float) $extra->price,
+            'priceUnit' => $extra->price_unit,
+            'chargeRule' => $extra->charge_rule,
+            'choice' => $choice,
+            'quantity' => $quantity,
+            'total' => (float) $extra->price * $quantity,
+            'passengers' => $passengers,
+        ];
     }
 
     /**
      * An extra offering choices (e.g. single room: alone / find a roommate)
      * needs one of them picked once it is charged.
      */
-    private function extraChoice(TourDateExtra $extra, TourBookingSelection $selection): ?string
+    private function extraChoice(TourDateExtra $extra, ?string $choice, ?int $passengerIndex = null): ?string
     {
         $choices = $extra->choices ?? [];
 
@@ -188,12 +251,10 @@ class TourBookingPriceCalculator
             return null;
         }
 
-        $choice = $selection->extraChoices[$extra->id] ?? null;
-
         if (! in_array($choice, $choices, true)) {
-            throw ValidationException::withMessages([
-                'extraChoices' => "Válassz egy lehetőséget ennél a tételnél: {$extra->name}.",
-            ]);
+            throw ValidationException::withMessages($passengerIndex === null
+                ? ['extraChoices' => "Válassz egy lehetőséget ennél a tételnél: {$extra->name}."]
+                : ["passengerOptions.{$passengerIndex}.extraChoices" => sprintf('Válassz egy lehetőséget ennél a tételnél: %s (%d. utas).', $extra->name, $passengerIndex + 1)]);
         }
 
         return $choice;
@@ -234,14 +295,43 @@ class TourBookingPriceCalculator
     }
 
     /**
+     * What each passenger's part of the trip total is: their own price,
+     * departure fee and per-person extras, plus an equal part of the
+     * discount, the per-booking extras and the coupon.
+     *
+     * @param  array{amount: float}|null  $discount
+     * @param  array{total: float}|null  $departurePlace
+     * @param  array<int, BookingPriceExtra>  $extras
+     * @param  array{amount: float}|null  $coupon
+     * @return array<int, float> keyed by passenger index
+     */
+    private function passengerShares(int $passengers, float $basePrice, ?array $discount, ?array $departurePlace, array $extras, ?array $coupon): array
+    {
+        $bookingExtrasTotal = array_sum(array_column(array_filter($extras, fn (array $extra): bool => $extra['passengers'] === []), 'total'));
+        $shared = ($bookingExtrasTotal - ($discount['amount'] ?? 0) - ($coupon['amount'] ?? 0)) / $passengers;
+        $shares = array_fill(0, $passengers, $basePrice + ($departurePlace['total'] ?? 0) / $passengers + $shared);
+
+        foreach ($extras as $extra) {
+            foreach ($extra['passengers'] as $passenger) {
+                $shares[$passenger['index']] += $extra['price'];
+            }
+        }
+
+        return $shares;
+    }
+
+    /**
+     * @param  array<int, float>|null  $passengerShares  null when the tour has no price
      * @return array<int, BookingPriceInsurance>
      */
-    private function insurances(?TourDate $tourDate, TourBookingSelection $selection, ?float $tripTotal): array
+    private function insurances(?TourDate $tourDate, TourBookingSelection $selection, ?array $passengerShares): array
     {
         $settings = BookingInsuranceSettings::load();
+        $travelInsured = $this->insuredPassengers($selection, fn (TourBookingPassengerOptions $options): bool => $options->travelInsurance);
+        $cancellationInsured = $this->insuredPassengers($selection, fn (TourBookingPassengerOptions $options): bool => $options->cancellationInsurance);
         $insurances = [];
 
-        if ($selection->travelInsurance) {
+        if ($travelInsured !== []) {
             $days = $this->travelDays($tourDate);
 
             if ($days === null) {
@@ -253,13 +343,14 @@ class TourBookingPriceCalculator
             $insurances[] = [
                 'key' => 'travel_insurance',
                 'name' => $settings->travelInsuranceName,
-                'detail' => sprintf('%d fő × %d nap × %s Ft', $selection->passengers, $days, number_format($settings->travelInsuranceDailyFee, 0, ',', '.')),
-                'total' => round($settings->travelInsuranceDailyFee * $selection->passengers * $days),
+                'detail' => sprintf('%d fő × %d nap × %s Ft', count($travelInsured), $days, number_format($settings->travelInsuranceDailyFee, 0, ',', '.')),
+                'total' => round($settings->travelInsuranceDailyFee * count($travelInsured) * $days),
+                'passengers' => $travelInsured,
             ];
         }
 
-        if ($selection->cancellationInsurance) {
-            if ($tripTotal === null || ! $this->cancellationInsuranceAvailable($tourDate, $settings)) {
+        if ($cancellationInsured !== []) {
+            if ($passengerShares === null || ! $this->cancellationInsuranceAvailable($tourDate, $settings)) {
                 throw ValidationException::withMessages([
                     'cancellationInsurance' => "Útlemondási biztosítás legalább {$settings->cancellationInsuranceMinDays} nappal indulás előtt köthető.",
                 ]);
@@ -268,12 +359,32 @@ class TourBookingPriceCalculator
             $insurances[] = [
                 'key' => 'cancellation_insurance',
                 'name' => $settings->cancellationInsuranceName,
-                'detail' => sprintf('Az utazás díjának %s%%-a', rtrim(rtrim(number_format($settings->cancellationInsurancePercent, 2, ',', ''), '0'), ',')),
-                'total' => round($tripTotal * $settings->cancellationInsurancePercent / 100),
+                'detail' => sprintf(
+                    'Az utazás díjának %s%%-a, %d fő',
+                    rtrim(rtrim(number_format($settings->cancellationInsurancePercent, 2, ',', ''), '0'), ','),
+                    count($cancellationInsured),
+                ),
+                'total' => array_sum(array_map(
+                    fn (int $index): float => round($passengerShares[$index] * $settings->cancellationInsurancePercent / 100),
+                    $cancellationInsured,
+                )),
+                'passengers' => $cancellationInsured,
             ];
         }
 
         return $insurances;
+    }
+
+    /**
+     * @param  callable(TourBookingPassengerOptions): bool  $chose
+     * @return array<int, int> indexes of the passengers who chose the insurance
+     */
+    private function insuredPassengers(TourBookingSelection $selection, callable $chose): array
+    {
+        return array_values(array_filter(
+            range(0, $selection->passengers - 1),
+            fn (int $index): bool => $chose($selection->optionsOf($index)),
+        ));
     }
 
     private function travelDays(?TourDate $tourDate): ?int

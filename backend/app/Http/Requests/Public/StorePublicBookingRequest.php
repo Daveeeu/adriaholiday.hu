@@ -22,9 +22,51 @@ class StorePublicBookingRequest extends FormRequest
             'extra_choices' => $this->input('extra_choices', $this->input('extraChoices', [])),
             'travel_insurance' => $this->boolean('travel_insurance', $this->boolean('travelInsurance')),
             'cancellation_insurance' => $this->boolean('cancellation_insurance', $this->boolean('cancellationInsurance')),
+            'passenger_options' => $this->passengerOptions(),
             'type' => $this->input('type', 'tour_booking'),
             'terms_accepted' => $this->boolean('terms_accepted', $this->boolean('termsAccepted')),
         ]);
+    }
+
+    /**
+     * Each passenger's extras and insurances (passengerOptions), snake_cased;
+     * null when the form sends none.
+     *
+     * @return array<int, mixed>|null
+     */
+    private function passengerOptions(): ?array
+    {
+        $options = $this->input('passenger_options', $this->input('passengerOptions'));
+
+        if (! is_array($options)) {
+            return null;
+        }
+
+        return array_map(fn (mixed $passenger): mixed => is_array($passenger) ? [
+            'extra_ids' => $passenger['extra_ids'] ?? $passenger['extraIds'] ?? [],
+            'extra_choices' => $passenger['extra_choices'] ?? $passenger['extraChoices'] ?? [],
+            'travel_insurance' => filter_var($passenger['travel_insurance'] ?? $passenger['travelInsurance'] ?? false, FILTER_VALIDATE_BOOL),
+            'cancellation_insurance' => filter_var($passenger['cancellation_insurance'] ?? $passenger['cancellationInsurance'] ?? false, FILTER_VALIDATE_BOOL),
+        ] : $passenger, array_values($options));
+    }
+
+    /**
+     * The validator rebuilds nested lists in rule order, so a passenger
+     * without values can end up out of place; passengers and their options
+     * are matched by position, so both lists keep the submitted order.
+     */
+    public function validated($key = null, $default = null)
+    {
+        $validated = parent::validated();
+
+        foreach (['passengers', 'passenger_options'] as $list) {
+            if (is_array($validated[$list] ?? null)) {
+                ksort($validated[$list]);
+                $validated[$list] = array_values($validated[$list]);
+            }
+        }
+
+        return data_get($validated, $key, $default);
     }
 
     public function authorize(): bool
@@ -67,6 +109,14 @@ class StorePublicBookingRequest extends FormRequest
             'extra_choices.*' => ['string', 'max:255'],
             'travel_insurance' => ['boolean'],
             'cancellation_insurance' => ['boolean'],
+            'passenger_options' => ['nullable', 'array', 'max:20'],
+            'passenger_options.*' => ['array'],
+            'passenger_options.*.extra_ids' => ['array', 'max:30'],
+            'passenger_options.*.extra_ids.*' => ['integer'],
+            'passenger_options.*.extra_choices' => ['array', 'max:30'],
+            'passenger_options.*.extra_choices.*' => ['string', 'max:255'],
+            'passenger_options.*.travel_insurance' => ['boolean'],
+            'passenger_options.*.cancellation_insurance' => ['boolean'],
             'type' => ['nullable', 'string', Rule::in(['tour_booking', 'tour_inquiry'])],
             'terms_accepted' => ['accepted'],
         ];
@@ -99,6 +149,10 @@ class StorePublicBookingRequest extends FormRequest
             'extra_ids.*.distinct' => 'Egy felár csak egyszer választható.',
             'extra_choices.array' => 'Érvénytelen felár választás.',
             'extra_choices.*.max' => 'A megadott érték túl hosszú.',
+            'passenger_options.array' => 'Érvénytelen utas opciók.',
+            'passenger_options.max' => 'Egyszerre legfeljebb 20 utas adható meg.',
+            'passenger_options.*.extra_ids.*.integer' => 'Érvénytelen felár azonosító.',
+            'passenger_options.*.extra_choices.*.max' => 'A megadott érték túl hosszú.',
             'terms_accepted.accepted' => 'Az ÁSZF és az adatkezelési tájékoztató elfogadása kötelező.',
         ];
     }

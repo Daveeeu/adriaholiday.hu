@@ -40,8 +40,27 @@ class NewTourBookingOfficeNotification extends Mailable
                 'extras' => $this->extraSelections(),
                 'pricingLines' => $prices?->lines() ?? [],
                 'pricingTotal' => $prices?->total(),
+                'passengerSelections' => $this->passengerSelections($prices),
             ],
         );
+    }
+
+    /**
+     * "Kovács Anna: Vacsora, Utasbiztosítás" for every passenger who chose extras or insurance.
+     *
+     * @return array<int, string>
+     */
+    private function passengerSelections(?BookingPriceSummary $prices): array
+    {
+        $passengers = array_values($this->booking->payload['passengers'] ?? []);
+        $lines = [];
+
+        foreach ($prices?->passengerSelections() ?? [] as $index => $labels) {
+            $name = trim((string) ($passengers[$index]['passenger_name'] ?? '')) ?: ($index + 1).'. utas';
+            $lines[] = "{$name}: ".implode(', ', $labels);
+        }
+
+        return $lines;
     }
 
     /**

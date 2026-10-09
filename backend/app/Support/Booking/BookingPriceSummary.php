@@ -110,6 +110,41 @@ final class BookingPriceSummary
     }
 
     /**
+     * The extras and insurances each passenger chose, e.g. [0 => ["Vacsora", "Egyágyas felár – egyedül", "Utasbiztosítás"]],
+     * keyed by passenger index. Mandatory extras, which everyone has, are left out. A booking priced before
+     * per-passenger choices charged its per-person extras and insurances for every passenger.
+     *
+     * @return array<int, array<int, string>>
+     */
+    public function passengerSelections(): array
+    {
+        $everyone = range(0, max(1, (int) $this->pricing['passengers']) - 1);
+        $selections = [];
+
+        foreach ($this->pricing['extras'] as $extra) {
+            if ($extra['chargeRule'] === TourExtraChargeRule::MANDATORY || ! TourExtraChargeRule::chargedPerPassenger($extra['chargeRule'], $extra['priceUnit'])) {
+                continue;
+            }
+
+            $passengers = $extra['passengers'] ?? array_map(fn (int $index): array => ['index' => $index, 'choice' => $extra['choice']], $everyone);
+
+            foreach ($passengers as $passenger) {
+                $selections[$passenger['index']][] = $extra['name'].($passenger['choice'] !== null ? " – {$passenger['choice']}" : '');
+            }
+        }
+
+        foreach ($this->pricing['insurances'] as $insurance) {
+            foreach ($insurance['passengers'] ?? $everyone as $index) {
+                $selections[$index][] = $insurance['name'];
+            }
+        }
+
+        ksort($selections);
+
+        return $selections;
+    }
+
+    /**
      * @return array<int, string> names of the insurances ordered with the booking
      */
     public function insuranceNames(): array

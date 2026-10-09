@@ -3,9 +3,9 @@
 namespace App\Support\Tour;
 
 /**
- * When a tour date extra is charged: only when the customer selects it,
- * always, or automatically when exactly one passenger travels (the single
- * room supplement, which is not offered to groups).
+ * When a tour date extra is charged: only when selected, always, or for a
+ * single room supplement automatically when exactly one passenger travels;
+ * in a group each passenger may select it.
  */
 final class TourExtraChargeRule
 {
@@ -32,10 +32,20 @@ final class TourExtraChargeRule
     }
 
     /**
+     * Whether the extra is chosen and charged passenger by passenger. A single
+     * room supplement always belongs to one passenger, even when its price is
+     * entered per booking.
+     */
+    public static function chargedPerPassenger(string $rule, string $priceUnit): bool
+    {
+        return $priceUnit === TourExtraPriceUnit::PER_PERSON || $rule === self::SOLO_TRAVELLER;
+    }
+
+    /**
      * Whether the customer may select an extra with this rule themselves.
      */
-    public static function selectable(string $rule): bool
+    public static function selectable(string $rule, int $passengers): bool
     {
-        return $rule === self::OPTIONAL;
+        return $rule === self::OPTIONAL || ($rule === self::SOLO_TRAVELLER && $passengers > 1);
     }
 }

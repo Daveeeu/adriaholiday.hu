@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Resources\BookingDetailResource;
 use App\Mail\NewTourBookingOfficeNotification;
 use App\Mail\TourBookingCustomerConfirmation;
 use App\Models\Booking;
@@ -11,6 +12,7 @@ use App\Models\TourDate;
 use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
+use App\Support\Booking\BookingPriceSummary;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -134,7 +136,7 @@ class TourBookingPricingTest extends TestCase
     {
         $withoutChoice = $this->postJson('/api/bookings', $this->bookingPayload(passengers: 1));
         $withoutChoice->assertStatus(422);
-        $withoutChoice->assertJsonValidationErrors(['extraChoices']);
+        $withoutChoice->assertJsonValidationErrors(['passengerOptions.0.extraChoices']);
 
         $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload([
             'extraChoices' => [$this->singleRoom->id => self::ROOMMATE],
@@ -142,18 +144,100 @@ class TourBookingPricingTest extends TestCase
 
         $singleRoom = collect($pricing['extras'])->firstWhere('name', 'Egyágyas felár');
         $this->assertSame(self::ROOMMATE, $singleRoom['choice']);
+        $this->assertSame([['index' => 0, 'choice' => self::ROOMMATE]], $singleRoom['passengers']);
         $this->assertEquals(13800, $singleRoom['total']);
         // 45 900 + 4 700 + 30 000 + 13 800
         $this->assertEquals(94400, $pricing['total']);
     }
 
-    public function test_solo_traveller_supplement_cannot_be_selected_by_groups(): void
+    public function test_group_passengers_choose_the_single_room_supplement_one_by_one(): void
     {
+        $withoutChoice = $this->postJson('/api/bookings', $this->bookingPayload([
+            'passengerOptions' => [['extraIds' => [$this->singleRoom->id]], []],
+        ]));
+        $withoutChoice->assertStatus(422);
+        $withoutChoice->assertJsonValidationErrors(['passengerOptions.0.extraChoices']);
+
         $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload([
-            'extraIds' => [$this->singleRoom->id],
+            'passengerOptions' => [[], ['extraIds' => [$this->singleRoom->id], 'extraChoices' => [$this->singleRoom->id => self::ALONE]]],
         ])));
 
-        $this->assertNull(collect($pricing['extras'])->firstWhere('name', 'Egyágyas felár'));
+        $singleRoom = collect($pricing['extras'])->firstWhere('name', 'Egyágyas felár');
+        $this->assertSame([['index' => 1, 'choice' => self::ALONE]], $singleRoom['passengers']);
+        $this->assertEquals(13800, $singleRoom['total']);
+    }
+
+    public function test_per_person_extras_are_charged_only_for_the_passengers_who_chose_them(): void
+    {
+        $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload([
+            'passengerOptions' => [['extraIds' => [$this->dinner->id]], ['extraIds' => []], ['extraIds' => [$this->dinner->id]]],
+        ], passengers: 3)));
+
+        $dinner = collect($pricing['extras'])->firstWhere('name', 'Vacsora');
+        $this->assertSame(2, $dinner['quantity']);
+        $this->assertSame([0, 2], array_column($dinner['passengers'], 'index'));
+        $this->assertEquals(17600, $dinner['total']);
+
+        // Mandatory extras stay charged for everyone.
+        $this->assertSame(3, collect($pricing['extras'])->firstWhere('name', 'Repülőjegy')['quantity']);
+    }
+
+    public function test_insurances_are_priced_for_the_insured_passengers_only(): void
+    {
+        $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload([
+            'passengerOptions' => [
+                ['extraIds' => [$this->dinner->id], 'travelInsurance' => true, 'cancellationInsurance' => true],
+                ['travelInsurance' => false, 'cancellationInsurance' => false],
+            ],
+        ])));
+
+        $insurances = collect($pricing['insurances'])->keyBy('key');
+        // 540 Ft × 1 passenger × 2 days
+        $this->assertEquals(1080, $insurances['travel_insurance']['total']);
+        $this->assertSame([0], $insurances['travel_insurance']['passengers']);
+        // 2.8% of the first passenger's share: 45 900 + 4 700 + 30 000 + 8 800 (dinner) = 89 400
+        $this->assertEquals(2503, $insurances['cancellation_insurance']['total']);
+        $this->assertSame([0], $insurances['cancellation_insurance']['passengers']);
+    }
+
+    public function test_documents_list_what_each_passenger_chose(): void
+    {
+        $response = $this->postJson('/api/bookings', $this->bookingPayload([
+            'passengerOptions' => [
+                ['extraIds' => [$this->dinner->id], 'travelInsurance' => true],
+                ['extraIds' => [$this->singleRoom->id], 'extraChoices' => [$this->singleRoom->id => self::ROOMMATE]],
+            ],
+        ]));
+        $booking = Booking::query()->findOrFail($response->json('id'));
+
+        $office = (new NewTourBookingOfficeNotification($booking, $this->tour))->render();
+        $this->assertStringContainsString('Utas 1: Vacsora, ALFA Compass utasbiztosítás', $office);
+        $this->assertStringContainsString('Utas 2: Egyágyas felár – '.self::ROOMMATE, $office);
+
+        $customer = (new TourBookingCustomerConfirmation($booking, $this->tour))->render();
+        $this->assertStringContainsString('Felárak, biztosítás', $customer);
+        $this->assertStringContainsString('Vacsora, ALFA Compass utasbiztosítás', $customer);
+
+        $adminFields = (new BookingDetailResource($booking))->toArray(request())['passengerFields'];
+        $this->assertContains(
+            ['key' => 'selections', 'label' => 'Felárak, biztosítás', 'value' => 'Egyágyas felár – '.self::ROOMMATE],
+            $adminFields[1],
+        );
+    }
+
+    public function test_bookings_priced_before_per_passenger_choices_list_their_extras_for_everyone(): void
+    {
+        $booking = Booking::factory()->create(['payload' => ['pricing' => [
+            'currency' => 'HUF', 'passengers' => 2, 'basePrice' => 45900.0, 'baseTotal' => 91800.0, 'discount' => null,
+            'departurePlace' => null, 'coupon' => null, 'tripTotal' => 109400.0, 'insuranceTotal' => 2160.0, 'total' => 111560.0,
+            'extras' => [['id' => 1, 'name' => 'Vacsora', 'price' => 8800.0, 'priceUnit' => 'per_person', 'chargeRule' => 'optional', 'choice' => null, 'quantity' => 2, 'total' => 17600.0]],
+            'insurances' => [['key' => 'travel_insurance', 'name' => 'Utasbiztosítás', 'detail' => '2 fő × 2 nap × 540 Ft', 'total' => 2160.0]],
+        ]]]);
+
+        $this->assertSame(
+            [0 => ['Vacsora', 'Utasbiztosítás'], 1 => ['Vacsora', 'Utasbiztosítás']],
+            BookingPriceSummary::of($booking)->passengerSelections(),
+        );
     }
 
     public function test_discount_badge_shown_in_the_price_box_reduces_the_base_price(): void

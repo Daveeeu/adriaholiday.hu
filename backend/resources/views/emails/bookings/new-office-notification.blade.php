@@ -25,6 +25,14 @@ Indulás: {{ $booking->departure_date->format('Y.m.d.') }}
 @endif
 
 @endif
+@if ($passengerSelections !== [])
+## Utasok felárai, biztosításai
+
+@foreach ($passengerSelections as $line)
+- {{ $line }}
+@endforeach
+
+@endif
 @if ($extras !== [])
 ## Extra opciók
 

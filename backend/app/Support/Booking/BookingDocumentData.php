@@ -24,6 +24,8 @@ final class BookingDocumentData
 {
     private const PAYMENT_METHOD_KEY = 'extra_payment_method';
 
+    public const PASSENGER_SELECTIONS_LABEL = 'Felárak, biztosítás';
+
     private const ENTRY_REQUIREMENTS_URL = 'https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/';
 
     private const TRAVEL_MODES = ['bus' => 'Autóbusszal', 'plane' => 'Repülővel', 'train' => 'Vonattal'];
@@ -52,10 +54,7 @@ final class BookingDocumentData
             'tripName' => $this->tripName(),
             'customerName' => $this->booking->customer_name ?: 'Utazó',
             'contactRows' => $this->fieldRows($formData, [BookingFormField::PASSENGER_GROUP, BookingFormField::EXTRA_GROUP]),
-            'passengers' => array_map(
-                fn (array $passenger): array => $this->fieldRows($passenger),
-                $this->booking->payload['passengers'] ?? [],
-            ),
+            'passengers' => $this->passengerRows($prices),
             'tripRows' => $this->tripRows($prices),
             'extraRows' => $this->extraRows($formData),
             'note' => $this->booking->message,
@@ -101,6 +100,25 @@ final class BookingDocumentData
             ->map(fn (mixed $value, string $key): array => ['label' => $labels[$key] ?? Str::headline($key), 'value' => (string) $value])
             ->values()
             ->all();
+    }
+
+    /**
+     * Each passenger's details followed by the extras and insurances they chose.
+     *
+     * @return array<int, array<int, array{label: string, value: string}>>
+     */
+    private function passengerRows(?BookingPriceSummary $prices): array
+    {
+        $selections = $prices?->passengerSelections() ?? [];
+
+        return array_map(
+            fn (array $passenger, int $index): array => [
+                ...$this->fieldRows($passenger),
+                ...(isset($selections[$index]) ? [['label' => self::PASSENGER_SELECTIONS_LABEL, 'value' => implode(', ', $selections[$index])]] : []),
+            ],
+            array_values($this->booking->payload['passengers'] ?? []),
+            array_keys(array_values($this->booking->payload['passengers'] ?? [])),
+        );
     }
 
     /**

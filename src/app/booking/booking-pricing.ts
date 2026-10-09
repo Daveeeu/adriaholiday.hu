@@ -26,20 +26,31 @@ export type BookingPriceEstimate = {
   total: number | null;
 };
 
-export type BookingInsuranceChoice = {
-  travel: boolean;
-  cancellation: boolean;
+/** One passenger's own extras (with a choice where the extra offers one) and insurances. */
+export type PassengerOptions = {
+  extraIds: number[];
+  extraChoices: Record<number, string>;
+  travelInsurance: boolean;
+  cancellationInsurance: boolean;
+};
+
+export const EMPTY_PASSENGER_OPTIONS: PassengerOptions = {
+  extraIds: [],
+  extraChoices: {},
+  travelInsurance: false,
+  cancellationInsurance: false,
 };
 
 type EstimateInput = {
   basePrice: number | null;
   discountPercent: number | null;
-  passengers: number;
   departurePlace: BookingDeparturePlace | null;
   extras: BookingExtra[];
-  selectedExtraIds: number[];
+  /** Extras charged once per booking that the customer selected. */
+  bookingExtraIds: number[];
+  /** One entry per passenger. */
+  passengerOptions: PassengerOptions[];
   insurances: BookingInsurances | null;
-  insuranceChoice: BookingInsuranceChoice;
   startDate: string | null;
   endDate: string | null;
 };
@@ -55,25 +66,53 @@ export function isChargedAutomatically(extra: BookingExtra, passengers: number):
   return extra.chargeRule === "mandatory" || (extra.chargeRule === "solo_traveller" && passengers === 1);
 }
 
-export function isSelectable(extra: BookingExtra): boolean {
-  return extra.chargeRule === "optional";
+/** Optional extras, and in a group the single room supplement, are the customer's to choose. */
+export function isSelectable(extra: BookingExtra, passengers: number): boolean {
+  return extra.chargeRule === "optional" || (extra.chargeRule === "solo_traveller" && passengers > 1);
 }
 
-/** Extras the booking pays for: automatic ones plus the selected optional ones. */
-export function chargedExtras(extras: BookingExtra[], selectedExtraIds: number[], passengers: number): BookingExtra[] {
+/**
+ * Chosen and charged passenger by passenger. A single room supplement always
+ * belongs to one passenger, even when its price is entered per booking.
+ */
+export function isPerPassenger(extra: BookingExtra): boolean {
+  return extra.priceUnit === "per_person" || extra.chargeRule === "solo_traveller";
+}
+
+/** Booking-level extras the booking pays for: automatic ones plus the selected ones. */
+export function chargedBookingExtras(extras: BookingExtra[], bookingExtraIds: number[], passengers: number): BookingExtra[] {
   return extras.filter(
     (extra) =>
-      isChargedAutomatically(extra, passengers) || (isSelectable(extra) && selectedExtraIds.includes(extra.id)),
+      !isPerPassenger(extra) &&
+      (isChargedAutomatically(extra, passengers) ||
+        (isSelectable(extra, passengers) && bookingExtraIds.includes(extra.id))),
   );
 }
 
-/** Extras shown on the form: solo traveller supplements only when one passenger travels. */
-export function visibleExtras(extras: BookingExtra[], passengers: number): BookingExtra[] {
-  return extras.filter((extra) => extra.chargeRule !== "solo_traveller" || passengers === 1);
+/** Per-passenger extras one passenger pays for: automatic ones plus the ones they selected. */
+export function chargedPassengerExtras(extras: BookingExtra[], options: PassengerOptions, passengers: number): BookingExtra[] {
+  return extras.filter(
+    (extra) =>
+      isPerPassenger(extra) &&
+      (isChargedAutomatically(extra, passengers) ||
+        (isSelectable(extra, passengers) && options.extraIds.includes(extra.id))),
+  );
+}
+
+/** Per-passenger extras a passenger's card offers: the selectable ones and an automatic single room supplement. */
+export function passengerCardExtras(extras: BookingExtra[], passengers: number): BookingExtra[] {
+  return extras.filter(
+    (extra) => isPerPassenger(extra) && (isSelectable(extra, passengers) || extra.chargeRule === "solo_traveller"),
+  );
+}
+
+/** Extras of the trip step: the booking-level ones and the per-person ones everyone pays. */
+export function tripStepExtras(extras: BookingExtra[]): BookingExtra[] {
+  return extras.filter((extra) => !isPerPassenger(extra) || extra.chargeRule === "mandatory");
 }
 
 export function extraPriceLabel(extra: BookingExtra): string {
-  return `${formatHuf(extra.price)}${extra.priceUnit === "per_person" ? " / fő" : " / foglalás"}`;
+  return `${formatHuf(extra.price)}${isPerPassenger(extra) ? " / fő" : " / foglalás"}`;
 }
 
 function parseDate(value: string | null): number | null {
@@ -123,12 +162,11 @@ export function isCancellationInsuranceAvailable(
 export function estimateBookingPrice({
   basePrice,
   discountPercent,
-  passengers,
   departurePlace,
   extras,
-  selectedExtraIds,
+  bookingExtraIds,
+  passengerOptions,
   insurances,
-  insuranceChoice,
   startDate,
   endDate,
 }: EstimateInput): BookingPriceEstimate {
@@ -136,51 +174,67 @@ export function estimateBookingPrice({
     return { lines: [], insuranceLines: [], tripTotal: null, total: null };
   }
 
-  const travellers = Math.max(1, passengers);
+  const options = passengerOptions.length > 0 ? passengerOptions : [EMPTY_PASSENGER_OPTIONS];
+  const travellers = options.length;
   const baseTotal = basePrice * travellers;
+  const discount = discountPercent !== null ? Math.round((baseTotal * discountPercent) / 100) : 0;
+  const departureFee = departurePlace?.fee ?? 0;
   const lines: BookingPriceLine[] = [
     { key: "base", label: `Részvételi díj (${travellers} fő)`, amount: baseTotal },
   ];
 
-  if (discountPercent !== null) {
-    lines.push({
-      key: "discount",
-      label: `Kedvezmény (-${discountPercent}%)`,
-      amount: -Math.round((baseTotal * discountPercent) / 100),
-    });
+  if (discount > 0) {
+    lines.push({ key: "discount", label: `Kedvezmény (-${discountPercent}%)`, amount: -discount });
   }
 
-  if (departurePlace && departurePlace.fee > 0) {
-    lines.push({
-      key: "departure",
-      label: `Felszállás: ${departurePlace.name}`,
-      amount: departurePlace.fee * travellers,
-    });
+  if (departurePlace && departureFee > 0) {
+    lines.push({ key: "departure", label: `Felszállás: ${departurePlace.name}`, amount: departureFee * travellers });
   }
 
-  chargedExtras(extras, selectedExtraIds, travellers).forEach((extra) => {
-    const quantity = extra.priceUnit === "per_person" ? travellers : 1;
+  const bookingExtras = chargedBookingExtras(extras, bookingExtraIds, travellers);
+  const passengerExtras = options.map((passenger) => chargedPassengerExtras(extras, passenger, travellers));
 
-    lines.push({ key: `extra-${extra.id}`, label: extra.name, amount: extra.price * quantity });
+  extras.forEach((extra) => {
+    if (bookingExtras.includes(extra)) {
+      lines.push({ key: `extra-${extra.id}`, label: extra.name, amount: extra.price });
+      return;
+    }
+
+    const count = passengerExtras.filter((charged) => charged.includes(extra)).length;
+
+    if (count > 0) {
+      lines.push({ key: `extra-${extra.id}`, label: `${extra.name} (${count} fő)`, amount: extra.price * count });
+    }
   });
 
   const tripTotal = lines.reduce((sum, line) => sum + line.amount, 0);
+  const bookingExtrasTotal = bookingExtras.reduce((sum, extra) => sum + extra.price, 0);
+  // Each passenger's part of the trip total, as the backend prices the cancellation insurance.
+  const shares = passengerExtras.map(
+    (charged) =>
+      basePrice + departureFee + (bookingExtrasTotal - discount) / travellers + charged.reduce((sum, extra) => sum + extra.price, 0),
+  );
   const insuranceLines: BookingPriceLine[] = [];
   const days = travelDays(startDate, endDate);
+  const travelInsured = options.filter((passenger) => passenger.travelInsurance).length;
+  const cancellationInsured = options.flatMap((passenger, index) => (passenger.cancellationInsurance ? [index] : []));
 
-  if (insurances && insuranceChoice.travel && days !== null) {
+  if (insurances && travelInsured > 0 && days !== null) {
     insuranceLines.push({
       key: "travel-insurance",
-      label: insurances.travelInsurance.name,
-      amount: Math.round(insurances.travelInsurance.dailyFee * travellers * days),
+      label: `${insurances.travelInsurance.name} (${travelInsured} fő)`,
+      amount: Math.round(insurances.travelInsurance.dailyFee * travelInsured * days),
     });
   }
 
-  if (insurances && insuranceChoice.cancellation && isCancellationInsuranceAvailable(startDate, insurances)) {
+  if (insurances && cancellationInsured.length > 0 && isCancellationInsuranceAvailable(startDate, insurances)) {
     insuranceLines.push({
       key: "cancellation-insurance",
-      label: insurances.cancellationInsurance.name,
-      amount: Math.round((tripTotal * insurances.cancellationInsurance.percent) / 100),
+      label: `${insurances.cancellationInsurance.name} (${cancellationInsured.length} fő)`,
+      amount: cancellationInsured.reduce(
+        (sum, index) => sum + Math.round((shares[index] * insurances.cancellationInsurance.percent) / 100),
+        0,
+      ),
     });
   }
 

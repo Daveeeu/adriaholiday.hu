@@ -1,4 +1,5 @@
 import { getPortfolioApiBaseUrl } from '../content/portfolio-api';
+import type { PassengerOptions } from './booking-pricing';
 
 export type BookingFormData = Record<string, string>;
 export type BookingPassenger = Record<string, string>;
@@ -12,10 +13,11 @@ export type SubmitBookingPayload = {
   note?: string;
   couponCode?: string;
   departurePlaceId?: number | string | null;
+  /** Extras charged once per booking, with a choice where one is offered. */
   extraIds?: number[];
   extraChoices?: Record<number, string>;
-  travelInsurance?: boolean;
-  cancellationInsurance?: boolean;
+  /** Each passenger's own extras and insurances, in passenger order. */
+  passengerOptions?: PassengerOptions[];
   type?: 'tour_booking' | 'tour_inquiry';
   /** The customer accepted the terms (ÁSZF) and the privacy policy. */
   termsAccepted: boolean;

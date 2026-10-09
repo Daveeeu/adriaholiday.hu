@@ -3,6 +3,8 @@
 namespace App\Http\Resources;
 
 use App\Services\Booking\BookingFormValidationService;
+use App\Support\Booking\BookingDocumentData;
+use App\Support\Booking\BookingPriceSummary;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
 
@@ -13,6 +15,7 @@ class BookingDetailResource extends BookingResource
         $labels = BookingFormValidationService::fieldLabels();
         $payload = $this->payload ?? [];
         $tour = $this->tour;
+        $selections = BookingPriceSummary::of($this->resource)?->passengerSelections() ?? [];
 
         return parent::toArray($request) + [
             'region' => $this->whenLoaded('region', fn () => new RegionResource($this->region)),
@@ -44,15 +47,20 @@ class BookingDetailResource extends BookingResource
                 ->values()
                 ->all(),
             'passengerFields' => collect($payload['passengers'] ?? [])
-                ->map(fn (array $passenger) => collect($passenger)
+                ->values()
+                ->map(fn (array $passenger, int $index) => collect($passenger)
                     ->map(fn ($value, $key) => [
                         'key' => $key,
                         'label' => $labels[$key] ?? $key,
                         'value' => $value,
                     ])
                     ->values()
+                    ->when(isset($selections[$index]), fn ($fields) => $fields->push([
+                        'key' => 'selections',
+                        'label' => BookingDocumentData::PASSENGER_SELECTIONS_LABEL,
+                        'value' => implode(', ', $selections[$index]),
+                    ]))
                     ->all())
-                ->values()
                 ->all(),
         ];
     }

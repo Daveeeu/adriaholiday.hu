@@ -1,12 +1,10 @@
+import BookingExtraOption from "./BookingExtraOption";
 import {
-  extraPriceLabel,
   formatHuf,
   isChargedAutomatically,
   isSelectable,
   type BookingDeparturePlace,
   type BookingExtra,
-  type BookingInsuranceChoice,
-  type BookingInsurances,
 } from "./booking-pricing";
 
 type BookingOptionsPanelProps = {
@@ -14,28 +12,22 @@ type BookingOptionsPanelProps = {
   departurePlaceId: string;
   onDeparturePlaceChange: (id: string) => void;
   departurePlaceError?: string;
+  /** Booking-level extras and the per-person ones everyone pays. */
   extras: BookingExtra[];
   passengers: number;
-  selectedExtraIds: number[];
+  bookingExtraIds: number[];
   onToggleExtra: (id: number) => void;
   extraChoices: Record<number, string>;
   onExtraChoiceChange: (id: number, choice: string) => void;
   extraChoiceError?: string;
-  insurances: BookingInsurances | null;
-  insuranceChoice: BookingInsuranceChoice;
-  onInsuranceChange: (choice: BookingInsuranceChoice) => void;
-  travelInsuranceAvailable: boolean;
-  cancellationInsuranceAvailable: boolean;
+  /** Extras or insurances are chosen per passenger on the passengers step. */
+  hasPassengerOptions: boolean;
 };
 
-const cardClassName = "flex items-start justify-between gap-4 rounded-2xl border border-gray-200 p-5 transition-all";
-const selectableCardClassName = `${cardClassName} cursor-pointer hover:border-[#00c389]/40 hover:bg-[#00c389]/5`;
-
 /**
- * Departure place, supplement ("felár") and insurance choices of the
- * selected tour date. Automatically charged supplements are shown ticked
- * and cannot be removed; a charged supplement offering choices (single
- * room: alone / roommate) asks for one.
+ * Departure place and the supplements ("felár") of the selected tour date
+ * that apply to the whole booking; mandatory supplements are shown ticked.
+ * Supplements and insurances each passenger chooses are on the passengers step.
  */
 export default function BookingOptionsPanel({
   departurePlaces,
@@ -44,20 +36,14 @@ export default function BookingOptionsPanel({
   departurePlaceError,
   extras,
   passengers,
-  selectedExtraIds,
+  bookingExtraIds,
   onToggleExtra,
   extraChoices,
   onExtraChoiceChange,
   extraChoiceError,
-  insurances,
-  insuranceChoice,
-  onInsuranceChange,
-  travelInsuranceAvailable,
-  cancellationInsuranceAvailable,
+  hasPassengerOptions,
 }: BookingOptionsPanelProps) {
-  const showInsurances = insurances !== null && (travelInsuranceAvailable || cancellationInsuranceAvailable);
-
-  if (departurePlaces.length === 0 && extras.length === 0 && !showInsurances) {
+  if (departurePlaces.length === 0 && extras.length === 0 && !hasPassengerOptions) {
     return null;
   }
 
@@ -82,7 +68,9 @@ export default function BookingOptionsPanel({
               </option>
             ))}
           </select>
-          <FieldError error={departurePlaceError} />
+          {departurePlaceError ? (
+            <span className="mt-1.5 block text-sm font-medium text-red-500">{departurePlaceError}</span>
+          ) : null}
         </label>
       ) : null}
 
@@ -92,101 +80,31 @@ export default function BookingOptionsPanel({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {extras.map((extra) => {
               const automatic = isChargedAutomatically(extra, passengers);
-              const charged = automatic || (isSelectable(extra) && selectedExtraIds.includes(extra.id));
 
               return (
-                <div key={extra.id} className={charged && extra.choices.length > 0 ? "md:col-span-2" : undefined}>
-                  <label className={automatic ? `${cardClassName} bg-[#f5f9fc] cursor-default` : selectableCardClassName}>
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={charged}
-                        disabled={automatic}
-                        onChange={() => onToggleExtra(extra.id)}
-                        className="mt-1 accent-[#00c389]"
-                      />
-                      <div>
-                        <div className="font-bold text-[#0f172a]">{extra.name}</div>
-                        {extra.chargeRule === "mandatory" ? (
-                          <div className="text-gray-500 text-sm">Kötelező tétel</div>
-                        ) : null}
-                        {extra.chargeRule === "solo_traveller" ? (
-                          <div className="text-gray-500 text-sm">Egyedül utazóknak kötelező</div>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="font-bold text-[#00a878] whitespace-nowrap">{extraPriceLabel(extra)}</div>
-                  </label>
-
-                  {charged && extra.choices.length > 0 ? (
-                    <div className="mt-3 space-y-2 pl-2">
-                      {extra.choices.map((choice) => (
-                        <label key={choice} className="flex items-start gap-3 text-sm text-[#0f172a] cursor-pointer">
-                          <input
-                            type="radio"
-                            name={`extra-choice-${extra.id}`}
-                            checked={extraChoices[extra.id] === choice}
-                            onChange={() => onExtraChoiceChange(extra.id, choice)}
-                            className="mt-1 accent-[#00c389]"
-                          />
-                          <span>{choice}</span>
-                        </label>
-                      ))}
-                      <FieldError error={!extraChoices[extra.id] ? extraChoiceError : undefined} />
-                    </div>
-                  ) : null}
-                </div>
+                <BookingExtraOption
+                  key={extra.id}
+                  extra={extra}
+                  name={`extra-choice-${extra.id}`}
+                  automatic={automatic}
+                  charged={automatic || (isSelectable(extra, passengers) && bookingExtraIds.includes(extra.id))}
+                  onToggle={() => onToggleExtra(extra.id)}
+                  choice={extraChoices[extra.id]}
+                  onChoiceChange={(choice) => onExtraChoiceChange(extra.id, choice)}
+                  choiceError={extraChoiceError}
+                />
               );
             })}
           </div>
         </fieldset>
       ) : null}
 
-      {showInsurances && insurances ? (
-        <fieldset>
-          <legend className="block text-sm font-bold text-[#0f172a] mb-2">Ajánlott utasbiztosítás</legend>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {travelInsuranceAvailable ? (
-              <label className={selectableCardClassName}>
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={insuranceChoice.travel}
-                    onChange={(event) => onInsuranceChange({ ...insuranceChoice, travel: event.target.checked })}
-                    className="mt-1 accent-[#00c389]"
-                  />
-                  <div className="font-bold text-[#0f172a]">{insurances.travelInsurance.name}</div>
-                </div>
-                <div className="font-bold text-[#00a878] whitespace-nowrap">
-                  {formatHuf(insurances.travelInsurance.dailyFee)} / fő / nap
-                </div>
-              </label>
-            ) : null}
-
-            {cancellationInsuranceAvailable ? (
-              <label className={selectableCardClassName}>
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={insuranceChoice.cancellation}
-                    onChange={(event) => onInsuranceChange({ ...insuranceChoice, cancellation: event.target.checked })}
-                    className="mt-1 accent-[#00c389]"
-                  />
-                  <div className="font-bold text-[#0f172a]">{insurances.cancellationInsurance.name}</div>
-                </div>
-                <div className="font-bold text-[#00a878] whitespace-nowrap">
-                  az utazás díjának {insurances.cancellationInsurance.percent.toLocaleString("hu-HU")}%-a
-                </div>
-              </label>
-            ) : null}
-          </div>
-        </fieldset>
+      {hasPassengerOptions ? (
+        <p className="rounded-2xl bg-[#f5f9fc] px-5 py-4 text-sm text-gray-600">
+          Az utasonként választható felárakat és az utasbiztosítást a <span className="font-bold">3. lépésben</span>,
+          az utasok adatainál adhatod meg.
+        </p>
       ) : null}
     </div>
   );
-}
-
-function FieldError({ error }: { error?: string }) {
-  return error ? <span className="mt-1.5 block text-sm font-medium text-red-500">{error}</span> : null;
 }

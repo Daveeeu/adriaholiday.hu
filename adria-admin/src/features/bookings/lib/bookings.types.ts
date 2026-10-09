@@ -137,10 +137,12 @@ export type TourBookingPricing = {
     choice: string | null;
     quantity: number;
     total: number;
+    /** Passengers (by index) a per-person extra is charged for; missing on bookings priced before per-passenger choices. */
+    passengers?: Array<{ index: number; choice: string | null }>;
   }>;
   coupon: { id: number; code: string; amount: number } | null;
   tripTotal: number | null;
-  insurances: Array<{ key: string; name: string; detail: string; total: number }>;
+  insurances: Array<{ key: string; name: string; detail: string; total: number; passengers?: number[] }>;
   insuranceTotal: number;
   total: number | null;
 };

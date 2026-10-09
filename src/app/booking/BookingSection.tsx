@@ -4,17 +4,21 @@ import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioBookingPayment, type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import BookingFieldInput from "./BookingFieldInput";
 import BookingOptionsPanel from "./BookingOptionsPanel";
+import PassengerOptionsPanel from "./PassengerOptionsPanel";
 import {
-  chargedExtras,
+  EMPTY_PASSENGER_OPTIONS,
+  chargedBookingExtras,
+  chargedPassengerExtras,
   estimateBookingPrice,
   formatHuf,
   isCancellationInsuranceAvailable,
+  passengerCardExtras,
   travelDays,
-  visibleExtras,
+  tripStepExtras,
   type BookingDeparturePlace,
   type BookingExtra,
-  type BookingInsuranceChoice,
   type BookingInsurances,
+  type PassengerOptions,
 } from "./booking-pricing";
 import { parseDiscountPercent } from "../content/discount-badge";
 import {
@@ -73,6 +77,11 @@ function passengerErrorsOf(
   return errors;
 }
 
+/** The picked choices of the charged extras offering one, keyed by extra id. */
+function chosenOptions(charged: BookingExtra[], choices: Record<number, string>): Record<number, string> {
+  return Object.fromEntries(charged.filter((extra) => choices[extra.id]).map((extra) => [extra.id, choices[extra.id]]));
+}
+
 /** The earliest step showing one of the errors, so the customer lands on it. */
 function firstStepWithError(fields: BookingFormField[], errors: FieldErrorState): number | null {
   const steps = fields
@@ -116,8 +125,6 @@ type ExtraSelection = {
   choices: Record<number, string>;
 };
 
-const NO_INSURANCE: BookingInsuranceChoice = { travel: false, cancellation: false };
-
 const NO_EXTRAS: BookingExtra[] = [];
 const NO_DEPARTURE_PLACES: BookingDeparturePlace[] = [];
 
@@ -151,7 +158,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     choices: {},
   });
   const [extraChoiceError, setExtraChoiceError] = useState<string | null>(null);
-  const [insuranceChoice, setInsuranceChoice] = useState<BookingInsuranceChoice>(NO_INSURANCE);
+  const [passengerOptions, setPassengerOptions] = useState<PassengerOptions[]>([EMPTY_PASSENGER_OPTIONS]);
+  const [passengerChoiceErrors, setPassengerChoiceErrors] = useState<Record<number, string>>({});
 
   const departurePlaces = trip.departurePlaces ?? NO_DEPARTURE_PLACES;
   const extras = selectedDate.extras ?? NO_EXTRAS;
@@ -166,6 +174,23 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const currentSelection = extraSelection.dateId === selectedDate.id ? extraSelection : null;
   const selectedExtraIds = useMemo(() => currentSelection?.ids ?? [], [currentSelection]);
   const extraChoices = useMemo(() => currentSelection?.choices ?? {}, [currentSelection]);
+  // Each passenger's options without extras of another date, aligned with the passengers.
+  const currentPassengerOptions = useMemo(() => {
+    const dateExtraIds = new Set(extras.map((extra) => extra.id));
+
+    return passengers.map((_, index) => {
+      const options = passengerOptions[index] ?? EMPTY_PASSENGER_OPTIONS;
+
+      return {
+        ...options,
+        extraIds: options.extraIds.filter((id) => dateExtraIds.has(id)),
+        travelInsurance: travelInsuranceAvailable && options.travelInsurance,
+        cancellationInsurance: cancellationInsuranceAvailable && options.cancellationInsurance,
+      };
+    });
+  }, [passengers, passengerOptions, extras, travelInsuranceAvailable, cancellationInsuranceAvailable]);
+  const cardExtras = useMemo(() => passengerCardExtras(extras, passengerCount), [extras, passengerCount]);
+  const hasPassengerOptions = cardExtras.length > 0 || travelInsuranceAvailable || cancellationInsuranceAvailable;
   const selectedDeparturePlace =
     departurePlaces.find((place) => String(place.id) === departurePlaceId) ?? null;
   const priceEstimate = useMemo(
@@ -173,24 +198,22 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       estimateBookingPrice({
         basePrice: priceBox?.price ?? null,
         discountPercent: parseDiscountPercent(priceBox?.discountBadge),
-        passengers: passengerCount,
         departurePlace: selectedDeparturePlace,
         extras,
-        selectedExtraIds,
+        bookingExtraIds: selectedExtraIds,
+        passengerOptions: currentPassengerOptions,
         insurances,
-        insuranceChoice,
         startDate,
         endDate,
       }),
     [
       priceBox?.price,
       priceBox?.discountBadge,
-      passengerCount,
       selectedDeparturePlace,
       extras,
       selectedExtraIds,
+      currentPassengerOptions,
       insurances,
-      insuranceChoice,
       startDate,
       endDate,
     ],
@@ -253,20 +276,47 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     });
   }
 
-  function changeInsurance(choice: BookingInsuranceChoice) {
+  function changePassengerOptions(index: number, options: PassengerOptions) {
     markStarted();
-    setInsuranceChoice(choice);
+    setPassengerChoiceErrors((current) => ({ ...current, [index]: "" }));
+    setPassengerOptions(passengers.map((_, passengerIndex) => (passengerIndex === index ? options : currentPassengerOptions[passengerIndex])));
   }
 
-  /** Charged extras offering choices (e.g. single room: alone / roommate) need one picked. */
+  function applyFirstPassengerOptionsToEveryone() {
+    markStarted();
+    setPassengerChoiceErrors({});
+    setPassengerOptions(passengers.map(() => currentPassengerOptions[0]));
+  }
+
+  /** The first charged extra of the list that offers choices but has none picked. */
+  function missingChoice(charged: BookingExtra[], choices: Record<number, string>): BookingExtra | undefined {
+    return charged.find((extra) => extra.choices.length > 0 && !extra.choices.includes(choices[extra.id] ?? ""));
+  }
+
+  /** Charged booking-level extras offering choices need one picked. */
   function validateExtraChoices(): boolean {
-    const missing = chargedExtras(extras, selectedExtraIds, passengerCount).find(
-      (extra) => extra.choices.length > 0 && !extra.choices.includes(extraChoices[extra.id] ?? ""),
-    );
+    const missing = missingChoice(chargedBookingExtras(extras, selectedExtraIds, passengerCount), extraChoices);
 
     setExtraChoiceError(missing ? `Válassz egy lehetőséget: ${missing.name}.` : null);
 
     return !missing;
+  }
+
+  /** Each passenger's charged extras offering choices (e.g. single room: alone / roommate) need one picked. */
+  function validatePassengerChoices(): boolean {
+    const errors: Record<number, string> = {};
+
+    currentPassengerOptions.forEach((options, index) => {
+      const missing = missingChoice(chargedPassengerExtras(extras, options, passengerCount), options.extraChoices);
+
+      if (missing) {
+        errors[index] = `Válassz egy lehetőséget: ${missing.name}.`;
+      }
+    });
+
+    setPassengerChoiceErrors(errors);
+
+    return Object.keys(errors).length === 0;
   }
 
   function validateBookingOptions(): boolean {
@@ -301,6 +351,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   }
 
   function addPassenger() {
+    setPassengerOptions([...currentPassengerOptions, EMPTY_PASSENGER_OPTIONS]);
     setPassengers((current) => {
       const next = [...current, initialValues(passengerFields)];
       trackEvent("participants_change", {
@@ -312,6 +363,11 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   }
 
   function removePassenger(index: number) {
+    if (passengers.length > 1) {
+      setPassengerOptions(currentPassengerOptions.filter((_, passengerIndex) => passengerIndex !== index));
+      setPassengerChoiceErrors({});
+    }
+
     setPassengers((current) => {
       if (current.length <= 1) {
         return current;
@@ -349,7 +405,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     if (step === STEP_OF_GROUP.passenger) {
       const errors = passengerErrorsOf(passengerFields, passengers);
       setFieldErrors((current) => ({ ...current, passengers: errors }));
-      if (Object.keys(errors).length > 0) {
+      const choicesValid = validatePassengerChoices();
+      if (Object.keys(errors).length > 0 || !choicesValid) {
         return;
       }
     }
@@ -362,6 +419,11 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   async function handleSubmit() {
     if (!validateBookingOptions()) {
       setStep(1);
+      return;
+    }
+
+    if (!validatePassengerChoices()) {
+      setStep(STEP_OF_GROUP.passenger);
       return;
     }
 
@@ -384,6 +446,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     setErrorMessage(null);
 
     const tourDateId = selectedDate?.id && selectedDate.id !== "default" ? selectedDate.id : null;
+    const bookingExtras = chargedBookingExtras(extras, selectedExtraIds, passengerCount);
 
     try {
       const response = await submitBooking({
@@ -395,14 +458,17 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         note: formValues.note,
         couponCode: couponCode.trim() || undefined,
         departurePlaceId: selectedDeparturePlace?.id ?? null,
-        extraIds: selectedExtraIds,
-        extraChoices: Object.fromEntries(
-          chargedExtras(extras, selectedExtraIds, passengerCount)
-            .filter((extra) => extraChoices[extra.id])
-            .map((extra) => [extra.id, extraChoices[extra.id]]),
-        ),
-        travelInsurance: travelInsuranceAvailable && insuranceChoice.travel,
-        cancellationInsurance: cancellationInsuranceAvailable && insuranceChoice.cancellation,
+        extraIds: bookingExtras.map((extra) => extra.id),
+        extraChoices: chosenOptions(bookingExtras, extraChoices),
+        passengerOptions: currentPassengerOptions.map((options) => {
+          const charged = chargedPassengerExtras(extras, options, passengerCount);
+
+          return {
+            ...options,
+            extraIds: charged.map((extra) => extra.id),
+            extraChoices: chosenOptions(charged, options.extraChoices),
+          };
+        }),
         type: "tour_booking",
         termsAccepted,
       });
@@ -425,13 +491,17 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
 
       if (submitError instanceof BookingValidationError) {
         const errors: FieldErrorState = { form: {}, passengers: {} };
+        const choiceErrors: Record<number, string> = {};
 
         Object.entries(submitError.errors).forEach(([key, messages]) => {
           const message = messages[0] ?? "Érvénytelen mező.";
           const passengerMatch = key.match(/^passengers\.(\d+)\.(.+)$/);
+          const passengerOptionMatch = key.match(/^passengerOptions\.(\d+)\./);
           const formMatch = key.match(/^formData\.(.+)$/);
 
-          if (passengerMatch) {
+          if (passengerOptionMatch) {
+            choiceErrors[Number(passengerOptionMatch[1])] = message;
+          } else if (passengerMatch) {
             const index = Number(passengerMatch[1]);
             errors.passengers[index] = { ...errors.passengers[index], [passengerMatch[2]]: message };
           } else if (formMatch) {
@@ -440,19 +510,21 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         });
 
         setFieldErrors(errors);
+        setPassengerChoiceErrors(choiceErrors);
         setErrorMessage(submitError.message);
 
-        const optionErrorKeys = [
-          "departurePlaceId",
-          "extraIds",
-          "extraChoices",
-          "travelInsurance",
-          "cancellationInsurance",
-        ];
-        if (optionErrorKeys.some((key) => submitError.errors[key]?.[0])) {
+        const tripOptionErrorKeys = ["departurePlaceId", "extraIds", "extraChoices"];
+        if (tripOptionErrorKeys.some((key) => submitError.errors[key]?.[0])) {
           setDeparturePlaceError(submitError.errors.departurePlaceId?.[0] ?? null);
           setExtraChoiceError(submitError.errors.extraChoices?.[0] ?? null);
           setStep(1);
+          return;
+        }
+
+        const passengerOptionErrors = Object.keys(choiceErrors).length > 0
+          || ["travelInsurance", "cancellationInsurance"].some((key) => submitError.errors[key]?.[0]);
+        if (passengerOptionErrors) {
+          setStep(STEP_OF_GROUP.passenger);
           return;
         }
 
@@ -606,18 +678,14 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                     departurePlaceId={departurePlaceId}
                     onDeparturePlaceChange={changeDeparturePlace}
                     departurePlaceError={departurePlaceError ?? undefined}
-                    extras={visibleExtras(extras, passengerCount)}
+                    extras={tripStepExtras(extras)}
                     passengers={passengerCount}
-                    selectedExtraIds={selectedExtraIds}
+                    bookingExtraIds={selectedExtraIds}
                     onToggleExtra={toggleExtra}
                     extraChoices={extraChoices}
                     onExtraChoiceChange={changeExtraChoice}
                     extraChoiceError={extraChoiceError ?? undefined}
-                    insurances={insurances}
-                    insuranceChoice={insuranceChoice}
-                    onInsuranceChange={changeInsurance}
-                    travelInsuranceAvailable={travelInsuranceAvailable}
-                    cancellationInsuranceAvailable={cancellationInsuranceAvailable}
+                    hasPassengerOptions={hasPassengerOptions}
                   />
                 </StepPanel>
               )}
@@ -672,6 +740,21 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                             />
                           ))}
                         </div>
+
+                        <PassengerOptionsPanel
+                          passengerIndex={index}
+                          extras={cardExtras}
+                          passengers={passengerCount}
+                          options={currentPassengerOptions[index] ?? EMPTY_PASSENGER_OPTIONS}
+                          onChange={(options) => changePassengerOptions(index, options)}
+                          choiceError={passengerChoiceErrors[index] || undefined}
+                          insurances={insurances}
+                          travelInsuranceAvailable={travelInsuranceAvailable}
+                          cancellationInsuranceAvailable={cancellationInsuranceAvailable}
+                          onApplyToEveryone={
+                            index === 0 && passengers.length > 1 ? applyFirstPassengerOptionsToEveryone : undefined
+                          }
+                        />
                       </div>
                     ))}
 
