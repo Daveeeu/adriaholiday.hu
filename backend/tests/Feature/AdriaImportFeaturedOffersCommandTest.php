@@ -25,7 +25,7 @@ class AdriaImportFeaturedOffersCommandTest extends TestCase
     {
         $items = implode('', array_map(
             fn (string $slug): string => "<div class=\"col-md-6\"><div class=\"item\"><a href=\"korutazasok/{$slug}\">{$slug}</a>"
-                ."<a href=\"korutazasok/csoport/korutazas\">csoport</a></div></div>",
+                .'<a href="korutazasok/csoport/korutazas">csoport</a></div></div>',
             $featuredSlugs,
         ));
 
