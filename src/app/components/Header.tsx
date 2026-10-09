@@ -3,6 +3,7 @@ import { NavLink, Link } from "react-router";
 import { Phone, ArrowRight } from "lucide-react";
 
 import { trackEvent } from "../analytics/trackEvent";
+import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import LogoBadge from "./LogoBadge";
 
@@ -83,7 +84,7 @@ export default function Header() {
           <div className="flex items-center gap-3">
             {settings.phone ? (
               <a
-                href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+                href={telHref(settings.phone)}
                 onClick={() =>
                   trackEvent("phone_click", {
                     metadata: {

@@ -14,7 +14,7 @@ final class DocumentBranding
     private const EMBEDDABLE_LOGO_MIME_TYPES = ['image/png', 'image/jpeg'];
 
     /**
-     * @return array{siteName: string, logoDataUri: ?string, phone: ?string, email: ?string}
+     * @return array{siteName: string, logoDataUri: ?string, phones: array<int, string>, email: ?string}
      */
     public static function resolve(): array
     {
@@ -28,7 +28,7 @@ final class DocumentBranding
         return [
             'siteName' => self::stringOrNull($settings->get('general.site_name')) ?? config('app.name'),
             'logoDataUri' => self::logoDataUri($settings->get('brand.logo')),
-            'phone' => self::stringOrNull($settings->get('contact.phone')),
+            'phones' => CompanyContact::phoneNumbers($settings->get('contact.phones'), $settings->get('contact.phone')),
             'email' => self::stringOrNull($settings->get('contact.email')),
         ];
     }

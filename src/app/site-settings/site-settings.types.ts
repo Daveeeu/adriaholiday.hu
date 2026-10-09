@@ -21,7 +21,7 @@ export type SiteMedia = {
 export type PublicSiteSettingsPayload = {
   general?: { site_name?: string };
   brand?: { logo?: SiteMedia };
-  contact?: { phone?: string; email?: string; address?: string; whatsapp?: string; opening_hours?: string };
+  contact?: { phone?: string; phones?: string; email?: string; address?: string; whatsapp?: string; opening_hours?: string };
   social?: { facebook?: string; instagram?: string; tiktok?: string };
   header?: { navigation?: SiteLinkItem[] };
   footer?: { description?: string; copyright?: string; quick_links?: SiteLinkItem[] };
@@ -46,6 +46,8 @@ export type ResolvedSiteSettings = {
   siteName: string;
   logo: SiteMedia;
   phone: string;
+  /** Every office number; the header shows only `phone`, the main one. */
+  phones: string[];
   email: string;
   address: string;
   whatsapp: string;

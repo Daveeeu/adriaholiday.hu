@@ -185,11 +185,11 @@ final class BookingDocumentData
     }
 
     /**
-     * @return array{name: string, logoUrl: ?string, address: string, phone: string, email: string, website: string, websiteLabel: string, license: string}
+     * @return array{name: string, logoUrl: ?string, address: string, phones: array<int, string>, email: string, website: string, websiteLabel: string, license: string}
      */
     private function company(BookingConfirmationSettings $settings): array
     {
-        $contact = SiteSetting::valuesOf(CompanyContact::GROUP, ['address', 'phone', 'email']);
+        $contact = SiteSetting::valuesOf(CompanyContact::GROUP, ['address', 'phone', 'phones', 'email']);
         $site = SiteSetting::query()
             ->where(fn ($query) => $query->where('group', 'general')->where('key', 'site_name'))
             ->orWhere(fn ($query) => $query->where('group', 'brand')->where('key', 'logo'))
@@ -201,7 +201,10 @@ final class BookingDocumentData
             'name' => (string) ($site->get('site_name') ?: config('app.name')),
             'logoUrl' => $site->get('logo')['url'] ?? null,
             'address' => (string) ($contact->get('address') ?? CompanyContact::DEFAULTS['address']['value']),
-            'phone' => (string) ($contact->get('phone') ?? CompanyContact::DEFAULTS['phone']['value']),
+            'phones' => CompanyContact::phoneNumbers(
+                $contact->get('phones'),
+                $contact->get('phone') ?? CompanyContact::DEFAULTS['phone']['value'],
+            ),
             'email' => (string) ($contact->get('email') ?? CompanyContact::DEFAULTS['email']['value']),
             'website' => $website,
             'websiteLabel' => (string) preg_replace('#^https?://#', '', $website),

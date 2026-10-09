@@ -7,6 +7,7 @@ import RichTextContent from "../components/RichTextContent";
 import { sanitizeRichTextHtml } from "@/lib/rich-text";
 import Seo from "../seo/Seo";
 import { absoluteUrl } from "../seo/site";
+import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { socialLinks } from "../site-settings/social-links";
 
@@ -17,7 +18,7 @@ const DESCRIPTION = "Hívj, írj, vagy gyere be az irodába – segítünk megta
 type ContactCard = {
   icon: ReactNode;
   label: string;
-  value: string;
+  value: ReactNode;
   href?: string;
   action?: string;
   external?: boolean;
@@ -29,8 +30,20 @@ export default function ContactRoute() {
   const extraContent = sanitizeRichTextHtml(settings.contactContent);
 
   const cards: ContactCard[] = [
-    settings.phone
-      ? { icon: <Phone className="size-5" />, label: "Telefon", value: settings.phone, href: `tel:${settings.phone.replace(/\s+/g, "")}`, action: "Hívás" }
+    settings.phones.length > 0
+      ? {
+          icon: <Phone className="size-5" />,
+          label: "Telefon",
+          value: (
+            <span className="flex flex-col gap-1">
+              {settings.phones.map((phone) => (
+                <a key={phone} href={telHref(phone)} className="transition-colors hover:text-[#00a878]">
+                  {phone}
+                </a>
+              ))}
+            </span>
+          ),
+        }
       : null,
     settings.email
       ? { icon: <Mail className="size-5" />, label: "E-mail", value: settings.email, href: `mailto:${settings.email}`, action: "Levél írása" }

@@ -336,11 +336,11 @@
                     <span class="accent">Utazási program</span> &middot; {{ $tour->name }}
                 </td>
                 <td class="contact">
-                    @if ($branding['phone'])
-                        <span class="accent">Tel.:</span> {{ $branding['phone'] }}
+                    @if ($branding['phones'] !== [])
+                        <span class="accent">Tel.:</span> {{ implode(' · ', $branding['phones']) }}
                     @endif
-                    @if ($branding['phone'] && $branding['email'])
-                        &nbsp;&middot;&nbsp;
+                    @if ($branding['phones'] !== [] && $branding['email'])
+                        <br>
                     @endif
                     @if ($branding['email'])
                         <span class="accent">E-mail:</span> {{ $branding['email'] }}

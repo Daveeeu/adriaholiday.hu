@@ -30,23 +30,34 @@ class DocumentBrandingTest extends TestCase
         $this->setting('brand', 'logo', 'media', SiteSetting::encodeValue('media', ['id' => $media->id]));
         $this->setting('general', 'site_name', 'string', 'Adria Holiday');
         $this->setting('contact', 'phone', 'string', '+36 1 234 5678');
+        $this->setting('contact', 'phones', 'text', null);
         $this->setting('contact', 'email', 'string', 'info@adriaholiday.hu');
 
         $branding = DocumentBranding::resolve();
 
         $this->assertStringStartsWith('data:image/png;base64,', (string) $branding['logoDataUri']);
         $this->assertSame('Adria Holiday', $branding['siteName']);
-        $this->assertSame('+36 1 234 5678', $branding['phone']);
+        $this->assertSame(['+36 1 234 5678'], $branding['phones']);
         $this->assertSame('info@adriaholiday.hu', $branding['email']);
+    }
+
+    public function test_it_lists_every_office_phone_number(): void
+    {
+        $this->setting('contact', 'phone', 'string', '+36 1 234 5678');
+        $this->setting('contact', 'phones', 'text', "+36 1 234 5678\n\n +36 30 111 2222 \n+36 1 234 5678");
+
+        $this->assertSame(['+36 1 234 5678', '+36 30 111 2222'], DocumentBranding::resolve()['phones']);
     }
 
     public function test_it_falls_back_to_the_app_name_without_logo_or_settings(): void
     {
+        SiteSetting::query()->delete();
+
         $branding = DocumentBranding::resolve();
 
         $this->assertNull($branding['logoDataUri']);
         $this->assertSame(config('app.name'), $branding['siteName']);
-        $this->assertNull($branding['phone']);
+        $this->assertSame([], $branding['phones']);
         $this->assertNull($branding['email']);
     }
 

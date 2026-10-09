@@ -180,7 +180,10 @@
             <tr><td style="{{ $font }}padding:20px 0 0;color:#64748b;font-size:13px;line-height:1.7;">
                 <strong style="color:#0f172a;">{{ $company['name'] }}</strong><br>
                 {{ $company['address'] }}<br>
-                Tel.: {{ $company['phone'] }} · <a href="mailto:{{ $company['email'] }}" style="color:#0891b2;text-decoration:none;">{{ $company['email'] }}</a><br>
+                @if ($company['phones'] !== [])
+                    Tel.: {{ implode(' · ', $company['phones']) }}<br>
+                @endif
+                E-mail: <a href="mailto:{{ $company['email'] }}" style="color:#0891b2;text-decoration:none;">{{ $company['email'] }}</a><br>
                 <a href="{{ $company['website'] }}" style="color:#0891b2;text-decoration:none;">{{ $company['websiteLabel'] }}</a>
                 @if ($company['license'] !== '')
                     <br>{{ $company['license'] }}

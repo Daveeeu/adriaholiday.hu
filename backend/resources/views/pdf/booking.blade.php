@@ -36,9 +36,12 @@
 </head>
 <body>
     <div class="footer">
-        <strong>{{ $company['name'] }}</strong> · {{ $company['address'] }} · Tel.: {{ $company['phone'] }} · {{ $company['email'] }}
+        <strong>{{ $company['name'] }}</strong> · {{ $company['address'] }} · {{ $company['email'] }}
         @if ($company['license'] !== '')
             · {{ $company['license'] }}
+        @endif
+        @if ($company['phones'] !== [])
+            <br>Tel.: {{ implode(' · ', $company['phones']) }}
         @endif
         <br>Készült: {{ $generatedAt }}
     </div>

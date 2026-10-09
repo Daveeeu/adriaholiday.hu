@@ -4,6 +4,7 @@ import { Link } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
 import { trackEvent } from "../analytics/trackEvent";
+import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { socialLinks, type SocialLink } from "../site-settings/social-links";
 import BarionPaymentBanner from "./BarionPaymentBanner";
@@ -110,18 +111,23 @@ export default function Footer() {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
             <h4 className="text-white mb-5 text-[1.125rem] font-bold">Kapcsolat</h4>
             <ul className="space-y-4">
-              {settings.phone ? (
+              {settings.phones.length > 0 ? (
                 <motion.li className="flex items-start gap-3 text-white/70" whileHover={{ x: 2 }}>
                   <div className="w-9 h-9 rounded-lg bg-[#00c389]/10 flex items-center justify-center flex-shrink-0">
                     <Phone className="w-4 h-4 text-[#00c389]" strokeWidth={2} />
                   </div>
-                  <a
-                    href={`tel:${settings.phone.replace(/\s+/g, "")}`}
-                    className="text-[15px] pt-1.5"
-                    onClick={() => trackEvent("phone_click", { metadata: { placement: "footer" } })}
-                  >
-                    {settings.phone}
-                  </a>
+                  <div className="flex flex-col gap-1 pt-1.5">
+                    {settings.phones.map((phone) => (
+                      <a
+                        key={phone}
+                        href={telHref(phone)}
+                        className="text-[15px] transition-colors hover:text-white"
+                        onClick={() => trackEvent("phone_click", { metadata: { placement: "footer" } })}
+                      >
+                        {phone}
+                      </a>
+                    ))}
+                  </div>
                 </motion.li>
               ) : null}
               {settings.email ? (

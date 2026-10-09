@@ -4,6 +4,7 @@ import { Menu, X, Phone, ArrowRight } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import { trackEvent } from "../analytics/trackEvent";
+import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 
 function isInternalLink(value: string) {
@@ -121,7 +122,7 @@ export default function MobileNav() {
 
                 {settings.phone ? (
                   <motion.a
-                    href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+                    href={telHref(settings.phone)}
                     onClick={() =>
                       trackEvent("phone_click", {
                         metadata: {
@@ -190,7 +191,7 @@ export default function MobileNav() {
                 </motion.div>
                 {settings.phone ? (
                   <motion.a
-                    href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+                    href={telHref(settings.phone)}
                     onClick={() =>
                       trackEvent("phone_click", {
                         metadata: {

@@ -69,6 +69,7 @@ const settingsSchema = z.object({
   siteName: z.string().trim().min(2, 'A webhely neve kötelező.'),
   logo: mediaSchema,
   phone: z.string().trim(),
+  phones: z.string().trim(),
   email: z.string().trim().email('Adj meg érvényes e-mail címet.').or(z.literal('')),
   address: z.string().trim(),
   whatsapp: z.string().trim(),
@@ -119,6 +120,7 @@ const emptyValues: SiteSettingsFormValues = {
   siteName: '',
   logo: null,
   phone: '',
+  phones: '',
   email: '',
   address: '',
   whatsapp: '',
@@ -373,7 +375,10 @@ export function SettingsPage() {
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
                 <FormField control={form.control} name="phone" render={({ field }) => (
-                  <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} placeholder="+36 46 508 688" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Fő telefonszám (fejléc)</FormLabel><FormControl><Input {...field} placeholder="+36 46 508 688" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="phones" render={({ field }) => (
+                  <FormItem><FormLabel>Telefonszámok (lábléc, kapcsolat oldal, e-mailek, PDF)</FormLabel><FormControl><Textarea {...field} rows={4} placeholder="+36 46 508 688&#10;+36 46 508 689" /></FormControl><p className="text-xs text-muted-foreground">Soronként egy szám.</p><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} placeholder="adriaholiday@adriaholiday.hu" /></FormControl><FormMessage /></FormItem>

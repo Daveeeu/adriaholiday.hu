@@ -53,6 +53,7 @@ export type SiteSettingsFormValues = {
   siteName: string;
   logo: SiteSettingsMedia;
   phone: string;
+  phones: string;
   email: string;
   address: string;
   whatsapp: string;

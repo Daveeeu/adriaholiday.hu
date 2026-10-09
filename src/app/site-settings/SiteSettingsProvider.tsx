@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { parsePhoneNumbers } from "./phone";
 import { fetchPublicSiteSettings } from "./site-settings-api";
 import type { PublicSiteSettingsPayload, ResolvedSiteSettings } from "./site-settings.types";
 
@@ -13,6 +14,7 @@ const emptySettings: ResolvedSiteSettings = {
   siteName: "",
   logo: null,
   phone: "",
+  phones: [],
   email: "",
   address: "",
   whatsapp: "",
@@ -76,6 +78,7 @@ function resolveSettings(payload: PublicSiteSettingsPayload): ResolvedSiteSettin
     siteName: asString(payload.general?.site_name),
     logo: payload.brand?.logo && typeof payload.brand.logo === "object" ? payload.brand.logo : null,
     phone: asString(payload.contact?.phone),
+    phones: parsePhoneNumbers(asString(payload.contact?.phones), asString(payload.contact?.phone)),
     email: asString(payload.contact?.email),
     address: asString(payload.contact?.address),
     whatsapp: asString(payload.contact?.whatsapp),

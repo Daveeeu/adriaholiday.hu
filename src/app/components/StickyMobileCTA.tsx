@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 import { trackEvent } from "../analytics/trackEvent";
+import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 
 function isInternalLink(value: string) {
@@ -32,7 +33,7 @@ export default function StickyMobileCTA() {
         <div className="grid grid-cols-3 gap-2 p-3">
           {settings.phone ? (
             <motion.a
-              href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+              href={telHref(settings.phone)}
               onClick={() =>
                 trackEvent("phone_click", {
                   metadata: {
