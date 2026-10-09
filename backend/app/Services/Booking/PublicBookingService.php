@@ -129,6 +129,7 @@ class PublicBookingService
             'email' => $formData['contact_email'] ?? null,
             'phone' => $formData['contact_phone'] ?? null,
             'city' => $formData['contact_city'] ?? null,
+            'address' => $formData['contact_address'] ?? null,
             'passenger_count' => count($passengers) ?: ($validated['participants'] ?? null),
             'departure_date' => $tourDate?->start_date,
             'notes' => $formData['note'] ?? null,

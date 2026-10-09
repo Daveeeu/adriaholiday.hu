@@ -83,6 +83,9 @@ class TourBookingPricingTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => array_map(fn (int $index): array => [
                 'passenger_name' => "Utas {$index}",

@@ -222,6 +222,9 @@ class BookingFormFieldTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'nem-email',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
                 ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-02-31', 'document_type' => 'Jogosítvány'],
@@ -272,7 +275,7 @@ class BookingFormFieldTest extends TestCase
 
         $this->getJson("/api/admin/bookings/{$booking->id}")
             ->assertOk()
-            ->assertJsonFragment(['key' => 'contact_address', 'label' => 'Lakcím (utca, házszám)', 'value' => 'Fő utca 1.']);
+            ->assertJsonFragment(['key' => 'contact_address', 'label' => 'Utca, házszám', 'value' => 'Fő utca 1.']);
     }
 
     public function test_admin_can_create_extra_checkbox_and_radio_fields(): void
@@ -334,6 +337,9 @@ class BookingFormFieldTest extends TestCase
             'contact_name' => 'Kovács Anna',
             'contact_email' => 'anna@example.com',
             'contact_phone' => '+36301234567',
+            'contact_postal_code' => '1051',
+            'contact_city' => 'Budapest',
+            'contact_address' => 'Fő utca 1.',
         ];
 
         $this->postJson('/api/bookings', [

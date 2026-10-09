@@ -49,7 +49,9 @@ class BookingFormTemplateTest extends TestCase
 
         $this->assertSame('required', $busVisibility['contact_name']);
         $this->assertSame('required', $busVisibility['passenger_name']);
-        $this->assertSame('optional', $busVisibility['contact_city']);
+        foreach (['contact_postal_code', 'contact_city', 'contact_address'] as $addressKey) {
+            $this->assertSame('required', $busVisibility[$addressKey]);
+        }
         $this->assertSame('hidden', $busVisibility['document_type']);
 
         $flightVisibility = $flightTemplate->templateFields()->with('field')->get()
@@ -58,7 +60,7 @@ class BookingFormTemplateTest extends TestCase
         $this->assertSame('required', $flightVisibility['document_type']);
         $this->assertSame('required', $flightVisibility['document_number']);
         $this->assertSame('required', $flightVisibility['passenger_birth_date']);
-        $this->assertSame('hidden', $flightVisibility['contact_city']);
+        $this->assertSame('required', $flightVisibility['contact_city']);
         // Priced by the tour date's extras and the booking insurances instead.
         $this->assertSame('hidden', $flightVisibility['extra_single_room']);
         $this->assertSame('hidden', $flightVisibility['extra_cancellation_insurance']);
@@ -96,9 +98,50 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01']],
         ])->assertStatus(422)->assertJsonValidationErrors(['formData.extra_terms']);
+    }
+
+    public function test_booking_asks_the_contact_for_their_full_address(): void
+    {
+        $this->seed(BookingFormFieldSeeder::class);
+        $this->seed(BookingFormTemplateSeeder::class);
+
+        $tour = Tour::factory()->create(['active' => true, 'seo_name' => 'lakcim', 'booking_form_template_id' => null]);
+        $tour->dates()->create(['start_date' => now()->addMonth()->toDateString(), 'end_date' => now()->addMonth()->addDays(3)->toDateString()]);
+
+        $contactKeys = collect($this->getJson('/api/portfolio/offers/lakcim')->assertOk()->json('bookingFormFields'))
+            ->where('inputGroup', 'contact')
+            ->pluck('key')
+            ->all();
+        $this->assertSame(['contact_name', 'contact_email', 'contact_phone', 'contact_postal_code', 'contact_city', 'contact_address'], $contactKeys);
+
+        $booking = [
+            'termsAccepted' => true,
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács Anna',
+                'contact_email' => 'anna@example.com',
+                'contact_phone' => '+36301234567',
+            ],
+            'passengers' => [['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01']],
+        ];
+
+        $this->postJson('/api/bookings', $booking)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['formData.contact_postal_code', 'formData.contact_city', 'formData.contact_address']);
+
+        $booking['formData'] += ['contact_postal_code' => '1051', 'contact_city' => 'Budapest', 'contact_address' => 'Fő utca 1.'];
+        $response = $this->postJson('/api/bookings', $booking)->assertCreated();
+
+        $stored = Booking::query()->findOrFail($response->json('id'));
+        $this->assertSame('Budapest', $stored->city);
+        $this->assertSame('Fő utca 1.', $stored->address);
+        $this->assertSame('1051', $stored->payload['formData']['contact_postal_code']);
     }
 
     public function test_marking_a_template_as_default_unmarks_the_previous_default(): void
@@ -178,6 +221,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
                 ['passenger_name' => 'Kovács Anna'],
@@ -214,6 +260,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
                 ['passenger_name' => 'Kovács Anna'],
@@ -298,6 +347,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [['passenger_name' => 'Kovács Anna']],
         ]);
@@ -323,6 +375,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [['passenger_name' => 'Kovács Anna']],
         ]);
@@ -349,6 +404,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [['passenger_name' => 'Kovács Anna']],
         ]);
@@ -374,6 +432,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [['passenger_name' => 'Kovács Anna']],
         ])->assertStatus(422)->assertJsonValidationErrors(['tour_date_id']);
@@ -404,6 +465,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
                 ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
@@ -428,6 +492,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
                 [
@@ -457,6 +524,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [['passenger_name' => 'Kovács Anna']],
         ]);
@@ -478,6 +548,9 @@ class BookingFormTemplateTest extends TestCase
                 'contact_name' => 'Kovács Anna',
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
+                'contact_postal_code' => '1051',
+                'contact_city' => 'Budapest',
+                'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => $passengers,
         ]);
