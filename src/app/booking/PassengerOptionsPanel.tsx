@@ -1,4 +1,5 @@
 import BookingExtraOption from "./BookingExtraOption";
+import BookingOptionRow, { BookingOptionList } from "./BookingOptionRow";
 import {
   formatHuf,
   isChargedAutomatically,
@@ -21,9 +22,6 @@ type PassengerOptionsPanelProps = {
   /** Copies these choices to every other passenger; offered on the first passenger only. */
   onApplyToEveryone?: () => void;
 };
-
-const insuranceCardClassName =
-  "flex items-start justify-between gap-4 rounded-2xl border border-gray-200 p-5 transition-all cursor-pointer hover:border-[#00c389]/40 hover:bg-[#00c389]/5";
 
 /**
  * The supplements ("felár") and insurances one passenger chooses, as fellow
@@ -68,7 +66,7 @@ export default function PassengerOptionsPanel({
         ) : null}
       </legend>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <BookingOptionList>
         {extras.map((extra) => {
           const automatic = isChargedAutomatically(extra, passengers);
 
@@ -90,39 +88,23 @@ export default function PassengerOptionsPanel({
         })}
 
         {insurances && travelInsuranceAvailable ? (
-          <label className={insuranceCardClassName}>
-            <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                checked={options.travelInsurance}
-                onChange={(event) => onChange({ ...options, travelInsurance: event.target.checked })}
-                className="mt-1 accent-[#00c389]"
-              />
-              <div className="font-bold text-[#0f172a]">{insurances.travelInsurance.name}</div>
-            </div>
-            <div className="font-bold text-[#00a878] whitespace-nowrap">
-              {formatHuf(insurances.travelInsurance.dailyFee)} / nap
-            </div>
-          </label>
+          <BookingOptionRow
+            title={insurances.travelInsurance.name}
+            price={`${formatHuf(insurances.travelInsurance.dailyFee)} / nap`}
+            checked={options.travelInsurance}
+            onToggle={() => onChange({ ...options, travelInsurance: !options.travelInsurance })}
+          />
         ) : null}
 
         {insurances && cancellationInsuranceAvailable ? (
-          <label className={insuranceCardClassName}>
-            <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                checked={options.cancellationInsurance}
-                onChange={(event) => onChange({ ...options, cancellationInsurance: event.target.checked })}
-                className="mt-1 accent-[#00c389]"
-              />
-              <div className="font-bold text-[#0f172a]">{insurances.cancellationInsurance.name}</div>
-            </div>
-            <div className="font-bold text-[#00a878] whitespace-nowrap">
-              az útdíj {insurances.cancellationInsurance.percent.toLocaleString("hu-HU")}%-a
-            </div>
-          </label>
+          <BookingOptionRow
+            title={insurances.cancellationInsurance.name}
+            price={`az útdíj ${insurances.cancellationInsurance.percent.toLocaleString("hu-HU")}%-a`}
+            checked={options.cancellationInsurance}
+            onToggle={() => onChange({ ...options, cancellationInsurance: !options.cancellationInsurance })}
+          />
         ) : null}
-      </div>
+      </BookingOptionList>
     </fieldset>
   );
 }

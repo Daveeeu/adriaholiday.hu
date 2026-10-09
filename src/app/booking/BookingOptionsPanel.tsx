@@ -1,4 +1,5 @@
 import BookingExtraOption from "./BookingExtraOption";
+import { BookingOptionList } from "./BookingOptionRow";
 import {
   formatHuf,
   isChargedAutomatically,
@@ -77,7 +78,7 @@ export default function BookingOptionsPanel({
       {extras.length > 0 ? (
         <fieldset>
           <legend className="block text-sm font-bold text-[#0f172a] mb-2">Felárak</legend>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <BookingOptionList>
             {extras.map((extra) => {
               const automatic = isChargedAutomatically(extra, passengers);
 
@@ -95,7 +96,7 @@ export default function BookingOptionsPanel({
                 />
               );
             })}
-          </div>
+          </BookingOptionList>
         </fieldset>
       ) : null}
 
