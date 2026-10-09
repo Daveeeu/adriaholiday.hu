@@ -160,7 +160,7 @@ function PaymentResultBody({ state }: { state: LoadState }) {
   if (payment.status === "succeeded") {
     return (
       <ResultHeading icon={<Check className="size-8" />} tone="success" title="Sikeres fizetés!">
-        {subject} ({amount}) kifizetése sikerült a(z) {booking} foglaláshoz. Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
+        {subject} ({amount}) kifizetése sikerült a(z) {booking} foglaláshoz. A foglalás részleteit e-mailben is elküldtük, kérjük, nézd meg a postafiókodat (ha nem találod, a Spam vagy Promóciók mappát is). Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
       </ResultHeading>
     );
   }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, CreditCard, ShieldCheck } from "lucide-react";
+import { Check, CreditCard, Mail, ShieldCheck } from "lucide-react";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioBookingPayment, type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import BookingFieldInput from "./BookingFieldInput";
@@ -499,6 +499,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
             Foglalásod azonosítója: <span className="font-bold text-white">#{bookingId}</span>.
             Átirányítunk a Barion biztonságos fizetőoldalára…
           </p>
+          <ConfirmationEmailNote email={formValues.contact_email} />
           <div className="mt-6 flex justify-center">
             <BarionPaymentBanner variant="dark" />
           </div>
@@ -522,6 +523,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
             Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
             {onlinePayment ? " A fizetés részleteiről is tőle kapsz tájékoztatást." : null}
           </p>
+          <ConfirmationEmailNote email={formValues.contact_email} />
         </div>
       </section>
     );
@@ -901,4 +903,22 @@ function SummaryChip({
 
 function hasText(value?: string | null) {
   return typeof value === "string" && value.trim() !== "";
+}
+
+/** Points the customer to the booking confirmation e-mail sent right after booking. */
+function ConfirmationEmailNote({ email }: { email?: string }) {
+  return (
+    <div className="mx-auto mt-6 flex max-w-xl items-start gap-3 rounded-2xl bg-white/5 border border-white/10 p-4 text-left">
+      <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#00c389]" />
+      <p className="text-white/80">
+        A foglalás részleteit e-mailben is elküldtük
+        {email ? (
+          <>
+            {" "}a(z) <span className="font-bold text-white break-all">{email}</span> címre
+          </>
+        ) : null}
+        . Kérjük, nézd meg a postafiókodat, és ha nem találod a levelet, a Spam vagy Promóciók mappát is.
+      </p>
+    </div>
+  );
 }
