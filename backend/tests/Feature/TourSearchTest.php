@@ -99,6 +99,15 @@ class TourSearchTest extends TestCase
         $this->assertSame([], $this->searchIds('Toszkána'));
     }
 
+    public function test_offer_detail_lists_the_keywords_to_highlight(): void
+    {
+        $this->tour('Az örök város', ['it'], ['Róma', 'Vatikán'], ['seo_name' => 'orok-varos']);
+
+        $this->getJson('/api/portfolio/offers/orok-varos')
+            ->assertOk()
+            ->assertJsonPath('searchKeywords', ['Róma', 'Vatikán']);
+    }
+
     public function test_keywords_are_cleaned_when_saved(): void
     {
         $tour = $this->tour('Az örök város', ['it'], [' Róma ', 'roma', '', 'Vatikán']);

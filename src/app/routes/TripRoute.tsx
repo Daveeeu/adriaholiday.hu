@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import LoadingScreen from "../components/LoadingScreen";
 import TripDetailPage from "../components/TripDetailPage";
+import KeywordHighlightProvider from "../components/KeywordHighlightProvider";
 import StaticPage from "./StaticPage";
 import Seo from "../seo/Seo";
 import {
@@ -120,6 +121,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     inclusions: offer.inclusions,
     paymentProgram: offer.paymentProgram,
     teaser: offer.teaser,
+    searchKeywords: offer.searchKeywords ?? [],
     tickets: offer.tickets,
     optionalPrograms: offer.optionalPrograms,
     prices: offer.prices,
@@ -290,24 +292,26 @@ export default function TripRoute() {
           },
         ]}
       />
-      <TripDetailPage
-        trip={offer}
-        relatedTrips={relatedTrips}
-        onBack={() => {
-          trackEvent("cta_click", {
-            entity: {
-              type: "tour",
-              slug: offer.slug,
-            },
-            metadata: {
-              cta_name: "back_to_offers",
-              placement: "offer_header",
-            },
-          });
-          navigate(-1);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-      />
+      <KeywordHighlightProvider keywords={offer.searchKeywords}>
+        <TripDetailPage
+          trip={offer}
+          relatedTrips={relatedTrips}
+          onBack={() => {
+            trackEvent("cta_click", {
+              entity: {
+                type: "tour",
+                slug: offer.slug,
+              },
+              metadata: {
+                cta_name: "back_to_offers",
+                placement: "offer_header",
+              },
+            });
+            navigate(-1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
+      </KeywordHighlightProvider>
     </>
   );
 }

@@ -124,6 +124,8 @@ export type PortfolioOfferDetail = {
   paymentProgram?: string | null;
   /** The legacy "Kedvcsináló" tab. */
   teaser?: string | null;
+  /** The words the search finds the tour by; highlighted in its descriptions. */
+  searchKeywords?: string[];
   /** The legacy "Belépőjegyek" tab: entrance fees, often a table. */
   tickets?: string | null;
   /** The legacy "Fakultatív program" tab. */

@@ -1,3 +1,4 @@
+import { useKeywordHighlight } from "../content/keyword-highlight-context";
 import { cn } from "./ui/utils";
 
 type RichTextContentProps = {
@@ -22,10 +23,12 @@ export default function RichTextContent({
   size = "base",
   className,
 }: RichTextContentProps) {
+  const highlight = useKeywordHighlight();
+
   return (
     <div
       className={cn(BRAND_PROSE_CLASSES, size === "lg" && "prose-lg", className)}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: highlight(html) }}
     />
   );
 }

@@ -60,6 +60,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'inclusions' => $sanitizeContent($tour->inclusions),
             'paymentProgram' => $sanitizeContent($tour->payment_program),
             'teaser' => $sanitizeContent($tour->teaser),
+            'searchKeywords' => $tour->search_keywords ?? [],
             'tickets' => $sanitizeContent($tour->tickets),
             'optionalPrograms' => $sanitizeContent($tour->optional_programs),
             'prices' => $sanitizeContent($tour->prices),

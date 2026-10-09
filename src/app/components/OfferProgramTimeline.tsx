@@ -7,6 +7,7 @@ import { renderContentIcon } from "@/app/content/icon-map";
 import { sanitizeRichTextHtml } from "@/lib/rich-text";
 
 import type { PortfolioOfferProgramDay } from "@/app/content/portfolio-offer-detail-api";
+import { useKeywordHighlight } from "@/app/content/keyword-highlight-context";
 import { JUSTIFIED_TEXT } from "../lib/justifiedText";
 import { responsiveImage } from "../lib/responsiveImage";
 
@@ -29,6 +30,7 @@ export default function OfferProgramTimeline({
   programDays = [],
   intro,
 }: OfferProgramTimelineProps) {
+  const highlight = useKeywordHighlight();
   const days = (programDays ?? [])
     .filter((day) => day.active !== false)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.dayNumber - b.dayNumber);
@@ -115,7 +117,7 @@ export default function OfferProgramTimeline({
                       <div
                         className={`text-gray-600 leading-relaxed max-w-3xl [&_p]:mb-0 [&_p]:leading-relaxed [&_p+p]:mt-3 ${JUSTIFIED_TEXT}`}
                         dangerouslySetInnerHTML={{
-                          __html: descriptionHtml(day.description, intro),
+                          __html: highlight(descriptionHtml(day.description, intro)),
                         }}
                       />
 
