@@ -853,6 +853,14 @@ Group quote requests for a custom date (min. `TourInquiry::MIN_PASSENGERS` = 20 
 
 ---
 
+# Public Offer Search
+
+The public `search` parameter (hero search, `/utazasok?search=`) matches whole words, ignoring accents and case, so "roma" finds Róma but not Románia or "romantikus". `App\Support\TourSearchIndex` owns the rules: every save rebuilds `tours.search_index` (` roma vatikan olaszorszag `) from the admin-edited `search_keywords`, the name, the country names and the region name; descriptions are not searched. `PortfolioOfferQuery` matches `% word %` for every query word and, only when no active tour has them all, falls back to word beginnings (`% word%`, so "horvát" still finds Horvátország). Renaming a region or a country rebuilds the affected indexes (`TourSearchIndex::refresh()`).
+
+`GET /api/portfolio/search-suggestions?q=` (`TourSearchSuggestionService`, cached in the `offers` scope) lists matching keywords, countries and regions of active tours with the number of tours a search for each finds; the hero's destination field (`DestinationSearchInput`) offers them while typing. New tours start with the places their short description lists (`TourSearchIndex::suggestKeywords()`: legacy import, the admin "Javaslat" button); keywords edited in the admin are never overwritten.
+
+---
+
 # Online Booking Payment (Barion)
 
 Tour bookings are paid online through the Barion Smart Gateway right after booking. `App\Services\Booking\BookingPaymentService` owns the flow; `App\Services\Payment\Barion\BarionClient` is the only class that talks to Barion (v2 `Payment/Start`, v4 `Payment/{id}/PaymentState`, POSKey in the `x-pos-key` header). Credentials live in `config/services.php` → `barion` (`BARION_ENVIRONMENT` = `test`/`prod`, `BARION_POS_KEY`, `BARION_PAYEE_EMAIL`, optional `BARION_REDIRECT_URL`, default `APP_URL/fizetes/eredmeny`). Without a POSKey and payee online payment is off and bookings behave as before.

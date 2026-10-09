@@ -166,6 +166,8 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('offer-pdf', fn ($request) => Limit::perMinute(10)->by($request->ip()));
 
+        RateLimiter::for('search-suggestions', fn ($request) => Limit::perMinute(120)->by($request->ip()));
+
         RateLimiter::for('login', fn ($request) => Limit::perMinute(5)->by($request->ip()));
     }
 }

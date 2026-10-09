@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use App\Support\TourSearchIndex;
 use Database\Factories\RegionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,6 +42,16 @@ class Region extends Model implements HasMedia
         'portfolio_featured' => 'boolean',
         'portfolio_sort_order' => 'integer',
     ];
+
+    protected static function booted(): void
+    {
+        // Region names are searchable on their tours (see TourSearchIndex).
+        static::saved(function (Region $region): void {
+            if ($region->wasChanged('name')) {
+                TourSearchIndex::refresh(Tour::withTrashed()->where('region_id', $region->id));
+            }
+        });
+    }
 
     public function locations(): HasMany
     {

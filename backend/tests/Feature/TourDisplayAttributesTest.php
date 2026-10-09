@@ -16,6 +16,7 @@ class TourDisplayAttributesTest extends TestCase
     {
         $tour = Tour::factory()->create([
             'active' => true,
+            'name' => 'Repülős körút',
             'seo_name' => 'repulos-korut',
             'travel_mode_id' => 'plane',
             'catering' => 'félpanzió',

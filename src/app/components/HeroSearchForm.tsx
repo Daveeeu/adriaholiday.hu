@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
 import { DATE_INPUT_MAX } from "../lib/dateInput";
+import DestinationSearchInput from "./DestinationSearchInput";
 import {
   BUDGET_OPTIONS,
   EMPTY_OFFER_SEARCH,
@@ -90,14 +91,10 @@ export default function HeroSearchForm() {
     >
       <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
         <SearchField id="hero-search-destination" label="Úti cél" icon={MapPin} className="col-span-2 md:col-span-1">
-          <input
+          <DestinationSearchInput
             id="hero-search-destination"
-            type="search"
             value={criteria.search}
-            onChange={(event) => updateCriteria("search", event.target.value)}
-            placeholder="Úti cél"
-            autoComplete="off"
-            maxLength={100}
+            onChange={(value) => updateCriteria("search", value)}
             className={FIELD_CLASS_NAME}
           />
         </SearchField>

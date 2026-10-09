@@ -336,6 +336,11 @@ export function ToursPage() {
             <div className="text-xs text-muted-foreground">
               {[row.original.action1, row.original.action2].filter(Boolean).join(' • ') || '—'}
             </div>
+            {row.original.active && (row.original.searchKeywords ?? []).length === 0 ? (
+              <div className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                Nincs keresési kulcsszó
+              </div>
+            ) : null}
           </div>
         ),
       },

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Tour\MoveTourRequest;
 use App\Http\Requests\Admin\Tour\ReorderToursRequest;
 use App\Http\Requests\Admin\Tour\StoreTourRequest;
+use App\Http\Requests\Admin\Tour\SuggestTourSearchKeywordsRequest;
 use App\Http\Requests\Admin\Tour\UpdateTourRequest;
 use App\Http\Requests\Admin\Tour\UpdateTourStatusRequest;
 use App\Http\Resources\TourDetailResource;
@@ -20,6 +21,8 @@ use App\Services\Tour\TourContentSyncService;
 use App\Services\Tour\TourPdfService;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
+use App\Support\TourSearchIndex;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -59,6 +62,11 @@ class TourController extends Controller
                     ->orWhere('program_type_id', 'like', "%{$search}%")
                     ->orWhere('travel_mode_id', 'like', "%{$search}%")
                     ->orWhere('difficulty_id', 'like', "%{$search}%");
+
+                // Keywords, matched like the public search: accents and case aside.
+                if (($normalized = TourSearchIndex::normalize($search)) !== '') {
+                    $builder->orWhere('search_index', 'like', "%{$normalized}%");
+                }
             });
         }
 
@@ -141,6 +149,7 @@ class TourController extends Controller
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
+                'search_keywords' => $validated['search_keywords'] ?? [],
                 'category_ids' => $validated['category_ids'] ?? [],
                 'price' => $priceBox['price'],
                 'displayed_price' => $priceBox['displayed_price'],
@@ -219,6 +228,7 @@ class TourController extends Controller
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
+                'search_keywords' => $validated['search_keywords'] ?? [],
                 'category_ids' => $validated['category_ids'] ?? [],
                 'price' => $priceBox['price'],
                 'displayed_price' => $priceBox['displayed_price'],
@@ -378,6 +388,16 @@ class TourController extends Controller
         $other->update(['sort_order' => $tourSortOrder]);
 
         return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+    }
+
+    /**
+     * Search keywords to start from, taken from the short description being edited.
+     */
+    public function searchKeywordSuggestions(SuggestTourSearchKeywordsRequest $request): JsonResponse
+    {
+        $tour = new Tour(['short_description' => $request->validated()['shortDescription'] ?? null]);
+
+        return response()->json(['data' => TourSearchIndex::suggestKeywords($tour)]);
     }
 
     private function tourPriceBoxAttributes(array $validated): array

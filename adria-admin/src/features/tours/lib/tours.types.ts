@@ -204,6 +204,7 @@ export type Tour = {
   action2: string;
   listDescription: string;
   shortDescription: string;
+  searchKeywords?: string[];
   programPdf: string;
   programPdfFile: string;
   programBefore: string;
@@ -280,6 +281,7 @@ export const tourFormSchema = z.object({
   action2: z.string(),
   listDescription: z.string(),
   shortDescription: z.string(),
+  searchKeywords: z.array(z.string()),
   programPdf: z.string(),
   programPdfFile: z.string(),
   programBefore: z.string(),
@@ -499,6 +501,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     action2: tour?.action2 ?? '',
     listDescription: tour?.listDescription ?? '',
     shortDescription: tour?.shortDescription ?? '',
+    searchKeywords: tour?.searchKeywords ?? [],
     programPdf: tour?.programPdf ?? '',
     programPdfFile: tour?.programPdfFile ?? '',
     programBefore: tour?.programBefore ?? '',

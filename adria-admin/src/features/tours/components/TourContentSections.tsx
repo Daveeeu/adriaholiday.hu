@@ -12,6 +12,7 @@ import { MediaPicker } from '@/components/media/media-picker';
 import { RichTextEditor } from '@/components/editor/rich-text-editor';
 
 import type { TourFormValues } from '../lib/tours.types';
+import { TourSearchKeywordsField } from './TourSearchKeywordsField';
 
 type TourContentSectionsProps = {
   form: UseFormReturn<TourFormValues>;
@@ -83,6 +84,8 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
           placeholder="Rövid ismertető"
           minHeight={180}
         />
+
+        <TourSearchKeywordsField form={form} />
 
         <div className="grid gap-4 md:grid-cols-2">
           <FormField

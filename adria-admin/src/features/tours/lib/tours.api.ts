@@ -252,3 +252,10 @@ export function setTourDeparturePlaceActive(id: string, active: boolean) {
     { active },
   );
 }
+
+/** Search keywords to start from: the places the short description lists. */
+export function suggestTourSearchKeywords(shortDescription: string): Promise<string[]> {
+  return apiClient
+    .post<ResourceEnvelope<string[]>>('/api/admin/tours/search-keyword-suggestions', { shortDescription })
+    .then((response) => response.data);
+}

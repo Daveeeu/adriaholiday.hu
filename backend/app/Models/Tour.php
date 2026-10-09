@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use App\Support\TourSearchIndex;
 use Database\Factories\TourFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -85,6 +86,7 @@ class Tour extends Model implements HasMedia
         'price_box_cta_secondary_label',
         'displayed_price',
         'slider_text',
+        'search_keywords',
     ];
 
     protected $casts = [
@@ -110,6 +112,7 @@ class Tour extends Model implements HasMedia
         'country_ids' => 'array',
         'tag_ids' => 'array',
         'category_ids' => 'array',
+        'search_keywords' => 'array',
     ];
 
     protected static function booted(): void
@@ -120,6 +123,9 @@ class Tour extends Model implements HasMedia
             if ($tour->active && $tour->isDirty('active')) {
                 $tour->expired_at = null;
             }
+
+            $tour->search_keywords = TourSearchIndex::cleanKeywords($tour->search_keywords ?? []);
+            $tour->search_index = TourSearchIndex::build($tour);
         });
     }
 

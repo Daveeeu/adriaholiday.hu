@@ -113,6 +113,7 @@ class TourResource extends JsonResource
             'countries' => TourLabelResolver::referenceOptionItems('country', $this->country_ids ?? []),
             'tagIds' => $this->tag_ids ?? [],
             'tags' => TourLabelResolver::blogTagItems($this->tag_ids ?? []),
+            'searchKeywords' => $this->search_keywords ?? [],
             'categoryIds' => $this->category_ids ?? [],
             'categories' => TourLabelResolver::blogCategoryItems($this->category_ids ?? []),
             'price' => $priceBox['price'] ?? ($this->price !== null ? (float) $this->price : null),

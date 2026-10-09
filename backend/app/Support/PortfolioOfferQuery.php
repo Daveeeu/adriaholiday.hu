@@ -25,22 +25,7 @@ class PortfolioOfferQuery
             ->with(['region', 'dates' => fn ($query) => $query->upcoming(), 'media', 'galleryItems.media']);
 
         if ($search = self::stringQuery($request, 'search')) {
-            $matchingCountryCodes = self::countryCodesMatchingName($search);
-
-            $query->where(function (Builder $builder) use ($search, $matchingCountryCodes): void {
-                $builder->where('name', 'like', "%{$search}%")
-                    ->orWhere('seo_name', 'like', "%{$search}%")
-                    ->orWhere('short_description', 'like', "%{$search}%")
-                    ->orWhere('list_description', 'like', "%{$search}%")
-                    ->orWhere('notes', 'like', "%{$search}%")
-                    ->orWhereHas('region', function (Builder $regionQuery) use ($search): void {
-                        $regionQuery->where('name', 'like', "%{$search}%");
-                    });
-
-                foreach ($matchingCountryCodes as $countryCode) {
-                    $builder->orWhereJsonContains('country_ids', $countryCode);
-                }
-            });
+            self::applyTextSearch($query, TourSearchIndex::queryWords($search));
         }
 
         if ($region = self::stringQuery($request, 'region')) {
@@ -414,16 +399,32 @@ class PortfolioOfferQuery
     }
 
     /**
-     * @return array<int, string>
+     * Matches whole words of the search index (see TourSearchIndex): "roma"
+     * finds Róma, not Románia. Only when no active tour has every word does it
+     * fall back to word beginnings, so "horvát" still finds Horvátország.
+     * Normalised words hold no LIKE wildcards.
+     *
+     * @param  array<int, string>  $words
      */
-    private static function countryCodesMatchingName(string $search): array
+    private static function applyTextSearch(Builder $query, array $words): void
     {
-        return TourReferenceOption::query()
-            ->where('type', 'country')
-            ->where('active', true)
-            ->where('name', 'like', "%{$search}%")
-            ->pluck('code')
-            ->all();
+        if ($words === []) {
+            return;
+        }
+
+        $wholeWords = fn (Builder $builder) => collect($words)->each(
+            fn (string $word) => $builder->where('search_index', 'like', "% {$word} %"),
+        );
+
+        if (Tour::query()->where('active', true)->where($wholeWords)->exists()) {
+            $query->where($wholeWords);
+
+            return;
+        }
+
+        foreach ($words as $word) {
+            $query->where('search_index', 'like', "% {$word}%");
+        }
     }
 
     /**

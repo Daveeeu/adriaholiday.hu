@@ -47,6 +47,7 @@ use App\Http\Controllers\PortfolioOfferController;
 use App\Http\Controllers\PortfolioOfferPdfController;
 use App\Http\Controllers\PortfolioPromotionController;
 use App\Http\Controllers\PortfolioRegionController;
+use App\Http\Controllers\PortfolioSearchSuggestionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
 use App\Http\Controllers\PortfolioTestimonialController;
 use App\Http\Controllers\PublicBookingController;
@@ -67,6 +68,7 @@ Route::get('portfolio/promotion', [PortfolioPromotionController::class, 'active'
 Route::get('portfolio/featured-tours', [PortfolioFeaturedTourController::class, 'index']);
 Route::get('portfolio/testimonials', [PortfolioTestimonialController::class, 'index']);
 Route::get('portfolio/offers', [PortfolioOfferController::class, 'index']);
+Route::get('portfolio/search-suggestions', PortfolioSearchSuggestionController::class)->middleware('throttle:search-suggestions');
 Route::get('portfolio/offers/filters', [PortfolioFilterChipController::class, 'offerFilters']);
 Route::get('portfolio/offers/countries', [PortfolioFilterChipController::class, 'offerCountries']);
 Route::get('portfolio/categories/{slug}/filters', [PortfolioFilterChipController::class, 'categoryFilters']);
@@ -181,6 +183,7 @@ Route::prefix('admin')
         Route::post('travel-modes', [TourReferenceOptionController::class, 'storeTravelMode']);
         Route::post('difficulties', [TourReferenceOptionController::class, 'storeDifficulty']);
 
+        Route::post('tours/search-keyword-suggestions', [TourController::class, 'searchKeywordSuggestions']);
         Route::apiResource('tours', TourController::class);
         Route::patch('tours/{tour}/status', [TourController::class, 'status']);
         Route::get('tours/{tour}/pdf', [TourController::class, 'pdf']);

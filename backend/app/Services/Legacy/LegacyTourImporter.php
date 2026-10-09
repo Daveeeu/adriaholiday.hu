@@ -12,6 +12,7 @@ use App\Support\Legacy\LegacyCountryDictionary;
 use App\Support\Legacy\LegacyOfferData;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
+use App\Support\TourSearchIndex;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -108,6 +109,12 @@ class LegacyTourImporter
                 ...($existing?->category_ids ?? []),
                 ...$categoryIds,
             ]))]);
+
+            // A new tour starts with the places its short description lists;
+            // keywords the office edited are never overwritten.
+            if ($existing === null) {
+                $tour->search_keywords = TourSearchIndex::suggestKeywords($tour);
+            }
 
             $tour->save();
 

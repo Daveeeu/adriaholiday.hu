@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Tour;
 
 use App\Http\Requests\Admin\Tour\Concerns\ValidatesTourBookingOptions;
+use App\Support\TourSearchIndex;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -121,6 +122,7 @@ class UpdateTourRequest extends FormRequest
             'departure_place_fees' => $this->input('departure_place_fees', $this->input('departurePlaceFees', [])),
             'country_ids' => $this->input('country_ids', $this->input('countryIds', [])),
             'tag_ids' => $this->input('tag_ids', $this->input('tagIds', [])),
+            'search_keywords' => $this->input('search_keywords', $this->input('searchKeywords', [])),
             'category_ids' => $this->input('category_ids', $this->input('categoryIds', [])),
             'dates' => collect($this->input('dates', []))->map(function (array $date): array {
                 $priceBox = $date['priceBox'] ?? [];
@@ -255,6 +257,8 @@ class UpdateTourRequest extends FormRequest
             'country_ids.*' => ['nullable', 'string', 'max:255'],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['nullable', 'string', 'max:255'],
+            'search_keywords' => ['nullable', 'array', 'max:'.TourSearchIndex::MAX_KEYWORDS],
+            'search_keywords.*' => ['nullable', 'string', 'max:'.TourSearchIndex::MAX_KEYWORD_LENGTH],
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['nullable', 'string', 'max:255'],
             'dates' => ['nullable', 'array'],
