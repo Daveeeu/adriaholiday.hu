@@ -38,6 +38,21 @@ class PortfolioHomepageOffersTest extends TestCase
         $response->assertJsonCount(5, 'items');
     }
 
+    public function test_a_card_linking_to_another_website_is_shown_but_left_out_of_the_sitemap(): void
+    {
+        config()->set('app.url', 'https://adriaholiday.hu');
+        $card = HomepageOffer::query()->where('link', 'https://legjobbutak.hu/')->firstOrFail();
+
+        $this->getJson('/api/portfolio/homepage-offers')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $card->id, 'link' => 'https://legjobbutak.hu/']);
+
+        $this->get('/sitemap.xml')
+            ->assertOk()
+            ->assertDontSee('legjobbutak', false)
+            ->assertDontSee('/kategoriak/egzotikus', false);
+    }
+
     public function test_public_portfolio_homepage_offers_returns_active_offers_in_sort_order(): void
     {
         $response = $this->getJson('/api/portfolio/homepage-offers');

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -124,8 +124,11 @@ export function HomepageOfferForm({
             <FormItem>
               <FormLabel>Link</FormLabel>
               <FormControl>
-                <Input placeholder="/utazasok/korutazasok" {...field} />
+                <Input placeholder="/kategoriak/korutazasok" {...field} />
               </FormControl>
+              <FormDescription>
+                Kategória oldala (pl. /kategoriak/korutazasok), vagy külső weboldal teljes címe (https://…), ami új lapon nyílik meg.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

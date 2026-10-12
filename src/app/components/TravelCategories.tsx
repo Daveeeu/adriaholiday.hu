@@ -9,7 +9,7 @@ import {
   type PortfolioHomepageOffer,
 } from '../content/portfolio-homepage-offers-api';
 import { usePortfolioContent } from '../content/PortfolioContentProvider';
-import { resolveCategorySlugFromOfferLink } from '../content/portfolio-offer-routing';
+import { isExternalLink, resolveCategorySlugFromOfferLink } from '../content/portfolio-offer-routing';
 import MotionLink from './MotionLink';
 import { HOVER_HOST } from "../lib/hoverHost";
 import { responsiveImage } from "../lib/responsiveImage";
@@ -139,78 +139,96 @@ export default function TravelCategories() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
               >
-                <MotionLink
-                  to={`/kategoriak/${resolveCategorySlugFromOfferLink(category.link)}`}
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  className="group block text-left"
-                  {...HOVER_HOST}
-                >
-                  <motion.div
-                    className="relative isolate overflow-hidden rounded-[24px] border border-gray-100/50 bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] transition-shadow duration-500 group-hover:shadow-[0_12px_48px_rgba(0,195,137,0.15)]"
-                    variants={CARD_LIFT}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                {isExternalLink(category.link) ? (
+                  <motion.a
+                    href={category.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block text-left"
+                    {...HOVER_HOST}
                   >
-                    <div className="relative isolate h-72 overflow-hidden">
-                      <motion.img
-                        {...responsiveImage(category.image)}
-                        sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
-                        loading="lazy"
-                        decoding="async"
-                        alt={category.title}
-                        className="h-full w-full object-cover"
-                        variants={IMAGE_ZOOM}
-                        transition={{
-                          duration: 0.8,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                      />
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/75 via-[#0f172a]/25 to-transparent" />
-
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <h3
-                          className="mb-2 text-white"
-                          style={{
-                            fontSize: '1.45rem',
-                            fontWeight: 700,
-                            letterSpacing: '-0.02em',
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          {category.title}
-                        </h3>
-
-                        <div className="flex items-center justify-between">
-                          <div className="max-w-[75%] text-sm font-medium text-white/80">
-                            {category.description}
-                          </div>
-
-                          <motion.div
-                            className="flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm"
-                            variants={ARROW_HIGHLIGHT}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <ArrowRight
-                              className="h-4 w-4 text-white"
-                              strokeWidth={2.5}
-                            />
-                          </motion.div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <motion.div
-                      className="pointer-events-none absolute inset-0 rounded-[24px]"
-                      variants={CARD_OUTLINE}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </motion.div>
-                </MotionLink>
+                    <CategoryCard category={category} />
+                  </motion.a>
+                ) : (
+                  <MotionLink
+                    to={`/kategoriak/${resolveCategorySlugFromOfferLink(category.link)}`}
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    className="group block text-left"
+                    {...HOVER_HOST}
+                  >
+                    <CategoryCard category={category} />
+                  </MotionLink>
+                )}
               </motion.div>
             ))}
           </div>
         )}
       </div>
     </section>
+  );
+}
+
+function CategoryCard({ category }: { category: TravelCategoryCard }) {
+  return (
+    <motion.div
+      className="relative isolate overflow-hidden rounded-[24px] border border-gray-100/50 bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] transition-shadow duration-500 group-hover:shadow-[0_12px_48px_rgba(0,195,137,0.15)]"
+      variants={CARD_LIFT}
+      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+    >
+      <div className="relative isolate h-72 overflow-hidden">
+        <motion.img
+          {...responsiveImage(category.image)}
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+          loading="lazy"
+          decoding="async"
+          alt={category.title}
+          className="h-full w-full object-cover"
+          variants={IMAGE_ZOOM}
+          transition={{
+            duration: 0.8,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/75 via-[#0f172a]/25 to-transparent" />
+
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <h3
+            className="mb-2 text-white"
+            style={{
+              fontSize: '1.45rem',
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
+            }}
+          >
+            {category.title}
+          </h3>
+
+          <div className="flex items-center justify-between">
+            <div className="max-w-[75%] text-sm font-medium text-white/80">
+              {category.description}
+            </div>
+
+            <motion.div
+              className="flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm"
+              variants={ARROW_HIGHLIGHT}
+              transition={{ duration: 0.3 }}
+            >
+              <ArrowRight
+                className="h-4 w-4 text-white"
+                strokeWidth={2.5}
+              />
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      <motion.div
+        className="pointer-events-none absolute inset-0 rounded-[24px]"
+        variants={CARD_OUTLINE}
+        transition={{ duration: 0.3 }}
+      />
+    </motion.div>
   );
 }

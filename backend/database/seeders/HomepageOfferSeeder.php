@@ -55,9 +55,10 @@ class HomepageOfferSeeder extends Seeder
             [
                 'name' => 'Egzotikus üdülések',
                 'seo_name' => 'egzotikus',
-                'link' => '/kategoriak/egzotikus',
+                // The legacy site sent this card to the partner site, as the new one does.
+                'link' => 'https://legjobbutak.hu/',
                 'image' => 'https://adriaholiday.hu/framework/img.php?p=files/trip-2203682_1920.jpg&op=;800x450;',
-                'short_description' => 'Egzotikus úti célok, felejthetetlen pihenésekkel és programokkal.',
+                'short_description' => 'Repülős nyaralások, szállások világszerte!',
             ],
         ];
 

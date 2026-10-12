@@ -177,6 +177,10 @@ class SitemapController extends Controller
     {
         $normalizedLink = trim((string) $link);
 
+        if (PortfolioCategoryLinks::isExternal($normalizedLink)) {
+            return null;
+        }
+
         if ($normalizedLink !== '') {
             $path = parse_url($normalizedLink, PHP_URL_PATH) ?: $normalizedLink;
             $path = '/'.ltrim($path, '/');

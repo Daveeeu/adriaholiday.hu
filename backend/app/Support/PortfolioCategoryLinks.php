@@ -30,6 +30,14 @@ final class PortfolioCategoryLinks
     }
 
     /**
+     * Whether a card links to another website (e.g. a partner site) instead of a page here.
+     */
+    public static function isExternal(?string $link): bool
+    {
+        return preg_match('#^https?://#i', trim((string) $link)) === 1;
+    }
+
+    /**
      * Whether a link works: anything that is not a category page counts as working.
      *
      * @param  array<int, string>  $existingSlugs
