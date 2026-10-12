@@ -282,8 +282,8 @@ konténer újraépítése/törlése nem viszi el őket.
 
 ```bash
 BACKUP_DISABLED=false                # true esetén a napi job kilép futás nélkül
-BACKUP_DATABASE_RETENTION_DAYS=14
-BACKUP_STORAGE_RETENTION_DAYS=30
+BACKUP_DATABASE_RETENTION_DAYS=3
+BACKUP_STORAGE_RETENTION_DAYS=3
 ```
 
 ### Manuális futtatás
