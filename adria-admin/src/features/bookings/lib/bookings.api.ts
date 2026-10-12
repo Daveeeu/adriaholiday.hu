@@ -330,7 +330,7 @@ export async function getTourBookingEmails(id: string): Promise<BookingEmailLog[
 
 /** Downloads the booking's details as a branded PDF. */
 export function downloadTourBookingPdf(bookingId: string | number) {
-  return apiClient.download(`/api/admin/bookings/tour-bookings/${bookingId}/pdf`, `foglalas-${bookingId}.pdf`);
+  return apiClient.download(`/api/admin/bookings/tour-bookings/${bookingId}/pdf`, `utazasi-konyv-${bookingId}.pdf`);
 }
 
 /** Opens the browser's print dialog for the booking's PDF. */

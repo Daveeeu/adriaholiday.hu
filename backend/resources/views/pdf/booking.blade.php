@@ -2,9 +2,10 @@
 <html lang="hu">
 <head>
     <meta charset="utf-8">
-    <title>Foglalás {{ $booking->offer_code ?: '#'.$booking->id }}</title>
+    <title>Utazási könyv {{ $booking->offer_code ?: '#'.$booking->id }}</title>
     <style>
-        @page { margin: 0 0 60px 0; }
+        @page { margin: 34px 0 60px 0; }
+        @page :first { margin-top: 0; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 10.5px; color: #0f172a; margin: 0; }
         .header { background: #071321; color: #fff; padding: 26px 40px 22px; }
         .header-accent { height: 5px; background: #00c389; }
@@ -32,6 +33,19 @@
         .two-col td.col { width: 50%; vertical-align: top; }
         .footer { position: fixed; bottom: -60px; left: 0; right: 0; height: 60px; background: #071321; color: #94a3b8; font-size: 8.5px; padding: 14px 40px 0; }
         .footer strong { color: #fff; }
+        .program { page-break-before: always; }
+        .program-title { font-size: 15px; font-weight: bold; margin: 0 0 12px; }
+        .day { margin-bottom: 12px; border-left: 3px solid #00c389; padding: 2px 0 2px 12px; }
+        .day-title { font-size: 11.5px; font-weight: bold; margin-bottom: 3px; }
+        .day-title .day-label { color: #00a878; }
+        .day-body, .trip-notes { color: #334155; line-height: 1.5; }
+        .day-body p, .trip-notes p { margin: 0 0 5px; }
+        .price-columns td { width: 50%; vertical-align: top; padding: 0 8px 0 0; }
+        .price-columns ul { margin: 4px 0 0; padding-left: 0; list-style: none; }
+        .price-columns li { margin-bottom: 3px; }
+        .price-columns .mark { font-weight: bold; margin-right: 5px; }
+        .price-columns .included .mark { color: #00a878; }
+        .price-columns .excluded .mark { color: #dc2626; }
     </style>
 </head>
 <body>
@@ -50,12 +64,14 @@
         @if ($branding['logoDataUri'])
             <div class="logo-wrap"><img class="logo" src="{{ $branding['logoDataUri'] }}" alt="{{ $company['name'] }}"></div>
         @endif
-        <div class="eyebrow">Foglalás</div>
+        <div class="eyebrow">Utazási könyv</div>
         <div class="title">{{ $tripName }}</div>
         <div class="meta">
             {{ $booking->offer_code ?: '#'.$booking->id }}
             · Foglalva: {{ ($booking->booking_date ?? $booking->created_at)?->format('Y.m.d. H:i') }}
-            &nbsp; <span class="status">{{ $statusLabel }}</span>
+            @if ($internal)
+                &nbsp; <span class="status">{{ $statusLabel }}</span>
+            @endif
         </div>
     </div>
     <div class="header-accent"></div>
@@ -142,16 +158,63 @@
             </div>
         @endif
 
-        @if ($note || $booking->admin_note)
+        @if ($note || ($internal && $booking->admin_note))
             <div class="section">
                 <p class="section-title">Megjegyzések</p>
                 @if ($note)
                     <p class="label" style="margin: 0 0 2px; color: #64748b;">Az utas megjegyzése</p>
                     <p class="note" style="margin: 0 0 8px;">{{ $note }}</p>
                 @endif
-                @if ($booking->admin_note)
+                @if ($internal && $booking->admin_note)
                     <p style="margin: 0 0 2px; color: #64748b;">Belső megjegyzés</p>
                     <p class="note" style="margin: 0;">{{ $booking->admin_note }}</p>
+                @endif
+            </div>
+        @endif
+
+        @if ($programDays->isNotEmpty() || $includedItems->isNotEmpty() || $excludedItems->isNotEmpty() || $tripNotes)
+            <div class="program">
+                @if ($programDays->isNotEmpty())
+                    <p class="program-title">Program napról napra</p>
+                    @foreach ($programDays as $day)
+                        <div class="day">
+                            <div class="day-title"><span class="day-label">{{ $day->day_number }}. nap</span>@if ($day->title && $day->title !== $day->day_number.'. nap') &ndash; {{ $day->title }}@endif</div>
+                            @if ($day->description)
+                                <div class="day-body">{!! $day->description !!}</div>
+                            @endif
+                        </div>
+                    @endforeach
+                @endif
+
+                @if ($includedItems->isNotEmpty() || $excludedItems->isNotEmpty())
+                    <div class="section">
+                        <p class="section-title">Ár tartalma</p>
+                        <table class="price-columns"><tr>
+                            <td class="included">
+                                <strong>A részvételi díj tartalmazza:</strong>
+                                <ul>
+                                    @foreach ($includedItems as $item)
+                                        <li><span class="mark">&#10003;</span>{{ $item->text }}</li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                            <td class="excluded">
+                                <strong>A részvételi díj nem tartalmazza:</strong>
+                                <ul>
+                                    @foreach ($excludedItems as $item)
+                                        <li><span class="mark">&#10007;</span>{{ $item->text }}</li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                        </tr></table>
+                    </div>
+                @endif
+
+                @if ($tripNotes)
+                    <div class="section">
+                        <p class="section-title">Tudnivalók</p>
+                        <div class="trip-notes">{!! $tripNotes !!}</div>
+                    </div>
                 @endif
             </div>
         @endif

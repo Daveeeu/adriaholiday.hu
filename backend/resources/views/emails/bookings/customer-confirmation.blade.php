@@ -37,7 +37,7 @@
 
         {{-- Greeting --}}
         <p style="{{ $font }}margin:0 0 8px;color:#0f172a;font-size:16px;">Kedves {{ $customerName }}!</p>
-        <p style="{{ $font }}margin:0 0 24px;color:#334155;font-size:15px;line-height:1.6;">Köszönjük a foglalásodat, ezúton visszaigazoljuk. Alább megtalálod az utazás és a fizetés minden részletét.</p>
+        <p style="{{ $font }}margin:0 0 24px;color:#334155;font-size:15px;line-height:1.6;">Köszönjük a foglalásodat, ezúton visszaigazoljuk. Alább megtalálod az utazás és a fizetés minden részletét, a csatolt <strong>utazási könyvben</strong> pedig mindezt a programmal együtt, utasonként a választott felárakkal és biztosításokkal.</p>
 
         {{-- Trip --}}
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="{{ $card }}margin-bottom:16px;">

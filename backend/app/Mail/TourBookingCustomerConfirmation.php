@@ -4,16 +4,18 @@ namespace App\Mail;
 
 use App\Models\Booking;
 use App\Models\Tour;
+use App\Services\Booking\BookingTravelBook;
 use App\Support\Booking\BookingDocumentData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Confirms a tour booking to the customer with everything they booked (see
- * BookingDocumentData).
+ * BookingDocumentData), with the travel book PDF attached.
  */
 class TourBookingCustomerConfirmation extends Mailable
 {
@@ -37,5 +39,18 @@ class TourBookingCustomerConfirmation extends Mailable
             view: 'emails.bookings.customer-confirmation',
             with: (new BookingDocumentData($this->booking, $this->tour))->toArray(),
         );
+    }
+
+    /**
+     * @return array<int, Attachment>
+     */
+    public function attachments(): array
+    {
+        $travelBook = app(BookingTravelBook::class);
+
+        return [
+            Attachment::fromData(fn (): string => $travelBook->pdf($this->booking), $travelBook->fileName($this->booking))
+                ->withMime('application/pdf'),
+        ];
     }
 }

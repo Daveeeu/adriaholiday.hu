@@ -14,11 +14,8 @@ use App\Http\Resources\BookingEmailLogResource;
 use App\Http\Resources\BookingResource;
 use App\Models\AnalyticsEvent;
 use App\Models\Booking;
+use App\Services\Booking\BookingTravelBook;
 use App\Services\Booking\TourBookingStatusService;
-use App\Support\Booking\BookingDocumentData;
-use App\Support\Booking\TourBookingStatus;
-use App\Support\DocumentBranding;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Activity;
@@ -215,19 +212,15 @@ class BookingController extends Controller
      * The booking's details as a branded PDF (trip, contact, passengers, price,
      * insurance, payment, status and admin note).
      */
-    public function pdf(Request $request, Booking $booking)
+    public function pdf(Request $request, Booking $booking, BookingTravelBook $travelBook)
     {
         $this->ensureBookingTypeMatches($request, $booking);
         $this->authorize('view', $booking);
 
-        $document = new BookingDocumentData($booking->loadMissing('tourDate'), $booking->tour);
-
-        return Pdf::loadView('pdf.booking', [
-            ...$document->toArray(),
-            'statusLabel' => TourBookingStatus::label((string) $booking->status),
-            'branding' => DocumentBranding::resolve(),
-            'generatedAt' => now()->format('Y.m.d. H:i'),
-        ])->download('foglalas-'.Str::slug($booking->offer_code ?: (string) $booking->id).'.pdf');
+        return response($travelBook->pdf($booking, internal: true), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$travelBook->fileName($booking).'"',
+        ]);
     }
 
     public function export(Request $request)

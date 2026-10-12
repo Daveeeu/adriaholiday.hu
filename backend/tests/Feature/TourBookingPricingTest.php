@@ -12,6 +12,7 @@ use App\Models\TourDate;
 use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
+use App\Services\Booking\BookingTravelBook;
 use App\Support\Booking\BookingPriceSummary;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
@@ -223,6 +224,37 @@ class TourBookingPricingTest extends TestCase
             ['key' => 'selections', 'label' => 'Felárak, biztosítás', 'value' => 'Egyágyas felár – '.self::ROOMMATE],
             $adminFields[1],
         );
+    }
+
+    public function test_customer_gets_the_travel_book_with_each_passengers_choices_and_the_program(): void
+    {
+        $this->tour->programDays()->create(['day_number' => 1, 'sort_order' => 1, 'title' => 'Érkezés Ljubljanába', 'description' => '<p>Városnézés az óvárosban.</p>', 'active' => true]);
+        $this->tour->priceItems()->create(['type' => 'included', 'text' => 'autóbusz közlekedés', 'sort_order' => 1, 'active' => true]);
+
+        $response = $this->postJson('/api/bookings', $this->bookingPayload([
+            'passengerOptions' => [
+                ['extraIds' => [$this->dinner->id], 'travelInsurance' => true],
+                ['extraIds' => [$this->singleRoom->id], 'extraChoices' => [$this->singleRoom->id => self::ROOMMATE]],
+            ],
+        ]));
+        $booking = Booking::query()->findOrFail($response->json('id'));
+        $booking->update(['admin_note' => 'Csak az irodának szóló megjegyzés.']);
+
+        $attachments = (new TourBookingCustomerConfirmation($booking, $this->tour))->attachments();
+        $this->assertCount(1, $attachments);
+        $this->assertSame("utazasi-konyv-{$booking->id}.pdf", $attachments[0]->as);
+
+        $travelBook = app(BookingTravelBook::class);
+        $customerCopy = $travelBook->html($booking->refresh());
+        $this->assertStringContainsString('Utazási könyv', $customerCopy);
+        $this->assertStringContainsString('Vacsora, ALFA Compass utasbiztosítás', $customerCopy);
+        $this->assertStringContainsString('Egyágyas felár – '.self::ROOMMATE, $customerCopy);
+        $this->assertStringContainsString('Érkezés Ljubljanába', $customerCopy);
+        $this->assertStringContainsString('autóbusz közlekedés', $customerCopy);
+        $this->assertStringNotContainsString('Csak az irodának szóló megjegyzés.', $customerCopy);
+
+        $this->assertStringContainsString('Csak az irodának szóló megjegyzés.', $travelBook->html($booking, internal: true));
+        $this->assertStringStartsWith('%PDF', $travelBook->pdf($booking));
     }
 
     public function test_bookings_priced_before_per_passenger_choices_list_their_extras_for_everyone(): void

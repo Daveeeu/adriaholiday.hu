@@ -31,7 +31,7 @@ export function BookingExportActions({ booking }: { booking: TourBookingDetail }
     <div className="flex flex-wrap gap-2">
       <Button type="button" variant="outline" size="sm" disabled={pdfMutation.isPending} onClick={() => pdfMutation.mutate()}>
         <FileText className="size-4" />
-        PDF
+        Utazási könyv (PDF)
       </Button>
       <Button type="button" variant="outline" size="sm" onClick={() => downloadJson(booking)}>
         <FileJson className="size-4" />

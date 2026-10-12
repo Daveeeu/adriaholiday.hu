@@ -26,7 +26,7 @@ class AdminBookingPdfTest extends TestCase
 
         $response->assertOk();
         $response->assertHeader('content-type', 'application/pdf');
-        $this->assertStringContainsString('foglalas-szl-8830.pdf', (string) $response->headers->get('content-disposition'));
+        $this->assertStringContainsString('utazasi-konyv-szl-8830.pdf', (string) $response->headers->get('content-disposition'));
         $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
