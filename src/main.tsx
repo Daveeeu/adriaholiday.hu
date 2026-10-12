@@ -6,6 +6,7 @@ import "./styles/index.css";
 import RootLayout from "./app/routes/RootLayout";
 import { HelmetProvider } from "react-helmet-async";
 import LoadingScreen from "./app/components/LoadingScreen";
+import { CLUB_TERMS_PATH, TRAVEL_CLUB_PATH } from "./app/newsletter/travel-club";
 
 const HomeRoute = lazy(() => import("./app/routes/HomeRoute"));
 const StaticPage = lazy(() => import("./app/routes/StaticPage"));
@@ -19,6 +20,7 @@ const BlogArticleRoute = lazy(() => import("./app/routes/BlogArticleRoute"));
 const RegionRoute = lazy(() => import("./app/routes/RegionRoute"));
 const TravelsRoute = lazy(() => import("./app/routes/TravelsRoute"));
 const NotFoundRoute = lazy(() => import("./app/routes/NotFoundRoute"));
+const TravelClubRoute = lazy(() => import("./app/routes/TravelClubRoute"));
 const PaymentResultRoute = lazy(() => import("./app/routes/PaymentResultRoute"));
 
 const router = createBrowserRouter([
@@ -48,6 +50,11 @@ const router = createBrowserRouter([
       {
         path: "sutik",
         element: <StaticPage title="Sütikezelés" canonicalPath="/sutik" />,
+      },
+      { path: TRAVEL_CLUB_PATH.slice(1), element: <TravelClubRoute /> },
+      {
+        path: CLUB_TERMS_PATH.slice(1),
+        element: <StaticPage title="Az Utazási Klub felhasználási feltételei" canonicalPath={CLUB_TERMS_PATH} />,
       },
       { path: "fizetes/eredmeny", element: <PaymentResultRoute /> },
       { path: "*", element: <NotFoundRoute /> },

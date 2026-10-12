@@ -877,7 +877,7 @@ Barion shop approval requirements met in code: the official Barion payment banne
 
 # Company Data and Legal Pages
 
-The public contact details live in the `contact` site settings group (`App\Support\CompanyContact`: `phone`, `email`, `address`, `whatsapp`, `opening_hours`). The texts of the Kapcsolat, Impresszum, Adatvédelem, ÁSZF and Süti pages are `legal.*_content` settings of type `richtext` (`App\Support\LegalPageContent`); their defaults — taken over from the legacy adriaholiday.hu site — are HTML files in `backend/database/content/legal/`, read by both `SiteSettingsSeeder` and the `import_legacy_company_and_legal_content` data migration. `richtext` values are sanitized with `RichTextSanitizer` when stored (`SiteSetting::encodeValue()`) and again with `sanitizeRichTextHtml()` when rendered by `src/app/routes/StaticPage.tsx`; admins edit them with the rich text editor on the settings page.
+The public contact details live in the `contact` site settings group (`App\Support\CompanyContact`: `phone`, `email`, `address`, `whatsapp`, `opening_hours`). The texts of the Kapcsolat, Impresszum, Adatvédelem, ÁSZF, Süti and Utazási Klub felhasználási feltételei pages are `legal.*_content` settings of type `richtext` (`App\Support\LegalPageContent`); their defaults — taken over from the legacy adriaholiday.hu site — are HTML files in `backend/database/content/legal/`, read by both `SiteSettingsSeeder` and the `import_legacy_company_and_legal_content` data migration. `richtext` values are sanitized with `RichTextSanitizer` when stored (`SiteSetting::encodeValue()`) and again with `sanitizeRichTextHtml()` when rendered by `src/app/routes/StaticPage.tsx`; admins edit them with the rich text editor on the settings page.
 
 ---
 
@@ -885,7 +885,7 @@ The public contact details live in the `contact` site settings group (`App\Suppo
 
 Public `POST /api/newsletter/subscribe` (throttled via the `newsletter` rate limiter) creates a `NewsletterSubscriber` and issues it a one-time `Coupon` (code prefixed `HIR-`, `name: 'Hírlevél feliratkozás'` so it's identifiable in the admin Coupons list), then emails it via `NewsletterCouponMail`. All of this is orchestrated by `App\Services\Newsletter\NewsletterSubscriptionService`, which is idempotent — resubscribing an existing email is a no-op (no second coupon, no resend).
 
-The coupon amount is admin-configurable via the `newsletter.coupon_value` `SiteSetting` (`is_public = true`, so the portfolio site can advertise the live amount instead of hardcoding it).
+The coupon amount is admin-configurable via the `newsletter.coupon_value` `SiteSetting` (`is_public = true`, so the portfolio site can advertise the live amount instead of hardcoding it). The `/utazasi-klub` page (`src/app/routes/TravelClubRoute.tsx`) explains the club and what the coupon is and isn't valid for; its full terms are the `legal.club_terms_content` page. Both keep the legacy site's URLs. Every sign-up form uses `useNewsletterSubscription`.
 
 Mail sending + `EmailLog` auditing is shared via `App\Services\Mail\LoggedMailer` (also used by `BookingNotificationService`) — reuse it for any new transactional email instead of duplicating the send/log/catch logic.
 

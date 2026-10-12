@@ -95,4 +95,5 @@ export type SiteSettingsFormValues = {
   privacyContent: string;
   termsContent: string;
   cookieContent: string;
+  clubTermsContent: string;
 };

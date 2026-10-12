@@ -57,6 +57,8 @@ class SitemapController extends Controller
             '/adatvedelem',
             '/impresszum',
             '/sutik',
+            '/utazasi-klub',
+            '/adria-holiday-utazasi-klub-felhasznalasi-feltetelei',
         ];
 
         return collect($paths)->map(fn (string $path): array => [

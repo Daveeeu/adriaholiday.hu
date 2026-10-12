@@ -37,6 +37,18 @@ class PortfolioSeoTest extends TestCase
         $this->assertSame(1, substr_count($html, 'name="description"'));
     }
 
+    public function test_the_travel_club_pages_keep_their_legacy_urls(): void
+    {
+        $this->assertStringContainsString(
+            '<title data-rh="true">Utazási Klub | Adria Holiday</title>',
+            $this->visit('/utazasi-klub')->assertOk()->getContent(),
+        );
+        $this->assertStringContainsString(
+            'rel="canonical" href="'.self::SITE.'/adria-holiday-utazasi-klub-felhasznalasi-feltetelei"',
+            $this->visit('/adria-holiday-utazasi-klub-felhasznalasi-feltetelei')->assertOk()->getContent(),
+        );
+    }
+
     public function test_an_offer_page_describes_the_trip_with_structured_data(): void
     {
         Tour::factory()->create([

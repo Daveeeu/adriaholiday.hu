@@ -4,6 +4,7 @@ import { sanitizeRichTextHtml } from "@/lib/rich-text";
 import Seo from "../seo/Seo";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { absoluteUrl } from "../seo/site";
+import { CLUB_TERMS_PATH } from "../newsletter/travel-club";
 
 export default function StaticPage({
   title,
@@ -24,6 +25,7 @@ export default function StaticPage({
     "/adatvedelem": settings.privacyContent,
     "/aszf": settings.termsContent,
     "/sutik": settings.cookieContent,
+    [CLUB_TERMS_PATH]: settings.clubTermsContent,
   };
 
   const pageDescriptionMap: Record<string, string> = {
@@ -31,6 +33,7 @@ export default function StaticPage({
     "/adatvedelem": "Az Adria Holiday adatkezelési tájékoztatója és adatvédelmi gyakorlata.",
     "/aszf": "Az Adria Holiday általános szerződési feltételei.",
     "/sutik": "Tájékoztató az Adria Holiday oldalon használt sütikről és hozzájáruláskezelésről.",
+    [CLUB_TERMS_PATH]: "Az Adria Holiday Utazási Klub és a hírlevél-feliratkozáskor kapott kedvezménykupon felhasználási feltételei.",
   };
 
   const contentHtml = sanitizeRichTextHtml(pageContentMap[path]);

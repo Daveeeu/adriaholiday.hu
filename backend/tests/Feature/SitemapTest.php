@@ -28,6 +28,14 @@ class SitemapTest extends TestCase
         $response->assertSee('https://adriaholiday.hu/ajanlat/albania-makedoniaval-fuszerezve', false);
     }
 
+    public function test_sitemap_lists_the_travel_club_and_its_terms(): void
+    {
+        $this->get('/sitemap.xml')
+            ->assertOk()
+            ->assertSee('<loc>https://adriaholiday.hu/utazasi-klub</loc>', false)
+            ->assertSee('<loc>https://adriaholiday.hu/adria-holiday-utazasi-klub-felhasznalasi-feltetelei</loc>', false);
+    }
+
     public function test_sitemap_excludes_inactive_offer(): void
     {
         Tour::query()

@@ -64,6 +64,7 @@ function toPayload(values: SiteSettingsFormValues): Array<{
     { group: 'legal', key: 'privacy_content', type: 'richtext', isPublic: true, value: values.privacyContent },
     { group: 'legal', key: 'terms_content', type: 'richtext', isPublic: true, value: values.termsContent },
     { group: 'legal', key: 'cookie_content', type: 'richtext', isPublic: true, value: values.cookieContent },
+    { group: 'legal', key: 'club_terms_content', type: 'richtext', isPublic: true, value: values.clubTermsContent },
   ];
 }
 
@@ -159,5 +160,6 @@ export function toSiteSettingsFormValues(settings: SiteSettingItem[]): SiteSetti
     privacyContent: getStringValue(settings, 'legal', 'privacy_content'),
     termsContent: getStringValue(settings, 'legal', 'terms_content'),
     cookieContent: getStringValue(settings, 'legal', 'cookie_content'),
+    clubTermsContent: getStringValue(settings, 'legal', 'club_terms_content'),
   };
 }

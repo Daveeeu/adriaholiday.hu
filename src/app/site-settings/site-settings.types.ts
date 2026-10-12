@@ -39,6 +39,7 @@ export type PublicSiteSettingsPayload = {
     privacy_content?: string;
     terms_content?: string;
     cookie_content?: string;
+    club_terms_content?: string;
   };
 };
 
@@ -77,4 +78,5 @@ export type ResolvedSiteSettings = {
   privacyContent: string;
   termsContent: string;
   cookieContent: string;
+  clubTermsContent: string;
 };

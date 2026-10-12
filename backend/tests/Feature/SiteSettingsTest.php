@@ -87,6 +87,17 @@ class SiteSettingsTest extends TestCase
         $this->assertStringContainsString('Cégjegyzékszám:</strong> 01-09-433588', $response->json('legal.imprint_content'));
         $this->assertStringContainsString('<h2>Utazási szerződéshez kapcsolódó tájékoztató</h2>', $response->json('legal.terms_content'));
         $this->assertStringContainsString('<h2>Adatbiztonság</h2>', $response->json('legal.privacy_content'));
+        $this->assertStringContainsString('<h2>A Kupon használata</h2>', $response->json('legal.club_terms_content'));
+    }
+
+    public function test_the_travel_club_coupon_value_is_public_even_without_the_seeder(): void
+    {
+        SiteSetting::query()->where('group', 'newsletter')->delete();
+        $this->artisan('migrate:refresh', ['--path' => 'database/migrations/2026_10_12_100100_set_newsletter_coupon_value.php'])->assertSuccessful();
+
+        $this->getJson('/api/portfolio/site-settings')
+            ->assertOk()
+            ->assertJsonPath('newsletter.coupon_value', 5000);
     }
 
     public function test_public_site_settings_list_the_agency_social_profiles(): void

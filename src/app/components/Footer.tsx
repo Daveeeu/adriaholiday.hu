@@ -4,6 +4,7 @@ import { Link } from "react-router";
 
 import { useAnalytics } from "../analytics/useAnalytics";
 import { trackEvent } from "../analytics/trackEvent";
+import { TRAVEL_CLUB_PATH } from "../newsletter/travel-club";
 import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { socialLinks, type SocialLink } from "../site-settings/social-links";
@@ -40,6 +41,7 @@ export default function Footer() {
     { label: "Adatvédelem", to: settings.privacyUrl },
     { label: "Impresszum", to: settings.imprintUrl },
     { label: "Süti kezelés", to: settings.cookieUrl },
+    { label: "Utazási Klub", to: TRAVEL_CLUB_PATH },
   ].filter((link) => link.to !== "");
 
   return (
