@@ -45,11 +45,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Number of days a given backup type is kept before the daily backup run
-    | prunes it. Database dumps are cheap and taken daily, so a shorter
-    | retention is sufficient; storage/media archives are kept a bit longer.
+    | prunes it. Every media archive holds the whole media library (over a
+    | gigabyte since the legacy import), so a longer window fills the disk.
     |
     */
-    'database_retention_days' => (int) env('BACKUP_DATABASE_RETENTION_DAYS', 14),
-    'storage_retention_days' => (int) env('BACKUP_STORAGE_RETENTION_DAYS', 30),
+    'database_retention_days' => (int) env('BACKUP_DATABASE_RETENTION_DAYS', 3),
+    'storage_retention_days' => (int) env('BACKUP_STORAGE_RETENTION_DAYS', 3),
 
 ];
