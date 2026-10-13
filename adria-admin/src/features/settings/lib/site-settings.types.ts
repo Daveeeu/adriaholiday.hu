@@ -47,7 +47,6 @@ export type SiteSettingsResponse = {
   items: SiteSettingItem[];
 };
 
-export type OnlinePaymentKind = 'full' | 'deposit';
 
 export type SiteSettingsFormValues = {
   siteName: string;
@@ -79,8 +78,6 @@ export type SiteSettingsFormValues = {
   cancellationInsurancePercent: number;
   cancellationInsuranceMinDays: number;
   onlinePaymentEnabled: boolean;
-  onlinePaymentKind: OnlinePaymentKind;
-  onlinePaymentDepositPercent: number;
   barionPixelId: string;
   bankAccountNumber: string;
   bankAccountHolder: string;

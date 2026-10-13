@@ -10,6 +10,7 @@ import {
   chargedBookingExtras,
   chargedPassengerExtras,
   estimateBookingPrice,
+  estimateDeposit,
   formatHuf,
   isCancellationInsuranceAvailable,
   passengerCardExtras,
@@ -115,6 +116,7 @@ type BookingDateOption = {
   status?: string | null;
   seatsLeft?: number | null;
   extras?: BookingExtra[];
+  depositPercent?: number | null;
   startDate?: string | null;
   endDate?: string | null;
 };
@@ -220,6 +222,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   );
   const displayedTotal =
     priceEstimate.total !== null ? formatHuf(priceEstimate.total) : priceBox?.displayedPrice ?? null;
+  const onlineDeposit = estimateDeposit(priceEstimate, selectedDate.depositPercent ?? null);
 
   const fields: BookingFormField[] = useMemo(() => trip.bookingFormFields ?? [], [trip]);
   const contactFields = useMemo(() => fieldsOfGroup(fields, "contact"), [fields]);
@@ -854,8 +857,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                   {onlinePayment ? (
                     <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
                       <CreditCard className="w-4 h-4 text-[#00a878]" />
-                      {onlinePayment.kind === "deposit"
-                        ? `A foglalás után ${onlinePayment.depositPercent}% előleget fizetsz online, Barionnal.`
+                      {onlineDeposit
+                        ? `A foglalás után az előleget (${onlineDeposit.label}: ${formatHuf(onlineDeposit.amount)}) fizeted online, Barionnal. A további részletek határidejét a visszaigazoló emailben küldjük.`
                         : "A foglalás után a teljes összeget online fizeted, Barionnal."}
                     </div>
                   ) : null}

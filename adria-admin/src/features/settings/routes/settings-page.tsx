@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Plus, Save, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useFieldArray, useForm, useWatch, type Control } from 'react-hook-form';
+import { useFieldArray, useForm, type Control } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -96,8 +96,6 @@ const settingsSchema = z.object({
   cancellationInsurancePercent: z.coerce.number().min(0, 'A díj nem lehet negatív.').max(100, 'Legfeljebb 100% lehet.'),
   cancellationInsuranceMinDays: z.coerce.number().int().min(0, 'Nem lehet negatív.'),
   onlinePaymentEnabled: z.boolean(),
-  onlinePaymentKind: z.enum(['full', 'deposit']),
-  onlinePaymentDepositPercent: z.coerce.number().min(1, 'Legalább 1% legyen.').max(100, 'Legfeljebb 100% lehet.'),
   barionPixelId: z
     .string()
     .trim()
@@ -147,8 +145,6 @@ const emptyValues: SiteSettingsFormValues = {
   cancellationInsurancePercent: 0,
   cancellationInsuranceMinDays: 0,
   onlinePaymentEnabled: false,
-  onlinePaymentKind: 'full',
-  onlinePaymentDepositPercent: 30,
   barionPixelId: '',
   bankAccountNumber: '',
   bankAccountHolder: '',
@@ -263,7 +259,6 @@ export function SettingsPage() {
     resolver: zodResolver(settingsSchema) as never,
     defaultValues: emptyValues,
   });
-  const onlinePaymentKind = useWatch({ control: form.control, name: 'onlinePaymentKind' });
 
   const { data, isLoading } = useQuery({
     queryKey: ['site-settings'],
@@ -595,10 +590,10 @@ export function SettingsPage() {
               <CardHeader>
                 <CardTitle>Online fizetés (Barion)</CardTitle>
                 <CardDescription>
-                  Foglalás után az ügyfél a Barion fizetőoldalán fizet. Csak akkor működik, ha a szerveren be van állítva a Barion POSKey és a fogadó e-mail cím.
+                  Foglalás után az ügyfél a Barion fizetőoldalán fizeti az előleget (a fizetési ütemezés 1. részletét; 35 napon belüli indulásnál a teljes összeget). Csak akkor működik, ha a szerveren be van állítva a Barion POSKey és a fogadó e-mail cím.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-3">
+              <CardContent className="grid gap-4">
                 <FormField control={form.control} name="onlinePaymentEnabled" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Online fizetés</FormLabel>
@@ -608,38 +603,6 @@ export function SettingsPage() {
                         Bekapcsolva
                       </label>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="onlinePaymentKind" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Online fizetendő összeg</FormLabel>
-                    <FormControl>
-                      <select
-                        className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        {...field}
-                      >
-                        <option value="full">Teljes összeg</option>
-                        <option value="deposit">Előleg</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="onlinePaymentDepositPercent" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Előleg (a végösszeg %-a)</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} max={100} step={1} disabled={onlinePaymentKind !== 'deposit'} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="barionPixelId" render={({ field }) => (
-                  <FormItem className="md:col-span-3">
-                    <FormLabel>Barion Pixel azonosító</FormLabel>
-                    <FormControl><Input {...field} placeholder="BP-0000000000-00" /></FormControl>
-                    <CardDescription>A Base Barion Pixel (csalásmegelőzés) minden publikus oldalon betöltődik, ha meg van adva.</CardDescription>
                     <FormMessage />
                   </FormItem>
                 )} />

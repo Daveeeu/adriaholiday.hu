@@ -48,8 +48,7 @@ final class BookingPaymentSchedule
     {
         $bookedAt = CarbonImmutable::instance($bookedAt)->setTimezone(self::TIMEZONE);
         $departure = CarbonImmutable::parse($departure->toDateString(), self::TIMEZONE);
-        $daysToDeparture = (int) $bookedAt->startOfDay()->diffInDays($departure, false);
-        $plan = collect(self::PLANS)->first(fn (array $plan): bool => $daysToDeparture >= $plan['minDays']);
+        $plan = self::plan($bookedAt, $departure);
         $decimals = strtoupper($currency) === 'HUF' ? 0 : 2;
 
         $instalments = [];
@@ -79,6 +78,17 @@ final class BookingPaymentSchedule
         }
 
         return new self($instalments);
+    }
+
+    /**
+     * The trip price share of the deposit (first instalment) for a booking made now:
+     * what the customer pays online right after booking, besides the insurances.
+     */
+    public static function depositPercent(CarbonInterface $departure, ?CarbonInterface $bookedAt = null): int
+    {
+        $bookedAt = CarbonImmutable::instance($bookedAt ?? now())->setTimezone(self::TIMEZONE);
+
+        return self::plan($bookedAt, CarbonImmutable::parse($departure->toDateString(), self::TIMEZONE))['instalments'][0][0];
     }
 
     /**
@@ -133,6 +143,16 @@ final class BookingPaymentSchedule
                 'overdue' => ! $paid && $instalment['dueAt']->lessThan($now),
             ];
         }, $this->instalments);
+    }
+
+    /**
+     * @return array{minDays: int, instalments: array<int, array{0: int, 1: string, 2: int}>}
+     */
+    private static function plan(CarbonImmutable $bookedAt, CarbonImmutable $departure): array
+    {
+        $daysToDeparture = (int) $bookedAt->startOfDay()->diffInDays($departure, false);
+
+        return collect(self::PLANS)->first(fn (array $plan): bool => $daysToDeparture >= $plan['minDays']);
     }
 
     /**

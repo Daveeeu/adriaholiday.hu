@@ -245,3 +245,24 @@ export function estimateBookingPrice({
     total: tripTotal + insuranceLines.reduce((sum, line) => sum + line.amount, 0),
   };
 }
+
+/**
+ * The deposit paid online right after booking: the date's share of the trip
+ * price plus the insurances, as the backend schedules it; null when the whole
+ * price is paid at once (or the price is not known).
+ */
+export function estimateDeposit(
+  estimate: BookingPriceEstimate,
+  depositPercent: number | null,
+): { amount: number; label: string } | null {
+  if (estimate.tripTotal === null || estimate.total === null || depositPercent === null || depositPercent >= 100) {
+    return null;
+  }
+
+  const insuranceTotal = estimate.total - estimate.tripTotal;
+
+  return {
+    amount: Math.round((estimate.tripTotal * depositPercent) / 100) + insuranceTotal,
+    label: `${depositPercent}%${insuranceTotal > 0 ? " + biztosítás" : ""}`,
+  };
+}

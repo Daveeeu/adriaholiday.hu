@@ -46,8 +46,9 @@ class TourBookingPaymentTest extends TestCase
         ]);
     }
 
-    public function test_booking_starts_a_full_barion_payment_and_returns_the_gateway_url(): void
+    public function test_a_booking_close_to_departure_pays_the_whole_price_and_returns_the_gateway_url(): void
     {
+        $this->departInDays(20);
         $this->fakeBarionStart('pay-1');
 
         $response = $this->postJson('/api/bookings', $this->bookingPayload());
@@ -73,18 +74,24 @@ class TourBookingPaymentTest extends TestCase
         });
     }
 
-    public function test_deposit_setting_charges_the_configured_percentage_rounded_to_whole_forints(): void
+    public function test_online_payment_takes_the_deposit_of_the_payment_schedule(): void
     {
-        $this->setPaymentSetting('online_payment_kind', 'string', BookingPaymentKind::DEPOSIT);
-        $this->setPaymentSetting('online_payment_deposit_percent', 'number', 33);
         $this->fakeBarionStart('pay-1');
 
-        $booking = $this->book();
-        $payment = $booking->payments()->sole();
+        $payment = $this->book()->payments()->sole();
 
         $this->assertSame(BookingPaymentKind::DEPOSIT, $payment->kind);
-        // 33% of 2 × 45 950 = 30 327
-        $this->assertEquals(30327, (float) $payment->amount);
+        // 60 days to departure: 40% of 2 × 45 950
+        $this->assertEquals(36760, (float) $payment->amount);
+    }
+
+    public function test_a_departure_more_than_150_days_away_pays_a_20_percent_deposit_online(): void
+    {
+        $this->departInDays(200);
+        $this->fakeBarionStart('pay-1');
+
+        // 20% of 2 × 45 950
+        $this->assertEquals(18380, (float) $this->book()->payments()->sole()->amount);
     }
 
     public function test_no_payment_is_started_without_barion_credentials_or_when_disabled(): void
@@ -117,6 +124,7 @@ class TourBookingPaymentTest extends TestCase
 
     public function test_succeeded_callback_credits_the_booking_exactly_once(): void
     {
+        $this->departInDays(20);
         $this->fakeBarionStart('pay-1', state: 'Succeeded');
         $booking = $this->book();
 
@@ -132,8 +140,6 @@ class TourBookingPaymentTest extends TestCase
 
     public function test_succeeded_deposit_marks_the_booking_partially_paid(): void
     {
-        $this->setPaymentSetting('online_payment_kind', 'string', BookingPaymentKind::DEPOSIT);
-        $this->setPaymentSetting('online_payment_deposit_percent', 'number', 40);
         $this->fakeBarionStart('pay-1', state: 'Succeeded');
         $booking = $this->book();
 
@@ -212,18 +218,21 @@ class TourBookingPaymentTest extends TestCase
 
     public function test_offer_detail_tells_the_booking_form_how_much_is_paid_online(): void
     {
-        $this->setPaymentSetting('online_payment_kind', 'string', BookingPaymentKind::DEPOSIT);
-
         $this->getJson('/api/portfolio/offers/'.$this->tour->seo_name)
             ->assertOk()
-            ->assertJsonPath('bookingPayment.kind', BookingPaymentKind::DEPOSIT)
-            ->assertJsonPath('bookingPayment.depositPercent', 30);
+            ->assertJsonPath('bookingPayment.provider', 'barion')
+            ->assertJsonPath('dates.0.depositPercent', 40);
 
         config(['services.barion.pos_key' => null]);
 
         $this->getJson('/api/portfolio/offers/'.$this->tour->seo_name)
             ->assertOk()
             ->assertJsonPath('bookingPayment', null);
+    }
+
+    private function departInDays(int $days): void
+    {
+        $this->tourDate->update(['start_date' => today()->addDays($days), 'end_date' => today()->addDays($days + 1)]);
     }
 
     private function fakeBarionStart(string $paymentId, string $state = 'Prepared'): void

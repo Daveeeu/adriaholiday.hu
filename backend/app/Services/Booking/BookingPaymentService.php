@@ -7,6 +7,7 @@ use App\Models\BookingPayment;
 use App\Services\Payment\Barion\BarionClient;
 use App\Services\Payment\Barion\BarionException;
 use App\Services\Payment\Barion\BarionPaymentRequest;
+use App\Support\Booking\BookingPaymentSchedule;
 use App\Support\Booking\BookingPaymentSettings;
 use App\Support\Booking\TourBookingStatus;
 use App\Support\Payment\BookingPaymentKind;
@@ -20,7 +21,8 @@ use Illuminate\Support\Str;
  * Online payment of tour bookings through Barion.
  *
  * Right after booking the customer is sent to the Barion gateway to pay
- * the amount configured in the booking settings (the total or a deposit).
+ * the deposit: the first instalment of BookingPaymentSchedule (the whole
+ * price when the departure is close).
  * A failed or abandoned payment leaves the booking in place as unpaid and
  * can be retried. Barion's callback and the customer's return both only
  * trigger a state query, so the booking is credited from what Barion
@@ -34,22 +36,18 @@ class BookingPaymentService
 
     /**
      * What the public booking form tells the customer about paying online,
-     * or null when bookings in this currency cannot be paid online.
+     * or null when bookings in this currency cannot be paid online. The
+     * deposit's share of each date comes with the date.
      *
-     * @return array{kind: string, depositPercent: float}|null
+     * @return array{provider: string}|null
      */
     public function publicOptions(string $currency): ?array
     {
-        $settings = BookingPaymentSettings::load();
-
-        if (! $this->isEnabled($settings) || ! $this->barion->supportsCurrency($currency)) {
+        if (! $this->isEnabled(BookingPaymentSettings::load()) || ! $this->barion->supportsCurrency($currency)) {
             return null;
         }
 
-        return [
-            'kind' => $settings->effectiveKind(),
-            'depositPercent' => $settings->depositPercent,
-        ];
+        return ['provider' => self::PROVIDER];
     }
 
     public function canStart(Booking $booking): bool
@@ -73,7 +71,7 @@ class BookingPaymentService
             return null;
         }
 
-        $due = BookingPaymentSettings::load()->amountDue((float) $booking->total_amount, (string) $booking->currency);
+        $due = $this->amountDue($booking);
 
         if ($due['amount'] <= 0) {
             return null;
@@ -180,6 +178,25 @@ class BookingPaymentService
             'paid_amount' => $paidAmount,
             'payment_status' => $settled ? 'paid' : 'partial',
         ]);
+    }
+
+    /**
+     * The deposit (first instalment); a booking without a price breakdown or
+     * departure date, or one paid in a single instalment, pays its total.
+     *
+     * @return array{kind: string, amount: float}
+     */
+    private function amountDue(Booking $booking): array
+    {
+        $instalments = BookingPaymentSchedule::forBooking($booking)?->instalments() ?? [];
+
+        if (count($instalments) > 1) {
+            return ['kind' => BookingPaymentKind::DEPOSIT, 'amount' => $instalments[0]['amount']];
+        }
+
+        $decimals = $booking->currency === 'HUF' ? 0 : 2;
+
+        return ['kind' => BookingPaymentKind::FULL, 'amount' => round((float) $booking->total_amount, $decimals)];
     }
 
     private function isEnabled(BookingPaymentSettings $settings): bool

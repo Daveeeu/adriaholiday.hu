@@ -45,10 +45,9 @@ export type PortfolioBookingInsurances = {
   cancellationInsurance: { name: string; percent: number; minDaysBeforeDeparture: number };
 };
 
-/** How much of the booking is paid online (Barion) right after booking. */
+/** Online payment (Barion) of the deposit right after booking; its share comes with each date. */
 export type PortfolioBookingPayment = {
-  kind: "full" | "deposit";
-  depositPercent: number;
+  provider: string;
 };
 
 export type PortfolioOfferDetailDate = {
@@ -60,6 +59,8 @@ export type PortfolioOfferDetailDate = {
   displayedPrice?: string | null;
   priceBox?: PortfolioPriceBox | null;
   status?: string | null;
+  /** The trip price share of the deposit if booked today (100: paid in full). */
+  depositPercent?: number | null;
   extras?: PortfolioOfferDateExtra[];
 };
 

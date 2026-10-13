@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\Booking\BookingPaymentSchedule;
 use App\Support\PriceBoxData;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,6 +22,8 @@ class TourDateResource extends JsonResource
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'priceBox' => $priceBox,
             'status' => $this->status,
+            // The trip price share paid as deposit (online, right after booking) if booked today.
+            'depositPercent' => $this->start_date !== null ? BookingPaymentSchedule::depositPercent($this->start_date) : null,
             'extras' => TourDateExtraResource::collection($this->relationLoaded('extras') ? $this->extras : collect())->resolve($request),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
