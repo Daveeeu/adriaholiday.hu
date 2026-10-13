@@ -185,7 +185,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
             {trip.shortDescription}
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-5xl">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-10 max-w-6xl">
             <HeroInfoCard
               icon={<Calendar />}
               label="Indulás"
@@ -211,6 +211,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               value={trip.transport === "plane" ? "Repülős út" : "Autóbuszos út"}
             />
             <HeroInfoCard icon={<Utensils />} label="Ellátás" value={trip.meals} />
+            <HeroInfoCard icon={<Hotel />} label="Szállás" value={trip.hotel} />
           </div>
         </div>
       </section>
@@ -219,7 +220,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
         <div className="max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
           <div className="bg-white rounded-[36px] border border-gray-100 shadow-[0_20px_70px_rgba(15,23,42,0.08)] p-6 md:p-7">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-7 items-center">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <InfoBox
                   icon={<ShieldCheck />}
                   label="Indulás státusza"
@@ -232,7 +233,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                     value={`Még ${selectedSeats} szabad hely`}
                   />
                 ) : null}
-                <InfoBox icon={<Hotel />} label="Szállás" value={trip.hotel} />
                 <InfoBox
                   icon={<Calendar />}
                   label="Választott dátum"
