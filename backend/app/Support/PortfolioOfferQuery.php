@@ -7,6 +7,7 @@ use App\Models\BlogTagTranslation;
 use App\Models\PortfolioFilterChip;
 use App\Models\Tour;
 use App\Models\TourReferenceOption;
+use App\Support\Tour\TourDateStatus;
 use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class PortfolioOfferQuery
 {
     private const MAX_TEXT_QUERY_LENGTH = 100;
 
-    private const UNBOOKABLE_DATE_STATUSES = ['sold_out', 'cancelled'];
+    private const UNBOOKABLE_DATE_STATUSES = [TourDateStatus::SOLD_OUT, TourDateStatus::CANCELLED];
 
     public static function buildBaseQuery(Request $request): Builder
     {

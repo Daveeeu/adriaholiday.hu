@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Public;
 
+use App\Support\Tour\TourDateStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -90,7 +91,7 @@ class StorePublicBookingRequest extends FormRequest
                 // Only an upcoming date that is still on sale can be booked.
                 Rule::exists('tour_dates', 'id')
                     ->where('tour_id', $this->input('tour_id'))
-                    ->whereIn('status', ['planned', 'available'])
+                    ->where('status', TourDateStatus::AVAILABLE)
                     ->whereNull('deleted_at')
                     ->where(fn ($query) => $query->whereDate('start_date', '>=', today())),
             ],

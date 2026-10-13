@@ -105,8 +105,8 @@ class PortfolioOfferSearchTest extends TestCase
     {
         TourReferenceOption::query()->create(['type' => 'country', 'code' => 'hr', 'name' => 'Horvátország', 'active' => true, 'sort_order' => 1]);
         TourReferenceOption::query()->create(['type' => 'country', 'code' => 'it', 'name' => 'Olaszország', 'active' => true, 'sort_order' => 2]);
-        $this->tourWithDate('horvat-hosszu', '2026-07-01', '2026-07-10', 'planned', ['country_ids' => ['hr']]);
-        $this->tourWithDate('olasz-rovid', '2026-07-01', '2026-07-02', 'planned', ['country_ids' => ['it']]);
+        $this->tourWithDate('horvat-hosszu', '2026-07-01', '2026-07-10', 'available', ['country_ids' => ['hr']]);
+        $this->tourWithDate('olasz-rovid', '2026-07-01', '2026-07-02', 'available', ['country_ids' => ['it']]);
 
         $response = $this->getJson('/api/portfolio/offers/countries?duration=long');
 
@@ -133,7 +133,7 @@ class PortfolioOfferSearchTest extends TestCase
     /**
      * @param  array<string, mixed>  $attributes
      */
-    private function tourWithDate(string $slug, string $start, string $end, string $status = 'planned', array $attributes = []): Tour
+    private function tourWithDate(string $slug, string $start, string $end, string $status = 'available', array $attributes = []): Tour
     {
         $tour = $this->tour($slug, $attributes);
 

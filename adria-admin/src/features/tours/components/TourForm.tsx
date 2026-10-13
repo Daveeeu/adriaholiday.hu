@@ -735,7 +735,7 @@ export function TourForm({ form, tour }: TourFormProps) {
                     endDate: '',
                     price: '',
                     displayedPrice: '',
-                    status: 'planned',
+                    status: 'available',
                     priceBox: {
                       price: '',
                       displayedPrice: '',

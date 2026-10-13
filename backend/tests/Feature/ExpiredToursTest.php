@@ -22,7 +22,7 @@ class ExpiredToursTest extends TestCase
         $tour = Tour::factory()->create(['active' => $active, 'seo_name' => $slug]);
 
         foreach ($startDates as $start) {
-            $tour->dates()->create(['start_date' => $start, 'end_date' => $start, 'price' => 99000, 'status' => 'planned']);
+            $tour->dates()->create(['start_date' => $start, 'end_date' => $start, 'price' => 99000, 'status' => 'available']);
         }
 
         return $tour;
@@ -48,7 +48,7 @@ class ExpiredToursTest extends TestCase
         $this->artisan('tours:sync-expired');
         $switchedOff = $this->tourWithDates('kikapcsolt-ut', ['2026-12-01'], active: false);
 
-        $expired->dates()->create(['start_date' => '2027-05-01', 'end_date' => '2027-05-04', 'price' => 99000, 'status' => 'planned']);
+        $expired->dates()->create(['start_date' => '2027-05-01', 'end_date' => '2027-05-04', 'price' => 99000, 'status' => 'available']);
         $this->artisan('tours:sync-expired')->assertSuccessful();
 
         $this->assertTrue($expired->fresh()->active);

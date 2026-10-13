@@ -286,7 +286,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
             ->assertJsonPath('dates.0.priceBox.originalPrice', 289600)
             ->assertJsonPath('dates.0.priceBox.originalDisplayedPrice', '289 600 Ft')
             ->assertJsonPath('dates.0.priceBox.label', 'Előfoglalási akció')
-            ->assertJsonPath('dates.0.status', 'planned')
+            ->assertJsonPath('dates.0.status', 'available')
             ->assertJsonPath('dates.1.status', 'sold_out');
     }
 
@@ -302,7 +302,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
 
         $importer->import($data, updateExisting: true);
 
-        $this->assertSame('planned', $tour->dates()->whereDate('start_date', '2026-10-10')->value('status'));
+        $this->assertSame('available', $tour->dates()->whereDate('start_date', '2026-10-10')->value('status'));
     }
 
     public function test_the_subtitle_and_legacy_tabs_are_imported(): void

@@ -61,14 +61,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
           date.startDate && date.endDate
             ? formatDateLabel(date)
             : offer.departureDateLabel || INQUIRE_LABEL,
-        status:
-          date.status === "available"
-            ? "Elérhető"
-            : date.status === "sold_out"
-              ? "Betelt"
-              : date.status === "cancelled"
-                ? "Törölve"
-                : "Tervezett",
+        status: date.status === "sold_out" ? "Betelt" : date.status === "cancelled" ? "Törölve" : "Elérhető",
         bookable: isBookableDateStatus(date.status),
         seatsLeft: offer.seatsLeft ?? null,
         price: date.priceBox?.price ?? date.price ?? offer.priceBox?.price ?? offer.price ?? null,

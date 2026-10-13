@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Tour;
 
 use App\Http\Requests\Admin\Tour\Concerns\ValidatesTourBookingOptions;
+use App\Support\Tour\TourDateStatus;
 use App\Support\TourSearchIndex;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -141,7 +142,7 @@ class StoreTourRequest extends FormRequest
                     'price_box_max_participants' => $date['price_box_max_participants'] ?? $priceBox['maxParticipants'] ?? null,
                     'price_box_available_seats' => $date['price_box_available_seats'] ?? $priceBox['availableSeats'] ?? null,
                     'price_box_capacity' => $date['price_box_capacity'] ?? $priceBox['capacity'] ?? null,
-                    'status' => $date['status'] ?? 'planned',
+                    'status' => $date['status'] ?? TourDateStatus::AVAILABLE,
                     'extras' => $this->normalizeDateExtras($date['extras'] ?? []),
                 ];
             })->all(),
@@ -273,7 +274,7 @@ class StoreTourRequest extends FormRequest
             'dates.*.price_box_max_participants' => ['nullable', 'integer', 'min:0'],
             'dates.*.price_box_available_seats' => ['nullable', 'integer', 'min:0'],
             'dates.*.price_box_capacity' => ['nullable', 'integer', 'min:0'],
-            'dates.*.status' => ['nullable', 'string', Rule::in(['planned', 'available', 'sold_out', 'cancelled'])],
+            'dates.*.status' => ['nullable', 'string', Rule::in(TourDateStatus::all())],
             'partner_bonuses' => ['nullable', 'array'],
             'partner_bonuses.*.sort_order' => ['nullable', 'integer', 'min:0'],
             'partner_bonuses.*.label' => ['required_with:partner_bonuses', 'string', 'max:255'],

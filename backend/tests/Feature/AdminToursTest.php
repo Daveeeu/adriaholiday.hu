@@ -229,7 +229,7 @@ class AdminToursTest extends TestCase
                         'availableSeats' => '8',
                         'capacity' => '49',
                     ],
-                    'status' => 'planned',
+                    'status' => 'available',
                 ],
             ],
             'partner_bonuses' => [
@@ -290,7 +290,7 @@ class AdminToursTest extends TestCase
             'tour_id' => $tourId,
             'start_date' => '2026-06-10 00:00:00',
             'end_date' => '2026-06-15 00:00:00',
-            'status' => 'planned',
+            'status' => 'available',
             'price_box_displayed_price' => '209 900 Ft-tól',
             'price_box_available_seats' => 8,
         ]);
@@ -787,7 +787,7 @@ class AdminToursTest extends TestCase
                     'startDate' => '2026-11-28',
                     'endDate' => '2026-11-29',
                     'price' => 45900,
-                    'status' => 'planned',
+                    'status' => 'available',
                     'extras' => [
                         ['name' => 'Vacsora', 'price' => 8800, 'priceUnit' => 'per_person', 'chargeRule' => 'optional'],
                         ['name' => 'Repülőjegy', 'price' => 30000, 'priceUnit' => 'per_person', 'chargeRule' => 'mandatory'],
@@ -824,10 +824,10 @@ class AdminToursTest extends TestCase
     public function test_saving_a_tour_keeps_its_dates_so_bookings_stay_linked(): void
     {
         $this->actingAsTourAdmin();
-        $date = ['startDate' => '2026-11-28', 'endDate' => '2026-11-29', 'price' => 45900, 'status' => 'planned'];
+        $date = ['startDate' => '2026-11-28', 'endDate' => '2026-11-29', 'price' => 45900, 'status' => 'available'];
         $tourId = $this->postJson('/api/admin/tours', $this->payload([
             'seo_name' => 'foglalt-ut',
-            'dates' => [$date, ['startDate' => '2026-12-05', 'endDate' => '2026-12-06', 'price' => 45900, 'status' => 'planned']],
+            'dates' => [$date, ['startDate' => '2026-12-05', 'endDate' => '2026-12-06', 'price' => 45900, 'status' => 'available']],
         ]))->assertCreated()->json('data.id');
         $tour = Tour::query()->findOrFail($tourId);
         $bookedDate = $tour->dates()->orderBy('start_date')->firstOrFail();
@@ -837,7 +837,7 @@ class AdminToursTest extends TestCase
             'seo_name' => 'foglalt-ut',
             'dates' => [
                 ['id' => (string) $bookedDate->id, ...$date, 'startDate' => '2026-11-27', 'price' => 49900],
-                ['id' => 'client-generated-id', 'startDate' => '2027-01-09', 'endDate' => '2027-01-10', 'price' => 39900, 'status' => 'planned'],
+                ['id' => 'client-generated-id', 'startDate' => '2027-01-09', 'endDate' => '2027-01-10', 'price' => 39900, 'status' => 'available'],
             ],
         ]))->assertOk();
 

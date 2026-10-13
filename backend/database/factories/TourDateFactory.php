@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Tour;
 use App\Models\TourDate;
+use App\Support\Tour\TourDateStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /** @extends Factory<TourDate> */
@@ -18,7 +19,7 @@ class TourDateFactory extends Factory
             'start_date' => $start,
             'end_date' => (clone $start)->modify('+7 days'),
             'price' => fake()->randomFloat(2, 100, 2000),
-            'status' => 'planned',
+            'status' => TourDateStatus::AVAILABLE,
         ];
     }
 }

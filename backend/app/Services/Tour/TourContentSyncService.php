@@ -6,6 +6,7 @@ use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourProgramDay;
 use App\Support\RichTextSanitizer;
+use App\Support\Tour\TourDateStatus;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Support\Collection;
@@ -49,7 +50,7 @@ class TourContentSyncService
         $unmatched = $tour->dates()->get()->keyBy('id');
 
         foreach ($dates as $date) {
-            $tourDate = $this->matchingDate($unmatched, $date) ?? new TourDate(['status' => 'planned']);
+            $tourDate = $this->matchingDate($unmatched, $date) ?? new TourDate(['status' => TourDateStatus::AVAILABLE]);
             $unmatched->forget($tourDate->id);
 
             $tourDate->fill(array_intersect_key($date, array_flip(self::DATE_FIELDS)));
@@ -58,7 +59,7 @@ class TourContentSyncService
                 $tourDate->price = $tourDate->price_box_price = $date['price_box_price'] ?? $date['price'] ?? null;
             }
 
-            $tourDate->status ??= 'planned';
+            $tourDate->status ??= TourDateStatus::AVAILABLE;
             $tour->dates()->save($tourDate);
 
             if (array_key_exists('extras', $date)) {

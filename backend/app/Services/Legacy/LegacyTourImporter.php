@@ -12,6 +12,7 @@ use App\Support\Legacy\LegacyCountryDictionary;
 use App\Support\Legacy\LegacyOfferData;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
+use App\Support\Tour\TourDateStatus;
 use App\Support\TourSearchIndex;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -128,7 +129,7 @@ class LegacyTourImporter
                 'price_box_label' => $date['label'] ?? null,
                 // Availability follows the legacy site (see reopenDatesBookableAgain());
                 // any other status is the admin's.
-                ...(($date['sold_out'] ?? false) ? ['status' => 'sold_out'] : []),
+                ...(($date['sold_out'] ?? false) ? ['status' => TourDateStatus::SOLD_OUT] : []),
                 // A date closed for booking has unknown extras: keep the stored ones.
                 ...($date['extras'] !== null ? ['extras' => $date['extras']] : []),
             ], $data->dates), keepDeparted: true);
@@ -318,8 +319,8 @@ class LegacyTourImporter
             $tour->dates()
                 ->whereDate('start_date', (string) $date['start_date'])
                 ->whereDate('end_date', (string) $date['end_date'])
-                ->where('status', 'sold_out')
-                ->update(['status' => 'planned']);
+                ->where('status', TourDateStatus::SOLD_OUT)
+                ->update(['status' => TourDateStatus::AVAILABLE]);
         }
     }
 }

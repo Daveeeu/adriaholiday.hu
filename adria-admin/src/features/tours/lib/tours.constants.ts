@@ -88,7 +88,6 @@ export const TOUR_PARTNER_OFFER_STATUSES = [
 ] as const;
 
 export const TOUR_DATE_STATUSES = [
-  { value: 'planned', label: 'Tervezett' },
   { value: 'available', label: 'Elérhető' },
   { value: 'sold_out', label: 'Betelt' },
 ] as const;

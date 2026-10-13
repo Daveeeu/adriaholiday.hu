@@ -385,7 +385,7 @@ export const tourFormSchema = z.object({
       endDate: z.string(),
       price: z.string(),
       displayedPrice: z.string(),
-      status: z.enum(['planned', 'available', 'sold_out']),
+      status: z.enum(['available', 'sold_out']),
       priceBox: z.object({
         price: z.string(),
         displayedPrice: z.string(),
@@ -435,7 +435,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     endDate: date.endDate ?? '',
     price: date.price ?? '',
     displayedPrice: date.displayedPrice ?? '',
-    status: date.status ?? 'planned',
+    status: date.status ?? 'available',
     priceBox: {
       price: date.priceBox?.price?.toString() ?? '',
       displayedPrice: date.priceBox?.displayedPrice ?? '',
