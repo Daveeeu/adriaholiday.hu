@@ -50,6 +50,7 @@ class SiteSettingsSeeder extends Seeder
             ['group' => 'header', 'key' => 'navigation', 'type' => 'json', 'is_public' => true, 'value' => [
                 ['label' => 'Utazások', 'to' => '/utazasok'],
                 ['label' => 'Rólunk', 'to' => '/rolunk'],
+                ['label' => 'Utazási Klub', 'to' => '/utazasi-klub'],
                 ['label' => 'Kapcsolat', 'to' => '/kapcsolat'],
             ]],
             ['group' => 'footer', 'key' => 'description', 'type' => 'text', 'is_public' => true, 'value' => 'Prémium autóbuszos utazások Európa legszebb úti céljaihoz. 23+ év tapasztalat, 10 000+ elégedett utas, és számtalan felejthetetlen élmény.'],

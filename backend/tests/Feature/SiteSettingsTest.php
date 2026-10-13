@@ -90,6 +90,25 @@ class SiteSettingsTest extends TestCase
         $this->assertStringContainsString('<h2>A Kupon használata</h2>', $response->json('legal.club_terms_content'));
     }
 
+    public function test_the_header_links_the_travel_club_before_contact_once(): void
+    {
+        SiteSetting::query()->where('group', 'header')->where('key', 'navigation')->update([
+            'value' => SiteSetting::encodeValue('json', [['label' => 'Utazások', 'to' => '/utazasok'], ['label' => 'Kapcsolat', 'to' => '/kapcsolat']]),
+        ]);
+        $migration = 'database/migrations/2026_10_13_120000_add_travel_club_to_header_navigation.php';
+
+        $this->artisan('migrate:refresh', ['--path' => $migration])->assertSuccessful();
+        $this->artisan('migrate:refresh', ['--path' => $migration])->assertSuccessful();
+
+        $this->getJson('/api/portfolio/site-settings')
+            ->assertOk()
+            ->assertJsonPath('header.navigation', [
+                ['label' => 'Utazások', 'to' => '/utazasok'],
+                ['label' => 'Utazási Klub', 'to' => '/utazasi-klub'],
+                ['label' => 'Kapcsolat', 'to' => '/kapcsolat'],
+            ]);
+    }
+
     public function test_the_travel_club_coupon_value_is_public_even_without_the_seeder(): void
     {
         SiteSetting::query()->where('group', 'newsletter')->delete();
