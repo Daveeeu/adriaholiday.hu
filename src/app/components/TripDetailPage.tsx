@@ -17,6 +17,8 @@ import {
   Users,
   Flame,
   Plane,
+  CreditCard,
+  Mail,
 } from "lucide-react";
 import OfferGallerySection from "./OfferGallerySection";
 import OfferProgramTimeline from "./OfferProgramTimeline";
@@ -219,26 +221,19 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
       <section className="relative z-20 -mt-12">
         <div className="max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
           <div className="bg-white rounded-[36px] border border-gray-100 shadow-[0_20px_70px_rgba(15,23,42,0.08)] p-6 md:p-7">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-7 items-center">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <InfoBox
-                  icon={<ShieldCheck />}
-                  label="Indulás státusza"
-                  value={selectedDate.status}
-                />
-                {selectedSeats !== null ? (
-                  <InfoBox
-                    icon={<Users />}
-                    label="Szabad helyek"
-                    value={`Még ${selectedSeats} szabad hely`}
-                  />
-                ) : null}
-                <InfoBox
-                  icon={<Calendar />}
-                  label="Választott dátum"
-                  value={selectedDate.label}
-                />
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-7 lg:gap-10 items-stretch">
+              <SelectedDepartureSummary
+                dateLabel={selectedDate.label}
+                status={selectedDate.status}
+                bookable={selectedDate.bookable}
+                seats={selectedSeats}
+                duration={trip.duration}
+                depositPercent={selectedDate.depositPercent ?? null}
+                otherDates={dateOptions.length - 1}
+                onShowDates={() =>
+                  document.getElementById(DATE_PICKER_ID)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+              />
 
               <PriceBox
                 priceBox={priceBox}
@@ -638,12 +633,95 @@ function HeroInfoCard({ icon, label, value, note }: IconLabelValueProps & { note
   );
 }
 
-function InfoBox({ icon, label, value }: IconLabelValueProps) {
+/** The chosen departure at a glance, next to the price: availability and how booking works. */
+function SelectedDepartureSummary({
+  dateLabel,
+  status,
+  bookable,
+  seats,
+  duration,
+  depositPercent,
+  otherDates,
+  onShowDates,
+}: {
+  dateLabel: string;
+  status: string;
+  bookable: boolean;
+  seats: number | null;
+  duration: string;
+  depositPercent: number | null;
+  otherDates: number;
+  onShowDates: () => void;
+}) {
+  const payment =
+    depositPercent === null
+      ? null
+      : depositPercent < 100
+        ? { title: `Foglaláskor csak ${depositPercent}% előleg`, text: "A többit részletekben, az indulás előtt fizeted." }
+        : { title: "Egyösszegű fizetés", text: "Közeli indulás: a teljes díjat a foglalás után fizeted." };
+  const benefits = [
+    ...(payment ? [{ icon: <CreditCard />, ...payment }] : []),
+    { icon: <Mail />, title: "Azonnali visszaigazolás", text: "Emailben, a teljes utazási könyvvel." },
+    { icon: <ShieldCheck />, title: "23 éve szervezünk utakat", text: "Tapasztalt csapat, megbízható szervezés." },
+  ];
+
   return (
-    <div className="rounded-[24px] bg-[#f5f9fc] p-5 min-h-[150px]">
-      <div className="text-[#00c389] mb-3">{icon}</div>
-      <div className="text-gray-500 text-sm mb-1">{label}</div>
-      <div className="text-[#0f172a] font-bold leading-tight">{value}</div>
+    <div className="flex flex-col justify-between gap-6 py-1 md:pl-2">
+      <div>
+        <div className="text-xs font-bold uppercase tracking-[0.18em] text-gray-400">Kiválasztott indulás</div>
+        <div className="mt-2 flex flex-wrap items-end gap-x-5 gap-y-3">
+          <div className="text-3xl md:text-4xl font-bold tracking-tight text-[#0f172a]">{dateLabel}</div>
+          {otherDates > 0 ? (
+            <button
+              type="button"
+              onClick={onShowDates}
+              className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-[#00c389]/30 px-3.5 py-1.5 text-sm font-semibold text-[#00a878] transition-colors hover:bg-[#00c389]/10"
+            >
+              <Calendar className="h-4 w-4" />
+              Másik időpont (+{otherDates})
+            </button>
+          ) : null}
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
+          <span
+            className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 ${
+              bookable ? "bg-[#e6faf3] text-[#00875f]" : "bg-red-50 text-red-600"
+            }`}
+          >
+            <span className={`h-2 w-2 rounded-full ${bookable ? "bg-[#00c389]" : "bg-red-500"}`} />
+            {status}
+          </span>
+          {bookable && seats !== null ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#f5f9fc] px-3.5 py-1.5 text-[#334155]">
+              <Users className="h-4 w-4 text-[#00a878]" />
+              Még {seats} szabad hely
+            </span>
+          ) : null}
+          {duration ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#f5f9fc] px-3.5 py-1.5 text-[#334155]">
+              <Clock className="h-4 w-4 text-[#00a878]" />
+              {duration}
+            </span>
+          ) : null}
+        </div>
+
+        {!bookable ? (
+          <p className="mt-3 text-sm text-gray-500">
+            Erre az időpontra már nincs hely – válassz másik időpontot, vagy kérj egyedi ajánlatot.
+          </p>
+        ) : null}
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        {benefits.map((benefit) => (
+          <div key={benefit.title} className="rounded-[22px] bg-[#f5f9fc] p-4">
+            <div className="mb-2 text-[#00c389] [&_svg]:h-5 [&_svg]:w-5">{benefit.icon}</div>
+            <div className="font-bold leading-snug text-[#0f172a]">{benefit.title}</div>
+            <div className="mt-1 text-sm leading-snug text-gray-500">{benefit.text}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
