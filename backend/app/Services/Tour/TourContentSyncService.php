@@ -33,6 +33,7 @@ class TourContentSyncService
         'price_box_available_seats',
         'price_box_capacity',
         'status',
+        'departure_place_ids',
     ];
 
     /**

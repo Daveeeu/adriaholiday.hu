@@ -143,6 +143,10 @@ class StoreTourRequest extends FormRequest
                     'price_box_available_seats' => $date['price_box_available_seats'] ?? $priceBox['availableSeats'] ?? null,
                     'price_box_capacity' => $date['price_box_capacity'] ?? $priceBox['capacity'] ?? null,
                     'status' => $date['status'] ?? TourDateStatus::AVAILABLE,
+                    // Only some of the tour's departure places (none listed: all of them).
+                    ...(array_key_exists('departure_place_ids', $date) || array_key_exists('departurePlaceIds', $date)
+                        ? ['departure_place_ids' => array_values(array_map('intval', array_filter((array) ($date['departure_place_ids'] ?? $date['departurePlaceIds'] ?? [])))) ?: null]
+                        : []),
                     'extras' => $this->normalizeDateExtras($date['extras'] ?? []),
                 ];
             })->all(),
@@ -286,6 +290,8 @@ class StoreTourRequest extends FormRequest
             'dates.*.price_box_available_seats' => ['nullable', 'integer', 'min:0'],
             'dates.*.price_box_capacity' => ['nullable', 'integer', 'min:0'],
             'dates.*.status' => ['nullable', 'string', Rule::in(TourDateStatus::all())],
+            'dates.*.departure_place_ids' => ['nullable', 'array'],
+            'dates.*.departure_place_ids.*' => ['integer', 'exists:tour_departure_places,id'],
             'partner_bonuses' => ['nullable', 'array'],
             'partner_bonuses.*.sort_order' => ['nullable', 'integer', 'min:0'],
             'partner_bonuses.*.label' => ['required_with:partner_bonuses', 'string', 'max:255'],

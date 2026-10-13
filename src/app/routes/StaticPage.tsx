@@ -5,6 +5,7 @@ import Seo from "../seo/Seo";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { absoluteUrl } from "../seo/site";
 import { CLUB_TERMS_PATH } from "../newsletter/travel-club";
+import { INSURANCE_PATH } from "../booking/insurance";
 
 export default function StaticPage({
   title,
@@ -26,6 +27,7 @@ export default function StaticPage({
     "/aszf": settings.termsContent,
     "/sutik": settings.cookieContent,
     [CLUB_TERMS_PATH]: settings.clubTermsContent,
+    [INSURANCE_PATH]: settings.insuranceContent,
   };
 
   const pageDescriptionMap: Record<string, string> = {
@@ -33,6 +35,7 @@ export default function StaticPage({
     "/adatvedelem": "Az Adria Holiday adatkezelési tájékoztatója és adatvédelmi gyakorlata.",
     "/aszf": "Az Adria Holiday általános szerződési feltételei.",
     "/sutik": "Tájékoztató az Adria Holiday oldalon használt sütikről és hozzájáruláskezelésről.",
+    [INSURANCE_PATH]: "Az Adria Holiday utazásaihoz köthető ALFA Compass utas- és útlemondási biztosítás díjai, szolgáltatásai és termékismertetője.",
     [CLUB_TERMS_PATH]: "Az Adria Holiday Utazási Klub és a hírlevél-feliratkozáskor kapott kedvezménykupon felhasználási feltételei.",
   };
 
@@ -91,7 +94,9 @@ export default function StaticPage({
                   [&_strong]:font-semibold [&_strong]:text-[#0f172a]
                   [&_a]:font-semibold [&_a]:text-[#00a878] [&_a:hover]:text-[#0f8fc9]
                   [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6
-                  [&_li]:marker:text-[#00c389]"
+                  [&_li]:marker:text-[#00c389]
+                  [&_table]:my-6 [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:text-sm [&_table]:leading-6
+                  [&_td]:border [&_td]:border-[#dbe7f1] [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_th]:border [&_th]:border-[#dbe7f1] [&_th]:px-3 [&_th]:py-2"
                 dangerouslySetInnerHTML={{ __html: contentHtml }}
               />
             ) : (

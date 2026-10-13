@@ -26,6 +26,7 @@ class StorePublicBookingRequest extends FormRequest
             'passenger_options' => $this->passengerOptions(),
             'type' => $this->input('type', 'tour_booking'),
             'terms_accepted' => $this->boolean('terms_accepted', $this->boolean('termsAccepted')),
+            'newsletter_subscribe' => $this->boolean('newsletter_subscribe', $this->boolean('newsletterSubscribe')),
         ]);
     }
 
@@ -120,6 +121,7 @@ class StorePublicBookingRequest extends FormRequest
             'passenger_options.*.cancellation_insurance' => ['boolean'],
             'type' => ['nullable', 'string', Rule::in(['tour_booking', 'tour_inquiry'])],
             'terms_accepted' => ['accepted'],
+            'newsletter_subscribe' => ['boolean'],
         ];
     }
 

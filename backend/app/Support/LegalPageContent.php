@@ -23,6 +23,7 @@ final class LegalPageContent
         'terms_content' => 'terms.html',
         'cookie_content' => 'cookie.html',
         'club_terms_content' => 'club-terms.html',
+        'insurance_content' => 'insurance.html',
     ];
 
     /**

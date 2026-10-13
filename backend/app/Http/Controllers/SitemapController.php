@@ -58,6 +58,7 @@ class SitemapController extends Controller
             '/impresszum',
             '/sutik',
             '/utazasi-klub',
+            '/biztositasok',
             '/adria-holiday-utazasi-klub-felhasznalasi-feltetelei',
         ];
 

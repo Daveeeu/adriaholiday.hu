@@ -17,6 +17,7 @@ use App\Support\Booking\BookingPriceSummary;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -392,6 +393,33 @@ class TourBookingPricingTest extends TestCase
         $this->assertStringContainsString('ALFA Compass utasbiztosítás', $html);
         // 45 900 + 4 700 + 30 000 + 13 800 − 5 000 + 540 × 2 days
         $this->assertStringContainsString('Végösszeg: 90.480 Ft', $html);
+    }
+
+    public function test_a_date_offering_only_some_departure_places_rejects_the_others(): void
+    {
+        $miskolc = TourDeparturePlace::factory()->create(['name' => 'Miskolc', 'active' => true, 'fee' => 0]);
+        $this->tour->departurePlaces()->attach($miskolc);
+        $this->tourDate->update(['departure_place_ids' => [$miskolc->id]]);
+
+        $this->postJson('/api/bookings', $this->bookingPayload())->assertStatus(422)->assertJsonValidationErrors('departurePlaceId');
+        $this->postJson('/api/bookings', $this->bookingPayload(['departurePlaceId' => $miskolc->id]))->assertCreated();
+
+        $this->getJson('/api/portfolio/offers/'.$this->tour->seo_name)
+            ->assertOk()
+            ->assertJsonPath('dates.0.departurePlaceIds', [$miskolc->id]);
+    }
+
+    public function test_booking_with_the_newsletter_box_ticked_subscribes_the_contact(): void
+    {
+        Mail::fake();
+
+        $this->postJson('/api/bookings', $this->bookingPayload(['newsletterSubscribe' => true]))->assertCreated();
+        $this->postJson('/api/bookings', $this->bookingPayload([
+            'formData' => [...$this->bookingPayload()['formData'], 'contact_email' => 'nem-kerek@example.com'],
+        ]))->assertCreated();
+
+        $this->assertDatabaseHas('newsletter_subscribers', ['email' => 'anna@example.com']);
+        $this->assertDatabaseMissing('newsletter_subscribers', ['email' => 'nem-kerek@example.com']);
     }
 
     public function test_customer_confirmation_lists_the_booking_and_how_to_pay_by_bank_transfer(): void

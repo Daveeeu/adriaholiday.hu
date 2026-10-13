@@ -90,6 +90,15 @@ class SiteSettingsTest extends TestCase
         $this->assertStringContainsString('<h2>A Kupon használata</h2>', $response->json('legal.club_terms_content'));
     }
 
+    public function test_the_insurance_page_carries_the_legacy_price_tables(): void
+    {
+        $content = $this->getJson('/api/portfolio/site-settings')->assertOk()->json('legal.insurance_content');
+
+        $this->assertSame(2, substr_count($content, '<table'));
+        $this->assertStringContainsString('ALFA COMPASS UTASBIZTOSÍTÁS', $content);
+        $this->assertStringContainsString('Útlemondás', $content);
+    }
+
     public function test_the_header_links_the_travel_club_before_contact_once(): void
     {
         SiteSetting::query()->where('group', 'header')->where('key', 'navigation')->update([

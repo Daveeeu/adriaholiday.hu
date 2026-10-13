@@ -21,6 +21,8 @@ export type SubmitBookingPayload = {
   type?: 'tour_booking' | 'tour_inquiry';
   /** The customer accepted the terms (ÁSZF) and the privacy policy. */
   termsAccepted: boolean;
+  /** Also subscribe the contact e-mail to the newsletter (and its coupon). */
+  newsletterSubscribe?: boolean;
 };
 
 export type SubmitTourInquiryPayload = {

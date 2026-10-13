@@ -116,6 +116,15 @@ class PortfolioSeoTest extends TestCase
         }
     }
 
+    public function test_the_insurance_page_and_the_legacy_contract_information_url_work(): void
+    {
+        $this->assertStringContainsString(
+            '<title data-rh="true">Biztosítások | Adria Holiday</title>',
+            $this->visit('/biztositasok')->assertOk()->getContent(),
+        );
+        $this->visit('/utazasi-szerzodeshez-kapcsolodo-tajekoztato')->assertStatus(301)->assertRedirect('/aszf');
+    }
+
     public function test_the_former_portfolio_duplicate_redirects_home(): void
     {
         $this->visit('/portfolio')->assertRedirect('/')->assertStatus(301);

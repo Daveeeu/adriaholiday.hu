@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Coupon;
 use App\Models\Tour;
 use App\Models\TourDate;
+use App\Services\Newsletter\NewsletterSubscriptionService;
 use App\Support\Booking\TourBookingSelection;
 use App\Support\Booking\TourBookingStatus;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,7 @@ class PublicBookingService
     public function __construct(
         private readonly BookingNotificationService $notifications,
         private readonly TourBookingPriceCalculator $priceCalculator,
+        private readonly NewsletterSubscriptionService $newsletter,
     ) {}
 
     /**
@@ -47,6 +49,11 @@ class PublicBookingService
         });
 
         $this->notifications->sendNewBookingNotifications($booking, $tour);
+
+        // The booking form's "Szeretnék hírlevélben értesülni" box, as on the legacy site.
+        if (($validated['newsletter_subscribe'] ?? false) && filled($booking->email)) {
+            $this->newsletter->subscribe((string) $booking->email);
+        }
 
         return $booking;
     }

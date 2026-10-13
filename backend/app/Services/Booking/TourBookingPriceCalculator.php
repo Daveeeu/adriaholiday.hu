@@ -51,7 +51,7 @@ class TourBookingPriceCalculator
         $basePrice = $this->basePrice($tour, $tourDate);
         $baseTotal = $basePrice !== null ? $basePrice * $passengers : null;
         $discount = $this->discount($tour, $tourDate, $baseTotal);
-        $departurePlace = $this->departurePlace($tour, $selection->departurePlaceId, $passengers);
+        $departurePlace = $this->departurePlace($tour, $tourDate, $selection->departurePlaceId, $passengers);
         $extras = $this->extras($tourDate, $selection);
 
         $subtotal = $baseTotal !== null
@@ -116,13 +116,15 @@ class TourBookingPriceCalculator
 
     /**
      * A tour offering departure places requires the customer to pick one of
-     * its active places. The per-tour fee overrides the place's general fee.
+     * its active places the chosen date offers. The per-tour fee overrides the
+     * place's general fee.
      *
      * @return array{id: int, name: string, fee: float, total: float}|null
      */
-    private function departurePlace(Tour $tour, ?int $departurePlaceId, int $passengers): ?array
+    private function departurePlace(Tour $tour, ?TourDate $tourDate, ?int $departurePlaceId, int $passengers): ?array
     {
         $places = $tour->departurePlaces()->where('active', true)->get();
+        $places = $tourDate?->offeredDeparturePlaces($places) ?? $places;
 
         if ($places->isEmpty()) {
             return null;

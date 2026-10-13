@@ -880,6 +880,25 @@ class AdminToursTest extends TestCase
         $this->assertSame('2 ágyas szoba', Tour::query()->findOrFail($tourId)->accommodation_info);
     }
 
+    public function test_a_date_saves_the_departure_places_it_offers(): void
+    {
+        $this->actingAsTourAdmin();
+        [$miskolc, $budapest] = TourDeparturePlace::factory()->count(2)->create(['active' => true]);
+        $tourId = $this->postJson('/api/admin/tours', $this->payload([
+            'seo_name' => 'felszallas-idopontonkent',
+            'departurePlaceIds' => [(string) $miskolc->id, (string) $budapest->id],
+            'dates' => [
+                ['startDate' => '2027-05-26', 'endDate' => '2027-05-30', 'price' => 179600, 'status' => 'available', 'departurePlaceIds' => [(string) $budapest->id]],
+                ['startDate' => '2027-10-06', 'endDate' => '2027-10-10', 'price' => 179600, 'status' => 'available', 'departurePlaceIds' => []],
+            ],
+        ]))->assertCreated()
+            ->assertJsonPath('data.dates.0.departurePlaceIds', [$budapest->id])
+            ->assertJsonPath('data.dates.1.departurePlaceIds', [])
+            ->json('data.id');
+
+        $this->assertSame([$budapest->id], Tour::query()->findOrFail($tourId)->dates()->orderBy('start_date')->firstOrFail()->departure_place_ids);
+    }
+
     public function test_departure_places_keep_their_per_tour_fee_on_save_and_duplicate(): void
     {
         $this->actingAsTourAdmin();

@@ -22,6 +22,7 @@ class TourDateResource extends JsonResource
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'priceBox' => $priceBox,
             'status' => $this->status,
+            'departurePlaceIds' => array_map('intval', $this->departure_place_ids ?? []),
             // The trip price share paid as deposit (online, right after booking) if booked today.
             'depositPercent' => $this->start_date !== null ? BookingPaymentSchedule::depositPercent($this->start_date) : null,
             'extras' => TourDateExtraResource::collection($this->relationLoaded('extras') ? $this->extras : collect())->resolve($request),

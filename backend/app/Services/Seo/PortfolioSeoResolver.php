@@ -39,6 +39,7 @@ class PortfolioSeoResolver
         'adatvedelem' => ['Adatvédelem', 'Az Adria Holiday adatkezelési tájékoztatója és adatvédelmi gyakorlata.'],
         'impresszum' => ['Impresszum', 'Az Adria Holiday szolgáltatói és üzemeltetői adatai.'],
         'sutik' => ['Sütikezelés', 'Tájékoztató az Adria Holiday oldalon használt sütikről és hozzájáruláskezelésről.'],
+        'biztositasok' => ['Biztosítások', 'Az Adria Holiday utazásaihoz köthető ALFA Compass utas- és útlemondási biztosítás díjai, szolgáltatásai és termékismertetője.'],
         'utazasi-klub' => ['Utazási Klub', 'Iratkozz fel az Adria Holiday hírlevelére: folyamatos akciók, egyedi ajánlatok és ajándék kedvezménykupon az első foglalásodhoz.'],
         'adria-holiday-utazasi-klub-felhasznalasi-feltetelei' => ['Az Utazási Klub felhasználási feltételei', 'Az Adria Holiday Utazási Klub és a hírlevél-feliratkozáskor kapott kedvezménykupon felhasználási feltételei.'],
     ];

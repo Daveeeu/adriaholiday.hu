@@ -308,6 +308,7 @@ class TourController extends Controller
                 'price_box_available_seats' => $date->price_box_available_seats,
                 'price_box_capacity' => $date->price_box_capacity,
                 'status' => $date->status,
+                'departure_place_ids' => $date->departure_place_ids,
                 'extras' => $date->extras->map(fn (TourDateExtra $extra): array => [
                     'name' => $extra->name,
                     'price' => $extra->price,

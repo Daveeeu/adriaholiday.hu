@@ -69,6 +69,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
         priceBox: date.priceBox ?? null,
         extras: date.extras ?? [],
         depositPercent: date.depositPercent ?? null,
+        departurePlaceIds: date.departurePlaceIds ?? [],
         startDate: date.startDate ?? null,
         endDate: date.endDate ?? null,
       }))
@@ -84,6 +85,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
           priceBox,
           extras: [],
           depositPercent: null,
+          departurePlaceIds: [],
           startDate: null,
           endDate: null,
         },

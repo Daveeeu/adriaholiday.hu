@@ -33,6 +33,7 @@ import {
 } from "./booking-form-fields";
 import { submitBooking, BookingApiError, BookingValidationError } from "./bookings-api";
 import BarionPaymentBanner from "../components/BarionPaymentBanner";
+import { INSURANCE_PATH } from "./insurance";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 
 type FieldErrorState = {
@@ -117,6 +118,7 @@ type BookingDateOption = {
   seatsLeft?: number | null;
   extras?: BookingExtra[];
   depositPercent?: number | null;
+  departurePlaceIds?: number[];
   startDate?: string | null;
   endDate?: string | null;
 };
@@ -145,6 +147,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   );
   const [couponCode, setCouponCode] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [newsletterSubscribe, setNewsletterSubscribe] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
   const { settings } = useSiteSettings();
   const [passengers, setPassengers] = useState<BookingFieldValues[]>([]);
@@ -163,7 +166,13 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const [passengerOptions, setPassengerOptions] = useState<PassengerOptions[]>([EMPTY_PASSENGER_OPTIONS]);
   const [passengerChoiceErrors, setPassengerChoiceErrors] = useState<Record<number, string>>({});
 
-  const departurePlaces = trip.departurePlaces ?? NO_DEPARTURE_PLACES;
+  // A date may offer only some of the tour's departure places.
+  const departurePlaces = useMemo(() => {
+    const places = trip.departurePlaces ?? NO_DEPARTURE_PLACES;
+    const offered = selectedDate.departurePlaceIds ?? [];
+
+    return offered.length > 0 ? places.filter((place) => offered.includes(Number(place.id))) : places;
+  }, [trip.departurePlaces, selectedDate.departurePlaceIds]);
   const extras = selectedDate.extras ?? NO_EXTRAS;
   const passengerCount = Math.max(1, passengers.length);
   const insurances = trip.bookingInsurances ?? null;
@@ -474,6 +483,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         }),
         type: "tour_booking",
         termsAccepted,
+        newsletterSubscribe,
       });
 
       setBookingId(response.id);
@@ -768,6 +778,16 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                     >
                       + Újabb utas hozzáadása
                     </button>
+
+                    {travelInsuranceAvailable || cancellationInsuranceAvailable ? (
+                      <p className="text-sm text-gray-500">
+                        A biztosítások szolgáltatásait, díjait és feltételeit a{" "}
+                        <a href={INSURANCE_PATH} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
+                          Biztosítások
+                        </a>{" "}
+                        oldalon találod.
+                      </p>
+                    ) : null}
                   </div>
                 </StepPanel>
               )}
@@ -823,19 +843,43 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                           className="mt-1 accent-[#00c389]"
                         />
                         <span>
-                          Az{" "}
+                          Kijelentem, hogy az Adria Holiday Utazási Iroda Kft. által szervezett utazáson részt veszek. Az{" "}
                           <a href={settings.termsUrl || "/aszf"} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
-                            Általános Szerződési Feltételeket
+                            általános szerződési feltételeket
                           </a>{" "}
-                          és az{" "}
+                          (benne az utazási szerződéshez kapcsolódó tájékoztatóval), a{" "}
+                          <a href={INSURANCE_PATH} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
+                            biztosítási termékismertetőt
+                          </a>{" "}
+                          (útlemondási biztosítás, betegség-, baleset-, poggyászbiztosítás) és az{" "}
                           <a href={settings.privacyUrl || "/adatvedelem"} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
                             adatkezelési tájékoztatót
                           </a>{" "}
-                          elolvastam és elfogadom.*
+                          elolvastam és elfogadom, a személyes adataim kezeléséhez hozzájárulok.*
                         </span>
                       </label>
                       {termsError ? <p className="mt-2 text-sm font-medium text-red-600">{termsError}</p> : null}
                     </div>
+
+                    <label className="flex items-start gap-3 text-sm text-[#0f172a] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={newsletterSubscribe}
+                        onChange={(event) => setNewsletterSubscribe(event.target.checked)}
+                        className="mt-1 accent-[#00c389]"
+                      />
+                      <span>
+                        Szeretnék hírlevélben értesülni további ajánlatokról
+                        {settings.newsletterCouponValue > 0
+                          ? ` – ajándékba kapok egy ${settings.newsletterCouponValue.toLocaleString("hu-HU")} Ft-os kupont a következő utamhoz.`
+                          : "."}
+                      </span>
+                    </label>
+
+                    <p className="rounded-2xl bg-[#f5f9fc] p-4 text-sm text-gray-600">
+                      Indulás előtt kb. 1 héttel írásos értesítőt (levélben vagy e-mailben) küldünk az indulással kapcsolatos
+                      információkról, telefonszámokkal.
+                    </p>
                   </div>
 
                   {errorMessage ? (
@@ -869,7 +913,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                   <button
                     onClick={prevStep}
                     disabled={step === 1}
-                    className="h-12 px-6 rounded-xl bg-gray-100 text-[#0f172a] font-bold disabled:opacity-40"
+                    className="h-12 px-6 rounded-xl bg-gray-100 text-[#0f172a] font-bold whitespace-nowrap disabled:opacity-40"
                   >
                     Vissza
                   </button>
@@ -877,7 +921,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                   <button
                     onClick={step < 4 ? nextStep : handleSubmit}
                     disabled={status === "submitting"}
-                    className="h-12 px-7 rounded-xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-bold disabled:opacity-60"
+                    className="h-12 px-7 rounded-xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-bold whitespace-nowrap disabled:opacity-60"
                   >
                     {status === "submitting"
                       ? "Küldés..."

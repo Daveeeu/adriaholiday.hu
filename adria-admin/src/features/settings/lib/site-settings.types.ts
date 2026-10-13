@@ -92,4 +92,5 @@ export type SiteSettingsFormValues = {
   termsContent: string;
   cookieContent: string;
   clubTermsContent: string;
+  insuranceContent: string;
 };

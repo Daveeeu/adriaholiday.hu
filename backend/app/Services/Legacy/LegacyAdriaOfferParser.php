@@ -118,7 +118,7 @@ class LegacyAdriaOfferParser
             travelModeCode: $dates[0]['transport_code'] ?? null,
             catering: $dates[0]['catering'] ?? null,
             accommodation: $dates[0]['accommodation'] ?? null,
-            departurePlaceNames: $bookableDeparturePlaces !== [] ? $bookableDeparturePlaces : $program['departurePlaces'],
+            departurePlaceNames: $bookableDeparturePlaces ?: $this->extractBookingFormDeparturePlaces($xpath) ?: $program['departurePlaces'],
             departurePlaceFees: $this->departurePlaceFees($dates, $parsedOptions),
             notesHtml: $program['notesHtml'],
             discountsHtml: $program['discountsHtml'],
@@ -233,7 +233,7 @@ class LegacyAdriaOfferParser
 
     /**
      * @param  array<int, array{departurePlaces: array<int, array{name: string, price: float|null}>, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, lastMinutePercent: float|null}>  $bookingOptions
-     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, catering_info: ?string, accommodation: ?string, accommodation_info: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>
+     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, catering_info: ?string, accommodation: ?string, accommodation_info: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, departure_places: ?array<int, string>, discount_badge: ?string}>
      */
     private function extractDates(DOMXPath $xpath, array $bookingOptions): array
     {
@@ -274,6 +274,7 @@ class LegacyAdriaOfferParser
                 'accommodation_info' => $this->cellInfo($xpath, $cells[3], $this->cellLabel($xpath, $cells[3])),
                 // A date without a legacy id is closed for booking: its extras are unknown, not none.
                 'extras' => $legacyId ? ($bookingOptions[$legacyId]['extras'] ?? []) : null,
+                'departure_places' => $legacyId ? array_column($bookingOptions[$legacyId]['departurePlaces'] ?? [], 'name') : null,
                 'discount_badge' => $legacyId && isset($bookingOptions[$legacyId]['lastMinutePercent'])
                     ? '-'.rtrim(rtrim(number_format($bookingOptions[$legacyId]['lastMinutePercent'], 2, ',', ''), '0'), ',').'%'
                     : null,
@@ -377,6 +378,27 @@ class LegacyAdriaOfferParser
         $label = $xpath->query('.//*[contains(@class,"popover-info")]//span', $cell)->item(0);
 
         return $this->nullableText($label !== null ? $label->textContent : $cell->textContent);
+    }
+
+    /**
+     * The departure places of the page's booking form; the legacy site lists
+     * them even when every date is full.
+     *
+     * @return array<int, string>
+     */
+    private function extractBookingFormDeparturePlaces(DOMXPath $xpath): array
+    {
+        $names = [];
+
+        foreach ($xpath->query('//select[@name="reservation_felszallas"]/option[@value!=""]') as $option) {
+            $name = $this->nullableText($option->textContent);
+
+            if ($name !== null) {
+                $names[] = $name;
+            }
+        }
+
+        return array_values(array_unique($names));
     }
 
     /**

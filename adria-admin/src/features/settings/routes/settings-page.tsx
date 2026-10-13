@@ -28,6 +28,7 @@ const LEGAL_CONTENT_FIELDS = [
   { name: 'termsContent', label: 'ÁSZF tartalom', placeholder: 'Szerződési feltételek...' },
   { name: 'cookieContent', label: 'Cookie tartalom', placeholder: 'Cookie tájékoztató...' },
   { name: 'clubTermsContent', label: 'Utazási Klub feltételei', placeholder: 'A hírlevél-kupon felhasználási feltételei...' },
+  { name: 'insuranceContent', label: 'Biztosítások', placeholder: 'Utas- és útlemondási biztosítás díjai, feltételei...' },
 ] as const satisfies ReadonlyArray<{ name: keyof SiteSettingsFormValues; label: string; placeholder: string }>;
 
 const linkSchema = z.object({
@@ -113,6 +114,7 @@ const settingsSchema = z.object({
   termsContent: z.string().trim(),
   cookieContent: z.string().trim(),
   clubTermsContent: z.string().trim(),
+  insuranceContent: z.string().trim(),
 });
 
 const emptyValues: SiteSettingsFormValues = {
@@ -159,6 +161,7 @@ const emptyValues: SiteSettingsFormValues = {
   termsContent: '',
   cookieContent: '',
   clubTermsContent: '',
+  insuranceContent: '',
 };
 
 function normalizeMediaAsset(asset: MediaAsset): SiteSettingsMedia {

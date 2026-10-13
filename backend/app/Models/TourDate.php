@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class TourDate extends Model
 {
@@ -31,9 +32,11 @@ class TourDate extends Model
         'price_box_available_seats',
         'price_box_capacity',
         'status',
+        'departure_place_ids',
     ];
 
     protected $casts = [
+        'departure_place_ids' => 'array',
         'start_date' => 'date',
         'end_date' => 'date',
         'price' => 'decimal:2',
@@ -64,5 +67,19 @@ class TourDate extends Model
     public function extras(): HasMany
     {
         return $this->hasMany(TourDateExtra::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    /**
+     * The departure places of the tour this date offers: all of them, unless
+     * the date names some.
+     *
+     * @param  Collection<int, TourDeparturePlace>  $places
+     * @return Collection<int, TourDeparturePlace>
+     */
+    public function offeredDeparturePlaces(Collection $places): Collection
+    {
+        $ids = array_map('intval', $this->departure_place_ids ?? []);
+
+        return $ids === [] ? $places : $places->whereIn('id', $ids)->values();
     }
 }

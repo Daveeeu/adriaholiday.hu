@@ -77,6 +77,31 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertNull($data->accommodationInfo);
     }
 
+    public function test_without_bookable_dates_the_booking_form_lists_the_departure_places(): void
+    {
+        $select = '<select name="reservation_felszallas"><option value="">Kérem válasszon!</option>'
+            .'<option value="73">miskolci indulással</option><option value="102">budapesti, hatvani indulással </option></select>';
+        $html = str_replace('</body>', $select.'</body>', $this->html());
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+
+        $this->assertSame(['miskolci indulással', 'budapesti, hatvani indulással'], $data->departurePlaceNames);
+    }
+
+    public function test_the_cancellation_insurance_line_is_a_note_not_the_price(): void
+    {
+        $html = str_replace(
+            '<div class="tab-column col-sm-9 program-content">',
+            '<div class="tab-column col-sm-9 program-content"><p>Betegség-, baleset-, poggyászbiztosítás: 540 Ft/fő/nap<br>Útlemondási biztosítás: részvételi díj 2,8%-a</p>',
+            $this->html(),
+        );
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+
+        $this->assertStringContainsString('Útlemondási biztosítás: részvételi díj 2,8%-a', (string) $data->notesHtml);
+        $this->assertSame(269600.0, $data->price);
+    }
+
     public function test_it_extracts_program_days_from_unstructured_paragraphs(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), self::SOURCE_URL);

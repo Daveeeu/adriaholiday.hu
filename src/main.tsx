@@ -7,6 +7,7 @@ import RootLayout from "./app/routes/RootLayout";
 import { HelmetProvider } from "react-helmet-async";
 import LoadingScreen from "./app/components/LoadingScreen";
 import { CLUB_TERMS_PATH, TRAVEL_CLUB_PATH } from "./app/newsletter/travel-club";
+import { INSURANCE_PATH } from "./app/booking/insurance";
 
 const HomeRoute = lazy(() => import("./app/routes/HomeRoute"));
 const StaticPage = lazy(() => import("./app/routes/StaticPage"));
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: CLUB_TERMS_PATH.slice(1),
         element: <StaticPage title="Az Utazási Klub felhasználási feltételei" canonicalPath={CLUB_TERMS_PATH} />,
+      },
+      {
+        path: INSURANCE_PATH.slice(1),
+        element: <StaticPage title="Biztosítások" canonicalPath={INSURANCE_PATH} />,
       },
       { path: "fizetes/eredmeny", element: <PaymentResultRoute /> },
       { path: "*", element: <NotFoundRoute /> },

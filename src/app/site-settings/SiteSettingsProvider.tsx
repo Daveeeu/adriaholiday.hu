@@ -43,6 +43,7 @@ const emptySettings: ResolvedSiteSettings = {
   termsContent: "",
   cookieContent: "",
   clubTermsContent: "",
+  insuranceContent: "",
 };
 
 const SiteSettingsContext = createContext<SiteSettingsContextValue>({
@@ -110,6 +111,7 @@ function resolveSettings(payload: PublicSiteSettingsPayload): ResolvedSiteSettin
     termsContent: asString(payload.legal?.terms_content),
     cookieContent: asString(payload.legal?.cookie_content),
     clubTermsContent: asString(payload.legal?.club_terms_content),
+    insuranceContent: asString(payload.legal?.insurance_content),
   };
 }
 

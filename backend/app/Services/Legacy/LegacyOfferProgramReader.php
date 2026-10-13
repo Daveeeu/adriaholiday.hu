@@ -184,7 +184,8 @@ final class LegacyOfferProgramReader
         }
 
         return match (true) {
-            $this->containsCi($line, 'részvételi díj') => 'price',
+            // "Útlemondási biztosítás: részvételi díj 2,8%-a" is a note, not the price.
+            $this->containsCi($line, 'részvételi díj') && ! preg_match('/biztosítás\s*:/iu', $line) => 'price',
             $this->containsCi($line, 'ár tartalmazza') => 'included',
             $this->containsCi($line, 'költségek merülhetnek fel'),
             $this->containsCi($line, 'további költségek'),

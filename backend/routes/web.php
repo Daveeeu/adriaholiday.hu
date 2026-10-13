@@ -26,6 +26,8 @@ Route::redirect('/korutazasok/regio/{country}', '/utazasok', 301)->where('countr
 Route::redirect('/korutazasok/akcio', '/utazasok', 301);
 Route::redirect('/altalanos-szerzodesi-feltetelek', '/aszf', 301);
 Route::redirect('/adatkezelesi-szabalyzat', '/adatvedelem', 301);
+// The ÁSZF carries the legacy site's separate contract information page.
+Route::redirect('/utazasi-szerzodeshez-kapcsolodo-tajekoztato', '/aszf', 301);
 // The former duplicate of the home page.
 Route::redirect('/portfolio', '/', 301);
 Route::get('/korutazasok/{slug}', function (string $slug) {

@@ -57,9 +57,11 @@ class LegacyTourImporter
         $categoryIds = $this->resolveCategoryIds($data->categories);
         $tagIds = $this->resolveReferenceOptionCodes('tag', $data->tags);
         $travelModeId = $data->travelModeCode !== null ? $this->resolveTravelMode($data->travelModeCode) : $existing?->travel_mode_id;
-        // Once every date is closed for booking the legacy site offers no departure
-        // places, only a free-text list of towns: keep what the tour already has.
-        $syncDeparturePlaces = $existing === null || $this->isBookable($data);
+        // Once every date is closed for booking the legacy site only lists the
+        // places in its booking form: keep what the tour already has, if anything.
+        $syncDeparturePlaces = $existing === null
+            || $this->isBookable($data)
+            || ! $existing->departurePlaces()->exists();
         $departurePlaceIds = $syncDeparturePlaces ? $this->resolveDeparturePlaceIds($data->departurePlaceNames) : [];
         $departurePlaceFees = collect($data->departurePlaceFees)
             ->filter(fn (float $fee, string $name): bool => isset($departurePlaceIds[trim($name)]))
@@ -134,6 +136,9 @@ class LegacyTourImporter
                 ...(($date['sold_out'] ?? false) ? ['status' => TourDateStatus::SOLD_OUT] : []),
                 // A date closed for booking has unknown extras: keep the stored ones.
                 ...($date['extras'] !== null ? ['extras' => $date['extras']] : []),
+                ...($syncDeparturePlaces && ($date['departure_places'] ?? null) !== null
+                    ? ['departure_place_ids' => $this->dateDeparturePlaceIds($date['departure_places'], $departurePlaceIds)]
+                    : []),
             ], $data->dates), keepDeparted: true);
 
             $this->reopenDatesBookableAgain($tour, $data);
@@ -300,6 +305,25 @@ class LegacyTourImporter
             ['type' => $type, 'code' => $code],
             ['name' => $name, 'active' => true, 'sort_order' => 0],
         );
+    }
+
+    /**
+     * The places a date offers, or null when it offers every place of the tour.
+     *
+     * @param  array<int, string>  $names
+     * @param  array<string, int>  $tourPlaceIds  keyed by place name
+     * @return array<int, int>|null
+     */
+    private function dateDeparturePlaceIds(array $names, array $tourPlaceIds): ?array
+    {
+        $ids = collect($names)
+            ->map(fn (string $name): ?int => $tourPlaceIds[trim($name)] ?? null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return $ids === [] || count($ids) === count($tourPlaceIds) ? null : $ids;
     }
 
     private function isBookable(LegacyOfferData $data): bool

@@ -17,10 +17,13 @@ import {
   Users,
   Flame,
   Plane,
+  ChevronRight,
+  MapPin,
   CreditCard,
   Info,
   Mail,
 } from "lucide-react";
+import { Link } from "react-router";
 import OfferGallerySection from "./OfferGallerySection";
 import OfferProgramTimeline from "./OfferProgramTimeline";
 import OfferContentSection from "./OfferContentSection";
@@ -32,6 +35,7 @@ import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
 import type { PortfolioFeaturedTour } from "../content/portfolio-featured-tours-api";
 import type { TripDetail } from "../routes/TripRoute";
 import OfferCard from "./OfferCard";
+import BookingHowItWorks from "./BookingHowItWorks";
 import BookingSection from "../booking/BookingSection";
 import GroupInquirySection, {
   GROUP_INQUIRY_MIN_PASSENGERS,
@@ -113,6 +117,10 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
   const selectedSeats = priceBox?.availableSeats ?? selectedDate.seatsLeft ?? null;
+  const offeredDeparturePlaces =
+    selectedDate.departurePlaceIds.length > 0
+      ? trip.departurePlaces.filter((place) => selectedDate.departurePlaceIds.includes(Number(place.id)))
+      : trip.departurePlaces;
 
   useEffect(() => {
     if (!priceBox) {
@@ -147,13 +155,28 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
         </div>
 
         <div className="relative z-10 max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20 pt-10 pb-28">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-2 text-white/75 hover:text-white transition-colors mb-8"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Vissza az ajánlatokhoz</span>
-          </button>
+          <nav aria-label="Morzsamenü" className="mb-8 text-sm font-medium text-white/70">
+            <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Főoldal</Link>
+              </li>
+              <li aria-hidden="true"><ChevronRight className="w-3.5 h-3.5" /></li>
+              <li>
+                <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-white transition-colors">
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Utazások
+                </button>
+              </li>
+              {trip.country ? (
+                <>
+                  <li aria-hidden="true"><ChevronRight className="w-3.5 h-3.5" /></li>
+                  <li>{trip.country}</li>
+                </>
+              ) : null}
+              <li aria-hidden="true"><ChevronRight className="w-3.5 h-3.5" /></li>
+              <li aria-current="page" className="text-white">{trip.title}</li>
+            </ol>
+          </nav>
 
           <div className="flex flex-wrap gap-3 mb-6">
             <Pill>{trip.country}</Pill>
@@ -301,6 +324,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
               <PriceInformationSection priceInformation={trip.priceInformation} />
 
+              <DeparturePlacesSection places={offeredDeparturePlaces} />
+
               {canBook ? (
                 <BookingSection
                   selectedDate={selectedDate}
@@ -324,6 +349,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 opened={groupInquiryOpened}
                 onOpen={() => openGroupInquiry("section")}
               />
+
+              <BookingHowItWorks />
 
               <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
             </div>
@@ -789,6 +816,32 @@ function SidebarInfo({ icon, text }: { icon: ReactNode; text: ReactNode }) {
       <div className="text-[#00c389]">{icon}</div>
       <div className="text-sm font-semibold text-[#0f172a]">{text}</div>
     </div>
+  );
+}
+
+/** Where the coach picks travellers up for the chosen date ("Felszállási lehetőség" on the legacy site). */
+function DeparturePlacesSection({ places }: { places: TripDetail["departurePlaces"] }) {
+  if (places.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_16px_50px_rgba(15,23,42,0.06)] md:p-8">
+      <SectionEyebrow title="Felszállás" />
+      <h2 className="text-2xl font-bold tracking-tight text-[#0f172a]">Felszállási lehetőségek</h2>
+      <ul className="mt-5 flex flex-wrap gap-2">
+        {places.map((place) => (
+          <li
+            key={place.id}
+            className="inline-flex items-center gap-2 rounded-full bg-[#f5f9fc] px-4 py-2 text-sm font-semibold text-[#334155]"
+          >
+            <MapPin className="h-4 w-4 text-[#00a878]" />
+            {place.name}
+            {place.fee > 0 ? <span className="font-normal text-gray-500">+{place.fee.toLocaleString("hu-HU")} Ft/fő</span> : null}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

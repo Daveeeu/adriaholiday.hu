@@ -81,6 +81,39 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         );
     }
 
+    public function test_a_date_offering_only_some_departure_places_keeps_that_list(): void
+    {
+        $data = $this->offerData();
+        $dates = $data->dates;
+        $dates[0]['departure_places'] = ['Miskolc', 'Budapest'];
+        $dates[1]['departure_places'] = ['Budapest'];
+
+        app(LegacyTourImporter::class)->import(new LegacyOfferData(...[...get_object_vars($data), 'dates' => $dates]), updateExisting: false);
+
+        $tour = Tour::query()->where('seo_name', $data->seoName)->firstOrFail();
+        $budapest = TourDeparturePlace::query()->where('name', 'Budapest')->value('id');
+        $this->assertNull($tour->dates()->whereDate('start_date', '2026-09-25')->value('departure_place_ids'));
+        $this->assertSame([$budapest], $tour->dates()->whereDate('start_date', '2026-10-10')->firstOrFail()->departure_place_ids);
+    }
+
+    public function test_a_tour_without_departure_places_gets_them_even_when_every_date_is_full(): void
+    {
+        $data = $this->offerData();
+        $importer = app(LegacyTourImporter::class);
+        $importer->import($data, updateExisting: false);
+        $tour = Tour::query()->where('seo_name', $data->seoName)->firstOrFail();
+        $tour->departurePlaces()->detach();
+
+        $full = array_map(fn (array $date): array => [...$date, 'legacy_id' => null, 'extras' => null], $data->dates);
+        $importer->import(new LegacyOfferData(...[
+            ...get_object_vars($data),
+            'dates' => $full,
+            'departurePlaceNames' => ['miskolci indulással', 'budapesti indulással'],
+        ]), updateExisting: true);
+
+        $this->assertSame(['budapesti indulással', 'miskolci indulással'], $tour->departurePlaces()->orderBy('name')->pluck('name')->all());
+    }
+
     public function test_first_import_creates_the_tour_and_its_related_records(): void
     {
         $importer = app(LegacyTourImporter::class);

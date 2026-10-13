@@ -33,7 +33,8 @@ class SitemapTest extends TestCase
         $this->get('/sitemap.xml')
             ->assertOk()
             ->assertSee('<loc>https://adriaholiday.hu/utazasi-klub</loc>', false)
-            ->assertSee('<loc>https://adriaholiday.hu/adria-holiday-utazasi-klub-felhasznalasi-feltetelei</loc>', false);
+            ->assertSee('<loc>https://adriaholiday.hu/adria-holiday-utazasi-klub-felhasznalasi-feltetelei</loc>', false)
+            ->assertSee('<loc>https://adriaholiday.hu/biztositasok</loc>', false);
     }
 
     public function test_sitemap_excludes_inactive_offer(): void
