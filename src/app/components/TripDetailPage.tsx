@@ -222,7 +222,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
       <section className="relative z-20 -mt-12">
         <div className="max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
           <div className="bg-white rounded-[36px] border border-gray-100 shadow-[0_20px_70px_rgba(15,23,42,0.08)] p-6 md:p-7">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-7 lg:gap-10 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-7 lg:gap-10 items-center">
               <SelectedDepartureSummary
                 dateLabel={selectedDate.label}
                 status={selectedDate.status}
@@ -700,8 +700,9 @@ function SelectedDepartureSummary({
   otherDates: number;
   onShowDates: () => void;
 }) {
+  // A full date takes no payment, so its rules are beside the point.
   const payment =
-    depositPercent === null
+    !bookable || depositPercent === null
       ? null
       : depositPercent < 100
         ? { title: `Foglaláskor csak ${depositPercent}% előleg`, text: "A többit részletekben, az indulás előtt fizeted." }
