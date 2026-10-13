@@ -84,7 +84,6 @@ export type SiteSettingsFormValues = {
   barionPixelId: string;
   bankAccountNumber: string;
   bankAccountHolder: string;
-  paymentDueDays: number;
   agencyLicenseNumber: string;
   imprintUrl: string;
   privacyUrl: string;

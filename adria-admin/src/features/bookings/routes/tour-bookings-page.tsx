@@ -76,6 +76,7 @@ function initialDraft(record?: TourBooking | null): TourBookingFormValues {
     departureDate: record?.departureDate ?? '',
     passengerCount: record?.passengerCount ?? 2,
     paymentStatus: record?.paymentStatus ?? 'unpaid',
+    paidAmount: record?.paidAmount ?? null,
     status: record?.status ?? 'new',
     cancelled: record?.cancelled ?? false,
     appointmentTime: record?.appointmentTime ?? new Date().toISOString(),
@@ -393,6 +394,19 @@ export function TourBookingsPage() {
                     <option value="partial">Részben fizetett</option>
                     <option value="paid">Fizetett</option>
                   </Select>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={draft.paidAmount ?? ''}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        paidAmount: event.target.value === '' ? null : Math.max(0, Number(event.target.value)),
+                      }))
+                    }
+                    placeholder="Befizetett összeg"
+                    aria-label="Befizetett összeg"
+                  />
                   {mode === 'create' ? (
                     <Select
                       value={draft.status}

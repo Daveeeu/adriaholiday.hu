@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 /**
  * Everything a booking document shows – the customer's confirmation e-mail and the
  * admin's booking PDF: contact and passenger details, the trip, the price breakdown,
- * insurance, how and until when to pay, entry requirements and the agency's details.
+ * insurance, the instalments and how to pay them, entry requirements and the agency's details.
  *
  * The tour is optional: bookings imported from the legacy site may belong to a trip
  * that does not exist here, and then show the trip name stored with the booking.
@@ -62,6 +62,7 @@ final class BookingDocumentData
             'total' => $prices?->total() ?? $this->storedTotal(),
             'insuranceNames' => $prices?->insuranceNames() ?? [],
             'paymentMethod' => $formData[self::PAYMENT_METHOD_KEY] ?? null,
+            'paymentSchedule' => $this->paymentSchedule($prices),
             'bankTransfer' => $this->bankTransfer($prices, $settings),
             'entryRequirementLinks' => $this->entryRequirementLinks(),
             'termsUrl' => rtrim((string) config('app.url'), '/').'/aszf',
@@ -161,9 +162,27 @@ final class BookingDocumentData
     }
 
     /**
-     * What and until when to transfer, unless the customer pays online right after booking.
+     * The instalments with their amounts and deadlines, e.g. "1. részlet – előleg: 20% + biztosítás".
      *
-     * @return array{amount: string, dueDate: string, accountNumber: string, accountHolder: string}|null
+     * @return array<int, array{title: string, detail: string, amount: string, dueDate: string, dueRule: string}>
+     */
+    private function paymentSchedule(?BookingPriceSummary $prices): array
+    {
+        $instalments = $prices !== null ? BookingPaymentSchedule::forBooking($this->booking)?->instalments() ?? [] : [];
+
+        return array_map(fn (array $instalment): array => [
+            'title' => $instalment['title'],
+            'detail' => $instalment['percent'].'%'.($instalment['includesInsurance'] ? ' + biztosítás' : ''),
+            'amount' => $prices->format($instalment['amount']),
+            'dueDate' => $instalment['dueAt']->format($instalment['dueWithinHours'] ? 'Y.m.d. H:i' : 'Y.m.d.'),
+            'dueRule' => $instalment['dueRule'],
+        ], $instalments);
+    }
+
+    /**
+     * Where to transfer the instalments, unless the customer pays online right after booking.
+     *
+     * @return array{accountNumber: string, accountHolder: string}|null
      */
     private function bankTransfer(?BookingPriceSummary $prices, BookingConfirmationSettings $settings): ?array
     {
@@ -173,11 +192,7 @@ final class BookingDocumentData
             return null;
         }
 
-        $departure = $this->booking->tourDate?->start_date ?? $this->booking->departure_date;
-
         return [
-            'amount' => $prices->total(),
-            'dueDate' => $settings->paymentDueDate($this->booking->created_at ?? now(), $departure)->format('Y.m.d.'),
             'accountNumber' => $settings->bankAccountNumber,
             'accountHolder' => $settings->bankAccountHolder,
         ];

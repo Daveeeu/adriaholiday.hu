@@ -104,7 +104,6 @@ const settingsSchema = z.object({
     .regex(/^(BP-[A-Za-z0-9]{10}-[A-Za-z0-9]{2})?$/, 'Formátum: BP-0000000000-00'),
   bankAccountNumber: z.string().trim(),
   bankAccountHolder: z.string().trim(),
-  paymentDueDays: z.coerce.number().int().min(0, 'Nem lehet negatív.'),
   agencyLicenseNumber: z.string().trim(),
   imprintUrl: z.string().trim(),
   privacyUrl: z.string().trim(),
@@ -153,7 +152,6 @@ const emptyValues: SiteSettingsFormValues = {
   barionPixelId: '',
   bankAccountNumber: '',
   bankAccountHolder: '',
-  paymentDueDays: 3,
   agencyLicenseNumber: '',
   imprintUrl: '',
   privacyUrl: '',
@@ -652,7 +650,7 @@ export function SettingsPage() {
               <CardHeader>
                 <CardTitle>Foglalás visszaigazoló e-mail</CardTitle>
                 <CardDescription>
-                  Az ügyfélnek küldött visszaigazolás átutalási adatai és lábléce. Az átutalási adatok akkor jelennek meg, ha a foglalás után nincs online fizetés.
+                  Az ügyfélnek küldött visszaigazolás átutalási adatai és lábléce. Az átutalási adatok akkor jelennek meg, ha a foglalás után nincs online fizetés. A részletek és határidők az indulásig hátralévő napok szerint számolódnak (20/20/60%, 40/60% vagy 100%).
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
@@ -661,14 +659,6 @@ export function SettingsPage() {
                 )} />
                 <FormField control={form.control} name="bankAccountHolder" render={({ field }) => (
                   <FormItem><FormLabel>Számlatulajdonos</FormLabel><FormControl><Input {...field} placeholder="Adria Holiday Kft" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="paymentDueDays" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fizetési határidő (nap a foglalástól)</FormLabel>
-                    <FormControl><Input type="number" min={0} step={1} {...field} /></FormControl>
-                    <CardDescription>Legkésőbb az indulás napja.</CardDescription>
-                    <FormMessage />
-                  </FormItem>
                 )} />
                 <FormField control={form.control} name="agencyLicenseNumber" render={({ field }) => (
                   <FormItem><FormLabel>Utazásszervezői engedélyszám</FormLabel><FormControl><Input {...field} placeholder="BFKH eng.szám: U-000412" /></FormControl><FormMessage /></FormItem>

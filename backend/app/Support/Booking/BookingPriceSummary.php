@@ -157,6 +157,19 @@ final class BookingPriceSummary
         return $this->pricing['departurePlace']['name'] ?? null;
     }
 
+    /**
+     * The trip price without the insurances, or null when the trip has no price.
+     */
+    public function tripTotalAmount(): ?float
+    {
+        return isset($this->pricing['tripTotal']) ? (float) $this->pricing['tripTotal'] : null;
+    }
+
+    public function insuranceTotalAmount(): float
+    {
+        return (float) ($this->pricing['insuranceTotal'] ?? 0);
+    }
+
     public function totalAmount(): ?float
     {
         return isset($this->pricing['total']) ? (float) $this->pricing['total'] : null;

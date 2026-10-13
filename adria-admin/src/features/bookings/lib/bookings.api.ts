@@ -23,6 +23,7 @@ import type {
   TourBooking,
   TourBookingDetail,
   TourBookingFormValues,
+  TourBookingInstalment,
   TourBookingPayment,
   TourBookingPricing,
   TourBookingTourDate,
@@ -105,6 +106,7 @@ type BookingDetailResource = BookingResource & {
   passengerFields: BookingDynamicField[][];
   pricing?: TourBookingPricing | null;
   payments?: TourBookingPayment[];
+  paymentSchedule?: TourBookingInstalment[] | null;
 };
 
 function mapTourBooking(resource: BookingResource): TourBooking {
@@ -122,6 +124,7 @@ function mapTourBooking(resource: BookingResource): TourBooking {
     departureDate: resource.departureDate ?? '',
     passengerCount: resource.passengerCount ?? 0,
     paymentStatus: (resource.paymentStatus as TourBooking['paymentStatus']) ?? 'unpaid',
+    paidAmount: resource.paidAmount ?? null,
     status: resource.status as TourBooking['status'],
     cancelled: resource.cancelled,
     appointmentTime: resource.appointmentTime ?? '',
@@ -146,6 +149,7 @@ function mapTourBookingDetail(resource: BookingDetailResource): TourBookingDetai
     passengerFields: resource.passengerFields ?? [],
     pricing: resource.pricing ?? null,
     payments: resource.payments ?? [],
+    paymentSchedule: resource.paymentSchedule ?? null,
     payload: resource.payload,
     updatedAt: resource.updatedAt,
   };
@@ -245,6 +249,7 @@ export async function createTourBookingRecord(values: TourBookingFormValues) {
     bookingType: 'tour_booking',
     status: values.status,
     paymentStatus: values.paymentStatus,
+    paidAmount: values.paidAmount,
     customerName: values.partnerName,
     email: values.partnerEmail,
     phone: values.partnerPhone,
@@ -271,6 +276,7 @@ export async function updateTourBookingRecord(
     bookingType: 'tour_booking',
     status: values.status,
     paymentStatus: values.paymentStatus,
+    paidAmount: values.paidAmount,
     customerName: values.partnerName,
     email: values.partnerEmail,
     phone: values.partnerPhone,

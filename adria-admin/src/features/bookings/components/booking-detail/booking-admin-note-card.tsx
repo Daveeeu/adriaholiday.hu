@@ -39,6 +39,7 @@ export function BookingAdminNoteCard({ booking }: { booking: TourBookingDetail }
         departureDate: booking.departureDate,
         passengerCount: booking.passengerCount,
         paymentStatus: booking.paymentStatus,
+        paidAmount: booking.paidAmount,
         status: booking.status,
         cancelled: booking.cancelled,
         appointmentTime: booking.appointmentTime,

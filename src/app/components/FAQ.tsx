@@ -27,7 +27,7 @@ const faqsFallback: FAQItem[] = [
   {
     question: "Mikor kell fizetnem az utazás árát?",
     answer:
-      "A foglaláskor 30% előleget kell fizetni, a fennmaradó összeget pedig legkésőbb 30 nappal az indulás előtt.",
+      "Foglaláskor előleget fizetsz: az indulás előtt 120 napnál korábban 20%-ot, 35–120 nappal előtte 40%-ot (a biztosítással együtt, 48 órán belül), a hátralékot legkésőbb 30–35 nappal az indulás előtt. 35 napon belüli indulásnál a teljes összeget 24 órán belül kell befizetni.",
   },
   {
     question: "Mi van, ha le kell mondanom az utazást?",

@@ -417,7 +417,13 @@ class TourBookingPricingTest extends TestCase
         $this->assertStringContainsString('94.400 Ft', $html);
         $this->assertStringContainsString('biztosítást nem rendelt', $html);
         $this->assertStringContainsString('OTP 11734004-20467221', $html);
-        $this->assertStringContainsString(today()->addDays(3)->format('Y.m.d.'), $html);
+        // 60 days to departure: 40% deposit within 48 hours, the rest 30 days before departure.
+        $this->assertStringContainsString('1. részlet – előleg', $html);
+        $this->assertStringContainsString('37.760 Ft', $html);
+        $this->assertStringContainsString($booking->created_at->setTimezone('Europe/Budapest')->addHours(48)->format('Y.m.d. H:i'), $html);
+        $this->assertStringContainsString('56.640 Ft', $html);
+        $this->assertStringContainsString($this->tourDate->start_date->copy()->subDays(30)->format('Y.m.d.'), $html);
+        $this->assertStringContainsString('az utazás előtt 30 nappal', $html);
         $this->assertStringContainsString('https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/szlovenia', $html);
         $this->assertStringContainsString('/aszf', $html);
         $this->assertStringContainsString('BFKH eng.szám: U-000412', $html);

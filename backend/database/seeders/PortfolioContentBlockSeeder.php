@@ -195,7 +195,7 @@ class PortfolioContentBlockSeeder extends Seeder
             ['key' => 'home.faq.button.label', 'label' => 'FAQ gomb szöveg', 'type' => 'text', 'value' => 'Írj nekünk'],
             ['key' => 'home.faq.button.url', 'label' => 'FAQ gomb link', 'type' => 'url', 'value' => '/kapcsolat'],
             ['key' => 'home.faq.items', 'label' => 'FAQ kérdések', 'type' => 'json', 'value_json' => [
-                ['question' => 'Mikor kell fizetnem az utazás árát?', 'answer' => 'A foglaláskor 30% előleget kell fizetni, a fennmaradó összeget pedig legkésőbb 30 nappal az indulás előtt.'],
+                ['question' => 'Mikor kell fizetnem az utazás árát?', 'answer' => 'Foglaláskor előleget fizetsz: az indulás előtt 120 napnál korábban 20%-ot, 35–120 nappal előtte 40%-ot (a biztosítással együtt, 48 órán belül), a hátralékot legkésőbb 30–35 nappal az indulás előtt. 35 napon belüli indulásnál a teljes összeget 24 órán belül kell befizetni.'],
                 ['question' => 'Mi van, ha le kell mondanom az utazást?', 'answer' => 'A lemondási feltételek az indulás előtti időponttól függenek. Javasoljuk utasbiztosítás megkötését.'],
                 ['question' => 'Milyen típusú buszokkal utazunk?', 'answer' => 'Modern, kényelmes, légkondicionált buszokkal utazunk, amelyek hosszabb utakra is alkalmasak.'],
                 ['question' => 'Van lehetőség egyéni programokra?', 'answer' => 'Igen, több utazásunkon van szabadprogram, amit saját elképzelés szerint lehet eltölteni.'],

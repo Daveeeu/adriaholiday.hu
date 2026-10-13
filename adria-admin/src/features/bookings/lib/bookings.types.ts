@@ -55,6 +55,8 @@ export interface TourBooking {
   departureDate: string;
   passengerCount: number;
   paymentStatus: 'unpaid' | 'partial' | 'paid';
+  /** What the customer paid so far (bank transfers recorded by the office, online payments). */
+  paidAmount: number | null;
   status: BookingStatus;
   cancelled: boolean;
   appointmentTime: string;
@@ -174,8 +176,24 @@ export type TourBookingDetail = TourBooking & {
   passengerFields: BookingDynamicField[][];
   pricing: TourBookingPricing | null;
   payments: TourBookingPayment[];
+  paymentSchedule: TourBookingInstalment[] | null;
   payload: Record<string, unknown> | null;
   updatedAt: string;
+};
+
+/** One instalment of the agency's payment rules, with how far the payments so far cover it. */
+export type TourBookingInstalment = {
+  number: number;
+  title: string;
+  percent: number;
+  amount: number;
+  includesInsurance: boolean;
+  dueAt: string;
+  dueWithinHours: boolean;
+  dueRule: string;
+  paidAmount: number;
+  paid: boolean;
+  overdue: boolean;
 };
 
 export interface TourInquiry {

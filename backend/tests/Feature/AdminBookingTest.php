@@ -552,6 +552,83 @@ class AdminBookingTest extends TestCase
     /**
      * @param  array<int, string>  $permissions
      */
+    public function test_editing_a_booking_keeps_what_the_admin_did_not_send_and_records_the_paid_amount(): void
+    {
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view', 'bookings.update']);
+        $tour = Tour::factory()->create();
+        $date = $tour->dates()->create(['start_date' => now()->addDays(200), 'end_date' => now()->addDays(205), 'status' => 'available']);
+        $booking = Booking::factory()->create([
+            'booking_type' => 'tour_booking',
+            'status' => 'confirmed',
+            'tour_id' => $tour->id,
+            'tour_date_id' => $date->id,
+            'total_amount' => 200000,
+            'paid_amount' => null,
+            'currency' => 'HUF',
+            'credited' => true,
+            'payload' => ['pricing' => $this->pricing(200000)],
+        ]);
+
+        $this->patchJson("/api/admin/bookings/tour-bookings/{$booking->id}", [
+            'bookingType' => 'tour_booking',
+            'paymentStatus' => 'partial',
+            'paidAmount' => 50000,
+            'adminNote' => 'Előleg átutalva',
+        ])->assertOk()
+            ->assertJsonPath('data.paymentSchedule.0.paid', true)
+            ->assertJsonPath('data.paymentSchedule.1.paidAmount', 10000)
+            ->assertJsonPath('data.paymentSchedule.1.paid', false);
+
+        $booking->refresh();
+        $this->assertSame('50000.00', $booking->paid_amount);
+        $this->assertSame('200000.00', $booking->total_amount);
+        $this->assertSame('HUF', $booking->currency);
+        $this->assertSame('confirmed', $booking->status);
+        $this->assertTrue($booking->credited);
+        $this->assertSame($date->id, $booking->tour_date_id);
+        $this->assertSame(200000, $booking->payload['pricing']['total']);
+    }
+
+    public function test_booking_detail_shows_the_instalments_and_their_deadlines(): void
+    {
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view']);
+        $tour = Tour::factory()->create();
+        $date = $tour->dates()->create(['start_date' => now()->addDays(60), 'end_date' => now()->addDays(62), 'status' => 'available']);
+        $booking = Booking::factory()->create([
+            'booking_type' => 'tour_booking',
+            'tour_id' => $tour->id,
+            'tour_date_id' => $date->id,
+            'total_amount' => 105400,
+            'currency' => 'HUF',
+            'payload' => ['pricing' => $this->pricing(100000, insuranceTotal: 5400)],
+        ]);
+
+        $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}")
+            ->assertOk()
+            ->assertJsonCount(2, 'data.paymentSchedule')
+            ->assertJsonPath('data.paymentSchedule.0.title', '1. részlet – előleg')
+            ->assertJsonPath('data.paymentSchedule.0.amount', 45400)
+            ->assertJsonPath('data.paymentSchedule.0.includesInsurance', true)
+            ->assertJsonPath('data.paymentSchedule.1.amount', 60000)
+            ->assertJsonPath('data.paymentSchedule.1.dueRule', 'az utazás előtt 30 nappal');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function pricing(float $tripTotal, float $insuranceTotal = 0): array
+    {
+        return [
+            'currency' => 'HUF',
+            'passengers' => 2,
+            'extras' => [],
+            'insurances' => [],
+            'tripTotal' => $tripTotal,
+            'insuranceTotal' => $insuranceTotal,
+            'total' => $tripTotal + $insuranceTotal,
+        ];
+    }
+
     private function actingAsBookingAdmin(array $permissions): void
     {
         foreach ($permissions as $permission) {

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Services\Booking\BookingFormValidationService;
 use App\Support\Booking\BookingDocumentData;
+use App\Support\Booking\BookingPaymentSchedule;
 use App\Support\Booking\BookingPriceSummary;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
@@ -37,6 +38,7 @@ class BookingDetailResource extends BookingResource
             'adminNote' => $this->admin_note,
             'seatsReserved' => (bool) $this->seats_reserved,
             'pricing' => $payload['pricing'] ?? null,
+            'paymentSchedule' => $this->paymentSchedule(),
             'payments' => $this->whenLoaded('payments', fn () => BookingPaymentResource::collection($this->payments)->resolve()),
             'formDataFields' => collect($payload['formData'] ?? [])
                 ->map(fn ($value, $key) => [
@@ -63,5 +65,36 @@ class BookingDetailResource extends BookingResource
                     ->all())
                 ->all(),
         ];
+    }
+
+    /**
+     * The instalments and how far the payments so far cover them; a booking
+     * marked as paid by hand counts as fully paid.
+     *
+     * @return array<int, array<string, mixed>>|null
+     */
+    private function paymentSchedule(): ?array
+    {
+        $schedule = BookingPaymentSchedule::forBooking($this->resource);
+
+        if ($schedule === null) {
+            return null;
+        }
+
+        $paid = $this->payment_status === 'paid' ? (float) $this->total_amount : (float) $this->paid_amount;
+
+        return array_map(fn (array $instalment): array => [
+            'number' => $instalment['number'],
+            'title' => $instalment['title'],
+            'percent' => $instalment['percent'],
+            'amount' => $instalment['amount'],
+            'includesInsurance' => $instalment['includesInsurance'],
+            'dueAt' => $instalment['dueAt']->toIso8601String(),
+            'dueWithinHours' => $instalment['dueWithinHours'],
+            'dueRule' => $instalment['dueRule'],
+            'paidAmount' => $instalment['paidAmount'],
+            'paid' => $instalment['paid'],
+            'overdue' => $instalment['overdue'],
+        ], $schedule->withPayments($paid));
     }
 }

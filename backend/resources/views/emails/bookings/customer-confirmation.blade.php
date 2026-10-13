@@ -130,17 +130,32 @@
         @endif
 
         {{-- Payment --}}
-        @if ($bankTransfer || $paymentMethod)
+        @if ($paymentSchedule !== [] || $bankTransfer || $paymentMethod)
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="{{ $card }}border-color:#00c389;margin-bottom:16px;">
                 <tr><td style="padding:20px 22px;">
                     <p style="{{ $heading }}">🏦 Fizetés</p>
+                    @if ($paymentSchedule !== [])
+                        <p style="{{ $font }}margin:0 0 6px;color:#0f172a;font-size:14px;font-weight:700;">{{ count($paymentSchedule) > 1 ? 'Részletfizetés és fizetési határidők' : 'Fizetési határidő' }}</p>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:14px;">
+                            @foreach ($paymentSchedule as $instalment)
+                                <tr>
+                                    <td style="{{ $font }}padding:9px 12px 9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;">
+                                        <div style="color:#0f172a;font-size:14px;font-weight:700;">{{ $instalment['title'] }}</div>
+                                        <div style="color:#64748b;font-size:13px;margin-top:2px;">{{ $instalment['detail'] }} · {{ $instalment['dueRule'] }}</div>
+                                    </td>
+                                    <td align="right" style="{{ $font }}padding:9px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;white-space:nowrap;">
+                                        <div style="color:#0f172a;font-size:15px;font-weight:800;">{{ $instalment['amount'] }}</div>
+                                        <div style="color:#00a878;font-size:13px;font-weight:700;margin-top:2px;">{{ $instalment['dueDate'] }}</div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    @endif
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                         @if ($paymentMethod)
                             <tr><td style="{{ $label }}">Fizetési mód</td><td style="{{ $value }}">{{ $paymentMethod }}</td></tr>
                         @endif
                         @if ($bankTransfer)
-                            <tr><td style="{{ $label }}">Fizetendő</td><td style="{{ $value }}">{{ $bankTransfer['amount'] }}</td></tr>
-                            <tr><td style="{{ $label }}">Fizetési határidő</td><td style="{{ $value }}">{{ $bankTransfer['dueDate'] }}</td></tr>
                             <tr><td style="{{ $label }}">Számlaszám</td><td style="{{ $value }}">{{ $bankTransfer['accountNumber'] }}</td></tr>
                             @if ($bankTransfer['accountHolder'] !== '')
                                 <tr><td style="{{ $label }}">Számlatulajdonos</td><td style="{{ $value }}">{{ $bankTransfer['accountHolder'] }}</td></tr>

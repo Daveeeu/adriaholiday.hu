@@ -26,6 +26,7 @@
         tr.line td { border-bottom: 1px solid #f1f5f9; padding: 5px 0; }
         tr.total td { padding-top: 9px; font-size: 13px; font-weight: bold; }
         tr.total td.amount { color: #00a878; }
+        .muted { color: #64748b; font-weight: normal; }
         .passenger { font-size: 9.5px; font-weight: bold; color: #00a878; margin: 8px 0 2px; }
         .warning { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; border-radius: 10px; padding: 9px 14px; font-weight: bold; margin-bottom: 16px; }
         .insured { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; border-radius: 10px; padding: 9px 14px; margin-bottom: 16px; }
@@ -139,16 +140,27 @@
             <div class="insured">Megrendelt biztosítás: <strong>{{ implode(', ', $insuranceNames) }}</strong></div>
         @endif
 
-        @if ($paymentMethod || $bankTransfer)
+        @if ($paymentSchedule !== [] || $paymentMethod || $bankTransfer)
             <div class="section">
                 <p class="section-title">Fizetés</p>
+                @if ($paymentSchedule !== [])
+                    <table style="margin-bottom: 6px;">
+                        @foreach ($paymentSchedule as $instalment)
+                            <tr class="line">
+                                <td>
+                                    <strong>{{ $instalment['title'] }}</strong>
+                                    <span class="muted">– {{ $instalment['detail'] }}, {{ $instalment['dueRule'] }}</span>
+                                </td>
+                                <td class="amount">{{ $instalment['amount'] }}<br><span class="muted">határidő: {{ $instalment['dueDate'] }}</span></td>
+                            </tr>
+                        @endforeach
+                    </table>
+                @endif
                 <table>
                     @if ($paymentMethod)
                         <tr><td class="label">Fizetési mód</td><td class="value">{{ $paymentMethod }}</td></tr>
                     @endif
                     @if ($bankTransfer)
-                        <tr><td class="label">Fizetendő</td><td class="value">{{ $bankTransfer['amount'] }}</td></tr>
-                        <tr><td class="label">Fizetési határidő</td><td class="value">{{ $bankTransfer['dueDate'] }}</td></tr>
                         <tr><td class="label">Számlaszám</td><td class="value">{{ $bankTransfer['accountNumber'] }}</td></tr>
                         @if ($bankTransfer['accountHolder'] !== '')
                             <tr><td class="label">Számlatulajdonos</td><td class="value">{{ $bankTransfer['accountHolder'] }}</td></tr>
