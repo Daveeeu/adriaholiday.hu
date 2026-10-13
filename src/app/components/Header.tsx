@@ -40,14 +40,14 @@ function DesktopNav() {
   }
 
   return (
-    <nav className="hidden md:flex items-center gap-2">
+    <nav className="hidden md:flex items-center gap-1 lg:gap-2">
       {settings.headerNavigation.map((item) => (
         <NavLink
           key={`${item.to}-${item.label}`}
           to={item.to}
           className={({ isActive }) =>
             [
-              "px-4 py-2 rounded-2xl text-[15px] font-semibold transition-all",
+              "whitespace-nowrap px-3 lg:px-4 py-2 rounded-2xl text-[14px] lg:text-[15px] font-semibold transition-all",
               "hover:bg-white/70 hover:shadow-[0_10px_30px_rgba(15,23,42,0.08)]",
               isActive
                 ? "text-[#0f172a] bg-white/70 shadow-[0_10px_30px_rgba(15,23,42,0.08)]"
@@ -75,8 +75,8 @@ export default function Header() {
       transition={{ duration: 0.5 }}
     >
       <div className="bg-white/45 backdrop-blur-2xl border-b border-white/50 shadow-[0_18px_60px_rgba(15,23,42,0.10)]">
-        <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20 h-[76px] flex items-center justify-between">
-          <div className="flex items-center gap-6">
+        <div className="mx-auto max-w-[1500px] px-6 lg:px-20 h-[76px] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 lg:gap-6">
             <Brand />
             <DesktopNav />
           </div>
@@ -92,7 +92,7 @@ export default function Header() {
                     },
                   })
                 }
-                className="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/80 border border-white/70 text-[#0f172a] font-semibold shadow-[0_10px_30px_rgba(15,23,42,0.08)] hover:shadow-[0_14px_40px_rgba(15,23,42,0.10)] transition-all"
+                className="hidden xl:inline-flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-2xl bg-white/80 border border-white/70 text-[#0f172a] font-semibold shadow-[0_10px_30px_rgba(15,23,42,0.08)] hover:shadow-[0_14px_40px_rgba(15,23,42,0.10)] transition-all"
               >
                 <Phone className="w-4 h-4 text-[#00c389]" />
                 {settings.phone}
@@ -111,7 +111,7 @@ export default function Header() {
                       },
                     })
                   }
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_14px_44px_rgba(0,195,137,0.22)] hover:shadow-[0_18px_56px_rgba(0,195,137,0.28)] transition-all"
+                  className="inline-flex items-center gap-2 whitespace-nowrap px-4 lg:px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_14px_44px_rgba(0,195,137,0.22)] hover:shadow-[0_18px_56px_rgba(0,195,137,0.28)] transition-all"
                 >
                   {ctaLabel}
                   <ArrowRight className="w-4 h-4" />
@@ -127,7 +127,7 @@ export default function Header() {
                       },
                     })
                   }
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_14px_44px_rgba(0,195,137,0.22)] hover:shadow-[0_18px_56px_rgba(0,195,137,0.28)] transition-all"
+                  className="inline-flex items-center gap-2 whitespace-nowrap px-4 lg:px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white font-semibold shadow-[0_14px_44px_rgba(0,195,137,0.22)] hover:shadow-[0_18px_56px_rgba(0,195,137,0.28)] transition-all"
                 >
                   {ctaLabel}
                   <ArrowRight className="w-4 h-4" />
