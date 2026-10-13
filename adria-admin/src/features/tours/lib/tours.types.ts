@@ -246,6 +246,10 @@ export type Tour = {
   programTypeLabel?: string | null;
   travelModeId: string;
   travelModeLabel?: string | null;
+  catering?: string | null;
+  cateringInfo?: string | null;
+  accommodation?: string | null;
+  accommodationInfo?: string | null;
   difficultyId: string;
   difficultyLabel?: string | null;
   bookingFormTemplateId?: string | number | null;
@@ -373,6 +377,10 @@ export const tourFormSchema = z.object({
   programTypeId: z.string(),
   travelModeId: z.string(),
   difficultyId: z.string(),
+  catering: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+  cateringInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
+  accommodation: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+  accommodationInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
   bookingFormTemplateId: z.string(),
   price: z.string(),
   displayedPrice: z.string(),
@@ -568,6 +576,10 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     programTypeId: tour?.programTypeId ?? '',
     travelModeId: tour?.travelModeId ?? '',
     difficultyId: tour?.difficultyId ?? '',
+    catering: tour?.catering ?? '',
+    cateringInfo: tour?.cateringInfo ?? '',
+    accommodation: tour?.accommodation ?? '',
+    accommodationInfo: tour?.accommodationInfo ?? '',
     bookingFormTemplateId: tour?.bookingFormTemplateId ? String(tour.bookingFormTemplateId) : '',
     price: tour?.price ?? '',
     displayedPrice: tour?.displayedPrice ?? '',

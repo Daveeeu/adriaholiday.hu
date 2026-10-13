@@ -102,6 +102,10 @@ function createTourDefaults(overrides?: Partial<Tour>): Tour {
     programTypeId: '',
     travelModeId: '',
     difficultyId: '',
+    catering: '',
+    cateringInfo: '',
+    accommodation: '',
+    accommodationInfo: '',
     price: '',
     displayedPrice: '',
     priceBox: {

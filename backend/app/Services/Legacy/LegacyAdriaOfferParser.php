@@ -126,6 +126,8 @@ class LegacyAdriaOfferParser
             teaserHtml: $tabs['teaser'],
             ticketsHtml: $tabs['tickets'],
             optionalProgramsHtml: $tabs['optional_programs'],
+            cateringInfo: $dates[0]['catering_info'] ?? null,
+            accommodationInfo: $dates[0]['accommodation_info'] ?? null,
         );
     }
 
@@ -231,7 +233,7 @@ class LegacyAdriaOfferParser
 
     /**
      * @param  array<int, array{departurePlaces: array<int, array{name: string, price: float|null}>, extras: array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, lastMinutePercent: float|null}>  $bookingOptions
-     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, accommodation: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>
+     * @return array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, catering_info: ?string, accommodation: ?string, accommodation_info: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>
      */
     private function extractDates(DOMXPath $xpath, array $bookingOptions): array
     {
@@ -267,7 +269,9 @@ class LegacyAdriaOfferParser
                 'sold_out' => $isSoldOut,
                 'transport_code' => $this->extractTransportCode($xpath, $cells[1]),
                 'catering' => $this->cellLabel($xpath, $cells[2]),
+                'catering_info' => $this->cellInfo($xpath, $cells[2], $this->cellLabel($xpath, $cells[2])),
                 'accommodation' => $this->cellLabel($xpath, $cells[3]),
+                'accommodation_info' => $this->cellInfo($xpath, $cells[3], $this->cellLabel($xpath, $cells[3])),
                 // A date without a legacy id is closed for booking: its extras are unknown, not none.
                 'extras' => $legacyId ? ($bookingOptions[$legacyId]['extras'] ?? []) : null,
                 'discount_badge' => $legacyId && isset($bookingOptions[$legacyId]['lastMinutePercent'])
@@ -373,6 +377,33 @@ class LegacyAdriaOfferParser
         $label = $xpath->query('.//*[contains(@class,"popover-info")]//span', $cell)->item(0);
 
         return $this->nullableText($label !== null ? $label->textContent : $cell->textContent);
+    }
+
+    /**
+     * The explanation in a catering/accommodation cell's popover ("2 ágyas szoba"),
+     * one line per paragraph; none when it only repeats the cell's label.
+     */
+    private function cellInfo(DOMXPath $xpath, DOMElement $cell, ?string $label): ?string
+    {
+        $paragraphs = $xpath->query('.//*[contains(@class,"popover-content")]//p[not(.//p)]', $cell);
+        $lines = [];
+
+        foreach ($paragraphs as $paragraph) {
+            $line = $this->nullableText($paragraph->textContent);
+
+            if ($line !== null) {
+                $lines[] = $line;
+            }
+        }
+
+        if ($lines === []) {
+            $content = $xpath->query('.//*[contains(@class,"popover-content")]', $cell)->item(0);
+            $lines = $content !== null ? array_filter([$this->nullableText($content->textContent)]) : [];
+        }
+
+        $info = implode("\n", array_values(array_unique($lines)));
+
+        return $info === '' || mb_strtolower($info) === mb_strtolower((string) $label) ? null : $info;
     }
 
     private function extractTransportCode(DOMXPath $xpath, DOMElement $cell): ?string

@@ -66,6 +66,8 @@ class Tour extends Model implements HasMedia
         'booking_form_template_id',
         'catering',
         'accommodation',
+        'catering_info',
+        'accommodation_info',
         'country_ids',
         'tag_ids',
         'category_ids',

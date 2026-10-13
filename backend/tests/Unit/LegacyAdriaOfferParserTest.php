@@ -58,6 +58,25 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertSame(269600.0, $data->price);
     }
 
+    public function test_it_keeps_the_info_behind_the_catering_and_accommodation_but_not_a_repeated_label(): void
+    {
+        $popover = fn (string $label, string $content): string => '<div class="popover-info" role="button"><span>'.$label.'</span><img src="page/template/img/info.png"></div>'
+            .'<div class="d-none popover-data"><div class="popover-title">Információ</div><div class="popover-content"><p>'.$content.'</p></div></div>';
+        $html = preg_replace(
+            ['/\s*félpanzió\s*<\/td>/u', '/\s*Hotel\*\*\*\s*<\/td>/u'],
+            [$popover('félpanzió', '<p>Vacsora igényelhető: 38.900 Ft/fő</p>').'</td>', $popover('Hotel***', 'Hotel***').'</td>'],
+            $this->html(),
+            1,
+        );
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+
+        $this->assertSame('félpanzió', $data->catering);
+        $this->assertSame('Vacsora igényelhető: 38.900 Ft/fő', $data->cateringInfo);
+        $this->assertSame('Hotel***', $data->accommodation);
+        $this->assertNull($data->accommodationInfo);
+    }
+
     public function test_it_extracts_program_days_from_unstructured_paragraphs(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), self::SOURCE_URL);

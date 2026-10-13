@@ -179,7 +179,10 @@ export type PortfolioOfferDetail = {
   badge?: string | null;
   transport?: string | null;
   accommodation?: string | null;
+  /** The note behind the accommodation, e.g. "2 ágyas szoba". */
+  accommodationInfo?: string | null;
   meals?: string | null;
+  mealsInfo?: string | null;
   country?: string | null;
   duration?: string | null;
   seatsLeft?: number | null;

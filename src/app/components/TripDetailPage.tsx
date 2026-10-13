@@ -18,6 +18,7 @@ import {
   Flame,
   Plane,
   CreditCard,
+  Info,
   Mail,
 } from "lucide-react";
 import OfferGallerySection from "./OfferGallerySection";
@@ -212,8 +213,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               label="Utazás"
               value={trip.transport === "plane" ? "Repülős út" : "Autóbuszos út"}
             />
-            <HeroInfoCard icon={<Utensils />} label="Ellátás" value={trip.meals} />
-            <HeroInfoCard icon={<Hotel />} label="Szállás" value={trip.hotel} />
+            <HeroInfoCard icon={<Utensils />} label="Ellátás" value={trip.meals} info={trip.mealsInfo} />
+            <HeroInfoCard icon={<Hotel />} label="Szállás" value={trip.hotel} info={trip.hotelInfo} />
           </div>
         </div>
       </section>
@@ -622,14 +623,60 @@ function GroupInquiryLink({ tone, onClick }: { tone: "dark" | "light"; onClick: 
   );
 }
 
-function HeroInfoCard({ icon, label, value, note }: IconLabelValueProps & { note?: ReactNode }) {
+function HeroInfoCard({
+  icon,
+  label,
+  value,
+  note,
+  info,
+}: IconLabelValueProps & { note?: ReactNode; info?: string | null }) {
   return (
-    <div className="rounded-[24px] bg-white/10 backdrop-blur-xl border border-white/10 p-5">
+    <div className="relative rounded-[24px] bg-white/10 backdrop-blur-xl border border-white/10 p-5">
       <div className="text-[#00c389] mb-3">{icon}</div>
       <div className="text-white/60 text-sm mb-1">{label}</div>
-      <div className="text-white font-bold">{value}</div>
+      <div className="flex items-start gap-2">
+        <div className="text-white font-bold">{value}</div>
+        {info ? <InfoPopover label={`${label}: információ`} text={info} /> : null}
+      </div>
       {note ? <div className="mt-1 text-sm font-semibold">{note}</div> : null}
     </div>
+  );
+}
+
+/**
+ * The ⓘ next to a trip fact: opens a small box with the details above the card
+ * (its nearest positioned ancestor), as on the legacy site.
+ */
+function InfoPopover({ label, text }: { label: string; text: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <span className="inline-flex">
+      <button
+        type="button"
+        aria-label={label}
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        onBlur={() => setOpen(false)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            setOpen(false);
+          }
+        }}
+        className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00c389]/20 text-[#5eead4] transition-colors hover:bg-[#00c389] hover:text-white"
+      >
+        <Info className="h-4 w-4" />
+      </button>
+      {open ? (
+        <span
+          role="tooltip"
+          className="absolute inset-x-0 bottom-full z-30 mb-3 rounded-2xl bg-white p-4 text-left text-sm font-medium leading-relaxed text-[#334155] shadow-[0_20px_50px_rgba(15,23,42,0.25)]"
+        >
+          <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-[#00a878]">Információ</span>
+          <span className="whitespace-pre-line">{text}</span>
+        </span>
+      ) : null}
+    </span>
   );
 }
 

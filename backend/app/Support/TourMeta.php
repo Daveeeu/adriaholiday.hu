@@ -58,6 +58,22 @@ class TourMeta
         return self::filled($tour->accommodation) ?? self::filled(self::extract($tour)['accommodation'] ?? null);
     }
 
+    /**
+     * The note behind the accommodation, e.g. "2 ágyas szoba".
+     */
+    public static function accommodationInfo(Tour $tour): ?string
+    {
+        return self::filled($tour->accommodation_info);
+    }
+
+    /**
+     * The note behind the meals, e.g. "Vacsora igényelhető: 38.900 Ft/fő".
+     */
+    public static function mealsInfo(Tour $tour): ?string
+    {
+        return self::filled($tour->catering_info);
+    }
+
     public static function meals(Tour $tour): ?string
     {
         $meals = self::filled($tour->catering) ?? self::filled(self::extract($tour)['meals'] ?? null);

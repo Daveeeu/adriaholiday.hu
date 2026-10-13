@@ -12,7 +12,7 @@ namespace App\Support\Legacy;
  * date marked "Betelt" (sold out) is `sold_out`; its other price-cell note
  * is its `label`.
  *
- * @phpstan-type LegacyOfferDate array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, accommodation: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}
+ * @phpstan-type LegacyOfferDate array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, catering_info: ?string, accommodation: ?string, accommodation_info: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}
  * @phpstan-type LegacyOfferProgramDay array{day_number: int, title: string, description: string}
  * @phpstan-type LegacyOfferPriceItem array{type: string, text: string}
  */
@@ -20,7 +20,7 @@ final class LegacyOfferData
 {
     /**
      * @param  array<int, string>  $galleryImageUrls
-     * @param  array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, accommodation: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>  $dates
+     * @param  array<int, array{legacy_id: ?int, start_date: ?string, end_date: ?string, price: ?float, original_price: ?float, label: ?string, sold_out: bool, transport_code: ?string, catering: ?string, catering_info: ?string, accommodation: ?string, accommodation_info: ?string, extras: ?array<int, array{name: string, price: float, price_unit: string, charge_rule: string, choices: array<int, string>}>, discount_badge: ?string}>  $dates
      * @param  array<int, array{day_number: int, title: string, description: string}>  $programDays
      * @param  array<int, array{type: string, text: string}>  $priceItems
      * @param  array<int, string>  $tags
@@ -53,5 +53,7 @@ final class LegacyOfferData
         public readonly ?string $teaserHtml = null,
         public readonly ?string $ticketsHtml = null,
         public readonly ?string $optionalProgramsHtml = null,
+        public readonly ?string $cateringInfo = null,
+        public readonly ?string $accommodationInfo = null,
     ) {}
 }

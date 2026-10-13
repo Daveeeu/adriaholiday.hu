@@ -854,6 +854,32 @@ class AdminToursTest extends TestCase
         )->all());
     }
 
+    public function test_accommodation_and_meals_with_their_info_are_saved_and_shown_on_the_trip_page(): void
+    {
+        $this->actingAsTourAdmin();
+        $tourId = $this->postJson('/api/admin/tours', $this->payload([
+            'seo_name' => 'szallas-info',
+            'active' => true,
+            'accommodation' => 'Hotel***',
+            'accommodationInfo' => '2 ágyas szoba',
+            'catering' => 'reggeli',
+            'cateringInfo' => 'Vacsora igényelhető: 38.900 Ft/fő',
+        ]))->assertCreated()
+            ->assertJsonPath('data.accommodationInfo', '2 ágyas szoba')
+            ->json('data.id');
+
+        $this->getJson('/api/portfolio/offers/'.Tour::query()->findOrFail($tourId)->seo_name)
+            ->assertOk()
+            ->assertJsonPath('accommodation', 'Hotel***')
+            ->assertJsonPath('accommodationInfo', '2 ágyas szoba')
+            ->assertJsonPath('meals', 'Reggeli')
+            ->assertJsonPath('mealsInfo', 'Vacsora igényelhető: 38.900 Ft/fő');
+
+        // A save from a form without these fields keeps them.
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload(['seo_name' => 'szallas-info', 'active' => true]))->assertOk();
+        $this->assertSame('2 ágyas szoba', Tour::query()->findOrFail($tourId)->accommodation_info);
+    }
+
     public function test_departure_places_keep_their_per_tour_fee_on_save_and_duplicate(): void
     {
         $this->actingAsTourAdmin();

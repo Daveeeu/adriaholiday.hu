@@ -154,6 +154,13 @@ class UpdateTourRequest extends FormRequest
                 ];
             })->all(),
         ]);
+
+        // Sent only by admins that edit them, so a save without them keeps the stored values.
+        foreach (['catering' => 'catering', 'catering_info' => 'cateringInfo', 'accommodation' => 'accommodation', 'accommodation_info' => 'accommodationInfo'] as $field => $alias) {
+            if ($this->exists($alias) && ! $this->exists($field)) {
+                $this->merge([$field => $this->input($alias)]);
+            }
+        }
     }
 
     public function authorize(): bool
@@ -248,6 +255,10 @@ class UpdateTourRequest extends FormRequest
             'program_type_id' => ['nullable', 'string', 'max:255'],
             'travel_mode_id' => ['nullable', 'string', 'max:255'],
             'difficulty_id' => ['nullable', 'string', 'max:255'],
+            'catering' => ['nullable', 'string', 'max:255'],
+            'catering_info' => ['nullable', 'string', 'max:2000'],
+            'accommodation' => ['nullable', 'string', 'max:255'],
+            'accommodation_info' => ['nullable', 'string', 'max:2000'],
             'booking_form_template_id' => ['nullable', 'integer', 'exists:booking_form_templates,id'],
             'price' => ['nullable', 'numeric'],
             'displayed_price' => ['nullable', 'string', 'max:255'],

@@ -32,6 +32,7 @@ import { TourProgramDaysSection } from './TourProgramDaysSection';
 import { TourDateExtrasEditor } from './TourDateExtrasEditor';
 import { TourPriceItemsSection } from './TourPriceItemsSection';
 import { TourSeoSection } from './TourSeoSection';
+import { TourStaySection } from './TourStaySection';
 
 type TourFormProps = {
   form: UseFormReturn<TourFormValues>;
@@ -48,6 +49,7 @@ type TourPanelSectionKey =
   | 'priceItems'
   | 'filters'
   | 'dates'
+  | 'stay'
   | 'bookingForm';
 
 const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
@@ -60,6 +62,7 @@ const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
   priceItems: false,
   filters: true,
   dates: true,
+  stay: true,
   bookingForm: false,
 };
 
@@ -189,6 +192,7 @@ export function TourForm({ form, tour }: TourFormProps) {
       priceItems: open,
       filters: open,
       dates: open,
+      stay: open,
       bookingForm: open,
     });
   };
@@ -493,6 +497,15 @@ export function TourForm({ form, tour }: TourFormProps) {
         onToggle={() => toggleSection('programDays')}
       >
         <TourProgramDaysSection form={form} />
+      </TourPanelSection>
+
+      <TourPanelSection
+        title="Szállás és ellátás"
+        description="Az utazás oldalán a felső kártyákon látszik, kiegészítő információval."
+        open={openSections.stay}
+        onToggle={() => toggleSection('stay')}
+      >
+        <TourStaySection form={form} />
       </TourPanelSection>
 
       <TourPanelSection

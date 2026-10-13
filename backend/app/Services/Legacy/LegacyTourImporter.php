@@ -92,6 +92,8 @@ class LegacyTourImporter
                 'travel_mode_id' => $travelModeId,
                 'catering' => $data->catering ?? $existing?->catering,
                 'accommodation' => $data->accommodation ?? $existing?->accommodation,
+                'catering_info' => $data->cateringInfo ?? $existing?->catering_info,
+                'accommodation_info' => $data->accommodationInfo ?? $existing?->accommodation_info,
                 'tag_ids' => $tagIds,
                 'price' => $data->price,
                 'displayed_price' => $data->price !== null ? number_format($data->price, 0, ',', '.').' Ft' : null,

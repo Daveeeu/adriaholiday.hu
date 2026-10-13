@@ -24,6 +24,7 @@ use App\Support\RichTextSanitizer;
 use App\Support\TourSearchIndex;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -146,6 +147,10 @@ class TourController extends Controller
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
                 'difficulty_id' => $validated['difficulty_id'] ?? null,
+                'catering' => $validated['catering'] ?? null,
+                'catering_info' => $validated['catering_info'] ?? null,
+                'accommodation' => $validated['accommodation'] ?? null,
+                'accommodation_info' => $validated['accommodation_info'] ?? null,
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
@@ -225,6 +230,7 @@ class TourController extends Controller
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
                 'difficulty_id' => $validated['difficulty_id'] ?? null,
+                ...Arr::only($validated, ['catering', 'catering_info', 'accommodation', 'accommodation_info']),
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
