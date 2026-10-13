@@ -326,31 +326,33 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
               <DeparturePlacesSection places={offeredDeparturePlaces} />
 
-              {canBook ? (
-                <BookingSection
-                  selectedDate={selectedDate}
-                  trip={trip}
-                  priceBox={priceBox}
-                />
-              ) : trip.hasBookableDates ? (
-                <div className="rounded-[28px] border border-red-100 bg-red-50 p-6 text-[#0f172a]">
-                  <div className="font-bold mb-1">
-                    A {selectedDate.label} időpont {selectedDate.status === "Törölve" ? "elmarad" : "betelt"}.
+              <div className="mb-20 space-y-8">
+                {canBook ? (
+                  <BookingSection
+                    selectedDate={selectedDate}
+                    trip={trip}
+                    priceBox={priceBox}
+                  />
+                ) : trip.hasBookableDates ? (
+                  <div className="rounded-[28px] border border-red-100 bg-red-50 p-6 text-[#0f172a]">
+                    <div className="font-bold mb-1">
+                      A {selectedDate.label} időpont {selectedDate.status === "Törölve" ? "elmarad" : "betelt"}.
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      Válassz egy másik időpontot, vagy kérj ajánlatot alább.
+                    </p>
                   </div>
-                  <p className="text-gray-600 text-sm">
-                    Válassz egy másik időpontot, vagy kérj ajánlatot alább.
-                  </p>
-                </div>
-              ) : null}
+                ) : null}
 
-              <GroupInquirySection
-                trip={trip}
-                requestOnly={!canBook}
-                opened={groupInquiryOpened}
-                onOpen={() => openGroupInquiry("section")}
-              />
+                <GroupInquirySection
+                  trip={trip}
+                  requestOnly={!canBook}
+                  opened={groupInquiryOpened}
+                  onOpen={() => openGroupInquiry("section")}
+                />
 
-              <BookingHowItWorks />
+                <BookingHowItWorks />
+              </div>
 
               <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
             </div>
@@ -826,7 +828,7 @@ function DeparturePlacesSection({ places }: { places: TripDetail["departurePlace
   }
 
   return (
-    <section className="rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_16px_50px_rgba(15,23,42,0.06)] md:p-8">
+    <section className="mb-20 rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_16px_50px_rgba(15,23,42,0.06)] md:p-8">
       <SectionEyebrow title="Felszállás" />
       <h2 className="text-2xl font-bold tracking-tight text-[#0f172a]">Felszállási lehetőségek</h2>
       <ul className="mt-5 flex flex-wrap gap-2">
