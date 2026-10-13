@@ -102,6 +102,27 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertSame(269600.0, $data->price);
     }
 
+    public function test_tables_subheadings_and_extra_price_details_are_kept(): void
+    {
+        $html = '<html><body><div class="program-content">'
+            .'<h2 class="h2_title">Albánia, a Balkán riviérája</h2>'
+            .'<p>1. NAP<br>Indulás.</p>'
+            .'<p>Részvételi díj: 122.900 Ft/fő helyett 116.900 Ft/fő Előfoglalási határidő 2026. október 15-ig!</p>'
+            .'<h2>400 ÉVES PINCÉBEN</h2>'
+            .'<table><tr><td>Velence-Murano-Burano szigetek</td><td>55 Euro/fő</td></tr></table>'
+            .'<p>Csatlakozási lehetőség: Miskolc, Debrecen</p>'
+            .'</div></body></html>';
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+        $notes = (string) $data->notesHtml;
+
+        $this->assertStringContainsString('Előfoglalási határidő 2026. október 15-ig!', $notes);
+        $this->assertStringContainsString('400 ÉVES PINCÉBEN', $notes);
+        $this->assertStringContainsString('Velence-Murano-Burano szigetek', $notes);
+        $this->assertStringContainsString('Csatlakozási lehetőség: Miskolc, Debrecen', $notes);
+        $this->assertStringNotContainsString('Balkán riviérája', $notes);
+    }
+
     public function test_it_extracts_program_days_from_unstructured_paragraphs(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), self::SOURCE_URL);
@@ -230,7 +251,8 @@ class LegacyAdriaOfferParserTest extends TestCase
             ['type' => 'excluded', 'text' => 'kedvezményes vacsora: 8.000 Ft/fő'],
         ], $data->priceItems);
         $this->assertSame('<p>Előfoglalási kedvezmény 2026.10.31-ig</p>', $data->discountsHtml);
-        $this->assertSame('<p>Felszállási lehetőség: Miskolc</p>', $data->notesHtml);
+        // The struck price is shown as on the legacy page; the towns line too.
+        $this->assertSame("<p>Részvételi díj: 94.600 Ft/fő helyett 89.900 Ft/fő</p>\n<p>Felszállási lehetőség: Miskolc</p>", $data->notesHtml);
         $this->assertSame(94600.0, $data->price);
     }
 

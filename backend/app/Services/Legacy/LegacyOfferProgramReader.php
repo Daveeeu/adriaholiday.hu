@@ -28,6 +28,13 @@ final class LegacyOfferProgramReader
      */
     private const PROGRAM_DAY_TITLE_MAX_LENGTH = 255;
 
+    /**
+     * Blocks kept as they are, like a free paragraph: price and excursion
+     * tables, lists and subheadings ("400 ÉVES PINCÉBEN"). The h2 opening the
+     * program only repeats the offer name and is left out.
+     */
+    private const FREE_BLOCKS = ['table', 'ul', 'ol', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'];
+
     private const DAY_HEADING = '/^(\d{1,2})\.\s*NAP\.?\s*(.*)$/iu';
 
     /** @var array<int, array{day_number: int, title: string, description: string}> */
@@ -72,8 +79,16 @@ final class LegacyOfferProgramReader
         $reader = new self;
 
         foreach ($container?->childNodes ?? [] as $node) {
-            if ($node instanceof DOMElement && strtolower($node->tagName) === 'p') {
+            if (! $node instanceof DOMElement) {
+                continue;
+            }
+
+            $tag = strtolower($node->tagName);
+
+            if ($tag === 'p') {
                 $reader->readParagraph($node);
+            } elseif (in_array($tag, self::FREE_BLOCKS, true) && ! str_contains($node->getAttribute('class'), 'h2_title')) {
+                $reader->readFreeBlock($node);
             }
         }
 
@@ -87,6 +102,26 @@ final class LegacyOfferProgramReader
             'discountsHtml' => $reader->discounts !== [] ? implode("\n", $reader->discounts) : null,
             'price' => $reader->price,
         ];
+    }
+
+    /**
+     * A table, list or subheading: part of the day it follows while the
+     * program is open, a note otherwise.
+     */
+    private function readFreeBlock(DOMElement $node): void
+    {
+        if (trim($node->textContent) === '') {
+            return;
+        }
+
+        if ($this->programOpen) {
+            $this->pendingParagraphs[] = $node;
+
+            return;
+        }
+
+        $this->listType = null;
+        $this->notes[] = $this->sanitizeParagraph($node);
     }
 
     private function readParagraph(DOMElement $node): void
@@ -170,7 +205,15 @@ final class LegacyOfferProgramReader
             'discounts' => $this->discounts[] = '<p>'.e($line).'</p>',
         };
 
-        return true;
+        // The towns line stays readable as on the legacy page, and so does a
+        // price line saying more than the price and what it includes
+        // ("…helyett 116.900 Ft/fő Előfoglalási kedvezmény október 15-ig!",
+        // "kérje ajánlatunkat!", "– miskolci indulással").
+        return match ($section) {
+            'departures' => false,
+            'price' => ! $this->priceLineSaysMore($line),
+            default => true,
+        };
     }
 
     /**
@@ -214,6 +257,19 @@ final class LegacyOfferProgramReader
 
         $this->addPriceItem('included', Str::ucfirst(trim($included, " \t:.")));
         $this->addPriceItem('excluded', Str::ucfirst(trim($excluded, " \t:.")));
+    }
+
+    /**
+     * Whether a price line says anything besides the price and, in prose,
+     * what it includes and excludes (those become price items).
+     */
+    private function priceLineSaysMore(string $line): bool
+    {
+        $rest = (string) preg_replace('/(,?\s*(mely|amely)?\s*tartalmazza|\.\s*nem tartalmazza).*$/iu', '', $line);
+        $rest = (string) preg_replace('/részvételi\s+díj[^:]*:?/iu', '', $rest);
+        $rest = (string) preg_replace('/[\d][\d.\s]*(,-)?\.?-?\s*ft(\s*\/\s*fő)?(-t[óő]l)?/iu', '', $rest);
+
+        return preg_match('/\p{L}{3,}/u', $rest) === 1;
     }
 
     private function startPriceList(string $type, string $inlineItem): void
