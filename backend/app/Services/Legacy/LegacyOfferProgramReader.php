@@ -266,7 +266,7 @@ final class LegacyOfferProgramReader
     private function priceLineSaysMore(string $line): bool
     {
         $rest = (string) preg_replace('/(,?\s*(mely|amely)?\s*tartalmazza|\.\s*nem tartalmazza).*$/iu', '', $line);
-        $rest = (string) preg_replace('/részvételi\s+díj[^:]*:?/iu', '', $rest);
+        $rest = (string) preg_replace('/részvételi\s+díj\p{L}*\s*:?/iu', '', $rest);
         $rest = (string) preg_replace('/[\d][\d.\s]*(,-)?\.?-?\s*ft(\s*\/\s*fő)?(-t[óő]l)?/iu', '', $rest);
 
         return preg_match('/\p{L}{3,}/u', $rest) === 1;

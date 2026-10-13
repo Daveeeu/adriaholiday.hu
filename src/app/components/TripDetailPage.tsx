@@ -878,7 +878,7 @@ function PriceInformationSection({ priceInformation }: { priceInformation?: { in
 
         {excluded.length > 0 ? (
           <PriceInformationCard
-            title="Az ár nem tartalmazza"
+            title="Milyen további költségek merülhetnek fel?"
             items={excluded}
           />
         ) : null}

@@ -111,6 +111,7 @@ class LegacyAdriaOfferParserTest extends TestCase
             .'<h2>400 ÉVES PINCÉBEN</h2>'
             .'<table><tr><td>Velence-Murano-Burano szigetek</td><td>55 Euro/fő</td></tr></table>'
             .'<p>Csatlakozási lehetőség: Miskolc, Debrecen</p>'
+            .'<p>Részvételi díj 187.900 Ft/fő helyett 179.900 Ft/fő</p>'
             .'</div></body></html>';
 
         $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
@@ -121,6 +122,7 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertStringContainsString('Velence-Murano-Burano szigetek', $notes);
         $this->assertStringContainsString('Csatlakozási lehetőség: Miskolc, Debrecen', $notes);
         $this->assertStringNotContainsString('Balkán riviérája', $notes);
+        $this->assertStringContainsString('Részvételi díj 187.900 Ft/fő helyett 179.900 Ft/fő', $notes);
     }
 
     public function test_it_extracts_program_days_from_unstructured_paragraphs(): void
