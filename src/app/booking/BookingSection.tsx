@@ -19,6 +19,7 @@ import {
   type BookingDeparturePlace,
   type BookingExtra,
   type BookingInsurances,
+  type BookingPriceEstimate,
   type PassengerOptions,
 } from "./booking-pricing";
 import { parseDiscountPercent } from "../content/discount-badge";
@@ -705,6 +706,14 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                     extraChoiceError={extraChoiceError ?? undefined}
                     hasPassengerOptions={hasPassengerOptions}
                   />
+
+                  <PriceSummary estimate={priceEstimate} className="mt-6">
+                    {passengers.length === 1 ? (
+                      <p className="mt-3 text-xs text-gray-500">
+                        Az összeg 1 utassal számol. További utasokat a 3. lépésben adhatsz hozzá.
+                      </p>
+                    ) : null}
+                  </PriceSummary>
                 </StepPanel>
               )}
 
@@ -816,25 +825,14 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                       </div>
                     ) : null}
 
-                    {priceEstimate.lines.length > 0 ? (
-                      <div className="rounded-2xl bg-[#f5f9fc] border border-gray-100 p-5">
-                        <div className="font-bold text-[#0f172a] mb-3">Árösszesítő</div>
-                        <ul className="space-y-2 text-sm">
-                          {[...priceEstimate.lines, ...priceEstimate.insuranceLines].map((line) => (
-                            <li key={line.key} className="flex justify-between gap-4">
-                              <span className="text-gray-600">{line.label}</span>
-                              <span className="font-bold text-[#0f172a] whitespace-nowrap">{formatHuf(line.amount)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                        {trip.couponable ? (
-                          <p className="mt-3 text-xs text-gray-500">
-                            A kupon értékét a foglalás beküldésekor vonjuk le a végösszegből. Ha foglaláskor nem adod meg a
-                            kuponkódodat, utólag sajnos nem tudjuk érvényesíteni.
-                          </p>
-                        ) : null}
-                      </div>
-                    ) : null}
+                    <PriceSummary estimate={priceEstimate}>
+                      {trip.couponable ? (
+                        <p className="mt-3 text-xs text-gray-500">
+                          A kupon értékét a foglalás beküldésekor vonjuk le a végösszegből. Ha foglaláskor nem adod meg a
+                          kuponkódodat, utólag sajnos nem tudjuk érvényesíteni.
+                        </p>
+                      ) : null}
+                    </PriceSummary>
 
                     <div>
                       <label className="flex items-start gap-3 text-sm text-[#0f172a] cursor-pointer">
@@ -1003,6 +1001,36 @@ function StepPanel({
         <p className="text-gray-500 text-base leading-relaxed">{text}</p>
       </div>
 
+      {children}
+    </div>
+  );
+}
+
+/** What the total is made of, line by line, as the backend will charge it. */
+function PriceSummary({
+  estimate,
+  className = "",
+  children,
+}: {
+  estimate: BookingPriceEstimate;
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  if (estimate.lines.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={`rounded-2xl bg-[#f5f9fc] border border-gray-100 p-5 ${className}`}>
+      <div className="font-bold text-[#0f172a] mb-3">Árösszesítő</div>
+      <ul className="space-y-2 text-sm">
+        {[...estimate.lines, ...estimate.insuranceLines].map((line) => (
+          <li key={line.key} className="flex justify-between gap-4">
+            <span className="text-gray-600">{line.label}</span>
+            <span className="font-bold text-[#0f172a] whitespace-nowrap">{formatHuf(line.amount)}</span>
+          </li>
+        ))}
+      </ul>
       {children}
     </div>
   );
