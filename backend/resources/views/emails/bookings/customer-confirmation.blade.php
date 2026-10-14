@@ -181,6 +181,7 @@
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="{{ $card }}margin-bottom:24px;">
             <tr><td style="padding:20px 22px;">
                 <p style="{{ $heading }}">📋 Fontos tudnivalók</p>
+                <p style="{{ $font }}margin:0 0 14px;color:#0f172a;font-size:14px;font-weight:700;line-height:1.6;">Az utazással kapcsolatos részletes információkat az utazás előtt megkapod tőlünk.</p>
                 @if ($entryRequirementLinks !== [])
                     <p style="{{ $font }}margin:0 0 6px;color:#334155;font-size:14px;line-height:1.6;">Aktuális beutazási feltételek:</p>
                     @foreach ($entryRequirementLinks as $link)
