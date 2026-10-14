@@ -24,7 +24,12 @@
     {{-- Header --}}
     <tr><td style="background:#0f172a;background-image:linear-gradient(135deg,#00c389 0%,#16b8ff 100%);border-radius:20px 20px 0 0;padding:32px 32px 28px;">
         @if ($company['logoUrl'])
-            <img src="{{ $company['logoUrl'] }}" alt="{{ $company['name'] }}" height="44" style="display:block;height:44px;width:auto;border:0;margin-bottom:24px;">
+            {{-- On a white card, as in the site header, so the logo keeps its colours on the gradient. --}}
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;"><tr>
+                <td style="background:#ffffff;border-radius:16px;padding:10px 14px;box-shadow:0 10px 30px rgba(15,23,42,0.12);">
+                    <img src="{{ $company['logoUrl'] }}" alt="{{ $company['name'] }}" height="40" style="display:block;height:40px;width:auto;border:0;">
+                </td>
+            </tr></table>
         @else
             <div style="{{ $font }}color:#ffffff;font-size:20px;font-weight:800;margin-bottom:24px;">{{ $company['name'] }}</div>
         @endif
