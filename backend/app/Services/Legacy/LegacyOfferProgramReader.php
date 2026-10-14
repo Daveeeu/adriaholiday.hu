@@ -340,9 +340,40 @@ final class LegacyOfferProgramReader
             $this->appendToLastDay([array_shift($pending)]);
         }
 
+        // "Igény esetén az aquileai program helyett választható fakultatív
+        // kirándulás:" followed by "a., …" / "b., …" options belongs to the
+        // last day, as the legacy page shows it right under that day.
+        if ($this->days !== [] && $pending !== [] && $this->introducesOptions($pending)) {
+            $options = [array_shift($pending)];
+
+            while ($pending !== [] && $this->isOption($pending[0])) {
+                $options[] = array_shift($pending);
+            }
+
+            $this->appendToLastDay($options);
+        }
+
         foreach ($pending as $node) {
             $this->notes[] = $this->sanitizeParagraph($node);
         }
+    }
+
+    /**
+     * @param  array<int, DOMElement>  $pending
+     */
+    private function introducesOptions(array $pending): bool
+    {
+        return str_ends_with($this->normalizeWhitespace($pending[0]->textContent), ':')
+            && isset($pending[1])
+            && $this->isOption($pending[1]);
+    }
+
+    /**
+     * An option of a list such as "a., Bledi tó…", "b) Grotte Gigante…" or "- Piran".
+     */
+    private function isOption(DOMElement $node): bool
+    {
+        return preg_match('/^([a-h]\s*[.,)]|[-•–])/u', $this->normalizeWhitespace($node->textContent)) === 1;
     }
 
     /**

@@ -125,6 +125,26 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertStringContainsString('Részvételi díj 187.900 Ft/fő helyett 179.900 Ft/fő', $notes);
     }
 
+    public function test_options_offered_instead_of_the_last_day_belong_to_that_day(): void
+    {
+        $html = '<html><body><div class="program-content">'
+            .'<p>1. NAP BIBIONE<br>Indulás.</p>'
+            .'<p>2. NAP AQUILEIA<br>Hazaérkezés.</p>'
+            .'<p>Igény esetén az aquileai program helyett választható fakultatív kirándulás:</p>'
+            .'<p>a., Bledi tó<br>Utazás Bledbe.</p>'
+            .'<p>b., Piran<br>Séta az óvárosban.</p>'
+            .'<p>Részvételi díj: 74.900 Ft/fő</p>'
+            .'</div></body></html>';
+
+        $data = (new LegacyAdriaOfferParser)->parse($html, self::SOURCE_URL);
+        $lastDay = $data->programDays[1]['description'];
+
+        $this->assertStringContainsString('helyett választható fakultatív kirándulás:', $lastDay);
+        $this->assertStringContainsString('Bledi tó', $lastDay);
+        $this->assertStringContainsString('Piran', $lastDay);
+        $this->assertStringNotContainsString('Bledi tó', (string) $data->notesHtml);
+    }
+
     public function test_it_extracts_program_days_from_unstructured_paragraphs(): void
     {
         $data = (new LegacyAdriaOfferParser)->parse($this->html(), self::SOURCE_URL);
