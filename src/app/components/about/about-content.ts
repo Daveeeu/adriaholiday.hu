@@ -42,7 +42,7 @@ export const aboutFallback = {
   },
   intro: {
     statement: "Minőséget nyújtani elfogadható, korrekt árakon.",
-    text: "Ennyi a lényeg, és 23 éve ehhez tartjuk magunkat. Az Adria Holiday csapata azon dolgozik, hogy utasaink pihenjenek, feltöltődjenek, közben tanuljanak is valamit a helyekről, ahol járnak – és jó kedvvel emlékezzenek vissza a velünk töltött napokra.",
+    text: "Ennyi a lényeg, és 23 éve ehhez tartjuk magunkat. Az Adria Holiday csapata azon dolgozik, hogy utasaink pihenjenek, feltöltődjenek, közben felfedezzék a világot – és jó kedvvel emlékezzenek vissza a velünk töltött napokra.",
   },
   timeline: {
     eyebrow: "A TÖRTÉNETÜNK",
@@ -59,7 +59,7 @@ export const aboutFallback = {
       {
         year: "Az első nyártól",
         title: "Bibione, minden évben",
-        description: "Az első évtől szerepel a kínálatunkban. Vannak utasaink, akik minden nyáron velünk mennek.",
+        description: "Az első évtől szerepel a kínálatunkban. Vannak utasaink, akik minden nyáron velünk utaznak.",
       },
       {
         year: "Évről évre",
@@ -74,7 +74,7 @@ export const aboutFallback = {
       {
         year: "Ma",
         title: "10 000+ utas után",
-        description: "Újszerű buszokkal, ismerős idegenvezetőkkel és ugyanazzal az elvvel: igényes utazás, elérhető áron.",
+        description: "Újszerű buszokkal, tapasztalt idegenvezetőkkel és ugyanazzal az elvvel: igényes utazás, elérhető áron.",
       },
     ] satisfies AboutMilestone[],
   },
@@ -143,7 +143,7 @@ export const aboutFallback = {
   },
   values: {
     titleParts: [
-      { text: "Amit velünk" },
+      { text: "Amit tőlünk" },
       { text: "kapsz", variant: "gradient" },
     ] satisfies PortfolioHeadingPart[],
     items: [
