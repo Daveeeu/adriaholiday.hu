@@ -57,7 +57,7 @@ export default function BookingExtraOption({
             </label>
           ))}
           {!choice && choiceError ? (
-            <span className="block text-sm font-medium text-red-500">{choiceError}</span>
+            <span data-booking-error className="block text-sm font-medium text-red-500">{choiceError}</span>
           ) : null}
         </div>
       ) : null}

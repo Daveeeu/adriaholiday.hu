@@ -179,5 +179,9 @@ function FieldDescription({ field, className = "mt-1.5" }: { field: BookingFormF
 }
 
 function FieldError({ error }: { error?: string }) {
-  return error ? <span className="mt-1.5 block text-sm font-medium text-red-500">{error}</span> : null;
+  return error ? (
+    <span data-booking-error className="mt-1.5 block text-sm font-medium text-red-500">
+      {error}
+    </span>
+  ) : null;
 }

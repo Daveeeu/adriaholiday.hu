@@ -37,6 +37,7 @@ import { submitBooking, BookingApiError, BookingValidationError } from "./bookin
 import BarionPaymentBanner from "../components/BarionPaymentBanner";
 import { INSURANCE_PATH } from "./insurance";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { bringIntoView } from "../lib/bringIntoView";
 
 type FieldErrorState = {
   form: BookingFieldErrors;
@@ -261,13 +262,40 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const confirmationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (status !== "success" && status !== "redirecting") {
+    if ((status === "success" || status === "redirecting") && confirmationRef.current) {
+      bringIntoView(confirmationRef.current);
+    }
+  }, [status]);
+
+  // After "Következő" / "Vissza" the new step, after a failed check the first
+  // error, is brought to the middle of the screen with focus on it.
+  const wizardRef = useRef<HTMLDivElement>(null);
+  const [focusRequest, setFocusRequest] = useState<{ target: "step" | "error"; id: number } | null>(null);
+
+  function requestFocus(target: "step" | "error") {
+    setFocusRequest((current) => ({ target, id: (current?.id ?? 0) + 1 }));
+  }
+
+  useEffect(() => {
+    const wizard = wizardRef.current;
+
+    if (!focusRequest || !wizard) {
       return;
     }
 
-    confirmationRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    confirmationRef.current?.focus({ preventScroll: true });
-  }, [status]);
+    if (focusRequest.target === "step") {
+      const heading = wizard.querySelector<HTMLElement>("[data-step-heading]");
+      bringIntoView(wizard, heading ?? wizard);
+      return;
+    }
+
+    const error = wizard.querySelector<HTMLElement>("[data-booking-error]");
+    const block = error?.closest<HTMLElement>("label, fieldset, li") ?? error;
+
+    if (block) {
+      bringIntoView(block, block.querySelector<HTMLElement>("input, select, textarea") ?? block);
+    }
+  }, [focusRequest]);
 
   const steps = [
     { id: 1, title: "Utazás" },
@@ -471,6 +499,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
 
   function nextStep() {
     if (step === 1 && !validateBookingOptions()) {
+      requestFocus("error");
       return;
     }
 
@@ -478,6 +507,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       const errors = fieldErrorsOf(contactFields, formValues);
       setFieldErrors((current) => ({ ...current, form: errors }));
       if (Object.keys(errors).length > 0) {
+        requestFocus("error");
         return;
       }
     }
@@ -487,24 +517,31 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       setFieldErrors((current) => ({ ...current, passengers: errors }));
       const choicesValid = validatePassengerChoices();
       if (Object.keys(errors).length > 0 || !choicesValid) {
+        requestFocus("error");
         return;
       }
     }
 
-    setStep((prev) => Math.min(prev + 1, 4));
+    goToStep(Math.min(step + 1, 4));
   }
 
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+  function goToStep(target: number) {
+    setStep(target);
+    requestFocus("step");
+  }
 
-  async function handleSubmit() {
+  const prevStep = () => goToStep(Math.max(step - 1, 1));
+
+  /** Checks every step once more before sending, and opens the first step with an error. */
+  function validateBeforeSubmit(): boolean {
     if (!validateBookingOptions()) {
       setStep(1);
-      return;
+      return false;
     }
 
     if (!validatePassengerChoices()) {
       setStep(STEP_OF_GROUP.passenger);
-      return;
+      return false;
     }
 
     const errors = validateAll();
@@ -513,12 +550,21 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     const errorStep = firstStepWithError(fields, errors);
     if (errorStep !== null) {
       setStep(errorStep);
-      return;
+      return false;
     }
 
     if (!termsAccepted) {
       setTermsError(TERMS_REQUIRED_MESSAGE);
       setStep(4);
+      return false;
+    }
+
+    return true;
+  }
+
+  async function handleSubmit() {
+    if (!validateBeforeSubmit()) {
+      requestFocus("error");
       return;
     }
 
@@ -569,6 +615,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
       setStatus("success");
     } catch (submitError) {
       setStatus("error");
+      requestFocus("error");
 
       if (submitError instanceof BookingValidationError) {
         const errors: FieldErrorState = { form: {}, passengers: {} };
@@ -711,7 +758,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
             </p>
           </div>
 
-          <div className="rounded-[30px] bg-white/8 border border-white/10 backdrop-blur-xl p-4 md:p-6">
+          <div ref={wizardRef} className="rounded-[30px] bg-white/8 border border-white/10 backdrop-blur-xl p-4 md:p-6">
             <div className="grid grid-cols-4 gap-3 mb-6">
               {steps.map((item) => {
                 const active = step === item.id;
@@ -720,7 +767,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                 return (
                   <button
                     key={item.id}
-                    onClick={() => setStep(item.id)}
+                    onClick={() => goToStep(item.id)}
                     className={`h-12 rounded-2xl flex items-center justify-center gap-2 transition-all ${
                       active
                         ? "bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white"
@@ -937,7 +984,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                           elolvastam és elfogadom, a személyes adataim kezeléséhez hozzájárulok.*
                         </span>
                       </label>
-                      {termsError ? <p className="mt-2 text-sm font-medium text-red-600">{termsError}</p> : null}
+                      {termsError ? <p data-booking-error className="mt-2 text-sm font-medium text-red-600">{termsError}</p> : null}
                     </div>
 
                     <label className="flex items-start gap-3 text-sm text-[#0f172a] cursor-pointer">
@@ -962,7 +1009,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                   </div>
 
                   {errorMessage ? (
-                    <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+                    <div data-booking-error tabIndex={-1} className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 outline-none">
                       {errorMessage}
                     </div>
                   ) : null}
@@ -1071,7 +1118,7 @@ function StepPanel({
   return (
     <div>
       <div className="mb-5">
-        <h3 className="text-2xl md:text-3xl font-bold text-[#0f172a] mb-2 tracking-tight">
+        <h3 data-step-heading tabIndex={-1} className="text-2xl md:text-3xl font-bold text-[#0f172a] mb-2 tracking-tight outline-none">
           {title}
         </h3>
         <p className="text-gray-500 text-base leading-relaxed">{text}</p>

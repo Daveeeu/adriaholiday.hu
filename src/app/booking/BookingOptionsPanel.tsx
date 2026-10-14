@@ -55,6 +55,7 @@ export default function BookingOptionsPanel({
           <span className="block text-sm font-bold text-[#0f172a] mb-2">Felszállás helye*</span>
           <select
             value={departurePlaceId}
+            aria-invalid={departurePlaceError ? true : undefined}
             onChange={(event) => onDeparturePlaceChange(event.target.value)}
             className={`w-full h-14 rounded-2xl border bg-white px-5 outline-none focus:ring-4 transition-all ${
               departurePlaceError
@@ -70,7 +71,7 @@ export default function BookingOptionsPanel({
             ))}
           </select>
           {departurePlaceError ? (
-            <span className="mt-1.5 block text-sm font-medium text-red-500">{departurePlaceError}</span>
+            <span data-booking-error className="mt-1.5 block text-sm font-medium text-red-500">{departurePlaceError}</span>
           ) : null}
         </label>
       ) : null}

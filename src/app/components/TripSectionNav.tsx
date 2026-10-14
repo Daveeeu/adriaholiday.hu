@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { TRIP_SECTION_ATTRIBUTE } from "../lib/tripSection";
+import { stickyTop } from "../lib/bringIntoView";
 
 type NavSection = { label: string; element: HTMLElement };
 
@@ -100,6 +101,7 @@ export default function TripSectionNav({ children }: { children: ReactNode }) {
       {sections.length > 1 ? (
         <nav
           ref={navRef}
+          {...stickyTop}
           aria-label="Az utazás részletei"
           className="sticky top-0 z-30 -mx-8 mb-12 border-b border-gray-100 bg-white/90 px-8 py-3 backdrop-blur-md md:top-[77px] md:-mx-0 md:rounded-[24px] md:border md:px-3 md:shadow-[0_12px_40px_rgba(15,23,42,0.06)]"
         >
