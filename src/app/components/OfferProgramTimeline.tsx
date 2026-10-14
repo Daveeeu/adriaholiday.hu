@@ -137,33 +137,35 @@ export default function OfferProgramTimeline({
                       ) : null}
                     </div>
 
-                    <div className="relative overflow-hidden rounded-[26px] min-h-[190px] p-5 flex flex-col justify-between group/preview">
+                    {/* A fixed-size tile, so every day's picture is the same size whatever its text's length. */}
+                    <div className="group/preview relative isolate flex h-56 flex-col justify-between overflow-hidden rounded-[26px] p-4 ring-1 ring-black/5 shadow-[0_18px_40px_rgba(15,23,42,0.18)] lg:h-[260px] lg:self-start">
                       {day.image ? (
                         <img
                           {...responsiveImage(day.image)}
-                          sizes="(min-width: 1024px) 33vw, 100vw"
+                          sizes="(min-width: 1024px) 220px, 100vw"
                           alt={day.title}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/preview:scale-110"
+                          className="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-700 ease-out group-hover/preview:scale-110"
                           loading="lazy"
                           decoding="async"
                         />
                       ) : (
-                        <div className="absolute inset-0 bg-[linear-gradient(145deg,#07111f,#0d2240_58%,#12315d)]" />
+                        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(0,195,137,0.35),transparent_45%),radial-gradient(circle_at_85%_80%,rgba(22,184,255,0.3),transparent_45%),linear-gradient(145deg,#07111f,#0d2240_58%,#12315d)]" />
                       )}
 
-                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#07111f]/60 to-transparent" />
+                      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#07111f]/90 via-[#07111f]/25 to-[#07111f]/10" />
 
-                      <div className="relative w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md text-[#00f0a8] flex items-center justify-center border border-white/10">
-                        {renderContentIcon(day.icon, "w-6 h-6")}
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/15 text-[#00f0a8] shadow-[0_8px_20px_rgba(0,0,0,0.2)] backdrop-blur-md">
+                        {renderContentIcon(day.icon, "w-5 h-5")}
                       </div>
 
-                      <div className="relative">
-                        <div className="text-white/65 text-xs mb-1">
+                      <div>
+                        <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">
                           Élmény típusa
                         </div>
-                        <div className="text-white text-lg font-bold">
+                        <div className="text-lg font-bold leading-tight text-white">
                           {day.experienceType?.trim() || "Program"}
                         </div>
+                        <div className="mt-3 h-1 w-10 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff] transition-all duration-500 group-hover/preview:w-16" />
                       </div>
                     </div>
                   </div>
