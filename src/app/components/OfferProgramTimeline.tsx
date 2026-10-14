@@ -9,6 +9,7 @@ import { sanitizeRichTextHtml } from "@/lib/rich-text";
 import type { PortfolioOfferProgramDay } from "@/app/content/portfolio-offer-detail-api";
 import { useKeywordHighlight } from "@/app/content/keyword-highlight-context";
 import { JUSTIFIED_TEXT } from "../lib/justifiedText";
+import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 import { responsiveImage } from "../lib/responsiveImage";
 import { tripSection } from "../lib/tripSection";
 
@@ -59,11 +60,11 @@ export default function OfferProgramTimeline({
         PROGRAM
       </div>
 
-      <h2 className="text-5xl font-bold text-[#0f172a] mb-4 tracking-tight">
+      <h2 className={`${TRIP_SECTION_HEADING} mb-4`}>
         Részletes program
       </h2>
 
-      <p className="text-gray-500 text-lg mb-14">
+      <p className={`${TRIP_SECTION_SUBTITLE} mb-12`}>
         Napokra bontott áttekintés az utazás főbb élményeiről.
       </p>
 
@@ -111,12 +112,12 @@ export default function OfferProgramTimeline({
                         {day.dayNumber}. nap
                       </div>
 
-                      <h3 className="text-2xl md:text-3xl font-bold text-[#0f172a] mb-3">
+                      <h3 className="text-xl md:text-2xl font-bold text-[#0f172a] mb-3">
                         {day.title}
                       </h3>
 
                       <div
-                        className={`text-gray-600 leading-relaxed max-w-3xl [&_p]:mb-0 [&_p]:leading-relaxed [&_p+p]:mt-3 ${JUSTIFIED_TEXT}`}
+                        className={`text-[0.95rem] text-gray-600 leading-relaxed max-w-3xl [&_p]:mb-0 [&_p]:leading-relaxed [&_p+p]:mt-3 ${JUSTIFIED_TEXT}`}
                         dangerouslySetInnerHTML={{
                           __html: highlight(descriptionHtml(day.description, intro)),
                         }}
@@ -160,7 +161,7 @@ export default function OfferProgramTimeline({
                         <div className="text-white/65 text-xs mb-1">
                           Élmény típusa
                         </div>
-                        <div className="text-white text-xl font-bold">
+                        <div className="text-white text-lg font-bold">
                           {day.experienceType?.trim() || "Program"}
                         </div>
                       </div>

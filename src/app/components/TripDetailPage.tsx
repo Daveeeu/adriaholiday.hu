@@ -38,6 +38,7 @@ import OfferCard from "./OfferCard";
 import BookingHowItWorks from "./BookingHowItWorks";
 import TripSectionNav from "./TripSectionNav";
 import { tripSection } from "../lib/tripSection";
+import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 import BookingSection from "../booking/BookingSection";
 import { formatHuf } from "../booking/booking-pricing";
 import GroupInquirySection, {
@@ -195,7 +196,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
           <h1
             className="text-white max-w-4xl"
             style={{
-              fontSize: "clamp(3rem,6vw,6rem)",
+              fontSize: "clamp(2.25rem,4.5vw,4.5rem)",
               lineHeight: 0.95,
               fontWeight: 800,
               letterSpacing: "-0.05em",
@@ -205,12 +206,12 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
           </h1>
 
           {trip.subtitle ? (
-            <p className="text-white/85 text-2xl font-medium max-w-2xl mt-3">
+            <p className="text-white/85 text-xl font-medium max-w-2xl mt-3">
               {trip.subtitle}
             </p>
           ) : null}
 
-          <p className="text-white/75 text-xl max-w-2xl mt-8 leading-relaxed">
+          <p className="text-white/75 text-lg max-w-2xl mt-6 leading-relaxed">
             {trip.shortDescription}
           </p>
 
@@ -894,11 +895,11 @@ function PriceInformationSection({ priceInformation }: { priceInformation?: { in
     <div className="mb-20" {...tripSection("Mit tartalmaz az ár?")}>
       <SectionEyebrow title="ÁRINFORMÁCIÓ" />
 
-      <h2 className="mb-4 text-5xl font-bold tracking-tight text-[#0f172a]">
+      <h2 className={`${TRIP_SECTION_HEADING} mb-4`}>
         Mit tartalmaz az ár?
       </h2>
 
-      <p className="mb-10 text-lg text-gray-500">
+      <p className={`${TRIP_SECTION_SUBTITLE} mb-10`}>
         Átlátható információk a foglalás előtt.
       </p>
 
@@ -925,7 +926,7 @@ function PriceInformationSection({ priceInformation }: { priceInformation?: { in
 function PriceInformationCard({ title, items, positive = false }: { title: string; items: Array<{ id: string; text: string }>; positive?: boolean; }) {
   return (
     <div className="bg-white rounded-[30px] border border-gray-100 p-8">
-      <h3 className="text-2xl font-bold text-[#0f172a] mb-6">{title}</h3>
+      <h3 className="text-xl font-bold text-[#0f172a] mb-6">{title}</h3>
 
       <div className="space-y-4">
         {items.map((item) => (
@@ -938,7 +939,7 @@ function PriceInformationCard({ title, items, positive = false }: { title: strin
               {positive ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
             </div>
 
-            <span className="text-gray-700">{item.text}</span>
+            <span className="text-[0.95rem] text-gray-700">{item.text}</span>
           </div>
         ))}
       </div>
@@ -966,11 +967,11 @@ function SimilarTrips({
     <section className="mt-24">
       <SectionEyebrow title="HASONLÓ UTAK" />
 
-      <h2 className="text-5xl font-bold text-[#0f172a] mb-4 tracking-tight">
+      <h2 className={`${TRIP_SECTION_HEADING} mb-4`}>
         Ezek is érdekelhetnek
       </h2>
 
-      <p className="text-gray-500 text-lg mb-10">
+      <p className={`${TRIP_SECTION_SUBTITLE} mb-10`}>
         Hasonló hangulatú, tengerparti és városnézős ajánlatok.
       </p>
 

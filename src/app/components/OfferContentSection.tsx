@@ -12,6 +12,7 @@ import { isRichTextEmpty, sanitizeRichTextHtml } from "@/lib/rich-text";
 import RichTextContent from "./RichTextContent";
 import { tripSection } from "../lib/tripSection";
 import { JUSTIFIED_TEXT } from "../lib/justifiedText";
+import { TRIP_SECTION_HEADING } from "../lib/tripTypography";
 
 type OfferContentSectionProps = {
   title: string;
@@ -105,7 +106,7 @@ export default function OfferContentSection({
         {meta.eyebrow}
       </div>
 
-      <h2 className="text-5xl font-bold text-[#0f172a] mb-6 tracking-tight">
+      <h2 className={`${TRIP_SECTION_HEADING} mb-6`}>
         {title}
       </h2>
 
@@ -113,7 +114,7 @@ export default function OfferContentSection({
         <div className="p-6 md:p-8 lg:p-9">
           <RichTextContent
             html={html}
-            className={`prose-h2:mb-4 prose-h2:text-2xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-xl prose-p:text-[1.02rem] prose-li:leading-7 ${JUSTIFIED_TEXT}`}
+            className={`prose-h2:mb-4 prose-h2:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-lg prose-p:text-[0.95rem] prose-p:leading-7 prose-li:text-[0.95rem] prose-li:leading-7 ${JUSTIFIED_TEXT}`}
           />
         </div>
       </div>

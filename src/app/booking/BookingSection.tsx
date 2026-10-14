@@ -631,11 +631,11 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
               Biztonságos online foglalás
             </div>
 
-            <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-4">
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
               Foglalás
             </h2>
 
-            <p className="max-w-2xl text-white/65 text-lg leading-relaxed">
+            <p className="max-w-2xl text-white/65 text-base leading-relaxed">
               Válaszd ki az adatokat pár egyszerű lépésben.
             </p>
           </div>

@@ -13,6 +13,7 @@ import {
 } from './ui/dialog';
 import type { PortfolioOfferGalleryItem } from '../content/portfolio-offer-detail-api';
 import { responsiveImage } from "../lib/responsiveImage";
+import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 
 type OfferGallerySectionProps = {
   title?: string | null;
@@ -292,13 +293,13 @@ export default function OfferGallerySection({
       <SectionEyebrow title="GALÉRIA" />
 
       {sectionTitle ? (
-        <h2 className="mb-4 text-5xl font-bold tracking-tight text-[#0f172a]">
+        <h2 className={`${TRIP_SECTION_HEADING} mb-4`}>
           {sectionTitle}
         </h2>
       ) : null}
 
       {sectionSubtitle ? (
-        <p className="mb-10 text-lg text-gray-500">{sectionSubtitle}</p>
+        <p className={`${TRIP_SECTION_SUBTITLE} mb-10`}>{sectionSubtitle}</p>
       ) : null}
 
       <div className="space-y-5">
