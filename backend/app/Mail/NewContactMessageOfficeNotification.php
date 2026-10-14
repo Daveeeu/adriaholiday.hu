@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\ContactMessage;
+use App\Support\Mail\AdminUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -25,6 +26,9 @@ class NewContactMessageOfficeNotification extends Mailable
 
     public function content(): Content
     {
-        return new Content(markdown: 'emails.contact.new-office-notification');
+        return new Content(
+            view: 'emails.contact.new-office-notification',
+            with: ['adminUrl' => AdminUrl::to('/bookings/messages')],
+        );
     }
 }

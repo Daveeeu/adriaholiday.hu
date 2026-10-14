@@ -52,7 +52,7 @@ class PublicTourInquiryTest extends TestCase
         $this->assertNull($inquiry->total_amount);
 
         $html = (new NewTourInquiryOfficeNotification($inquiry, $tour))->render();
-        $this->assertStringContainsString('Utasok száma: 25 fő', $html);
+        $this->assertMatchesRegularExpression('#>Utasok száma</td><td[^>]*>25 fő</td>#', $html);
         $this->assertStringContainsString('1051, Budapest, Példa utca 12.', $html);
     }
 

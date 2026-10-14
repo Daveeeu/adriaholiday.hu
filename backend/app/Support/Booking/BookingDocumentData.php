@@ -4,12 +4,11 @@ namespace App\Support\Booking;
 
 use App\Models\Booking;
 use App\Models\BookingFormField;
-use App\Models\SiteSetting;
 use App\Models\Tour;
 use App\Models\TourReferenceOption;
 use App\Services\Booking\BookingFormValidationService;
 use App\Services\Booking\BookingPaymentService;
-use App\Support\CompanyContact;
+use App\Support\Mail\EmailCompany;
 use App\Support\TourMeta;
 use Illuminate\Support\Str;
 
@@ -67,7 +66,7 @@ final class BookingDocumentData
             'bankTransfer' => $this->bankTransfer($prices, $settings),
             'entryRequirementLinks' => $this->entryRequirementLinks(),
             'termsUrl' => rtrim((string) config('app.url'), '/').'/aszf',
-            'company' => $this->company($settings),
+            'company' => EmailCompany::resolve(),
         ];
     }
 
@@ -216,33 +215,5 @@ final class BookingDocumentData
                 'url' => self::ENTRY_REQUIREMENTS_URL.Str::slug($country->name),
             ])
             ->all();
-    }
-
-    /**
-     * @return array{name: string, logoUrl: ?string, address: string, phones: array<int, string>, email: string, website: string, websiteLabel: string, license: string}
-     */
-    private function company(BookingConfirmationSettings $settings): array
-    {
-        $contact = SiteSetting::valuesOf(CompanyContact::GROUP, ['address', 'phone', 'phones', 'email']);
-        $site = SiteSetting::query()
-            ->where(fn ($query) => $query->where('group', 'general')->where('key', 'site_name'))
-            ->orWhere(fn ($query) => $query->where('group', 'brand')->where('key', 'logo'))
-            ->get()
-            ->mapWithKeys(fn (SiteSetting $setting): array => [$setting->key => $setting->decodedValue()]);
-        $website = rtrim((string) config('app.url'), '/');
-
-        return [
-            'name' => (string) ($site->get('site_name') ?: config('app.name')),
-            'logoUrl' => $site->get('logo')['url'] ?? null,
-            'address' => (string) ($contact->get('address') ?? CompanyContact::DEFAULTS['address']['value']),
-            'phones' => CompanyContact::phoneNumbers(
-                $contact->get('phones'),
-                $contact->get('phone') ?? CompanyContact::DEFAULTS['phone']['value'],
-            ),
-            'email' => (string) ($contact->get('email') ?? CompanyContact::DEFAULTS['email']['value']),
-            'website' => $website,
-            'websiteLabel' => (string) preg_replace('#^https?://#', '', $website),
-            'license' => $settings->agencyLicenseNumber,
-        ];
     }
 }

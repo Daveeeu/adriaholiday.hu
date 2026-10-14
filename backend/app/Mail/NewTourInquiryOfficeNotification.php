@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Booking;
 use App\Models\Tour;
+use App\Support\Mail\AdminUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -29,8 +30,9 @@ class NewTourInquiryOfficeNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.bookings.new-inquiry-office-notification',
+            view: 'emails.bookings.new-inquiry-office-notification',
             with: [
+                'adminUrl' => AdminUrl::to('/bookings/tour-inquiries'),
                 'inquiry' => $this->inquiry,
                 'tour' => $this->tour,
                 'address' => collect([

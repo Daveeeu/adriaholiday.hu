@@ -897,6 +897,12 @@ Mail sending + `EmailLog` auditing is shared via `App\Services\Mail\LoggedMailer
 
 ---
 
+# Email Design
+
+Every email we send follows the customer booking confirmation's design (gradient header with the logo on a white card, white rounded cards on a light body, company footer). The building blocks are anonymous Blade components in `resources/views/components/email/`: `layout` (header, body slot, footer; `eyebrow`, `heading`, optional `subheading`/`preheader`), `card` (`title`, `highlighted` for the green border), `rows` (label–value pairs), `lines` (one text per row), `notice` (`tone` success/warning), `button` and `sign-off`. Inline styles live in `App\Support\Mail\EmailStyle` (email clients ignore stylesheets); the header/footer company data in `App\Support\Mail\EmailCompany`; links into the admin from the office notifications go through `App\Support\Mail\AdminUrl`. Mailables render these templates as `view:` — don't use Laravel's markdown mail components for new emails.
+
+---
+
 # Tour Program PDF
 
 Public `GET /api/portfolio/offers/{slug}/pdf` (throttled via the `offer-pdf` rate limiter) renders a downloadable PDF of an active tour's *current* data on demand — no PDF is ever stored; `PortfolioOfferPdfController` builds it synchronously per-request via `barryvdh/laravel-dompdf` (`Pdf::loadView('pdf.tour-program', [...])->download(...)`) from the `resources/views/pdf/tour-program.blade.php` template, using the same `TourMeta`/`PriceBoxData` helpers the portfolio resources use. 404s for unknown/inactive tours, same as `PortfolioOfferController::show`.

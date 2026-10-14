@@ -439,8 +439,8 @@ class BookingFormFieldTest extends TestCase
         $this->assertSame('Ablak mellé kérnénk.', $booking->notes);
 
         $email = (new NewTourBookingOfficeNotification($booking, $tour))->render();
-        $this->assertStringContainsString('Egyágyas felár: Igen', $email);
-        $this->assertStringContainsString('Fizetési mód: Banki befizetés / átutalás', $email);
+        $this->assertMatchesRegularExpression('#>Egyágyas felár</td><td[^>]*>Igen</td>#', $email);
+        $this->assertMatchesRegularExpression('#>Fizetési mód</td><td[^>]*>Banki befizetés / átutalás</td>#', $email);
     }
 
     /**

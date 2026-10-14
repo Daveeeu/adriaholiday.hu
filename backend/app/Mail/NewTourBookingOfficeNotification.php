@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\BookingFormField;
 use App\Models\Tour;
 use App\Support\Booking\BookingPriceSummary;
+use App\Support\Mail\AdminUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -33,8 +34,9 @@ class NewTourBookingOfficeNotification extends Mailable
         $prices = BookingPriceSummary::of($this->booking);
 
         return new Content(
-            markdown: 'emails.bookings.new-office-notification',
+            view: 'emails.bookings.new-office-notification',
             with: [
+                'adminUrl' => AdminUrl::to('/bookings/tour-bookings/'.$this->booking->id),
                 'booking' => $this->booking,
                 'tour' => $this->tour,
                 'extras' => $this->extraSelections(),

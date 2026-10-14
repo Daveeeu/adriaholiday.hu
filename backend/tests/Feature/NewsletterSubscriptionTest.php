@@ -52,6 +52,11 @@ class NewsletterSubscriptionTest extends TestCase
             return $mail->coupon->is($coupon)
                 && $mail->hasTo('subscriber@example.com');
         });
+
+        $html = (new NewsletterCouponMail($coupon))->render();
+        $this->assertStringContainsString($coupon->code, $html);
+        $this->assertMatchesRegularExpression('#>Kedvezmény értéke</td><td[^>]*>2 500 Ft</td>#', $html);
+        $this->assertStringContainsString('/utazasok', $html);
     }
 
     public function test_resubscribing_the_same_email_does_not_issue_a_second_coupon(): void

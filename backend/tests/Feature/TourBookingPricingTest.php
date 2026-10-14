@@ -394,7 +394,7 @@ class TourBookingPricingTest extends TestCase
         $this->assertStringContainsString('Kupon (HIR-ABC123): -5.000 Ft', $html);
         $this->assertStringContainsString('ALFA Compass utasbiztosítás', $html);
         // 45 900 + 4 700 + 30 000 + 13 800 − 5 000 + 540 × 2 days
-        $this->assertStringContainsString('Végösszeg: 90.480 Ft', $html);
+        $this->assertMatchesRegularExpression('#>Végösszeg</td>\s*<td[^>]*>90.480 Ft</td>#', $html);
     }
 
     public function test_a_date_offering_only_some_departure_places_rejects_the_others(): void

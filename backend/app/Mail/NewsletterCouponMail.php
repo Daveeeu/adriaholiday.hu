@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Coupon;
+use App\Support\Mail\EmailCompany;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -25,9 +26,11 @@ class NewsletterCouponMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.newsletter.coupon',
+            view: 'emails.newsletter.coupon',
             with: [
                 'coupon' => $this->coupon,
+                'company' => EmailCompany::resolve(),
+                'tripsUrl' => rtrim((string) config('app.url'), '/').'/utazasok',
             ],
         );
     }

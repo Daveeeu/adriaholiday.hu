@@ -37,6 +37,11 @@ class PublicContactMessageTest extends TestCase
         $this->assertSame('new', $message->status);
         $this->assertSame('Teszt Elek', $message->name);
         Mail::assertSent(NewContactMessageOfficeNotification::class, fn ($mail) => $mail->hasTo('iroda@example.com') && $mail->hasReplyTo('teszt@example.com'));
+
+        $html = (new NewContactMessageOfficeNotification($message))->render();
+        $this->assertStringContainsString('Érdeklődnék a tavaszi körutazásokról.', $html);
+        $this->assertMatchesRegularExpression('#>Telefon</td><td[^>]*>\+36301112233</td>#', $html);
+        $this->assertStringContainsString('/bookings/messages', $html);
     }
 
     public function test_it_requires_contact_details_a_message_and_the_privacy_consent(): void
