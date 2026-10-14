@@ -10,12 +10,15 @@ import {
 import { isRichTextEmpty, sanitizeRichTextHtml } from "@/lib/rich-text";
 
 import RichTextContent from "./RichTextContent";
+import { tripSection } from "../lib/tripSection";
 import { JUSTIFIED_TEXT } from "../lib/justifiedText";
 
 type OfferContentSectionProps = {
   title: string;
   content?: string | null;
   className?: string;
+  /** The section's tab in the trip page's section navigation; none: not listed. */
+  navLabel?: string;
 };
 
 function resolveSectionMeta(title: string) {
@@ -80,6 +83,7 @@ export default function OfferContentSection({
   title,
   content,
   className = "",
+  navLabel,
 }: OfferContentSectionProps) {
   if (isRichTextEmpty(content)) {
     return null;
@@ -95,7 +99,7 @@ export default function OfferContentSection({
   const Icon = meta.icon;
 
   return (
-    <section className={`mb-20 ${className}`}>
+    <section className={`mb-20 ${className}`} {...(navLabel ? tripSection(navLabel) : {})}>
       <div className="inline-flex items-center gap-2 text-[#00a878] text-sm font-bold mb-4">
         <Icon className="w-4 h-4" />
         {meta.eyebrow}

@@ -10,6 +10,7 @@ import type { PortfolioOfferProgramDay } from "@/app/content/portfolio-offer-det
 import { useKeywordHighlight } from "@/app/content/keyword-highlight-context";
 import { JUSTIFIED_TEXT } from "../lib/justifiedText";
 import { responsiveImage } from "../lib/responsiveImage";
+import { tripSection } from "../lib/tripSection";
 
 type OfferProgramTimelineProps = {
   programDays?: PortfolioOfferProgramDay[] | null;
@@ -52,7 +53,7 @@ export default function OfferProgramTimeline({
   }
 
   return (
-    <div className="mb-20">
+    <div className="mb-20" {...tripSection("Program")}>
       <div className="inline-flex items-center gap-2 text-[#00a878] text-sm font-bold mb-4">
         <TrendingUp className="w-4 h-4" />
         PROGRAM

@@ -36,6 +36,8 @@ import type { PortfolioFeaturedTour } from "../content/portfolio-featured-tours-
 import type { TripDetail } from "../routes/TripRoute";
 import OfferCard from "./OfferCard";
 import BookingHowItWorks from "./BookingHowItWorks";
+import TripSectionNav from "./TripSectionNav";
+import { tripSection } from "../lib/tripSection";
 import BookingSection from "../booking/BookingSection";
 import { formatHuf } from "../booking/booking-pricing";
 import GroupInquirySection, {
@@ -299,65 +301,75 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
               <OfferContentSection title="Kedvcsináló" content={trip.teaser} className="xl:hidden" />
 
-              <OfferProgramTimeline
-                programDays={trip.programDays}
-                intro={trip.programBefore}
-              />
-
-              {/* A program kept as one block, word for word as in the legacy admin. */}
-              {trip.programDays.length === 0 ? <OfferContentSection title="Program" content={trip.program} /> : null}
-
-              <OfferContentSection title="Fakultatív programok" content={trip.optionalPrograms} />
-
-              <OfferContentSection title="Belépőjegyek" content={trip.tickets} />
-
-              <OfferContentSection
-                title="Kiegészítő / fizető programok"
-                content={trip.paymentProgram}
-              />
-
-              <OfferContentSection
-                title="További szolgáltatási információk"
-                content={trip.inclusions}
-              />
-
-              <OfferContentSection title="Árak" content={trip.prices} />
-
-              <OfferContentSection title="Kedvezmények" content={trip.discounts} />
-
-              <OfferContentSection title="Jegyzet / egyéb" content={trip.notes} />
-
-              <PriceInformationSection priceInformation={trip.priceInformation} />
-
-              <DeparturePlacesSection places={offeredDeparturePlaces} />
-
-              <div className="mb-20 space-y-8">
-                {canBook ? (
-                  <BookingSection
-                    selectedDate={selectedDate}
-                    trip={trip}
-                    priceBox={priceBox}
-                  />
-                ) : trip.hasBookableDates ? (
-                  <div className="rounded-[28px] border border-red-100 bg-red-50 p-6 text-[#0f172a]">
-                    <div className="font-bold mb-1">
-                      A {selectedDate.label} időpont {selectedDate.status === "Törölve" ? "elmarad" : "betelt"}.
-                    </div>
-                    <p className="text-gray-600 text-sm">
-                      Válassz egy másik időpontot, vagy kérj ajánlatot alább.
-                    </p>
-                  </div>
-                ) : null}
-
-                <GroupInquirySection
-                  trip={trip}
-                  requestOnly={!canBook}
-                  opened={groupInquiryOpened}
-                  onOpen={() => openGroupInquiry("section")}
+              <TripSectionNav>
+                <OfferProgramTimeline
+                  programDays={trip.programDays}
+                  intro={trip.programBefore}
                 />
 
-                <BookingHowItWorks />
-              </div>
+                {/* A program kept as one block, word for word as in the legacy admin. */}
+                {trip.programDays.length === 0 ? (
+                  <OfferContentSection title="Program" content={trip.program} navLabel="Program" />
+                ) : null}
+
+                <OfferContentSection
+                  title="Fakultatív programok"
+                  content={trip.optionalPrograms}
+                  navLabel="Fakultatív programok"
+                />
+
+                <OfferContentSection title="Belépőjegyek" content={trip.tickets} navLabel="Belépőjegyek" />
+
+                <OfferContentSection
+                  title="Kiegészítő / fizető programok"
+                  content={trip.paymentProgram}
+                  navLabel="Kiegészítő programok"
+                />
+
+                <OfferContentSection
+                  title="További szolgáltatási információk"
+                  content={trip.inclusions}
+                  navLabel="Tudnivalók"
+                />
+
+                <OfferContentSection title="Árak" content={trip.prices} navLabel="Árak" />
+
+                <OfferContentSection title="Kedvezmények" content={trip.discounts} navLabel="Kedvezmények" />
+
+                <OfferContentSection title="Jegyzet / egyéb" content={trip.notes} navLabel="Jegyzet" />
+
+                <PriceInformationSection priceInformation={trip.priceInformation} />
+
+                <DeparturePlacesSection places={offeredDeparturePlaces} />
+
+                <div className="mb-20 space-y-8" {...tripSection(canBook ? "Foglalás" : "Ajánlatkérés")}>
+                  {canBook ? (
+                    <BookingSection
+                      selectedDate={selectedDate}
+                      trip={trip}
+                      priceBox={priceBox}
+                    />
+                  ) : trip.hasBookableDates ? (
+                    <div className="rounded-[28px] border border-red-100 bg-red-50 p-6 text-[#0f172a]">
+                      <div className="font-bold mb-1">
+                        A {selectedDate.label} időpont {selectedDate.status === "Törölve" ? "elmarad" : "betelt"}.
+                      </div>
+                      <p className="text-gray-600 text-sm">
+                        Válassz egy másik időpontot, vagy kérj ajánlatot alább.
+                      </p>
+                    </div>
+                  ) : null}
+
+                  <GroupInquirySection
+                    trip={trip}
+                    requestOnly={!canBook}
+                    opened={groupInquiryOpened}
+                    onOpen={() => openGroupInquiry("section")}
+                  />
+
+                  <BookingHowItWorks />
+                </div>
+              </TripSectionNav>
 
               <SimilarTrips currentTrip={trip} relatedTrips={relatedTrips} />
             </div>
@@ -840,7 +852,10 @@ function DeparturePlacesSection({ places }: { places: TripDetail["departurePlace
   }
 
   return (
-    <section className="mb-20 rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_16px_50px_rgba(15,23,42,0.06)] md:p-8">
+    <section
+      className="mb-20 rounded-[32px] border border-gray-100 bg-white p-6 shadow-[0_16px_50px_rgba(15,23,42,0.06)] md:p-8"
+      {...tripSection("Felszállás")}
+    >
       <SectionEyebrow title="Felszállás" />
       <h2 className="text-2xl font-bold tracking-tight text-[#0f172a]">Felszállási lehetőségek</h2>
       <ul className="mt-5 flex flex-wrap gap-2">
@@ -868,7 +883,7 @@ function PriceInformationSection({ priceInformation }: { priceInformation?: { in
   }
 
   return (
-    <div className="mb-20">
+    <div className="mb-20" {...tripSection("Mit tartalmaz az ár?")}>
       <SectionEyebrow title="ÁRINFORMÁCIÓ" />
 
       <h2 className="mb-4 text-5xl font-bold tracking-tight text-[#0f172a]">
