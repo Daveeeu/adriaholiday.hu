@@ -312,13 +312,19 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   <OfferContentSection title="Program" content={trip.program} navLabel="Program" />
                 ) : null}
 
+                <DeparturePlacesSection places={offeredDeparturePlaces} />
+
+                <PriceInformationSection priceInformation={trip.priceInformation} />
+
+                <OfferContentSection title="Belépőjegyek" content={trip.tickets} navLabel="Belépőjegyek" />
+
+                <OfferContentSection title="Jegyzet / egyéb" content={trip.notes} navLabel="Jegyzet" />
+
                 <OfferContentSection
                   title="Fakultatív programok"
                   content={trip.optionalPrograms}
                   navLabel="Fakultatív programok"
                 />
-
-                <OfferContentSection title="Belépőjegyek" content={trip.tickets} navLabel="Belépőjegyek" />
 
                 <OfferContentSection
                   title="Kiegészítő / fizető programok"
@@ -335,12 +341,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 <OfferContentSection title="Árak" content={trip.prices} navLabel="Árak" />
 
                 <OfferContentSection title="Kedvezmények" content={trip.discounts} navLabel="Kedvezmények" />
-
-                <OfferContentSection title="Jegyzet / egyéb" content={trip.notes} navLabel="Jegyzet" />
-
-                <PriceInformationSection priceInformation={trip.priceInformation} />
-
-                <DeparturePlacesSection places={offeredDeparturePlaces} />
 
                 <div className="mb-20 space-y-8" {...tripSection(canBook ? "Foglalás" : "Ajánlatkérés")}>
                   {canBook ? (
