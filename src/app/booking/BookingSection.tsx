@@ -306,6 +306,16 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     setPassengerOptions(passengers.map(() => currentPassengerOptions[0]));
   }
 
+  function copyPreviousPassengerOptions(index: number) {
+    markStarted();
+    setPassengerChoiceErrors((current) => ({ ...current, [index]: "" }));
+    setPassengerOptions(
+      currentPassengerOptions.map((options, passengerIndex) =>
+        passengerIndex === index ? currentPassengerOptions[index - 1] : options,
+      ),
+    );
+  }
+
   /** The first charged extra of the list that offers choices but has none picked. */
   function missingChoice(charged: BookingExtra[], choices: Record<number, string>): BookingExtra | undefined {
     return charged.find((extra) => extra.choices.length > 0 && !extra.choices.includes(choices[extra.id] ?? ""));
@@ -781,8 +791,9 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                           travelDays={travelDays(startDate, endDate)}
                           tripShare={priceEstimate.passengerShares[index] ?? null}
                           onApplyToEveryone={
-                            index === 0 && passengers.length > 1 ? applyFirstPassengerOptionsToEveryone : undefined
+                            index === 0 && passengers.length > 2 ? applyFirstPassengerOptionsToEveryone : undefined
                           }
+                          onCopyFromPrevious={index > 0 ? () => copyPreviousPassengerOptions(index) : undefined}
                         />
                       </div>
                     ))}

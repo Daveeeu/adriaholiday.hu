@@ -1,3 +1,5 @@
+import { Copy } from "lucide-react";
+
 import BookingExtraOption from "./BookingExtraOption";
 import BookingOptionRow, { BookingOptionList } from "./BookingOptionRow";
 import {
@@ -27,6 +29,8 @@ type PassengerOptionsPanelProps = {
   tripShare: number | null;
   /** Copies these choices to every other passenger; offered on the first passenger only. */
   onApplyToEveryone?: () => void;
+  /** Takes over the previous passenger's choices; offered from the second passenger on. */
+  onCopyFromPrevious?: () => void;
 };
 
 /**
@@ -46,6 +50,7 @@ export default function PassengerOptionsPanel({
   travelDays,
   tripShare,
   onApplyToEveryone,
+  onCopyFromPrevious,
 }: PassengerOptionsPanelProps) {
   const showInsurances = insurances !== null && (travelInsuranceAvailable || cancellationInsuranceAvailable);
 
@@ -62,18 +67,14 @@ export default function PassengerOptionsPanel({
 
   return (
     <fieldset className="mt-5 border-t border-gray-100 pt-5">
-      <legend className="mb-3 flex w-full flex-wrap items-center justify-between gap-2">
-        <span className="text-sm font-bold text-[#0f172a]">Felárak és biztosítás</span>
-        {onApplyToEveryone ? (
-          <button
-            type="button"
-            onClick={onApplyToEveryone}
-            className="text-sm font-bold text-[#00a878] hover:text-[#00c389]"
-          >
-            Ugyanez a többi utasnak is
-          </button>
-        ) : null}
-      </legend>
+      <legend className="mb-3 text-sm font-bold text-[#0f172a]">Felárak és biztosítás</legend>
+
+      {onCopyFromPrevious ? (
+        <CopyOptionsButton onClick={onCopyFromPrevious}>Ugyanaz, mint az előző utasnál</CopyOptionsButton>
+      ) : null}
+      {onApplyToEveryone ? (
+        <CopyOptionsButton onClick={onApplyToEveryone}>Ugyanez a többi utasnak is</CopyOptionsButton>
+      ) : null}
 
       <BookingOptionList>
         {extras.map((extra) => {
@@ -119,5 +120,19 @@ export default function PassengerOptionsPanel({
         ) : null}
       </BookingOptionList>
     </fieldset>
+  );
+}
+
+/** Copies one passenger's supplements and insurances to another, so a group does not tick everything again. */
+function CopyOptionsButton({ onClick, children }: { onClick: () => void; children: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#00c389] bg-[#00c389]/5 px-4 py-3 text-sm font-bold text-[#00a878] transition-colors hover:bg-[#00c389]/10"
+    >
+      <Copy className="h-4 w-4" />
+      {children}
+    </button>
   );
 }
