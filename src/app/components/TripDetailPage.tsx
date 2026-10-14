@@ -690,23 +690,31 @@ function HeroInfoCard({
 }
 
 /**
- * The ⓘ next to a trip fact: opens a small box with the details above the card
- * (its nearest positioned ancestor), as on the legacy site.
+ * The ⓘ next to a trip fact: shows a small box with the details above the card
+ * (its nearest positioned ancestor), as on the legacy site. A mouse opens it on
+ * hover; a tap or click keeps it open until focus moves away.
  */
 function InfoPopover({ label, text }: { label: string; text: string }) {
-  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const open = hovered || pinned;
 
   return (
-    <span className="inline-flex">
+    <span
+      className="inline-flex"
+      onPointerEnter={(event) => event.pointerType === "mouse" && setHovered(true)}
+      onPointerLeave={(event) => event.pointerType === "mouse" && setHovered(false)}
+    >
       <button
         type="button"
         aria-label={label}
         aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-        onBlur={() => setOpen(false)}
+        onClick={() => setPinned((current) => !current)}
+        onBlur={() => setPinned(false)}
         onKeyDown={(event) => {
           if (event.key === "Escape") {
-            setOpen(false);
+            setPinned(false);
+            setHovered(false);
           }
         }}
         className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00c389]/20 text-[#5eead4] transition-colors hover:bg-[#00c389] hover:text-white"
