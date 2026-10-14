@@ -74,6 +74,21 @@ class TourDisplayAttributesTest extends TestCase
             ->assertJsonPath('accommodation', 'Apartman');
     }
 
+    public function test_the_accommodation_is_shown_with_a_capital_hotel(): void
+    {
+        $this->flightTour(['accommodation' => '4 éj holiday home 2 éj hotel*/**']);
+
+        $this->getJson('/api/portfolio/offers/repulos-korut')
+            ->assertOk()
+            ->assertJsonPath('accommodation', '4 éj holiday home 2 éj Hotel*/**');
+
+        Tour::query()->firstOrFail()->update(['accommodation' => 'hotel***']);
+
+        $this->getJson('/api/portfolio/offers/repulos-korut')
+            ->assertOk()
+            ->assertJsonPath('accommodation', 'Hotel***');
+    }
+
     public function test_offer_cards_carry_their_categories_and_discount_for_the_filters(): void
     {
         $seaside = BlogCategory::firstOrCreateForName('Tengerpartok');

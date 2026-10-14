@@ -10,6 +10,7 @@ use App\Models\TourReferenceOption;
 use App\Services\Booking\BookingFormValidationService;
 use App\Services\Booking\BookingPaymentService;
 use App\Support\CompanyContact;
+use App\Support\TourMeta;
 use Illuminate\Support\Str;
 
 /**
@@ -154,8 +155,8 @@ final class BookingDocumentData
                 ? $start->format('Y.m.d.').($end !== null && ! $end->isSameDay($start) ? ' – '.$end->format('Y.m.d.') : '')
                 : ''],
             ['label' => 'Személyek száma', 'value' => $this->booking->passenger_count ? $this->booking->passenger_count.' fő' : ''],
-            ['label' => 'Elhelyezés', 'value' => (string) $this->tour?->accommodation],
-            ['label' => 'Ellátás', 'value' => (string) $this->tour?->catering],
+            ['label' => 'Elhelyezés', 'value' => $this->tour !== null ? (string) TourMeta::accommodation($this->tour) : ''],
+            ['label' => 'Ellátás', 'value' => $this->tour !== null ? (string) TourMeta::meals($this->tour) : ''],
             ['label' => 'Utazás módja', 'value' => self::TRAVEL_MODES[$this->tour?->travel_mode_id ?? ''] ?? ''],
             ['label' => 'Felszállás', 'value' => (string) $prices?->departurePlaceName()],
         ], fn (array $row): bool => trim($row['value']) !== ''));

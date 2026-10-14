@@ -53,9 +53,15 @@ class TourMeta
         };
     }
 
+    /**
+     * The accommodation as shown to customers: capitalised, with "Hotel" always
+     * capitalised too, e.g. "4 éj holiday home 2 éj hotel**" → "4 éj holiday home 2 éj Hotel**".
+     */
     public static function accommodation(Tour $tour): ?string
     {
-        return self::filled($tour->accommodation) ?? self::filled(self::extract($tour)['accommodation'] ?? null);
+        $accommodation = self::filled($tour->accommodation) ?? self::filled(self::extract($tour)['accommodation'] ?? null);
+
+        return $accommodation !== null ? Str::ucfirst(preg_replace('/\bhotel\b/u', 'Hotel', $accommodation)) : null;
     }
 
     /**
