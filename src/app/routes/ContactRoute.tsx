@@ -13,7 +13,7 @@ import { socialLinks } from "../site-settings/social-links";
 
 const PATH = "/kapcsolat";
 const TITLE = "Kapcsolat";
-const DESCRIPTION = "Hívj, írj, vagy gyere be az irodába – segítünk megtalálni a következő utadat.";
+const DESCRIPTION = "Hívj, írj vagy gyere be hozzánk az irodába – segítünk megtalálni a következő utadat.";
 
 type ContactCard = {
   icon: ReactNode;

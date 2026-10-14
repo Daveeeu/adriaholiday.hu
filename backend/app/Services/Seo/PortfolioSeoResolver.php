@@ -34,7 +34,7 @@ class PortfolioSeoResolver
         'blog' => ['Utazó Blog', 'Utazási inspirációk, tippek és történetek az Adria Holiday blogján.'],
         'rolunk' => ['Rólunk', 'Az Adria Holiday 2003 óta szervez európai kulturális körutazásokat és tengerparti nyaralásokat: gondosan kiválasztott szállások, felkészült idegenvezetők és újszerű autóbuszok.'],
         'rolunk-irtak' => ['Rólunk írták', 'Utasaink levelei és élménybeszámolói az Adria Holiday utazásairól.'],
-        'kapcsolat' => ['Kapcsolat', 'Hívj, írj, vagy gyere be az irodába – segítünk megtalálni a következő utadat.'],
+        'kapcsolat' => ['Kapcsolat', 'Hívj, írj vagy gyere be hozzánk az irodába – segítünk megtalálni a következő utadat.'],
         'aszf' => ['Általános szerződési feltételek', 'Az Adria Holiday általános szerződési feltételei.'],
         'adatvedelem' => ['Adatvédelem', 'Az Adria Holiday adatkezelési tájékoztatója és adatvédelmi gyakorlata.'],
         'impresszum' => ['Impresszum', 'Az Adria Holiday szolgáltatói és üzemeltetői adatai.'],
