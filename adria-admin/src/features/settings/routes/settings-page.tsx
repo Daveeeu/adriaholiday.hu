@@ -96,6 +96,8 @@ const settingsSchema = z.object({
   cancellationInsuranceName: z.string().trim().min(1, 'A biztosítás neve kötelező.'),
   cancellationInsurancePercent: z.coerce.number().min(0, 'A díj nem lehet negatív.').max(100, 'Legfeljebb 100% lehet.'),
   cancellationInsuranceMinDays: z.coerce.number().int().min(0, 'Nem lehet negatív.'),
+  travelInsuranceInfo: z.string().trim().max(1000, 'Legfeljebb 1000 karakter lehet.'),
+  cancellationInsuranceInfo: z.string().trim().max(1000, 'Legfeljebb 1000 karakter lehet.'),
   onlinePaymentEnabled: z.boolean(),
   barionPixelId: z
     .string()
@@ -146,6 +148,8 @@ const emptyValues: SiteSettingsFormValues = {
   cancellationInsuranceName: '',
   cancellationInsurancePercent: 0,
   cancellationInsuranceMinDays: 0,
+  travelInsuranceInfo: '',
+  cancellationInsuranceInfo: '',
   onlinePaymentEnabled: false,
   barionPixelId: '',
   bankAccountNumber: '',
@@ -585,6 +589,12 @@ export function SettingsPage() {
                 )} />
                 <FormField control={form.control} name="cancellationInsuranceMinDays" render={({ field }) => (
                   <FormItem><FormLabel>Útlemondási biztosítás legkésőbb (nappal indulás előtt)</FormLabel><FormControl><Input type="number" min={0} step={1} {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="travelInsuranceInfo" render={({ field }) => (
+                  <FormItem className="md:col-span-2"><FormLabel>Utasbiztosítás információ</FormLabel><FormControl><Textarea {...field} rows={3} /></FormControl><p className="text-xs text-muted-foreground">A foglalási űrlapon a biztosítás melletti ⓘ ikon mögött jelenik meg.</p><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="cancellationInsuranceInfo" render={({ field }) => (
+                  <FormItem className="md:col-span-2"><FormLabel>Útlemondási biztosítás információ</FormLabel><FormControl><Textarea {...field} rows={3} /></FormControl><p className="text-xs text-muted-foreground">A foglalási űrlapon a biztosítás melletti ⓘ ikon mögött jelenik meg.</p><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>

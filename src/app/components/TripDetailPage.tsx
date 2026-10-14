@@ -20,7 +20,6 @@ import {
   ChevronRight,
   MapPin,
   CreditCard,
-  Info,
   Mail,
 } from "lucide-react";
 import { Link } from "react-router";
@@ -38,6 +37,7 @@ import OfferCard from "./OfferCard";
 import BookingHowItWorks from "./BookingHowItWorks";
 import TripSectionNav from "./TripSectionNav";
 import { tripSection } from "../lib/tripSection";
+import InfoPopover from "./InfoPopover";
 import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 import BookingSection from "../booking/BookingSection";
 import { formatHuf } from "../booking/booking-pricing";
@@ -683,55 +683,10 @@ function HeroInfoCard({
       <div className="text-white/60 text-sm mb-1">{label}</div>
       <div className="flex items-start gap-2">
         <div className="text-white font-bold">{value}</div>
-        {info ? <InfoPopover label={`${label}: információ`} text={info} /> : null}
+        {info ? <InfoPopover label={`${label}: információ`} text={info} tone="dark" /> : null}
       </div>
       {note ? <div className="mt-1 text-sm font-semibold">{note}</div> : null}
     </div>
-  );
-}
-
-/**
- * The ⓘ next to a trip fact: shows a small box with the details above the card
- * (its nearest positioned ancestor), as on the legacy site. A mouse opens it on
- * hover; a tap or click keeps it open until focus moves away.
- */
-function InfoPopover({ label, text }: { label: string; text: string }) {
-  const [hovered, setHovered] = useState(false);
-  const [pinned, setPinned] = useState(false);
-  const open = hovered || pinned;
-
-  return (
-    <span
-      className="inline-flex"
-      onPointerEnter={(event) => event.pointerType === "mouse" && setHovered(true)}
-      onPointerLeave={(event) => event.pointerType === "mouse" && setHovered(false)}
-    >
-      <button
-        type="button"
-        aria-label={label}
-        aria-expanded={open}
-        onClick={() => setPinned((current) => !current)}
-        onBlur={() => setPinned(false)}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            setPinned(false);
-            setHovered(false);
-          }
-        }}
-        className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00c389]/20 text-[#5eead4] transition-colors hover:bg-[#00c389] hover:text-white"
-      >
-        <Info className="h-4 w-4" />
-      </button>
-      {open ? (
-        <span
-          role="tooltip"
-          className="absolute inset-x-0 bottom-full z-30 mb-3 rounded-2xl bg-white p-4 text-left text-sm font-medium leading-relaxed text-[#334155] shadow-[0_20px_50px_rgba(15,23,42,0.25)]"
-        >
-          <span className="mb-1 block text-xs font-bold uppercase tracking-[0.14em] text-[#00a878]">Információ</span>
-          <span className="whitespace-pre-line">{text}</span>
-        </span>
-      ) : null}
-    </span>
   );
 }
 

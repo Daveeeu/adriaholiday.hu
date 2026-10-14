@@ -41,8 +41,9 @@ export type PortfolioOfferDateExtra = {
 
 /** Insurances offered on every booking, as configured by the office. */
 export type PortfolioBookingInsurances = {
-  travelInsurance: { name: string; dailyFee: number };
-  cancellationInsurance: { name: string; percent: number; minDaysBeforeDeparture: number };
+  /** info: what the insurance covers, shown behind its ⓘ in the booking form. */
+  travelInsurance: { name: string; dailyFee: number; info?: string | null };
+  cancellationInsurance: { name: string; percent: number; minDaysBeforeDeparture: number; info?: string | null };
 };
 
 /** Online payment (Barion) of the deposit right after booking; its share comes with each date. */

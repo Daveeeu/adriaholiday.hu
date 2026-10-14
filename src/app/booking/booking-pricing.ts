@@ -24,6 +24,8 @@ export type BookingPriceEstimate = {
   insuranceLines: BookingPriceLine[];
   tripTotal: number | null;
   total: number | null;
+  /** Each passenger's part of the trip total, which their cancellation insurance is a percentage of. */
+  passengerShares: number[];
 };
 
 /** One passenger's own extras (with a choice where the extra offers one) and insurances. */
@@ -137,6 +139,16 @@ export function travelDays(startDate: string | null, endDate: string | null): nu
   return Math.round((end - start) / DAY_MS) + 1;
 }
 
+/** One passenger's travel insurance for the whole trip. */
+export function travelInsuranceFee(insurances: BookingInsurances, days: number): number {
+  return Math.round(insurances.travelInsurance.dailyFee * days);
+}
+
+/** One passenger's cancellation insurance: a percentage of their share of the trip total. */
+export function cancellationInsuranceFee(insurances: BookingInsurances, passengerShare: number): number {
+  return Math.round((passengerShare * insurances.cancellationInsurance.percent) / 100);
+}
+
 export function isCancellationInsuranceAvailable(
   startDate: string | null,
   insurances: BookingInsurances | null,
@@ -171,7 +183,7 @@ export function estimateBookingPrice({
   endDate,
 }: EstimateInput): BookingPriceEstimate {
   if (basePrice === null) {
-    return { lines: [], insuranceLines: [], tripTotal: null, total: null };
+    return { lines: [], insuranceLines: [], tripTotal: null, total: null, passengerShares: [] };
   }
 
   const options = passengerOptions.length > 0 ? passengerOptions : [EMPTY_PASSENGER_OPTIONS];
@@ -232,7 +244,7 @@ export function estimateBookingPrice({
       key: "cancellation-insurance",
       label: `${insurances.cancellationInsurance.name} (${cancellationInsured.length} fő)`,
       amount: cancellationInsured.reduce(
-        (sum, index) => sum + Math.round((shares[index] * insurances.cancellationInsurance.percent) / 100),
+        (sum, index) => sum + cancellationInsuranceFee(insurances, shares[index]),
         0,
       ),
     });
@@ -243,6 +255,7 @@ export function estimateBookingPrice({
     insuranceLines,
     tripTotal,
     total: tripTotal + insuranceLines.reduce((sum, line) => sum + line.amount, 0),
+    passengerShares: shares,
   };
 }
 

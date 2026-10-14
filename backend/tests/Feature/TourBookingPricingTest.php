@@ -371,6 +371,8 @@ class TourBookingPricingTest extends TestCase
         $response->assertJsonPath('departurePlaces.0.tourFee', 4700);
         $response->assertJsonPath('bookingInsurances.travelInsurance.dailyFee', 540);
         $response->assertJsonPath('bookingInsurances.cancellationInsurance.minDaysBeforeDeparture', 7);
+        $this->assertStringStartsWith('Betegség-, baleset- és poggyászbiztosítás', $response->json('bookingInsurances.travelInsurance.info'));
+        $this->assertNotEmpty($response->json('bookingInsurances.cancellationInsurance.info'));
     }
 
     public function test_office_notification_lists_the_price_breakdown(): void

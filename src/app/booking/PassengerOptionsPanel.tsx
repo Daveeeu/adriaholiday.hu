@@ -1,8 +1,10 @@
 import BookingExtraOption from "./BookingExtraOption";
 import BookingOptionRow, { BookingOptionList } from "./BookingOptionRow";
 import {
+  cancellationInsuranceFee,
   formatHuf,
   isChargedAutomatically,
+  travelInsuranceFee,
   type BookingExtra,
   type BookingInsurances,
   type PassengerOptions,
@@ -19,6 +21,10 @@ type PassengerOptionsPanelProps = {
   insurances: BookingInsurances | null;
   travelInsuranceAvailable: boolean;
   cancellationInsuranceAvailable: boolean;
+  /** The travel days the travel insurance is charged for. */
+  travelDays: number | null;
+  /** This passenger's part of the trip total, which the cancellation insurance is a percentage of. */
+  tripShare: number | null;
   /** Copies these choices to every other passenger; offered on the first passenger only. */
   onApplyToEveryone?: () => void;
 };
@@ -37,6 +43,8 @@ export default function PassengerOptionsPanel({
   insurances,
   travelInsuranceAvailable,
   cancellationInsuranceAvailable,
+  travelDays,
+  tripShare,
   onApplyToEveryone,
 }: PassengerOptionsPanelProps) {
   const showInsurances = insurances !== null && (travelInsuranceAvailable || cancellationInsuranceAvailable);
@@ -45,6 +53,7 @@ export default function PassengerOptionsPanel({
     return null;
   }
 
+  const percent = insurances?.cancellationInsurance.percent.toLocaleString("hu-HU");
   const toggleExtra = (id: number) =>
     onChange({
       ...options,
@@ -87,10 +96,12 @@ export default function PassengerOptionsPanel({
           );
         })}
 
-        {insurances && travelInsuranceAvailable ? (
+        {insurances && travelInsuranceAvailable && travelDays !== null ? (
           <BookingOptionRow
             title={insurances.travelInsurance.name}
-            price={`${formatHuf(insurances.travelInsurance.dailyFee)} / nap`}
+            note={`${formatHuf(insurances.travelInsurance.dailyFee)} / nap × ${travelDays} nap`}
+            info={insurances.travelInsurance.info}
+            price={formatHuf(travelInsuranceFee(insurances, travelDays))}
             checked={options.travelInsurance}
             onToggle={() => onChange({ ...options, travelInsurance: !options.travelInsurance })}
           />
@@ -99,7 +110,9 @@ export default function PassengerOptionsPanel({
         {insurances && cancellationInsuranceAvailable ? (
           <BookingOptionRow
             title={insurances.cancellationInsurance.name}
-            price={`az útdíj ${insurances.cancellationInsurance.percent.toLocaleString("hu-HU")}%-a`}
+            note={tripShare !== null ? `Az útdíj ${percent}%-a` : undefined}
+            info={insurances.cancellationInsurance.info}
+            price={tripShare !== null ? formatHuf(cancellationInsuranceFee(insurances, tripShare)) : `az útdíj ${percent}%-a`}
             checked={options.cancellationInsurance}
             onToggle={() => onChange({ ...options, cancellationInsurance: !options.cancellationInsurance })}
           />

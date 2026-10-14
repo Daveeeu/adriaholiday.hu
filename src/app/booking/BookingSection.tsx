@@ -778,6 +778,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                           insurances={insurances}
                           travelInsuranceAvailable={travelInsuranceAvailable}
                           cancellationInsuranceAvailable={cancellationInsuranceAvailable}
+                          travelDays={travelDays(startDate, endDate)}
+                          tripShare={priceEstimate.passengerShares[index] ?? null}
                           onApplyToEveryone={
                             index === 0 && passengers.length > 1 ? applyFirstPassengerOptionsToEveryone : undefined
                           }
