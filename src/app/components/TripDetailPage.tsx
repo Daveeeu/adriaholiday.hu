@@ -302,6 +302,9 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 intro={trip.programBefore}
               />
 
+              {/* A program kept as one block, word for word as in the legacy admin. */}
+              {trip.programDays.length === 0 ? <OfferContentSection title="Program" content={trip.program} /> : null}
+
               <OfferContentSection title="Fakultatív programok" content={trip.optionalPrograms} />
 
               <OfferContentSection title="Belépőjegyek" content={trip.tickets} />

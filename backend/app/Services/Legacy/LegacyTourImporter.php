@@ -5,7 +5,6 @@ namespace App\Services\Legacy;
 use App\Models\BlogCategory;
 use App\Models\Region;
 use App\Models\Tour;
-use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
 use App\Services\Tour\TourContentSyncService;
 use App\Support\Legacy\LegacyCountryDictionary;
@@ -29,6 +28,7 @@ class LegacyTourImporter
     public function __construct(
         private readonly LegacyMediaImporter $mediaImporter,
         private readonly TourContentSyncService $tourContentSync,
+        private readonly LegacyReferenceResolver $references,
     ) {}
 
     /**
@@ -56,13 +56,13 @@ class LegacyTourImporter
         $countryIds = $this->resolveCountryCodes($data->countrySlugs);
         $categoryIds = $this->resolveCategoryIds($data->categories);
         $tagIds = $this->resolveReferenceOptionCodes('tag', $data->tags);
-        $travelModeId = $data->travelModeCode !== null ? $this->resolveTravelMode($data->travelModeCode) : $existing?->travel_mode_id;
+        $travelModeId = $data->travelModeCode !== null ? $this->references->travelMode($data->travelModeCode) : $existing?->travel_mode_id;
         // Once every date is closed for booking the legacy site only lists the
         // places in its booking form: keep what the tour already has, if anything.
         $syncDeparturePlaces = $existing === null
             || $this->isBookable($data)
             || ! $existing->departurePlaces()->exists();
-        $departurePlaceIds = $syncDeparturePlaces ? $this->resolveDeparturePlaceIds($data->departurePlaceNames) : [];
+        $departurePlaceIds = $syncDeparturePlaces ? $this->references->departurePlaceIds($data->departurePlaceNames) : [];
         $departurePlaceFees = collect($data->departurePlaceFees)
             ->filter(fn (float $fee, string $name): bool => isset($departurePlaceIds[trim($name)]))
             ->mapWithKeys(fn (float $fee, string $name): array => [$departurePlaceIds[trim($name)] => $fee])
@@ -264,39 +264,6 @@ class LegacyTourImporter
             ->unique()
             ->values()
             ->all();
-    }
-
-    private function resolveTravelMode(string $code): string
-    {
-        $names = ['bus' => 'Busz', 'plane' => 'Repülő', 'train' => 'Vonat'];
-        $this->firstOrCreateReferenceOption('travel-mode', $code, $names[$code] ?? Str::headline($code));
-
-        return $code;
-    }
-
-    /**
-     * @param  array<int, string>  $names
-     * @return array<string, int> departure place id keyed by name
-     */
-    private function resolveDeparturePlaceIds(array $names): array
-    {
-        $ids = [];
-
-        foreach ($names as $name) {
-            $name = trim($name);
-
-            if ($name === '') {
-                continue;
-            }
-
-            $place = TourDeparturePlace::query()->firstOrCreate(
-                ['name' => $name],
-                ['active' => true],
-            );
-            $ids[$name] = $place->id;
-        }
-
-        return $ids;
     }
 
     private function firstOrCreateReferenceOption(string $type, string $code, string $name): void

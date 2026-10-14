@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Support\Booking\BookingDocumentData;
 use App\Support\Booking\TourBookingStatus;
 use App\Support\DocumentBranding;
+use App\Support\RichTextSanitizer;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 
@@ -36,6 +37,7 @@ class BookingTravelBook
             'internal' => $internal,
             'statusLabel' => TourBookingStatus::label((string) $booking->status),
             'programDays' => $tour?->programDays ?? collect(),
+            'programHtml' => RichTextSanitizer::sanitize($tour?->program),
             'includedItems' => $tour?->priceItems->where('type', 'included')->values() ?? collect(),
             'excludedItems' => $tour?->priceItems->where('type', 'excluded')->values() ?? collect(),
             'tripNotes' => $tour?->notes,

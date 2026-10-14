@@ -5,6 +5,7 @@ namespace App\Services\Tour;
 use App\Models\Tour;
 use App\Support\DocumentBranding;
 use App\Support\PriceBoxData;
+use App\Support\RichTextSanitizer;
 use App\Support\TourMeta;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
@@ -30,6 +31,7 @@ class TourPdfService
         $pdf = Pdf::loadView('pdf.tour-program', [
             'tour' => $tour,
             'programDays' => $tour->programDays,
+            'programHtml' => RichTextSanitizer::sanitize($tour->program),
             'includedItems' => $tour->priceItems->where('type', 'included')->values(),
             'excludedItems' => $tour->priceItems->where('type', 'excluded')->values(),
             'duration' => TourMeta::duration($tour) ?? 'Többnapos út',

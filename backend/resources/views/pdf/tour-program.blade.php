@@ -406,6 +406,11 @@
             {!! $tour->program_before !!}
         @endif
 
+        @if ($programDays->isEmpty() && $programHtml)
+            <h2>Program</h2>
+            <div class="day-body">{!! $programHtml !!}</div>
+        @endif
+
         @if ($programDays->isNotEmpty())
             <h2>Program napról napra</h2>
             @foreach ($programDays as $day)
