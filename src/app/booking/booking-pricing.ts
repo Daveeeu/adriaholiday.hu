@@ -249,13 +249,21 @@ export function estimateBookingPrice({
 /**
  * The deposit paid online right after booking: the date's share of the trip
  * price plus the insurances, as the backend schedules it; null when the whole
- * price is paid at once (or the price is not known).
+ * price is paid at once (a close departure or a trip below the instalment
+ * minimum) or the price is not known.
  */
 export function estimateDeposit(
   estimate: BookingPriceEstimate,
   depositPercent: number | null,
+  instalmentsMinTripTotal: number | null,
 ): { amount: number; label: string } | null {
-  if (estimate.tripTotal === null || estimate.total === null || depositPercent === null || depositPercent >= 100) {
+  if (
+    estimate.tripTotal === null ||
+    estimate.total === null ||
+    depositPercent === null ||
+    depositPercent >= 100 ||
+    estimate.tripTotal < (instalmentsMinTripTotal ?? 0)
+  ) {
     return null;
   }
 

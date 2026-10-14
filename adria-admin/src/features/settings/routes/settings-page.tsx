@@ -616,7 +616,7 @@ export function SettingsPage() {
               <CardHeader>
                 <CardTitle>Foglalás visszaigazoló e-mail</CardTitle>
                 <CardDescription>
-                  Az ügyfélnek küldött visszaigazolás átutalási adatai és lábléce. Az átutalási adatok akkor jelennek meg, ha a foglalás után nincs online fizetés. A részletek és határidők az indulásig hátralévő napok szerint számolódnak (20/20/60%, 40/60% vagy 100%).
+                  Az ügyfélnek küldött visszaigazolás átutalási adatai és lábléce. Az átutalási adatok akkor jelennek meg, ha a foglalás után nincs online fizetés. A részletek és határidők az indulásig hátralévő napok szerint számolódnak (20/20/60%, 40/60% vagy 100%); 20 000 Ft alatti út árát egy összegben kell fizetni.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">

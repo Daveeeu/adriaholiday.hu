@@ -118,6 +118,7 @@ type BookingDateOption = {
   seatsLeft?: number | null;
   extras?: BookingExtra[];
   depositPercent?: number | null;
+  instalmentsMinTripTotal?: number | null;
   departurePlaceIds?: number[];
   startDate?: string | null;
   endDate?: string | null;
@@ -231,7 +232,11 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   );
   const displayedTotal =
     priceEstimate.total !== null ? formatHuf(priceEstimate.total) : priceBox?.displayedPrice ?? null;
-  const onlineDeposit = estimateDeposit(priceEstimate, selectedDate.depositPercent ?? null);
+  const onlineDeposit = estimateDeposit(
+    priceEstimate,
+    selectedDate.depositPercent ?? null,
+    selectedDate.instalmentsMinTripTotal ?? null,
+  );
 
   const fields: BookingFormField[] = useMemo(() => trip.bookingFormFields ?? [], [trip]);
   const contactFields = useMemo(() => fieldsOfGroup(fields, "contact"), [fields]);

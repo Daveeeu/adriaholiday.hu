@@ -78,6 +78,13 @@ class BookingPaymentScheduleTest extends TestCase
         return ['34 days' => [34], '20 days' => [20], '5 days' => [5]];
     }
 
+    public function test_a_trip_below_the_instalment_minimum_is_paid_in_full_within_24_hours(): void
+    {
+        $this->assertSame([['2026-03-03 10:15', 19999.0, 100]], $this->instalments(192, tripTotal: 19999, insuranceTotal: 0));
+        $this->assertSame([['2026-03-03 10:15', 22999.0, 100]], $this->instalments(192, tripTotal: 19999, insuranceTotal: 3000));
+        $this->assertCount(3, $this->instalments(192, tripTotal: 20000));
+    }
+
     public function test_the_plan_boundaries_follow_the_agency_rules(): void
     {
         $this->assertCount(3, $this->instalments(151));

@@ -11,6 +11,7 @@ use Carbon\CarbonInterface;
  * instalment rules, chosen by how far the departure is from the booking day.
  * The first instalment (the deposit, "előleg") also includes the insurances;
  * the rest ("hátralék") is never due later than 30 days before departure.
+ * A trip cheaper than the instalment minimum is paid in full.
  */
 final class BookingPaymentSchedule
 {
@@ -26,6 +27,12 @@ final class BookingPaymentSchedule
     /** The remainder is due at the latest this many days before departure (ÁSZF). */
     private const REMAINDER_DAYS_BEFORE_DEPARTURE = 30;
 
+    /** A HUF trip price below this is paid in full, whenever the departure is. */
+    public const INSTALMENTS_MIN_TRIP_TOTAL = 20000;
+
+    /** @var array<int, array{0: int, 1: string, 2: int}> */
+    private const FULL_PAYMENT = [[100, self::AFTER_BOOKING_HOURS, 24]];
+
     /**
      * From the farthest departure down: the fewest days to departure the plan
      * applies from, and its instalments as [percent of the trip price, due rule, value].
@@ -36,7 +43,7 @@ final class BookingPaymentSchedule
         ['minDays' => 151, 'instalments' => [[20, self::AFTER_BOOKING_HOURS, 48], [20, self::AFTER_BOOKING_DAYS, 90], [60, self::BEFORE_DEPARTURE_DAYS, 35]]],
         ['minDays' => 120, 'instalments' => [[20, self::AFTER_BOOKING_HOURS, 48], [20, self::AFTER_BOOKING_DAYS, 60], [60, self::BEFORE_DEPARTURE_DAYS, 35]]],
         ['minDays' => 35, 'instalments' => [[40, self::AFTER_BOOKING_HOURS, 48], [60, self::AFTER_BOOKING_DAYS, 60]]],
-        ['minDays' => PHP_INT_MIN, 'instalments' => [[100, self::AFTER_BOOKING_HOURS, 24]]],
+        ['minDays' => PHP_INT_MIN, 'instalments' => self::FULL_PAYMENT],
     ];
 
     /**
@@ -48,14 +55,17 @@ final class BookingPaymentSchedule
     {
         $bookedAt = CarbonImmutable::instance($bookedAt)->setTimezone(self::TIMEZONE);
         $departure = CarbonImmutable::parse($departure->toDateString(), self::TIMEZONE);
-        $plan = self::plan($bookedAt, $departure);
-        $decimals = strtoupper($currency) === 'HUF' ? 0 : 2;
+        $isHuf = strtoupper($currency) === 'HUF';
+        $plan = $isHuf && $tripTotal < self::INSTALMENTS_MIN_TRIP_TOTAL
+            ? self::FULL_PAYMENT
+            : self::plan($bookedAt, $departure)['instalments'];
+        $decimals = $isHuf ? 0 : 2;
 
         $instalments = [];
         $scheduled = 0.0;
-        $lastIndex = count($plan['instalments']) - 1;
+        $lastIndex = count($plan) - 1;
 
-        foreach ($plan['instalments'] as $index => [$percent, $rule, $value]) {
+        foreach ($plan as $index => [$percent, $rule, $value]) {
             // The last instalment takes what rounding left over, so they add up to the trip price.
             $amount = $index === $lastIndex ? round($tripTotal - $scheduled, $decimals) : round($tripTotal * $percent / 100, $decimals);
             $scheduled += $amount;
@@ -83,6 +93,7 @@ final class BookingPaymentSchedule
     /**
      * The trip price share of the deposit (first instalment) for a booking made now:
      * what the customer pays online right after booking, besides the insurances.
+     * A trip below the instalment minimum is paid in full regardless.
      */
     public static function depositPercent(CarbonInterface $departure, ?CarbonInterface $bookedAt = null): int
     {

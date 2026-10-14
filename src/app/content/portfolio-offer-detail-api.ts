@@ -61,6 +61,8 @@ export type PortfolioOfferDetailDate = {
   status?: string | null;
   /** The trip price share of the deposit if booked today (100: paid in full). */
   depositPercent?: number | null;
+  /** A booking whose trip price is below this is paid in full. */
+  instalmentsMinTripTotal?: number | null;
   /** The tour's departure places this date offers; empty: all of them. */
   departurePlaceIds?: number[];
   extras?: PortfolioOfferDateExtra[];

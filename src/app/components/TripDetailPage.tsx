@@ -37,6 +37,7 @@ import type { TripDetail } from "../routes/TripRoute";
 import OfferCard from "./OfferCard";
 import BookingHowItWorks from "./BookingHowItWorks";
 import BookingSection from "../booking/BookingSection";
+import { formatHuf } from "../booking/booking-pricing";
 import GroupInquirySection, {
   GROUP_INQUIRY_MIN_PASSENGERS,
   GROUP_INQUIRY_SECTION_ID,
@@ -253,6 +254,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 seats={selectedSeats}
                 duration={trip.duration}
                 depositPercent={selectedDate.depositPercent ?? null}
+                instalmentsMinTripTotal={selectedDate.instalmentsMinTripTotal ?? null}
                 otherDates={dateOptions.length - 1}
                 onShowDates={() =>
                   document.getElementById(DATE_PICKER_ID)?.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -720,6 +722,7 @@ function SelectedDepartureSummary({
   seats,
   duration,
   depositPercent,
+  instalmentsMinTripTotal,
   otherDates,
   onShowDates,
 }: {
@@ -729,6 +732,7 @@ function SelectedDepartureSummary({
   seats: number | null;
   duration: string;
   depositPercent: number | null;
+  instalmentsMinTripTotal: number | null;
   otherDates: number;
   onShowDates: () => void;
 }) {
@@ -737,7 +741,12 @@ function SelectedDepartureSummary({
     !bookable || depositPercent === null
       ? null
       : depositPercent < 100
-        ? { title: `Foglaláskor csak ${depositPercent}% előleg`, text: "A többit részletekben, az indulás előtt fizeted." }
+        ? {
+            title: `Foglaláskor csak ${depositPercent}% előleg`,
+            text:
+              "A többit részletekben, az indulás előtt fizeted." +
+              (instalmentsMinTripTotal ? ` ${formatHuf(instalmentsMinTripTotal)} alatti út árát egyben fizeted.` : ""),
+          }
         : { title: "Egyösszegű fizetés", text: "Közeli indulás: a teljes díjat a foglalás után fizeted." };
   const benefits = [
     ...(payment ? [{ icon: <CreditCard />, ...payment }] : []),
