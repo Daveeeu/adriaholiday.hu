@@ -1,12 +1,31 @@
 import { DATE_INPUT_MAX } from "../lib/dateInput";
-import { CHECKBOX_CHECKED_VALUE, type BookingFormField } from "./booking-form-fields";
+import {
+  CHECKBOX_CHECKED_VALUE,
+  FIELD_MAX_LENGTH,
+  isBirthDateField,
+  oldestBirthDateString,
+  todayDateString,
+  type BookingFormField,
+} from "./booking-form-fields";
 
 const UNAVAILABLE_OPTION_NOTE = "Fejlesztés alatt";
+
+/** Lets the browser fill in the contact step from the visitor's saved details. */
+const AUTOCOMPLETE: Record<string, string> = {
+  contact_name: "name",
+  contact_email: "email",
+  contact_phone: "tel",
+  contact_postal_code: "postal-code",
+  contact_city: "address-level2",
+  contact_address: "street-address",
+};
 
 type BookingFieldInputProps = {
   field: BookingFormField;
   value: string;
   onChange: (value: string) => void;
+  /** Called when a text-like field loses focus, to check what was typed. */
+  onBlur?: () => void;
   error?: string;
 };
 
@@ -14,7 +33,7 @@ type BookingFieldInputProps = {
  * Renders one booking form field according to its type: text-like inputs,
  * textarea, dropdown, radio option cards or a yes/no checkbox card.
  */
-export default function BookingFieldInput({ field, value, onChange, error }: BookingFieldInputProps) {
+export default function BookingFieldInput({ field, value, onChange, onBlur, error }: BookingFieldInputProps) {
   const label = `${field.label}${field.visibility === "required" ? "*" : ""}`;
 
   if (field.fieldType === "checkbox") {
@@ -106,14 +125,19 @@ export default function BookingFieldInput({ field, value, onChange, error }: Boo
       {field.fieldType === "textarea" ? (
         <textarea
           value={value}
+          maxLength={FIELD_MAX_LENGTH}
+          aria-invalid={error ? true : undefined}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           rows={3}
           className={`${fieldClassName} py-3`}
         />
       ) : field.fieldType === "select" ? (
         <select
           value={value}
+          aria-invalid={error ? true : undefined}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           className={`${fieldClassName} h-14 bg-white`}
         >
           <option value="">Válassz...</option>
@@ -130,9 +154,14 @@ export default function BookingFieldInput({ field, value, onChange, error }: Boo
       ) : (
         <input
           type={field.fieldType}
-          max={field.fieldType === "date" ? DATE_INPUT_MAX : undefined}
+          min={isBirthDateField(field) ? oldestBirthDateString() : undefined}
+          max={isBirthDateField(field) ? todayDateString() : field.fieldType === "date" ? DATE_INPUT_MAX : undefined}
+          maxLength={field.fieldType === "date" ? undefined : FIELD_MAX_LENGTH}
+          autoComplete={AUTOCOMPLETE[field.key]}
+          aria-invalid={error ? true : undefined}
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           className={`${fieldClassName} h-14`}
         />
       )}

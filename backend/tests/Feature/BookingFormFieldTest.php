@@ -238,6 +238,58 @@ class BookingFormFieldTest extends TestCase
         ]);
     }
 
+    public function test_public_booking_checks_the_formats_of_names_phones_postal_codes_and_birth_dates(): void
+    {
+        $this->travelTo('2026-10-14 12:00:00');
+        $tour = $this->tourWithTemplate([
+            'contact_name' => 'required',
+            'contact_phone' => 'required',
+            'contact_postal_code' => 'required',
+            'passenger_name' => 'required',
+            'passenger_birth_date' => 'required',
+        ]);
+
+        $response = $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
+            'tourId' => $tour->id,
+            'formData' => [
+                'contact_name' => 'Kovács',
+                'contact_phone' => '06-30-abc',
+                'contact_postal_code' => '1',
+            ],
+            'passengers' => [
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '2026-10-15'],
+                ['passenger_name' => 'Kovács Béla', 'passenger_birth_date' => '1890-01-01'],
+            ],
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('errors', [
+                'formData.contact_name' => ['Add meg a teljes nevet (vezeték- és keresztnevet).'],
+                'formData.contact_phone' => ['Adj meg érvényes telefonszámot (pl. +36 30 123 4567).'],
+                'formData.contact_postal_code' => ['Adj meg érvényes irányítószámot.'],
+                'passengers.0.passenger_birth_date' => ['A születési dátum nem lehet a jövőben.'],
+                'passengers.1.passenger_birth_date' => ['Ellenőrizd a születési dátumot.'],
+            ]);
+    }
+
+    public function test_public_booking_accepts_usual_name_phone_and_postal_code_formats(): void
+    {
+        $tour = $this->tourWithTemplate([
+            'contact_name' => 'required',
+            'contact_phone' => 'required',
+            'contact_postal_code' => 'required',
+            'passenger_name' => 'required',
+        ]);
+
+        $this->postJson('/api/bookings', [
+            'termsAccepted' => true,
+            'tourId' => $tour->id,
+            'formData' => ['contact_name' => 'Dr. Kovács-Nagy Anna', 'contact_phone' => '+36 (30) 123-4567', 'contact_postal_code' => '945 01'],
+            'passengers' => [['passenger_name' => 'Ó Ágnes']],
+        ])->assertCreated();
+    }
+
     public function test_public_booking_stores_address_fields_and_admin_sees_their_labels(): void
     {
         $tour = $this->tourWithTemplate([

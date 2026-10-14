@@ -26,7 +26,8 @@ import { parseDiscountPercent } from "../content/discount-badge";
 import {
   initialValues,
   fieldsOfGroup,
-  requiredFieldErrors,
+  fieldError,
+  fieldErrorsOf,
   type BookingFieldErrors,
   type BookingFieldGroup,
   type BookingFieldValues,
@@ -70,7 +71,7 @@ function passengerErrorsOf(
   const errors: Record<number, BookingFieldErrors> = {};
 
   passengers.forEach((passenger, index) => {
-    const passengerErrors = requiredFieldErrors(passengerFields, passenger);
+    const passengerErrors = fieldErrorsOf(passengerFields, passenger);
 
     if (Object.keys(passengerErrors).length > 0) {
       errors[index] = passengerErrors;
@@ -78,6 +79,13 @@ function passengerErrorsOf(
   });
 
   return errors;
+}
+
+function withoutKey(errors: BookingFieldErrors, key: string): BookingFieldErrors {
+  const rest = { ...errors };
+  delete rest[key];
+
+  return rest;
 }
 
 /** The picked choices of the charged extras offering one, keyed by extra id. */
@@ -380,6 +388,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   function setFormValue(key: string, value: string) {
     markStarted();
     setFormValues((current) => ({ ...current, [key]: value }));
+    // A corrected field's error goes away as soon as it is edited.
+    setFieldErrors((current) => (key in current.form ? { ...current, form: withoutKey(current.form, key) } : current));
   }
 
   function setPassengerValue(index: number, key: string, value: string) {
@@ -389,6 +399,33 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         passengerIndex === index ? { ...passenger, [key]: value } : passenger,
       ),
     );
+    setFieldErrors((current) =>
+      current.passengers[index] && key in current.passengers[index]
+        ? { ...current, passengers: { ...current.passengers, [index]: withoutKey(current.passengers[index], key) } }
+        : current,
+    );
+  }
+
+  /** Checks a filled-in field as soon as the visitor leaves it; an empty one waits for "Következő". */
+  function checkFormValue(field: BookingFormField) {
+    const value = formValues[field.key] ?? "";
+    const error = value.trim() !== "" ? fieldError(field, value) : null;
+
+    if (error !== null) {
+      setFieldErrors((current) => ({ ...current, form: { ...current.form, [field.key]: error } }));
+    }
+  }
+
+  function checkPassengerValue(index: number, field: BookingFormField) {
+    const value = passengers[index]?.[field.key] ?? "";
+    const error = value.trim() !== "" ? fieldError(field, value) : null;
+
+    if (error !== null) {
+      setFieldErrors((current) => ({
+        ...current,
+        passengers: { ...current.passengers, [index]: { ...current.passengers[index], [field.key]: error } },
+      }));
+    }
   }
 
   function addPassenger() {
@@ -407,6 +444,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     if (passengers.length > 1) {
       setPassengerOptions(currentPassengerOptions.filter((_, passengerIndex) => passengerIndex !== index));
       setPassengerChoiceErrors({});
+      // Errors are kept by passenger position, which shifts once one is removed.
+      setFieldErrors((current) => ({ ...current, passengers: {} }));
     }
 
     setPassengers((current) => {
@@ -425,7 +464,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
 
   function validateAll(): FieldErrorState {
     return {
-      form: requiredFieldErrors([...contactFields, ...extraFields], formValues),
+      form: fieldErrorsOf([...contactFields, ...extraFields], formValues),
       passengers: passengerErrorsOf(passengerFields, passengers),
     };
   }
@@ -436,7 +475,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
     }
 
     if (step === STEP_OF_GROUP.contact) {
-      const errors = requiredFieldErrors(contactFields, formValues);
+      const errors = fieldErrorsOf(contactFields, formValues);
       setFieldErrors((current) => ({ ...current, form: errors }));
       if (Object.keys(errors).length > 0) {
         return;
@@ -760,6 +799,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                         field={field}
                         value={formValues[field.key] ?? ""}
                         onChange={(value) => setFormValue(field.key, value)}
+                        onBlur={() => checkFormValue(field)}
                         error={fieldErrors.form[field.key]}
                       />
                     ))}
@@ -794,6 +834,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                               field={field}
                               value={passenger[field.key] ?? ""}
                               onChange={(value) => setPassengerValue(index, field.key, value)}
+                              onBlur={() => checkPassengerValue(index, field)}
                               error={fieldErrors.passengers[index]?.[field.key]}
                             />
                           ))}
@@ -849,6 +890,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                         field={field}
                         value={formValues[field.key] ?? ""}
                         onChange={(value) => setFormValue(field.key, value)}
+                        onBlur={() => checkFormValue(field)}
                         error={fieldErrors.form[field.key]}
                       />
                     ))}
