@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, CreditCard, Mail, ShieldCheck } from "lucide-react";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioBookingPayment, type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
@@ -247,6 +247,19 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   useEffect(() => {
     setPassengers((current) => (current.length > 0 ? current : [initialValues(passengerFields)]));
   }, [passengerFields]);
+
+  // The form is replaced by a much shorter thank-you box, which could end up
+  // off screen: bring it to the middle of the screen and move focus onto it.
+  const confirmationRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status !== "success" && status !== "redirecting") {
+      return;
+    }
+
+    confirmationRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    confirmationRef.current?.focus({ preventScroll: true });
+  }, [status]);
 
   const steps = [
     { id: 1, title: "Utazás" },
@@ -589,7 +602,11 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   if (status === "redirecting") {
     return (
       <section id="foglalas" className="scroll-mt-[92px]">
-        <div className="rounded-[40px] bg-[#07111f] p-8 md:p-12 text-center">
+        <div
+          ref={confirmationRef}
+          tabIndex={-1}
+          className="rounded-[40px] bg-[#07111f] p-8 md:p-12 text-center outline-none ring-4 ring-[#00c389]/40 shadow-[0_30px_80px_rgba(0,195,137,0.25)] animate-in fade-in zoom-in-95 duration-500"
+        >
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#00c389]/15 text-[#00c389]">
             <CreditCard className="w-8 h-8" />
           </div>
@@ -612,7 +629,11 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   if (status === "success") {
     return (
       <section id="foglalas" className="scroll-mt-[92px]">
-        <div className="rounded-[40px] bg-[#07111f] p-8 md:p-12 text-center">
+        <div
+          ref={confirmationRef}
+          tabIndex={-1}
+          className="rounded-[40px] bg-[#07111f] p-8 md:p-12 text-center outline-none ring-4 ring-[#00c389]/40 shadow-[0_30px_80px_rgba(0,195,137,0.25)] animate-in fade-in zoom-in-95 duration-500"
+        >
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#00c389]/15 text-[#00c389]">
             <Check className="w-8 h-8" />
           </div>
