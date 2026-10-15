@@ -18,7 +18,7 @@ final class LegacyCatalogReport
         'legacy_id', 'slug', 'name', 'legacy_active', 'action', 'tour_id', 'archive', 'bookings_on_tour', 'manual_review',
         'dates', 'upcoming_dates', 'bookable_upcoming_dates', 'dates_with_own_stay', 'extras', 'extras_paid_on_site',
         'departure_places', 'new_departure_places', 'gallery_images', 'media_files', 'media_mirrored', 'partner_bonuses',
-        'categories', 'countries', 'unmapped', 'review_reasons',
+        'categories', 'countries', 'country_source', 'unmapped', 'review_reasons',
     ];
 
     /**

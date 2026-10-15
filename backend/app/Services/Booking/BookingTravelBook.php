@@ -38,6 +38,7 @@ class BookingTravelBook
             'statusLabel' => TourBookingStatus::label((string) $booking->status),
             'programDays' => $tour?->programDays ?? collect(),
             'programHtml' => RichTextSanitizer::sanitize($tour?->program),
+            'programFooterHtml' => RichTextSanitizer::sanitize($tour?->program_footer),
             'includedItems' => $tour?->priceItems->where('type', 'included')->values() ?? collect(),
             'excludedItems' => $tour?->priceItems->where('type', 'excluded')->values() ?? collect(),
             'tripNotes' => $tour?->notes,

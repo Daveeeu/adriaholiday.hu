@@ -15,6 +15,7 @@ export default function Seo({
   ogImageUrl,
   ogType,
   noIndex,
+  robots: pageRobots,
   jsonLd,
 }: {
   title?: string;
@@ -23,6 +24,8 @@ export default function Seo({
   ogImageUrl?: string;
   ogType?: "website" | "article" | "product";
   noIndex?: boolean;
+  /** The page's own restrictive directive; a site not indexed at all stays so. */
+  robots?: string | null;
   jsonLd?: JsonLd | JsonLd[];
 }) {
   const { settings } = useSiteSettings();
@@ -38,7 +41,7 @@ export default function Seo({
 
   const robots = noIndex || !isCanonicalHost()
     ? "noindex,nofollow"
-    : "index,follow,max-image-preview:large";
+    : pageRobots || "index,follow,max-image-preview:large";
 
   const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
 

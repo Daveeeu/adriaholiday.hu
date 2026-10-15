@@ -68,6 +68,28 @@ class PortfolioSeoTest extends TestCase
         $this->assertStringContainsString('"@type":"BreadcrumbList"', $html);
     }
 
+    public function test_an_offer_with_its_own_seo_title_description_and_robots_uses_them(): void
+    {
+        Tour::factory()->create([
+            'active' => true,
+            'name' => 'Advent Mariazellben',
+            'seo_name' => 'advent-mariazellben',
+            'seo_title' => 'Advent Mariazellben buszos úttal',
+            'seo_description' => 'Adventi kirándulás Mariazellbe busszal, idegenvezetéssel.',
+            'seo_robots' => 'noindex, follow',
+        ]);
+        Tour::factory()->create(['active' => true, 'name' => 'Advent Grazban', 'seo_name' => 'advent-grazban', 'seo_robots' => 'index, follow']);
+
+        $html = $this->visit('/ajanlat/advent-mariazellben')->assertOk()->getContent();
+        $this->assertStringContainsString('<title data-rh="true">Advent Mariazellben buszos úttal | Adria Holiday</title>', $html);
+        $this->assertStringContainsString('content="Adventi kirándulás Mariazellbe busszal, idegenvezetéssel."', $html);
+        $this->assertStringContainsString('name="robots" content="noindex,follow"', $html);
+
+        // "index, follow" is the default; a host never indexed stays so.
+        $this->assertStringContainsString('content="index,follow,max-image-preview:large"', $this->visit('/ajanlat/advent-grazban')->getContent());
+        $this->assertStringContainsString('content="noindex,nofollow"', $this->visit('/ajanlat/advent-grazban', 'adriaholiday.jandldavid.hu')->getContent());
+    }
+
     public function test_missing_content_and_unknown_paths_answer_404_and_are_not_indexed(): void
     {
         Tour::factory()->create(['active' => false, 'seo_name' => 'inaktiv-ut']);

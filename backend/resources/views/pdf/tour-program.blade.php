@@ -430,6 +430,10 @@
             @endforeach
         @endif
 
+        @if ($programFooterHtml)
+            <div class="day-body">{!! $programFooterHtml !!}</div>
+        @endif
+
         @if ($includedItems->isNotEmpty() || $excludedItems->isNotEmpty())
             <div class="keep-together">
             <h2>Ár tartalma</h2>

@@ -144,6 +144,7 @@ final class LegacyCatalogImportService
                 'html_fields' => array_keys(array_filter($offer->html)),
                 'categories' => $taxonomy['categories'],
                 'countries' => array_column($taxonomy['countries'], 'name'),
+                'country_source' => $taxonomy['country_source'],
                 'unmapped' => $taxonomy['unmapped'],
                 'warnings' => $entry['warnings'],
                 'notes' => $offer->notes,

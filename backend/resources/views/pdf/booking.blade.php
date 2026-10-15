@@ -184,7 +184,7 @@
             </div>
         @endif
 
-        @if ($programDays->isNotEmpty() || $programHtml || $includedItems->isNotEmpty() || $excludedItems->isNotEmpty() || $tripNotes)
+        @if ($programDays->isNotEmpty() || $programHtml || $programFooterHtml || $includedItems->isNotEmpty() || $excludedItems->isNotEmpty() || $tripNotes)
             <div class="program">
                 @if ($programDays->isEmpty() && $programHtml)
                     <p class="program-title">Program</p>
@@ -200,6 +200,9 @@
                             @endif
                         </div>
                     @endforeach
+                @endif
+                @if ($programFooterHtml)
+                    <div class="day-body">{!! $programFooterHtml !!}</div>
                 @endif
 
                 @if ($includedItems->isNotEmpty() || $excludedItems->isNotEmpty())

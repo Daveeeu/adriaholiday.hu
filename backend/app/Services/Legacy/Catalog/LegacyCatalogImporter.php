@@ -95,7 +95,7 @@ final class LegacyCatalogImporter
             ]);
             $tour->forceFill([
                 'legacy_id' => $offer->legacyId,
-                'legacy_attributes' => [...$offer->legacyAttributes, 'unmapped' => $taxonomy['unmapped']],
+                'legacy_attributes' => [...$offer->legacyAttributes, 'unmapped' => $taxonomy['unmapped'], 'country_source' => $taxonomy['country_source']],
             ]);
 
             // Switched off in the legacy admin, not for having departed: the

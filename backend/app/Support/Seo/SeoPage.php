@@ -21,6 +21,8 @@ final class SeoPage
         public readonly bool $noIndex = false,
         public readonly int $status = 200,
         public readonly ?string $redirectTo = null,
+        // The page's own restrictive robots directive (see RobotsDirective).
+        public readonly ?string $robots = null,
     ) {}
 
     /**

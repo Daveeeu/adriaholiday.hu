@@ -5,14 +5,19 @@ import { useWatch, type UseFormReturn } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
-import { slugifyTourText } from '../lib/tours.constants';
+import {
+  slugifyTourText,
+  TOUR_SEO_ROBOTS_OPTIONS,
+} from '../lib/tours.constants';
 import type { TourFormValues } from '../lib/tours.types';
 
 type TourSeoSectionProps = {
@@ -43,7 +48,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
         <div>
           <h3 className="font-semibold">SEO</h3>
           <p className="text-sm text-muted-foreground">
-            Név, akciók és SEO név kezelése.
+            Név, akciók, SEO név, valamint a keresőben megjelenő cím és leírás.
           </p>
         </div>
         <Button
@@ -131,6 +136,69 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
                   readOnly={seoAutoGenerate}
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <FormField
+          control={form.control}
+          name="seoTitle"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>SEO cím</FormLabel>
+              <FormControl>
+                <Input placeholder="Üresen az utazás neve" {...field} />
+              </FormControl>
+              <FormDescription>
+                A böngésző fülén és a találati listában jelenik meg.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="seoRobots"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Keresők (robots)</FormLabel>
+              <FormControl>
+                <select
+                  className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+                  {...field}
+                >
+                  {TOUR_SEO_ROBOTS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="seoDescription"
+          render={({ field }) => (
+            <FormItem className="md:col-span-2">
+              <FormLabel>SEO leírás</FormLabel>
+              <FormControl>
+                <Textarea
+                  rows={3}
+                  placeholder="Üresen az ismertető szöveg eleje"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                {field.value.length} karakter; 120–160 karakter az ideális.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

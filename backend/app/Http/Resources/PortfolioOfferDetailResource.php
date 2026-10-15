@@ -7,6 +7,7 @@ use App\Services\Booking\BookingFormFieldResolver;
 use App\Services\Booking\BookingPaymentService;
 use App\Support\Booking\BookingInsuranceSettings;
 use App\Support\RichTextSanitizer;
+use App\Support\Seo\RobotsDirective;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -44,6 +45,13 @@ class PortfolioOfferDetailResource extends TourDetailResource
             return $sanitized !== '' ? $sanitized : null;
         };
 
+        // A date's own stay, shown as the tour's is (null: the tour's).
+        $data['dates'] = array_map(fn (array $date): array => [
+            ...$date,
+            'accommodation' => TourMeta::accommodationLabel($date['accommodation'] ?? null),
+            'catering' => TourMeta::mealsLabel($date['catering'] ?? null),
+        ], $data['dates'] ?? []);
+
         return array_merge($data, [
             'image' => $media ? new MediaResource($media) : null,
             'sliderImage' => $media ? new MediaResource($media) : null,
@@ -59,6 +67,8 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'additionalDates' => (bool) ($meta['additionalDates'] ?? ($tour->dates->count() > 1)),
             'programBefore' => $sanitizeContent($tour->program_before),
             'program' => $sanitizeContent($tour->program),
+            'programFooter' => $sanitizeContent($tour->program_footer),
+            'robots' => RobotsDirective::restrictive($tour->seo_robots),
             'inclusions' => $sanitizeContent($tour->inclusions),
             'paymentProgram' => $sanitizeContent($tour->payment_program),
             'teaser' => $sanitizeContent($tour->teaser),

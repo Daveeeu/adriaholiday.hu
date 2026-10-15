@@ -147,10 +147,7 @@ class TourController extends Controller
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
                 'difficulty_id' => $validated['difficulty_id'] ?? null,
-                'catering' => $validated['catering'] ?? null,
-                'catering_info' => $validated['catering_info'] ?? null,
-                'accommodation' => $validated['accommodation'] ?? null,
-                'accommodation_info' => $validated['accommodation_info'] ?? null,
+                ...$this->optionalContent($validated),
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
@@ -230,7 +227,7 @@ class TourController extends Controller
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
                 'difficulty_id' => $validated['difficulty_id'] ?? null,
-                ...Arr::only($validated, ['catering', 'catering_info', 'accommodation', 'accommodation_info']),
+                ...$this->optionalContent($validated),
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
@@ -289,7 +286,8 @@ class TourController extends Controller
         $this->authorize('duplicate', $tour);
 
         $duplicate = DB::transaction(function () use ($tour): Tour {
-            $copy = $tour->replicate();
+            // A copy is a new tour of the site, not the imported legacy offer.
+            $copy = $tour->replicate(['legacy_id', 'legacy_attributes']);
             $copy->name = $tour->name.' Copy';
             $copy->seo_name = $tour->seo_name ? Str::slug($tour->seo_name.' copy') : Str::slug($tour->name.' copy');
             $copy->sort_order = $tour->sort_order + 1;
@@ -303,15 +301,22 @@ class TourController extends Controller
                 'price_box_price' => $date->price_box_price,
                 'price_box_displayed_price' => $date->price_box_displayed_price,
                 'price_box_discount_badge' => $date->price_box_discount_badge,
+                'price_box_original_price' => $date->price_box_original_price,
+                'price_box_label' => $date->price_box_label,
                 'price_box_min_participants' => $date->price_box_min_participants,
                 'price_box_max_participants' => $date->price_box_max_participants,
                 'price_box_available_seats' => $date->price_box_available_seats,
                 'price_box_capacity' => $date->price_box_capacity,
                 'status' => $date->status,
                 'departure_place_ids' => $date->departure_place_ids,
+                'accommodation' => $date->accommodation,
+                'accommodation_info' => $date->accommodation_info,
+                'catering' => $date->catering,
+                'catering_info' => $date->catering_info,
                 'extras' => $date->extras->map(fn (TourDateExtra $extra): array => [
                     'name' => $extra->name,
                     'price' => $extra->price,
+                    'currency' => $extra->currency,
                     'price_unit' => $extra->price_unit,
                     'charge_rule' => $extra->charge_rule,
                     'choices' => $extra->choices ?? [],
@@ -405,6 +410,24 @@ class TourController extends Controller
         $tour = new Tour(['short_description' => $request->validated()['shortDescription'] ?? null]);
 
         return response()->json(['data' => TourSearchIndex::suggestKeywords($tour)]);
+    }
+
+    /**
+     * The optional content fields the request sent (see
+     * ValidatesOptionalTourContent); left out, the stored values stay.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function optionalContent(array $validated): array
+    {
+        $content = Arr::only($validated, ['catering', 'catering_info', 'accommodation', 'accommodation_info', 'seo_title', 'seo_description', 'seo_robots']);
+
+        if (array_key_exists('program_footer', $validated)) {
+            $content['program_footer'] = RichTextSanitizer::sanitize($validated['program_footer']);
+        }
+
+        return $content;
     }
 
     private function tourPriceBoxAttributes(array $validated): array

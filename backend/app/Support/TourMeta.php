@@ -59,7 +59,15 @@ class TourMeta
      */
     public static function accommodation(Tour $tour): ?string
     {
-        $accommodation = self::filled($tour->accommodation) ?? self::filled(self::extract($tour)['accommodation'] ?? null);
+        return self::accommodationLabel(self::filled($tour->accommodation) ?? self::extract($tour)['accommodation'] ?? null);
+    }
+
+    /**
+     * An accommodation as shown: "hotel***" → "Hotel***".
+     */
+    public static function accommodationLabel(?string $accommodation): ?string
+    {
+        $accommodation = self::filled($accommodation);
 
         return $accommodation !== null ? Str::ucfirst(preg_replace('/\bhotel\b/u', 'Hotel', $accommodation)) : null;
     }
@@ -82,7 +90,15 @@ class TourMeta
 
     public static function meals(Tour $tour): ?string
     {
-        $meals = self::filled($tour->catering) ?? self::filled(self::extract($tour)['meals'] ?? null);
+        return self::mealsLabel(self::filled($tour->catering) ?? self::extract($tour)['meals'] ?? null);
+    }
+
+    /**
+     * Meals as shown: "reggeli" → "Reggeli".
+     */
+    public static function mealsLabel(?string $meals): ?string
+    {
+        $meals = self::filled($meals);
 
         return $meals !== null ? Str::ucfirst($meals) : null;
     }

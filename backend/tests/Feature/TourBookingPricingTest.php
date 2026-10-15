@@ -250,6 +250,7 @@ class TourBookingPricingTest extends TestCase
     {
         $this->tour->programDays()->create(['day_number' => 1, 'sort_order' => 1, 'title' => 'Érkezés Ljubljanába', 'description' => '<p>Városnézés az óvárosban.</p>', 'active' => true]);
         $this->tour->priceItems()->create(['type' => 'included', 'text' => 'autóbusz közlekedés', 'sort_order' => 1, 'active' => true]);
+        $this->tour->update(['program_footer' => '<p>A programváltozás jogát fenntartjuk.</p>']);
 
         $response = $this->postJson('/api/bookings', $this->bookingPayload([
             'passengerOptions' => [
@@ -271,6 +272,7 @@ class TourBookingPricingTest extends TestCase
         $this->assertStringContainsString('Egyágyas felár – '.self::ROOMMATE, $customerCopy);
         $this->assertStringContainsString('Érkezés Ljubljanába', $customerCopy);
         $this->assertStringContainsString('autóbusz közlekedés', $customerCopy);
+        $this->assertStringContainsString('A programváltozás jogát fenntartjuk.', $customerCopy);
         $this->assertStringNotContainsString('Csak az irodának szóló megjegyzés.', $customerCopy);
 
         $this->assertStringContainsString('Csak az irodának szóló megjegyzés.', $travelBook->html($booking, internal: true));

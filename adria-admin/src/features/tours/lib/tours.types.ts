@@ -49,6 +49,11 @@ export type TourDate = {
   priceBox?: TourPriceBox | null;
   status: TourDateStatus;
   departurePlaceIds?: number[];
+  /** The date's own stay; empty: the tour's. */
+  accommodation?: string | null;
+  accommodationInfo?: string | null;
+  catering?: string | null;
+  cateringInfo?: string | null;
   extras?: TourDateExtra[];
 };
 
@@ -205,6 +210,9 @@ export type Tour = {
   subtitle?: string | null;
   seoName: string;
   seoAutoGenerate: boolean;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  seoRobots?: string | null;
   action1: string;
   action2: string;
   listDescription: string;
@@ -214,6 +222,7 @@ export type Tour = {
   programPdfFile: string;
   programBefore: string;
   program: string;
+  programFooter?: string | null;
   inclusions: string;
   paymentProgram: string;
   teaser: string;
@@ -286,6 +295,9 @@ export const tourFormSchema = z.object({
   subtitle: z.string(),
   seoName: z.string(),
   seoAutoGenerate: z.boolean(),
+  seoTitle: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+  seoDescription: z.string().trim().max(1000, 'Legfeljebb 1000 karakter.'),
+  seoRobots: z.string(),
   action1: z.string(),
   action2: z.string(),
   listDescription: z.string(),
@@ -295,6 +307,7 @@ export const tourFormSchema = z.object({
   programPdfFile: z.string(),
   programBefore: z.string(),
   program: z.string(),
+  programFooter: z.string(),
   inclusions: z.string(),
   paymentProgram: z.string(),
   teaser: z.string(),
@@ -400,6 +413,10 @@ export const tourFormSchema = z.object({
       displayedPrice: z.string(),
       status: z.enum(['available', 'sold_out']),
       departurePlaceIds: z.array(z.string()),
+      accommodation: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+      accommodationInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
+      catering: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+      cateringInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
       priceBox: z.object({
         price: z.string(),
         displayedPrice: z.string(),
@@ -452,6 +469,10 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     displayedPrice: date.displayedPrice ?? '',
     status: date.status ?? 'available',
     departurePlaceIds: (date.departurePlaceIds ?? []).map(String),
+    accommodation: date.accommodation ?? '',
+    accommodationInfo: date.accommodationInfo ?? '',
+    catering: date.catering ?? '',
+    cateringInfo: date.cateringInfo ?? '',
     priceBox: {
       price: date.priceBox?.price?.toString() ?? '',
       displayedPrice: date.priceBox?.displayedPrice ?? '',
@@ -514,6 +535,9 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     subtitle: tour?.subtitle ?? '',
     seoName: tour?.seoName ?? slugifyTourText(tour?.name ?? ''),
     seoAutoGenerate: tour?.seoAutoGenerate ?? true,
+    seoTitle: tour?.seoTitle ?? '',
+    seoDescription: tour?.seoDescription ?? '',
+    seoRobots: tour?.seoRobots ?? '',
     action1: tour?.action1 ?? '',
     action2: tour?.action2 ?? '',
     listDescription: tour?.listDescription ?? '',
@@ -523,6 +547,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     programPdfFile: tour?.programPdfFile ?? '',
     programBefore: tour?.programBefore ?? '',
     program: tour?.program ?? '',
+    programFooter: tour?.programFooter ?? '',
     inclusions: tour?.inclusions ?? '',
     paymentProgram: tour?.paymentProgram ?? '',
     teaser: tour?.teaser ?? '',

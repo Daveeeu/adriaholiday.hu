@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin\Tour;
 
+use App\Http\Requests\Admin\Tour\Concerns\ValidatesOptionalTourContent;
 use App\Http\Requests\Admin\Tour\Concerns\ValidatesTourBookingOptions;
 use App\Support\Tour\TourDateStatus;
 use App\Support\TourSearchIndex;
@@ -10,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 class StoreTourRequest extends FormRequest
 {
-    use ValidatesTourBookingOptions;
+    use ValidatesOptionalTourContent, ValidatesTourBookingOptions;
 
     protected function prepareForValidation(): void
     {
@@ -147,6 +148,7 @@ class StoreTourRequest extends FormRequest
                     ...(array_key_exists('departure_place_ids', $date) || array_key_exists('departurePlaceIds', $date)
                         ? ['departure_place_ids' => array_values(array_map('intval', array_filter((array) ($date['departure_place_ids'] ?? $date['departurePlaceIds'] ?? [])))) ?: null]
                         : []),
+                    ...$this->optionalDateContent($date),
                     'extras' => $this->normalizeDateExtras($date['extras'] ?? []),
                 ];
             })->all(),
@@ -159,12 +161,7 @@ class StoreTourRequest extends FormRequest
             })->all(),
         ]);
 
-        // Sent only by admins that edit them, so a save without them keeps the stored values.
-        foreach (['catering' => 'catering', 'catering_info' => 'cateringInfo', 'accommodation' => 'accommodation', 'accommodation_info' => 'accommodationInfo'] as $field => $alias) {
-            if ($this->exists($alias) && ! $this->exists($field)) {
-                $this->merge([$field => $this->input($alias)]);
-            }
-        }
+        $this->mergeOptionalTourContent();
     }
 
     public function authorize(): bool
@@ -257,10 +254,6 @@ class StoreTourRequest extends FormRequest
             'program_type_id' => ['nullable', 'string', 'max:255'],
             'travel_mode_id' => ['nullable', 'string', 'max:255'],
             'difficulty_id' => ['nullable', 'string', 'max:255'],
-            'catering' => ['nullable', 'string', 'max:255'],
-            'catering_info' => ['nullable', 'string', 'max:2000'],
-            'accommodation' => ['nullable', 'string', 'max:255'],
-            'accommodation_info' => ['nullable', 'string', 'max:2000'],
             'booking_form_template_id' => ['nullable', 'integer', 'exists:booking_form_templates,id'],
             'price' => ['nullable', 'numeric'],
             'displayed_price' => ['nullable', 'string', 'max:255'],
@@ -297,6 +290,7 @@ class StoreTourRequest extends FormRequest
             'partner_bonuses.*.label' => ['required_with:partner_bonuses', 'string', 'max:255'],
             'partner_bonuses.*.value' => ['nullable', 'string', 'max:255'],
             ...$this->bookingOptionRules(),
+            ...$this->optionalTourContentRules(),
         ];
     }
 }

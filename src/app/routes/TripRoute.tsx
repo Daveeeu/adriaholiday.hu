@@ -13,6 +13,7 @@ import {
   fetchPortfolioOfferDetail,
   type PortfolioOfferDetail,
   type PortfolioOfferDetailDate,
+  type PortfolioOfferDetailDate,
 } from "../content/portfolio-offer-detail-api";
 import { INQUIRE_LABEL } from "../content/portfolio-offer-card-model";
 import { useAnalytics } from "../analytics/useAnalytics";
@@ -46,6 +47,17 @@ function formatDateLabel(date: PortfolioOfferDetailDate) {
 
 export type TripDetail = ReturnType<typeof mapOfferToTrip>;
 
+/**
+ * A date's own accommodation and meals, each with its note; null when the
+ * date has none of its own, so the tour's are shown.
+ */
+function dateStay(date: PortfolioOfferDetailDate) {
+  const hotel = date.accommodation || date.accommodationInfo ? { value: date.accommodation ?? null, info: date.accommodationInfo ?? null } : null;
+  const meals = date.catering || date.cateringInfo ? { value: date.catering ?? null, info: date.cateringInfo ?? null } : null;
+
+  return hotel || meals ? { hotel, meals } : null;
+}
+
 /** Mirrors the backend: sold-out and cancelled dates take no bookings. */
 function isBookableDateStatus(status?: string | null): boolean {
   return status !== "sold_out" && status !== "cancelled";
@@ -71,6 +83,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
         depositPercent: date.depositPercent ?? null,
         instalmentsMinTripTotal: date.instalmentsMinTripTotal ?? null,
         departurePlaceIds: date.departurePlaceIds ?? [],
+        stay: dateStay(date),
         startDate: date.startDate ?? null,
         endDate: date.endDate ?? null,
       }))
@@ -88,6 +101,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
           depositPercent: null,
           instalmentsMinTripTotal: null,
           departurePlaceIds: [],
+          stay: null,
           startDate: null,
           endDate: null,
         },
@@ -116,9 +130,13 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     additionalDates: offer.additionalDates,
     couponable: offer.couponable ?? false,
     shortDescription: offer.shortDescription,
+    seoTitle: offer.seoTitle?.trim() || null,
+    seoDescription: offer.seoDescription?.trim() || null,
+    robots: offer.robots ?? null,
     dateOptions: dates,
     programBefore: offer.programBefore,
     program: offer.program,
+    programFooter: offer.programFooter ?? null,
     inclusions: offer.inclusions,
     paymentProgram: offer.paymentProgram,
     teaser: offer.teaser,
@@ -255,11 +273,13 @@ export default function TripRoute() {
   return (
     <>
       <Seo
-        title={offer.title}
+        title={offer.seoTitle || offer.title}
         description={
-          offer.shortDescription ??
-          `${offer.country} | ${offer.duration ?? "Utazás"} | ${offer.price}`
+          offer.seoDescription ||
+          (offer.shortDescription ??
+          `${offer.country} | ${offer.duration ?? "Utazás"} | ${offer.price}`)
         }
+        robots={offer.robots}
         canonicalPath={`/ajanlat/${offer.slug}`}
         ogImageUrl={offer.image}
         ogType="product"

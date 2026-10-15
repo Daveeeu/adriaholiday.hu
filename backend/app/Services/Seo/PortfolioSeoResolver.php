@@ -10,6 +10,7 @@ use App\Models\SiteSetting;
 use App\Models\Tour;
 use App\Support\CompanyContact;
 use App\Support\Seo\PublicSiteUrl;
+use App\Support\Seo\RobotsDirective;
 use App\Support\Seo\SeoPage;
 use Illuminate\Support\Str;
 
@@ -115,11 +116,12 @@ class PortfolioSeoResolver
 
         $path = "/ajanlat/{$tour->seo_name}";
         $image = $tour->mainImage()?->getUrl();
-        $description = $this->plain($tour->short_description) ?: $this->plain($tour->list_description) ?: $tour->name;
+        $description = trim((string) $tour->seo_description) ?: $this->plain($tour->short_description) ?: $this->plain($tour->list_description) ?: $tour->name;
 
         return new SeoPage(
-            title: $tour->name,
+            title: trim((string) $tour->seo_title) ?: $tour->name,
             description: $description,
+            robots: RobotsDirective::restrictive($tour->seo_robots),
             canonicalPath: $path,
             image: $image ?: $this->defaultImage(),
             ogType: 'product',

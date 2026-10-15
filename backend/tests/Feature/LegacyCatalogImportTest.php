@@ -303,10 +303,7 @@ class LegacyCatalogImportTest extends TestCase
         $this->actingAsTourEditor();
 
         // The admin form loads the tour and sends it back as it is.
-        $detail = $this->getJson("/api/admin/tours/{$tour->id}")->assertOk()->json('data');
-        // (the form keeps gallery item ids as strings)
-        $detail['gallery'] = array_map(fn (array $item): array => [...$item, 'id' => (string) $item['id']], $detail['gallery']);
-        $this->patchJson("/api/admin/tours/{$tour->id}", $detail)->assertOk();
+        $this->patchJson("/api/admin/tours/{$tour->id}", $this->adminDetail($tour))->assertOk();
 
         $first = $tour->dates()->where('legacy_id', 12446)->firstOrFail();
         $this->assertSame(['HUF', 'HUF', 'EUR', 'HUF', 'EUR'], $first->extras()->pluck('currency')->all());
@@ -329,14 +326,105 @@ class LegacyCatalogImportTest extends TestCase
         $this->getJson('/api/portfolio/offers/a:b')->assertNotFound();
     }
 
+    public function test_the_admin_edits_the_imported_seo_footer_and_date_stay_and_an_older_form_keeps_them(): void
+    {
+        $this->importCatalog();
+        $tour = Tour::query()->where('legacy_id', 10)->firstOrFail();
+        $this->actingAsTourEditor();
+        $detail = $this->adminDetail($tour);
+
+        $this->assertSame('Svájci körutazás', $detail['seoTitle']);
+        $this->assertSame('index, follow', $detail['seoRobots']);
+        $this->assertSame('<p>A program változhat.</p>', $detail['programFooter']);
+        $this->assertSame('Hotel****', collect($detail['dates'])->firstWhere('startDate', '2027-08-20')['accommodation']);
+
+        $detail['seoTitle'] = 'Svájc körutazás busszal';
+        $detail['seoRobots'] = 'noindex, follow';
+        $detail['programFooter'] = '<p>A programváltozás jogát fenntartjuk.</p><script>x()</script>';
+        $detail['dates'] = array_map(fn (array $date): array => $date['startDate'] === '2027-09-10'
+            ? [...$date, 'catering' => 'félpanzió', 'cateringInfo' => 'Vacsora a szállodában']
+            : $date, $detail['dates']);
+        $this->patchJson("/api/admin/tours/{$tour->id}", $detail)->assertOk();
+
+        $tour->refresh();
+        $this->assertSame('Svájc körutazás busszal', $tour->seo_title);
+        $this->assertSame('noindex, follow', $tour->seo_robots);
+        $this->assertSame('<p>A programváltozás jogát fenntartjuk.</p>', $tour->program_footer);
+        $this->assertSame('félpanzió', $tour->dates()->where('legacy_id', 12448)->value('catering'));
+
+        // A form that does not know the new fields leaves them as they are.
+        $older = collect($this->adminDetail($tour))->except(['seoTitle', 'seoDescription', 'seoRobots', 'programFooter'])->all();
+        $older['dates'] = array_map(fn (array $date): array => collect($date)->except(['accommodation', 'accommodationInfo', 'catering', 'cateringInfo'])->all(), $older['dates']);
+        $this->patchJson("/api/admin/tours/{$tour->id}", $older)->assertOk();
+
+        $tour->refresh();
+        $this->assertSame('Svájc körutazás busszal', $tour->seo_title);
+        $this->assertSame('<p>A programváltozás jogát fenntartjuk.</p>', $tour->program_footer);
+        $this->assertSame('Hotel****', $tour->dates()->where('legacy_id', 12447)->value('accommodation'));
+        $this->assertSame('félpanzió', $tour->dates()->where('legacy_id', 12448)->value('catering'));
+        $this->assertSame(['HUF', 'HUF', 'EUR', 'HUF', 'EUR'], $tour->dates()->where('legacy_id', 12446)->firstOrFail()->extras()->pluck('currency')->all());
+        $this->assertSame(10, $tour->legacy_id);
+        $this->assertSame('10!8!3', $tour->legacy_attributes['admin_list_row']['order']);
+        $this->assertSame(1, $tour->galleryCollection(TourGalleryItem::INTRO)->count());
+    }
+
+    public function test_the_public_offer_shows_the_footer_and_the_stay_of_each_departure(): void
+    {
+        $this->importCatalog();
+
+        $offer = $this->getJson('/api/portfolio/offers/svajc---a-hofodte-alpoktol')->assertOk()->json();
+        $dates = collect($offer['dates'])->keyBy('startDate');
+
+        $this->assertSame('<p>A program változhat.</p>', $offer['programFooter']);
+        $this->assertNull($offer['robots']);
+        $this->assertSame('Hotel***', $offer['accommodation']);
+        $this->assertNull($dates['2027-07-16']['accommodation']);
+        $this->assertSame('Hotel****', $dates['2027-08-20']['accommodation']);
+        $this->assertSame('Medencés', $dates['2027-08-20']['accommodationInfo']);
+        $this->assertEquals(229900, $dates['2027-07-16']['priceBox']['price']);
+        $this->assertSame(45, $dates['2027-07-16']['priceBox']['availableSeats']);
+    }
+
+    public function test_an_imported_tour_can_be_duplicated_into_a_tour_of_the_site(): void
+    {
+        $this->importCatalog();
+        $tour = Tour::query()->where('legacy_id', 10)->firstOrFail();
+        $this->actingAsTourEditor();
+
+        $copyId = $this->postJson("/api/admin/tours/{$tour->id}/duplicate")->assertSuccessful()->json('data.id');
+
+        $copy = Tour::query()->findOrFail($copyId);
+        $this->assertNull($copy->legacy_id);
+        $this->assertNull($copy->legacy_attributes);
+        $this->assertSame('<p>A program változhat.</p>', $copy->program_footer);
+        $this->assertSame('Hotel****', $copy->dates()->whereDate('start_date', '2027-08-20')->value('accommodation'));
+        $this->assertContains('EUR', $copy->dates()->whereDate('start_date', '2027-07-16')->firstOrFail()->extras()->pluck('currency')->all());
+        $this->assertEquals(238400, $copy->dates()->whereDate('start_date', '2027-07-16')->value('price_box_original_price'));
+    }
+
+    /**
+     * The tour as the admin form loads it (gallery item ids kept as strings).
+     *
+     * @return array<string, mixed>
+     */
+    private function adminDetail(Tour $tour): array
+    {
+        $detail = $this->getJson("/api/admin/tours/{$tour->id}")->assertOk()->json('data');
+        $detail['gallery'] = array_map(fn (array $item): array => [...$item, 'id' => (string) $item['id']], $detail['gallery']);
+
+        return $detail;
+    }
+
     private function actingAsTourEditor(): void
     {
-        foreach (['tours.viewAny', 'tours.view', 'tours.update'] as $permission) {
+        $permissions = ['tours.viewAny', 'tours.view', 'tours.update', 'tours.duplicate'];
+
+        foreach ($permissions as $permission) {
             Permission::findOrCreate($permission, 'web');
         }
 
         $role = Role::findOrCreate('Catalog Test Editor', 'web');
-        $role->syncPermissions(['tours.viewAny', 'tours.view', 'tours.update']);
+        $role->syncPermissions($permissions);
         $user = User::factory()->create();
         $user->assignRole($role);
 

@@ -240,8 +240,19 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               label="Utazás"
               value={trip.transport === "plane" ? "Repülős út" : "Autóbuszos út"}
             />
-            <HeroInfoCard icon={<Utensils />} label="Ellátás" value={trip.meals} info={trip.mealsInfo} />
-            <HeroInfoCard icon={<Hotel />} label="Szállás" value={trip.hotel} info={trip.hotelInfo} />
+            {/* The selected departure's own meals and accommodation, else the trip's. */}
+            <HeroInfoCard
+              icon={<Utensils />}
+              label="Ellátás"
+              value={selectedDate.stay?.meals?.value ?? trip.meals}
+              info={selectedDate.stay?.meals ? selectedDate.stay.meals.info : trip.mealsInfo}
+            />
+            <HeroInfoCard
+              icon={<Hotel />}
+              label="Szállás"
+              value={selectedDate.stay?.hotel?.value ?? trip.hotel}
+              info={selectedDate.stay?.hotel ? selectedDate.stay.hotel.info : trip.hotelInfo}
+            />
           </div>
         </div>
       </section>
@@ -310,8 +321,14 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
                 {/* A program kept as one block, word for word as in the legacy admin. */}
                 {trip.programDays.length === 0 ? (
-                  <OfferContentSection title="Program" content={trip.program} navLabel="Program" />
-                ) : null}
+                  <OfferContentSection
+                    title="Program"
+                    content={[trip.program, trip.programFooter].filter(Boolean).join("")}
+                    navLabel="Program"
+                  />
+                ) : (
+                  <OfferContentSection title="Tudnivalók a programhoz" content={trip.programFooter} />
+                )}
 
                 <DeparturePlacesSection places={offeredDeparturePlaces} />
 

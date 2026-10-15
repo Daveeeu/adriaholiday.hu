@@ -32,6 +32,7 @@ class TourPdfService
             'tour' => $tour,
             'programDays' => $tour->programDays,
             'programHtml' => RichTextSanitizer::sanitize($tour->program),
+            'programFooterHtml' => RichTextSanitizer::sanitize($tour->program_footer),
             'includedItems' => $tour->priceItems->where('type', 'included')->values(),
             'excludedItems' => $tour->priceItems->where('type', 'excluded')->values(),
             'duration' => TourMeta::duration($tour) ?? 'Többnapos út',

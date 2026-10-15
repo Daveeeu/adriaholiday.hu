@@ -68,6 +68,11 @@ export type PortfolioOfferDetailDate = {
   instalmentsMinTripTotal?: number | null;
   /** The tour's departure places this date offers; empty: all of them. */
   departurePlaceIds?: number[];
+  /** The date's own stay; null: the tour's. */
+  accommodation?: string | null;
+  accommodationInfo?: string | null;
+  catering?: string | null;
+  cateringInfo?: string | null;
   extras?: PortfolioOfferDateExtra[];
 };
 
@@ -128,6 +133,13 @@ export type PortfolioOfferDetail = {
   listDescription: string;
   programBefore?: string | null;
   program?: string | null;
+  /** The text under the program. */
+  programFooter?: string | null;
+  /** The tour's own search engine title and description; empty: its name and short description. */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  /** The tour's own restrictive robots directive ("noindex,follow"); null: the site's default. */
+  robots?: string | null;
   inclusions?: string | null;
   paymentProgram?: string | null;
   /** The legacy "Kedvcsináló" tab. */

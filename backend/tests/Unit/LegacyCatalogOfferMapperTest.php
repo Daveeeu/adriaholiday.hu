@@ -92,4 +92,18 @@ class LegacyCatalogOfferMapperTest extends TestCase
             'https://adriaholiday.hu/files/svajc/terkep.jpg',
         ], $offer->mediaUrls('https://adriaholiday.hu'));
     }
+
+    public function test_the_legacy_admins_example_seo_texts_are_left_out(): void
+    {
+        $offer = $this->offer(10);
+        $offer['extra_fields']['seo[title]'] = 'út címe';
+        $offer['extra_fields']['seo[description]'] = '120-160 karakeres mondat ami az út fő jellemzőit tartalmazza';
+
+        $mapped = (new LegacyCatalogOfferMapper)->map($offer, Carbon::parse('2026-10-15'));
+
+        $this->assertNull($mapped->attributes['seo_title']);
+        $this->assertNull($mapped->attributes['seo_description']);
+        $this->assertSame('út címe', $mapped->legacyAttributes['extra_fields']['seo[title]']);
+        $this->assertCount(2, array_filter($mapped->notes, fn (string $note): bool => str_contains($note, "admin's example text")));
+    }
 }

@@ -13,8 +13,11 @@ use App\Support\Legacy\LegacyCountryDictionary;
 final class LegacyTaxonomyResolver
 {
     /**
-     * @param  array{offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>}  $taxonomy
-     * @return array{categories: array<int, string>, countries: array<int, array{code: string, name: string, region_slug: ?string}>, unmapped: array{offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>}}
+     * A country comes from the legacy regions; an offer without any takes
+     * the legacy XML destination only when it names a country exactly.
+     *
+     * @param  array{offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>, xml_city?: string|null}  $taxonomy
+     * @return array{categories: array<int, string>, countries: array<int, array{code: string, name: string, region_slug: ?string}>, country_source: string|null, unmapped: array{offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>}}
      */
     public function resolve(array $taxonomy): array
     {
@@ -33,9 +36,18 @@ final class LegacyTaxonomyResolver
             }
         }
 
+        $source = $countries !== [] ? 'regions' : null;
+        $xmlCountry = $countries === [] && ($taxonomy['xml_city'] ?? null) !== null ? LegacyCountryDictionary::find($taxonomy['xml_city']) : null;
+
+        if ($xmlCountry !== null) {
+            $countries[$xmlCountry['code']] = $xmlCountry;
+            $source = 'xml_city';
+        }
+
         return [
             'categories' => array_values(array_unique([...$offerGroupCategories, ...$regionGroupCategories])),
             'countries' => array_values($countries),
+            'country_source' => $source,
             'unmapped' => [
                 'offer_groups' => $unmappedOfferGroups,
                 'regions' => $unmappedRegions,

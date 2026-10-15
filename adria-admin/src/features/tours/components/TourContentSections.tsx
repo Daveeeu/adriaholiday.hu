@@ -166,6 +166,13 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
         />
         <TextareaField
           form={form}
+          name="programFooter"
+          label="Programok alatti szöveg"
+          placeholder="A program alatt megjelenő tudnivalók, pl. „A programváltozás jogát fenntartjuk.”"
+          minHeight={160}
+        />
+        <TextareaField
+          form={form}
           name="teaser"
           label="Kedvcsináló"
           placeholder="Hangulatos bevezető az utazáshoz"

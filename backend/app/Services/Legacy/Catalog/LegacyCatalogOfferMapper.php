@@ -37,6 +37,9 @@ final class LegacyCatalogOfferMapper
     /** Date fields with no column of their own, kept in the date's legacy_attributes. */
     private const DATE_LEGACY_FIELDS = ['status', 'status_label', 'active', 'xml_enabled', 'holiday_home', 'capacity_monitoring', 'capacity', 'currency', 'price', 'sale_price', 'list_text'];
 
+    /** The legacy admin's example texts in its empty SEO fields, never a real title or description. */
+    private const SEO_PLACEHOLDERS = ['út címe', '120-160 karakeres mondat ami az út fő jellemzőit tartalmazza'];
+
     private const DATE_LEGACY_FORM_FIELDS = ['accommodation_cesys', 'accommodation_info_cesys', 'accommodation_email_info', 'resort_fee', 'resort_fee_eur', 'last_minute', 'price_info'];
 
     /**
@@ -81,8 +84,8 @@ final class LegacyCatalogOfferMapper
                 'partner_offer' => (bool) ($offer['listed_in_partner_offer_list'] ?? false),
                 'short_description' => LegacyText::line($offer['cities_html'] ?? null),
                 'slider_text' => LegacyText::line($offer['slider_html'] ?? null),
-                'seo_title' => LegacyText::line($extraFields['seo[title]'] ?? null),
-                'seo_description' => LegacyText::line($extraFields['seo[description]'] ?? null),
+                'seo_title' => $this->seoText($extraFields['seo[title]'] ?? null, $notes),
+                'seo_description' => $this->seoText($extraFields['seo[description]'] ?? null, $notes),
                 'seo_robots' => LegacyText::line($extraFields['seo[robots]'] ?? null),
                 ...$stay,
                 'price' => $price,
@@ -122,6 +125,8 @@ final class LegacyCatalogOfferMapper
                 'offer_groups' => $this->names($offer['offer_groups'] ?? []),
                 'regions' => $this->names($offer['regions'] ?? []),
                 'region_groups' => $this->names($offer['region_groups'] ?? []),
+                // The legacy XML feed's destination, e.g. "Horvátország" or "Szeged".
+                'xml_city' => LegacyText::line($extraFields['xml[city]'] ?? null),
             ],
             partnerBonuses: collect($offer['partner_bonuses'] ?? [])
                 ->values()
@@ -134,6 +139,22 @@ final class LegacyCatalogOfferMapper
                 ->all(),
             notes: array_values(array_unique($notes)),
         );
+    }
+
+    /**
+     * @param  array<int, string>  $notes
+     */
+    private function seoText(mixed $value, array &$notes): ?string
+    {
+        $text = LegacyText::line($value);
+
+        if ($text !== null && in_array(mb_strtolower($text), self::SEO_PLACEHOLDERS, true)) {
+            $notes[] = "The legacy SEO field holds the admin's example text (\"{$text}\"); left out.";
+
+            return null;
+        }
+
+        return $text;
     }
 
     /**

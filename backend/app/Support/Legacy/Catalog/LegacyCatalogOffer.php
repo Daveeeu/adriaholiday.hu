@@ -24,7 +24,7 @@ final readonly class LegacyCatalogOffer
      * @param  array<int, CatalogDate>  $dates  in start date order
      * @param  array<int, CatalogPlace>  $departurePlaces  every place of the offer's dates
      * @param  array<string, array<int, CatalogImage>>  $galleries  keyed by TourGalleryItem collection
-     * @param  array{offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>}  $taxonomy
+     * @param  array{offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>, xml_city: string|null}  $taxonomy
      * @param  array<int, array{legacy_id: int, sort_order: int, label: string, value: string}>  $partnerBonuses
      * @param  array<int, string>  $notes  mapping decisions worth a look
      */

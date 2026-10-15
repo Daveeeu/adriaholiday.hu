@@ -735,6 +735,8 @@ export function TourForm({ form, tour }: TourFormProps) {
                 />
               </div>
 
+              <TourStaySection form={form} dateIndex={index} />
+
               <TourDateDeparturePlacesEditor form={form} tour={tour} dateIndex={index} />
 
               <TourDateExtrasEditor form={form} dateIndex={index} dateCount={dates.fields.length} />
@@ -753,6 +755,10 @@ export function TourForm({ form, tour }: TourFormProps) {
                     displayedPrice: '',
                     status: 'available',
                     departurePlaceIds: [],
+                    accommodation: '',
+                    accommodationInfo: '',
+                    catering: '',
+                    cateringInfo: '',
                     priceBox: {
                       price: '',
                       displayedPrice: '',

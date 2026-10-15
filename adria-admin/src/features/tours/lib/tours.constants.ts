@@ -98,6 +98,17 @@ export const TOUR_EXTRA_CHARGE_RULES = [
   { value: 'solo_traveller', label: 'Egyedül utazónak' },
 ] as const;
 
+/** A tour's own robots setting; empty follows the site's default (index, follow). */
+export const TOUR_SEO_ROBOTS_OPTIONS = [
+  { value: '', label: 'Alapértelmezett (indexelhető)' },
+  { value: 'index, follow', label: 'Indexelhető (index, follow)' },
+  { value: 'noindex, follow', label: 'Ne jelenjen meg a keresőkben' },
+  {
+    value: 'noindex, nofollow',
+    label: 'Ne jelenjen meg, linkjeit se kövessék',
+  },
+] as const;
+
 /** Fees in another currency than forint are paid on site, never with the booking total. */
 export const TOUR_EXTRA_CURRENCIES = [
   { value: 'HUF', label: 'Ft' },

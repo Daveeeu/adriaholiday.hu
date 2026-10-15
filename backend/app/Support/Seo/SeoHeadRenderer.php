@@ -30,7 +30,7 @@ final class SeoHeadRenderer
     {
         $title = $siteName !== '' && ! str_contains($page->title, $siteName) ? "{$page->title} | {$siteName}" : $page->title;
         $url = PublicSiteUrl::to($page->canonicalPath);
-        $robots = $page->noIndex || ! $indexable ? 'noindex,nofollow' : 'index,follow,max-image-preview:large';
+        $robots = $page->noIndex || ! $indexable ? 'noindex,nofollow' : ($page->robots ?? 'index,follow,max-image-preview:large');
 
         $tags = [
             '<title data-rh="true">'.e($title).'</title>',
