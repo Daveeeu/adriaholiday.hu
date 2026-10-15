@@ -44,6 +44,7 @@ class LegacyCountryDictionary
         'skocia' => ['code' => 'gb', 'name' => 'Egyesült Királyság', 'region_slug' => null],
         'spanyolorszag' => ['code' => 'es', 'name' => 'Spanyolország', 'region_slug' => null],
         'svajc' => ['code' => 'ch', 'name' => 'Svájc', 'region_slug' => null],
+        'szerbia' => ['code' => 'rs', 'name' => 'Szerbia', 'region_slug' => null],
         'szlovakia' => ['code' => 'sk', 'name' => 'Szlovákia', 'region_slug' => null],
         'szlovenia' => ['code' => 'si', 'name' => 'Szlovénia', 'region_slug' => null],
         'torokorszag' => ['code' => 'tr', 'name' => 'Törökország', 'region_slug' => null],

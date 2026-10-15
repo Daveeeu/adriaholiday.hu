@@ -1,6 +1,6 @@
 # Régi kategóriák és régiók – megfeleltetési javaslat
 
-Állapot: **jóváhagyásra vár**. Egyik javaslat sincs automatikusan alkalmazva. A jóváhagyott sorok a
+Állapot: **jóváhagyva (2026-10-15)**: a javaslatok és az ellenőrzési lista értékei a `config/legacy_catalog.php`-ban vannak (876: Törökország és Bulgária; 1087: Tengerpartok), a partnerváltozatok aktívak maradnak. A jóváhagyott sorok a
 `backend/config/legacy_catalog.php` megfelelő listájába kerülnek; az importáló ezután rendeli őket
 az ajánlatokhoz. Az adatok a 360 ajánlatos exportból származnak (2026-10-15). A jelölések: *aktív* =
 a régi adminban aktív, *jövőbeli* = van jövőbeli indulása.

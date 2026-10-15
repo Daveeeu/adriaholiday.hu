@@ -15,8 +15,10 @@ final class LegacyTaxonomyResolver
     /**
      * A country comes from the legacy regions; an offer without any takes
      * the legacy XML destination only when it names a country exactly.
+     * Countries and categories the office approved for the offer
+     * (legacy_catalog.offers) are added to these.
      *
-     * @param  array{offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>, xml_city?: string|null}  $taxonomy
+     * @param  array{legacy_id?: int, offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>, xml_city?: string|null}  $taxonomy
      * @return array{categories: array<int, string>, countries: array<int, array{code: string, name: string, region_slug: ?string}>, country_source: string|null, unmapped: array{offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>}}
      */
     public function resolve(array $taxonomy): array
@@ -44,8 +46,19 @@ final class LegacyTaxonomyResolver
             $source = 'xml_city';
         }
 
+        $approved = (array) config('legacy_catalog.offers.'.($taxonomy['legacy_id'] ?? 0), []);
+
+        foreach ((array) ($approved['countries'] ?? []) as $slug) {
+            $country = LegacyCountryDictionary::find((string) $slug);
+
+            if ($country !== null && ! isset($countries[$country['code']])) {
+                $countries[$country['code']] = $country;
+                $source ??= 'approved';
+            }
+        }
+
         return [
-            'categories' => array_values(array_unique([...$offerGroupCategories, ...$regionGroupCategories])),
+            'categories' => array_values(array_unique([...$offerGroupCategories, ...$regionGroupCategories, ...(array) ($approved['categories'] ?? [])])),
             'countries' => array_values($countries),
             'country_source' => $source,
             'unmapped' => [

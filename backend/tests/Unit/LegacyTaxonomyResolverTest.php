@@ -37,4 +37,18 @@ class LegacyTaxonomyResolverTest extends TestCase
         $this->assertSame(['at'], array_column($resolve(['Ausztria'], 'Horvátország')['countries'], 'code'));
         $this->assertSame('regions', $resolve(['Ausztria'], 'Horvátország')['country_source']);
     }
+
+    public function test_the_countries_and_categories_approved_for_an_offer_are_added(): void
+    {
+        config(['legacy_catalog.offers' => [876 => ['countries' => ['torokorszag', 'bulgaria'], 'categories' => ['Körutazások']]]]);
+        $resolver = new LegacyTaxonomyResolver;
+
+        $approved = $resolver->resolve(['legacy_id' => 876, 'offer_groups' => ['Körutazás'], 'regions' => [], 'region_groups' => []]);
+        $other = $resolver->resolve(['legacy_id' => 877, 'offer_groups' => [], 'regions' => [], 'region_groups' => []]);
+
+        $this->assertSame(['tr', 'bg'], array_column($approved['countries'], 'code'));
+        $this->assertSame('approved', $approved['country_source']);
+        $this->assertSame(['Körutazások'], $approved['categories']);
+        $this->assertSame([], $other['countries']);
+    }
 }

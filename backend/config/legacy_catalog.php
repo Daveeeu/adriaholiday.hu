@@ -48,7 +48,7 @@ return [
         'Tengerparti ajánlataink autóbusszal' => 'Tengerpartok',
         'Advent' => 'Adventi barangolások',
         'Belföldi advent' => 'Adventi barangolások',
-        'Repülős utak' => null,
+        'Repülős utak' => 'Repülős körutazások',
         'Nyári táborok' => null,
         'Foglalj 0 % előleggel' => null,
         'Velencei karnevál' => null,
@@ -86,6 +86,29 @@ return [
         'Foci EB 2024' => null,
         'FOCI EB' => null,
         'Határtalanul' => null,
+    ],
+
+    /*
+    | Per offer, approved by the office (docs/legacy-catalog-taxonomy-proposal.md):
+    | countries (LegacyCountryDictionary slugs) and categories added to what the
+    | legacy groups and regions give, for offers the legacy admin left without.
+    */
+    'offers' => [
+        796 => ['countries' => ['erdely']],
+        799 => ['countries' => ['szerbia']],
+        800 => ['countries' => ['karpatalja']],
+        854 => ['countries' => ['szlovenia']],
+        876 => ['countries' => ['torokorszag', 'bulgaria']],
+        890 => ['countries' => ['szlovakia'], 'categories' => ['Körutazások']],
+        945 => ['countries' => ['horvatorszag']],
+        950 => ['countries' => ['belfold'], 'categories' => ['Körutazások']],
+        954 => ['countries' => ['belfold']],
+        970 => ['countries' => ['belfold']],
+        1012 => ['countries' => ['szlovakia'], 'categories' => ['Körutazások']],
+        1087 => ['countries' => ['albania'], 'categories' => ['Tengerpartok']],
+        1139 => ['countries' => ['gruzia']],
+        1184 => ['countries' => ['anglia'], 'categories' => ['Körutazások']],
+        1198 => ['countries' => ['ausztria'], 'categories' => ['Adventi barangolások']],
     ],
 
 ];

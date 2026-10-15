@@ -122,6 +122,7 @@ final class LegacyCatalogOfferMapper
             sliderImageUrl: $offer['slider_image'] ?? null,
             programPdfUrl: $offer['program_pdf'] ?? null,
             taxonomy: [
+                'legacy_id' => (int) $offer['legacy_id'],
                 'offer_groups' => $this->names($offer['offer_groups'] ?? []),
                 'regions' => $this->names($offer['regions'] ?? []),
                 'region_groups' => $this->names($offer['region_groups'] ?? []),
