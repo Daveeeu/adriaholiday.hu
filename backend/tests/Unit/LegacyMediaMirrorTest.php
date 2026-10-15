@@ -102,4 +102,40 @@ class LegacyMediaMirrorTest extends TestCase
         $this->assertSame(LegacyMediaFile::MIRRORED, $file->status);
         $this->assertSame('image/png', $file->media->mime_type);
     }
+
+    public function test_a_photo_above_the_upload_limit_is_scaled_down_instead_of_lost(): void
+    {
+        $image = imagecreatetruecolor(4000, 120);
+        for ($x = 0; $x < 4000; $x++) {
+            imagesetpixel($image, $x, $x % 120, imagecolorallocate($image, $x % 256, ($x * 7) % 256, ($x * 13) % 256));
+        }
+        ob_start();
+        imagejpeg($image, null, 100);
+        $jpeg = (string) ob_get_clean();
+        config(['media-library.max_file_size' => (int) (strlen($jpeg) * 0.8)]);
+        Http::fake(['*' => Http::response($jpeg, 200, ['Content-Type' => 'image/jpeg'])]);
+
+        $file = (new LegacyMediaMirror)->mirror('https://adriaholiday.hu/uploads/gallery/1/huge.jpg');
+
+        $this->assertSame(LegacyMediaFile::MIRRORED, $file->status);
+        $this->assertSame(hash('sha256', $jpeg), $file->content_sha256);
+        $this->assertLessThan(strlen($jpeg), $file->media->size);
+    }
+
+    public function test_a_file_the_library_refuses_is_recorded_and_the_next_one_still_copied(): void
+    {
+        config(['media-library.max_file_size' => 100]);
+        Http::fake([
+            '*/big.pdf' => Http::response('%PDF-1.4 '.str_repeat('x', 500), 200, ['Content-Type' => 'application/pdf']),
+            '*' => Http::response(self::pngFor('small'), 200, ['Content-Type' => 'image/png']),
+        ]);
+        $mirror = new LegacyMediaMirror;
+
+        $failed = $mirror->mirror('https://adriaholiday.hu/files/big.pdf');
+        $next = $mirror->mirror('https://adriaholiday.hu/files/small.png');
+
+        $this->assertSame(LegacyMediaFile::FAILED, $failed->status);
+        $this->assertStringContainsString('greater than the maximum allowed', (string) $failed->error);
+        $this->assertSame(LegacyMediaFile::MIRRORED, $next->status);
+    }
 }

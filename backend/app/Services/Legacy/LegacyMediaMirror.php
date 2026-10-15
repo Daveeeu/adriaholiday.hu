@@ -7,6 +7,8 @@ use App\Models\LegacyMediaFile;
 use App\Support\MediaCategory;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Spatie\Image\Enums\Fit;
+use Spatie\Image\Image;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 
@@ -21,6 +23,8 @@ use Throwable;
 class LegacyMediaMirror
 {
     public const SOURCE_CONTEXT = 'legacy-import';
+
+    private const MAX_IMAGE_SIDE = 2560;
 
     private const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
 
@@ -95,8 +99,17 @@ class LegacyMediaMirror
             $body = $this->download($url);
             $contentHash = hash('sha256', $body);
             $media = $this->mediaWithContent($contentHash) ?? $this->store($url, $body, $meta);
-        } catch (LegacyFetchException $exception) {
-            $file->fill(['status' => LegacyMediaFile::FAILED, 'error' => Str::limit($exception->getMessage(), 1000), 'http_status' => $exception->getCode() ?: null])->save();
+        } catch (Throwable $exception) {
+            // One file that cannot be copied never stops the others; it is recorded and reported.
+            if (! $exception instanceof LegacyFetchException) {
+                report($exception);
+            }
+
+            $file->fill([
+                'status' => LegacyMediaFile::FAILED,
+                'error' => Str::limit($exception->getMessage(), 1000),
+                'http_status' => $exception instanceof LegacyFetchException ? ($exception->getCode() ?: null) : null,
+            ])->save();
 
             return $file;
         }
@@ -167,6 +180,7 @@ class LegacyMediaMirror
     private function store(string $url, string $body, array $meta): Media
     {
         $fileName = $this->fileNameFromUrl($url);
+        $body = $this->withinSizeLimit($body, $fileName);
         $title = $meta['title'] ?? pathinfo($fileName, PATHINFO_FILENAME);
         $category = ($meta['category'] ?? MediaCategory::TOURS)->value;
 
@@ -194,6 +208,29 @@ class LegacyMediaMirror
         $media->save();
 
         return $media;
+    }
+
+    /**
+     * A photo larger than the media library accepts (some legacy uploads are
+     * camera originals of 10+ MB) is scaled down to 2560 pixels on its long
+     * side; anything else is stored as it is.
+     */
+    private function withinSizeLimit(string $body, string $fileName): string
+    {
+        if (strlen($body) <= (int) config('media-library.max_file_size') || $this->isPdf($body)) {
+            return $body;
+        }
+
+        $path = tempnam(sys_get_temp_dir(), 'legacy-media-').'.'.(pathinfo($fileName, PATHINFO_EXTENSION) ?: 'jpg');
+
+        try {
+            file_put_contents($path, $body);
+            Image::load($path)->fit(Fit::Max, self::MAX_IMAGE_SIDE, self::MAX_IMAGE_SIDE)->quality(82)->save();
+
+            return (string) file_get_contents($path);
+        } finally {
+            @unlink($path);
+        }
     }
 
     private function recordMirrored(LegacyMediaFile $file, Media $media, ?string $contentHash, ?int $bytes): LegacyMediaFile
