@@ -122,6 +122,22 @@ export type BookingEmailLog = {
   createdAt: string;
 };
 
+/** A priced extra of a booking's price snapshot. */
+export type TourBookingPriceExtra = {
+  id: number;
+  name: string;
+  price: number;
+  /** Missing on bookings priced before extras had a currency (all in forints). */
+  currency?: string;
+  priceUnit: 'per_person' | 'per_booking';
+  chargeRule: 'optional' | 'mandatory' | 'solo_traveller';
+  choice: string | null;
+  quantity: number;
+  total: number;
+  /** Passengers (by index) a per-person extra is charged for; missing on bookings priced before per-passenger choices. */
+  passengers?: Array<{ index: number; choice: string | null }>;
+};
+
 /** Server-calculated price snapshot stored when the booking was placed. */
 export type TourBookingPricing = {
   currency: string;
@@ -130,18 +146,9 @@ export type TourBookingPricing = {
   baseTotal: number | null;
   discount: { label: string; percent: number; amount: number } | null;
   departurePlace: { id: number; name: string; fee: number; total: number } | null;
-  extras: Array<{
-    id: number;
-    name: string;
-    price: number;
-    priceUnit: 'per_person' | 'per_booking';
-    chargeRule: 'optional' | 'mandatory' | 'solo_traveller';
-    choice: string | null;
-    quantity: number;
-    total: number;
-    /** Passengers (by index) a per-person extra is charged for; missing on bookings priced before per-passenger choices. */
-    passengers?: Array<{ index: number; choice: string | null }>;
-  }>;
+  extras: TourBookingPriceExtra[];
+  /** Fees in another currency, paid on site and not part of the total; missing on older bookings. */
+  onSiteExtras?: TourBookingPriceExtra[];
   coupon: { id: number; code: string; amount: number } | null;
   tripTotal: number | null;
   insurances: Array<{ key: string; name: string; detail: string; total: number; passengers?: number[] }>;

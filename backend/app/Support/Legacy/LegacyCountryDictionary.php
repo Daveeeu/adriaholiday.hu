@@ -21,6 +21,7 @@ class LegacyCountryDictionary
         'ausztria' => ['code' => 'at', 'name' => 'Ausztria', 'region_slug' => 'austria'],
         'belfold' => ['code' => 'hu', 'name' => 'Magyarország', 'region_slug' => null],
         'bosznia-hercegovina' => ['code' => 'ba', 'name' => 'Bosznia-Hercegovina', 'region_slug' => null],
+        'bulgaria' => ['code' => 'bg', 'name' => 'Bulgária', 'region_slug' => 'bulgaria'],
         'csehorszag' => ['code' => 'cz', 'name' => 'Csehország', 'region_slug' => null],
         'erdely' => ['code' => 'ro', 'name' => 'Románia', 'region_slug' => 'romania'],
         'franciaorszag' => ['code' => 'fr', 'name' => 'Franciaország', 'region_slug' => 'france'],
@@ -28,14 +29,18 @@ class LegacyCountryDictionary
         'gruzia' => ['code' => 'ge', 'name' => 'Grúzia', 'region_slug' => null],
         'hollandia' => ['code' => 'nl', 'name' => 'Hollandia', 'region_slug' => null],
         'horvatorszag' => ['code' => 'hr', 'name' => 'Horvátország', 'region_slug' => 'croatia'],
+        'finnorszag' => ['code' => 'fi', 'name' => 'Finnország', 'region_slug' => null],
         'karpatalja' => ['code' => 'ua', 'name' => 'Ukrajna', 'region_slug' => null],
+        'kuba' => ['code' => 'cu', 'name' => 'Kuba', 'region_slug' => null],
         'lengyelorszag' => ['code' => 'pl', 'name' => 'Lengyelország', 'region_slug' => null],
+        'malta' => ['code' => 'mt', 'name' => 'Málta', 'region_slug' => null],
         'marokko' => ['code' => 'ma', 'name' => 'Marokkó', 'region_slug' => null],
         'montenegro' => ['code' => 'me', 'name' => 'Montenegró', 'region_slug' => 'montenegro'],
         'nemetorszag' => ['code' => 'de', 'name' => 'Németország', 'region_slug' => null],
         'olaszorszag' => ['code' => 'it', 'name' => 'Olaszország', 'region_slug' => 'italy'],
         'portugalia' => ['code' => 'pt', 'name' => 'Portugália', 'region_slug' => null],
         'norvegia' => ['code' => 'no', 'name' => 'Skandinávia', 'region_slug' => null],
+        'skandinavia' => ['code' => 'no', 'name' => 'Skandinávia', 'region_slug' => null],
         'skocia' => ['code' => 'gb', 'name' => 'Egyesült Királyság', 'region_slug' => null],
         'spanyolorszag' => ['code' => 'es', 'name' => 'Spanyolország', 'region_slug' => null],
         'svajc' => ['code' => 'ch', 'name' => 'Svájc', 'region_slug' => null],
@@ -45,17 +50,23 @@ class LegacyCountryDictionary
     ];
 
     /**
+     * The country of a known legacy country slug, or null.
+     *
+     * @return array{code: string, name: string, region_slug: ?string}|null
+     */
+    public static function find(string $legacySlug): ?array
+    {
+        return self::COUNTRIES[Str::slug($legacySlug)] ?? null;
+    }
+
+    /**
      * @return array{code: string, name: string, region_slug: ?string}
      */
     public static function resolve(string $legacySlug, ?string $fallbackName = null): array
     {
         $normalized = Str::slug($legacySlug);
 
-        if (isset(self::COUNTRIES[$normalized])) {
-            return self::COUNTRIES[$normalized];
-        }
-
-        return [
+        return self::find($legacySlug) ?? [
             'code' => $normalized,
             'name' => $fallbackName ?: Str::headline($normalized),
             'region_slug' => null,

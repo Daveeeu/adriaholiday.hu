@@ -134,6 +134,25 @@ class TourBookingPricingTest extends TestCase
         $this->assertEquals($pricing['tripTotal'], $pricing['total']);
     }
 
+    public function test_a_fee_in_euros_is_listed_as_paid_on_site_and_never_added_to_the_forint_total(): void
+    {
+        TourDateExtra::factory()->for($this->tourDate)->create([
+            'name' => 'Velence városbelépési díj', 'price' => 10, 'currency' => 'EUR', 'price_unit' => TourExtraPriceUnit::PER_PERSON,
+            'charge_rule' => TourExtraChargeRule::MANDATORY, 'sort_order' => 4,
+        ]);
+
+        $response = $this->postJson('/api/bookings', $this->bookingPayload());
+        $pricing = $this->pricingOf($response);
+
+        // 2 × 45 900 + 2 × 4 700 + 2 × 30 000, without the 2 × 10 EUR
+        $this->assertEquals(161200, (float) Booking::query()->findOrFail($response->json('id'))->total_amount);
+        $this->assertSame(['Repülőjegy'], array_column($pricing['extras'], 'name'));
+        $this->assertSame([['name' => 'Velence városbelépési díj', 'currency' => 'EUR', 'quantity' => 2, 'total' => 20]], array_map(
+            fn (array $extra): array => ['name' => $extra['name'], 'currency' => $extra['currency'], 'quantity' => $extra['quantity'], 'total' => (int) $extra['total']],
+            $pricing['onSiteExtras'],
+        ));
+    }
+
     public function test_solo_traveller_is_charged_the_single_room_supplement_with_the_chosen_option(): void
     {
         $withoutChoice = $this->postJson('/api/bookings', $this->bookingPayload(passengers: 1));

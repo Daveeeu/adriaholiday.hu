@@ -113,6 +113,29 @@ export function BookingPricingCard({
             <span className="whitespace-nowrap">{format(pricing.total)}</span>
           </div>
         ) : null}
+
+        {(pricing.onSiteExtras ?? []).map((extra) => (
+          <div
+            key={`on-site-${extra.id}`}
+            className="flex items-start justify-between gap-4 text-muted-foreground"
+          >
+            <div>
+              <div className="font-medium">
+                {extra.name} (helyszínen fizetendő)
+              </div>
+              <div className="text-xs">
+                {extra.quantity} ×{' '}
+                {formatCurrency(
+                  extra.price,
+                  extra.currency ?? pricing.currency,
+                )}
+              </div>
+            </div>
+            <div className="whitespace-nowrap font-medium">
+              {formatCurrency(extra.total, extra.currency ?? pricing.currency)}
+            </div>
+          </div>
+        ))}
       </div>
     </FormSection>
   );

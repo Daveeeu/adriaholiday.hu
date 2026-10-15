@@ -3,7 +3,6 @@
 namespace App\Services\Legacy;
 
 use App\Models\Tour;
-use App\Models\TourDateExtra;
 use App\Services\Tour\TourContentSyncService;
 use App\Support\PublicContentCache;
 use App\Support\Tour\TourExtraChargeRule;
@@ -43,7 +42,7 @@ class LegacyAdminOfferImporter
         $placeFees = $places->unique('name')->mapWithKeys(fn (array $place): array => [$placeIds[$place['name']] => $place['fee']])->all();
         $travelMode = $data['travel_mode'] !== null ? $this->references->travelMode($data['travel_mode']) : $tour->travel_mode_id;
         $prices = array_filter(array_column($data['dates'], 'price'));
-        $singleRoomChoices = $this->singleRoomChoices();
+        $singleRoomChoices = $this->references->singleRoomChoices();
 
         DB::transaction(function () use ($tour, $data, $placeIds, $placeFees, $travelMode, $prices, $singleRoomChoices): void {
             $tour->fill([
@@ -108,24 +107,5 @@ class LegacyAdminOfferImporter
         $ids = collect($places)->map(fn (array $place): ?int => $tourPlaceIds[$place['name']] ?? null)->filter()->unique()->values()->all();
 
         return $ids === [] || count($ids) === count($tourPlaceIds) ? null : $ids;
-    }
-
-    /**
-     * The alone / roommate choices the legacy site offers with every single
-     * room supplement (its admin export lists the supplement without them).
-     *
-     * @return array<int, string>
-     */
-    private function singleRoomChoices(): array
-    {
-        return TourDateExtra::query()
-            ->where('charge_rule', TourExtraChargeRule::SOLO_TRAVELLER)
-            ->whereNotNull('choices')
-            ->pluck('choices')
-            ->countBy(fn (array $choices): string => json_encode($choices))
-            ->sortDesc()
-            ->keys()
-            ->map(fn (string $choices): array => json_decode($choices, true))
-            ->first() ?? [];
     }
 }

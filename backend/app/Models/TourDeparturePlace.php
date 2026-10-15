@@ -24,6 +24,7 @@ class TourDeparturePlace extends Model
     protected $casts = [
         'active' => 'boolean',
         'fee' => 'decimal:2',
+        'legacy_id' => 'integer',
     ];
 
     public function tours(): BelongsToMany

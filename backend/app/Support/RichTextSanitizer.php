@@ -18,6 +18,7 @@ class RichTextSanitizer
         's',
         'h2',
         'h3',
+        'hr',
         'ul',
         'ol',
         'li',
@@ -31,6 +32,19 @@ class RichTextSanitizer
         'tr',
         'th',
         'td',
+    ];
+
+    /**
+     * Tags kept as their allowed equivalent: legacy and pasted content uses
+     * b / i for bold / italic and headings of any level.
+     */
+    private const TAG_ALIASES = [
+        'b' => 'strong',
+        'i' => 'em',
+        'h1' => 'h2',
+        'h4' => 'h3',
+        'h5' => 'h3',
+        'h6' => 'h3',
     ];
 
     private const ALLOWED_STYLES = [
@@ -106,6 +120,7 @@ class RichTextSanitizer
         }
 
         $tag = strtolower($source->nodeName);
+        $tag = self::TAG_ALIASES[$tag] ?? $tag;
 
         if (! in_array($tag, self::ALLOWED_TAGS, true)) {
             self::appendChildren($source, $output, $target);
@@ -134,6 +149,14 @@ class RichTextSanitizer
 
                 if ($sanitizedStyle !== null) {
                     $element->setAttribute('style', $sanitizedStyle);
+                }
+
+                continue;
+            }
+
+            if ($tag === 'table' && $name === 'border') {
+                if (preg_match('/^\d$/', $value)) {
+                    $element->setAttribute($name, $value);
                 }
 
                 continue;

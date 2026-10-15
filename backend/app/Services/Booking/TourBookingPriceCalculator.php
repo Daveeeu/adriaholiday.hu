@@ -12,6 +12,7 @@ use App\Support\Booking\TourBookingPassengerOptions;
 use App\Support\Booking\TourBookingSelection;
 use App\Support\DiscountBadge;
 use App\Support\Tour\TourExtraChargeRule;
+use App\Support\Tour\TourExtraCurrency;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -21,7 +22,8 @@ use Illuminate\Validation\ValidationException;
  *
  *   base price × passengers − discount (the price box's discount badge)
  *   + departure place fee × passengers
- *   + charged extras (for each passenger who has them, or once per booking)
+ *   + charged extras (for each passenger who has them, or once per booking;
+ *     extras in another currency are paid on site and listed apart)
  *   − coupon
  *   = trip total
  *   + travel insurance (daily fee × insured passengers × travel days)
@@ -34,9 +36,9 @@ use Illuminate\Validation\ValidationException;
  * change what the customer booked.
  *
  * @phpstan-type BookingPriceExtraPassenger array{index: int, choice: string|null}
- * @phpstan-type BookingPriceExtra array{id: int, name: string, price: float, priceUnit: string, chargeRule: string, choice: string|null, quantity: int, total: float, passengers: array<int, BookingPriceExtraPassenger>}
+ * @phpstan-type BookingPriceExtra array{id: int, name: string, price: float, currency: string, priceUnit: string, chargeRule: string, choice: string|null, quantity: int, total: float, passengers: array<int, BookingPriceExtraPassenger>}
  * @phpstan-type BookingPriceInsurance array{key: string, name: string, detail: string, total: float, passengers: array<int, int>}
- * @phpstan-type BookingPriceBreakdown array{currency: string, passengers: int, basePrice: float|null, baseTotal: float|null, discount: array{label: string, percent: float, amount: float}|null, departurePlace: array{id: int, name: string, fee: float, total: float}|null, extras: array<int, BookingPriceExtra>, coupon: array{id: int, code: string, amount: float}|null, tripTotal: float|null, insurances: array<int, BookingPriceInsurance>, insuranceTotal: float, total: float|null}
+ * @phpstan-type BookingPriceBreakdown array{currency: string, passengers: int, basePrice: float|null, baseTotal: float|null, discount: array{label: string, percent: float, amount: float}|null, departurePlace: array{id: int, name: string, fee: float, total: float}|null, extras: array<int, BookingPriceExtra>, onSiteExtras: array<int, BookingPriceExtra>, coupon: array{id: int, code: string, amount: float}|null, tripTotal: float|null, insurances: array<int, BookingPriceInsurance>, insuranceTotal: float, total: float|null}
  */
 class TourBookingPriceCalculator
 {
@@ -52,7 +54,12 @@ class TourBookingPriceCalculator
         $baseTotal = $basePrice !== null ? $basePrice * $passengers : null;
         $discount = $this->discount($tour, $tourDate, $baseTotal);
         $departurePlace = $this->departurePlace($tour, $tourDate, $selection->departurePlaceId, $passengers);
-        $extras = $this->extras($tourDate, $selection);
+        // Fees in another currency (e.g. a city tax in euros) are paid on
+        // site: listed, never added to the forint total.
+        [$onSiteExtras, $extras] = collect($this->extras($tourDate, $selection))
+            ->partition(fn (array $extra): bool => TourExtraCurrency::paidOnSite($extra['currency']))
+            ->map(fn (Collection $lines): array => $lines->values()->all())
+            ->all();
 
         $subtotal = $baseTotal !== null
             ? $baseTotal - ($discount['amount'] ?? 0) + ($departurePlace['total'] ?? 0) + array_sum(array_column($extras, 'total'))
@@ -74,6 +81,7 @@ class TourBookingPriceCalculator
             'discount' => $discount,
             'departurePlace' => $departurePlace,
             'extras' => $extras,
+            'onSiteExtras' => $onSiteExtras,
             'coupon' => $coupon,
             'tripTotal' => $tripTotal,
             'insurances' => $insurances,
@@ -232,6 +240,7 @@ class TourBookingPriceCalculator
             'id' => $extra->id,
             'name' => $extra->name,
             'price' => (float) $extra->price,
+            'currency' => $extra->currency,
             'priceUnit' => $extra->price_unit,
             'chargeRule' => $extra->charge_rule,
             'choice' => $choice,

@@ -19,6 +19,9 @@ export type TourSeasonalMenuType = (typeof TOUR_SEASONAL_MENU_TYPES)[number]['va
 
 export type TourExtraPriceUnit = 'per_person' | 'per_booking';
 
+/** HUF is charged with the booking; any other currency is paid on site. */
+export type TourExtraCurrency = 'HUF' | 'EUR';
+
 /**
  * optional: charged when the customer selects it; mandatory: always charged;
  * solo_traveller: charged automatically when exactly one passenger travels.
@@ -30,6 +33,7 @@ export type TourDateExtra = {
   id: number;
   name: string;
   price: number;
+  currency: TourExtraCurrency;
   priceUnit: TourExtraPriceUnit;
   chargeRule: TourExtraChargeRule;
   choices: string[];
@@ -418,6 +422,7 @@ export const tourFormSchema = z.object({
             .string()
             .trim()
             .regex(/^\d+(\.\d+)?$/, 'Adj meg egy nem negatív árat.'),
+          currency: z.enum(['HUF', 'EUR']),
           priceUnit: z.enum(['per_person', 'per_booking']),
           chargeRule: z.enum(['optional', 'mandatory', 'solo_traveller']),
           /** One choice per line. */
@@ -462,6 +467,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       clientId: createClientId(),
       name: extra.name,
       price: extra.price.toString(),
+      currency: extra.currency ?? 'HUF',
       priceUnit: extra.priceUnit,
       chargeRule: extra.chargeRule,
       choices: extra.choices.join('\n'),

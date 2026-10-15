@@ -2,43 +2,25 @@
 
 namespace App\Services\Legacy;
 
-use App\Models\AdminMediaItem;
+use App\Models\LegacyMediaFile;
 use App\Support\MediaCategory;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
- * Downloads a legacy image into the shared Media library (via AdminMediaItem,
- * the same "not owned by one business record" pattern MediaController already
- * uses), reusing an existing Media row when the same source URL was already
- * imported instead of downloading and storing it again.
+ * Imports one legacy image into the shared media library for the page
+ * importers (tours, blog), through LegacyMediaMirror: an image copied before
+ * (same URL, or same content) is reused instead of stored again.
  */
 class LegacyMediaImporter
 {
-    private const SOURCE_CONTEXT = 'legacy-import';
-
-    private readonly string $userAgent;
-
-    private readonly int $timeout;
-
-    private readonly int $delayMs;
-
-    private int $downloadCount = 0;
-
-    public function __construct()
-    {
-        $this->userAgent = (string) config('services.legacy_adria.user_agent');
-        $this->timeout = (int) config('services.legacy_adria.timeout');
-        $this->delayMs = (int) config('services.legacy_adria.request_delay_ms');
-    }
+    public function __construct(private readonly LegacyMediaMirror $mirror = new LegacyMediaMirror) {}
 
     /**
      * Number of images actually downloaded (not reused) since this instance was created.
      */
     public function downloadCount(): int
     {
-        return $this->downloadCount;
+        return $this->mirror->downloadCount();
     }
 
     /**
@@ -48,80 +30,12 @@ class LegacyMediaImporter
      */
     public function importImage(string $absoluteUrl, array $meta = []): Media
     {
-        $existing = $this->findExisting($absoluteUrl);
+        $file = $this->mirror->mirror($absoluteUrl, $meta);
 
-        if ($existing !== null) {
-            return $existing;
+        if ($file->status !== LegacyMediaFile::MIRRORED || $file->media === null) {
+            throw new LegacyFetchException($file->error ?? "Failed to download image {$absoluteUrl}");
         }
 
-        $this->throttle();
-
-        try {
-            $response = Http::withUserAgent($this->userAgent)
-                ->timeout($this->timeout)
-                ->retry(2, 500)
-                ->get($absoluteUrl);
-        } catch (\Throwable $exception) {
-            throw new LegacyFetchException("Failed to download image {$absoluteUrl}: {$exception->getMessage()}", previous: $exception);
-        }
-
-        if ($response->failed()) {
-            throw new LegacyFetchException("Failed to download image {$absoluteUrl}: HTTP {$response->status()}");
-        }
-
-        $fileName = $this->fileNameFromUrl($absoluteUrl);
-        $title = $meta['title'] ?? pathinfo($fileName, PATHINFO_FILENAME);
-        $category = ($meta['category'] ?? MediaCategory::TOURS)->value;
-
-        $item = AdminMediaItem::create();
-        $media = $item->addMediaFromString($response->body())
-            ->usingName($title)
-            ->usingFileName($fileName)
-            ->toMediaCollection('library');
-
-        $media->forceFill([
-            'category' => $category,
-            'source_context' => self::SOURCE_CONTEXT,
-            'alt' => $meta['alt'] ?? null,
-            'title' => $title,
-        ]);
-        $media->custom_properties = array_filter([
-            ...($media->custom_properties ?? []),
-            'category' => $category,
-            'source_context' => self::SOURCE_CONTEXT,
-            'alt' => $meta['alt'] ?? null,
-            'title' => $title,
-            'caption' => $meta['caption'] ?? null,
-            'legacy_url' => $absoluteUrl,
-        ], static fn ($value): bool => $value !== null && $value !== '');
-        $media->save();
-
-        $this->downloadCount++;
-
-        return $media;
-    }
-
-    private function findExisting(string $absoluteUrl): ?Media
-    {
-        return Media::query()
-            ->where('source_context', self::SOURCE_CONTEXT)
-            ->where('custom_properties->legacy_url', $absoluteUrl)
-            ->first();
-    }
-
-    private function fileNameFromUrl(string $url): string
-    {
-        $path = parse_url($url, PHP_URL_PATH) ?: null;
-        // Legacy file names are percent-encoded in the URL ("Prague_%28…%29.jpg").
-        $name = $path !== null ? basename(rawurldecode($path)) : '';
-
-        return $name !== '' ? $name : Str::random(16).'.jpg';
-    }
-
-    private function throttle(): void
-    {
-        if ($this->delayMs > 0) {
-            usleep($this->delayMs * 1000);
-        }
+        return $file->media;
     }
 }

@@ -16,6 +16,7 @@ class TourDateExtra extends Model
         'tour_date_id',
         'name',
         'price',
+        'currency',
         'price_unit',
         'charge_rule',
         'choices',

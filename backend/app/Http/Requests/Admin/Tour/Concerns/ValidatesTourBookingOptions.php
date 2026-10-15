@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Tour\Concerns;
 
 use App\Support\Tour\TourExtraChargeRule;
+use App\Support\Tour\TourExtraCurrency;
 use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Validation\Rule;
 
@@ -24,6 +25,8 @@ trait ValidatesTourBookingOptions
             ->map(fn (array $extra, int $index): array => [
                 'name' => $extra['name'] ?? '',
                 'price' => $extra['price'] ?? null,
+                // Left out when not sent, so the stored currency stays.
+                ...(isset($extra['currency']) ? ['currency' => $extra['currency']] : []),
                 'price_unit' => $extra['price_unit'] ?? $extra['priceUnit'] ?? TourExtraPriceUnit::PER_PERSON,
                 'charge_rule' => $extra['charge_rule'] ?? $extra['chargeRule'] ?? TourExtraChargeRule::OPTIONAL,
                 // Accepts a list or one choice per line (the admin form's textarea).
@@ -48,6 +51,7 @@ trait ValidatesTourBookingOptions
             'dates.*.extras' => ['nullable', 'array', 'max:30'],
             'dates.*.extras.*.name' => ['required', 'string', 'max:255'],
             'dates.*.extras.*.price' => ['required', 'numeric', 'min:0', 'max:99999999'],
+            'dates.*.extras.*.currency' => ['sometimes', 'string', Rule::in(TourExtraCurrency::all())],
             'dates.*.extras.*.price_unit' => ['required', 'string', Rule::in(TourExtraPriceUnit::all())],
             'dates.*.extras.*.charge_rule' => ['required', 'string', Rule::in(TourExtraChargeRule::all())],
             'dates.*.extras.*.choices' => ['array', 'max:5'],

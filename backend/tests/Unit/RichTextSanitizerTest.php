@@ -50,4 +50,18 @@ class RichTextSanitizerTest extends TestCase
             $html,
         );
     }
+
+    public function test_legacy_bold_italic_and_heading_levels_become_their_allowed_equivalent(): void
+    {
+        $html = RichTextSanitizer::sanitize('<h1>Cím</h1><p><b>félkövér</b> és <i>dőlt</i></p><h5>Alcím</h5><hr>');
+
+        $this->assertSame('<h2>Cím</h2><p><strong>félkövér</strong> és <em>dőlt</em></p><h3>Alcím</h3><hr>', $html);
+    }
+
+    public function test_tables_keep_their_border_but_no_other_layout_attribute(): void
+    {
+        $html = RichTextSanitizer::sanitize('<table border="1" cellpadding="1" width="80%" onclick="x()"><tbody><tr><td colspan="2" valign="top">Ár</td></tr></tbody></table>');
+
+        $this->assertSame('<table border="1"><tbody><tr><td colspan="2">Ár</td></tr></tbody></table>', $html);
+    }
 }

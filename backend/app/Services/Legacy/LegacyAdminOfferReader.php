@@ -2,11 +2,10 @@
 
 namespace App\Services\Legacy;
 
+use App\Support\Legacy\LegacyBookingOptionRules;
+use App\Support\Legacy\LegacyText;
 use App\Support\RichTextSanitizer;
 use App\Support\Tour\TourDateStatus;
-use App\Support\Tour\TourExtraChargeRule;
-use App\Support\Tour\TourExtraPriceUnit;
-use Illuminate\Support\Str;
 
 /**
  * Pure mapping of one tour exported from the legacy admin (its edit form,
@@ -18,13 +17,11 @@ use Illuminate\Support\Str;
  * [{id, summary, fields: {…}, extras: [{id, line: "Név | ár | Ft/fő | típus |"}]}]},
  * where a select is {value, text}.
  *
- * @phpstan-type AdminExtra array{name: string, price: float, price_unit: string, charge_rule: string}
+ * @phpstan-type AdminExtra array{name: string, price: float, currency: string, price_unit: string, charge_rule: string}
  * @phpstan-type AdminDate array{start_date: string, end_date: string, status: string, price: float|null, original_price: float|null, label: string|null, discount_badge: string|null, available_seats: int|null, extras: array<int, AdminExtra>, departure_places: array<int, array{name: string, fee: float}>}
  */
 final class LegacyAdminOfferReader
 {
-    private const TRAVEL_MODES = ['Autóbusszal' => 'bus', 'Repülővel' => 'plane', 'Vonattal' => 'train'];
-
     /** Dates the legacy site lists: active ones and full ones ("megtelt"). */
     private const LISTED_STATUSES = ['active' => TourDateStatus::AVAILABLE, 'full' => TourDateStatus::SOLD_OUT];
 
@@ -48,19 +45,19 @@ final class LegacyAdminOfferReader
         return [
             'seo_name' => trim((string) ($form['seo_name'] ?? '')),
             'name' => trim((string) ($form['name'] ?? '')),
-            'subtitle' => $this->text(trim(($form['name_sub_1'] ?? '').' '.($form['name_sub_2'] ?? ''))),
-            'short_description' => $this->text($form['cities_affected'] ?? null),
+            'subtitle' => LegacyText::line(trim(($form['name_sub_1'] ?? '').' '.($form['name_sub_2'] ?? ''))),
+            'short_description' => LegacyText::line($form['cities_affected'] ?? null),
             'program' => $this->html($form['program'] ?? null),
             'tickets' => $this->html($form['tickets'] ?? null),
             'optional_programs' => $this->html($form['facultative'] ?? null),
             'teaser' => $this->html($form['favorable_text'] ?? null),
             'prices' => $this->html($form['price_text'] ?? null),
             'couponable' => (string) ($form['coupon_enabled'] ?? '1') === '1',
-            'travel_mode' => self::TRAVEL_MODES[$this->selectText($first, 'travel')] ?? null,
-            'catering' => $this->text($first['provision'] ?? null),
-            'catering_info' => $this->info($first['provision_info'] ?? null, $first['provision'] ?? null),
-            'accommodation' => $this->text($first['accommodation'] ?? null),
-            'accommodation_info' => $this->info($first['accommodation_info'] ?? null, $first['accommodation'] ?? null),
+            'travel_mode' => LegacyBookingOptionRules::travelMode($this->selectText($first, 'travel')),
+            'catering' => LegacyText::line($first['provision'] ?? null),
+            'catering_info' => LegacyText::note($first['provision_info'] ?? null, $first['provision'] ?? null),
+            'accommodation' => LegacyText::line($first['accommodation'] ?? null),
+            'accommodation_info' => LegacyText::note($first['accommodation_info'] ?? null, $first['accommodation'] ?? null),
             'dates' => $dates->all(),
         ];
     }
@@ -79,22 +76,19 @@ final class LegacyAdminOfferReader
             return null;
         }
 
-        $price = $this->number($fields['price'] ?? null);
-        $salePrice = $this->number($fields['sale_price'] ?? null);
-        $onSale = $salePrice !== null && $salePrice > 0 && $price !== null && $salePrice < $price;
+        $price = LegacyBookingOptionRules::datePrice($this->number($fields['price'] ?? null), $this->number($fields['sale_price'] ?? null));
         $monitored = $this->select($fields, 'space_number_monitoring') === '1';
         $seats = $monitored ? max(0, (int) ($fields['space_number'] ?? 0)) : null;
-        $lastMinute = $this->number($fields['last_minute'] ?? null);
 
         return [
             'start_date' => $start,
             'end_date' => trim((string) ($fields['date_date_to'] ?? '')) ?: $start,
             // A full date, or a watched one without free seats, takes no booking.
             'status' => $seats === 0 ? TourDateStatus::SOLD_OUT : $status,
-            'price' => $onSale ? $salePrice : $price,
-            'original_price' => $onSale ? $price : null,
-            'label' => $this->text($fields['comment'] ?? null),
-            'discount_badge' => $lastMinute !== null && $lastMinute > 0 ? '-'.rtrim(rtrim(number_format($lastMinute, 2, ',', ''), '0'), ',').'%' : null,
+            'price' => $price['price'],
+            'original_price' => $price['original_price'],
+            'label' => LegacyText::line($fields['comment'] ?? null),
+            'discount_badge' => LegacyBookingOptionRules::discountBadge($this->number($fields['last_minute'] ?? null)),
             'available_seats' => $seats,
             'extras' => [...$this->extras($date['extras'] ?? []), ...$this->resortFee($fields)],
             'departure_places' => $this->departurePlaces($fields['__checked'] ?? []),
@@ -124,12 +118,9 @@ final class LegacyAdminOfferReader
             $result[] = [
                 'name' => $name,
                 'price' => $this->number($price),
-                'price_unit' => $unit === 'Ft' ? TourExtraPriceUnit::PER_BOOKING : TourExtraPriceUnit::PER_PERSON,
-                'charge_rule' => match (true) {
-                    $type === 'Egyágyas' => TourExtraChargeRule::SOLO_TRAVELLER,
-                    Str::startsWith($type, 'Előre kiválasztott') => TourExtraChargeRule::MANDATORY,
-                    default => TourExtraChargeRule::OPTIONAL,
-                },
+                'currency' => LegacyBookingOptionRules::currency($unit),
+                'price_unit' => LegacyBookingOptionRules::priceUnit($unit),
+                'charge_rule' => LegacyBookingOptionRules::chargeRule($type),
             ];
         }
 
@@ -146,12 +137,7 @@ final class LegacyAdminOfferReader
     {
         $fee = $this->number($fields['resort_fee'] ?? null);
 
-        return $fee !== null && $fee > 0 ? [[
-            'name' => LegacyBookingOptionsParser::RESORT_FEE_NAME,
-            'price' => $fee,
-            'price_unit' => TourExtraPriceUnit::PER_PERSON,
-            'charge_rule' => TourExtraChargeRule::MANDATORY,
-        ]] : [];
+        return $fee !== null && $fee > 0 ? [LegacyBookingOptionRules::resortFee($fee)] : [];
     }
 
     /**
@@ -169,11 +155,10 @@ final class LegacyAdminOfferReader
                 continue;
             }
 
-            preg_match('/^(.*?)\s*\(\+\s*([\d\s.]+)\s*Ft\/fő\)\s*$/u', trim($label), $match);
-            $name = trim($match[1] ?? $label);
+            $place = LegacyBookingOptionRules::departurePlace($label);
 
-            if ($name !== '') {
-                $places[] = ['name' => $name, 'fee' => (float) preg_replace('/\D/', '', $match[2] ?? '0')];
+            if ($place !== null) {
+                $places[] = $place;
             }
         }
 
@@ -205,25 +190,6 @@ final class LegacyAdminOfferReader
         $html = RichTextSanitizer::sanitize(is_string($value) ? $value : null);
 
         return $html !== null && trim(strip_tags($html)) !== '' ? $html : null;
-    }
-
-    private function text(mixed $value): ?string
-    {
-        $text = trim((string) preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) $value), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
-
-        return $text !== '' ? $text : null;
-    }
-
-    /**
-     * A popover note as plain text, one line per paragraph; none when it only repeats the label.
-     */
-    private function info(mixed $html, mixed $label): ?string
-    {
-        $withBreaks = (string) preg_replace('/<\/p>|<br\s*\/?>/i', "\n", (string) $html);
-        $lines = array_values(array_filter(array_map(fn (string $line): ?string => $this->text($line), explode("\n", $withBreaks))));
-        $info = implode("\n", $lines);
-
-        return $info === '' || mb_strtolower($info) === mb_strtolower((string) $this->text($label)) ? null : $info;
     }
 
     private function number(mixed $value): ?float

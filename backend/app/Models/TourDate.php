@@ -33,10 +33,16 @@ class TourDate extends Model
         'price_box_capacity',
         'status',
         'departure_place_ids',
+        'accommodation',
+        'accommodation_info',
+        'catering',
+        'catering_info',
     ];
 
     protected $casts = [
         'departure_place_ids' => 'array',
+        'legacy_id' => 'integer',
+        'legacy_attributes' => 'array',
         'start_date' => 'date',
         'end_date' => 'date',
         'price' => 'decimal:2',
@@ -62,6 +68,11 @@ class TourDate extends Model
     public function tour(): BelongsTo
     {
         return $this->belongsTo(Tour::class);
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
     }
 
     public function extras(): HasMany

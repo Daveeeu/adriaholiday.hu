@@ -13,9 +13,19 @@ class TourGalleryItem extends Model
     /** @use HasFactory<TourGalleryItemFactory> */
     use HasFactory;
 
+    /** The tour's gallery, shown on its page. */
+    public const MAIN = 'main';
+
+    /** Images of the legacy offer's intro gallery, kept but not shown. */
+    public const INTRO = 'intro';
+
+    /** A legacy offer's program gallery when it differs from its main one, kept but not shown. */
+    public const PROGRAM = 'program';
+
     protected $fillable = [
         'tour_id',
         'media_id',
+        'collection',
         'title',
         'alt',
         'caption',

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Services\Legacy\LegacyFetchException;
 use App\Services\Legacy\LegacyMediaImporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -65,7 +66,7 @@ class LegacyMediaImporterTest extends TestCase
         Http::assertSentCount(1);
     }
 
-    public function test_it_downloads_separately_for_different_urls(): void
+    public function test_different_urls_of_the_same_file_share_one_media(): void
     {
         Http::fake([
             '*' => Http::response(base64_decode(self::ONE_PIXEL_PNG_BASE64), 200, ['Content-Type' => 'image/png']),
@@ -76,8 +77,17 @@ class LegacyMediaImporterTest extends TestCase
         $first = $importer->importImage('https://adriaholiday.hu/uploads/gallery/1/photo-a.jpg');
         $second = $importer->importImage('https://adriaholiday.hu/uploads/gallery/1/photo-b.jpg');
 
-        $this->assertNotSame($first->id, $second->id);
-        $this->assertSame(2, Media::query()->count());
+        $this->assertSame($first->id, $second->id);
+        $this->assertSame(1, Media::query()->count());
         $this->assertSame(2, $importer->downloadCount());
+    }
+
+    public function test_a_failed_download_throws(): void
+    {
+        Http::fake(['*' => Http::response('', 404)]);
+
+        $this->expectException(LegacyFetchException::class);
+
+        (new LegacyMediaImporter)->importImage('https://adriaholiday.hu/uploads/gallery/1/missing.jpg');
     }
 }

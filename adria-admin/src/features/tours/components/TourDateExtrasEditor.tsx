@@ -16,6 +16,7 @@ import { createClientId } from '@/lib/client-id';
 
 import {
   TOUR_EXTRA_CHARGE_RULES,
+  TOUR_EXTRA_CURRENCIES,
   TOUR_EXTRA_PRICE_UNITS,
 } from '../lib/tours.constants';
 import type { TourFormValues } from '../lib/tours.types';
@@ -97,7 +98,7 @@ export function TourDateExtrasEditor({
       {fields.map((field, extraIndex) => (
         <div
           key={field.fieldKey}
-          className="grid gap-3 rounded-lg border bg-muted/30 p-3 md:grid-cols-[2fr_1fr_1fr_1.4fr_auto] md:items-end"
+          className="grid gap-3 rounded-lg border bg-muted/30 p-3 md:grid-cols-[2fr_1fr_1.2fr_1fr_1.4fr_auto] md:items-end"
         >
           <FormField
             control={form.control}
@@ -117,7 +118,7 @@ export function TourDateExtrasEditor({
             name={`dates.${dateIndex}.extras.${extraIndex}.price`}
             render={({ field: extraField }) => (
               <FormItem>
-                <FormLabel>Ár (Ft)</FormLabel>
+                <FormLabel>Ár</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -125,6 +126,28 @@ export function TourDateExtrasEditor({
                     placeholder="12000"
                     {...extraField}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name={`dates.${dateIndex}.extras.${extraIndex}.currency`}
+            render={({ field: extraField }) => (
+              <FormItem>
+                <FormLabel>Pénznem</FormLabel>
+                <FormControl>
+                  <select
+                    className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+                    {...extraField}
+                  >
+                    {TOUR_EXTRA_CURRENCIES.map((currency) => (
+                      <option key={currency.value} value={currency.value}>
+                        {currency.label}
+                      </option>
+                    ))}
+                  </select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -241,6 +264,7 @@ export function TourDateExtrasEditor({
             clientId: createClientId(),
             name: '',
             price: '',
+            currency: 'HUF',
             priceUnit: 'per_person',
             chargeRule: 'optional',
             choices: '',

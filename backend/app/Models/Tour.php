@@ -25,6 +25,7 @@ class Tour extends Model implements HasMedia
         'active',
         'featured',
         'featured_order',
+        'featured_subtitle',
         'recommended',
         'partner_offer',
         'image_offer',
@@ -36,6 +37,9 @@ class Tour extends Model implements HasMedia
         'subtitle',
         'seo_name',
         'seo_auto_generate',
+        'seo_title',
+        'seo_description',
+        'seo_robots',
         'action1',
         'action2',
         'list_description',
@@ -45,6 +49,7 @@ class Tour extends Model implements HasMedia
         'slider_image',
         'program_before',
         'program',
+        'program_footer',
         'teaser',
         'tickets',
         'optional_programs',
@@ -115,6 +120,8 @@ class Tour extends Model implements HasMedia
         'tag_ids' => 'array',
         'category_ids' => 'array',
         'search_keywords' => 'array',
+        'legacy_id' => 'integer',
+        'legacy_attributes' => 'array',
     ];
 
     protected static function booted(): void
@@ -161,9 +168,22 @@ class Tour extends Model implements HasMedia
         return $this->hasMany(TourProgramDay::class)->orderBy('sort_order');
     }
 
+    /**
+     * The gallery shown on the tour's page.
+     */
     public function galleryItems(): HasMany
     {
-        return $this->hasMany(TourGalleryItem::class)->orderBy('sort_order');
+        return $this->galleryCollection(TourGalleryItem::MAIN);
+    }
+
+    /**
+     * One of the tour's galleries (see TourGalleryItem's collections).
+     */
+    public function galleryCollection(string $collection): HasMany
+    {
+        return $this->hasMany(TourGalleryItem::class)
+            ->where('collection', $collection)
+            ->orderBy('sort_order');
     }
 
     public function priceItems(): HasMany

@@ -426,7 +426,7 @@ class LegacyAdriaOfferParserTest extends TestCase
         $this->assertSame('a királyok városa', $data->subtitle);
         $this->assertSame('<p>Van olyan utazás, ahol már maga az út is látványosság.</p>', $data->teaserHtml);
         $this->assertSame('<p style="text-align: justify">a.) Windsor 8.400 Ft/fő</p>', $data->optionalProgramsHtml);
-        $this->assertStringContainsString('<table><tbody><tr><td><p>Tower of London</p></td><td colspan="2"><p>25 GBP</p></td></tr></tbody></table>', (string) $data->ticketsHtml);
+        $this->assertStringContainsString('<table border="1"><tbody><tr><td><p>Tower of London</p></td><td colspan="2"><p>25 GBP</p></td></tr></tbody></table>', (string) $data->ticketsHtml);
     }
 
     public function test_an_offer_without_extra_tabs_has_none(): void

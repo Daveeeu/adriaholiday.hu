@@ -11,25 +11,21 @@ use App\Services\Legacy\LegacyImportOutcome;
 use App\Services\Legacy\LegacyTourImporter;
 use App\Support\Legacy\LegacyOfferData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Tests\Concerns\FakesLegacyImages;
 use Tests\TestCase;
 
 class LegacyTourImporterIdempotencyTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private const ONE_PIXEL_PNG_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+    use FakesLegacyImages, RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         Storage::fake(config('media-library.disk_name'));
-        Http::fake([
-            '*' => Http::response(base64_decode(self::ONE_PIXEL_PNG_BASE64), 200, ['Content-Type' => 'image/png']),
-        ]);
+        $this->fakeLegacyImages();
     }
 
     private function offerData(): LegacyOfferData
@@ -222,6 +218,8 @@ class LegacyTourImporterIdempotencyTest extends TestCase
 
     public function test_update_refreshes_dates_in_place_so_bookings_keep_their_date(): void
     {
+        // Before both dates depart, so neither is kept merely for having departed.
+        $this->travelTo('2026-09-01');
         $importer = app(LegacyTourImporter::class);
         $importer->import($this->offerData(), updateExisting: false);
         $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();

@@ -98,6 +98,12 @@ export const TOUR_EXTRA_CHARGE_RULES = [
   { value: 'solo_traveller', label: 'Egyedül utazónak' },
 ] as const;
 
+/** Fees in another currency than forint are paid on site, never with the booking total. */
+export const TOUR_EXTRA_CURRENCIES = [
+  { value: 'HUF', label: 'Ft' },
+  { value: 'EUR', label: 'EUR, helyszínen fizetendő' },
+] as const;
+
 export const TOUR_EXTRA_PRICE_UNITS = [
   { value: 'per_person', label: 'Fő után' },
   { value: 'per_booking', label: 'Foglalásonként' },

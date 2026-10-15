@@ -1,0 +1,684 @@
+{
+  "generated_at": "2026-10-15T10:14:38.915Z",
+  "source": "test",
+  "count": 5,
+  "reference": {
+    "offer_groups": [
+      {
+        "id": 10,
+        "name": "Körutazás"
+      }
+    ],
+    "regions": [
+      {
+        "id": 3,
+        "name": "Svájc",
+        "type": "Régió"
+      }
+    ],
+    "boarding_points": [
+      {
+        "id": 213,
+        "name": "Budapest BOK Csarnok",
+        "city": "Budapest",
+        "fee": 0,
+        "offers_count": 3
+      },
+      {
+        "id": 212,
+        "name": "Miskolc, Centrum Áruház mögötti parkoló",
+        "city": "Miskolc",
+        "fee": 2500,
+        "offers_count": 1
+      }
+    ]
+  },
+  "offers": [
+    {
+      "legacy_id": 10,
+      "name": "Svájc, a hófödte Alpoktól",
+      "subtitle_1": "Luzern",
+      "subtitle_2": "és Chamonix",
+      "slug": "svajc---a-hofodte-alpoktol",
+      "active": true,
+      "featured": true,
+      "featured_position": 3,
+      "featured_subtitle": null,
+      "coupon_enabled": true,
+      "image_offer": false,
+      "xml_enabled": true,
+      "listed_in_admin_offer_list": true,
+      "description_html": null,
+      "cities_html": "<p>Luzern-Gruyeres-Chamonix</p>",
+      "program_html": "<h1>Svájc</h1><p><b>1. nap:</b> <i>indulás</i></p><table border=\"1\" cellpadding=\"1\"><tbody><tr><td>Ár</td></tr></tbody></table><p><img src=\"files/svajc/terkep.jpg\" alt=\"Térkép\"></p><script>alert(1)</script>",
+      "program_footer_html": "<p>A program változhat.</p>",
+      "entrance_fees_html": "<p>Belépők: 40 CHF</p>",
+      "optional_program_html": null,
+      "prices_html": null,
+      "intro_html": "<p>Kedvcsináló</p>",
+      "slider_html": null,
+      "regions": [
+        "Svájc",
+        "Foci EB 2024"
+      ],
+      "region_groups": [
+        "lélegzetelállító tájakon",
+        "Advent"
+      ],
+      "offer_groups": [
+        "Körutazás",
+        "AKCIÓS Utazások"
+      ],
+      "seasonal_groups": [
+        "Körutazás",
+        "AKCIÓS Utazások"
+      ],
+      "main_gallery": {
+        "gallery_id": 77,
+        "gallery_name": "Svájc II",
+        "images": [
+          {
+            "order": 1,
+            "image_id": 501,
+            "url": "https://adriaholiday.hu/uploads/gallery/77/501.jpg",
+            "title": null
+          },
+          {
+            "order": 2,
+            "image_id": 502,
+            "url": "https://adriaholiday.hu/uploads/gallery/77/502.jpg",
+            "title": null
+          },
+          {
+            "order": 3,
+            "image_id": 503,
+            "url": "https://adriaholiday.hu/uploads/gallery/77/503.jpg",
+            "title": null
+          }
+        ]
+      },
+      "program_gallery": {
+        "gallery_id": 77,
+        "gallery_name": "Svájc II",
+        "images": [
+          {
+            "order": 1,
+            "image_id": 501,
+            "url": "https://adriaholiday.hu/uploads/gallery/77/501.jpg",
+            "title": null
+          },
+          {
+            "order": 2,
+            "image_id": 502,
+            "url": "https://adriaholiday.hu/uploads/gallery/77/502.jpg",
+            "title": null
+          },
+          {
+            "order": 3,
+            "image_id": 503,
+            "url": "https://adriaholiday.hu/uploads/gallery/77/503.jpg",
+            "title": null
+          }
+        ]
+      },
+      "intro_gallery": {
+        "gallery_id": 6303,
+        "gallery_name": "Intro",
+        "images": [
+          {
+            "order": 1,
+            "image_id": 601,
+            "url": "https://adriaholiday.hu/uploads/gallery/6303/601.jpg",
+            "title": null
+          }
+        ]
+      },
+      "slider_image": "https://adriaholiday.hu/files/111000122345.jpg",
+      "program_pdf": "https://adriaholiday.hu/files/svajc.pdf",
+      "departures": [
+        {
+          "legacy_date_id": 12446,
+          "list_text": "2027-07-16 — 2027-07-20 | ...",
+          "start_date": "2027-07-16",
+          "end_date": "2027-07-20",
+          "price": 238400,
+          "sale_price": 229900,
+          "currency": "HUF",
+          "status": "active",
+          "status_label": "aktív",
+          "active": true,
+          "xml_enabled": true,
+          "holiday_home": false,
+          "capacity_monitoring": true,
+          "capacity": 45,
+          "boarding_points": [
+            {
+              "legacy_id": 213,
+              "label": "Budapest BOK Csarnok(+0 Ft/fő)"
+            },
+            {
+              "legacy_id": 212,
+              "label": "Miskolc, Centrum Áruház mögötti parkoló(+2 500 Ft/fő)"
+            }
+          ],
+          "extra_prices": [
+            {
+              "legacy_id": 2281,
+              "name": "Egyágyas felár",
+              "price": 65600,
+              "unit": "Ft/fő",
+              "type": "Egyágyas",
+              "raw": ""
+            },
+            {
+              "legacy_id": 2282,
+              "name": "Vacsora",
+              "price": 12000,
+              "unit": "Ft",
+              "type": "Választható",
+              "raw": ""
+            },
+            {
+              "legacy_id": 2283,
+              "name": "Városbelépési díj",
+              "price": 10,
+              "unit": "EUR/fő",
+              "type": "Előre kiválasztott, kötelező",
+              "raw": ""
+            }
+          ],
+          "fields": {
+            "travel": {
+              "value": "1",
+              "label": "Autóbusszal"
+            },
+            "accommodation": "Hotel***",
+            "accommodation_cesys": "Hotel***",
+            "accommodation_email_info": "",
+            "accommodation_info": "<p>2 ágyas</p>",
+            "accommodation_info_cesys": "",
+            "provision": "reggeli",
+            "provision_info": "",
+            "resort_fee": "6800",
+            "resort_fee_eur": "8",
+            "last_minute": "",
+            "price_info": "",
+            "comment": "Előfoglalási akció"
+          }
+        },
+        {
+          "legacy_date_id": 12447,
+          "list_text": "2027-08-20 — 2027-08-24 | ...",
+          "start_date": "2027-08-20",
+          "end_date": "2027-08-24",
+          "price": 238400,
+          "sale_price": 0,
+          "currency": "HUF",
+          "status": "active",
+          "status_label": "aktív",
+          "active": true,
+          "xml_enabled": true,
+          "holiday_home": false,
+          "capacity_monitoring": true,
+          "capacity": 45,
+          "boarding_points": [
+            {
+              "legacy_id": 213,
+              "label": "Budapest BOK Csarnok(+0 Ft/fő)"
+            }
+          ],
+          "extra_prices": [],
+          "fields": {
+            "travel": {
+              "value": "1",
+              "label": "Autóbusszal"
+            },
+            "accommodation": "Hotel****",
+            "accommodation_cesys": "Hotel****",
+            "accommodation_email_info": "",
+            "accommodation_info": "<p>Medencés</p>",
+            "accommodation_info_cesys": "",
+            "provision": "reggeli",
+            "provision_info": "",
+            "resort_fee": "",
+            "resort_fee_eur": "",
+            "last_minute": "",
+            "price_info": "",
+            "comment": ""
+          }
+        },
+        {
+          "legacy_date_id": 12448,
+          "list_text": "2027-09-10 — 2027-09-14 | ...",
+          "start_date": "2027-09-10",
+          "end_date": "2027-09-14",
+          "price": 238400,
+          "sale_price": 0,
+          "currency": "HUF",
+          "status": "active",
+          "status_label": "aktív",
+          "active": true,
+          "xml_enabled": true,
+          "holiday_home": false,
+          "capacity_monitoring": true,
+          "capacity": 45,
+          "boarding_points": [
+            {
+              "legacy_id": 213,
+              "label": "Budapest BOK Csarnok(+0 Ft/fő)"
+            },
+            {
+              "legacy_id": 212,
+              "label": "Miskolc, Centrum Áruház mögötti parkoló(+2 500 Ft/fő)"
+            }
+          ],
+          "extra_prices": [],
+          "fields": {
+            "travel": {
+              "value": "1",
+              "label": "Autóbusszal"
+            },
+            "accommodation": "Hotel***",
+            "accommodation_cesys": "Hotel***",
+            "accommodation_email_info": "",
+            "accommodation_info": "<p>2 ágyas</p>",
+            "accommodation_info_cesys": "",
+            "provision": "reggeli",
+            "provision_info": "",
+            "resort_fee": "",
+            "resort_fee_eur": "",
+            "last_minute": "",
+            "price_info": "",
+            "comment": ""
+          }
+        },
+        {
+          "legacy_date_id": 9001,
+          "list_text": "2020-08-27 — 2020-08-30 | ...",
+          "start_date": "2020-08-27",
+          "end_date": "2020-08-30",
+          "price": 199900,
+          "sale_price": 0,
+          "currency": "HUF",
+          "status": "active",
+          "status_label": "aktív",
+          "active": true,
+          "xml_enabled": true,
+          "holiday_home": false,
+          "capacity_monitoring": true,
+          "capacity": 0,
+          "boarding_points": [
+            {
+              "legacy_id": 213,
+              "label": "Budapest BOK Csarnok(+0 Ft/fő)"
+            }
+          ],
+          "extra_prices": [],
+          "fields": {
+            "travel": {
+              "value": "1",
+              "label": "Autóbusszal"
+            },
+            "accommodation": "Hotel***",
+            "accommodation_cesys": "Hotel***",
+            "accommodation_email_info": "",
+            "accommodation_info": "<p>2 ágyas</p>",
+            "accommodation_info_cesys": "",
+            "provision": "reggeli",
+            "provision_info": "",
+            "resort_fee": "",
+            "resort_fee_eur": "",
+            "last_minute": "",
+            "price_info": "",
+            "comment": ""
+          }
+        }
+      ],
+      "partner_bonuses": [
+        {
+          "legacy_id": 121,
+          "section": "Alap bónuszok",
+          "min": 1,
+          "max": 10,
+          "free_places": 0,
+          "raw": ""
+        }
+      ],
+      "admin_list_row": {
+        "region": "Svájc",
+        "group": "Körutazás",
+        "featured": "Kiemelt",
+        "active": "Aktív",
+        "image_offer": "Nem",
+        "xml": "Igen",
+        "order": "10!8!3"
+      },
+      "extra_fields": {
+        "seo[title]": "Svájci körutazás",
+        "seo[description]": "Alpok és tavak",
+        "seo[robots]": "index, follow",
+        "showable_dates": "3",
+        "xml[city]": "Svájc"
+      },
+      "listed_in_partner_offer_list": false,
+      "partner_offer_row": null
+    },
+    {
+      "legacy_id": 20,
+      "name": "Dél-Csehország gazdagon",
+      "subtitle_1": null,
+      "subtitle_2": null,
+      "slug": "del-csehorszag-gazdagon-",
+      "active": false,
+      "featured": false,
+      "featured_position": 0,
+      "featured_subtitle": null,
+      "coupon_enabled": true,
+      "image_offer": false,
+      "xml_enabled": true,
+      "listed_in_admin_offer_list": true,
+      "description_html": null,
+      "cities_html": null,
+      "program_html": "<p>Program</p>",
+      "program_footer_html": null,
+      "entrance_fees_html": null,
+      "optional_program_html": null,
+      "prices_html": null,
+      "intro_html": null,
+      "slider_html": null,
+      "regions": [
+        "Csehország"
+      ],
+      "region_groups": [],
+      "offer_groups": [
+        "Körutazás"
+      ],
+      "seasonal_groups": [
+        "Körutazás"
+      ],
+      "main_gallery": null,
+      "program_gallery": null,
+      "intro_gallery": null,
+      "slider_image": null,
+      "program_pdf": null,
+      "departures": [
+        {
+          "legacy_date_id": 13001,
+          "list_text": "2025-05-01 — 2025-05-04 | ...",
+          "start_date": "2025-05-01",
+          "end_date": "2025-05-04",
+          "price": 99900,
+          "sale_price": 0,
+          "currency": "HUF",
+          "status": "active",
+          "status_label": "aktív",
+          "active": true,
+          "xml_enabled": true,
+          "holiday_home": false,
+          "capacity_monitoring": true,
+          "capacity": 45,
+          "boarding_points": [
+            {
+              "legacy_id": 213,
+              "label": "Budapest BOK Csarnok(+0 Ft/fő)"
+            }
+          ],
+          "extra_prices": [],
+          "fields": {
+            "travel": {
+              "value": "1",
+              "label": "Autóbusszal"
+            },
+            "accommodation": "Hotel***",
+            "accommodation_cesys": "Hotel***",
+            "accommodation_email_info": "",
+            "accommodation_info": "<p>2 ágyas</p>",
+            "accommodation_info_cesys": "",
+            "provision": "reggeli",
+            "provision_info": "",
+            "resort_fee": "",
+            "resort_fee_eur": "",
+            "last_minute": "",
+            "price_info": "",
+            "comment": ""
+          }
+        }
+      ],
+      "partner_bonuses": [],
+      "admin_list_row": null,
+      "extra_fields": {
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "showable_dates": "3",
+        "xml[city]": ""
+      },
+      "listed_in_partner_offer_list": false,
+      "partner_offer_row": null
+    },
+    {
+      "legacy_id": 30,
+      "name": "Advent Bécsben",
+      "subtitle_1": null,
+      "subtitle_2": null,
+      "slug": "advent-becsben",
+      "active": true,
+      "featured": false,
+      "featured_position": 0,
+      "featured_subtitle": null,
+      "coupon_enabled": true,
+      "image_offer": false,
+      "xml_enabled": true,
+      "listed_in_admin_offer_list": true,
+      "description_html": null,
+      "cities_html": null,
+      "program_html": "<p>Program</p>",
+      "program_footer_html": null,
+      "entrance_fees_html": null,
+      "optional_program_html": null,
+      "prices_html": null,
+      "intro_html": null,
+      "slider_html": null,
+      "regions": [
+        "Ausztria"
+      ],
+      "region_groups": [],
+      "offer_groups": [
+        "Adventi ajánlatok"
+      ],
+      "seasonal_groups": [
+        "Adventi ajánlatok"
+      ],
+      "main_gallery": null,
+      "program_gallery": null,
+      "intro_gallery": null,
+      "slider_image": null,
+      "program_pdf": null,
+      "departures": [
+        {
+          "legacy_date_id": 14001,
+          "list_text": "2025-12-06 — 2025-12-06 | ...",
+          "start_date": "2025-12-06",
+          "end_date": "2025-12-06",
+          "price": 19900,
+          "sale_price": 0,
+          "currency": "HUF",
+          "status": "inactive",
+          "status_label": "inaktív",
+          "active": false,
+          "xml_enabled": true,
+          "holiday_home": false,
+          "capacity_monitoring": true,
+          "capacity": 45,
+          "boarding_points": [
+            {
+              "legacy_id": 213,
+              "label": "Budapest BOK Csarnok(+0 Ft/fő)"
+            }
+          ],
+          "extra_prices": [],
+          "fields": {
+            "travel": {
+              "value": "1",
+              "label": "Autóbusszal"
+            },
+            "accommodation": "Hotel***",
+            "accommodation_cesys": "Hotel***",
+            "accommodation_email_info": "",
+            "accommodation_info": "<p>2 ágyas</p>",
+            "accommodation_info_cesys": "",
+            "provision": "reggeli",
+            "provision_info": "",
+            "resort_fee": "",
+            "resort_fee_eur": "",
+            "last_minute": "",
+            "price_info": "",
+            "comment": ""
+          }
+        },
+        {
+          "legacy_date_id": 14002,
+          "list_text": "2025-12-13 — 2025-12-13 | ...",
+          "start_date": "2025-12-13",
+          "end_date": "2025-12-13",
+          "price": 19900,
+          "sale_price": 0,
+          "currency": "HUF",
+          "status": "active",
+          "status_label": "aktív",
+          "active": true,
+          "xml_enabled": true,
+          "holiday_home": false,
+          "capacity_monitoring": true,
+          "capacity": 45,
+          "boarding_points": [
+            {
+              "legacy_id": 213,
+              "label": "Budapest BOK Csarnok(+0 Ft/fő)"
+            }
+          ],
+          "extra_prices": [],
+          "fields": {
+            "travel": {
+              "value": "1",
+              "label": "Autóbusszal"
+            },
+            "accommodation": "Hotel***",
+            "accommodation_cesys": "Hotel***",
+            "accommodation_email_info": "",
+            "accommodation_info": "<p>2 ágyas</p>",
+            "accommodation_info_cesys": "",
+            "provision": "reggeli",
+            "provision_info": "",
+            "resort_fee": "",
+            "resort_fee_eur": "",
+            "last_minute": "",
+            "price_info": "",
+            "comment": ""
+          }
+        }
+      ],
+      "partner_bonuses": [],
+      "admin_list_row": null,
+      "extra_fields": {
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "showable_dates": "3",
+        "xml[city]": ""
+      },
+      "listed_in_partner_offer_list": false,
+      "partner_offer_row": null
+    },
+    {
+      "legacy_id": 1155,
+      "name": "a:b",
+      "subtitle_1": null,
+      "subtitle_2": null,
+      "slug": "a:b",
+      "active": true,
+      "featured": false,
+      "featured_position": 0,
+      "featured_subtitle": null,
+      "coupon_enabled": true,
+      "image_offer": false,
+      "xml_enabled": true,
+      "listed_in_admin_offer_list": true,
+      "description_html": null,
+      "cities_html": null,
+      "program_html": "<p>Program</p>",
+      "program_footer_html": null,
+      "entrance_fees_html": null,
+      "optional_program_html": null,
+      "prices_html": null,
+      "intro_html": null,
+      "slider_html": null,
+      "regions": [],
+      "region_groups": [],
+      "offer_groups": [],
+      "seasonal_groups": [],
+      "main_gallery": null,
+      "program_gallery": null,
+      "intro_gallery": null,
+      "slider_image": null,
+      "program_pdf": null,
+      "departures": [],
+      "partner_bonuses": [],
+      "admin_list_row": null,
+      "extra_fields": {
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "showable_dates": "3",
+        "xml[city]": ""
+      },
+      "listed_in_partner_offer_list": false,
+      "partner_offer_row": null
+    },
+    {
+      "legacy_id": 40,
+      "name": "",
+      "subtitle_1": null,
+      "subtitle_2": null,
+      "slug": "hibas-ajanlat",
+      "active": true,
+      "featured": false,
+      "featured_position": 0,
+      "featured_subtitle": null,
+      "coupon_enabled": true,
+      "image_offer": false,
+      "xml_enabled": true,
+      "listed_in_admin_offer_list": true,
+      "description_html": null,
+      "cities_html": null,
+      "program_html": "<p>Program</p>",
+      "program_footer_html": null,
+      "entrance_fees_html": null,
+      "optional_program_html": null,
+      "prices_html": null,
+      "intro_html": null,
+      "slider_html": null,
+      "regions": [],
+      "region_groups": [],
+      "offer_groups": [],
+      "seasonal_groups": [],
+      "main_gallery": null,
+      "program_gallery": null,
+      "intro_gallery": null,
+      "slider_image": null,
+      "program_pdf": null,
+      "departures": [],
+      "partner_bonuses": [],
+      "admin_list_row": null,
+      "extra_fields": {
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "showable_dates": "3",
+        "xml[city]": ""
+      },
+      "listed_in_partner_offer_list": false,
+      "partner_offer_row": null
+    }
+  ]
+}

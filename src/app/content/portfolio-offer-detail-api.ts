@@ -32,6 +32,8 @@ export type PortfolioOfferDateExtra = {
   id: number;
   name: string;
   price: number;
+  /** HUF is charged with the booking; any other currency is paid on site. */
+  currency: string;
   priceUnit: PortfolioOfferExtraPriceUnit;
   chargeRule: PortfolioOfferExtraChargeRule;
   /** When not empty, the customer picks one of these once the extra is charged. */

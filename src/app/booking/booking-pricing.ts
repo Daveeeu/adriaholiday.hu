@@ -64,6 +64,11 @@ export function formatHuf(amount: number): string {
   return `${hufFormatter.format(amount)} Ft`;
 }
 
+/** A fee in another currency than forint (e.g. a city tax in euros): paid on site, never part of the total. */
+export function isPaidOnSite(extra: BookingExtra): boolean {
+  return (extra.currency ?? "HUF") !== "HUF";
+}
+
 export function isChargedAutomatically(extra: BookingExtra, passengers: number): boolean {
   return extra.chargeRule === "mandatory" || (extra.chargeRule === "solo_traveller" && passengers === 1);
 }
@@ -86,6 +91,7 @@ export function chargedBookingExtras(extras: BookingExtra[], bookingExtraIds: nu
   return extras.filter(
     (extra) =>
       !isPerPassenger(extra) &&
+      !isPaidOnSite(extra) &&
       (isChargedAutomatically(extra, passengers) ||
         (isSelectable(extra, passengers) && bookingExtraIds.includes(extra.id))),
   );
@@ -96,6 +102,7 @@ export function chargedPassengerExtras(extras: BookingExtra[], options: Passenge
   return extras.filter(
     (extra) =>
       isPerPassenger(extra) &&
+      !isPaidOnSite(extra) &&
       (isChargedAutomatically(extra, passengers) ||
         (isSelectable(extra, passengers) && options.extraIds.includes(extra.id))),
   );
@@ -114,7 +121,11 @@ export function tripStepExtras(extras: BookingExtra[]): BookingExtra[] {
 }
 
 export function extraPriceLabel(extra: BookingExtra): string {
-  return `${formatHuf(extra.price)}${isPerPassenger(extra) ? " / fő" : " / foglalás"}`;
+  const unit = isPerPassenger(extra) ? " / fő" : " / foglalás";
+
+  return isPaidOnSite(extra)
+    ? `${hufFormatter.format(extra.price)} ${extra.currency}${unit}, helyszínen fizetendő`
+    : `${formatHuf(extra.price)}${unit}`;
 }
 
 function parseDate(value: string | null): number | null {

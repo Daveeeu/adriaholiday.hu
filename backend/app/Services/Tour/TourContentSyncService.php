@@ -4,16 +4,18 @@ namespace App\Services\Tour;
 
 use App\Models\Tour;
 use App\Models\TourDate;
+use App\Models\TourGalleryItem;
 use App\Models\TourProgramDay;
 use App\Support\RichTextSanitizer;
 use App\Support\Tour\TourDateStatus;
 use App\Support\Tour\TourExtraChargeRule;
+use App\Support\Tour\TourExtraCurrency;
 use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Support\Collection;
 
 /**
  * Persists the "child" records of a Tour (dates with their extras, partner bonuses, program days,
- * gallery items, price items). Dates are updated in place because bookings
+ * gallery items, price items, departure places). Dates are updated in place because bookings
  * reference them; the other records use a replace-and-recreate strategy.
  *
  * Shared by the admin TourController (manual editing) and the legacy content
@@ -34,19 +36,27 @@ class TourContentSyncService
         'price_box_capacity',
         'status',
         'departure_place_ids',
+        'accommodation',
+        'accommodation_info',
+        'catering',
+        'catering_info',
     ];
+
+    /** Written only by imports, never sent by the admin. */
+    private const LEGACY_DATE_FIELDS = ['legacy_id', 'legacy_attributes'];
 
     /**
      * Updates each requested date in place when it matches a stored one (by
-     * id, else by its start and end date), so bookings keep pointing at their
-     * date; stored dates nobody asked for are removed and the rest created.
-     * Fields a requested date leaves out keep their stored value. With
-     * $keepDeparted, stored dates already departed stay even when not asked
-     * for (a source that lists only upcoming dates, like the legacy site).
+     * legacy id, by id, else by its start and end date), so bookings keep
+     * pointing at their date; stored dates nobody asked for are removed and
+     * the rest created. Fields a requested date leaves out keep their stored
+     * value. With $keepDeparted, stored dates already departed stay even when
+     * not asked for (a source that lists only upcoming dates, like the legacy
+     * site); with $keepBooked, so do dates a booking was made for.
      *
      * @param  array<int, array<string, mixed>>  $dates
      */
-    public function syncDates(Tour $tour, array $dates, bool $keepDeparted = false): void
+    public function syncDates(Tour $tour, array $dates, bool $keepDeparted = false, bool $keepBooked = false): void
     {
         $unmatched = $tour->dates()->get()->keyBy('id');
 
@@ -55,6 +65,7 @@ class TourContentSyncService
             $unmatched->forget($tourDate->id);
 
             $tourDate->fill(array_intersect_key($date, array_flip(self::DATE_FIELDS)));
+            $tourDate->forceFill(array_intersect_key($date, array_flip(self::LEGACY_DATE_FIELDS)));
 
             if (array_key_exists('price', $date) || array_key_exists('price_box_price', $date)) {
                 $tourDate->price = $tourDate->price_box_price = $date['price_box_price'] ?? $date['price'] ?? null;
@@ -64,7 +75,7 @@ class TourContentSyncService
             $tour->dates()->save($tourDate);
 
             if (array_key_exists('extras', $date)) {
-                $extras = $this->keepStoredExtraOrder($tourDate, $date['extras'] ?? []);
+                $extras = $this->keepStoredExtraCurrency($tourDate, $this->keepStoredExtraOrder($tourDate, $date['extras'] ?? []));
                 $tourDate->extras()->delete();
                 $this->createDateExtras($tourDate, $extras);
             }
@@ -72,6 +83,7 @@ class TourContentSyncService
 
         $unmatched
             ->reject(fn (TourDate $date): bool => $keepDeparted && $date->start_date !== null && $date->start_date->lt(today()))
+            ->reject(fn (TourDate $date): bool => $keepBooked && $date->bookings()->exists())
             ->each->delete();
     }
 
@@ -104,23 +116,60 @@ class TourContentSyncService
     }
 
     /**
+     * Extras sent without a currency (the admin form before it knew one)
+     * keep the currency of the stored extra of the same name, so saving a
+     * tour never turns a fee paid on site in euros into a forint charge.
+     *
+     * @param  array<int, array<string, mixed>>  $extras
+     * @return array<int, array<string, mixed>>
+     */
+    private function keepStoredExtraCurrency(TourDate $tourDate, array $extras): array
+    {
+        if (! $tourDate->exists || collect($extras)->every(fn (array $extra): bool => isset($extra['currency']))) {
+            return $extras;
+        }
+
+        $storedCurrency = $tourDate->extras()->pluck('currency', 'name');
+
+        return array_map(fn (array $extra): array => [
+            ...$extra,
+            'currency' => $extra['currency'] ?? $storedCurrency->get(trim((string) ($extra['name'] ?? ''))) ?? TourExtraCurrency::HUF,
+        ], $extras);
+    }
+
+    /**
+     * The stored date with the requested legacy id or id, else one with the
+     * same start and end date that no other legacy date owns (preferring the
+     * same price, as a legacy tour may run twice on the same days).
+     *
      * @param  Collection<int, TourDate>  $candidates
      * @param  array<string, mixed>  $date
      */
     private function matchingDate(Collection $candidates, array $date): ?TourDate
     {
+        $legacyId = $date['legacy_id'] ?? null;
+
+        if ($legacyId !== null && ($byLegacyId = $candidates->firstWhere('legacy_id', (int) $legacyId)) !== null) {
+            return $byLegacyId;
+        }
+
         $id = $date['id'] ?? null;
 
         if (is_numeric($id) && $candidates->has((int) $id)) {
             return $candidates->get((int) $id);
         }
 
-        return $candidates->first(fn (TourDate $candidate): bool => $candidate->start_date?->toDateString() === ($date['start_date'] ?? null)
-            && $candidate->end_date?->toDateString() === ($date['end_date'] ?? null));
+        $sameDays = $candidates->filter(fn (TourDate $candidate): bool => $candidate->start_date?->toDateString() === ($date['start_date'] ?? null)
+            && $candidate->end_date?->toDateString() === ($date['end_date'] ?? null)
+            && ($legacyId === null || $candidate->legacy_id === null));
+        $price = $date['price_box_price'] ?? $date['price'] ?? null;
+
+        return $sameDays->first(fn (TourDate $candidate): bool => $price !== null && (float) $candidate->price === (float) $price)
+            ?? $sameDays->first();
     }
 
     /**
-     * @param  array<int, array{name?: string, price?: float|int|string|null, price_unit?: string|null, charge_rule?: string|null, choices?: array<int, string>|null, sort_order?: int|null}>  $extras
+     * @param  array<int, array{name?: string, price?: float|int|string|null, currency?: string|null, price_unit?: string|null, charge_rule?: string|null, choices?: array<int, string>|null, sort_order?: int|null}>  $extras
      */
     private function createDateExtras(TourDate $tourDate, array $extras): void
     {
@@ -131,9 +180,12 @@ class TourContentSyncService
                 continue;
             }
 
-            $tourDate->extras()->create([
+            $tourDate->extras()->make([
                 'name' => $name,
                 'price' => (float) $extra['price'],
+                'currency' => in_array($extra['currency'] ?? null, TourExtraCurrency::all(), true)
+                    ? $extra['currency']
+                    : TourExtraCurrency::HUF,
                 'price_unit' => in_array($extra['price_unit'] ?? null, TourExtraPriceUnit::all(), true)
                     ? $extra['price_unit']
                     : TourExtraPriceUnit::PER_PERSON,
@@ -142,7 +194,7 @@ class TourContentSyncService
                     : TourExtraChargeRule::OPTIONAL,
                 'choices' => $this->normalizeChoices($extra['choices'] ?? []),
                 'sort_order' => (int) ($extra['sort_order'] ?? ($index + 1)),
-            ]);
+            ])->forceFill(['legacy_id' => $extra['legacy_id'] ?? null])->save();
         }
     }
 
@@ -183,11 +235,11 @@ class TourContentSyncService
         $tour->partnerBonuses()->withTrashed()->get()->each->forceDelete();
 
         foreach ($bonuses as $bonus) {
-            $tour->partnerBonuses()->create([
+            $tour->partnerBonuses()->make([
                 'sort_order' => $bonus['sort_order'] ?? 0,
                 'label' => $bonus['label'],
                 'value' => $bonus['value'] ?? null,
-            ]);
+            ])->forceFill(['legacy_id' => $bonus['legacy_id'] ?? null])->save();
         }
     }
 
@@ -252,9 +304,13 @@ class TourContentSyncService
         }
     }
 
-    public function syncGalleryItems(Tour $tour, array $galleryItems): void
+    /**
+     * Replaces one gallery of the tour (the one shown, by default); the
+     * tour's other galleries are left alone.
+     */
+    public function syncGalleryItems(Tour $tour, array $galleryItems, string $collection = TourGalleryItem::MAIN): void
     {
-        $tour->galleryItems()->delete();
+        $tour->galleryCollection($collection)->delete();
 
         foreach (array_values($galleryItems) as $index => $item) {
             $mediaId = $item['media_id'] ?? null;
@@ -263,14 +319,15 @@ class TourContentSyncService
                 continue;
             }
 
-            $tour->galleryItems()->create([
+            $tour->galleryCollection($collection)->make([
                 'media_id' => (int) $mediaId,
+                'collection' => $collection,
                 'title' => isset($item['title']) ? trim((string) $item['title']) : null,
                 'alt' => isset($item['alt']) ? trim((string) $item['alt']) : null,
                 'caption' => isset($item['caption']) ? trim((string) $item['caption']) : null,
                 'sort_order' => (int) ($item['sort_order'] ?? ($index + 1)),
                 'active' => filter_var($item['active'] ?? true, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true,
-            ]);
+            ])->forceFill(['legacy_image_id' => $item['legacy_image_id'] ?? null])->save();
         }
     }
 

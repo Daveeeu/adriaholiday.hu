@@ -97,10 +97,10 @@ class LegacyAdminOfferReaderTest extends TestCase
         $this->assertSame(TourDateStatus::SOLD_OUT, $noSeats['status']);
         $this->assertSame([74900.0, 84900.0, 'Pünkösd'], [$open['price'], $open['original_price'], $open['label']]);
         $this->assertSame([
-            ['name' => 'Vacsora', 'price' => 38900.0, 'price_unit' => TourExtraPriceUnit::PER_PERSON, 'charge_rule' => TourExtraChargeRule::OPTIONAL],
-            ['name' => '1 ágyas felár', 'price' => 59800.0, 'price_unit' => TourExtraPriceUnit::PER_PERSON, 'charge_rule' => TourExtraChargeRule::SOLO_TRAVELLER],
-            ['name' => 'Repülőjegy', 'price' => 80000.0, 'price_unit' => TourExtraPriceUnit::PER_PERSON, 'charge_rule' => TourExtraChargeRule::MANDATORY],
-            ['name' => 'Üdülőhelyi illeték', 'price' => 2800.0, 'price_unit' => TourExtraPriceUnit::PER_PERSON, 'charge_rule' => TourExtraChargeRule::MANDATORY],
+            ['name' => 'Vacsora', 'price' => 38900.0, 'currency' => 'HUF', 'price_unit' => TourExtraPriceUnit::PER_PERSON, 'charge_rule' => TourExtraChargeRule::OPTIONAL],
+            ['name' => '1 ágyas felár', 'price' => 59800.0, 'currency' => 'HUF', 'price_unit' => TourExtraPriceUnit::PER_PERSON, 'charge_rule' => TourExtraChargeRule::SOLO_TRAVELLER],
+            ['name' => 'Repülőjegy', 'price' => 80000.0, 'currency' => 'HUF', 'price_unit' => TourExtraPriceUnit::PER_PERSON, 'charge_rule' => TourExtraChargeRule::MANDATORY],
+            ['name' => 'Üdülőhelyi illeték', 'price' => 2800.0, 'currency' => 'HUF', 'price_unit' => TourExtraPriceUnit::PER_PERSON, 'charge_rule' => TourExtraChargeRule::MANDATORY],
         ], $open['extras']);
         $this->assertSame([['name' => 'miskolci indulással', 'fee' => 0.0], ['name' => 'Budapest BOK csarnok', 'fee' => 4700.0]], $open['departure_places']);
     }
