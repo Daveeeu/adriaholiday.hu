@@ -196,6 +196,8 @@ export type Tour = {
   id: string;
   sortOrder: number;
   active: boolean;
+  /** Shown in the offer lists; off, the tour is live only on its own page. */
+  listed?: boolean;
   featured: boolean;
   /** Position among the homepage's featured offers. */
   featuredOrder: number | null;
@@ -282,6 +284,7 @@ export type TourDetail = Tour;
 export const tourFormSchema = z.object({
   sortOrder: z.coerce.number().int().min(0),
   active: z.boolean(),
+  listed: z.boolean(),
   featured: z.boolean(),
   featuredOrder: z.string().trim().regex(/^\d{0,3}$/, 'Adj meg egy 0 és 999 közötti számot.'),
   recommended: z.boolean(),
@@ -522,6 +525,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
   return {
     sortOrder: tour?.sortOrder ?? 1,
     active: tour?.active ?? true,
+    listed: tour?.listed ?? true,
     featured: tour?.featured ?? false,
     featuredOrder: tour?.featuredOrder?.toString() ?? '',
     recommended: tour?.recommended ?? false,

@@ -3,7 +3,8 @@
 namespace App\Http\Requests\Admin\Tour\Concerns;
 
 /**
- * Tour fields an admin form may leave out — the stay (accommodation and
+ * Tour fields an admin form may leave out — whether the offer lists show
+ * the tour, the stay (accommodation and
  * meals, also per date), the text under the program and the tour's own SEO
  * title, description and robots — shared by the tour store and update
  * requests. A field is taken only when sent, so a save without it keeps
@@ -66,6 +67,7 @@ trait ValidatesOptionalTourContent
     protected function optionalTourContentRules(): array
     {
         return [
+            'listed' => ['boolean'],
             'catering' => ['nullable', 'string', 'max:255'],
             'catering_info' => ['nullable', 'string', 'max:2000'],
             'accommodation' => ['nullable', 'string', 'max:255'],

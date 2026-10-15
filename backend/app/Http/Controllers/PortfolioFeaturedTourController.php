@@ -16,7 +16,7 @@ class PortfolioFeaturedTourController extends Controller
         $limit = max(1, min(self::MAX_LIMIT, (int) $request->query('limit', 6)));
 
         $tours = Tour::query()
-            ->where('active', true)
+            ->listedPublicly()
             ->where('featured', true)
             ->with(['region', 'dates' => fn ($query) => $query->upcoming(), 'media', 'galleryItems.media'])
             // The admin's featured order first; tours without one after them.

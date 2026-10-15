@@ -19,6 +19,16 @@ return [
     ],
 
     /*
+    | Legacy offers kept off the site's offer lists, live only on their own
+    | page: the school trips the legacy site listed nowhere (office decision,
+    | 2026-10-15; see legacy-export/legacy-site-status.json).
+    */
+    'unlisted_legacy_ids' => [
+        796, 800, 809, 810, 953, 956, 971, 973, 975, 976, 977, 978,
+        979, 980, 983, 984, 986, 987, 988, 989, 990, 991, 992,
+    ],
+
+    /*
     | Legacy offer group ("Ajánlatcsoport") => portfolio category name. The
     | legacy seasonal groups are the same list, so they map the same way.
     */

@@ -57,6 +57,7 @@ class TourResource extends JsonResource
             'featuredOrder' => $this->featured_order,
             'recommended' => (bool) $this->recommended,
             'partnerOffer' => (bool) $this->partner_offer,
+            'listed' => $this->listed ?? true,
             'imageOffer' => (bool) $this->image_offer,
             'xmlEnabled' => (bool) $this->xml_enabled,
             'couponable' => (bool) $this->couponable,

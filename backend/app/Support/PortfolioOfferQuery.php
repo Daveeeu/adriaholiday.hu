@@ -22,7 +22,7 @@ class PortfolioOfferQuery
     public static function buildBaseQuery(Request $request): Builder
     {
         $query = Tour::query()
-            ->where('active', true)
+            ->listedPublicly()
             ->with(['region', 'dates' => fn ($query) => $query->upcoming(), 'media', 'galleryItems.media']);
 
         if ($search = self::stringQuery($request, 'search')) {
@@ -417,7 +417,7 @@ class PortfolioOfferQuery
             fn (string $word) => $builder->where('search_index', 'like', "% {$word} %"),
         );
 
-        if (Tour::query()->where('active', true)->where($wholeWords)->exists()) {
+        if (Tour::query()->listedPublicly()->where($wholeWords)->exists()) {
             $query->where($wholeWords);
 
             return;

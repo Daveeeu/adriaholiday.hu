@@ -402,6 +402,27 @@ class LegacyCatalogImportTest extends TestCase
         $this->assertEquals(238400, $copy->dates()->whereDate('start_date', '2027-07-16')->value('price_box_original_price'));
     }
 
+    public function test_an_unlisted_offer_stays_on_its_own_page_but_off_every_list(): void
+    {
+        config(['legacy_catalog.unlisted_legacy_ids' => [10]]);
+        $this->importCatalog();
+        $tour = Tour::query()->where('legacy_id', 10)->firstOrFail();
+        $tour->update(['featured' => true]);
+
+        $this->assertFalse($tour->listed);
+        $this->getJson('/api/portfolio/offers/svajc---a-hofodte-alpoktol')->assertOk();
+        $this->assertNotContains('svajc---a-hofodte-alpoktol', array_column($this->getJson('/api/portfolio/offers?perPage=100')->assertOk()->json('items'), 'seoName'));
+        $this->assertSame([], $this->getJson('/api/portfolio/featured-tours')->assertOk()->json('items'));
+
+        // The admin lists it again; a form that does not send the flag leaves it.
+        $this->actingAsTourEditor();
+        $this->patchJson("/api/admin/tours/{$tour->id}", [...$this->adminDetail($tour), 'listed' => true])->assertOk();
+        $this->assertTrue($tour->fresh()->listed);
+        $this->patchJson("/api/admin/tours/{$tour->id}", collect($this->adminDetail($tour))->except('listed')->all())->assertOk();
+        $this->assertTrue($tour->fresh()->listed);
+        $this->assertContains('svajc---a-hofodte-alpoktol', array_column($this->getJson('/api/portfolio/offers?perPage=100')->json('items'), 'seoName'));
+    }
+
     /**
      * The tour as the admin form loads it (gallery item ids kept as strings).
      *

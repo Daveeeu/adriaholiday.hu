@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\LogsModelActivity;
 use App\Support\TourSearchIndex;
 use Database\Factories\TourFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +24,7 @@ class Tour extends Model implements HasMedia
     protected $fillable = [
         'sort_order',
         'active',
+        'listed',
         'featured',
         'featured_order',
         'featured_subtitle',
@@ -99,6 +101,7 @@ class Tour extends Model implements HasMedia
     protected $casts = [
         'sort_order' => 'integer',
         'active' => 'boolean',
+        'listed' => 'boolean',
         'expired_at' => 'datetime',
         'featured' => 'boolean',
         'featured_order' => 'integer',
@@ -136,6 +139,15 @@ class Tour extends Model implements HasMedia
             $tour->search_keywords = TourSearchIndex::cleanKeywords($tour->search_keywords ?? []);
             $tour->search_index = TourSearchIndex::build($tour);
         });
+    }
+
+    /**
+     * Tours the site's offer lists show: active ones, unless kept off the
+     * lists (they stay reachable on their own page).
+     */
+    public function scopeListedPublicly(Builder $query): void
+    {
+        $query->where('active', true)->where('listed', true);
     }
 
     public function region(): BelongsTo

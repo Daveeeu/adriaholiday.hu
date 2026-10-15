@@ -53,7 +53,7 @@ class TourSearchSuggestionService
     {
         return PublicContentCache::remember(PublicContentCache::OFFERS, 'search-suggestions', self::CACHE_SECONDS, function (): array {
             $tours = Tour::query()
-                ->where('active', true)
+                ->listedPublicly()
                 ->with('region')
                 ->get(['id', 'name', 'search_keywords', 'search_index', 'country_ids', 'region_id']);
 

@@ -421,7 +421,7 @@ class TourController extends Controller
      */
     private function optionalContent(array $validated): array
     {
-        $content = Arr::only($validated, ['catering', 'catering_info', 'accommodation', 'accommodation_info', 'seo_title', 'seo_description', 'seo_robots']);
+        $content = Arr::only($validated, ['listed', 'catering', 'catering_info', 'accommodation', 'accommodation_info', 'seo_title', 'seo_description', 'seo_robots']);
 
         if (array_key_exists('program_footer', $validated)) {
             $content['program_footer'] = RichTextSanitizer::sanitize($validated['program_footer']);

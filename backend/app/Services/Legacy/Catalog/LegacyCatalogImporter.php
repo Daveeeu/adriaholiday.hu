@@ -98,6 +98,12 @@ final class LegacyCatalogImporter
                 'legacy_attributes' => [...$offer->legacyAttributes, 'unmapped' => $taxonomy['unmapped'], 'country_source' => $taxonomy['country_source']],
             ]);
 
+            // Kept off the offer lists as on the legacy site; any other tour's
+            // setting is the admin's.
+            if (in_array($offer->legacyId, array_map('intval', (array) config('legacy_catalog.unlisted_legacy_ids', [])), true)) {
+                $tour->listed = false;
+            }
+
             // Switched off in the legacy admin, not for having departed: the
             // expiry sync must not switch it back on with a new date.
             if (! $offer->active) {
