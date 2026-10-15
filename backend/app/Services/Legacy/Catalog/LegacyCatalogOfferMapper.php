@@ -60,6 +60,14 @@ final class LegacyCatalogOfferMapper
         $price = $this->tourPrice($dates, $today);
         $extraFields = is_array($offer['extra_fields'] ?? null) ? $offer['extra_fields'] : [];
 
+        // An offer missing from the legacy admin's offer list (read only by its
+        // id) is not live there, whatever its stored active flag says.
+        $active = (bool) $offer['active'] && ($offer['listed_in_admin_offer_list'] ?? true) !== false;
+
+        if ($active !== (bool) $offer['active']) {
+            $notes[] = 'Active in the legacy data but missing from the legacy admin\'s offer list: imported inactive.';
+        }
+
         if ($travelModes->unique()->count() > 1) {
             $notes[] = 'Dates travel differently; the tour takes the most common travel mode.';
         }
@@ -68,13 +76,13 @@ final class LegacyCatalogOfferMapper
             legacyId: (int) $offer['legacy_id'],
             slug: trim((string) $offer['slug']),
             name: trim((string) $offer['name']),
-            active: (bool) $offer['active'],
+            active: $active,
             travelMode: $this->mostCommon($travelModes),
             attributes: [
                 'name' => trim((string) $offer['name']),
                 'subtitle' => LegacyText::line(trim(($offer['subtitle_1'] ?? '').' '.($offer['subtitle_2'] ?? ''))),
                 'seo_name' => trim((string) $offer['slug']),
-                'active' => (bool) $offer['active'],
+                'active' => $active,
                 'featured' => (bool) $offer['featured'],
                 'featured_order' => $offer['featured'] && (int) ($offer['featured_position'] ?? 0) > 0 ? (int) $offer['featured_position'] : null,
                 'featured_subtitle' => LegacyText::line($offer['featured_subtitle'] ?? null),

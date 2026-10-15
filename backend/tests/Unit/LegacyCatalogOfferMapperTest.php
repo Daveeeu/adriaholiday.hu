@@ -106,4 +106,16 @@ class LegacyCatalogOfferMapperTest extends TestCase
         $this->assertSame('út címe', $mapped->legacyAttributes['extra_fields']['seo[title]']);
         $this->assertCount(2, array_filter($mapped->notes, fn (string $note): bool => str_contains($note, "admin's example text")));
     }
+
+    public function test_an_active_offer_missing_from_the_legacy_admin_list_is_imported_inactive(): void
+    {
+        $offer = [...$this->offer(10), 'listed_in_admin_offer_list' => false];
+
+        $mapped = (new LegacyCatalogOfferMapper)->map($offer, Carbon::parse('2026-10-15'));
+
+        $this->assertFalse($mapped->active);
+        $this->assertFalse($mapped->attributes['active']);
+        $this->assertTrue($mapped->legacyAttributes['legacy_active']);
+        $this->assertContains("Active in the legacy data but missing from the legacy admin's offer list: imported inactive.", $mapped->notes);
+    }
 }

@@ -45,7 +45,7 @@ final class LegacyCatalogVerifier
 
         return [
             $this->check('Every legacy offer is a tour', $offers->keys()->diff($tours->keys())->map(fn (int $id): string => "Legacy offer {$id} has no tour.")),
-            $this->check('Status: active, inactive, archived', $offers->map(fn (array $entry, int $id): ?string => $this->statusProblem($tours->get($id), $entry['offer']->active, in_array($id, $archived, true)))->filter()),
+            $this->check('Status: active, inactive, archived', $offers->map(fn (array $entry, int $id): ?string => $this->statusProblem($tours->get($id), $entry['offer']->active, (bool) $entry['raw']['active'], in_array($id, $archived, true)))->filter()),
             $this->check('Names and URLs', $offers->map(fn (array $entry, int $id): ?string => ($tour = $tours->get($id)) !== null && ($tour->name !== $entry['offer']->name || $tour->seo_name !== $entry['offer']->slug) ? "Tour #{$tour->id} differs in name or URL from legacy offer {$id}." : null)->filter()),
             $this->check('Dates, prices, seats and extras', $offers->flatMap(fn (array $entry): array => $this->dateProblems($entry['offer']->dates, $tours->get($entry['offer']->legacyId), $dates))),
             $this->check('Departure places', $offers->map(fn (array $entry, int $id): ?string => ($tour = $tours->get($id)) !== null && $tour->departurePlaces->count() !== collect($entry['offer']->departurePlaces)->pluck('name')->unique()->count() ? "Tour #{$tour->id}: {$tour->departurePlaces->count()} departure places, legacy offer {$id} has ".collect($entry['offer']->departurePlaces)->pluck('name')->unique()->count().'.' : null)->filter()),
@@ -56,18 +56,22 @@ final class LegacyCatalogVerifier
         ];
     }
 
-    private function statusProblem(?Tour $tour, bool $legacyActive, bool $archived): ?string
+    /**
+     * @param  bool  $active  as imported (see LegacyCatalogOfferMapper)
+     * @param  bool  $legacyActive  the legacy data's own flag, kept in legacy_attributes
+     */
+    private function statusProblem(?Tour $tour, bool $active, bool $legacyActive, bool $archived): ?string
     {
         if ($tour === null) {
             return null;
         }
 
-        $expired = $legacyActive && ! $tour->active && $tour->expired_at !== null;
+        $expired = $active && ! $tour->active && $tour->expired_at !== null;
 
         return match (true) {
             $archived && (! $tour->trashed() || $tour->active) => "Tour #{$tour->id} should be archived and inactive.",
             ! $archived && $tour->trashed() => "Tour #{$tour->id} is archived.",
-            ! $archived && $tour->active !== $legacyActive && ! $expired => "Tour #{$tour->id} is ".($tour->active ? 'active' : 'inactive').', the legacy offer is not.',
+            ! $archived && $tour->active !== $active && ! $expired => "Tour #{$tour->id} is ".($tour->active ? 'active' : 'inactive').', the legacy offer is not.',
             ($tour->legacy_attributes['legacy_active'] ?? null) !== $legacyActive => "Tour #{$tour->id} lost the legacy offer's original status.",
             default => null,
         };
