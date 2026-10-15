@@ -20,6 +20,11 @@ final class LegacyBookingImportResult
         return new self('imported', $tourMatched, $dateMatched, $offerName);
     }
 
+    public static function updated(bool $tourMatched, bool $dateMatched, string $offerName): self
+    {
+        return new self('updated', $tourMatched, $dateMatched, $offerName);
+    }
+
     public static function alreadyImported(): self
     {
         return new self('already_imported');

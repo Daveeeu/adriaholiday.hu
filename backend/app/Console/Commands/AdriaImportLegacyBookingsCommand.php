@@ -12,7 +12,7 @@ class AdriaImportLegacyBookingsCommand extends Command
         {path : JSON file with the bookings exported from the legacy admin}
         {--dry-run : Report what would be imported without writing anything}';
 
-    protected $description = 'Import tour bookings exported from the legacy adriaholiday.hu admin; bookings already imported (same position number) are skipped and no e-mails are sent.';
+    protected $description = 'Import tour bookings exported from the legacy adriaholiday.hu admin; bookings imported before (same position number) are refreshed, not duplicated, and no e-mails are sent.';
 
     public function handle(LegacyBookingImporter $importer): int
     {
@@ -25,7 +25,7 @@ class AdriaImportLegacyBookingsCommand extends Command
         }
 
         $dryRun = (bool) $this->option('dry-run');
-        $counts = ['imported' => 0, 'already_imported' => 0, 'invalid' => 0];
+        $counts = ['imported' => 0, 'updated' => 0, 'already_imported' => 0, 'invalid' => 0];
         $withoutTour = [];
         $withoutDate = 0;
 
@@ -38,9 +38,11 @@ class AdriaImportLegacyBookingsCommand extends Command
                     $this->warn('Skipped #'.($record['id'] ?? '?').": {$result->reason}");
                 }
 
-                if ($result->outcome === 'imported' && ! $result->tourMatched) {
+                $written = in_array($result->outcome, ['imported', 'updated'], true);
+
+                if ($written && ! $result->tourMatched) {
                     $withoutTour[$result->offerName] = ($withoutTour[$result->offerName] ?? 0) + 1;
-                } elseif ($result->outcome === 'imported' && ! $result->dateMatched) {
+                } elseif ($written && ! $result->dateMatched) {
                     $withoutDate++;
                 }
             }
@@ -49,10 +51,11 @@ class AdriaImportLegacyBookingsCommand extends Command
         $this->info($dryRun ? 'Dry run – nothing was written.' : 'Import finished.');
         $this->table(['Result', 'Count'], [
             [$dryRun ? 'Would import' : 'Imported', $counts['imported']],
-            ['Already imported (skipped)', $counts['already_imported']],
+            [$dryRun ? 'Would refresh' : 'Refreshed (imported before, changed since)', $counts['updated']],
+            ['Already imported, unchanged', $counts['already_imported']],
             ['Invalid (skipped)', $counts['invalid']],
-            ['Imported without a matching tour', array_sum($withoutTour)],
-            ['Imported with tour but without matching date', $withoutDate],
+            ['Without a matching tour', array_sum($withoutTour)],
+            ['With tour but without matching date', $withoutDate],
         ]);
 
         if ($withoutTour !== []) {

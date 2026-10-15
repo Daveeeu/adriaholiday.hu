@@ -15,7 +15,8 @@ use Illuminate\Support\Str;
  * per booking, as read from its "Módosít" form) into the new booking system.
  *
  * Imported bookings keep their legacy position number (or "legacy-{id}" when they
- * have none) as offer_code, so a booking is imported once however often the import runs. They hold no seats (the
+ * have none) as offer_code, so a booking is imported once however often the import
+ * runs; a re-run refreshes it from the legacy admin. They hold no seats (the
  * imported tour dates' free seats already account for them) and send no e-mails.
  */
 class LegacyBookingImporter
@@ -34,6 +35,11 @@ class LegacyBookingImporter
     private ?Collection $tours = null;
 
     /**
+     * Imports a legacy booking, or refreshes the one imported before from it:
+     * its tour and date (by their legacy ids, else by name and start date),
+     * contact, passengers, price and cancellation. What the new system adds
+     * (payments, e-mails, the admin note, a later booking status) stays.
+     *
      * @param  array<string, mixed>  $record
      */
     public function import(array $record, bool $dryRun): LegacyBookingImportResult
@@ -47,70 +53,128 @@ class LegacyBookingImporter
 
         // Some legacy bookings have no position number; their legacy id identifies them instead.
         $code = $position !== '' ? $position : "legacy-{$legacyId}";
+        $existing = Booking::withTrashed()->where('booking_type', 'tour_booking')->where('offer_code', $code)->first();
 
-        if (Booking::query()->where('booking_type', 'tour_booking')->where('offer_code', $code)->exists()) {
-            return LegacyBookingImportResult::alreadyImported();
+        if ($existing !== null && (int) ($existing->payload['legacy']['id'] ?? 0) !== $legacyId) {
+            return LegacyBookingImportResult::invalid("A(z) {$code} pozíciószámú foglalás nem a régi rendszerből jött; nem írja felül.");
         }
 
         $offerName = trim((string) ($record['offerName'] ?? ''));
         [$start] = $this->dateRange((string) ($record['offerDate'] ?? ''), (string) ($record['customDate'] ?? ''));
-        $tour = $this->tourNamed($offerName);
-        $tourDate = $tour !== null && $start !== null
-            ? TourDate::query()->where('tour_id', $tour->id)->whereDate('start_date', $start->toDateString())->first()
-            : null;
+        $tour = $this->legacyTour($record) ?? $this->tourNamed($offerName);
+        $tourDate = $tour !== null ? $this->legacyDate($record, $tour, $start) : null;
         $passengers = $this->passengers((string) ($record['passengers'] ?? ''));
+        $cancelled = (string) ($record['canceled'] ?? '0') === '1';
+        $attributes = [
+            'cancelled' => $cancelled,
+            'tour_id' => $tour?->id ?? $existing?->tour_id,
+            'tour_date_id' => $tourDate?->id ?? $existing?->tour_date_id,
+            'offer_name_snapshot' => $tour?->name ?? $offerName,
+            'customer_name' => $this->nullable($record['name'] ?? null),
+            'email' => $this->nullable($record['email'] ?? null),
+            'phone' => $this->nullable($record['mobile'] ?? null),
+            'city' => $this->nullable($record['city'] ?? null),
+            'address' => $this->nullable(trim(($record['zip'] ?? '').' '.($record['city'] ?? '').', '.($record['street'] ?? ''), ' ,')),
+            'passenger_count' => (int) ($record['adults'] ?? 0) ?: (count($passengers) ?: null),
+            'departure_date' => $start?->toDateString(),
+            'message' => $this->nullable($record['message'] ?? null),
+            'total_amount' => is_numeric($record['price'] ?? null) ? (float) $record['price'] : null,
+        ];
+        $payload = [
+            'formData' => array_filter([
+                'contact_name' => $this->nullable($record['name'] ?? null),
+                'contact_email' => $this->nullable($record['email'] ?? null),
+                'contact_phone' => $this->nullable($record['mobile'] ?? null),
+                'contact_postal_code' => $this->nullable($record['zip'] ?? null),
+                'contact_city' => $this->nullable($record['city'] ?? null),
+                'contact_address' => $this->nullable($record['street'] ?? null),
+                'extra_single_room' => $this->singleRoom($record),
+            ], fn (?string $value): bool => $value !== null),
+            'passengers' => $passengers,
+            'legacy' => [
+                'id' => $legacyId,
+                'offerId' => $record['offerId'] ?? null,
+                'offerName' => $offerName,
+                'offerDateId' => $record['offerDateId'] ?? null,
+                'offerDate' => $record['offerDate'] ?? null,
+                'departureId' => $record['departureId'] ?? null,
+                'departure' => $record['departure'] ?? null,
+                'insurances' => $this->orderedInsurances($record),
+            ],
+        ];
+
+        if ($existing !== null) {
+            return $this->refresh($existing, $attributes, $payload, $cancelled, $dryRun, $tour !== null, $tourDate !== null, $offerName);
+        }
 
         if (! $dryRun) {
             $createdAt = $this->dateTime((string) ($record['createdAt'] ?? '')) ?? now();
 
             $booking = new Booking([
+                ...$attributes,
                 'booking_type' => 'tour_booking',
-                'status' => (string) ($record['canceled'] ?? '0') === '1' ? TourBookingStatus::CANCELLED : TourBookingStatus::CONFIRMED,
-                'cancelled' => (string) ($record['canceled'] ?? '0') === '1',
+                'status' => $cancelled ? TourBookingStatus::CANCELLED : TourBookingStatus::CONFIRMED,
                 'seats_reserved' => false,
-                'tour_id' => $tour?->id,
-                'tour_date_id' => $tourDate?->id,
-                'offer_name_snapshot' => $tour?->name ?? $offerName,
                 'offer_code' => $code,
-                'customer_name' => $this->nullable($record['name'] ?? null),
-                'email' => $this->nullable($record['email'] ?? null),
-                'phone' => $this->nullable($record['mobile'] ?? null),
-                'city' => $this->nullable($record['city'] ?? null),
-                'address' => $this->nullable(trim(($record['zip'] ?? '').' '.($record['city'] ?? '').', '.($record['street'] ?? ''), ' ,')),
-                'passenger_count' => (int) ($record['adults'] ?? 0) ?: (count($passengers) ?: null),
-                'departure_date' => $start?->toDateString(),
                 'booking_date' => $createdAt,
-                'message' => $this->nullable($record['message'] ?? null),
                 'admin_note' => $this->adminNote($record, $legacyId, $tour === null),
-                'total_amount' => is_numeric($record['price'] ?? null) ? (float) $record['price'] : null,
                 'currency' => 'HUF',
-                'payload' => [
-                    'formData' => array_filter([
-                        'contact_name' => $this->nullable($record['name'] ?? null),
-                        'contact_email' => $this->nullable($record['email'] ?? null),
-                        'contact_phone' => $this->nullable($record['mobile'] ?? null),
-                        'contact_postal_code' => $this->nullable($record['zip'] ?? null),
-                        'contact_city' => $this->nullable($record['city'] ?? null),
-                        'contact_address' => $this->nullable($record['street'] ?? null),
-                        'extra_single_room' => $this->singleRoom($record),
-                    ], fn (?string $value): bool => $value !== null),
-                    'passengers' => $passengers,
-                    'legacy' => [
-                        'id' => $legacyId,
-                        'offerId' => $record['offerId'] ?? null,
-                        'offerName' => $offerName,
-                        'offerDateId' => $record['offerDateId'] ?? null,
-                        'offerDate' => $record['offerDate'] ?? null,
-                        'departure' => $record['departure'] ?? null,
-                        'insurances' => $this->orderedInsurances($record),
-                    ],
-                ],
+                'payload' => $payload,
             ]);
             $booking->created_at = $createdAt;
             $booking->save();
         }
 
         return LegacyBookingImportResult::imported($tour !== null, $tourDate !== null, $offerName);
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, mixed>  $payload
+     */
+    private function refresh(Booking $booking, array $attributes, array $payload, bool $cancelled, bool $dryRun, bool $tourMatched, bool $dateMatched, string $offerName): LegacyBookingImportResult
+    {
+        $booking->fill($attributes);
+        $booking->payload = [...($booking->payload ?? []), ...$payload];
+
+        // A booking cancelled in the legacy admin is cancelled here; one the
+        // new system moved on (e.g. paid) keeps its status otherwise.
+        if ($cancelled) {
+            $booking->status = TourBookingStatus::CANCELLED;
+        } elseif ($booking->status === TourBookingStatus::CANCELLED) {
+            $booking->status = TourBookingStatus::CONFIRMED;
+        }
+
+        if (! $booking->isDirty()) {
+            return LegacyBookingImportResult::alreadyImported();
+        }
+
+        if (! $dryRun) {
+            $booking->save();
+        }
+
+        return LegacyBookingImportResult::updated($tourMatched, $dateMatched, $offerName);
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     */
+    private function legacyTour(array $record): ?Tour
+    {
+        $offerId = (int) ($record['offerId'] ?? 0);
+
+        return $offerId > 0 ? Tour::withTrashed()->where('legacy_id', $offerId)->first() : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     */
+    private function legacyDate(array $record, Tour $tour, ?CarbonImmutable $start): ?TourDate
+    {
+        $dateId = (int) ($record['offerDateId'] ?? 0);
+        $byLegacyId = $dateId > 0 ? TourDate::withTrashed()->where('tour_id', $tour->id)->where('legacy_id', $dateId)->first() : null;
+
+        return $byLegacyId ?? ($start !== null ? TourDate::query()->where('tour_id', $tour->id)->whereDate('start_date', $start->toDateString())->first() : null);
     }
 
     /**

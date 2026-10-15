@@ -138,4 +138,47 @@ class LegacyBookingImporterTest extends TestCase
         $this->assertSame('2026-02-13', $booking->departure_date->toDateString());
         $this->assertStringContainsString('nem található az új rendszerben', $booking->admin_note);
     }
+
+    public function test_the_tour_and_date_are_found_by_their_legacy_ids_whatever_the_names(): void
+    {
+        $this->tour->forceFill(['legacy_id' => 1000, 'name' => 'Szlovénia, Európa zöld gyöngyszeme'])->save();
+        $this->tourDate->forceFill(['legacy_id' => 12089, 'start_date' => '2026-10-31', 'end_date' => '2026-11-01'])->save();
+
+        $this->runImport([$this->record()]);
+
+        $booking = Booking::query()->sole();
+        $this->assertSame($this->tour->id, $booking->tour_id);
+        $this->assertSame($this->tourDate->id, $booking->tour_date_id);
+        $this->assertSame('213', $booking->payload['legacy']['departureId']);
+    }
+
+    public function test_a_rerun_refreshes_an_imported_booking_and_keeps_what_the_new_system_added(): void
+    {
+        $this->runImport([$this->record()]);
+        $booking = Booking::query()->sole();
+        $booking->update(['status' => TourBookingStatus::CONTACTED, 'admin_note' => 'Az iroda megjegyzése.']);
+
+        $this->runImport([$this->record(['mobile' => '+36309998877', 'price' => '180000'])]);
+
+        $booking->refresh();
+        $this->assertSame('+36309998877', $booking->phone);
+        $this->assertEquals(180000, $booking->total_amount);
+        $this->assertSame(TourBookingStatus::CONTACTED, $booking->status);
+        $this->assertSame('Az iroda megjegyzése.', $booking->admin_note);
+        $this->assertSame(1, Booking::query()->count());
+
+        $this->runImport([$this->record(['mobile' => '+36309998877', 'price' => '180000', 'canceled' => '1'])]);
+        $this->assertSame(TourBookingStatus::CANCELLED, $booking->fresh()->status);
+        $this->assertTrue($booking->fresh()->cancelled);
+    }
+
+    public function test_a_booking_of_the_new_site_with_the_same_code_is_left_alone(): void
+    {
+        $own = Booking::factory()->create(['booking_type' => 'tour_booking', 'offer_code' => 'Szl-8830', 'customer_name' => 'Új oldali foglaló', 'payload' => []]);
+
+        $this->runImport([$this->record()]);
+
+        $this->assertSame('Új oldali foglaló', $own->fresh()->customer_name);
+        $this->assertSame(1, Booking::query()->count());
+    }
 }
