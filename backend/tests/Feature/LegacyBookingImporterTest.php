@@ -181,4 +181,14 @@ class LegacyBookingImporterTest extends TestCase
         $this->assertSame('Új oldali foglaló', $own->fresh()->customer_name);
         $this->assertSame(1, Booking::query()->count());
     }
+
+    public function test_a_price_no_real_booking_has_is_left_out_and_noted(): void
+    {
+        $this->runImport([$this->record(['price' => '133931600', 'adults' => '998'])]);
+
+        $booking = Booking::query()->sole();
+        $this->assertNull($booking->total_amount);
+        $this->assertSame('133931600', $booking->payload['legacy']['price']);
+        $this->assertStringContainsString('A régi ár (133931600) nem valós összeg', $booking->admin_note);
+    }
 }

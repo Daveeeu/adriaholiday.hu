@@ -29,6 +29,9 @@ class LegacyBookingImporter
         'cancellationEub' => 'ALFA Compass útlemondási biztosítás',
     ];
 
+    /** The largest amount bookings.total_amount holds. */
+    private const MAX_AMOUNT = 99_999_999.99;
+
     /**
      * @var Collection<string, Tour>|null tours keyed by normalized name
      */
@@ -78,7 +81,7 @@ class LegacyBookingImporter
             'passenger_count' => (int) ($record['adults'] ?? 0) ?: (count($passengers) ?: null),
             'departure_date' => $start?->toDateString(),
             'message' => $this->nullable($record['message'] ?? null),
-            'total_amount' => is_numeric($record['price'] ?? null) ? (float) $record['price'] : null,
+            'total_amount' => $this->amount($record),
         ];
         $payload = [
             'formData' => array_filter([
@@ -99,6 +102,7 @@ class LegacyBookingImporter
                 'offerDate' => $record['offerDate'] ?? null,
                 'departureId' => $record['departureId'] ?? null,
                 'departure' => $record['departure'] ?? null,
+                'price' => $record['price'] ?? null,
                 'insurances' => $this->orderedInsurances($record),
             ],
         ];
@@ -154,6 +158,20 @@ class LegacyBookingImporter
         }
 
         return LegacyBookingImportResult::updated($tourMatched, $dateMatched, $offerName);
+    }
+
+    /**
+     * The booking's price, unless the legacy value is no real price (one
+     * legacy test booking says 133 931 600 Ft for 998 people); the legacy
+     * value stays in the payload either way.
+     *
+     * @param  array<string, mixed>  $record
+     */
+    private function amount(array $record): ?float
+    {
+        $price = $record['price'] ?? null;
+
+        return is_numeric($price) && (float) $price >= 0 && (float) $price <= self::MAX_AMOUNT ? (float) $price : null;
     }
 
     /**
@@ -268,6 +286,7 @@ class LegacyBookingImporter
             ($record['offerDate'] ?? '') !== '' ? 'Időpont: '.$record['offerDate'] : null,
             ($record['departure'] ?? '') !== '' ? 'Felszállás: '.$record['departure'] : null,
             'Biztosítás: '.($insurances !== [] ? implode(', ', $insurances) : 'nem kért'),
+            $this->amount($record) === null && ($record['price'] ?? '') !== '' ? 'A régi ár ('.$record['price'].') nem valós összeg; ár nélkül áthozva.' : null,
             $this->nullable($record['description'] ?? null) !== null ? 'Régi leírás: '.trim((string) $record['description']) : null,
         ]);
 
