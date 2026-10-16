@@ -180,6 +180,48 @@ export function ApartmentSeoSection({ form }: ApartmentSeoSectionProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="seoTitle"
+          render={({ field }) => (
+            <FormItem className="md:col-span-2">
+              <FormLabel>Oldal címe (title)</FormLabel>
+              <FormControl>
+                <Input placeholder="Üresen az apartman neve" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="seoDescription"
+          render={({ field }) => (
+            <FormItem className="md:col-span-2">
+              <FormLabel>Meta leírás</FormLabel>
+              <FormControl>
+                <Input placeholder="Üresen az ismertető eleje" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="seoRobots"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Robots</FormLabel>
+              <FormControl>
+                <Input placeholder="pl. noindex, follow" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </section>
   );

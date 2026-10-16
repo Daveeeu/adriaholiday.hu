@@ -1,5 +1,5 @@
 import type { BookingFormField } from '../booking/booking-form-fields';
-import { getPortfolioApiBaseUrl, PortfolioApiError } from './portfolio-api';
+import { fetchPortfolioJson, getPortfolioApiBaseUrl, PortfolioApiError } from './portfolio-api';
 
 export type PortfolioMedia = {
   id?: number | null;
@@ -217,36 +217,10 @@ export type PortfolioOfferDetail = {
 
 type PortfolioOfferDetailResponse = PortfolioOfferDetail;
 
-async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`${getPortfolioApiBaseUrl()}${path}`, {
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    let message = `Request failed with status ${response.status}`;
-
-    try {
-      const payload = await response.json();
-      if (typeof payload?.message === 'string' && payload.message.trim() !== '') {
-        message = payload.message;
-      }
-    } catch {
-      // Ignore invalid JSON error payloads.
-    }
-
-    throw new PortfolioApiError(response.status, message);
-  }
-
-  return (await response.json()) as T;
-}
-
 export async function fetchPortfolioOfferDetail(
   slug: string,
 ): Promise<PortfolioOfferDetailResponse> {
-  return request<PortfolioOfferDetailResponse>(
+  return fetchPortfolioJson<PortfolioOfferDetailResponse>(
     `/portfolio/offers/${encodeURIComponent(slug)}`,
   );
 }

@@ -11,12 +11,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import type { Gallery, Location, Region } from '@/types/domain';
+import type { Location, Region } from '@/types/domain';
 import { RichTextEditor } from '@/components/editor/rich-text-editor';
 import { useApartmentTypes } from '@/features/apartments/lib/use-apartment-types';
 
 import { ApartmentLocationSection } from './apartment-location-section';
 import { ApartmentContentSection } from './apartment-content-section';
+import { ApartmentGallerySection } from './apartment-gallery-section';
 import { ApartmentPricingMatrix } from './apartment-pricing-matrix';
 import { ApartmentPriceSeasonsSection } from './apartment-price-seasons-section';
 import { ApartmentSeoSection } from './apartment-seo-section';
@@ -27,7 +28,6 @@ type ApartmentFormProps = {
   form: UseFormReturn<ApartmentFormValues>;
   regions: Region[];
   locations: Location[];
-  galleries: Gallery[];
   typeLocked?: boolean;
 };
 
@@ -57,7 +57,6 @@ export function ApartmentForm({
   form,
   regions,
   locations,
-  galleries,
   typeLocked = false,
 }: ApartmentFormProps) {
   const selectedType = form.watch('type');
@@ -299,9 +298,9 @@ export function ApartmentForm({
 
       <section className="space-y-4 rounded-2xl border bg-card p-4">
         <div>
-          <h3 className="text-base font-semibold">Kapacitás és méret</h3>
+          <h3 className="text-base font-semibold">Kapacitás, méret és távolságok</h3>
           <p className="text-sm text-muted-foreground">
-            Az örökölt alapkapacitás mezők változatlanul rendelkezésre állnak.
+            A távolságok az apartman oldalán jelennek meg; üresen hagyva nem látszanak.
           </p>
         </div>
 
@@ -382,6 +381,34 @@ export function ApartmentForm({
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="distanceToCenterM"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Távolság a központtól (m)</FormLabel>
+                <FormControl>
+                  <Input type="number" min={0} step={1} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="distanceToSeaM"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Távolság a tengerparttól (m)</FormLabel>
+                <FormControl>
+                  <Input type="number" min={0} step={1} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </section>
 
@@ -391,8 +418,9 @@ export function ApartmentForm({
         form={form}
         regions={regions}
         locations={locations}
-        galleries={galleries}
       />
+
+      <ApartmentGallerySection form={form} />
 
       <section className="space-y-4 rounded-2xl border bg-card p-4">
         <div>

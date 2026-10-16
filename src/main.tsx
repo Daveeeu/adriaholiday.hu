@@ -23,6 +23,8 @@ const TravelsRoute = lazy(() => import("./app/routes/TravelsRoute"));
 const NotFoundRoute = lazy(() => import("./app/routes/NotFoundRoute"));
 const TravelClubRoute = lazy(() => import("./app/routes/TravelClubRoute"));
 const PaymentResultRoute = lazy(() => import("./app/routes/PaymentResultRoute"));
+const ApartmentLocationRoute = lazy(() => import("./app/apartments/ApartmentLocationRoute"));
+const ApartmentRoute = lazy(() => import("./app/apartments/ApartmentRoute"));
 
 const router = createBrowserRouter([
   {
@@ -34,6 +36,8 @@ const router = createBrowserRouter([
       { path: "kategoriak/:categorySlug", element: <CategoryRoute /> },
       { path: "regiok/:regionSlug", element: <RegionRoute /> },
       { path: "ajanlat/:offerSlug", element: <TripRoute /> },
+      { path: "apartmanok/:areaSlug/:locationSlug", element: <ApartmentLocationRoute /> },
+      { path: "apartman/:apartmentSlug", element: <ApartmentRoute /> },
       { path: "blog", element: <BlogRoute /> },
       { path: "blog/:slug", element: <BlogArticleRoute /> },
       { path: "rolunk", element: <AboutRoute /> },

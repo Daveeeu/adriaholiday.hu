@@ -32,11 +32,43 @@ export type ApartmentTypeMutationInput = {
   sortOrder: number;
 };
 
+/** A location with the texts of its public apartment page. */
+export type LocationMutationInput = Pick<
+  Location,
+  'regionId' | 'slug' | 'name' | 'type' | 'latitude' | 'longitude' | 'transferMinutesFromAirport' | 'featured'
+> & {
+  isActive: boolean;
+  description: string;
+  areaSlug: string;
+  areaName: string;
+  guide: string;
+  apartmentInformation: string;
+  seoTitle: string;
+  seoDescription: string;
+  seoRobots: string;
+};
+
+export type ApartmentGalleryItemInput = {
+  /** An existing item's id; none for a new one. */
+  id?: string;
+  mediaId: string;
+  title: string;
+  alt: string;
+  sortOrder: number;
+  active: boolean;
+};
+
 export type ApartmentMutationInput = {
   name: string;
   regionId: string;
   locationId: string;
   galleryId: string;
+  gallery: ApartmentGalleryItemInput[];
+  distanceToCenterM: number | null;
+  distanceToSeaM: number | null;
+  seoTitle: string;
+  seoDescription: string;
+  seoRobots: string;
   type: Apartment['type'];
   code: string;
   slug?: string;
@@ -102,6 +134,7 @@ export type ApartmentsListQuery = {
 
 export interface AdminApi {
   listRegions(): Promise<Region[]>;
+  updateLocation(locationId: string, input: LocationMutationInput): Promise<Location>;
   createRegion(input: RegionMutationInput): Promise<Region>;
   updateRegion(regionId: string, input: RegionMutationInput): Promise<Region>;
   deleteRegion(regionId: string): Promise<{ id: string }>;

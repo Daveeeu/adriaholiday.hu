@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { createSlug } from '@/data/generators/core-generators';
+import { galleryItemFormSchema, toGalleryItemFormValue } from '@/components/media/gallery-items';
 import { apartmentPricingMatrixConfig } from './apartments.constants';
 import type { ApartmentFormContext, ApartmentFormValues } from './apartments.types';
 import type { Apartment } from '@/types/domain';
@@ -55,6 +56,12 @@ export const apartmentFormSchema = z
     bathrooms: z.number().int().min(0),
     maxGuests: z.number().int().min(0),
     sizeM2: z.number().min(0),
+    distanceToCenterM: z.string().trim().regex(/^\d*$/, 'Egész számot adj meg (méter).'),
+    distanceToSeaM: z.string().trim().regex(/^\d*$/, 'Egész számot adj meg (méter).'),
+    seoTitle: z.string().trim().max(255),
+    seoDescription: z.string().trim().max(500),
+    seoRobots: z.string().trim().max(100),
+    gallery: z.array(galleryItemFormSchema),
     address: z.string().trim().min(5, 'A cím megadása kötelező.'),
     mapAddress: z.string().trim().min(5, 'A térkép cím megadása kötelező.'),
     map_address: z.string().trim().min(5, 'A térkép cím megadása kötelező.'),
@@ -75,7 +82,7 @@ export const apartmentFormSchema = z
     all_inclusive_content: z.string().trim(),
     regionId: z.string().min(1, 'A régió kiválasztása kötelező.'),
     locationId: z.string().min(1, 'A hely kiválasztása kötelező.'),
-    galleryId: z.string().min(1, 'A galéria kiválasztása kötelező.'),
+    galleryId: z.string(),
     amenities: z.array(z.string()),
     services: z.array(z.string()),
     priceHeader: z.string().trim(),
@@ -120,17 +127,21 @@ function createPricingMatrixDefaults(apartment?: Apartment) {
   const existingColumns = apartment?.pricingMatrix?.columns ?? [];
   const existingRows = apartment?.pricingMatrix?.rows ?? [];
 
-  const columns = Array.from({ length: apartmentPricingMatrixConfig.columns }).map((_, columnIndex) => ({
+  // Imported legacy tables can have more periods and types than a new one starts with.
+  const columnCount = Math.max(apartmentPricingMatrixConfig.columns, existingColumns.length);
+  const rowCount = Math.max(apartmentPricingMatrixConfig.rows, existingRows.length);
+
+  const columns = Array.from({ length: columnCount }).map((_, columnIndex) => ({
     id: existingColumns[columnIndex]?.id ?? `price-column-${columnIndex + 1}`,
     startDate: existingColumns[columnIndex]?.startDate ?? '',
     endDate: existingColumns[columnIndex]?.endDate ?? '',
   }));
 
-  const rows = Array.from({ length: apartmentPricingMatrixConfig.rows }).map((_, rowIndex) => ({
+  const rows = Array.from({ length: rowCount }).map((_, rowIndex) => ({
     id: existingRows[rowIndex]?.id ?? `price-row-${rowIndex + 1}`,
     category: existingRows[rowIndex]?.category ?? '',
     beds: existingRows[rowIndex]?.beds ?? '',
-    prices: Array.from({ length: apartmentPricingMatrixConfig.columns }).map(
+    prices: Array.from({ length: columnCount }).map(
       (_, columnIndex) => existingRows[rowIndex]?.prices?.[columnIndex] ?? '',
     ),
   }));
@@ -181,6 +192,12 @@ export function getApartmentFormDefaults(
     bathrooms: apartment?.bathrooms ?? 0,
     maxGuests: apartment?.maxGuests ?? 0,
     sizeM2: apartment?.sizeM2 ?? 0,
+    distanceToCenterM: apartment?.distanceToCenterM != null ? String(apartment.distanceToCenterM) : '',
+    distanceToSeaM: apartment?.distanceToSeaM != null ? String(apartment.distanceToSeaM) : '',
+    seoTitle: apartment?.seoTitle ?? '',
+    seoDescription: apartment?.seoDescription ?? '',
+    seoRobots: apartment?.seoRobots ?? '',
+    gallery: (apartment?.galleryItems ?? []).map(toGalleryItemFormValue),
     address: apartment?.address ?? '',
     mapAddress: apartment?.mapAddress ?? apartment?.address ?? '',
     map_address: apartment?.map_address ?? apartment?.mapAddress ?? apartment?.address ?? '',

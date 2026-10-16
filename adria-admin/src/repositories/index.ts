@@ -48,6 +48,7 @@ export const repositories: AdminRepositories = {
   referenceDataRepository: {
     listRegions: () => restAdminApi.listRegions(),
     listLocations: (regionId) => restAdminApi.listLocations(regionId),
+    updateLocation: (locationId, input) => restAdminApi.updateLocation(locationId, input),
     listGalleries: (regionId) => restAdminApi.listGalleries(regionId),
     listGalleryImages: (galleryId) => restAdminApi.listGalleryImages(galleryId),
     listBuses: (regionId) => restAdminApi.listBuses(regionId),

@@ -19,6 +19,7 @@ import type {
   ApartmentsListQuery,
   ApartmentTypeMutationInput,
   BookingStatusMutationInput,
+  LocationMutationInput,
   RegionMutationInput,
   ApartmentMutationInput,
 } from '@/api/admin-api';
@@ -298,6 +299,11 @@ export class RestAdminApi implements AdminApi {
       { query: normalizePaginatedQuery({ page: 1, perPage: 1000, regionId }) },
     );
     return mapPaginated(response).map(mapLocation);
+  }
+
+  public async updateLocation(locationId: string, input: LocationMutationInput): Promise<Location> {
+    const response = await apiClient.patch<{ data: Location }>(`/api/admin/locations/${locationId}`, input);
+    return mapLocation(response.data);
   }
 
   public async listGalleries(regionId?: string): Promise<Gallery[]> {

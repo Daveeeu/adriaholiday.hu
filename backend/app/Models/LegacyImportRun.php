@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * One run of the legacy catalog import (see adria:catalog:import).
+ * One run of a legacy import (adria:catalog:import, adria:apartments:import).
  */
 class LegacyImportRun extends Model
 {

@@ -24,7 +24,15 @@ const ALLOWED_TAGS = new Set([
   'ul',
 ]);
 
+/** Tags that may carry an id, the target of an in-page link (as the backend keeps them). */
+const ANCHOR_TAGS = new Set(['a', 'h2', 'h3']);
+const ANCHOR_ID = /^[a-z][a-z0-9_-]{0,63}$/;
+
 function sanitizeAttribute(tagName: string, name: string, value: string): string | null {
+  if (name === 'id') {
+    return ANCHOR_TAGS.has(tagName) && ANCHOR_ID.test(value) ? value : null;
+  }
+
   if (name === 'href') {
     const trimmed = value.trim();
 

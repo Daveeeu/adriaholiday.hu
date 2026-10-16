@@ -221,12 +221,27 @@ export interface TourInquiry {
   status: InquiryStatus;
 }
 
+/** A guest of an apartment booking sent from the public site. */
+export interface ApartmentBookingGuest {
+  name: string;
+  birthDate?: string;
+  address?: string;
+  documentNumber?: string;
+}
+
 export interface ApartmentBooking {
   id: string;
   guestName: string;
   email: string;
   phone: string;
   address: string;
+  /** Postal code, city and street, as the customer gave them. */
+  fullAddress: string;
+  apartmentType: string;
+  travelInsurance: boolean | null;
+  cancellationInsurance: boolean | null;
+  guests: ApartmentBookingGuest[];
+  message: string;
   apartmentName: string;
   arrival: string;
   departure: string;
@@ -310,9 +325,10 @@ export type TourInquiryFormValues = Omit<
   'id' | 'createdAt' | 'requestedFrom' | 'requestedTo' | 'passengerCount' | 'city' | 'address'
 >;
 
+/** What the office edits by hand; the public form's details stay as sent. */
 export type ApartmentBookingFormValues = Omit<
   ApartmentBooking,
-  'id' | 'createdAt'
+  'id' | 'createdAt' | 'fullAddress' | 'apartmentType' | 'travelInsurance' | 'cancellationInsurance' | 'guests' | 'message'
 >;
 
 export type PartnerFinanceFormValues = Omit<

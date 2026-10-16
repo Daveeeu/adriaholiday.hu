@@ -137,21 +137,17 @@ function ApartmentDetailView({
   apartment,
   regions,
   locations,
-  galleries,
 }: {
   apartment: Apartment;
   regions: Region[];
   locations: Location[];
-  galleries: Gallery[];
 }) {
   const active = apartment.active ?? apartment.isActive ?? apartment.status !== 'archived';
   const selectedServices = apartment.services ?? apartment.amenities ?? [];
   const regionRef = apartment.regionId ?? apartment.region_id ?? '';
   const locationRef = apartment.locationId ?? apartment.place_id ?? '';
-  const galleryRef = apartment.galleryId ?? apartment.gallery_id ?? '';
   const regionName = regions.find((region) => region.id === regionRef)?.name ?? regionRef;
   const locationName = locations.find((location) => location.id === locationRef)?.name ?? locationRef;
-  const galleryTitle = galleries.find((gallery) => gallery.id === galleryRef)?.title ?? galleryRef;
   const { data: apartmentTypes } = useApartmentTypes();
   const typeLabel =
     apartmentTypes?.find((type) => type.slug === apartment.type)?.name ?? apartment.type;
@@ -214,8 +210,14 @@ function ApartmentDetailView({
           <DetailField label="Típus" value={typeLabel} />
           <DetailField label="Régió" value={regionName} />
           <DetailField label="Hely" value={locationName} />
-          <DetailField label="Galéria" value={galleryTitle} />
+          <DetailField label="Képek" value={`${apartment.galleryItems?.length ?? 0} db`} />
           <DetailField label="Koordináták" value={apartment.coordinates} />
+          <DetailField
+            label="Távolság a központtól / tengerparttól"
+            value={`${apartment.distanceToCenterM != null ? `${apartment.distanceToCenterM} m` : '–'} / ${apartment.distanceToSeaM != null ? `${apartment.distanceToSeaM} m` : '–'}`}
+          />
+          <DetailField label="SEO cím" value={apartment.seoTitle} />
+          <DetailField label="Régi rendszerbeli azonosító" value={apartment.legacyId != null ? String(apartment.legacyId) : null} />
         </div>
         <div className="grid gap-3">
           <div className="rounded-xl border bg-background p-3">
@@ -501,7 +503,6 @@ export function ApartmentSidePanel({
                 apartment={apartment}
                 regions={regions}
                 locations={locations}
-                galleries={galleries}
               />
             ) : (
               <Form {...form}>
@@ -520,7 +521,6 @@ export function ApartmentSidePanel({
                     form={form}
                     regions={regions}
                     locations={locations}
-                    galleries={galleries}
                     typeLocked={typeLocked}
                   />
 

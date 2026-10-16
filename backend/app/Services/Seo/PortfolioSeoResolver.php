@@ -2,9 +2,11 @@
 
 namespace App\Services\Seo;
 
+use App\Models\Apartment;
 use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\HomepageOffer;
+use App\Models\Location;
 use App\Models\Region;
 use App\Models\SiteSetting;
 use App\Models\Tour;
@@ -68,6 +70,8 @@ class PortfolioSeoResolver
             count($segments) === 2 && $segments[0] === 'blog' => $this->article($segments[1]),
             count($segments) === 2 && $segments[0] === 'kategoriak' => $this->category($segments[1]),
             count($segments) === 2 && $segments[0] === 'regiok' => $this->region($segments[1]),
+            count($segments) === 2 && $segments[0] === 'apartman' => $this->apartment($segments[1]),
+            count($segments) === 3 && $segments[0] === 'apartmanok' => $this->apartmentLocation($segments[1], $segments[2]),
             default => SeoPage::notFound('/'.$path),
         };
     }
@@ -252,6 +256,63 @@ class PortfolioSeoResolver
             canonicalPath: $path,
             image: $region->getFirstMedia('portfolio-image')?->getUrl() ?: $this->defaultImage(),
             jsonLd: [$this->breadcrumb([['Utazások', '/utazasok'], [$region->name, $path]])],
+        );
+    }
+
+    private function apartmentLocation(string $area, string $slug): SeoPage
+    {
+        $location = Location::query()->withApartmentPage()->where('area_slug', $area)->where('slug', $slug)->first();
+
+        if ($location === null) {
+            return SeoPage::notFound("/apartmanok/{$area}/{$slug}");
+        }
+
+        $path = $location->apartmentPagePath();
+        $title = trim((string) $location->seo_title) ?: "{$location->name} apartmanok";
+
+        return new SeoPage(
+            title: $title,
+            description: trim((string) $location->seo_description) ?: $this->plain($location->description) ?: "{$location->name}: apartmanok és szálláshelyek az Adria Holiday kínálatában.",
+            robots: RobotsDirective::restrictive($location->seo_robots),
+            canonicalPath: $path,
+            image: $this->defaultImage(),
+            jsonLd: [$this->breadcrumb([["{$location->name} apartmanok", $path]])],
+        );
+    }
+
+    private function apartment(string $slug): SeoPage
+    {
+        $apartment = Apartment::query()->publiclyVisible()->where('slug', $slug)->with(['location', 'galleryItems.media'])->first();
+
+        if ($apartment === null) {
+            return SeoPage::notFound("/apartman/{$slug}");
+        }
+
+        $path = $apartment->pagePath();
+        $image = $apartment->galleryItems->first(fn ($item): bool => $item->active && $item->media !== null)?->media->getUrl();
+        $description = trim((string) $apartment->seo_description) ?: $this->plain($apartment->description) ?: $apartment->name;
+        $location = $apartment->location;
+        $trail = $location?->is_active && $location->area_slug ? [["{$location->name} apartmanok", $location->apartmentPagePath()]] : [];
+
+        return new SeoPage(
+            title: trim((string) $apartment->seo_title) ?: $apartment->name,
+            description: $description,
+            robots: RobotsDirective::restrictive($apartment->seo_robots),
+            canonicalPath: $path,
+            image: $image ?: $this->defaultImage(),
+            jsonLd: [
+                $this->breadcrumb([...$trail, [$apartment->name, $path]]),
+                array_filter([
+                    '@context' => 'https://schema.org',
+                    '@type' => 'Accommodation',
+                    'name' => $apartment->name,
+                    'description' => $description,
+                    'image' => $image ? [$image] : null,
+                    'url' => PublicSiteUrl::to($path),
+                    'address' => $apartment->address !== '' ? $apartment->address : null,
+                    'geo' => $apartment->latitude !== null ? ['@type' => 'GeoCoordinates', 'latitude' => (float) $apartment->latitude, 'longitude' => (float) $apartment->longitude] : null,
+                ]),
+            ],
         );
     }
 

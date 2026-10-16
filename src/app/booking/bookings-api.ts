@@ -40,6 +40,25 @@ export type SubmitTourInquiryPayload = {
   privacyAccepted: boolean;
 };
 
+/** A booking request from an apartment's page; the office confirms it. */
+export type SubmitApartmentBookingPayload = {
+  customerName: string;
+  email: string;
+  phone?: string;
+  postalCode?: string;
+  city?: string;
+  address?: string;
+  arrival: string;
+  departure: string;
+  apartmentType?: string;
+  passengers: Array<{ name: string; birthDate: string; address?: string; documentNumber?: string }>;
+  travelInsurance: boolean;
+  cancellationInsurance: boolean;
+  message?: string;
+  termsAccepted: boolean;
+  newsletterSubscribe?: boolean;
+};
+
 export type SubmitBookingResponse = {
   id: number | string;
   status: string;
@@ -82,6 +101,10 @@ export class BookingValidationError extends BookingApiError {
 
 export function submitBooking(payload: SubmitBookingPayload): Promise<SubmitBookingResponse> {
   return request('POST', '/bookings', payload);
+}
+
+export function submitApartmentBooking(slug: string, payload: SubmitApartmentBookingPayload): Promise<SubmitBookingResponse> {
+  return request('POST', `/portfolio/apartments/${encodeURIComponent(slug)}/bookings`, payload);
 }
 
 /** Group quote request for a custom date (min. 20 passengers). */

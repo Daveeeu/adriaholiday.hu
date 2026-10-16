@@ -12,6 +12,7 @@ class ApartmentResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'legacyId' => $this->legacy_id,
             'regionId' => $this->region_id,
             'locationId' => $this->location_id,
             'galleryId' => $this->gallery_id,
@@ -21,6 +22,9 @@ class ApartmentResource extends JsonResource
             'code' => $this->code,
             'seoName' => $this->seo_name,
             'seoAutoGenerate' => (bool) $this->seo_auto_generate,
+            'seoTitle' => $this->seo_title,
+            'seoDescription' => $this->seo_description,
+            'seoRobots' => $this->seo_robots,
             'isActive' => (bool) $this->is_active,
             'featured' => (bool) $this->featured,
             'isAccommodation' => (bool) $this->is_accommodation,
@@ -29,6 +33,8 @@ class ApartmentResource extends JsonResource
             'bathrooms' => (int) $this->bathrooms,
             'maxGuests' => (int) $this->max_guests,
             'sizeM2' => (float) $this->size_m2,
+            'distanceToCenterM' => $this->distance_to_center_m,
+            'distanceToSeaM' => $this->distance_to_sea_m,
             'address' => $this->address,
             'mapAddress' => $this->map_address,
             'latitude' => $this->latitude !== null ? (float) $this->latitude : null,

@@ -36,7 +36,7 @@ import {
 import { submitBooking, BookingApiError, BookingValidationError } from "./bookings-api";
 import BarionPaymentBanner from "../components/BarionPaymentBanner";
 import { INSURANCE_PATH } from "./insurance";
-import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { BookingTermsConsent, NewsletterConsent } from "./BookingConsents";
 import { bringIntoView } from "../lib/bringIntoView";
 
 type FieldErrorState = {
@@ -160,7 +160,6 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [newsletterSubscribe, setNewsletterSubscribe] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
-  const { settings } = useSiteSettings();
   const [passengers, setPassengers] = useState<BookingFieldValues[]>([]);
   const [status, setStatus] = useState<"idle" | "submitting" | "redirecting" | "success" | "error">("idle");
   const [fieldErrors, setFieldErrors] = useState<FieldErrorState>(NO_ERRORS);
@@ -957,50 +956,16 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                       ) : null}
                     </PriceSummary>
 
-                    <div>
-                      <label className="flex items-start gap-3 text-sm text-[#0f172a] cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={termsAccepted}
-                          onChange={(event) => {
-                            setTermsAccepted(event.target.checked);
-                            setTermsError(null);
-                          }}
-                          className="mt-1 accent-[#00c389]"
-                        />
-                        <span>
-                          Kijelentem, hogy az Adria Holiday Utazási Iroda Kft. által szervezett utazáson részt veszek. Az{" "}
-                          <a href={settings.termsUrl || "/aszf"} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
-                            általános szerződési feltételeket
-                          </a>{" "}
-                          (benne az utazási szerződéshez kapcsolódó tájékoztatóval), a{" "}
-                          <a href={INSURANCE_PATH} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
-                            biztosítási termékismertetőt
-                          </a>{" "}
-                          (útlemondási biztosítás, betegség-, baleset-, poggyászbiztosítás) és az{" "}
-                          <a href={settings.privacyUrl || "/adatvedelem"} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
-                            adatkezelési tájékoztatót
-                          </a>{" "}
-                          elolvastam és elfogadom, a személyes adataim kezeléséhez hozzájárulok.*
-                        </span>
-                      </label>
-                      {termsError ? <p data-booking-error className="mt-2 text-sm font-medium text-red-600">{termsError}</p> : null}
-                    </div>
+                    <BookingTermsConsent
+                      checked={termsAccepted}
+                      error={termsError}
+                      onChange={(checked) => {
+                        setTermsAccepted(checked);
+                        setTermsError(null);
+                      }}
+                    />
 
-                    <label className="flex items-start gap-3 text-sm text-[#0f172a] cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newsletterSubscribe}
-                        onChange={(event) => setNewsletterSubscribe(event.target.checked)}
-                        className="mt-1 accent-[#00c389]"
-                      />
-                      <span>
-                        Szeretnék hírlevélben értesülni további ajánlatokról
-                        {settings.newsletterCouponValue > 0
-                          ? ` – ajándékba kapok egy ${settings.newsletterCouponValue.toLocaleString("hu-HU")} Ft-os kupont a következő utamhoz.`
-                          : "."}
-                      </span>
-                    </label>
+                    <NewsletterConsent checked={newsletterSubscribe} onChange={setNewsletterSubscribe} />
 
                     <p className="rounded-2xl bg-[#f5f9fc] p-4 text-sm text-gray-600">
                       Indulás előtt kb. 1 héttel írásos értesítőt (levélben vagy e-mailben) küldünk az indulással kapcsolatos

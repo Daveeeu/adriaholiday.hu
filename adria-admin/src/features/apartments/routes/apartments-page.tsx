@@ -138,6 +138,21 @@ function toMutationInput(values: ApartmentFormValues): ApartmentMutationInput {
     regionId: values.regionId,
     locationId: values.locationId,
     galleryId: values.galleryId,
+    gallery: values.gallery
+      .filter((item) => item.mediaId !== '')
+      .map((item, index) => ({
+        id: /^\d+$/.test(item.clientId) ? item.clientId : undefined,
+        mediaId: item.mediaId,
+        title: item.title,
+        alt: item.alt,
+        sortOrder: item.sortOrder ?? index,
+        active: item.active,
+      })),
+    distanceToCenterM: values.distanceToCenterM === '' ? null : Number(values.distanceToCenterM),
+    distanceToSeaM: values.distanceToSeaM === '' ? null : Number(values.distanceToSeaM),
+    seoTitle: values.seoTitle,
+    seoDescription: values.seoDescription,
+    seoRobots: values.seoRobots,
     region_id: values.region_id || values.regionId,
     place_id: values.place_id || values.locationId,
     gallery_id: values.gallery_id || values.galleryId,

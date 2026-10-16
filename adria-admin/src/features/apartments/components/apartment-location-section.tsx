@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import type { Gallery, Location, Region } from '@/types/domain';
+import type { Location, Region } from '@/types/domain';
 
 import type { ApartmentFormValues } from '../lib/apartments.types';
 
@@ -17,27 +17,21 @@ type ApartmentLocationSectionProps = {
   form: UseFormReturn<ApartmentFormValues>;
   regions: Region[];
   locations: Location[];
-  galleries: Gallery[];
 };
 
 export function ApartmentLocationSection({
   form,
   regions,
   locations,
-  galleries,
 }: ApartmentLocationSectionProps) {
   const regionId = form.watch('regionId');
 
   const availableLocations = locations.filter(
     (location) => location.regionId === regionId,
   );
-  const availableGalleries = galleries.filter(
-    (gallery) => gallery.regionId === regionId && gallery.category === 'apartment',
-  );
 
   useEffect(() => {
     const currentLocationId = form.getValues('locationId');
-    const currentGalleryId = form.getValues('galleryId');
 
     if (
       availableLocations.length > 0 &&
@@ -53,29 +47,14 @@ export function ApartmentLocationSection({
         shouldValidate: true,
       });
     }
-
-    if (
-      availableGalleries.length > 0 &&
-      !availableGalleries.some((gallery) => gallery.id === currentGalleryId)
-    ) {
-      const nextGalleryId = availableGalleries[0].id;
-      form.setValue('galleryId', nextGalleryId, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-      form.setValue('gallery_id', nextGalleryId, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
-  }, [availableGalleries, availableLocations, form]);
+  }, [availableLocations, form]);
 
   return (
     <section className="space-y-4 rounded-2xl border bg-card p-4">
       <div>
         <h3 className="text-base font-semibold">Elhelyezkedés</h3>
         <p className="text-sm text-muted-foreground">
-          Régió, hely, galéria, cím és koordináta adatok.
+          Régió, hely, cím és koordináta adatok.
         </p>
       </div>
 
@@ -135,38 +114,6 @@ export function ApartmentLocationSection({
                   {availableLocations.map((location) => (
                     <option key={location.id} value={location.id}>
                       {location.name}
-                    </option>
-                  ))}
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="galleryId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Galéria</FormLabel>
-              <FormControl>
-                <select
-                  className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
-                  value={field.value}
-                  onChange={(event) => {
-                    const nextValue = event.target.value;
-                    field.onChange(nextValue);
-                    form.setValue('gallery_id', nextValue, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
-                  }}
-                >
-                  <option value="">-- Válasszon --</option>
-                  {availableGalleries.map((gallery) => (
-                    <option key={gallery.id} value={gallery.id}>
-                      {gallery.title}
                     </option>
                   ))}
                 </select>

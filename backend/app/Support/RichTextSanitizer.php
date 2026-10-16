@@ -57,6 +57,11 @@ class RichTextSanitizer
 
     private const ALLOWED_TEXT_ALIGN = ['left', 'center', 'right', 'justify'];
 
+    /** Tags that may carry an id, the target of an in-page link. */
+    private const ANCHOR_TAGS = ['a', 'h2', 'h3'];
+
+    private const ANCHOR_ID = '/^[a-z][a-z0-9_-]{0,63}$/';
+
     public static function sanitize(?string $value): ?string
     {
         if ($value === null) {
@@ -165,6 +170,16 @@ class RichTextSanitizer
             if (in_array($tag, ['td', 'th'], true) && in_array($name, ['colspan', 'rowspan'], true)) {
                 if (preg_match('/^[1-9]\d?$/', $value)) {
                     $element->setAttribute($name, $value);
+                }
+
+                continue;
+            }
+
+            // In-page anchors ("#udules_bibione") need their target: headings
+            // and anchors keep a plain id (legacy anchors carry it as name).
+            if (in_array($tag, self::ANCHOR_TAGS, true) && in_array($name, ['id', 'name'], true)) {
+                if (preg_match(self::ANCHOR_ID, $value) && ! $element->hasAttribute('id')) {
+                    $element->setAttribute('id', $value);
                 }
 
                 continue;

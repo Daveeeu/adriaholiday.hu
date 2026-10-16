@@ -1,0 +1,402 @@
+{
+  "generated_at": "2026-10-16T08:40:00.000Z",
+  "source": "https://adriaholiday.hu/admin/?p=apartment",
+  "services": [
+    {
+      "id": 1,
+      "name": "Fürdőszoba zuhanyzóval",
+      "filter": "Nincs szűrés"
+    }
+  ],
+  "types": [
+    {
+      "id": 1,
+      "name": "Apartman"
+    }
+  ],
+  "regions": [
+    {
+      "id": "50",
+      "city": "Veneto",
+      "city_hu": "Veneto",
+      "country": "Olaszország",
+      "seo_name": "veneto",
+      "region_type": "2",
+      "apartments_information": "<p><strong>Információk</strong></p><p>A feltüntetett árak apartman/éj értendőek.</p>",
+      "seo[title]": "",
+      "seo[description]": "",
+      "seo[robots]": ""
+    },
+    {
+      "id": "17",
+      "city": "",
+      "city_hu": "",
+      "country": "Görögország",
+      "seo_name": "olympos-riviera",
+      "region_type": "2",
+      "apartments_information": ""
+    }
+  ],
+  "places": [
+    {
+      "id": "405",
+      "name": "Bibione",
+      "seo_name": "bibione",
+      "location_id": "50",
+      "location_type": "2",
+      "description": "<h2>Üdülés Bibione</h2><p>Bibione Olaszország egyik leglátogatottabb nyaralóhelye.</p>",
+      "description_bottom": "<p><a href=\"apartmanok/veneto/bibione#strand_bibione\">Strand</a></p><h2><a id=\"strand_bibione\" name=\"strand_bibione\">Strand</a></h2><p>Homokos part.</p>",
+      "seo[title]": "Bibione apartman",
+      "seo[description]": "Szálláshely Bibione városában.",
+      "seo[robots]": "index, follow"
+    },
+    {
+      "id": "404",
+      "name": "Lignano",
+      "seo_name": "lignano",
+      "location_id": "50",
+      "location_type": "2",
+      "description": "<p>Lignano</p>",
+      "description_bottom": ""
+    },
+    {
+      "id": "18",
+      "name": "Lignano Pineta",
+      "seo_name": "pineta",
+      "location_id": "2",
+      "location_type": "2",
+      "description": "",
+      "description_bottom": ""
+    },
+    {
+      "id": "26",
+      "name": "Nei Pori",
+      "seo_name": "nei-pori",
+      "location_id": "17",
+      "location_type": "2",
+      "description": "",
+      "description_bottom": ""
+    }
+  ],
+  "galleries": {
+    "116": [
+      {
+        "legacy_image_id": 30095,
+        "path": "uploads/gallery/a/kep_0.jpg",
+        "title": null,
+        "main": false,
+        "position": 0
+      },
+      {
+        "legacy_image_id": 30099,
+        "path": "uploads/gallery/a/kep_4.jpg",
+        "title": null,
+        "main": true,
+        "position": 1
+      }
+    ],
+    "200": [
+      {
+        "legacy_image_id": 40000,
+        "path": "uploads/gallery/b/kep_0.jpg",
+        "title": "Kert",
+        "main": true,
+        "position": 0
+      }
+    ]
+  },
+  "apartments": [
+    {
+      "legacy_id": 17,
+      "legacy_list": "apartment",
+      "legacy_kind": "Apartman",
+      "active": true,
+      "featured_list": false,
+      "public_listed": true,
+      "admin": {
+        "id": "17",
+        "quality": "3",
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "name": "3C Apartman (42) Bibione",
+        "seo_name_automatic_generation": false,
+        "seo_name": "3c-apartman-(42)-bibione",
+        "code": "",
+        "code_min": "42",
+        "code_max": "42",
+        "address": "Via Cigno 37, Bibione, Italy",
+        "address_maps": "",
+        "coordinates_maps": "(45.634903, 13.063597)",
+        "description": "<p>Üdülőépület 300 m-re a tengertől. <a href=\"http://adriaholiday.hu/kapcsolat\">Kapcsolat</a></p>",
+        "additional_informations": "",
+        "category": "<p><u>Típus B-5:</u> Két légterű</p>",
+        "all_inclusive": "",
+        "sea_distance": "",
+        "ski_distance": "",
+        "central_distance": "50",
+        "price_header": "Árak 2027 Apartman/éj Euro-ban",
+        "price_header_inside": "",
+        "location_id": "50",
+        "place_id": "405",
+        "gallery_id": "116",
+        "services": [
+          1,
+          4,
+          12,
+          99
+        ],
+        "price_table": {
+          "0": {
+            "2": "2027-07-03",
+            "3": "2026-05-23",
+            "4": "2027-07-10"
+          },
+          "1": {
+            "2": "2027-07-10",
+            "3": "2026-05-30",
+            "4": "2027-07-17"
+          },
+          "2": {
+            "0": " B-5"
+          },
+          "5": {
+            "0": "B-5",
+            "1": "3+2",
+            "2": "106",
+            "3": "80",
+            "4": "111"
+          },
+          "6": {
+            "0": "C-6",
+            "1": "4+2",
+            "2": "121",
+            "3": "",
+            "4": "127"
+          }
+        }
+      },
+      "public": {
+        "apartment_id": 17,
+        "central_distance": "50m",
+        "sea_distance": "300m"
+      }
+    },
+    {
+      "legacy_id": 1679,
+      "legacy_list": "apartment",
+      "legacy_kind": "Apartman",
+      "active": true,
+      "featured_list": false,
+      "public_listed": false,
+      "admin": {
+        "id": "1679",
+        "quality": "0",
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "name": "Delfino Apartman (184) Bibione",
+        "seo_name_automatic_generation": false,
+        "seo_name": "delfino-apartman-(184)-bibione",
+        "code": "",
+        "code_min": "",
+        "code_max": "",
+        "address": "Via Cigno 37, Bibione, Italy",
+        "address_maps": "",
+        "coordinates_maps": "(, )",
+        "description": "",
+        "additional_informations": "",
+        "category": "<p><u>Típus B-5:</u> Két légterű</p>",
+        "all_inclusive": "",
+        "sea_distance": "",
+        "ski_distance": "",
+        "central_distance": "50",
+        "price_header": "Árak 2027 Apartman/éj Euro-ban",
+        "price_header_inside": "",
+        "location_id": "50",
+        "place_id": "405",
+        "gallery_id": "200",
+        "services": [],
+        "price_table": {}
+      }
+    },
+    {
+      "legacy_id": 7,
+      "legacy_list": "apartment",
+      "legacy_kind": "Apartman",
+      "active": true,
+      "featured_list": true,
+      "public_listed": false,
+      "admin": {
+        "id": "7",
+        "quality": "4",
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "name": "Michelangelo Apartman (502) Lignano",
+        "seo_name_automatic_generation": false,
+        "seo_name": "michelangelo-apartman-(502)-lignano",
+        "code": "",
+        "code_min": "502",
+        "code_max": "502",
+        "address": "Via Cigno 37, Bibione, Italy",
+        "address_maps": "",
+        "coordinates_maps": "(45.634903, 13.063597)",
+        "description": "<p>Leírás</p>",
+        "additional_informations": "",
+        "category": "<p><u>Típus B-5:</u> Két légterű</p>",
+        "all_inclusive": "",
+        "sea_distance": "",
+        "ski_distance": "",
+        "central_distance": "50",
+        "price_header": "Árak 2027 Apartman/éj Euro-ban",
+        "price_header_inside": "",
+        "location_id": "2",
+        "place_id": "18",
+        "gallery_id": "200",
+        "services": [
+          4
+        ],
+        "price_table": {
+          "0": {
+            "2": "2027-07-03",
+            "3": "2026-05-23",
+            "4": "2027-07-10"
+          },
+          "1": {
+            "2": "2027-07-10",
+            "3": "2026-05-30",
+            "4": "2027-07-17"
+          },
+          "2": {
+            "0": " B-5"
+          },
+          "5": {
+            "0": "B-5",
+            "1": "3+2",
+            "2": "106",
+            "3": "80",
+            "4": "111"
+          },
+          "6": {
+            "0": "C-6",
+            "1": "4+2",
+            "2": "121",
+            "3": "",
+            "4": "127"
+          }
+        }
+      }
+    },
+    {
+      "legacy_id": 5071,
+      "legacy_list": "apartment",
+      "legacy_kind": "Apartman",
+      "active": true,
+      "featured_list": false,
+      "public_listed": false,
+      "admin": {
+        "id": "5071",
+        "quality": "3",
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "name": "Arcobaleno apartman (600)",
+        "seo_name_automatic_generation": false,
+        "seo_name": "arcobaleno-apartman-(600)",
+        "code": "",
+        "code_min": "600",
+        "code_max": "600",
+        "address": "Via Cigno 37, Bibione, Italy",
+        "address_maps": "",
+        "coordinates_maps": "(45.634903, 13.063597)",
+        "description": "<p>Leírás</p>",
+        "additional_informations": "",
+        "category": "<p><u>Típus B-5:</u> Két légterű</p>",
+        "all_inclusive": "",
+        "sea_distance": "",
+        "ski_distance": "",
+        "central_distance": "50",
+        "price_header": "Árak 2027 Apartman/éj Euro-ban",
+        "price_header_inside": "",
+        "location_id": null,
+        "place_id": null,
+        "gallery_id": null,
+        "services": [],
+        "price_table": {
+          "0": {
+            "2": "2027-07-03",
+            "3": "2026-05-23",
+            "4": "2027-07-10"
+          },
+          "1": {
+            "2": "2027-07-10",
+            "3": "2026-05-30",
+            "4": "2027-07-17"
+          },
+          "2": {
+            "0": " B-5"
+          },
+          "5": {
+            "0": "B-5",
+            "1": "3+2",
+            "2": "106",
+            "3": "80",
+            "4": "111"
+          },
+          "6": {
+            "0": "C-6",
+            "1": "4+2",
+            "2": "121",
+            "3": "",
+            "4": "127"
+          }
+        }
+      }
+    },
+    {
+      "legacy_id": 319,
+      "legacy_list": "greece",
+      "legacy_kind": "Apartman",
+      "active": true,
+      "featured_list": false,
+      "public_listed": false,
+      "admin": {
+        "id": "319",
+        "quality": "2",
+        "seo[title]": "",
+        "seo[description]": "",
+        "seo[robots]": "",
+        "name": "Jimmy apartmanház (515) - Nei Pori",
+        "seo_name_automatic_generation": false,
+        "seo_name": "jimmy-apartmanhaz-(515)---nei-pori",
+        "code": "",
+        "code_min": "515",
+        "code_max": "515",
+        "address": "Via Cigno 37, Bibione, Italy",
+        "address_maps": "",
+        "coordinates_maps": "(45.634903, 13.063597)",
+        "description": "<p>Leírás</p>",
+        "additional_informations": "",
+        "category": "<p><u>Típus B-5:</u> Két légterű</p>",
+        "all_inclusive": "",
+        "sea_distance": "",
+        "ski_distance": "",
+        "central_distance": "50",
+        "price_header": "Árak 2027 Apartman/éj Euro-ban",
+        "price_header_inside": "",
+        "location_id": "17",
+        "place_id": "26",
+        "gallery_id": null,
+        "services": [],
+        "price_table": {}
+      }
+    }
+  ],
+  "listing": {
+    "url": "https://adriaholiday.hu/apartmanok/veneto/bibione",
+    "listed_seo_names": [
+      "3c-apartman-(42)-bibione"
+    ]
+  }
+}

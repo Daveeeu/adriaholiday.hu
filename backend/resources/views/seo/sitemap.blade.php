@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 @foreach ($items as $item)
   <url>
-    <loc>{{ htmlspecialchars($item['loc'], ENT_XML1) }}</loc>
+    <loc>{!! htmlspecialchars($item['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8') !!}</loc>
 @if (! empty($item['lastmod']))
     <lastmod>{{ $item['lastmod'] }}</lastmod>
 @endif

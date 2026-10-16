@@ -1,3 +1,4 @@
+import type { GalleryItemFormValue } from '@/components/media/gallery-items';
 import type { Apartment, Gallery, Location, Region } from '@/types/domain';
 
 export type ApartmentPanelMode = 'create' | 'edit' | 'detail';
@@ -35,6 +36,13 @@ export type ApartmentFormValues = {
   bathrooms: number;
   maxGuests: number;
   sizeM2: number;
+  /** Metres; empty when not known. */
+  distanceToCenterM: string;
+  distanceToSeaM: string;
+  seoTitle: string;
+  seoDescription: string;
+  seoRobots: string;
+  gallery: GalleryItemFormValue[];
   address: string;
   mapAddress: string;
   map_address: string;

@@ -144,6 +144,12 @@ class AppServiceProvider extends ServiceProvider
             PublicContentCache::SITEMAP,
         ));
 
+        // Apartment and location pages are listed in the sitemap.
+        foreach ([Apartment::class, Location::class] as $model) {
+            $model::saved(fn () => PublicContentCache::bump(PublicContentCache::SITEMAP));
+            $model::deleted(fn () => PublicContentCache::bump(PublicContentCache::SITEMAP));
+        }
+
         PortfolioFilterChip::saved(fn () => PublicContentCache::bump(PublicContentCache::PORTFOLIO_FILTERS));
         PortfolioFilterChip::deleted(fn () => PublicContentCache::bump(PublicContentCache::PORTFOLIO_FILTERS));
 

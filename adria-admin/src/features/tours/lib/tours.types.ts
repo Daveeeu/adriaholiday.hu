@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { createClientId } from '@/lib/client-id';
+import { galleryItemFormSchema, toGalleryItemFormValue } from '@/components/media/gallery-items';
 import type { MediaAsset } from '@/services/media-service';
 
 import type {
@@ -321,18 +322,7 @@ export const tourFormSchema = z.object({
   notes: z.string(),
   galleryTitle: z.string(),
   gallerySubtitle: z.string(),
-  gallery: z.array(
-    z.object({
-      clientId: z.string(),
-      mediaId: z.string(),
-      image: z.string(),
-      title: z.string(),
-      alt: z.string(),
-      caption: z.string(),
-      sortOrder: z.coerce.number().int().min(0),
-      active: z.boolean(),
-    }),
-  ),
+  gallery: z.array(galleryItemFormSchema),
   priceBox: z.object({
     price: z.string(),
     displayedPrice: z.string(),
@@ -562,16 +552,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     notes: tour?.notes ?? '',
     galleryTitle: tour?.galleryTitle ?? '',
     gallerySubtitle: tour?.gallerySubtitle ?? '',
-    gallery: (tour?.gallery ?? []).map((item, index) => ({
-      clientId: String(item.id ?? createClientId()),
-      mediaId: String(item.mediaId ?? ''),
-      image: item.image?.url ?? item.image?.thumbnailUrl ?? '',
-      title: item.title ?? '',
-      alt: item.alt ?? '',
-      caption: item.caption ?? '',
-      sortOrder: item.sortOrder ?? index + 1,
-      active: item.active ?? true,
-    })),
+    gallery: (tour?.gallery ?? []).map(toGalleryItemFormValue),
     priceBox: {
       price: tour?.priceBox?.price?.toString() ?? '',
       displayedPrice: tour?.priceBox?.displayedPrice ?? '',

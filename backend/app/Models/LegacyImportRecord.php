@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * A legacy record the catalog import handled: the local record it became and
+ * A legacy record a legacy import (catalog or apartments) handled: the local record it became and
  * its original JSON word for word, so nothing of the legacy data is lost.
  */
 class LegacyImportRecord extends Model
 {
     public const OFFER = 'offer';
+
+    public const APARTMENT = 'apartment';
 
     public const IMPORTED = 'imported';
 

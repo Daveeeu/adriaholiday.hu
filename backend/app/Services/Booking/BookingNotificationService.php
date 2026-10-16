@@ -2,16 +2,19 @@
 
 namespace App\Services\Booking;
 
+use App\Mail\ApartmentBookingCustomerConfirmation;
+use App\Mail\NewApartmentBookingOfficeNotification;
 use App\Mail\NewTourBookingOfficeNotification;
 use App\Mail\NewTourInquiryOfficeNotification;
 use App\Mail\TourBookingCustomerConfirmation;
+use App\Models\Apartment;
 use App\Models\Booking;
 use App\Models\Tour;
 use App\Services\Mail\LoggedMailer;
 
 /**
- * Sends the office/customer notification emails for new tour bookings and
- * the office notification for group quote requests.
+ * Sends the office/customer notification emails for new tour and apartment
+ * bookings and the office notification for group quote requests.
  */
 class BookingNotificationService
 {
@@ -40,6 +43,19 @@ class BookingNotificationService
 
         if ($officeAddress) {
             $this->mailer->send(new NewTourInquiryOfficeNotification($inquiry, $tour), $officeAddress, $inquiry->id);
+        }
+    }
+
+    public function sendNewApartmentBookingNotifications(Booking $booking, Apartment $apartment): void
+    {
+        $officeAddress = config('mail.office_notifications_address');
+
+        if ($officeAddress) {
+            $this->mailer->send(new NewApartmentBookingOfficeNotification($booking, $apartment), $officeAddress, $booking->id);
+        }
+
+        if ($booking->email) {
+            $this->mailer->send(new ApartmentBookingCustomerConfirmation($booking, $apartment), $booking->email, $booking->id);
         }
     }
 }

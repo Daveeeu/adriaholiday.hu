@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\Location\StoreLocationRequest;
 use App\Http\Requests\Admin\Location\UpdateLocationRequest;
 use App\Http\Resources\LocationResource;
 use App\Models\Location;
+use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -53,7 +54,7 @@ class LocationController extends Controller
 
     public function store(StoreLocationRequest $request)
     {
-        $location = Location::create($request->validated());
+        $location = Location::create($this->sanitized($request->validated()));
 
         return new LocationResource($location->load('region'));
     }
@@ -65,7 +66,7 @@ class LocationController extends Controller
 
     public function update(UpdateLocationRequest $request, Location $location)
     {
-        $location->update($request->validated());
+        $location->update($this->sanitized($request->validated()));
 
         return new LocationResource($location->refresh()->load('region'));
     }
@@ -75,5 +76,22 @@ class LocationController extends Controller
         $location->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * The location's texts, shown on its public apartment page, as safe rich text.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function sanitized(array $validated): array
+    {
+        foreach (['description', 'guide', 'apartment_information'] as $field) {
+            if (array_key_exists($field, $validated)) {
+                $validated[$field] = RichTextSanitizer::sanitize($validated[$field]) ?: null;
+            }
+        }
+
+        return $validated;
     }
 }

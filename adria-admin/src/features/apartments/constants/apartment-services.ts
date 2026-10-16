@@ -42,7 +42,11 @@ export type ApartmentServiceKey =
   | 'animacios_program'
   | 'tengertol_valo_tavolsag'
   | 'reszben_felujitott'
-  | 'teljesen_felujitott';
+  | 'teljesen_felujitott'
+  | 'magan_kert'
+  | 'furdoszoba_kaddal'
+  | 'longstay'
+  | 'felujitott';
 
 export type ApartmentServiceGroup = {
   key: string;
@@ -60,6 +64,7 @@ export const APARTMENT_SERVICE_GROUPS: ApartmentServiceGroup[] = [
     services: [
       { value: 'fürdőszoba_zuhanyzóval', label: 'Fürdőszoba zuhanyzóval' },
       { value: 'fürdőszoba_zuhanykabinnal', label: 'Fürdőszoba zuhanykabinnal' },
+      { value: 'furdoszoba_kaddal', label: 'Fürdőszoba káddal' },
       { value: 'kis_haziallat_beviheto', label: 'Kis háziállat bevihető' },
       { value: 'legkondicionalo', label: 'Légkondicionáló' },
       { value: 'futes', label: 'Fűtés' },
@@ -93,6 +98,7 @@ export const APARTMENT_SERVICE_GROUPS: ApartmentServiceGroup[] = [
       { value: 'szabadtéri_medence', label: 'Szabadtéri medence' },
       { value: 'strandszerviz', label: 'Strandszerviz' },
       { value: 'kert', label: 'Kert' },
+      { value: 'magan_kert', label: 'Magán kert' },
       { value: 'napozo_terasz', label: 'Napozó terasz' },
       { value: 'gyermek_jatekok', label: 'Gyermek játékok' },
       { value: 'barbecue', label: 'Barbecue' },
@@ -120,6 +126,8 @@ export const APARTMENT_SERVICE_GROUPS: ApartmentServiceGroup[] = [
       { value: 'bibione_termalfurdo_kedvezmeny', label: 'Bibione termálfürdő kedvezmény' },
       { value: 'reszben_felujitott', label: 'Részben felújított' },
       { value: 'teljesen_felujitott', label: 'Teljesen felújított' },
+      { value: 'felujitott', label: 'Felújított' },
+      { value: 'longstay', label: 'Longstay – hosszú tartózkodás lehetséges' },
     ],
   },
 ];

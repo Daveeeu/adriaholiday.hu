@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Apartment;
 use App\Models\BlogArticle;
 use App\Models\HomepageOffer;
+use App\Models\Location;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Support\PortfolioCategoryLinks;
@@ -27,6 +29,7 @@ class SitemapController extends Controller
                     ->merge($this->categoryPages())
                     ->merge($this->regionPages())
                     ->merge($this->offerPages())
+                    ->merge($this->apartmentPages())
                     ->merge($this->blogPages())
                     ->values();
 
@@ -122,6 +125,38 @@ class SitemapController extends Controller
                 'changefreq' => 'weekly',
                 'priority' => '0.7',
             ]);
+    }
+
+    /**
+     * The location pages with apartments and the apartments' pages.
+     *
+     * @return Collection<int, array{loc: string, lastmod: string|null, changefreq: string, priority: string}>
+     */
+    private function apartmentPages(): Collection
+    {
+        $locations = Location::query()
+            ->withApartmentPage()
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Location $location): array => [
+                'loc' => $this->absoluteUrl($location->apartmentPagePath()),
+                'lastmod' => $location->updated_at?->toDateString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.7',
+            ]);
+
+        $apartments = Apartment::query()
+            ->publiclyVisible()
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Apartment $apartment): array => [
+                'loc' => $this->absoluteUrl($apartment->pagePath()),
+                'lastmod' => $apartment->updated_at?->toDateString(),
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
+            ]);
+
+        return $locations->merge($apartments);
     }
 
     /**

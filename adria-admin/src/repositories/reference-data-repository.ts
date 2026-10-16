@@ -1,3 +1,4 @@
+import type { LocationMutationInput } from '@/api/admin-api';
 import type {
   ApartmentPrice,
   Bus,
@@ -12,6 +13,7 @@ import type {
 export interface ReferenceDataRepository {
   listRegions(): Promise<Region[]>;
   listLocations(regionId?: string): Promise<Location[]>;
+  updateLocation(locationId: string, input: LocationMutationInput): Promise<Location>;
   listGalleries(regionId?: string): Promise<Gallery[]>;
   listGalleryImages(galleryId?: string): Promise<GalleryImage[]>;
   listBuses(regionId?: string): Promise<Bus[]>;

@@ -35,6 +35,14 @@ function statusTone(status: ApartmentBooking['status']) {
   }
 }
 
+function insuranceLabel(value: boolean | null) {
+  if (value === null) {
+    return '—';
+  }
+
+  return value ? 'Kéri' : 'Nem kéri';
+}
+
 function initialDraft(record?: ApartmentBooking | null): ApartmentBookingFormValues {
   return {
     guestName: record?.guestName ?? '',
@@ -146,7 +154,7 @@ export function ApartmentBookingsPage() {
                   <DetailItem label="Név" value={record.guestName} />
                   <DetailItem label="Email" value={record.email} />
                   <DetailItem label="Telefon" value={record.phone} />
-                  <DetailItem label="Cím" value={record.address} className="md:col-span-2" />
+                  <DetailItem label="Cím" value={record.fullAddress || record.address} className="md:col-span-2" />
                 </div>
               </FormSection>
 
@@ -157,6 +165,9 @@ export function ApartmentBookingsPage() {
                   <DetailItem label="Távozás" value={formatDate(record.departure)} />
                   <DetailItem label="Utasok" value={`${record.passengers} fő`} />
                   <DetailItem label="Ajánlati kód" value={record.offerCode} />
+                  <DetailItem label="Apartmantípus" value={record.apartmentType || '—'} />
+                  <DetailItem label="Utasbiztosítás" value={insuranceLabel(record.travelInsurance)} />
+                  <DetailItem label="Útlemondási biztosítás" value={insuranceLabel(record.cancellationInsurance)} />
                   <DetailItem
                     label="Jóváírva?"
                     value={<StatusBadge label={record.credited ? 'Igen' : 'Nem'} tone={record.credited ? 'success' : 'warning'} />}
@@ -167,6 +178,27 @@ export function ApartmentBookingsPage() {
                   />
                 </div>
               </FormSection>
+
+              {record.guests.length > 0 ? (
+                <FormSection title="Utasok">
+                  <div className="space-y-3 text-sm">
+                    {record.guests.map((guest, index) => (
+                      <div key={`${guest.name}-${index}`} className="grid gap-3 rounded-xl border p-3 md:grid-cols-2">
+                        <DetailItem label={`${index + 1}. utas`} value={guest.name} />
+                        <DetailItem label="Születési dátum" value={guest.birthDate ? formatDate(guest.birthDate) : '—'} />
+                        <DetailItem label="Lakcím" value={guest.address || '—'} />
+                        <DetailItem label="Útiokmány száma" value={guest.documentNumber || '—'} />
+                      </div>
+                    ))}
+                  </div>
+                </FormSection>
+              ) : null}
+
+              {record.message ? (
+                <FormSection title="Egyéb kérés, közlendő">
+                  <p className="whitespace-pre-line text-sm">{record.message}</p>
+                </FormSection>
+              ) : null}
             </div>
           );
         }

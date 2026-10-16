@@ -264,22 +264,6 @@ export const hu = {
   'settings.toast.success': 'A beállítások mentése sikeres.',
   'settings.toast.error': 'A beállítások mentése nem sikerült.',
 
-  'locations.title': 'Működési helytérkép',
-  'locations.description':
-    'A helyek a régiók alá tartoznak, és készen állnak a reptéri transzferek, apartman hozzárendelések, utazási csoportosítások és térképes megjelenítések támogatására.',
-  'locations.metric.tracked': 'Nyilvántartott helyek',
-  'locations.metric.trackedHint':
-    'Városok, szigetek és tengerparti települések a rendszerben.',
-  'locations.metric.featured': 'Kiemelt célállomások',
-  'locations.metric.featuredHint':
-    'Marketing és megjelenítési szempontból prioritást élvező helyek.',
-  'locations.metric.transfer': 'Átlagos transzferidő',
-  'locations.metric.transferHint':
-    'Hasznos útvonaltervezéshez és érkezési élményhez.',
-  'locations.metric.types': 'Helytípusok',
-  'locations.metric.typesHint':
-    'A jelenlegi megoszlás városi, szigeti és üdülőterületi formátumok között.',
-
   'buses.title': 'Transzfer- és buszlogisztika',
   'buses.description':
     'A busz- és transzferrekordok lefedik a menetrendekhez, férőhelyekhez és reptéri kapcsolatokhoz szükséges működési struktúrát.',

@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-import { apartmentPricingMatrixConfig } from '../lib/apartments.constants';
 import type { ApartmentFormValues } from '../lib/apartments.types';
 
 type ApartmentPricingMatrixProps = {
@@ -83,13 +82,13 @@ export function ApartmentPricingMatrix({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-[1600px] border-collapse text-sm">
+        <table className="border-collapse text-sm">
           <thead>
             <tr>
               <th className="sticky left-0 z-10 min-w-40 border bg-card px-3 py-2 text-left font-semibold">
                 {innerHeader || 'Kategória / ágyszám'}
               </th>
-              {columns.slice(0, apartmentPricingMatrixConfig.columns).map((column, index) => (
+              {columns.map((column, index) => (
                 <th key={column.id} className="min-w-40 border bg-card px-2 py-2">
                   {readOnly ? (
                     <div className="space-y-1">
@@ -137,7 +136,7 @@ export function ApartmentPricingMatrix({
             </tr>
           </thead>
           <tbody>
-            {rows.slice(0, apartmentPricingMatrixConfig.rows).map((row, rowIndex) => (
+            {rows.map((row, rowIndex) => (
               <tr key={row.id}>
                 <td className="sticky left-0 z-10 min-w-40 border bg-card px-2 py-2">
                   {readOnly ? (
@@ -175,7 +174,7 @@ export function ApartmentPricingMatrix({
                   )}
                 </td>
 
-                {columns.slice(0, apartmentPricingMatrixConfig.columns).map((column, columnIndex) => (
+                {columns.map((column, columnIndex) => (
                   <td key={`${row.id}-${column.id}`} className="border px-2 py-2">
                     <PricingCell
                       form={form}

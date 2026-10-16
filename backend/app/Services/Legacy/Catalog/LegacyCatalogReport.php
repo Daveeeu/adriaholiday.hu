@@ -5,9 +5,9 @@ namespace App\Services\Legacy\Catalog;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Writes a catalog import report next to the application's private files
+ * Writes a legacy import report next to the application's private files
  * (storage/app/private/legacy-import): the whole report as JSON and one CSV
- * line per offer for a spreadsheet.
+ * line per record (an offer by default) for a spreadsheet.
  */
 final class LegacyCatalogReport
 {
@@ -25,14 +25,15 @@ final class LegacyCatalogReport
      * @param  array<string, mixed>  $summary
      * @param  array<int, array<string, mixed>>  $rows
      * @param  array<int, string>  $columns  of the CSV
+     * @param  string  $rowsKey  the rows' key in the JSON report
      * @return array{json: string, csv: string} absolute paths
      */
-    public function write(string $name, array $summary, array $rows, array $columns = self::OFFER_COLUMNS): array
+    public function write(string $name, array $summary, array $rows, array $columns = self::OFFER_COLUMNS, string $rowsKey = 'offers'): array
     {
         $disk = Storage::disk('local');
         $base = self::DIRECTORY.'/'.now()->format('Y-m-d_His').'-'.$name;
 
-        $disk->put("{$base}.json", json_encode(['summary' => $summary, 'offers' => $rows], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        $disk->put("{$base}.json", json_encode(['summary' => $summary, $rowsKey => $rows], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $disk->put("{$base}.csv", $this->csv($rows, $columns));
 
         return ['json' => $disk->path("{$base}.json"), 'csv' => $disk->path("{$base}.csv")];

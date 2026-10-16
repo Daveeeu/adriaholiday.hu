@@ -10,15 +10,20 @@ use App\Http\Requests\Admin\Apartment\UpdateApartmentStatusRequest;
 use App\Http\Resources\ApartmentDetailResource;
 use App\Http\Resources\ApartmentResource;
 use App\Models\Apartment;
+use App\Services\Apartment\ApartmentGalleryService;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ApartmentController extends Controller
 {
     use RespondsWithPagination;
 
-    public function __construct()
+    private const DETAIL_RELATIONS = ['region', 'location', 'gallery', 'galleryItems.media'];
+
+    public function __construct(private readonly ApartmentGalleryService $galleries)
     {
         $this->authorizeResource(Apartment::class, 'apartment');
         $this->middleware('permission:apartments.viewAny')->only('index');
@@ -76,23 +81,21 @@ class ApartmentController extends Controller
 
     public function store(StoreApartmentRequest $request)
     {
-        $validated = $request->validated();
+        $apartment = DB::transaction(fn (): Apartment => $this->save(new Apartment, $request->validated()));
 
-        $apartment = Apartment::create($this->sanitizeContentFields($validated));
-
-        return new ApartmentDetailResource($apartment->load(['region', 'location', 'gallery']));
+        return new ApartmentDetailResource($apartment->load(self::DETAIL_RELATIONS));
     }
 
     public function show(Apartment $apartment)
     {
-        return new ApartmentDetailResource($apartment->load(['region', 'location', 'gallery']));
+        return new ApartmentDetailResource($apartment->load(self::DETAIL_RELATIONS));
     }
 
     public function update(UpdateApartmentRequest $request, Apartment $apartment)
     {
-        $apartment->update($this->sanitizeContentFields($request->validated()));
+        DB::transaction(fn (): Apartment => $this->save($apartment, $request->validated()));
 
-        return new ApartmentDetailResource($apartment->refresh()->load(['region', 'location', 'gallery']));
+        return new ApartmentDetailResource($apartment->refresh()->load(self::DETAIL_RELATIONS));
     }
 
     public function destroy(Apartment $apartment)
@@ -111,12 +114,28 @@ class ApartmentController extends Controller
 
     /**
      * @param  array<string, mixed>  $validated
+     */
+    private function save(Apartment $apartment, array $validated): Apartment
+    {
+        $apartment->fill($this->sanitizeContentFields(Arr::except($validated, ['gallery'])))->save();
+
+        // A form without the gallery (an older admin) leaves the gallery alone.
+        if (array_key_exists('gallery', $validated) && is_array($validated['gallery'])) {
+            $this->galleries->sync($apartment, $validated['gallery']);
+        }
+
+        return $apartment;
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
      * @return array<string, mixed>
      */
     private function sanitizeContentFields(array $validated): array
     {
+        $validated['short_description'] = RichTextSanitizer::sanitize($validated['short_description'] ?? '') ?? '';
+
         foreach ([
-            'short_description',
             'description',
             'additional_information',
             'apartment_type_content',

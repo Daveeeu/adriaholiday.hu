@@ -1,3 +1,4 @@
+import type { LocationMutationInput } from '@/api/admin-api';
 import { repositories } from '@/repositories';
 
 export async function getRegions() {
@@ -6,6 +7,10 @@ export async function getRegions() {
 
 export async function getLocations(regionId?: string) {
   return repositories.referenceDataRepository.listLocations(regionId);
+}
+
+export async function updateLocation(locationId: string, input: LocationMutationInput) {
+  return repositories.referenceDataRepository.updateLocation(locationId, input);
 }
 
 export async function getGalleries(regionId?: string) {

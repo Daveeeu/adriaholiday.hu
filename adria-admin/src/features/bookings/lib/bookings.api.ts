@@ -2,6 +2,7 @@ import { apiClient } from '@/lib/api-client';
 
 import type {
   ApartmentBooking,
+  ApartmentBookingGuest,
   ApartmentBookingFormValues,
   BookingActivity,
   BookingAnalyticsEvent,
@@ -174,13 +175,40 @@ function mapTourInquiry(resource: BookingResource): TourInquiry {
   };
 }
 
+function payloadBoolean(value: unknown): boolean | null {
+  return typeof value === 'boolean' ? value : null;
+}
+
+function mapApartmentBookingGuests(value: unknown): ApartmentBookingGuest[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((guest): guest is Record<string, unknown> => typeof guest === 'object' && guest !== null)
+    .map((guest) => ({
+      name: String(guest.name ?? ''),
+      birthDate: typeof guest.birthDate === 'string' ? guest.birthDate : undefined,
+      address: typeof guest.address === 'string' ? guest.address : undefined,
+      documentNumber: typeof guest.documentNumber === 'string' ? guest.documentNumber : undefined,
+    }));
+}
+
 function mapApartmentBooking(resource: BookingResource): ApartmentBooking {
+  const payload = resource.payload ?? {};
+
   return {
     id: resource.id,
     guestName: resource.customerName ?? '',
     email: resource.email ?? '',
     phone: resource.phone ?? '',
     address: resource.address ?? '',
+    fullAddress: [payload.postalCode, resource.city, resource.address].filter((part) => typeof part === 'string' && part !== '').join(', '),
+    apartmentType: typeof payload.apartmentType === 'string' ? payload.apartmentType : '',
+    travelInsurance: payloadBoolean(payload.travelInsurance),
+    cancellationInsurance: payloadBoolean(payload.cancellationInsurance),
+    guests: mapApartmentBookingGuests(payload.passengers),
+    message: resource.message ?? '',
     apartmentName: resource.apartmentName ?? resource.propertyNameSnapshot ?? '',
     arrival: resource.arrival ?? '',
     departure: resource.departure ?? '',

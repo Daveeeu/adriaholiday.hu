@@ -38,6 +38,7 @@ use App\Http\Controllers\Admin\TourSeasonalGroupController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AnalyticsEventController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\PortfolioApartmentController;
 use App\Http\Controllers\PortfolioBlogController;
 use App\Http\Controllers\PortfolioContentController;
 use App\Http\Controllers\PortfolioFeaturedTourController;
@@ -76,9 +77,13 @@ Route::get('portfolio/categories/{slug}/countries', [PortfolioFilterChipControll
 Route::get('portfolio/categories/{slug}/offers', [PortfolioOfferController::class, 'categoryOffers']);
 Route::get('portfolio/regions/{slug}/offers', [PortfolioOfferController::class, 'regionOffers']);
 Route::get('portfolio/offers/{slug}', [PortfolioOfferController::class, 'show']);
+Route::get('portfolio/apartment-locations/{area}/{location}', [PortfolioApartmentController::class, 'location']);
+Route::get('portfolio/apartment-locations/{area}/{location}/apartments', [PortfolioApartmentController::class, 'apartments']);
+Route::get('portfolio/apartments/{slug}', [PortfolioApartmentController::class, 'show']);
 Route::get('portfolio/offers/{slug}/pdf', PortfolioOfferPdfController::class)->middleware('throttle:offer-pdf');
 Route::post('analytics/events', AnalyticsEventController::class);
 Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('throttle:bookings');
+Route::post('portfolio/apartments/{slug}/bookings', [PortfolioApartmentController::class, 'book'])->middleware('throttle:bookings');
 Route::post('payments/barion/callback', [PublicBookingPaymentController::class, 'callback'])->name('payments.barion.callback');
 Route::middleware('throttle:payments')->group(function (): void {
     Route::get('payments/barion/{bookingPayment:provider_payment_id}', [PublicBookingPaymentController::class, 'show']);

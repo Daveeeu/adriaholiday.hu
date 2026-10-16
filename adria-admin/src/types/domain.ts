@@ -80,6 +80,18 @@ export interface Location {
   transferMinutesFromAirport: number;
   description: string;
   featured: boolean;
+  isActive?: boolean;
+  legacyId?: number | null;
+  /** The area of the public apartment page: /apartmanok/{areaSlug}/{slug}. */
+  areaSlug?: string | null;
+  areaName?: string | null;
+  /** The location guide shown under the apartment list. */
+  guide?: string | null;
+  /** The information block shown on every apartment page of the location. */
+  apartmentInformation?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  seoRobots?: string | null;
 }
 
 export interface Gallery {
@@ -121,12 +133,30 @@ export interface Bus {
   isActive: boolean;
 }
 
+export interface ApartmentGalleryItem {
+  id: number | string;
+  mediaId: number | string;
+  legacyImageId?: number | null;
+  title?: string | null;
+  alt?: string | null;
+  sortOrder: number;
+  active: boolean;
+  image?: { url?: string | null; thumbnailUrl?: string | null } | null;
+}
+
 export interface Apartment {
   id: string;
+  legacyId?: number | null;
   type: string;
   regionId: string;
   locationId: string;
   galleryId: string;
+  galleryItems?: ApartmentGalleryItem[];
+  distanceToCenterM?: number | null;
+  distanceToSeaM?: number | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  seoRobots?: string | null;
   slug: string;
   name: string;
   code?: string;
