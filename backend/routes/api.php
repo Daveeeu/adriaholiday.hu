@@ -77,6 +77,7 @@ Route::get('portfolio/categories/{slug}/countries', [PortfolioFilterChipControll
 Route::get('portfolio/categories/{slug}/offers', [PortfolioOfferController::class, 'categoryOffers']);
 Route::get('portfolio/regions/{slug}/offers', [PortfolioOfferController::class, 'regionOffers']);
 Route::get('portfolio/offers/{slug}', [PortfolioOfferController::class, 'show']);
+Route::get('portfolio/apartment-highlights', [PortfolioApartmentController::class, 'highlights']);
 Route::get('portfolio/apartment-locations/{area}/{location}', [PortfolioApartmentController::class, 'location']);
 Route::get('portfolio/apartment-locations/{area}/{location}/apartments', [PortfolioApartmentController::class, 'apartments']);
 Route::get('portfolio/apartments/{slug}', [PortfolioApartmentController::class, 'show']);

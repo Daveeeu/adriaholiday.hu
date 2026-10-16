@@ -4,11 +4,14 @@ namespace Tests\Feature;
 
 use App\Mail\ApartmentBookingCustomerConfirmation;
 use App\Mail\NewApartmentBookingOfficeNotification;
+use App\Models\AdminMediaItem;
 use App\Models\Apartment;
+use App\Models\ApartmentGalleryItem;
 use App\Models\Booking;
 use App\Models\Location;
 use App\Models\Region;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -80,6 +83,32 @@ class PortfolioApartmentsTest extends TestCase
         $this->assertSame(['Negyvenkettő'], $names('layouts[]=C'));
 
         $this->getJson('/api/portfolio/apartment-locations/veneto/bibione/apartments?services[]=ismeretlen')->assertUnprocessable();
+    }
+
+    public function test_the_home_page_section_shows_the_locations_and_featured_apartments_with_pictures(): void
+    {
+        $this->getJson('/api/portfolio/apartment-highlights')->assertOk()->assertJsonPath('locations', [])->assertJsonPath('apartments', []);
+
+        $plain = $this->apartment(['code' => '1', 'name' => 'Egyszerű', 'stars' => 3]);
+        $featured = $this->apartment(['code' => '2', 'name' => 'Kiemelt', 'stars' => 2, 'featured' => true]);
+        $withoutPicture = $this->apartment(['code' => '3', 'name' => 'Kép nélkül', 'stars' => 5]);
+
+        foreach ([$plain, $featured] as $apartment) {
+            ApartmentGalleryItem::query()->create([
+                'apartment_id' => $apartment->id,
+                'media_id' => AdminMediaItem::create()->addMedia(UploadedFile::fake()->image('kep.jpg', 20, 20))->toMediaCollection('library')->id,
+            ]);
+        }
+
+        $this->getJson('/api/portfolio/apartment-highlights')
+            ->assertOk()
+            ->assertJsonPath('locations.0.link', '/apartmanok/veneto/bibione')
+            ->assertJsonPath('locations.0.apartmentCount', 3)
+            ->assertJsonPath('apartments.0.name', 'Kiemelt')
+            ->assertJsonPath('apartments.1.name', 'Egyszerű')
+            ->assertJsonCount(2, 'apartments');
+
+        $this->assertNotNull($withoutPicture->id);
     }
 
     public function test_the_apartment_page_shows_only_the_prices_still_to_come(): void
@@ -189,6 +218,7 @@ class PortfolioApartmentsTest extends TestCase
             'is_active' => true,
             'status' => Apartment::STATUS_PUBLISHED,
             'stars' => 3,
+            'featured' => false,
             'max_guests' => 6,
             'distance_to_sea_m' => 300,
             'services' => [],

@@ -147,3 +147,19 @@ export function fetchApartments(area: string, location: string, search: Apartmen
 export function fetchApartment(slug: string): Promise<ApartmentDetail> {
   return fetchPortfolioJson<ApartmentDetail>(`/portfolio/apartments/${encodeURIComponent(slug)}`);
 }
+
+/** The home page's apartment section: locations with an apartment page and apartments to show off. */
+export type ApartmentHighlights = {
+  locations: Array<{
+    name: string;
+    areaName: string | null;
+    regionName: string | null;
+    link: string;
+    apartmentCount: number;
+  }>;
+  apartments: ApartmentCard[];
+};
+
+export function fetchApartmentHighlights(): Promise<ApartmentHighlights> {
+  return fetchPortfolioJson<ApartmentHighlights>('/portfolio/apartment-highlights');
+}

@@ -12,6 +12,7 @@ use App\Models\Location;
 use App\Services\Apartment\ApartmentSearch;
 use App\Services\Booking\ApartmentBookingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * The public apartment pages: a location's page with its searchable
@@ -20,7 +21,34 @@ use Illuminate\Http\JsonResponse;
  */
 class PortfolioApartmentController extends Controller
 {
+    private const HIGHLIGHTED_APARTMENTS = 3;
+
     public function __construct(private readonly ApartmentSearch $search) {}
+
+    /**
+     * The home page's apartment section: the locations with an apartment page
+     * and a few apartments to show off.
+     */
+    public function highlights(Request $request): JsonResponse
+    {
+        $locations = Location::query()
+            ->withApartmentPage()
+            ->with('region')
+            ->withCount(['apartments' => fn ($apartments) => $apartments->publiclyVisible()])
+            ->orderByDesc('apartments_count')
+            ->get();
+
+        return response()->json([
+            'locations' => $locations->map(fn (Location $location): array => [
+                'name' => $location->name,
+                'areaName' => $location->area_name,
+                'regionName' => $location->region?->name,
+                'link' => $location->apartmentPagePath(),
+                'apartmentCount' => (int) $location->apartments_count,
+            ])->all(),
+            'apartments' => PortfolioApartmentCardResource::collection($this->search->highlighted(self::HIGHLIGHTED_APARTMENTS))->resolve($request),
+        ]);
+    }
 
     public function location(string $area, string $location): JsonResponse
     {

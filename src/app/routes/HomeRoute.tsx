@@ -19,6 +19,7 @@ const TravelCategories = lazy(() => import("../components/TravelCategories"));
 const TrustSection = lazy(() => import("../components/TrustSection"));
 const WhyChooseUs = lazy(() => import("../components/WhyChooseUs"));
 const FeaturedOffers = lazy(() => import("../components/FeaturedOffers"));
+const ApartmentsShowcase = lazy(() => import("../components/ApartmentsShowcase"));
 
 function SectionFallback({ minHeight = "min-h-[320px]" }: { minHeight?: string }) {
   return (
@@ -91,6 +92,11 @@ export default function HomeRoute({
       <section className="ah-snap-section">
         <Suspense fallback={<SectionFallback />}>
           <FeaturedOffers />
+        </Suspense>
+      </section>
+      <section className="ah-snap-section">
+        <Suspense fallback={<SectionFallback />}>
+          <ApartmentsShowcase />
         </Suspense>
       </section>
       <section className="ah-snap-section">

@@ -7,6 +7,7 @@ use App\Models\Location;
 use App\Support\Apartment\ApartmentLayout;
 use App\Support\Apartment\ApartmentPriceTable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -44,6 +45,27 @@ final class ApartmentSearch
         $page = max(1, (int) ($filters['page'] ?? 1));
 
         return new LengthAwarePaginator($apartments->forPage($page, $perPage)->values(), $apartments->count(), $perPage, $page);
+    }
+
+    /**
+     * Public apartments to show off (on the home page): the featured ones
+     * first, then the best categorised; only ones with a picture.
+     *
+     * @return Collection<int, Apartment>
+     */
+    public function highlighted(int $limit): Collection
+    {
+        return Apartment::query()
+            ->publiclyVisible()
+            ->whereHas('location', fn (Builder $locations) => $locations->withApartmentPage())
+            ->whereHas('galleryItems', fn (Builder $items) => $items->where('active', true))
+            ->with(['galleryItems' => fn ($items) => $items->where('active', true)->with('media')])
+            ->orderByDesc('featured')
+            ->orderByDesc('stars')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->limit($limit)
+            ->get();
     }
 
     /**

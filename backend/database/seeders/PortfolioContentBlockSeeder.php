@@ -125,6 +125,12 @@ class PortfolioContentBlockSeeder extends Seeder
                 ['title' => 'Közösség és gondoskodás', 'text' => 'Velünk nem vagy egyedül', 'icon' => 'users'],
                 ['title' => 'A pillanatok, amik megmaradnak', 'text' => 'Ezért utazunk', 'icon' => 'camera'],
             ]],
+            ['key' => 'home.apartments.eyebrow', 'label' => 'Apartmanok előtag', 'type' => 'text', 'value' => 'APARTMANOK'],
+            $this->headingBlock('home.apartments.titleParts', 'Apartmanok cím', [
+                $this->headingPart('Saját apartman'),
+                $this->headingPart('a tengerparton', 'gradient'),
+            ]),
+            ['key' => 'home.apartments.description', 'label' => 'Apartmanok leírás', 'type' => 'textarea', 'value' => 'Apartmanok, villák és rezidenciák a tengerpart közelében, családoknak és baráti társaságoknak. Válaszd ki a kedvencedet, a foglalásodat kollégáink visszaigazolják.'],
             ['key' => 'home.blog.eyebrow', 'label' => 'Blog előtag', 'type' => 'text', 'value' => 'ÚTI INSPIRÁCIÓK'],
             $this->headingBlock('home.blog.titleParts', 'Blog cím', [
                 $this->headingPart('Utazó'),
