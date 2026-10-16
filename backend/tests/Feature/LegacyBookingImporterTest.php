@@ -172,14 +172,16 @@ class LegacyBookingImporterTest extends TestCase
         $this->assertTrue($booking->fresh()->cancelled);
     }
 
-    public function test_a_booking_of_the_new_site_with_the_same_code_is_left_alone(): void
+    public function test_bookings_sharing_a_position_number_are_told_apart_by_their_legacy_id(): void
     {
-        $own = Booking::factory()->create(['booking_type' => 'tour_booking', 'offer_code' => 'Szl-8830', 'customer_name' => 'Új oldali foglaló', 'payload' => []]);
+        $own = Booking::factory()->create(['booking_type' => 'tour_booking', 'offer_code' => 'Sz', 'customer_name' => 'Új oldali foglaló', 'payload' => []]);
 
-        $this->runImport([$this->record()]);
+        $this->runImport([$this->record(['id' => 6715, 'position' => 'Sz']), $this->record(['id' => 6716, 'position' => 'Sz', 'name' => 'Másik Utas'])]);
+        $this->runImport([$this->record(['id' => 6715, 'position' => 'Sz']), $this->record(['id' => 6716, 'position' => 'Sz', 'name' => 'Másik Utas'])]);
 
         $this->assertSame('Új oldali foglaló', $own->fresh()->customer_name);
-        $this->assertSame(1, Booking::query()->count());
+        $this->assertSame(3, Booking::query()->count());
+        $this->assertSame(['Teszt Elek', 'Másik Utas'], Booking::query()->whereKeyNot($own->id)->orderBy('id')->pluck('customer_name')->all());
     }
 
     public function test_a_price_no_real_booking_has_is_left_out_and_noted(): void

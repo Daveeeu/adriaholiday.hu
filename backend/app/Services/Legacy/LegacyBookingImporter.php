@@ -14,9 +14,10 @@ use Illuminate\Support\Str;
  * Copies tour bookings exported from the legacy adriaholiday.hu admin (one record
  * per booking, as read from its "Módosít" form) into the new booking system.
  *
- * Imported bookings keep their legacy position number (or "legacy-{id}" when they
- * have none) as offer_code, so a booking is imported once however often the import
- * runs; a re-run refreshes it from the legacy admin. They hold no seats (the
+ * Imported bookings keep their legacy id in the payload, so a booking is
+ * imported once however often the import runs (a re-run refreshes it from the
+ * legacy admin), and their legacy position number (or "legacy-{id}" when they
+ * have none) as offer_code. They hold no seats (the
  * imported tour dates' free seats already account for them) and send no e-mails.
  */
 class LegacyBookingImporter
@@ -54,13 +55,10 @@ class LegacyBookingImporter
             return LegacyBookingImportResult::invalid('Hiányzó azonosító.');
         }
 
-        // Some legacy bookings have no position number; their legacy id identifies them instead.
+        // The legacy id identifies a booking: position numbers repeat in the
+        // legacy admin ("Sz"), and some bookings have none.
         $code = $position !== '' ? $position : "legacy-{$legacyId}";
-        $existing = Booking::withTrashed()->where('booking_type', 'tour_booking')->where('offer_code', $code)->first();
-
-        if ($existing !== null && (int) ($existing->payload['legacy']['id'] ?? 0) !== $legacyId) {
-            return LegacyBookingImportResult::invalid("A(z) {$code} pozíciószámú foglalás nem a régi rendszerből jött; nem írja felül.");
-        }
+        $existing = Booking::withTrashed()->where('booking_type', 'tour_booking')->where('payload->legacy->id', $legacyId)->first();
 
         $offerName = trim((string) ($record['offerName'] ?? ''));
         [$start] = $this->dateRange((string) ($record['offerDate'] ?? ''), (string) ($record['customDate'] ?? ''));
