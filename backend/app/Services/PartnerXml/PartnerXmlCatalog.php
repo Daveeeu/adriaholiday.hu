@@ -25,7 +25,7 @@ use Illuminate\Support\Str;
  * site's own ones get an id that never clashes with one.
  *
  * @phpstan-type PriceItem array{kind: string, name: string, price: float, currency: string, unit: string, per_booking: bool, mandatory: bool}
- * @phpstan-type FeedDate array{id: int, start: string, end: string, days: int, nights: int, board: string, accommodation: string, transport: string, price: float, currency: string, price_items: list<PriceItem>, cesys_accommodation: string, cesys_room: string}
+ * @phpstan-type FeedDate array{id: int, start: string, end: string, days: int, nights: int, board: string, accommodation: string, transport: string, price: float, sale_price: float|null, label: string, currency: string, price_items: list<PriceItem>, cesys_accommodation: string, cesys_room: string}
  * @phpstan-type FeedTour array{id: int, title: string, settings: array<string, mixed>, country_id: string, country_name: string, place: string, program: string, optional_programs: string, tickets: string, description: string, catering: string, accommodation: string, photos: list<array{url: string, primary: bool}>, dates: list<FeedDate>}
  */
 final class PartnerXmlCatalog
@@ -109,11 +109,13 @@ final class PartnerXmlCatalog
         $currency = $this->currencyLabel($tour->price_box_currency ?: TourExtraCurrency::HUF);
         $nights = (int) $date->start_date->diffInDays($date->end_date);
         $price = (float) ($date->price_box_price ?? $date->price ?? 0);
+        // A discounted date sells at its price; the feeds list the original as the list price.
+        $listPrice = $date->price_box_original_price !== null && (float) $date->price_box_original_price > $price ? (float) $date->price_box_original_price : $price;
         $extras = $date->extras;
         $cesys = is_array($date->partner_xml) ? $date->partner_xml : [];
 
         $items = [
-            ['kind' => self::BASE, 'name' => 'Alapár', 'price' => $price, 'currency' => $currency, 'unit' => 'fő', 'per_booking' => false, 'mandatory' => true],
+            ['kind' => self::BASE, 'name' => 'Alapár', 'price' => $listPrice, 'currency' => $currency, 'unit' => 'fő', 'per_booking' => false, 'mandatory' => true],
             ...$extras->filter(fn (TourDateExtra $extra): bool => LegacyBookingOptionRules::isResortFee($extra->name))->map(fn (TourDateExtra $extra): array => [
                 'kind' => self::RESORT_FEE,
                 'name' => $extra->currency === TourExtraCurrency::EUR ? 'Üdülőhelyi illeték helyszínen fizetendő euro/fő' : 'Üdülőhelyi illeték Ft/fő',
@@ -157,7 +159,9 @@ final class PartnerXmlCatalog
                 'bus' => 'Autóbusszal',
                 default => '',
             },
-            'price' => $price,
+            'price' => $listPrice,
+            'sale_price' => $listPrice > $price ? $price : null,
+            'label' => trim((string) $date->price_box_label),
             'currency' => $currency,
             'price_items' => $items,
             'cesys_accommodation' => (string) ($cesys['cesys_accommodation'] ?? ''),

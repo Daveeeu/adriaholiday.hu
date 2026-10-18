@@ -169,6 +169,17 @@ final class PartnerXmlFeedWriter
         $items = [];
 
         foreach ($date['price_items'] as $item) {
+            if ($item['kind'] === PartnerXmlCatalog::BASE && $date['sale_price'] !== null && $feed !== PartnerXmlFeed::Travelgate) {
+                // A discounted date: Travelmax lists the sale price after the list price, Cesys instead of it.
+                if ($feed === PartnerXmlFeed::Travelmax) {
+                    $items[] = $this->item($item, $item['name'], true, $item['price']);
+                }
+
+                $items[] = $this->item($item, 'Akciós ár', $feed === PartnerXmlFeed::Cesys, $date['sale_price']);
+
+                continue;
+            }
+
             $items[] = [
                 'name' => $item['name'],
                 'mandatory' => $item['kind'] === PartnerXmlCatalog::RESORT_FEE ? $feed !== PartnerXmlFeed::Travelgate : $item['mandatory'],
@@ -182,7 +193,8 @@ final class PartnerXmlFeedWriter
         }
 
         if ($feed === PartnerXmlFeed::Travelmax) {
-            $leading = count(array_filter($date['price_items'], fn (array $item): bool => in_array($item['kind'], [PartnerXmlCatalog::BASE, PartnerXmlCatalog::RESORT_FEE], true)));
+            $leading = count(array_filter($date['price_items'], fn (array $item): bool => in_array($item['kind'], [PartnerXmlCatalog::BASE, PartnerXmlCatalog::RESORT_FEE], true)))
+                + ($date['sale_price'] !== null ? 1 : 0);
 
             array_splice($items, $leading, 0, [[
                 'name' => 'Utasbiztosítás',
@@ -197,6 +209,24 @@ final class PartnerXmlFeedWriter
         }
 
         return $items;
+    }
+
+    /**
+     * @param  array<string, mixed>  $item  a catalog price item
+     * @return array{name: string, mandatory: bool, per_booking: bool, per_day: bool, currency: string, unit: string, price: float, storno: float|null}
+     */
+    private function item(array $item, string $name, bool $mandatory, float $price): array
+    {
+        return [
+            'name' => $name,
+            'mandatory' => $mandatory,
+            'per_booking' => $item['per_booking'],
+            'per_day' => false,
+            'currency' => $item['currency'],
+            'unit' => $item['unit'],
+            'price' => $price,
+            'storno' => null,
+        ];
     }
 
     /**
@@ -303,10 +333,10 @@ final class PartnerXmlFeedWriter
             $xml->writeElement('fromdate', $date['start']);
             $xml->writeElement('todate', $date['end']);
             $xml->writeElement('price', $this->number($date['price']));
-            $xml->writeElement('sale_price', '0');
+            $xml->writeElement('sale_price', $date['sale_price'] !== null ? $this->number($date['sale_price']) : '0');
             $xml->writeElement('currency', $date['currency']);
             $xml->writeElement('price_type', $date['currency'].'/fő');
-            $xml->writeElement('description', '');
+            $xml->writeElement('description', $date['label']);
             $xml->endElement();
         }
         $xml->endElement();

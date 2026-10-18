@@ -155,6 +155,25 @@ class PartnerXmlFeedTest extends TestCase
         ]);
     }
 
+    public function test_a_discounted_date_lists_its_list_price_and_each_feed_its_sale_price_its_own_way(): void
+    {
+        $this->tour->dates()->where('legacy_id', 12139)->update(['price' => 160000, 'price_box_price' => 160000, 'price_box_original_price' => 179600, 'price_box_label' => 'Előfoglalási akció']);
+
+        $base = fn (string $path, int $index = 0): array => array_slice($this->prices($this->feed($path)->tour[0]->travel[0]->hotelandroomgroup->flight->roomtype[$index]), 0, 3);
+
+        $this->assertSame([['Alapár', '1', '1', 'Ft', 'fő', '2.8', '179600'], ['Üdülőhelyi illeték Ft/fő', '0', '1', 'Ft', 'fő', '2.8', '3800']], array_slice($base('/xmltravel'), 0, 2));
+        $this->assertSame([
+            ['Alapár', '1', '1', 'Ft', 'fő', '2.8', '179600'],
+            ['Akciós ár', '0', '1', 'Ft', 'fő', '2.8', '160000'],
+            ['Üdülőhelyi illeték Ft/fő', '1', '1', 'Ft', 'fő', '2.8', '3800'],
+        ], $base('/xmltravelmax'));
+        $this->assertSame('Utasbiztosítás', $this->prices($this->feed('/xmltravelmax')->tour[0]->travel[0]->hotelandroomgroup->flight->roomtype[0])[3][0]);
+        $this->assertSame(['Akciós ár', '1', '2', 'Ft', 'fő', '2.8', '160000'], $base('/xmlcesys')[0]);
+
+        $datas = $this->feed('/xml')->traveloffer[0]->prices->datas;
+        $this->assertSame(['179600', '160000', 'Előfoglalási akció'], [(string) $datas->price, (string) $datas->sale_price, (string) $datas->description]);
+    }
+
     public function test_a_tour_of_the_new_site_gets_an_id_no_legacy_tour_has_and_the_feed_follows_changes(): void
     {
         $this->assertCount(1, $this->feed('/xml')->traveloffer);
