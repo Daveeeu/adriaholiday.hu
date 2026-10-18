@@ -14,6 +14,7 @@ import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { HOVER_HOST } from "../lib/hoverHost";
+import { companyYears } from "../lib/companyYears";
 
 interface Stat {
   icon: string;
@@ -33,10 +34,10 @@ const statsFallback: Stat[] = [
   },
   {
     icon: "award",
-    value: 23,
+    value: companyYears(),
     suffix: "+ év",
     label: "Tapasztalat",
-    description: "Több mint 23 éve szervezünk utazásokat.",
+    description: "Több mint {evek} éve szervezünk utazásokat.",
   },
   {
     icon: "mapPin",
@@ -148,7 +149,7 @@ export default function TrustSection() {
             <div className="hidden sm:block w-px h-4 bg-gray-300" />
             <div className="flex items-center gap-2 text-gray-600">
               <Award className="w-4 h-4 text-[#00c389]" />
-              <span className="text-sm font-medium">23+ év tapasztalat</span>
+              <span className="text-sm font-medium">{companyYears()}+ év tapasztalat</span>
             </div>
           </motion.div>
         </motion.div>

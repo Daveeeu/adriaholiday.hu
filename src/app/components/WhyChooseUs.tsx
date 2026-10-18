@@ -10,6 +10,7 @@ import { useLottieAnimation } from "../hooks/useLottieAnimation";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { renderContentIcon } from "../content/icon-map";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
+import { companyYears } from "../lib/companyYears";
 
 const featuresFallback = [
   {
@@ -39,7 +40,7 @@ const featuresFallback = [
   },
   {
     icon: "calendar",
-    title: "23+ év tapasztalat",
+    title: "{evek}+ év tapasztalat",
     description: "Megbízható háttér és szakértelem.",
   },
 ];
@@ -238,7 +239,7 @@ export default function WhyChooseUs() {
 
                   <div>
                     <div className="text-2xl font-bold text-[#00c389] leading-none">
-                      23+ év
+                      {companyYears()}+ év
                     </div>
 
                     <div className="text-sm text-gray-600 mt-1">

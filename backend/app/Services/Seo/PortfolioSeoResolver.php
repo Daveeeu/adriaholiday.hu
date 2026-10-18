@@ -11,6 +11,7 @@ use App\Models\Region;
 use App\Models\SiteSetting;
 use App\Models\Tour;
 use App\Support\CompanyContact;
+use App\Support\CompanyYears;
 use App\Support\Seo\PublicSiteUrl;
 use App\Support\Seo\RobotsDirective;
 use App\Support\Seo\SeoPage;
@@ -95,7 +96,7 @@ class PortfolioSeoResolver
                     'email' => $this->setting('contact.email'),
                     'telephone' => $this->setting('contact.phone'),
                     'address' => $this->setting('contact.address'),
-                    'foundingDate' => '2003',
+                    'foundingDate' => CompanyYears::FOUNDED_ON,
                     'sameAs' => array_values(array_filter([$this->setting('social.facebook'), $this->setting('social.instagram'), $this->setting('social.tiktok')])),
                 ]),
                 ['@context' => 'https://schema.org', '@type' => 'WebSite', 'name' => $name, 'url' => PublicSiteUrl::to('/')],
@@ -369,7 +370,7 @@ class PortfolioSeoResolver
                 ->all();
         }
 
-        return $this->settings[$key] ?? match ($key) {
+        return CompanyYears::fill($this->settings[$key] ?? null) ?? match ($key) {
             'contact.email', 'contact.phone', 'contact.address' => CompanyContact::DEFAULTS[Str::after($key, '.')]['value'],
             default => '',
         };

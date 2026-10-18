@@ -53,7 +53,7 @@ class SiteSettingsSeeder extends Seeder
                 ['label' => 'Utazási Klub', 'to' => '/utazasi-klub'],
                 ['label' => 'Kapcsolat', 'to' => '/kapcsolat'],
             ]],
-            ['group' => 'footer', 'key' => 'description', 'type' => 'text', 'is_public' => true, 'value' => 'Prémium autóbuszos utazások Európa legszebb úti céljaihoz. 23+ év tapasztalat, 10 000+ elégedett utas, és számtalan felejthetetlen élmény.'],
+            ['group' => 'footer', 'key' => 'description', 'type' => 'text', 'is_public' => true, 'value' => 'Prémium autóbuszos utazások Európa legszebb úti céljaihoz. {evek}+ év tapasztalat, 10 000+ elégedett utas, és számtalan felejthetetlen élmény.'],
             ['group' => 'footer', 'key' => 'copyright', 'type' => 'string', 'is_public' => true, 'value' => '© 2026 Adria Holiday. Minden jog fenntartva.'],
             ['group' => 'footer', 'key' => 'quick_links', 'type' => 'json', 'is_public' => true, 'value' => [
                 ['label' => 'Utazások', 'to' => '/utazasok'],

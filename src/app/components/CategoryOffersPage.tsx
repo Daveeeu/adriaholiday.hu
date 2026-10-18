@@ -29,6 +29,7 @@ import { DEFAULT_HERO_IMAGE } from "../content/default-images";
 import { useInfiniteScrollTrigger } from "../hooks/useInfiniteScrollTrigger";
 import ActiveOfferSearch from "./ActiveOfferSearch";
 import CountryFlag from "./CountryFlag";
+import { companyYears } from "../lib/companyYears";
 import {
   fetchPortfolioCategoryCountries,
   fetchPortfolioCategoryFilters,
@@ -556,7 +557,7 @@ export default function CategoryOffersPage({
             <div className="mt-10 flex flex-wrap gap-4">
               <HeroStatCard label="Ajánlat" value={displayCount(totalCount)} />
               <HeroStatCard label="Ország" value={displayCount(availableCountryCount)} />
-              <HeroStatCard label="Tapasztalat" value="23+ év" />
+              <HeroStatCard label="Tapasztalat" value={`${companyYears()}+ év`} />
             </div>
           </div>
         </div>

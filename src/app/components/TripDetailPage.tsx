@@ -38,6 +38,7 @@ import BookingHowItWorks from "./BookingHowItWorks";
 import TripSectionNav from "./TripSectionNav";
 import { tripSection } from "../lib/tripSection";
 import InfoPopover from "./InfoPopover";
+import { companyYears } from "../lib/companyYears";
 import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 import BookingSection from "../booking/BookingSection";
 import { formatHuf } from "../booking/booking-pricing";
@@ -744,7 +745,7 @@ function SelectedDepartureSummary({
   const benefits = [
     ...(payment ? [{ icon: <CreditCard />, ...payment }] : []),
     { icon: <Mail />, title: "Azonnali visszaigazolás", text: "Emailben, a teljes utazási könyvvel." },
-    { icon: <ShieldCheck />, title: "23 éve szervezünk utakat", text: "Tapasztalt csapat, megbízható szervezés." },
+    { icon: <ShieldCheck />, title: `${companyYears()} éve szervezünk utakat`, text: "Tapasztalt csapat, megbízható szervezés." },
   ];
 
   return (

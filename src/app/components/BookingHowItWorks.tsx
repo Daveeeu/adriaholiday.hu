@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { companyYears } from "../lib/companyYears";
 
 type Contact = { icon: ReactNode; title: string; body: ReactNode };
 
@@ -30,7 +31,7 @@ export default function BookingHowItWorks() {
   ];
 
   const contactCards: Array<Contact | null> = [
-    { icon: <ShieldCheck />, title: "Megbízhatóság", body: <p>Több mint 23 éve stabilan működünk!</p> },
+    { icon: <ShieldCheck />, title: "Megbízhatóság", body: <p>Több mint {companyYears()} éve stabilan működünk!</p> },
     settings.phones.length > 0
       ? {
           icon: <Phone />,
