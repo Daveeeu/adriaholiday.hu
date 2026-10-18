@@ -368,6 +368,50 @@ class LegacyCatalogImportTest extends TestCase
         $this->assertSame(1, $tour->galleryCollection(TourGalleryItem::INTRO)->count());
     }
 
+    public function test_the_imported_partner_xml_settings_are_edited_in_the_admin_and_drive_the_feeds(): void
+    {
+        $this->importCatalog();
+        $tour = Tour::query()->where('legacy_id', 10)->firstOrFail();
+        $this->actingAsTourEditor();
+        $detail = $this->adminDetail($tour);
+
+        $this->assertSame(3, $detail['partnerXml']['country_id']);
+        $this->assertSame([1, 16], $detail['partnerXml']['travel_types']['travelmax']);
+        $dates = collect($detail['dates'])->keyBy('startDate');
+        $this->assertTrue($dates['2027-07-16']['xmlEnabled']);
+        $this->assertSame('2 ágyas szoba', $dates['2027-07-16']['partnerXml']['cesysRoom']);
+        $this->assertFalse($dates['2027-08-20']['xmlEnabled']);
+
+        $detail['partnerXml']['travel_types']['cesys'] = 3;
+        $detail['partnerXml']['accommodation_description_travelmax'] = '<p>Hotelek</p><script>x()</script>';
+        $detail['dates'] = array_map(fn (array $date): array => $date['startDate'] === '2027-09-10'
+            ? [...$date, 'xmlEnabled' => false, 'partnerXml' => ['cesysAccommodation' => 'Hotel***', 'cesysRoom' => '3 ágyas']]
+            : $date, $detail['dates']);
+        $this->patchJson("/api/admin/tours/{$tour->id}", $detail)->assertOk();
+
+        $tour->refresh();
+        $this->assertSame(3, $tour->partner_xml['travel_types']['cesys']);
+        $this->assertSame('<p>Hotelek</p>', $tour->partner_xml['accommodation_description_travelmax']);
+        $this->assertFalse($tour->dates()->where('legacy_id', 12448)->value('xml_enabled'));
+        $this->assertSame('3 ágyas', $tour->dates()->where('legacy_id', 12448)->firstOrFail()->partner_xml['cesys_room']);
+
+        // A form that does not know the partner fields leaves them as they are.
+        $older = collect($this->adminDetail($tour))->except(['partnerXml'])->all();
+        $older['dates'] = array_map(fn (array $date): array => collect($date)->except(['xmlEnabled', 'partnerXml'])->all(), $older['dates']);
+        $this->patchJson("/api/admin/tours/{$tour->id}", $older)->assertOk();
+        $this->assertSame(3, $tour->refresh()->partner_xml['travel_types']['cesys']);
+        $this->assertFalse($tour->dates()->where('legacy_id', 12448)->value('xml_enabled'));
+
+        // The public offer never shows them.
+        $offer = $this->getJson('/api/portfolio/offers/svajc---a-hofodte-alpoktol')->assertOk()->json();
+        $this->assertArrayNotHasKey('partnerXml', $offer);
+        $this->assertArrayNotHasKey('xmlEnabled', $offer['dates'][0]);
+
+        $feed = new \SimpleXMLElement($this->get('/xmltravel')->assertOk()->getContent(), LIBXML_NOCDATA);
+        $listed = collect($feed->xpath('//tour[tour_id="10"]/travel'))->map(fn ($travel): string => (string) $travel['start'])->all();
+        $this->assertSame(['2027-07-16'], $listed);
+    }
+
     public function test_the_public_offer_shows_the_footer_and_the_stay_of_each_departure(): void
     {
         $this->importCatalog();

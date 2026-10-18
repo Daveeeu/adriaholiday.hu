@@ -15,6 +15,8 @@ class PublicContentCache
 
     public const OFFERS = 'offers';
 
+    public const PARTNER_XML = 'partner-xml';
+
     public const PORTFOLIO_COUNTRIES = 'portfolio-countries';
 
     public const PORTFOLIO_FILTERS = 'portfolio-filters';

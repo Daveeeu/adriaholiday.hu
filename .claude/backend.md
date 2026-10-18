@@ -878,6 +878,23 @@ Production run (only with the user's explicit go-ahead; the server DB is live):
 
 ---
 
+# Partner XML Feeds (Travelgate, Travelmax, Cesys)
+
+Travel portals read the agency's tours from XML feeds the legacy site served; the new site serves them under the same addresses and in the same format (`routes/web.php`, `PartnerXmlFeedController`), so nothing changes for the partners at the domain switch:
+
+| Address | Partner | Shape |
+|---|---|---|
+| `/xmltravel` | Travelgate | `<tours>`: per date 24 `roomtype` parties (1–6 adults × 0–3 children), each listing every price item for the whole party |
+| `/xmltravelmax` | Travelmax | as `/xmltravel`, plus a travel insurance item (per person and day), mandatory resort fee, an accommodation description paragraph and Travelmax's own (multiple) travel types |
+| `/xmlcesys` | Cesys | one party of two adults per date; the date's Cesys accommodation and room |
+| `/xml` | general | `<traveloffers>`: one price per person and date |
+
+- Which tours: active, `xml_enabled` ("XML-ben szerepel?"); which dates: `tour_dates.xml_enabled`, `available`, not departed. Legacy tours and dates keep their legacy id in the feeds; new ones get `partner_xml.id_offset` (100000) + their id.
+- `PartnerXmlCatalog` loads the tours and builds the feed-neutral price items (base price "Alapár", resort fee, "Felszállási díj-…" per offered departure place with its pivot fee, "Felár  - …" per extra; mandatory = `charge_rule` mandatory; per-booking extras count once); `PartnerXmlFeedWriter` writes each format element for element as the legacy feeds did (attribute names and order, CDATA paragraphs, `storno` = the cancellation insurance percentage for forint items). Feeds are cached in the `partner-xml` `PublicContentCache` scope (`partner_xml.cache_minutes`) and rebuilt after any tour, date, extra, departure place or site setting change.
+- Settings beyond the tour's own data: `tours.partner_xml` (`App\Support\PartnerXml\PartnerXmlSettings`: legacy region id + name the partners file the tour under, travel type per partner, accommodation name, city, insurance fee, Travelmax accommodation description) and `tour_dates.partner_xml` (Cesys accommodation and room). The legacy catalog import fills them from the legacy admin's `xml[...]` fields (`LegacyPartnerXmlSettings`); the admin edits them in the tour form's "Partner XML" section and per date. The choices (travel types per partner, legacy regions) live in `config/partner_xml.php` and reach the admin through `GET /api/admin/select-options/partner-xml`. The public offer API never shows them.
+
+---
+
 # Tour Date Extras and Booking Pricing
 
 Priced supplements ("felárak": dinner, single room, baggage, resort fee…) are `TourDateExtra` records owned by a `TourDate`, because prices differ between departures of the same tour. Each has a `price`, a `price_unit` (`App\Support\Tour\TourExtraPriceUnit`: `per_person` / `per_booking`), a `charge_rule` (`App\Support\Tour\TourExtraChargeRule`: `optional` = when selected, `mandatory` = always, `solo_traveller` = automatically when exactly one passenger travels, e.g. the single room supplement) and optional `choices` the customer must pick from once the extra is charged (single room: alone / find me a roommate). They are written only through `TourContentSyncService::syncDates()` as `dates[].extras[]` (admin form, duplicate and legacy import alike). `syncDates()` updates a date in place when it matches a stored one — by `id` (the admin form sends it), else by start and end date — because bookings reference `tour_dates`; dates left out are soft-deleted (`Booking::tourDate()` still resolves them). A date's extras are replaced whenever `extras` is present, so never reference a `TourDateExtra` id from other tables.

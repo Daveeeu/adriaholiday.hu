@@ -40,6 +40,8 @@ class TourContentSyncService
         'accommodation_info',
         'catering',
         'catering_info',
+        'xml_enabled',
+        'partner_xml',
     ];
 
     /** Written only by imports, never sent by the admin. */

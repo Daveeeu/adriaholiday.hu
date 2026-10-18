@@ -32,6 +32,8 @@ import { TourProgramDaysSection } from './TourProgramDaysSection';
 import { TourDateDeparturePlacesEditor } from './TourDateDeparturePlacesEditor';
 import { TourDateExtrasEditor } from './TourDateExtrasEditor';
 import { TourPriceItemsSection } from './TourPriceItemsSection';
+import { TourDatePartnerXmlFields } from './TourDatePartnerXmlFields';
+import { TourPartnerXmlSection } from './TourPartnerXmlSection';
 import { TourSeoSection } from './TourSeoSection';
 import { TourStaySection } from './TourStaySection';
 
@@ -51,6 +53,7 @@ type TourPanelSectionKey =
   | 'filters'
   | 'dates'
   | 'stay'
+  | 'partnerXml'
   | 'bookingForm';
 
 const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
@@ -64,6 +67,7 @@ const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
   filters: true,
   dates: true,
   stay: true,
+  partnerXml: false,
   bookingForm: false,
 };
 
@@ -195,6 +199,7 @@ export function TourForm({ form, tour }: TourFormProps) {
       filters: open,
       dates: open,
       stay: open,
+      partnerXml: open,
       bookingForm: open,
     });
   };
@@ -739,6 +744,8 @@ export function TourForm({ form, tour }: TourFormProps) {
 
               <TourStaySection form={form} dateIndex={index} />
 
+              <TourDatePartnerXmlFields form={form} dateIndex={index} />
+
               <TourDateDeparturePlacesEditor form={form} tour={tour} dateIndex={index} />
 
               <TourDateExtrasEditor form={form} dateIndex={index} dateCount={dates.fields.length} />
@@ -761,6 +768,8 @@ export function TourForm({ form, tour }: TourFormProps) {
                     accommodationInfo: '',
                     catering: '',
                     cateringInfo: '',
+                    xmlEnabled: true,
+                    partnerXml: { cesysAccommodation: '', cesysRoom: '' },
                     priceBox: {
                       price: '',
                       displayedPrice: '',
@@ -780,6 +789,15 @@ export function TourForm({ form, tour }: TourFormProps) {
             Időpont hozzáadása
           </Button>
         </div>
+      </TourPanelSection>
+
+      <TourPanelSection
+        title="Partner XML (Travelgate, Travelmax, Cesys)"
+        description="Amit az út a partnerportálok feedjeiben mutat: régió, utazástípusok, szállás, biztosítás."
+        open={openSections.partnerXml}
+        onToggle={() => toggleSection('partnerXml')}
+      >
+        <TourPartnerXmlSection form={form} />
       </TourPanelSection>
 
       <TourPanelSection

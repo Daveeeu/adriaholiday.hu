@@ -19,6 +19,7 @@ use App\Models\TourPriceItem;
 use App\Models\TourProgramDay;
 use App\Services\Tour\TourContentSyncService;
 use App\Services\Tour\TourPdfService;
+use App\Support\PartnerXml\PartnerXmlSettings;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use App\Support\TourSearchIndex;
@@ -425,6 +426,12 @@ class TourController extends Controller
 
         if (array_key_exists('program_footer', $validated)) {
             $content['program_footer'] = RichTextSanitizer::sanitize($validated['program_footer']);
+        }
+
+        if (array_key_exists('partner_xml', $validated)) {
+            $settings = PartnerXmlSettings::normalize($validated['partner_xml']);
+            $settings['accommodation_description_travelmax'] = RichTextSanitizer::sanitize($settings['accommodation_description_travelmax']) ?: null;
+            $content['partner_xml'] = $settings;
         }
 
         return $content;

@@ -10,6 +10,7 @@ use App\Support\RichTextSanitizer;
 use App\Support\Seo\RobotsDirective;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class PortfolioOfferDetailResource extends TourDetailResource
@@ -23,7 +24,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
         $priceItems = $tour->priceItems->where('active', true)->sortBy('sort_order')->values();
 
         $data = parent::toArray($request);
-        unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate']);
+        unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate'], $data['partnerXml']);
 
         $sanitizeContent = function (?string $value, bool $jsonAsNull = false): ?string {
             $trimmed = trim((string) $value);
@@ -47,7 +48,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
 
         // A date's own stay, shown as the tour's is (null: the tour's).
         $data['dates'] = array_map(fn (array $date): array => [
-            ...$date,
+            ...Arr::except($date, ['xmlEnabled', 'partnerXml']),
             'accommodation' => TourMeta::accommodationLabel($date['accommodation'] ?? null),
             'catering' => TourMeta::mealsLabel($date['catering'] ?? null),
         ], $data['dates'] ?? []);

@@ -287,3 +287,23 @@ export async function createCategoryOption(values: {
 
   return normalizeSelectOption({ id: String(response.id), value: String(response.id), label: values.name });
 }
+
+export type PartnerXmlOptions = {
+  /** Each partner's travel types: general, travelgate, cesys, travelmax. */
+  travelTypes: Record<string, SelectOption[]>;
+  /** The legacy regions the partners file tours under. */
+  regions: SelectOption[];
+};
+
+export async function getPartnerXmlOptions(): Promise<PartnerXmlOptions> {
+  const response = await apiClient.get<{ travel_types: Record<string, SelectOption[]>; regions: SelectOption[] }>(
+    '/api/admin/select-options/partner-xml',
+  );
+
+  return {
+    travelTypes: Object.fromEntries(
+      Object.entries(response.travel_types).map(([partner, options]) => [partner, options.map(normalizeSelectOption)]),
+    ),
+    regions: response.regions.map(normalizeSelectOption),
+  };
+}

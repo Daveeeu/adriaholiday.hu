@@ -196,7 +196,7 @@
             "accommodation_cesys": "Hotel***",
             "accommodation_email_info": "",
             "accommodation_info": "<p>2 ágyas</p>",
-            "accommodation_info_cesys": "",
+            "accommodation_info_cesys": "2 ágyas szoba",
             "provision": "reggeli",
             "provision_info": "",
             "resort_fee": "6800",
@@ -217,7 +217,7 @@
           "status": "active",
           "status_label": "aktív",
           "active": true,
-          "xml_enabled": true,
+          "xml_enabled": false,
           "holiday_home": false,
           "capacity_monitoring": true,
           "capacity": 45,
@@ -358,7 +358,32 @@
         "seo[description]": "Alpok és tavak",
         "seo[robots]": "index, follow",
         "showable_dates": "3",
-        "xml[city]": "Svájc"
+        "xml[city]": "Svájc",
+        "xml[accommodation_name]": "Svájci körutazás hotelekben",
+        "xml[insurance_value]": "430",
+        "xml[accommodation_description_travelmax]": "<p>Középkategóriás hotelek</p>",
+        "xml[travel_type]": {
+          "value": "1",
+          "label": "Körutazás"
+        },
+        "xml[travel_type_travelgate]": {
+          "value": "2",
+          "label": "Városlátogatás"
+        },
+        "xml[travel_type_cesys]": {
+          "value": "0",
+          "label": null
+        },
+        "xml[travel_type_travelmax][]": [
+          {
+            "key": "1",
+            "label": "Körutazás"
+          },
+          {
+            "key": "16",
+            "label": "Adventi út"
+          }
+        ]
       },
       "listed_in_partner_offer_list": false,
       "partner_offer_row": null

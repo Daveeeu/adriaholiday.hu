@@ -167,6 +167,7 @@ Route::prefix('admin')
 
         Route::prefix('select-options')->group(function (): void {
             Route::get('regions', [SelectOptionController::class, 'regions']);
+            Route::get('partner-xml', [SelectOptionController::class, 'partnerXml']);
             Route::get('groups', [SelectOptionController::class, 'groups']);
             Route::get('offer-groups', [SelectOptionController::class, 'offerGroups']);
             Route::get('homepage-offers', [SelectOptionController::class, 'homepageOffers']);

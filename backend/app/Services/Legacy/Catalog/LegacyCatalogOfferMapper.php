@@ -6,6 +6,7 @@ use App\Models\TourGalleryItem;
 use App\Support\Legacy\Catalog\LegacyCatalogOffer;
 use App\Support\Legacy\LegacyBookingOptionRules;
 use App\Support\Legacy\LegacyText;
+use App\Support\PartnerXml\LegacyPartnerXmlSettings;
 use App\Support\Tour\TourDateStatus;
 use App\Support\Tour\TourExtraCurrency;
 use Carbon\CarbonInterface;
@@ -89,6 +90,7 @@ final class LegacyCatalogOfferMapper
                 'couponable' => (bool) $offer['coupon_enabled'],
                 'image_offer' => (bool) $offer['image_offer'],
                 'xml_enabled' => (bool) $offer['xml_enabled'],
+                'partner_xml' => LegacyPartnerXmlSettings::forTour($extraFields, array_values(array_filter((array) ($offer['regions'] ?? []), 'is_string'))),
                 'partner_offer' => (bool) ($offer['listed_in_partner_offer_list'] ?? false),
                 'short_description' => LegacyText::line($offer['cities_html'] ?? null),
                 'slider_text' => LegacyText::line($offer['slider_html'] ?? null),
@@ -178,6 +180,12 @@ final class LegacyCatalogOfferMapper
         $monitored = (bool) $departure['capacity_monitoring'];
         $seats = $monitored ? max(0, (int) ($departure['capacity'] ?? 0)) : null;
 
+        $legacyAttributes = [
+            ...collect($departure)->only(self::DATE_LEGACY_FIELDS)->all(),
+            'travel' => $fields['travel'] ?? null,
+            ...collect($fields)->only(self::DATE_LEGACY_FORM_FIELDS)->all(),
+        ];
+
         return [
             'legacy_id' => (int) $departure['legacy_date_id'],
             'start_date' => (string) $departure['start_date'],
@@ -199,11 +207,8 @@ final class LegacyCatalogOfferMapper
             'accommodation_info' => LegacyText::note($fields['accommodation_info'] ?? null, $fields['accommodation'] ?? null),
             'catering' => LegacyText::line($fields['provision'] ?? null),
             'catering_info' => LegacyText::note($fields['provision_info'] ?? null, $fields['provision'] ?? null),
-            'legacy_attributes' => [
-                ...collect($departure)->only(self::DATE_LEGACY_FIELDS)->all(),
-                'travel' => $fields['travel'] ?? null,
-                ...collect($fields)->only(self::DATE_LEGACY_FORM_FIELDS)->all(),
-            ],
+            'legacy_attributes' => $legacyAttributes,
+            ...LegacyPartnerXmlSettings::forDate($legacyAttributes),
             'extras' => $this->extras($departure, $notes),
             'departure_places' => collect($departure['boarding_points'])
                 ->map(fn (array $point): ?array => ($place = LegacyBookingOptionRules::departurePlace((string) $point['label'])) !== null

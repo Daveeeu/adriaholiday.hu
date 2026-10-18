@@ -156,7 +156,8 @@ class SitemapController extends Controller
                 'priority' => '0.5',
             ]);
 
-        return $locations->merge($apartments);
+        // Base collections: an empty Eloquent result cannot merge plain arrays.
+        return $locations->toBase()->merge($apartments->toBase());
     }
 
     /**

@@ -24,6 +24,8 @@ use App\Models\Promotion;
 use App\Models\Region;
 use App\Models\SiteSetting;
 use App\Models\Tour;
+use App\Models\TourDate;
+use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
 use App\Models\TourPartnerOffer;
 use App\Models\TourRegionGroup;
@@ -144,6 +146,12 @@ class AppServiceProvider extends ServiceProvider
             PublicContentCache::SITEMAP,
         ));
 
+        // The partner XML feeds are built from the tours, their dates, extras and departure places.
+        foreach ([Tour::class, TourDate::class, TourDateExtra::class, TourDeparturePlace::class] as $model) {
+            $model::saved(fn () => PublicContentCache::bump(PublicContentCache::PARTNER_XML));
+            $model::deleted(fn () => PublicContentCache::bump(PublicContentCache::PARTNER_XML));
+        }
+
         // Apartment and location pages are listed in the sitemap.
         foreach ([Apartment::class, Location::class] as $model) {
             $model::saved(fn () => PublicContentCache::bump(PublicContentCache::SITEMAP));
@@ -156,6 +164,7 @@ class AppServiceProvider extends ServiceProvider
         SiteSetting::saved(fn () => PublicContentCache::bump(
             PublicContentCache::SITE_SETTINGS,
             PublicContentCache::SITEMAP,
+            PublicContentCache::PARTNER_XML,
         ));
         SiteSetting::deleted(fn () => PublicContentCache::bump(
             PublicContentCache::SITE_SETTINGS,

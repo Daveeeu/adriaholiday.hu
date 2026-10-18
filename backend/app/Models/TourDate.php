@@ -37,10 +37,14 @@ class TourDate extends Model
         'accommodation_info',
         'catering',
         'catering_info',
+        'xml_enabled',
+        'partner_xml',
     ];
 
     protected $casts = [
         'departure_place_ids' => 'array',
+        'xml_enabled' => 'boolean',
+        'partner_xml' => 'array',
         'legacy_id' => 'integer',
         'legacy_attributes' => 'array',
         'start_date' => 'date',

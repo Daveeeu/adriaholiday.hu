@@ -35,6 +35,26 @@ class SelectOptionController extends Controller
         ];
     }
 
+    /**
+     * The partner XML feeds' choices: each partner's travel types and the
+     * legacy regions the partners file tours under.
+     *
+     * @return array{travel_types: array<string, list<array{id: int|string, value: int|string, label: string}>>, regions: list<array{id: int|string, value: int|string, label: string}>}
+     */
+    public function partnerXml(): array
+    {
+        return [
+            'travel_types' => collect((array) config('partner_xml.travel_types'))
+                ->map(fn (array $types): array => collect($types)->map(fn (string $label, int $value): array => $this->option($value, $label))->values()->all())
+                ->all(),
+            'regions' => collect((array) config('partner_xml.legacy_regions'))
+                ->map(fn (int $id, string $name): array => $this->option($id, $name))
+                ->sortBy('label')
+                ->values()
+                ->all(),
+        ];
+    }
+
     public function regions(Request $request): array
     {
         return Region::query()

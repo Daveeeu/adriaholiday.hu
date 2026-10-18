@@ -1,16 +1,22 @@
 <?php
 
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\PartnerXmlFeedController;
 use App\Http\Controllers\PortfolioSpaController;
 use App\Http\Controllers\ResizedImageController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
+use App\Services\PartnerXml\PartnerXmlFeed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class);
 Route::get('/robots.txt', RobotsController::class);
 Route::get('/sitemap.xml', SitemapController::class);
+// The partner XML feeds travel portals read, at the legacy site's addresses.
+foreach (PartnerXmlFeed::cases() as $partnerFeed) {
+    Route::get('/'.$partnerFeed->value, PartnerXmlFeedController::class)->defaults('feed', $partnerFeed->value);
+}
 // Web-sized copies of public images; nginx serves them straight from disk once created.
 Route::get('/img/{width}/{path}.webp', ResizedImageController::class)
     ->whereNumber('width')

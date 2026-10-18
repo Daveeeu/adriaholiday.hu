@@ -55,7 +55,27 @@ export type TourDate = {
   accommodationInfo?: string | null;
   catering?: string | null;
   cateringInfo?: string | null;
+  /** Listed in the partner XML feeds. */
+  xmlEnabled?: boolean;
+  /** The date's accommodation and room in the Cesys feed. */
+  partnerXml?: { cesysAccommodation?: string | null; cesysRoom?: string | null } | null;
   extras?: TourDateExtra[];
+};
+
+/** A tour's settings for the partner XML feeds (Travelgate, Travelmax, Cesys and the general one). */
+export type TourPartnerXml = {
+  country_id: number | null;
+  country_name: string | null;
+  accommodation_name: string | null;
+  city: string | null;
+  insurance_value: number | null;
+  accommodation_description_travelmax: string | null;
+  travel_types: {
+    general: number | null;
+    travelgate: number | null;
+    cesys: number | null;
+    travelmax: number[];
+  };
 };
 
 export type TourPartnerBonus = {
@@ -206,6 +226,7 @@ export type Tour = {
   partnerOffer: boolean;
   imageOffer: boolean;
   xmlEnabled: boolean;
+  partnerXml?: TourPartnerXml | null;
   couponable: boolean;
   sliderImageEnabled: boolean;
   sliderTextEnabled: boolean;
@@ -292,6 +313,20 @@ export const tourFormSchema = z.object({
   partnerOffer: z.boolean(),
   imageOffer: z.boolean(),
   xmlEnabled: z.boolean(),
+  partnerXml: z.object({
+    country_id: z.string(),
+    country_name: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+    accommodation_name: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+    city: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+    insurance_value: z.string().trim().regex(/^\d*$/, 'Egész számot adj meg (Ft/fő/nap).'),
+    accommodation_description_travelmax: z.string(),
+    travel_types: z.object({
+      general: z.string(),
+      travelgate: z.string(),
+      cesys: z.string(),
+      travelmax: z.array(z.string()),
+    }),
+  }),
   couponable: z.boolean(),
   sliderImageEnabled: z.boolean(),
   sliderTextEnabled: z.boolean(),
@@ -410,6 +445,11 @@ export const tourFormSchema = z.object({
       accommodationInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
       catering: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
       cateringInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
+      xmlEnabled: z.boolean(),
+      partnerXml: z.object({
+        cesysAccommodation: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+        cesysRoom: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+      }),
       priceBox: z.object({
         price: z.string(),
         displayedPrice: z.string(),
@@ -453,6 +493,27 @@ export const tourFormSchema = z.object({
 
 export type TourFormValues = z.infer<typeof tourFormSchema>;
 
+function optionalNumber(value: number | null | undefined): string {
+  return value != null ? String(value) : '';
+}
+
+function partnerXmlFormValues(settings?: TourPartnerXml | null): TourFormValues['partnerXml'] {
+  return {
+    country_id: optionalNumber(settings?.country_id),
+    country_name: settings?.country_name ?? '',
+    accommodation_name: settings?.accommodation_name ?? '',
+    city: settings?.city ?? '',
+    insurance_value: optionalNumber(settings?.insurance_value),
+    accommodation_description_travelmax: settings?.accommodation_description_travelmax ?? '',
+    travel_types: {
+      general: optionalNumber(settings?.travel_types.general),
+      travelgate: optionalNumber(settings?.travel_types.travelgate),
+      cesys: optionalNumber(settings?.travel_types.cesys),
+      travelmax: (settings?.travel_types.travelmax ?? []).map(String),
+    },
+  };
+}
+
 export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues {
   const dates = (tour?.dates ?? []).map((date) => ({
     id: date.id ?? createClientId(),
@@ -466,6 +527,11 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     accommodationInfo: date.accommodationInfo ?? '',
     catering: date.catering ?? '',
     cateringInfo: date.cateringInfo ?? '',
+    xmlEnabled: date.xmlEnabled ?? true,
+    partnerXml: {
+      cesysAccommodation: date.partnerXml?.cesysAccommodation ?? '',
+      cesysRoom: date.partnerXml?.cesysRoom ?? '',
+    },
     priceBox: {
       price: date.priceBox?.price?.toString() ?? '',
       displayedPrice: date.priceBox?.displayedPrice ?? '',
@@ -522,6 +588,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     partnerOffer: tour?.partnerOffer ?? false,
     imageOffer: tour?.imageOffer ?? false,
     xmlEnabled: tour?.xmlEnabled ?? true,
+    partnerXml: partnerXmlFormValues(tour?.partnerXml),
     couponable: tour?.couponable ?? false,
     sliderImageEnabled: tour?.sliderImageEnabled ?? false,
     sliderTextEnabled: tour?.sliderTextEnabled ?? false,

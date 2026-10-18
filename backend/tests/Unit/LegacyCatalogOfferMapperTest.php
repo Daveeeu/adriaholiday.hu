@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Services\Legacy\Catalog\LegacyCatalogOfferMapper;
 use App\Support\Tour\TourDateStatus;
 use Illuminate\Support\Carbon;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class LegacyCatalogOfferMapperTest extends TestCase
 {
@@ -17,6 +17,26 @@ class LegacyCatalogOfferMapperTest extends TestCase
         $catalog = json_decode((string) file_get_contents(__DIR__.'/../Fixtures/legacy-catalog/catalog.json'), true);
 
         return collect($catalog['offers'])->firstWhere('legacy_id', $legacyId);
+    }
+
+    public function test_the_partner_xml_settings_of_the_offer_and_its_dates_are_kept(): void
+    {
+        $offer = (new LegacyCatalogOfferMapper)->map($this->offer(10), Carbon::parse('2026-10-15'));
+        $dates = collect($offer->dates)->keyBy('legacy_id');
+
+        $this->assertSame([
+            // The first legacy region the old site knew ("Foci EB 2024" is not one).
+            'country_id' => 3,
+            'country_name' => 'Svájc',
+            'accommodation_name' => 'Svájci körutazás hotelekben',
+            'city' => 'Svájc',
+            'insurance_value' => 430,
+            'accommodation_description_travelmax' => '<p>Középkategóriás hotelek</p>',
+            'travel_types' => ['general' => 1, 'travelgate' => 2, 'cesys' => null, 'travelmax' => [1, 16]],
+        ], $offer->attributes['partner_xml']);
+        $this->assertTrue($dates[12446]['xml_enabled']);
+        $this->assertSame(['cesys_accommodation' => 'Hotel***', 'cesys_room' => '2 ágyas szoba'], $dates[12446]['partner_xml']);
+        $this->assertFalse($dates[12447]['xml_enabled']);
     }
 
     public function test_a_date_sells_at_its_sale_price_with_the_original_price_crossed_out(): void

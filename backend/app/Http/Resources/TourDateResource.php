@@ -28,6 +28,12 @@ class TourDateResource extends JsonResource
             'accommodationInfo' => $this->accommodation_info,
             'catering' => $this->catering,
             'cateringInfo' => $this->catering_info,
+            // Admin only (the public offer leaves them out): whether the partner feeds list the date, its Cesys stay.
+            'xmlEnabled' => (bool) ($this->xml_enabled ?? true),
+            'partnerXml' => [
+                'cesysAccommodation' => $this->partner_xml['cesys_accommodation'] ?? null,
+                'cesysRoom' => $this->partner_xml['cesys_room'] ?? null,
+            ],
             // The trip price share paid as deposit (online, right after booking) if booked today.
             'depositPercent' => $this->start_date !== null ? BookingPaymentSchedule::depositPercent($this->start_date) : null,
             // A booking whose trip price is below this is paid in full instead.
