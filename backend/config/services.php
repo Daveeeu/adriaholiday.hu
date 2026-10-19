@@ -44,6 +44,16 @@ return [
         'timeout' => env('BARION_TIMEOUT', 15),
     ],
 
+    // Newsletter subscribers are mirrored into this Mailchimp audience.
+    // Leave MAILCHIMP_API_KEY or MAILCHIMP_AUDIENCE_ID empty to disable the sync.
+    'mailchimp' => [
+        'api_key' => env('MAILCHIMP_API_KEY'),
+        'audience_id' => env('MAILCHIMP_AUDIENCE_ID'),
+        // true: Mailchimp emails a confirmation link and the member stays "pending" until clicked.
+        'double_opt_in' => (bool) env('MAILCHIMP_DOUBLE_OPT_IN', false),
+        'timeout' => (int) env('MAILCHIMP_TIMEOUT', 10),
+    ],
+
     'legacy_adria' => [
         'base_url' => env('LEGACY_ADRIA_BASE_URL', 'https://adriaholiday.hu'),
         'user_agent' => env('LEGACY_ADRIA_USER_AGENT', 'AdriaHolidayLegacyImporter/1.0 (+https://adriaholiday.hu)'),

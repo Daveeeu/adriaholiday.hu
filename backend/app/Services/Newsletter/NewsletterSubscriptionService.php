@@ -2,6 +2,7 @@
 
 namespace App\Services\Newsletter;
 
+use App\Jobs\SyncNewsletterSubscriberToMailchimpJob;
 use App\Mail\NewsletterCouponMail;
 use App\Models\Coupon;
 use App\Models\NewsletterSubscriber;
@@ -15,11 +16,15 @@ use Illuminate\Support\Str;
  * Subscribes an email to the newsletter and issues a one-time signup
  * coupon (value configurable via the "newsletter.coupon_value" site
  * setting). Idempotent: resubscribing an already-subscribed email does
- * not issue a second coupon or resend the email.
+ * not issue a second coupon or resend the email. New subscribers are
+ * queued for the Mailchimp audience sync when Mailchimp is configured.
  */
 class NewsletterSubscriptionService
 {
-    public function __construct(private readonly LoggedMailer $mailer) {}
+    public function __construct(
+        private readonly LoggedMailer $mailer,
+        private readonly MailchimpAudienceService $mailchimp,
+    ) {}
 
     public function subscribe(string $email): bool
     {
@@ -30,7 +35,7 @@ class NewsletterSubscriptionService
         }
 
         try {
-            $coupon = DB::transaction(function () use ($email): Coupon {
+            $subscriber = DB::transaction(function () use ($email): NewsletterSubscriber {
                 $coupon = Coupon::create([
                     'active' => true,
                     'name' => 'Hírlevél feliratkozás',
@@ -40,12 +45,10 @@ class NewsletterSubscriptionService
                     'used' => false,
                 ]);
 
-                NewsletterSubscriber::create([
+                return NewsletterSubscriber::create([
                     'email' => $email,
                     'coupon_id' => $coupon->id,
-                ]);
-
-                return $coupon;
+                ])->setRelation('coupon', $coupon);
             });
         } catch (QueryException $exception) {
             if ((string) $exception->getCode() === '23000') {
@@ -55,7 +58,11 @@ class NewsletterSubscriptionService
             throw $exception;
         }
 
-        $this->mailer->send(new NewsletterCouponMail($coupon), $email);
+        if ($this->mailchimp->isConfigured()) {
+            SyncNewsletterSubscriberToMailchimpJob::dispatch($subscriber->id);
+        }
+
+        $this->mailer->send(new NewsletterCouponMail($subscriber->coupon), $email);
 
         return true;
     }

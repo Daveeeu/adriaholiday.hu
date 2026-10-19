@@ -1099,3 +1099,10 @@ Before finishing backend work, verify:
 - tests pass
 - no debug code remains
 - code is production ready
+---
+
+# Newsletter → Mailchimp Sync
+
+`newsletter_subscribers` stays the source of truth (it also owns the signup coupon). `NewsletterSubscriptionService` queues `App\Jobs\SyncNewsletterSubscriberToMailchimpJob` for every new subscriber (newsletter form and the booking forms' opt-in), and `App\Services\Newsletter\MailchimpAudienceService` is the only class that talks to Mailchimp: `PUT /3.0/lists/{audience}/members/{md5(email)}` with `status_if_new`, so an address unsubscribed in Mailchimp is never resubscribed. Success stamps `mailchimp_synced_at`; 5xx/429/timeouts are retried by the queue (5 tries), other 4xx are logged and left unsynced.
+
+Config: `config/services.php` → `mailchimp` (`MAILCHIMP_API_KEY` — the data center is its `-usNN` suffix, `MAILCHIMP_AUDIENCE_ID`, `MAILCHIMP_DOUBLE_OPT_IN`, `MAILCHIMP_TIMEOUT`). Without key and audience the sync is off. `php artisan newsletter:sync-mailchimp` queues every subscriber not yet synced (initial backfill or after fixing the config).
