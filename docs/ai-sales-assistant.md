@@ -62,6 +62,8 @@ A bad or old signature gets `401`, another agent's call `403`, and more than 30 
 
 ## Setting up Retell (step by step)
 
+Every function's URL, schema, example request and response, and the dashboard fields: see [retell-ai-integration.md](retell-ai-integration.md).
+
 1. **Credentials.** In the Retell dashboard, open *Settings → API Keys* and copy the secret API key (`key_…`). The same key signs the function calls.
 2. **Server environment** (`backend/.env.production`):
    ```env

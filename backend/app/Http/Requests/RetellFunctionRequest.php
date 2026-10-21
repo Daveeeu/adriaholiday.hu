@@ -47,6 +47,18 @@ class RetellFunctionRequest extends FormRequest
     }
 
     /**
+     * Messages name the function's own parameters ("travel_mode"), as the model knows them.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return collect(array_keys($this->tool()->rules()))
+            ->mapWithKeys(fn (string $field): array => ["args.{$field}" => $field])
+            ->all();
+    }
+
+    /**
      * @throws SalesAssistantToolException for a tool that does not exist
      */
     public function tool(): SalesAssistantTool

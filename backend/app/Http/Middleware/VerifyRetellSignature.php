@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Support\SalesAssistant\RetellSignature;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,6 +28,14 @@ class VerifyRetellSignature
         );
 
         if (! $verified) {
+            // Enough to tell a misconfigured Retell function (wrong key, missing header) from noise; never the body or the key.
+            Log::warning('Retell function call rejected: invalid signature.', [
+                'tool' => $request->route('tool'),
+                'signature_present' => $request->hasHeader(self::HEADER),
+                'key_configured' => trim((string) config('sales_assistant.retell.api_key')) !== '',
+                'ip' => $request->ip(),
+            ]);
+
             return response()->json(['message' => 'Invalid signature.'], 401);
         }
 

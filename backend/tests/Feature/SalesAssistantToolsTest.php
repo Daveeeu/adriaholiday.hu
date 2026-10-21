@@ -103,7 +103,8 @@ class SalesAssistantToolsTest extends TestCase
         $this->callRetellFunction('search_trips', ['travel_mode' => 'rocket', 'departure_from' => '07/01/2026', 'max_price_per_person' => -5])
             ->assertOk()
             ->assertJsonPath('error.code', 'invalid_arguments')
-            ->assertJsonStructure(['error' => ['message', 'details' => ['errors' => ['travel_mode', 'departure_from', 'max_price_per_person']]]]);
+            ->assertJsonStructure(['error' => ['message', 'details' => ['errors' => ['travel_mode', 'departure_from', 'max_price_per_person']]]])
+            ->assertJsonPath('error.details.errors.travel_mode.0', 'The selected travel_mode is invalid.');
 
         $this->callRetellFunction('search_trips', ['departure_from' => '2026-08-01', 'departure_until' => '2026-07-01'])
             ->assertOk()

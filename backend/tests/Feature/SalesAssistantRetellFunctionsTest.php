@@ -6,6 +6,7 @@ use App\Models\Tour;
 use App\Models\TourDate;
 use App\Support\SalesAssistant\RetellSignature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\TestResponse;
 use Tests\Concerns\InteractsWithSalesAssistant;
 use Tests\TestCase;
@@ -46,6 +47,23 @@ class SalesAssistantRetellFunctionsTest extends TestCase
         $this->signed($body, RetellSignature::sign($body, self::RETELL_TEST_KEY, $now - 301_000))->assertUnauthorized();
 
         $this->signed($body, RetellSignature::sign($body, self::RETELL_TEST_KEY, $now))->assertOk();
+    }
+
+    public function test_every_function_endpoint_requires_a_signature_and_the_own_agent(): void
+    {
+        Log::spy();
+
+        foreach (['search_trips', 'get_trip_details', 'get_trip_departures', 'get_pickup_locations', 'get_trip_price'] as $tool) {
+            $this->postJson("/api/sales-assistant/retell/functions/{$tool}", ['call' => ['call_id' => 'c', 'agent_id' => self::RETELL_TEST_AGENT], 'args' => []])
+                ->assertUnauthorized();
+            $this->callRetellFunction($tool, [], ['agent_id' => 'agent_someone_else'])->assertForbidden();
+        }
+
+        Log::shouldHaveReceived('warning')
+            ->with('Retell function call rejected: invalid signature.', \Mockery::on(fn (array $context): bool => $context['signature_present'] === false
+                && $context['key_configured'] === true
+                && ! array_key_exists('body', $context)))
+            ->times(5);
     }
 
     public function test_calls_are_refused_while_no_retell_key_is_configured(): void
