@@ -12,6 +12,14 @@ class TourDisplayAttributesTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // The fixture's departure must stay upcoming.
+        $this->travelTo('2026-10-01 10:00:00');
+    }
+
     private function flightTour(array $attributes = []): Tour
     {
         $tour = Tour::factory()->create([
