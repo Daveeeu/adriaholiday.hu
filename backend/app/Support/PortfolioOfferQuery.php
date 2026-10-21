@@ -17,8 +17,6 @@ class PortfolioOfferQuery
 {
     private const MAX_TEXT_QUERY_LENGTH = 100;
 
-    private const UNBOOKABLE_DATE_STATUSES = [TourDateStatus::SOLD_OUT, TourDateStatus::CANCELLED];
-
     public static function buildBaseQuery(Request $request): Builder
     {
         $query = Tour::query()
@@ -429,24 +427,30 @@ class PortfolioOfferQuery
     }
 
     /**
-     * Start date and trip length are matched against the same bookable departure,
-     * so a tour qualifies only when one of its upcoming dates satisfies both.
+     * Start date window (from, until) and trip length are matched against the
+     * same bookable departure, so a tour qualifies only when one of its
+     * upcoming dates satisfies all of them.
      */
     private static function applyDepartureDateFilters(Builder $query, Request $request): void
     {
         $requestedStart = self::dateQuery($request, 'from');
+        $latestStart = self::dateQuery($request, 'until');
         $duration = TripDurationRange::tryFrom(self::stringQuery($request, 'duration'));
 
-        if ($requestedStart === null && $duration === null) {
+        if ($requestedStart === null && $latestStart === null && $duration === null) {
             return;
         }
 
         $today = now()->toDateString();
         $earliestStart = $requestedStart !== null && $requestedStart > $today ? $requestedStart : $today;
 
-        $query->whereHas('dates', function (Builder $dateQuery) use ($earliestStart, $duration): void {
-            $dateQuery->whereNotIn('status', self::UNBOOKABLE_DATE_STATUSES)
+        $query->whereHas('dates', function (Builder $dateQuery) use ($earliestStart, $latestStart, $duration): void {
+            $dateQuery->whereNotIn('status', TourDateStatus::unbookable())
                 ->whereDate('start_date', '>=', $earliestStart);
+
+            if ($latestStart !== null) {
+                $dateQuery->whereDate('start_date', '<=', $latestStart);
+            }
 
             if ($duration === null) {
                 return;

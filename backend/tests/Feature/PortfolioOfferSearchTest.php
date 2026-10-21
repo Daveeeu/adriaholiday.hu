@@ -63,6 +63,15 @@ class PortfolioOfferSearchTest extends TestCase
         $this->assertOfferSlugs($this->getJson('/api/portfolio/offers?from=2026-07-01'), [$july->seo_name]);
     }
 
+    public function test_until_filter_only_matches_departures_starting_by_the_date(): void
+    {
+        $july = $this->tourWithDate('juliusi-ut', '2026-07-10', '2026-07-15');
+        $this->tourWithDate('augusztusi-ut', '2026-08-10', '2026-08-15');
+
+        $this->assertOfferSlugs($this->getJson('/api/portfolio/offers?from=2026-07-01&until=2026-07-31'), [$july->seo_name]);
+        $this->assertOfferSlugs($this->getJson('/api/portfolio/offers?until=2026-07-10'), [$july->seo_name]);
+    }
+
     public function test_from_filter_never_matches_past_departures(): void
     {
         $upcoming = $this->tourWithDate('kozelgo-ut', '2026-06-20', '2026-06-22');
