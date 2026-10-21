@@ -12,6 +12,8 @@ import { socialLinks, type SocialLink } from "../site-settings/social-links";
 import BarionPaymentBanner from "./BarionPaymentBanner";
 import LogoBadge from "./LogoBadge";
 
+const DEVELOPER_URL = "https://jandldavid.hu";
+
 function ExternalLink({
   href,
   label,
@@ -198,6 +200,18 @@ export default function Footer() {
             </motion.div>
           </div>
         </motion.div>
+
+        <p className="mt-6 text-center text-xs text-white/40">
+          A weboldalt készítette:{" "}
+          <a
+            href={DEVELOPER_URL}
+            target="_blank"
+            rel="noopener"
+            className="font-semibold text-white/60 transition-colors hover:text-[#00c389]"
+          >
+            jandldavid.hu
+          </a>
+        </p>
       </div>
     </footer>
   );
