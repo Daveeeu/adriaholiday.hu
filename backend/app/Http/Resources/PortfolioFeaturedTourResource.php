@@ -37,7 +37,7 @@ class PortfolioFeaturedTourResource extends JsonResource
             'duration' => TourMeta::duration($tour),
             'departureDate' => $departureDate,
             'departureDateLabel' => TourMeta::departureLabel($tour),
-            'link' => '/ajanlat/'.($tour->seo_name ?: Str::slug((string) $tour->name)),
+            'link' => $tour->publicPath(),
             'badge' => $meta['badge'] ?? null,
             'transport' => TourMeta::transport($tour),
             'programTypeLabel' => TourLabelResolver::referenceOptionLabel('program-type', $tour->program_type_id),

@@ -29,4 +29,11 @@ enum TripDurationRange: string
             self::Long => null,
         };
     }
+
+    public function contains(int $days): bool
+    {
+        $maxDays = $this->maxDays();
+
+        return $days >= $this->minDays() && ($maxDays === null || $days <= $maxDays);
+    }
 }

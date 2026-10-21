@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -150,6 +151,14 @@ class Tour extends Model implements HasMedia
     public function scopeListedPublicly(Builder $query): void
     {
         $query->where('active', true)->where('listed', true);
+    }
+
+    /**
+     * The tour's page on the public site.
+     */
+    public function publicPath(): string
+    {
+        return '/ajanlat/'.($this->seo_name ?: Str::slug((string) $this->name));
     }
 
     public function region(): BelongsTo

@@ -20,4 +20,20 @@ final class TourDateStatus
     {
         return [self::AVAILABLE, self::SOLD_OUT, self::CANCELLED];
     }
+
+    /**
+     * Statuses a date cannot be booked in; any other (including a date
+     * still being planned) takes bookings.
+     *
+     * @return array<int, string>
+     */
+    public static function unbookable(): array
+    {
+        return [self::SOLD_OUT, self::CANCELLED];
+    }
+
+    public static function isBookable(?string $status): bool
+    {
+        return ! in_array($status, self::unbookable(), true);
+    }
 }

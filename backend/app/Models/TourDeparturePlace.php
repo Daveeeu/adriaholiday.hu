@@ -27,6 +27,15 @@ class TourDeparturePlace extends Model
         'legacy_id' => 'integer',
     ];
 
+    /**
+     * The fee per passenger for boarding here, when loaded through a tour:
+     * the tour's own fee overrides the place's general fee.
+     */
+    public function tourFee(): float
+    {
+        return (float) ($this->pivot?->fee ?? $this->fee ?? 0);
+    }
+
     public function tours(): BelongsToMany
     {
         return $this->belongsToMany(Tour::class, 'tour_departure_place_tour');

@@ -124,8 +124,7 @@ class TourBookingPriceCalculator
 
     /**
      * A tour offering departure places requires the customer to pick one of
-     * its active places the chosen date offers. The per-tour fee overrides the
-     * place's general fee.
+     * its active places the chosen date offers (see TourDeparturePlace::tourFee()).
      *
      * @return array{id: int, name: string, fee: float, total: float}|null
      */
@@ -147,7 +146,7 @@ class TourBookingPriceCalculator
             ]);
         }
 
-        $fee = (float) ($place->pivot->fee ?? $place->fee ?? 0);
+        $fee = $place->tourFee();
 
         return [
             'id' => $place->id,

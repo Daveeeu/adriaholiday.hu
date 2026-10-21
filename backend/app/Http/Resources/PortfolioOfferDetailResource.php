@@ -11,7 +11,6 @@ use App\Support\Seo\RobotsDirective;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class PortfolioOfferDetailResource extends TourDetailResource
 {
@@ -100,7 +99,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
             ],
             'departureDate' => $firstDate?->start_date?->toDateString(),
             'departureDateLabel' => TourMeta::departureLabel($tour),
-            'link' => '/ajanlat/'.($tour->seo_name ?: Str::slug((string) $tour->name)),
+            'link' => $tour->publicPath(),
             'bookingFormFields' => app(BookingFormFieldResolver::class)->resolve($tour),
             'bookingInsurances' => BookingInsuranceSettings::load()->toArray(),
             'bookingPayment' => app(BookingPaymentService::class)->publicOptions($tour->price_box_currency ?: 'HUF'),
