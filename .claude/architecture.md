@@ -607,7 +607,8 @@ each validating its arguments with Laravel rules and answering from existing
 catalog services (`PortfolioOfferQuery`, `TourBookingPriceCalculator`).
 
 New tools implement `SalesAssistantTool` and are added to the registry.
-The OpenAI API key stays on the server; browsers receive short-lived client
-secrets only.
+The voice platform is Retell AI: it calls the tools as signed custom
+functions (`/api/sales-assistant/retell/functions/{tool}`). The Retell API key
+stays on the server; browsers receive short-lived web call tokens only.
 
 See `docs/ai-sales-assistant.md`.

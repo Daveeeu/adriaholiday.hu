@@ -2,12 +2,13 @@
 
 /*
 | The AI travel sales assistant demo: a Hungarian voice consultant on the
-| public site (/ai-utazasi-tanacsado) that talks to the visitor through the
-| OpenAI Realtime API and answers from the tour catalog through read-only
-| tools (see App\Services\SalesAssistant).
+| public site (/ai-utazasi-tanacsado), running on Retell AI. The visitor
+| talks to a Retell agent in the browser (web call, no phone number); the
+| agent answers from the tour catalog through read-only custom functions
+| that Retell calls on this backend (see App\Services\SalesAssistant).
 |
-| The browser never sees the OpenAI API key: the backend mints a short-lived
-| client secret per conversation and executes every tool call itself.
+| The browser never sees the Retell API key: the backend creates each web
+| call and verifies the signature of every function call.
 */
 
 return [
@@ -18,24 +19,31 @@ return [
     'enabled' => (bool) env('SALES_ASSISTANT_ENABLED', false),
 
     /*
+    | The browser demo page and its endpoints. Off while it is prepared: the
+    | Retell agent's functions work without it (Retell's dashboard can test
+    | the agent), so they only need `enabled`.
+    */
+    'demo_page_enabled' => (bool) env('SALES_ASSISTANT_DEMO_PAGE_ENABLED', false),
+
+    /*
     | When set, a conversation can only be started with this code, so the
     | demo can be shown without opening it to every visitor.
     */
     'access_code' => env('SALES_ASSISTANT_ACCESS_CODE'),
 
     /*
-    | How long one conversation may last, in seconds. The OpenAI client
-    | secret and the assistant session both expire after it.
+    | How long the browser may follow one conversation, in seconds. Match the
+    | agent's own max_call_duration_ms (see sales-assistant:retell-config).
     */
     'session_ttl_seconds' => (int) env('SALES_ASSISTANT_SESSION_TTL', 600),
 
     /*
-    | Tool calls one conversation may make, a guard against runaway loops.
+    | Function calls one conversation may make, a guard against runaway loops.
     */
     'max_tool_calls_per_session' => (int) env('SALES_ASSISTANT_MAX_TOOL_CALLS', 40),
 
     /*
-    | Conversations the whole site may start a day (the OpenAI cost cap).
+    | Conversations the whole site may start a day (the Retell cost cap).
     */
     'daily_session_limit' => (int) env('SALES_ASSISTANT_DAILY_SESSION_LIMIT', 100),
 
@@ -55,13 +63,17 @@ return [
     */
     'max_search_results' => 3,
 
-    'openai' => [
-        'api_key' => env('OPENAI_API_KEY'),
-        'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
-        'model' => env('SALES_ASSISTANT_MODEL', 'gpt-realtime-2.1'),
-        'voice' => env('SALES_ASSISTANT_VOICE', 'marin'),
-        'transcription_model' => env('SALES_ASSISTANT_TRANSCRIPTION_MODEL', 'gpt-4o-transcribe'),
-        'timeout' => (int) env('SALES_ASSISTANT_OPENAI_TIMEOUT', 15),
+    'retell' => [
+        // Signs Retell's function calls too, so the backend can verify them.
+        'api_key' => env('RETELL_API_KEY'),
+        'agent_id' => env('RETELL_AGENT_ID'),
+        'base_url' => env('RETELL_BASE_URL', 'https://api.retellai.com'),
+        'timeout' => (int) env('RETELL_TIMEOUT', 10),
+        // How old a signed function call may be, in seconds (Retell's SDK default).
+        'signature_tolerance_seconds' => 300,
+        // Used by sales-assistant:retell-config for the agent it prints.
+        'llm_model' => env('RETELL_LLM_MODEL', 'gpt-4.1'),
+        'voice_id' => env('RETELL_VOICE_ID'),
     ],
 
 ];

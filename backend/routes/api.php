@@ -97,16 +97,21 @@ Route::post('contact-messages', [PublicContactMessageController::class, 'store']
 
 // The AI travel sales assistant demo (config/sales_assistant.php).
 Route::prefix('sales-assistant')
-    ->middleware(['sales-assistant.enabled', 'throttle:sales-assistant'])
+    ->middleware(['sales-assistant.enabled:page', 'throttle:sales-assistant'])
     ->group(function (): void {
         Route::get('status', [SalesAssistantController::class, 'status']);
         Route::post('sessions', [SalesAssistantController::class, 'store'])->middleware('throttle:sales-assistant-sessions');
 
         Route::middleware('sales-assistant.session')->group(function (): void {
             Route::delete('sessions/current', [SalesAssistantController::class, 'destroy']);
-            Route::post('tools/{tool}', [SalesAssistantController::class, 'executeTool'])->where('tool', '[a-z_]+');
+            Route::get('sessions/current/recommendations', [SalesAssistantController::class, 'recommendations']);
         });
     });
+
+// The Retell agent's custom functions, called by Retell's servers.
+Route::post('sales-assistant/retell/functions/{tool}', [SalesAssistantController::class, 'executeFunction'])
+    ->middleware(['sales-assistant.enabled', 'retell.signature', 'throttle:sales-assistant-functions'])
+    ->where('tool', '[a-z_]+');
 
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');

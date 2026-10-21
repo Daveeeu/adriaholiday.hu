@@ -136,7 +136,6 @@ class GetTripPriceTool implements SalesAssistantTool
             throw new SalesAssistantToolException(
                 'departure_required',
                 'This trip has scheduled departures: ask the customer which one and pass its departure_id.',
-                422,
                 ['departures' => $departures->take(6)->map(fn (TourDate $date): array => [
                     'departure_id' => $date->id,
                     ...$this->catalog->departureDates($date),
@@ -177,7 +176,6 @@ class GetTripPriceTool implements SalesAssistantTool
             throw new SalesAssistantToolException(
                 'pickup_location_required',
                 'This trip needs a pickup location: ask the customer where they board and pass its pickup_location_id.',
-                422,
                 ['pickup_locations' => ($date?->offeredDeparturePlaces($places) ?? $places)
                     ->map(fn (TourDeparturePlace $place): array => [
                         'pickup_location_id' => $place->id,

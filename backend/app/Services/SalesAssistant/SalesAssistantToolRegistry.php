@@ -40,18 +40,11 @@ class SalesAssistantToolRegistry
     }
 
     /**
-     * The tools in the Realtime session's function format.
-     *
-     * @return array<int, array<string, mixed>>
+     * @return array<int, SalesAssistantTool>
      */
-    public function definitions(): array
+    public function all(): array
     {
-        return array_values(array_map(fn (SalesAssistantTool $tool): array => [
-            'type' => 'function',
-            'name' => $tool->name(),
-            'description' => $tool->description(),
-            'parameters' => $tool->parameters(),
-        ], $this->tools));
+        return array_values($this->tools);
     }
 
     /**

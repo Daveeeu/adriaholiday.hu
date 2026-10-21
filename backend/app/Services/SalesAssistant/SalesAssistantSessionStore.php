@@ -8,8 +8,9 @@ use Illuminate\Support\Str;
 
 /**
  * Assistant sessions, kept in the cache only: a session is the right of one
- * browser conversation to call the catalog tools until it expires or ends.
- * Nothing about the conversation itself (audio, transcript) is stored.
+ * browser to follow the Retell web call it started (its recommended trips)
+ * until it expires or ends. Nothing about the conversation itself (audio,
+ * transcript) is stored.
  *
  * The browser holds the session token; the cache key is its hash, so a
  * cache dump never reveals usable tokens.
@@ -21,55 +22,38 @@ class SalesAssistantSessionStore
     public function __construct(private readonly Cache $cache) {}
 
     /**
-     * Opens a session and returns its token.
+     * Opens a session for a web call and returns its token.
      */
-    public function open(CarbonImmutable $expiresAt): string
+    public function open(string $callId, CarbonImmutable $expiresAt): string
     {
         $token = Str::random(64);
 
-        $this->cache->put($this->key($token), ['expires_at' => $expiresAt->getTimestamp()], $expiresAt);
-        $this->cache->put($this->toolCallsKey($token), 0, $expiresAt);
+        $this->cache->put($this->key($token), ['call_id' => $callId, 'expires_at' => $expiresAt->getTimestamp()], $expiresAt);
 
         return $token;
     }
 
     /**
-     * When the session ends, or null for an unknown, ended or expired token.
+     * The web call of a live session, or null for an unknown, ended or expired token.
      */
-    public function expiresAt(string $token): ?CarbonImmutable
+    public function callId(string $token): ?string
     {
         $session = $this->cache->get($this->key($token));
 
-        if (! is_array($session) || ! isset($session['expires_at'])) {
+        if (! is_array($session) || ! isset($session['call_id'], $session['expires_at'])) {
             return null;
         }
 
-        $expiresAt = CarbonImmutable::createFromTimestamp((int) $session['expires_at']);
-
-        return $expiresAt->isFuture() ? $expiresAt : null;
-    }
-
-    /**
-     * Counts a tool call and returns how many the session has made.
-     */
-    public function recordToolCall(string $token): int
-    {
-        return (int) $this->cache->increment($this->toolCallsKey($token));
+        return CarbonImmutable::createFromTimestamp((int) $session['expires_at'])->isFuture() ? (string) $session['call_id'] : null;
     }
 
     public function close(string $token): void
     {
         $this->cache->forget($this->key($token));
-        $this->cache->forget($this->toolCallsKey($token));
     }
 
     private function key(string $token): string
     {
         return self::PREFIX.hash('sha256', $token);
-    }
-
-    private function toolCallsKey(string $token): string
-    {
-        return $this->key($token).':tool-calls';
     }
 }

@@ -60,6 +60,24 @@ class TripCatalog
     }
 
     /**
+     * Active trips by id, ready for the public offer card, in the given order
+     * (ids no longer offered are left out).
+     *
+     * @param  array<int, int>  $ids
+     * @return Collection<int, Tour>
+     */
+    public function cardsByIds(array $ids): Collection
+    {
+        if ($ids === []) {
+            return new Collection;
+        }
+
+        $tours = Tour::query()->where('active', true)->whereIn('id', $ids)->with(self::cardRelations())->get()->keyBy('id');
+
+        return collect($ids)->map(fn (int $id): ?Tour => $tours->get($id))->filter()->values();
+    }
+
+    /**
      * An upcoming, scheduled departure of the trip.
      *
      * @throws SalesAssistantToolException when the trip has no such departure

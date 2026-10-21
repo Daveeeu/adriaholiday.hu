@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureSalesAssistantEnabled;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\RequireSalesAssistantSession;
+use App\Http\Middleware\VerifyRetellSignature;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureUserIsActive::class,
             'sales-assistant.enabled' => EnsureSalesAssistantEnabled::class,
             'sales-assistant.session' => RequireSalesAssistantSession::class,
+            'retell.signature' => VerifyRetellSignature::class,
         ]);
 
         // Production traffic reaches PHP-FPM through the edge proxy and the

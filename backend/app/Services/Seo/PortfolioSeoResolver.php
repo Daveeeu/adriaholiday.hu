@@ -113,13 +113,13 @@ class PortfolioSeoResolver
     }
 
     /**
-     * The AI travel consultant demo: never indexed, and absent while switched off.
+     * The AI travel consultant demo: never indexed, and absent while it or its page is switched off.
      */
     private function salesAssistant(): SeoPage
     {
         $path = '/ai-utazasi-tanacsado';
 
-        return config('sales_assistant.enabled')
+        return config('sales_assistant.enabled') && config('sales_assistant.demo_page_enabled')
             ? new SeoPage('AI utazási tanácsadó (demó)', 'Beszélgess hangalapú AI utazási tanácsadónkkal, és találd meg a hozzád illő utat az Adria Holiday kínálatából.', $path, noIndex: true)
             : SeoPage::notFound($path);
     }

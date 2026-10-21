@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Middleware\RequireSalesAssistantSession;
-use App\Http\Requests\ExecuteSalesAssistantToolRequest;
+use App\Http\Requests\RetellFunctionRequest;
 use App\Http\Requests\StartSalesAssistantSessionRequest;
+use App\Http\Resources\PortfolioFeaturedTourResource;
 use App\Http\Resources\SalesAssistantSessionResource;
-use App\Http\Resources\SalesAssistantToolResultResource;
 use App\Services\SalesAssistant\SalesAssistantSessionService;
-use App\Services\SalesAssistant\SalesAssistantToolRegistry;
+use App\Services\SalesAssistant\TripCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
- * The AI travel sales assistant demo: conversation lifecycle and the
- * read-only catalog tools its model calls.
+ * The AI travel sales assistant demo: the browser's conversation lifecycle,
+ * and the read-only catalog functions the Retell agent calls.
  */
 class SalesAssistantController extends Controller
 {
@@ -41,16 +41,32 @@ class SalesAssistantController extends Controller
 
     public function destroy(Request $request): Response
     {
-        $this->sessions->end((string) $request->attributes->get(RequireSalesAssistantSession::ATTRIBUTE));
+        $this->sessions->end($this->sessionToken($request));
 
         return response()->noContent();
     }
 
-    public function executeTool(ExecuteSalesAssistantToolRequest $request, SalesAssistantToolRegistry $tools): SalesAssistantToolResultResource
+    public function recommendations(Request $request, TripCatalog $catalog): JsonResponse
     {
-        $this->sessions->authorizeToolCall($request->sessionToken());
-        $tool = $request->tool();
+        $trips = $catalog->cardsByIds($this->sessions->recommendedTripIds($this->sessionToken($request)));
 
-        return new SalesAssistantToolResultResource($tools->execute($tool, $request->toolArguments()), $tool->name());
+        return response()->json([
+            'data' => ['trips' => PortfolioFeaturedTourResource::collection($trips)->resolve($request)],
+        ]);
+    }
+
+    /**
+     * Answers with the tool's result as is: Retell hands it to the model.
+     */
+    public function executeFunction(RetellFunctionRequest $request): JsonResponse
+    {
+        $result = $this->sessions->executeTool($request->callId(), $request->tool(), $request->toolArguments());
+
+        return response()->json($result->result);
+    }
+
+    private function sessionToken(Request $request): string
+    {
+        return (string) $request->attributes->get(RequireSalesAssistantSession::ATTRIBUTE);
     }
 }

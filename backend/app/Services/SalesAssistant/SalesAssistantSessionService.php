@@ -2,28 +2,31 @@
 
 namespace App\Services\SalesAssistant;
 
-use App\Support\SalesAssistant\SalesAssistantInstructions;
+use App\Services\SalesAssistant\Tools\SalesAssistantTool;
+use App\Services\SalesAssistant\Tools\SalesAssistantToolResult;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Cache\Repository as Cache;
 
 /**
- * Starts and ends assistant conversations. A conversation gets an OpenAI
- * client secret (for the browser's voice connection) and an assistant
- * session (for the catalog tools), both short-lived. The number of
- * conversations a day is capped, since each one costs OpenAI usage.
+ * Starts and ends assistant conversations and answers the agent's function
+ * calls. A conversation is a Retell web call the backend creates (the
+ * browser joins it with a short-lived access token) plus an assistant
+ * session the browser follows the recommended trips with. The number of
+ * conversations a day is capped, since each one costs Retell usage.
  */
 class SalesAssistantSessionService
 {
     public function __construct(
-        private readonly OpenAiRealtimeClient $openAi,
+        private readonly RetellClient $retell,
         private readonly SalesAssistantSessionStore $sessions,
+        private readonly SalesAssistantCallStore $calls,
         private readonly SalesAssistantToolRegistry $tools,
         private readonly Cache $cache,
     ) {}
 
     public function isAvailable(): bool
     {
-        return (bool) config('sales_assistant.enabled') && $this->openAi->isConfigured();
+        return (bool) config('sales_assistant.enabled') && $this->retell->isConfigured();
     }
 
     public function requiresAccessCode(): bool
@@ -37,20 +40,20 @@ class SalesAssistantSessionService
     }
 
     /**
-     * @return array{sessionToken: string, expiresAt: CarbonImmutable, clientSecret: string, clientSecretExpiresAt: CarbonImmutable, model: string}
+     * @return array{sessionToken: string, expiresAt: CarbonImmutable, call: array{call_id: string, access_token: string, transport: string|null, url: string|null, ice_servers: array<int, mixed>|null, expires_at: int|null}}
      *
      * @throws SalesAssistantException
      */
     public function start(): array
     {
-        if (! $this->openAi->isConfigured()) {
+        if (! $this->retell->isConfigured()) {
             throw SalesAssistantException::notConfigured();
         }
 
         $this->reserveDailySession();
 
         try {
-            $clientSecret = $this->openAi->createClientSecret($this->realtimeSession());
+            $call = $this->retell->createWebCall(['source' => 'adriaholiday-sales-assistant-demo']);
         } catch (SalesAssistantException $exception) {
             // A conversation that never started does not count against the day.
             $this->cache->decrement($this->dailyCounterKey());
@@ -61,33 +64,15 @@ class SalesAssistantSessionService
         $expiresAt = CarbonImmutable::now()->addSeconds((int) config('sales_assistant.session_ttl_seconds'));
 
         return [
-            'sessionToken' => $this->sessions->open($expiresAt),
+            'sessionToken' => $this->sessions->open($call['call_id'], $expiresAt),
             'expiresAt' => $expiresAt,
-            'clientSecret' => $clientSecret['value'],
-            'clientSecretExpiresAt' => $clientSecret['expiresAt'],
-            'model' => (string) config('sales_assistant.openai.model'),
+            'call' => $call,
         ];
-    }
-
-    /**
-     * Counts a tool call of a live session.
-     *
-     * @throws SalesAssistantException when the session is over or out of tool calls
-     */
-    public function authorizeToolCall(string $token): void
-    {
-        if ($this->sessions->expiresAt($token) === null) {
-            throw SalesAssistantException::sessionInvalid();
-        }
-
-        if ($this->sessions->recordToolCall($token) > (int) config('sales_assistant.max_tool_calls_per_session')) {
-            throw SalesAssistantException::toolBudgetExhausted();
-        }
     }
 
     public function isLive(string $token): bool
     {
-        return $this->sessions->expiresAt($token) !== null;
+        return $this->sessions->callId($token) !== null;
     }
 
     public function end(string $token): void
@@ -96,39 +81,51 @@ class SalesAssistantSessionService
     }
 
     /**
-     * The Realtime session the browser connects to: Hungarian voice in and
-     * out, the catalog tools, and the sales instructions.
-     *
-     * @return array<string, mixed>
+     * Whether a function call comes from a call of the configured agent.
      */
-    private function realtimeSession(): array
+    public function isOwnAgent(?string $agentId): bool
     {
-        return [
-            'type' => 'realtime',
-            'model' => (string) config('sales_assistant.openai.model'),
-            'instructions' => SalesAssistantInstructions::build(now(), (int) config('sales_assistant.max_search_results')),
-            'output_modalities' => ['audio'],
-            'audio' => [
-                'input' => [
-                    'transcription' => [
-                        'model' => (string) config('sales_assistant.openai.transcription_model'),
-                        'language' => 'hu',
-                    ],
-                    'noise_reduction' => ['type' => 'near_field'],
-                    'turn_detection' => [
-                        'type' => 'semantic_vad',
-                        'eagerness' => 'auto',
-                        'create_response' => true,
-                        'interrupt_response' => true,
-                    ],
-                ],
-                'output' => [
-                    'voice' => (string) config('sales_assistant.openai.voice'),
-                ],
-            ],
-            'tools' => $this->tools->definitions(),
-            'tool_choice' => 'auto',
-        ];
+        return $agentId !== null && hash_equals($this->retell->agentId(), $agentId);
+    }
+
+    /**
+     * Runs one function call of a Retell call, and remembers the trips it
+     * talks about for the demo page.
+     *
+     * @param  array<string, mixed>  $arguments  validated against the tool's rules
+     *
+     * @throws SalesAssistantToolException
+     */
+    public function executeTool(string $callId, SalesAssistantTool $tool, array $arguments): SalesAssistantToolResult
+    {
+        if ($this->calls->recordToolCall($callId) > (int) config('sales_assistant.max_tool_calls_per_session')) {
+            throw SalesAssistantToolException::budgetExhausted();
+        }
+
+        $result = $this->tools->execute($tool, $arguments);
+
+        if ($result->trips->isNotEmpty() || $result->replacesRecommendations) {
+            $this->calls->rememberTrips(
+                $callId,
+                $result->trips->pluck('id')->all(),
+                $result->replacesRecommendations,
+                (int) config('sales_assistant.max_search_results'),
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * The tour ids recommended so far in the session's call.
+     *
+     * @return array<int, int>
+     */
+    public function recommendedTripIds(string $token): array
+    {
+        $callId = $this->sessions->callId($token);
+
+        return $callId !== null ? $this->calls->trips($callId) : [];
     }
 
     /**

@@ -99,12 +99,15 @@ class PortfolioSeoTest extends TestCase
         }
     }
 
-    public function test_the_ai_assistant_demo_page_is_never_indexed_and_hidden_while_switched_off(): void
+    public function test_the_ai_assistant_demo_page_is_never_indexed_and_hidden_while_it_or_its_page_is_off(): void
     {
         config(['sales_assistant.enabled' => false]);
         $this->visit('/ai-utazasi-tanacsado')->assertNotFound();
 
-        config(['sales_assistant.enabled' => true]);
+        config(['sales_assistant.enabled' => true, 'sales_assistant.demo_page_enabled' => false]);
+        $this->visit('/ai-utazasi-tanacsado')->assertNotFound();
+
+        config(['sales_assistant.demo_page_enabled' => true]);
         $content = $this->visit('/ai-utazasi-tanacsado')->assertOk()->getContent();
 
         $this->assertStringContainsString('AI utazási tanácsadó (demó)', $content);

@@ -185,9 +185,12 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('login', fn ($request) => Limit::perMinute(5)->by($request->ip()));
 
-        // Each started conversation costs OpenAI usage; the service also caps them per day.
+        // Each started conversation costs Retell usage; the service also caps them per day.
         RateLimiter::for('sales-assistant-sessions', fn ($request) => Limit::perHour((int) config('sales_assistant.sessions_per_ip_per_hour'))->by($request->ip()));
 
         RateLimiter::for('sales-assistant', fn ($request) => Limit::perMinute(60)->by($request->ip()));
+
+        // Every function call comes from Retell's servers, so it is limited per call, not per IP.
+        RateLimiter::for('sales-assistant-functions', fn ($request) => Limit::perMinute(30)->by('call:'.(string) $request->input('call.call_id')));
     }
 }

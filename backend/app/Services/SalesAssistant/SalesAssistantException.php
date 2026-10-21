@@ -40,11 +40,6 @@ class SalesAssistantException extends RuntimeException
         return new self('session_invalid', 'A beszélgetés lejárt vagy már befejeződött. Indíts újat.', 401);
     }
 
-    public static function toolBudgetExhausted(): self
-    {
-        return new self('tool_budget_exhausted', 'Ebben a beszélgetésben elértük a lekérdezések számának korlátját. Indíts új beszélgetést.', 429);
-    }
-
     public function render(): JsonResponse
     {
         return response()->json([
