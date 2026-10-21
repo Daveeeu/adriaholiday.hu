@@ -2,6 +2,7 @@
 
 namespace App\Services\SalesAssistant;
 
+use Illuminate\Contracts\Debug\ShouldntReport;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 
@@ -12,9 +13,11 @@ use RuntimeException;
  * what went wrong and what to do next, and `details` may list valid choices.
  *
  * It is answered with HTTP 200: Retell treats any other status as a failed
- * request, and the model would never read the guidance.
+ * request, and the model would never read the guidance. Being expected, it
+ * is never written to the error log (unexpected failures are, see the tool
+ * registry).
  */
-class SalesAssistantToolException extends RuntimeException
+class SalesAssistantToolException extends RuntimeException implements ShouldntReport
 {
     /**
      * @param  array<string, mixed>  $details

@@ -115,6 +115,17 @@ class SalesAssistantToolsTest extends TestCase
             ->assertJsonStructure(['error' => ['details' => ['errors' => ['passengers']]]]);
 
         foreach ([
+            ['search_trips', ['departure_from' => '2026-02-30']],
+            ['search_trips', ['departure_until' => '2026/07/01']],
+            ['get_trip_departures', ['slug' => 'valami', 'departure_from' => 'jövő hét']],
+            ['get_trip_departures', ['slug' => 'valami', 'limit' => 0]],
+            ['get_trip_departures', ['slug' => 'valami', 'limit' => 11]],
+            ['get_pickup_locations', ['slug' => 'valami', 'departure_id' => -1]],
+            ['get_trip_price', ['slug' => 'valami', 'passengers' => 2, 'departure_id' => 0]],
+            ['get_trip_price', ['slug' => 'valami', 'passengers' => 2, 'pickup_location_id' => -3]],
+            ['get_trip_price', ['slug' => 'valami', 'passengers' => -2]],
+            ['get_trip_price', ['slug' => 'valami', 'passengers' => 2.5]],
+            ['get_trip_price', ['slug' => 'valami', 'passengers' => 'két']],
             ['get_trip_price', ['slug' => 'valami', 'passengers' => 21]],
             ['get_trip_details', []],
             ['get_trip_details', ['slug' => '../admin']],

@@ -6,6 +6,7 @@ use App\Models\Tour;
 use App\Models\TourDate;
 use App\Support\SalesAssistant\RetellSignature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\TestResponse;
 use Tests\Concerns\InteractsWithSalesAssistant;
@@ -64,6 +65,16 @@ class SalesAssistantRetellFunctionsTest extends TestCase
                 && $context['key_configured'] === true
                 && ! array_key_exists('body', $context)))
             ->times(5);
+    }
+
+    public function test_expected_function_errors_are_not_written_to_the_error_log(): void
+    {
+        Exceptions::fake();
+
+        $this->callRetellFunction('get_trip_price', ['slug' => 'x', 'passengers' => 0])->assertOk()->assertJsonPath('error.code', 'invalid_arguments');
+        $this->callRetellFunction('get_trip_details', ['slug' => 'nincs-ilyen'])->assertOk()->assertJsonPath('error.code', 'trip_not_found');
+
+        Exceptions::assertNothingReported();
     }
 
     public function test_calls_are_refused_while_no_retell_key_is_configured(): void

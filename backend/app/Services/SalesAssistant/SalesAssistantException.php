@@ -2,15 +2,18 @@
 
 namespace App\Services\SalesAssistant;
 
+use Illuminate\Contracts\Debug\ShouldntReport;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 
 /**
  * An expected failure of the assistant's session lifecycle, rendered as
  * `{"message": ..., "error": {"code": ...}}` with its HTTP status. The
- * message is Hungarian: the demo page shows it to the visitor as is.
+ * message is Hungarian: the demo page shows it to the visitor as is. Being
+ * expected, it is never written to the error log (an upstream failure is
+ * logged where it happens, see RetellClient).
  */
-class SalesAssistantException extends RuntimeException
+class SalesAssistantException extends RuntimeException implements ShouldntReport
 {
     public function __construct(
         public readonly string $errorCode,
