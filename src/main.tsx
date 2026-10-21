@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import LoadingScreen from "./app/components/LoadingScreen";
 import { CLUB_TERMS_PATH, TRAVEL_CLUB_PATH } from "./app/newsletter/travel-club";
 import { INSURANCE_PATH } from "./app/booking/insurance";
+import { SALES_ASSISTANT_PATH } from "./app/sales-assistant/sales-assistant-path";
 
 const HomeRoute = lazy(() => import("./app/routes/HomeRoute"));
 const StaticPage = lazy(() => import("./app/routes/StaticPage"));
@@ -25,6 +26,7 @@ const TravelClubRoute = lazy(() => import("./app/routes/TravelClubRoute"));
 const PaymentResultRoute = lazy(() => import("./app/routes/PaymentResultRoute"));
 const ApartmentLocationRoute = lazy(() => import("./app/apartments/ApartmentLocationRoute"));
 const ApartmentRoute = lazy(() => import("./app/apartments/ApartmentRoute"));
+const SalesAssistantRoute = lazy(() => import("./app/sales-assistant/SalesAssistantRoute"));
 
 const router = createBrowserRouter([
   {
@@ -66,6 +68,7 @@ const router = createBrowserRouter([
         element: <StaticPage title="Biztosítások" canonicalPath={INSURANCE_PATH} />,
       },
       { path: "fizetes/eredmeny", element: <PaymentResultRoute /> },
+      { path: SALES_ASSISTANT_PATH.slice(1), element: <SalesAssistantRoute /> },
       { path: "*", element: <NotFoundRoute /> },
     ],
   },

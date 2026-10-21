@@ -184,5 +184,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('search-suggestions', fn ($request) => Limit::perMinute(120)->by($request->ip()));
 
         RateLimiter::for('login', fn ($request) => Limit::perMinute(5)->by($request->ip()));
+
+        // Each started conversation costs OpenAI usage; the service also caps them per day.
+        RateLimiter::for('sales-assistant-sessions', fn ($request) => Limit::perHour((int) config('sales_assistant.sessions_per_ip_per_hour'))->by($request->ip()));
+
+        RateLimiter::for('sales-assistant', fn ($request) => Limit::perMinute(60)->by($request->ip()));
     }
 }

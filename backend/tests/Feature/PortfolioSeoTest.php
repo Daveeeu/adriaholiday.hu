@@ -99,6 +99,18 @@ class PortfolioSeoTest extends TestCase
         }
     }
 
+    public function test_the_ai_assistant_demo_page_is_never_indexed_and_hidden_while_switched_off(): void
+    {
+        config(['sales_assistant.enabled' => false]);
+        $this->visit('/ai-utazasi-tanacsado')->assertNotFound();
+
+        config(['sales_assistant.enabled' => true]);
+        $content = $this->visit('/ai-utazasi-tanacsado')->assertOk()->getContent();
+
+        $this->assertStringContainsString('AI utazási tanácsadó (demó)', $content);
+        $this->assertStringContainsString('noindex,nofollow', $content);
+    }
+
     public function test_other_hosts_are_never_indexed_but_point_to_the_canonical_site(): void
     {
         $response = $this->visit('/rolunk', 'adriaholiday.jandldavid.hu')->assertOk();

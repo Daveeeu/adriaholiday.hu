@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
     "build": "vite build",
+    "test": "node --test \"src/**/*.test.mjs\"",
     "dev": "vite"
   },
   "dependencies": {

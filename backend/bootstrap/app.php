@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureSalesAssistantEnabled;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\RequireSalesAssistantSession;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -27,6 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'active' => EnsureUserIsActive::class,
+            'sales-assistant.enabled' => EnsureSalesAssistantEnabled::class,
+            'sales-assistant.session' => RequireSalesAssistantSession::class,
         ]);
 
         // Production traffic reaches PHP-FPM through the edge proxy and the

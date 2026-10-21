@@ -44,3 +44,14 @@ input[type="number"]::-webkit-outer-spin-button {
 body {
   overflow-x: hidden;
 }
+
+/* The AI travel consultant's orb, gently breathing while it waits. */
+@keyframes orb-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}

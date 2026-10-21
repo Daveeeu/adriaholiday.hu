@@ -56,6 +56,7 @@ use App\Http\Controllers\PublicBookingPaymentController;
 use App\Http\Controllers\PublicContactMessageController;
 use App\Http\Controllers\PublicNewsletterController;
 use App\Http\Controllers\PublicTourInquiryController;
+use App\Http\Controllers\SalesAssistantController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
@@ -93,6 +94,19 @@ Route::middleware('throttle:payments')->group(function (): void {
 Route::post('tour-inquiries', [PublicTourInquiryController::class, 'store'])->middleware('throttle:bookings');
 Route::post('newsletter/subscribe', [PublicNewsletterController::class, 'store'])->middleware('throttle:newsletter');
 Route::post('contact-messages', [PublicContactMessageController::class, 'store'])->middleware('throttle:contact');
+
+// The AI travel sales assistant demo (config/sales_assistant.php).
+Route::prefix('sales-assistant')
+    ->middleware(['sales-assistant.enabled', 'throttle:sales-assistant'])
+    ->group(function (): void {
+        Route::get('status', [SalesAssistantController::class, 'status']);
+        Route::post('sessions', [SalesAssistantController::class, 'store'])->middleware('throttle:sales-assistant-sessions');
+
+        Route::middleware('sales-assistant.session')->group(function (): void {
+            Route::delete('sessions/current', [SalesAssistantController::class, 'destroy']);
+            Route::post('tools/{tool}', [SalesAssistantController::class, 'executeTool'])->where('tool', '[a-z_]+');
+        });
+    });
 
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');

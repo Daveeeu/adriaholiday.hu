@@ -67,6 +67,7 @@ class PortfolioSeoResolver
             $segments === [] => $this->home(),
             count($segments) === 1 && isset(self::STATIC_PAGES[$segments[0]]) => $this->staticPage($segments[0]),
             $segments === ['fizetes', 'eredmeny'] => new SeoPage('Fizetés eredménye', 'Az online fizetés eredménye.', '/fizetes/eredmeny', noIndex: true),
+            $segments === ['ai-utazasi-tanacsado'] => $this->salesAssistant(),
             count($segments) === 2 && $segments[0] === 'ajanlat' => $this->offer($segments[1]),
             count($segments) === 2 && $segments[0] === 'blog' => $this->article($segments[1]),
             count($segments) === 2 && $segments[0] === 'kategoriak' => $this->category($segments[1]),
@@ -109,6 +110,18 @@ class PortfolioSeoResolver
         [$title, $description] = self::STATIC_PAGES[$slug];
 
         return new SeoPage($title, $description, "/{$slug}", image: $this->defaultImage(), jsonLd: [$this->breadcrumb([[$title, "/{$slug}"]])]);
+    }
+
+    /**
+     * The AI travel consultant demo: never indexed, and absent while switched off.
+     */
+    private function salesAssistant(): SeoPage
+    {
+        $path = '/ai-utazasi-tanacsado';
+
+        return config('sales_assistant.enabled')
+            ? new SeoPage('AI utazási tanácsadó (demó)', 'Beszélgess hangalapú AI utazási tanácsadónkkal, és találd meg a hozzád illő utat az Adria Holiday kínálatából.', $path, noIndex: true)
+            : SeoPage::notFound($path);
     }
 
     private function offer(string $slug): SeoPage

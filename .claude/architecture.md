@@ -596,3 +596,18 @@ Before considering a feature complete ask:
 If any answer is "No",
 
 improve the implementation before finishing.
+---
+
+# AI Sales Assistant
+
+The public site's voice travel consultant (`/ai-utazasi-tanacsado`) follows
+one rule: the model never touches the database. It may only call the
+read-only tools registered in `App\Services\SalesAssistant\SalesAssistantToolRegistry`,
+each validating its arguments with Laravel rules and answering from existing
+catalog services (`PortfolioOfferQuery`, `TourBookingPriceCalculator`).
+
+New tools implement `SalesAssistantTool` and are added to the registry.
+The OpenAI API key stays on the server; browsers receive short-lived client
+secrets only.
+
+See `docs/ai-sales-assistant.md`.

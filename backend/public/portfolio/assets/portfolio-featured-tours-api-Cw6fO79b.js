@@ -1,0 +1,1 @@
+import{g as e}from"./index-BhzyxBsA.js";async function s(o=6){const t=await fetch(`${e()}/portfolio/featured-tours?limit=${encodeURIComponent(o)}`,{headers:{Accept:"application/json"},credentials:"include"});if(!t.ok)throw new Error(`Request failed with status ${t.status}`);return await t.json()}export{s as f};
