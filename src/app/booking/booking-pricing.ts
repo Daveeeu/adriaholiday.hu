@@ -17,6 +17,8 @@ export type BookingPriceLine = {
   key: string;
   label: string;
   amount: number;
+  /** For a per-person charge, how many pay it and at what price each ("2 fő × 3 900 Ft"). */
+  perPerson?: { count: number; unitPrice: number };
 };
 
 export type BookingPriceEstimate = {
@@ -203,7 +205,7 @@ export function estimateBookingPrice({
   const discount = discountPercent !== null ? Math.round((baseTotal * discountPercent) / 100) : 0;
   const departureFee = departurePlace?.fee ?? 0;
   const lines: BookingPriceLine[] = [
-    { key: "base", label: `Részvételi díj (${travellers} fő)`, amount: baseTotal },
+    { key: "base", label: "Részvételi díj", amount: baseTotal, perPerson: { count: travellers, unitPrice: basePrice } },
   ];
 
   if (discount > 0) {
@@ -211,7 +213,12 @@ export function estimateBookingPrice({
   }
 
   if (departurePlace && departureFee > 0) {
-    lines.push({ key: "departure", label: `Felszállás: ${departurePlace.name}`, amount: departureFee * travellers });
+    lines.push({
+      key: "departure",
+      label: `Felszállás: ${departurePlace.name}`,
+      amount: departureFee * travellers,
+      perPerson: { count: travellers, unitPrice: departureFee },
+    });
   }
 
   const bookingExtras = chargedBookingExtras(extras, bookingExtraIds, travellers);
@@ -226,7 +233,12 @@ export function estimateBookingPrice({
     const count = passengerExtras.filter((charged) => charged.includes(extra)).length;
 
     if (count > 0) {
-      lines.push({ key: `extra-${extra.id}`, label: `${extra.name} (${count} fő)`, amount: extra.price * count });
+      lines.push({
+        key: `extra-${extra.id}`,
+        label: extra.name,
+        amount: extra.price * count,
+        perPerson: { count, unitPrice: extra.price },
+      });
     }
   });
 
@@ -245,8 +257,10 @@ export function estimateBookingPrice({
   if (insurances && travelInsured > 0 && days !== null) {
     insuranceLines.push({
       key: "travel-insurance",
-      label: `${insurances.travelInsurance.name} (${travelInsured} fő)`,
+      label: insurances.travelInsurance.name,
+      // Rounded as the backend rounds it, over all the insured passengers.
       amount: Math.round(insurances.travelInsurance.dailyFee * travelInsured * days),
+      perPerson: { count: travelInsured, unitPrice: travelInsuranceFee(insurances, days) },
     });
   }
 

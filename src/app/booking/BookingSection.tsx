@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { Check, CreditCard, Mail, ShieldCheck } from "lucide-react";
+import { Check, CreditCard, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioBookingPayment, type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import BookingFieldInput from "./BookingFieldInput";
@@ -58,6 +58,9 @@ const COUPON_FIELD: BookingFormField = {
   priceLabel: null,
   visibility: "optional",
 };
+
+/** As many passengers as one booking takes; a larger group asks for a group quote. */
+const MAX_PASSENGERS = 20;
 
 const TERMS_REQUIRED_MESSAGE = "Az ÁSZF és az adatkezelési tájékoztató elfogadása kötelező.";
 
@@ -458,15 +461,28 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
     }
   }
 
-  function addPassenger() {
-    setPassengerOptions([...currentPassengerOptions, EMPTY_PASSENGER_OPTIONS]);
-    setPassengers((current) => {
-      const next = [...current, initialValues(passengerFields)];
-      trackEvent("participants_change", {
-        entity: { type: "tour", slug: trip.slug },
-        metadata: { participants: next.length },
-      });
-      return next;
+  /** Sets the head count: passengers are added empty or taken off the end. */
+  function changePassengerCount(count: number) {
+    const next = Math.min(MAX_PASSENGERS, Math.max(1, count));
+
+    if (next === passengers.length) {
+      return;
+    }
+
+    if (next < passengers.length) {
+      setPassengerChoiceErrors({});
+      setFieldErrors((current) => ({ ...current, passengers: {} }));
+    }
+
+    setPassengerOptions(
+      Array.from({ length: next }, (_, index) => currentPassengerOptions[index] ?? EMPTY_PASSENGER_OPTIONS),
+    );
+    setPassengers((current) =>
+      Array.from({ length: next }, (_, index) => current[index] ?? initialValues(passengerFields)),
+    );
+    trackEvent("participants_change", {
+      entity: { type: "tour", slug: trip.slug },
+      metadata: { participants: next },
     });
   }
 
@@ -815,6 +831,12 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
                     />
                   </div>
 
+                  <PassengerCountField
+                    count={passengerCount}
+                    max={MAX_PASSENGERS}
+                    onChange={changePassengerCount}
+                  />
+
                   <BookingOptionsPanel
                     departurePlaces={departurePlaces}
                     departurePlaceId={departurePlaceId}
@@ -830,13 +852,7 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
                     hasPassengerOptions={hasPassengerOptions}
                   />
 
-                  <PriceSummary estimate={priceEstimate} className="mt-6">
-                    {passengers.length === 1 ? (
-                      <p className="mt-3 text-xs text-gray-500">
-                        Az összeg 1 utassal számol. További utasokat a 3. lépésben adhatsz hozzá.
-                      </p>
-                    ) : null}
-                  </PriceSummary>
+                  <PriceSummary estimate={priceEstimate} className="mt-6" />
                 </StepPanel>
               )}
 
@@ -913,13 +929,15 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
                       </div>
                     ))}
 
-                    <button
-                      type="button"
-                      onClick={addPassenger}
-                      className="text-sm font-bold text-[#00a878] hover:text-[#00c389]"
-                    >
-                      + Újabb utas hozzáadása
-                    </button>
+                    {passengers.length < MAX_PASSENGERS ? (
+                      <button
+                        type="button"
+                        onClick={() => changePassengerCount(passengers.length + 1)}
+                        className="text-sm font-bold text-[#00a878] hover:text-[#00c389]"
+                      >
+                        + Újabb utas hozzáadása
+                      </button>
+                    ) : null}
 
                     {travelInsuranceAvailable || cancellationInsuranceAvailable ? (
                       <p className="text-sm text-gray-500">
@@ -1112,13 +1130,51 @@ function PriceSummary({
       <div className="font-bold text-[#0f172a] mb-3">Árösszesítő</div>
       <ul className="space-y-2 text-sm">
         {[...estimate.lines, ...estimate.insuranceLines].map((line) => (
-          <li key={line.key} className="flex justify-between gap-4">
+          <li key={line.key} className="grid grid-cols-[1fr_auto] gap-x-4 sm:grid-cols-[1fr_auto_auto]">
             <span className="text-gray-600">{line.label}</span>
-            <span className="font-bold text-[#0f172a] whitespace-nowrap">{formatHuf(line.amount)}</span>
+            <span className="col-start-1 row-start-2 text-xs text-gray-500 sm:col-start-2 sm:row-start-1 sm:text-sm sm:text-right whitespace-nowrap">
+              {line.perPerson ? `${line.perPerson.count} fő × ${formatHuf(line.perPerson.unitPrice)}` : null}
+            </span>
+            <span className="col-start-2 row-start-1 font-bold text-[#0f172a] text-right whitespace-nowrap sm:col-start-3">
+              {formatHuf(line.amount)}
+            </span>
           </li>
         ))}
       </ul>
+      {estimate.total !== null ? (
+        <div className="mt-3 flex justify-between gap-4 border-t border-gray-200 pt-3 text-sm">
+          <span className="font-bold text-[#0f172a]">Teljes ár</span>
+          <span className="font-extrabold text-[#0f172a] whitespace-nowrap">{formatHuf(estimate.total)}</span>
+        </div>
+      ) : null}
       {children}
+    </div>
+  );
+}
+
+/** The head count, asked first so the price and the supplements (a single room) follow it. */
+function PassengerCountField({ count, max, onChange }: { count: number; max: number; onChange: (count: number) => void }) {
+  const buttonClass =
+    "flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-[#0f172a] transition-colors hover:border-[#00c389] disabled:opacity-40 disabled:hover:border-gray-200";
+
+  return (
+    <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-[#f5f9fc] p-4">
+      <div>
+        <div className="font-bold text-[#0f172a]">Hányan utaztok?</div>
+        <div className="text-sm text-gray-500">Az árat és a felárakat a létszám szerint számoljuk.</div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button type="button" aria-label="Eggyel kevesebb utas" disabled={count <= 1} onClick={() => onChange(count - 1)} className={buttonClass}>
+          <Minus className="h-4 w-4" />
+        </button>
+        <span className="min-w-[4rem] text-center text-lg font-bold text-[#0f172a]" aria-live="polite">
+          {count} fő
+        </span>
+        <button type="button" aria-label="Eggyel több utas" disabled={count >= max} onClick={() => onChange(count + 1)} className={buttonClass}>
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 }
