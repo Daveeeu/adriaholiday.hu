@@ -1,7 +1,6 @@
 import {
   ArrowLeft,
   ArrowRight,
-  Building2,
   Bus,
   Calendar,
   Clock,
@@ -9,17 +8,12 @@ import {
   Globe2,
   Hotel,
   Loader2,
-  Mountain,
   Plane,
   SlidersHorizontal,
   Sparkles,
   Star,
-  Sun,
   TrendingUp,
   Utensils,
-  Wallet,
-  Waves,
-  type LucideIcon,
 } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router";
@@ -29,6 +23,8 @@ import { DEFAULT_HERO_IMAGE } from "../content/default-images";
 import { useInfiniteScrollTrigger } from "../hooks/useInfiniteScrollTrigger";
 import ActiveOfferSearch from "./ActiveOfferSearch";
 import CountryFlag from "./CountryFlag";
+import FilterChipIcon from "./FilterChipIcon";
+import TripFinderDialog from "./TripFinderDialog";
 import { companyYears } from "../lib/companyYears";
 import {
   fetchPortfolioCategoryCountries,
@@ -53,6 +49,7 @@ import {
   toUnifiedOfferCardModel,
   type UnifiedOfferCardModel,
 } from "../content/portfolio-offer-card-model";
+import { tripFinderSearchState, type TripFinderAnswers, type TripFinderQuestion } from "../content/trip-finder";
 import { responsiveImage } from "../lib/responsiveImage";
 import { TRIP_DATES_ID } from "../lib/tripSection";
 
@@ -83,17 +80,6 @@ const PER_PAGE = 12;
 /** The choice help banner follows the first batch, where undecided visitors start to scroll on. */
 const CHOICE_HELP_AFTER_CARD_COUNT = PER_PAGE;
 
-const FILTER_ICON_MAP: Record<string, LucideIcon> = {
-  waves: Waves,
-  "building-2": Building2,
-  mountain: Mountain,
-  wallet: Wallet,
-  bus: Bus,
-  plane: Plane,
-  sparkles: Sparkles,
-  sun: Sun,
-};
-
 function safeTrim(value: string | null | undefined) {
   return (value ?? "").trim();
 }
@@ -111,12 +97,6 @@ function serializeListParam(values: string[]) {
 
 function toggleListValue(values: string[], value: string) {
   return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
-}
-
-function renderFilterIcon(icon: string | null) {
-  const Icon = icon ? FILTER_ICON_MAP[icon] : undefined;
-
-  return Icon ? <Icon className="h-4 w-4" /> : <SlidersHorizontal className="h-4 w-4" />;
 }
 
 function displayCount(value: number) {
@@ -198,7 +178,10 @@ export default function CategoryOffersPage({
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const [isLoadingCountries, setIsLoadingCountries] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const filterSectionRef = useRef<HTMLDivElement | null>(null);
+  const [isTripFinderOpen, setIsTripFinderOpen] = useState(false);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+  /** Set when the finder sends a search, so its closing leads to the results instead of the banner. */
+  const showResultsAfterFinderRef = useRef(false);
   /** Incremented on every filter change so stale "load more" responses are discarded. */
   const listGenerationRef = useRef(0);
   const analyticsEntity = { type: categorySlug ? "category" : "offer_list", slug: categorySlug ?? null };
@@ -213,10 +196,10 @@ export default function CategoryOffersPage({
   );
 
   const searchCriteria = useMemo(() => parseOfferSearch(searchParams), [searchParams]);
-  const { search, departure, from, duration, maxPrice } = searchCriteria;
+  const { search, departure, from, until, duration, maxPrice } = searchCriteria;
   const searchApiParams = useMemo(
-    () => toOfferSearchApiParams({ search, departure, from, duration, maxPrice }),
-    [search, departure, from, duration, maxPrice],
+    () => toOfferSearchApiParams({ search, departure, from, until, duration, maxPrice }),
+    [search, departure, from, until, duration, maxPrice],
   );
 
   const serializedFilters = useMemo(
@@ -503,10 +486,44 @@ export default function CategoryOffersPage({
   const hasActiveFilters = hasActiveQuickFilters || filters.order !== DEFAULT_ORDER;
   const showHighlights = hasResults && !hasActiveQuickFilters;
   const availableCountryCount = countryOptions.filter((option) => !option.disabled).length;
-  // "Segíts választani": the filters are where the visitor tells what they look for.
-  const showFilters = () => {
+  const openTripFinder = () => {
     trackEvent("cta_click", { entity: analyticsEntity, metadata: { cta_name: "choice_help" } });
-    filterSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setIsTripFinderOpen(true);
+  };
+  const applyTripFinder = (answers: TripFinderAnswers, questions: TripFinderQuestion[]) => {
+    const nextState = tripFinderSearchState(answers, {
+      questions,
+      chips: quickFilters,
+      activeFilters: filters.quickFilters,
+      today: new Date(),
+    });
+
+    trackEvent("search", {
+      entity: analyticsEntity,
+      metadata: {
+        placement: "trip_finder",
+        theme: answers.theme ?? null,
+        transport: answers.transport ?? null,
+        duration: nextState.duration ?? null,
+        timing: answers.timing ?? null,
+        max_price: nextState.maxPrice ? Number(nextState.maxPrice) : null,
+      },
+    });
+
+    replaceSearchState(nextState);
+    showResultsAfterFinderRef.current = true;
+    setIsTripFinderOpen(false);
+  };
+  // Runs after the dialog has released the page's scroll lock and focus trap.
+  const handleTripFinderClosed = (event: Event) => {
+    if (!showResultsAfterFinderRef.current) {
+      return;
+    }
+
+    showResultsAfterFinderRef.current = false;
+    event.preventDefault();
+    resultsRef.current?.focus({ preventScroll: true });
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   const choiceHelpBannerIndex = showHighlights
     ? Math.min(CHOICE_HELP_AFTER_CARD_COUNT, itemCards.length) - 1
@@ -562,7 +579,7 @@ export default function CategoryOffersPage({
         </div>
       </section>
 
-      <section ref={filterSectionRef} className="relative z-20 -mt-14 scroll-mt-28">
+      <section className="relative z-20 -mt-14">
         <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
           <div className="rounded-[32px] border border-gray-100 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl">
             <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -628,7 +645,7 @@ export default function CategoryOffersPage({
                             : "flex h-8 w-8 items-center justify-center rounded-full bg-[#f4f7fb] text-[#00c389]"
                       }
                     >
-                      {renderFilterIcon(filter.icon)}
+                      <FilterChipIcon icon={filter.icon} />
                     </span>
                     <span>{filter.label}</span>
                     <span className="rounded-full bg-[#f4f7fb] px-2 py-1 text-xs text-gray-400">
@@ -708,115 +725,131 @@ export default function CategoryOffersPage({
         </div>
       </section>
 
-      {isLoading ? (
-        <section className="py-20">
-          <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
-            <LoadingState />
-          </div>
-        </section>
-      ) : hasError ? (
-        <section className="py-20">
-          <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
-            <ErrorState />
-          </div>
-        </section>
-      ) : !hasResults ? (
-        <section className="py-20">
-          <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
-            <EmptyState scoped={Boolean(categorySlug)} />
-          </div>
-        </section>
-      ) : (
-        <>
-          {showHighlights && spotlightOffer ? (
-            <section className="pt-14">
-              <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
-                <SpotlightOfferCard offer={spotlightOffer} onOfferSelect={onOfferSelect} />
-              </div>
-            </section>
-          ) : null}
+      <div
+        ref={resultsRef}
+        tabIndex={-1}
+        aria-label="Találatok"
+        aria-busy={isLoading}
+        className="scroll-mt-24 outline-none"
+      >
+        {isLoading ? (
+          <section className="py-20">
+            <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
+              <LoadingState />
+            </div>
+          </section>
+        ) : hasError ? (
+          <section className="py-20">
+            <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
+              <ErrorState />
+            </div>
+          </section>
+        ) : !hasResults ? (
+          <section className="py-20">
+            <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
+              <EmptyState scoped={Boolean(categorySlug)} />
+            </div>
+          </section>
+        ) : (
+          <>
+            {showHighlights && spotlightOffer ? (
+              <section className="pt-14">
+                <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
+                  <SpotlightOfferCard offer={spotlightOffer} onOfferSelect={onOfferSelect} />
+                </div>
+              </section>
+            ) : null}
 
-          {showHighlights && hasRecommended ? (
-            <section className="pt-16">
+            {showHighlights && hasRecommended ? (
+              <section className="pt-16">
+                <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
+                  <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                    <div>
+                      <div className="mb-2 inline-flex items-center gap-2 text-sm font-bold text-[#00a878]">
+                        <TrendingUp className="h-4 w-4" />
+                        AJÁNLOTT UTAK
+                      </div>
+                      <h3 className="text-3xl font-bold text-[#0f172a]">Ezek passzolnak hozzád legjobban</h3>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    {highlightedOffers.map((offer) => (
+                      <RecommendedOfferCard
+                        key={`recommended-${offer.card.id}`}
+                        offer={offer}
+                        onOfferSelect={onOfferSelect}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </section>
+            ) : null}
+
+            <section className="py-20">
               <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
                 <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                   <div>
                     <div className="mb-2 inline-flex items-center gap-2 text-sm font-bold text-[#00a878]">
                       <TrendingUp className="h-4 w-4" />
-                      AJÁNLOTT UTAK
+                      TALÁLATOK
                     </div>
-                    <h3 className="text-3xl font-bold text-[#0f172a]">Ezek passzolnak hozzád legjobban</h3>
+                    <h3 className="mb-2 text-3xl font-bold text-[#0f172a]">További ajánlatok</h3>
+                    <p className="text-gray-500">{resultCountLabel}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                  {highlightedOffers.map((offer) => (
-                    <RecommendedOfferCard
-                      key={`recommended-${offer.card.id}`}
-                      offer={offer}
-                      onOfferSelect={onOfferSelect}
-                    />
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+                  {itemCards.map((offer, index) => (
+                    <Fragment key={`result-${offer.card.id}`}>
+                      <ResultOfferCard offer={offer} onOfferSelect={onOfferSelect} />
+                      {index === choiceHelpBannerIndex ? (
+                        <div className="col-span-full">
+                          <ChoiceHelpBanner
+                            totalCount={totalCount}
+                            countryCount={availableCountryCount}
+                            onChoose={openTripFinder}
+                          />
+                        </div>
+                      ) : null}
+                    </Fragment>
                   ))}
                 </div>
+
+                <div ref={loadMoreSentinelRef} aria-hidden="true" />
+
+                {isLoadingMore ? (
+                  <div className="mt-10 flex items-center justify-center gap-3 text-slate-600" role="status">
+                    <Loader2 className="h-5 w-5 animate-spin text-[#00c389]" />
+                    <span className="text-sm font-medium">További ajánlatok betöltése...</span>
+                  </div>
+                ) : null}
+
+                {hasLoadMoreError ? (
+                  <div className="mt-10 flex flex-col items-center gap-3 text-center">
+                    <p className="text-sm text-red-700">Nem sikerült betölteni a további ajánlatokat.</p>
+                    <button
+                      type="button"
+                      onClick={retryLoadMore}
+                      className="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-[#00c389]/30 hover:text-[#00a878]"
+                    >
+                      Újrapróbálás
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </section>
-          ) : null}
+          </>
+        )}
+      </div>
 
-          <section className="py-20">
-            <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
-              <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <div className="mb-2 inline-flex items-center gap-2 text-sm font-bold text-[#00a878]">
-                    <TrendingUp className="h-4 w-4" />
-                    TALÁLATOK
-                  </div>
-                  <h3 className="mb-2 text-3xl font-bold text-[#0f172a]">További ajánlatok</h3>
-                  <p className="text-gray-500">{resultCountLabel}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                {itemCards.map((offer, index) => (
-                  <Fragment key={`result-${offer.card.id}`}>
-                    <ResultOfferCard offer={offer} onOfferSelect={onOfferSelect} />
-                    {index === choiceHelpBannerIndex ? (
-                      <div className="col-span-full">
-                        <ChoiceHelpBanner
-                          totalCount={totalCount}
-                          countryCount={availableCountryCount}
-                          onChoose={showFilters}
-                        />
-                      </div>
-                    ) : null}
-                  </Fragment>
-                ))}
-              </div>
-
-              <div ref={loadMoreSentinelRef} aria-hidden="true" />
-
-              {isLoadingMore ? (
-                <div className="mt-10 flex items-center justify-center gap-3 text-slate-600" role="status">
-                  <Loader2 className="h-5 w-5 animate-spin text-[#00c389]" />
-                  <span className="text-sm font-medium">További ajánlatok betöltése...</span>
-                </div>
-              ) : null}
-
-              {hasLoadMoreError ? (
-                <div className="mt-10 flex flex-col items-center gap-3 text-center">
-                  <p className="text-sm text-red-700">Nem sikerült betölteni a további ajánlatokat.</p>
-                  <button
-                    type="button"
-                    onClick={retryLoadMore}
-                    className="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-[#00c389]/30 hover:text-[#00a878]"
-                  >
-                    Újrapróbálás
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          </section>
-        </>
-      )}
+      <TripFinderDialog
+        open={isTripFinderOpen}
+        onOpenChange={setIsTripFinderOpen}
+        chips={quickFilters}
+        onComplete={applyTripFinder}
+        onCloseAutoFocus={handleTripFinderClosed}
+      />
     </div>
   );
 }
@@ -1196,7 +1229,7 @@ function ResultMetaItem({
   );
 }
 
-/** Invites an undecided visitor to narrow the trips down with the filters at the top of the list. */
+/** Invites an undecided visitor to the trip finder's questions. */
 function ChoiceHelpBanner({
   totalCount,
   countryCount,
