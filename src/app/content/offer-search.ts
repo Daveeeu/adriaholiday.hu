@@ -12,6 +12,7 @@ export type OfferSearchCriteria = {
   search: string;
   departure: string;
   from: string;
+  until: string;
   duration: TripDuration | "";
   maxPrice: string;
 };
@@ -20,6 +21,7 @@ export type OfferSearchApiParams = {
   search?: string;
   departure?: string;
   from?: string;
+  until?: string;
   duration?: TripDuration;
   maxPrice?: number;
 };
@@ -33,6 +35,7 @@ export const EMPTY_OFFER_SEARCH: OfferSearchCriteria = {
   search: "",
   departure: "",
   from: "",
+  until: "",
   duration: "",
   maxPrice: "",
 };
@@ -87,6 +90,7 @@ export function normalizeOfferSearch(criteria: OfferSearchCriteria): OfferSearch
     search: normalizeText(criteria.search),
     departure: normalizeText(criteria.departure),
     from: normalizeDate(criteria.from),
+    until: normalizeDate(criteria.until),
     duration: normalizeDuration(criteria.duration),
     maxPrice: normalizeMaxPrice(criteria.maxPrice),
   };
@@ -97,6 +101,7 @@ export function parseOfferSearch(params: URLSearchParams): OfferSearchCriteria {
     search: params.get("search") ?? "",
     departure: params.get("departure") ?? "",
     from: params.get("from") ?? "",
+    until: params.get("until") ?? "",
     duration: normalizeDuration(params.get("duration")),
     maxPrice: params.get("maxPrice") ?? "",
   });
@@ -111,6 +116,7 @@ export function toOfferSearchApiParams(criteria: OfferSearchCriteria): OfferSear
     search: criteria.search || undefined,
     departure: criteria.departure || undefined,
     from: criteria.from || undefined,
+    until: criteria.until || undefined,
     duration: criteria.duration || undefined,
     maxPrice: criteria.maxPrice ? Number(criteria.maxPrice) : undefined,
   };
@@ -151,6 +157,7 @@ export function describeOfferSearch(
     search: (value) => `„${value}”`,
     departure: (value) => `Indulási hely: ${value}`,
     from: (value) => `Legkorábbi indulás: ${formatDate(value)}`,
+    until: (value) => `Legkésőbbi indulás: ${formatDate(value)}`,
     duration: (value) => TRIP_DURATION_OPTIONS.find((option) => option.value === value)?.label ?? value,
     maxPrice: formatPrice,
   };

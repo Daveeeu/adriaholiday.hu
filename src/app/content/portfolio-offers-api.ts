@@ -61,6 +61,7 @@ function buildQuery(params: PortfolioOfferListParams = {}) {
   if (params.maxPrice !== undefined) query.set('maxPrice', String(params.maxPrice));
   if (params.departure) query.set('departure', params.departure);
   if (params.from) query.set('from', params.from);
+  if (params.until) query.set('until', params.until);
   if (params.duration) query.set('duration', params.duration);
   if (params.transport) query.set('transport', params.transport);
   if (params.filters) query.set('filters', params.filters);
