@@ -23,8 +23,11 @@ export type AboutTeamMember = {
   role: string;
 };
 
-/** Six portraits; each member's photo is its own image field (about.team.member.{n}.image). */
-export const TEAM_SIZE = 6;
+/**
+ * Room for up to nine portraits (three rows); each member's photo is its own image
+ * field (about.team.member.{n}.image). Visitors see only the members with a name.
+ */
+export const TEAM_SIZE = 9;
 
 export const aboutFallback = {
   hero: {
