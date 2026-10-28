@@ -13,7 +13,6 @@ import {
   fetchPortfolioOfferDetail,
   type PortfolioOfferDetail,
   type PortfolioOfferDetailDate,
-  type PortfolioOfferDetailDate,
 } from "../content/portfolio-offer-detail-api";
 import { INQUIRE_LABEL } from "../content/portfolio-offer-card-model";
 import { useAnalytics } from "../analytics/useAnalytics";
