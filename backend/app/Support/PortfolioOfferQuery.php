@@ -17,6 +17,13 @@ class PortfolioOfferQuery
 {
     private const MAX_TEXT_QUERY_LENGTH = 100;
 
+    /**
+     * Categories that list every trip of a travel mode besides the trips assigned
+     * to them, so no plane trip is missing from "Repülős körutazások" (as Helsinki
+     * was) when its category was left out in the admin.
+     */
+    private const CATEGORY_TRAVEL_MODES = ['repulos-korutazasok' => 'plane'];
+
     public static function buildBaseQuery(Request $request): Builder
     {
         $query = Tour::query()
@@ -112,7 +119,11 @@ class PortfolioOfferQuery
             return $query->whereRaw('1 = 0');
         }
 
-        return $query->whereJsonContains('category_ids', (string) $category->id);
+        $travelMode = self::CATEGORY_TRAVEL_MODES[$category->seo_name] ?? null;
+
+        return $query->where(fn (Builder $builder) => $builder
+            ->whereJsonContains('category_ids', (string) $category->id)
+            ->when($travelMode !== null, fn (Builder $modeQuery) => $modeQuery->orWhere('travel_mode_id', $travelMode)));
     }
 
     /**

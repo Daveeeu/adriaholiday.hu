@@ -301,6 +301,49 @@ class PortfolioOffersTest extends TestCase
         $montenegroRegionResponse->assertJsonFragment(['seoName' => 'montenegro-a-mediterran-csoda-felpanzioval']);
     }
 
+    public function test_the_flight_round_trip_category_lists_every_plane_trip_even_without_its_category(): void
+    {
+        Tour::query()->update(['active' => false]);
+
+        $flightRoundTripCategory = BlogCategory::query()->updateOrCreate(
+            ['seo_name' => 'repulos-korutazasok'],
+            ['active' => true, 'column' => '1', 'sort_order' => 2],
+        );
+        $roundTripCategory = BlogCategory::query()->updateOrCreate(
+            ['seo_name' => 'korutazasok'],
+            ['active' => true, 'column' => '1', 'sort_order' => 1],
+        );
+
+        Tour::factory()->create([
+            'name' => 'Helsinki és a balti fővárosok',
+            'seo_name' => 'helsinki',
+            'active' => true,
+            'travel_mode_id' => 'plane',
+            'category_ids' => [(string) $roundTripCategory->id],
+        ]);
+        Tour::factory()->create([
+            'name' => 'Buszos körutazás',
+            'seo_name' => 'buszos-korutazas',
+            'active' => true,
+            'travel_mode_id' => 'bus',
+            'category_ids' => [(string) $roundTripCategory->id],
+        ]);
+        Tour::factory()->create([
+            'name' => 'Repülős körutazás',
+            'seo_name' => 'repulos-korutazas',
+            'active' => true,
+            'travel_mode_id' => 'plane',
+            'category_ids' => [(string) $flightRoundTripCategory->id],
+        ]);
+
+        $flights = $this->getJson('/api/portfolio/categories/repulos-korutazasok/offers')->assertOk();
+        $this->assertEqualsCanonicalizing(['helsinki', 'repulos-korutazas'], array_column($flights->json('items'), 'seoName'));
+
+        // Other categories still list only the trips assigned to them.
+        $roundTrips = $this->getJson('/api/portfolio/categories/korutazasok/offers')->assertOk();
+        $this->assertEqualsCanonicalizing(['helsinki', 'buszos-korutazas'], array_column($roundTrips->json('items'), 'seoName'));
+    }
+
     public function test_public_portfolio_category_offer_list_filters_by_exact_category_slug(): void
     {
         Tour::query()->update(['active' => false]);
