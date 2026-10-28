@@ -20,7 +20,7 @@ class BookingFormFieldSeeder extends Seeder
             ['key' => 'passenger_birth_date', 'label' => 'Születési dátum', 'field_type' => 'date', 'input_group' => 'passenger', 'sort_order' => 8],
             ['key' => 'passenger_nationality', 'label' => 'Állampolgárság', 'field_type' => 'text', 'input_group' => 'passenger', 'sort_order' => 9],
             ['key' => 'document_type', 'label' => 'Okmány típusa', 'field_type' => 'select', 'input_group' => 'passenger', 'sort_order' => 10, 'options' => ['Személyi igazolvány', 'Útlevél']],
-            ['key' => 'document_number', 'label' => 'Okmányszám', 'field_type' => 'text', 'input_group' => 'passenger', 'sort_order' => 11],
+            ['key' => 'document_number', 'label' => 'Útiokmány száma', 'field_type' => 'text', 'input_group' => 'passenger', 'sort_order' => 11],
             ['key' => 'document_expiry', 'label' => 'Okmány lejárata', 'field_type' => 'date', 'input_group' => 'passenger', 'sort_order' => 12],
             ['key' => 'passenger_birth_place', 'label' => 'Születési hely', 'field_type' => 'text', 'input_group' => 'passenger', 'sort_order' => 13],
             ['key' => 'passenger_address', 'label' => 'Lakcím', 'field_type' => 'text', 'input_group' => 'passenger', 'sort_order' => 14],

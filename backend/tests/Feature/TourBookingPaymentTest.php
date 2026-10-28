@@ -283,6 +283,8 @@ class TourBookingPaymentTest extends TestCase
             'passengers' => array_map(fn (int $index): array => [
                 'passenger_name' => "Utas {$index}",
                 'passenger_birth_date' => '1990-01-01',
+                'passenger_address' => '1051 Budapest, Fő utca 1.',
+                'document_number' => 'AB123456',
             ], range(1, 2)),
         ];
     }

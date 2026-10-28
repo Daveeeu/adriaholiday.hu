@@ -51,8 +51,8 @@ class AdminBookingTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
-                ['passenger_name' => 'Kovács Béla', 'passenger_birth_date' => '1988-01-01'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
+                ['passenger_name' => 'Kovács Béla', 'passenger_birth_date' => '1988-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
         ]);
 
@@ -80,7 +80,7 @@ class AdminBookingTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
         ]);
 
@@ -172,7 +172,7 @@ class AdminBookingTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
         ];
 
@@ -217,7 +217,7 @@ class AdminBookingTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
         ];
 
@@ -270,8 +270,8 @@ class AdminBookingTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
-                ['passenger_name' => 'Kovács Béla', 'passenger_birth_date' => '1988-01-01'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
+                ['passenger_name' => 'Kovács Béla', 'passenger_birth_date' => '1988-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
         ]);
 
@@ -495,7 +495,7 @@ class AdminBookingTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
         ]);
 

@@ -102,7 +102,7 @@ class BookingFormTemplateTest extends TestCase
                 'contact_city' => 'Budapest',
                 'contact_address' => 'Fő utca 1.',
             ],
-            'passengers' => [['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01']],
+            'passengers' => [['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456']],
         ])->assertStatus(422)->assertJsonValidationErrors(['formData.extra_terms']);
     }
 
@@ -128,7 +128,7 @@ class BookingFormTemplateTest extends TestCase
                 'contact_email' => 'anna@example.com',
                 'contact_phone' => '+36301234567',
             ],
-            'passengers' => [['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01']],
+            'passengers' => [['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456']],
         ];
 
         $this->postJson('/api/bookings', $booking)
@@ -226,7 +226,7 @@ class BookingFormTemplateTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
             'note' => 'Ablak melletti helyet kérek.',
         ]);
@@ -265,7 +265,7 @@ class BookingFormTemplateTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
             'couponCode' => 'NYAR10',
         ]);
@@ -470,7 +470,7 @@ class BookingFormTemplateTest extends TestCase
                 'contact_address' => 'Fő utca 1.',
             ],
             'passengers' => [
-                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01'],
+                ['passenger_name' => 'Kovács Anna', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
             ],
         ]);
 
@@ -499,8 +499,11 @@ class BookingFormTemplateTest extends TestCase
             'passengers' => [
                 [
                     'passenger_name' => 'Kovács Anna',
-                    'document_type' => 'passport',
+                    'passenger_birth_date' => '1990-01-01',
+                    'passenger_address' => '1051 Budapest, Fő utca 1.',
                     'document_number' => 'AB1234567',
+                    'document_type' => 'passport',
+                    'document_expiry' => '2030-01-01',
                 ],
             ],
         ]);
@@ -509,7 +512,8 @@ class BookingFormTemplateTest extends TestCase
 
         $booking = Booking::find($response->json('id'));
         $this->assertArrayNotHasKey('document_type', $booking->payload['passengers'][0]);
-        $this->assertArrayNotHasKey('document_number', $booking->payload['passengers'][0]);
+        $this->assertArrayNotHasKey('document_expiry', $booking->payload['passengers'][0]);
+        $this->assertSame('AB1234567', $booking->payload['passengers'][0]['document_number']);
     }
 
     public function test_zero_participants_is_rejected(): void

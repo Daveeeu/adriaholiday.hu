@@ -16,6 +16,14 @@ final class DefaultBookingForm
     public const TEMPLATE_SLUG = 'alapertelmezett';
 
     /**
+     * The passenger details every booking form asks for, whatever its
+     * template: the office needs them for the contract and the insurance.
+     *
+     * @var array<int, string>
+     */
+    public const REQUIRED_PASSENGER_FIELDS = ['passenger_name', 'passenger_birth_date', 'passenger_address', 'document_number'];
+
+    /**
      * @var array<int, array{key: string, label: string, fieldType: string, inputGroup: string, options: array<int, string>|null, description: string|null, priceLabel: string|null, visibility: string}>
      */
     public const FIELDS = [
@@ -27,6 +35,8 @@ final class DefaultBookingForm
         ['key' => 'contact_address', 'label' => 'Utca, házszám', 'fieldType' => 'text', 'inputGroup' => 'contact', 'options' => null, 'description' => null, 'priceLabel' => null, 'visibility' => 'required'],
         ['key' => 'passenger_name', 'label' => 'Utas neve', 'fieldType' => 'text', 'inputGroup' => 'passenger', 'options' => null, 'description' => null, 'priceLabel' => null, 'visibility' => 'required'],
         ['key' => 'passenger_birth_date', 'label' => 'Születési dátum', 'fieldType' => 'date', 'inputGroup' => 'passenger', 'options' => null, 'description' => null, 'priceLabel' => null, 'visibility' => 'required'],
+        ['key' => 'passenger_address', 'label' => 'Lakcím', 'fieldType' => 'text', 'inputGroup' => 'passenger', 'options' => null, 'description' => null, 'priceLabel' => null, 'visibility' => 'required'],
+        ['key' => 'document_number', 'label' => 'Útiokmány száma', 'fieldType' => 'text', 'inputGroup' => 'passenger', 'options' => null, 'description' => null, 'priceLabel' => null, 'visibility' => 'required'],
         ['key' => 'passenger_nationality', 'label' => 'Állampolgárság', 'fieldType' => 'text', 'inputGroup' => 'passenger', 'options' => null, 'description' => null, 'priceLabel' => null, 'visibility' => 'optional'],
         ['key' => 'note', 'label' => 'Megjegyzés', 'fieldType' => 'textarea', 'inputGroup' => 'extra', 'options' => null, 'description' => null, 'priceLabel' => null, 'visibility' => 'optional'],
     ];
@@ -47,6 +57,8 @@ final class DefaultBookingForm
         'passenger_name' => 'required',
         'passenger_birth_date' => 'required',
         'passenger_nationality' => 'optional',
+        'document_number' => 'required',
+        'passenger_address' => 'required',
         'extra_payment_method' => 'optional',
         'note' => 'optional',
     ];
