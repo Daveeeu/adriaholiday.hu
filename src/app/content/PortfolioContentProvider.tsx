@@ -30,7 +30,7 @@ import {
   PortfolioInlineEditorPanel,
   PortfolioInlineEditorToolbar,
 } from './PortfolioInlineEditor';
-import { withCompanyYears } from '../lib/companyYears';
+import { withContentPlaceholders } from '../lib/contentPlaceholders';
 
 type EditableField = {
   key: string;
@@ -281,12 +281,12 @@ export function PortfolioContentProvider({ children }: { children: ReactNode }) 
       getValue: <T extends PortfolioContentValue,>(fieldKey: string, fallback: T): T => {
         const block = blocks[fieldKey];
         if (!block) {
-          return isEditorEnabled ? fallback : withCompanyYears(fallback);
+          return isEditorEnabled ? fallback : withContentPlaceholders(fallback);
         }
 
         const value = isEditorEnabled ? getBlockValue(block, false) : getBlockValue(block, true);
-        // Editors see the "{evek}" placeholder they write; visitors the company's age.
-        return (isEditorEnabled ? (value ?? fallback) : withCompanyYears(value ?? fallback)) as T;
+        // Editors see the placeholders they write ("{evek}", "{ertekeles}"); visitors the figures.
+        return (isEditorEnabled ? (value ?? fallback) : withContentPlaceholders(value ?? fallback)) as T;
       },
       getDraftValue: <T extends PortfolioContentValue,>(fieldKey: string, fallback: T): T => {
         const block = blocks[fieldKey];

@@ -32,8 +32,8 @@ export default function ExperienceSection() {
   const stats = getValue("home.experience.stats", [
     { value: "10K+", label: "Elégedett utas" },
     { value: "{evek}+", label: "Év tapasztalat" },
-    { value: "4.9", label: "Értékelés" },
-  ]) as Array<{ value: string; label: string }>;
+    { value: "{ertekeles}", label: "Értékelés" },
+  ]) as Array<{ value: string | number; label: string }>;
   const cta = String(getValue("home.experience.cta.label", "Ismerj meg minket"));
   const ctaUrl = String(getValue("home.experience.cta.url", "/rolunk"));
   return (
@@ -204,7 +204,7 @@ export default function ExperienceSection() {
                     className="text-gray-900 mb-1"
                     style={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}
                   >
-                    {stat.value}
+                    {stat.value.toLocaleString("hu-HU")}
                   </div>
                   <div className="text-gray-500" style={{ fontSize: "0.8125rem" }}>
                     {stat.label}

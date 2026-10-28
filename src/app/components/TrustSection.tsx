@@ -15,6 +15,7 @@ import { EditablePortfolioHeading } from "../content/PortfolioHeading";
 import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { HOVER_HOST } from "../lib/hoverHost";
 import { companyYears } from "../lib/companyYears";
+import { GOOGLE_RATING, formatRating } from "../lib/googleRating";
 
 interface Stat {
   icon: string;
@@ -37,7 +38,7 @@ const statsFallback: Stat[] = [
     value: companyYears(),
     suffix: "+ év",
     label: "Tapasztalat",
-    description: "Több mint {evek} éve szervezünk utazásokat.",
+    description: "{evek} éve szervezünk utazásokat.",
   },
   {
     icon: "mapPin",
@@ -48,7 +49,7 @@ const statsFallback: Stat[] = [
   },
   {
     icon: "star",
-    value: 4.9,
+    value: GOOGLE_RATING,
     suffix: "/5",
     label: "Értékelés",
     description: "Valódi utasvélemények alapján kiemelkedő élmény.",
@@ -95,7 +96,7 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
       }}
     >
       {value < 10 && value % 1 !== 0
-        ? count.toFixed(1)
+        ? formatRating(count)
         : Math.floor(count).toLocaleString("hu-HU")}
       {suffix}
     </div>

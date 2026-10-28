@@ -63,7 +63,7 @@ class PortfolioContentBlockSeeder extends Seeder
             ['key' => 'home.hero.stats', 'label' => 'Hero statisztikák', 'type' => 'json', 'value_json' => [
                 ['value' => '10 000+', 'label' => 'elégedett utas'],
                 ['value' => '{evek}+', 'label' => 'év tapasztalat'],
-                ['value' => '4.9/5', 'label' => 'értékelés'],
+                ['value' => '{ertekeles}/5', 'label' => 'értékelés'],
                 ['value' => '100%', 'label' => 'kényelmes utazás'],
             ]],
             ['key' => 'home.hero.badges', 'label' => 'Hero jelvények', 'type' => 'json', 'value_json' => [
@@ -99,7 +99,7 @@ class PortfolioContentBlockSeeder extends Seeder
             ['key' => 'home.experience.stats', 'label' => 'Experience statisztikák', 'type' => 'json', 'value_json' => [
                 ['value' => '10K+', 'label' => 'Elégedett utas'],
                 ['value' => '{evek}+', 'label' => 'Év tapasztalat'],
-                ['value' => '4.9', 'label' => 'Értékelés'],
+                ['value' => '{ertekeles}', 'label' => 'Értékelés'],
             ]],
             ['key' => 'home.experience.image', 'label' => 'Experience kép', 'type' => 'image', 'value_json' => ['alt' => 'Tengerpart az Adrián', 'title' => 'Tengerpart az Adrián']],
             ['key' => 'home.experience.quote.image', 'label' => 'Experience idézet kép', 'type' => 'image', 'value_json' => ['alt' => 'B. Istvánné', 'title' => 'B. Istvánné']],
@@ -168,9 +168,9 @@ class PortfolioContentBlockSeeder extends Seeder
             ]),
             ['key' => 'home.trust.stats', 'label' => 'Trust statisztikák', 'type' => 'json', 'value_json' => [
                 ['value' => 10000, 'suffix' => '+', 'label' => 'Elégedett utas', 'description' => 'Akik már velünk utaztak Európa legszebb helyeire.', 'icon' => 'users'],
-                ['value' => '{evek}', 'suffix' => '+ év', 'label' => 'Tapasztalat', 'description' => 'Több mint {evek} éve szervezünk utazásokat.', 'icon' => 'award'],
+                ['value' => '{evek}', 'suffix' => '+ év', 'label' => 'Tapasztalat', 'description' => '{evek} éve szervezünk utazásokat.', 'icon' => 'award'],
                 ['value' => 100, 'suffix' => '+', 'label' => 'Utazás évente', 'description' => 'Folyamatos indulások egész évben.', 'icon' => 'mapPin'],
-                ['value' => 4.9, 'suffix' => '/5', 'label' => 'Értékelés', 'description' => 'Valódi utasvélemények alapján kiemelkedő élmény.', 'icon' => 'star'],
+                ['value' => '{ertekeles}', 'suffix' => '/5', 'label' => 'Értékelés', 'description' => 'Valódi utasvélemények alapján kiemelkedő élmény.', 'icon' => 'star'],
             ]],
             ['key' => 'home.trust.reviews', 'label' => 'Trust vélemények', 'type' => 'json', 'value_json' => [
                 ['name' => 'B. Angéla', 'location' => 'Ausztria körutazás', 'rating' => 5, 'text' => 'Őszinte köszönetemet fejezem ki az ausztriai 4 napos utazásunk megszervezéséért. Minden részlet gördülékenyen volt megszervezve, az idegenvezető fantasztikus volt, a sofőrök pedig végig biztonságos és kényelmes utazást biztosítottak.'],

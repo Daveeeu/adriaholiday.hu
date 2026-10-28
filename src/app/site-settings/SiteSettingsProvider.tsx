@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { parsePhoneNumbers } from "./phone";
 import { fetchPublicSiteSettings } from "./site-settings-api";
 import type { PublicSiteSettingsPayload, ResolvedSiteSettings } from "./site-settings.types";
-import { withCompanyYears } from "../lib/companyYears";
+import { withContentPlaceholders } from "../lib/contentPlaceholders";
 
 type SiteSettingsContextValue = {
   isLoading: boolean;
@@ -91,12 +91,12 @@ function resolveSettings(payload: PublicSiteSettingsPayload): ResolvedSiteSettin
     tiktok: asString(payload.social?.tiktok),
     headerNavigation: sanitizeLinkItems(payload.header?.navigation),
     footerQuickLinks: sanitizeLinkItems(payload.footer?.quick_links),
-    footerDescription: withCompanyYears(asString(payload.footer?.description)),
+    footerDescription: withContentPlaceholders(asString(payload.footer?.description)),
     footerCopyright: asString(payload.footer?.copyright),
     primaryCtaText: asString(payload.cta?.primary_text),
     primaryCtaLink: asString(payload.cta?.primary_link),
-    defaultSeoTitle: withCompanyYears(asString(payload.seo?.default_title)),
-    defaultSeoDescription: withCompanyYears(asString(payload.seo?.default_description)),
+    defaultSeoTitle: withContentPlaceholders(asString(payload.seo?.default_title)),
+    defaultSeoDescription: withContentPlaceholders(asString(payload.seo?.default_description)),
     defaultOgImage: payload.seo?.default_og_image && typeof payload.seo.default_og_image === "object"
       ? payload.seo.default_og_image
       : null,
@@ -106,11 +106,11 @@ function resolveSettings(payload: PublicSiteSettingsPayload): ResolvedSiteSettin
     privacyUrl: asString(payload.legal?.privacy_url),
     termsUrl: asString(payload.legal?.terms_url),
     cookieUrl: asString(payload.legal?.cookie_url),
-    contactContent: withCompanyYears(asString(payload.legal?.contact_content)),
-    imprintContent: withCompanyYears(asString(payload.legal?.imprint_content)),
-    privacyContent: withCompanyYears(asString(payload.legal?.privacy_content)),
-    termsContent: withCompanyYears(asString(payload.legal?.terms_content)),
-    cookieContent: withCompanyYears(asString(payload.legal?.cookie_content)),
+    contactContent: withContentPlaceholders(asString(payload.legal?.contact_content)),
+    imprintContent: withContentPlaceholders(asString(payload.legal?.imprint_content)),
+    privacyContent: withContentPlaceholders(asString(payload.legal?.privacy_content)),
+    termsContent: withContentPlaceholders(asString(payload.legal?.terms_content)),
+    cookieContent: withContentPlaceholders(asString(payload.legal?.cookie_content)),
     clubTermsContent: asString(payload.legal?.club_terms_content),
     insuranceContent: asString(payload.legal?.insurance_content),
   };

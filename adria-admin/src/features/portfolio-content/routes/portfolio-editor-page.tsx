@@ -145,7 +145,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
       stats: safeStringify(stats?.draftValue ?? stats?.publishedValue ?? [
         { value: '10 000+', label: 'elégedett utas' },
         { value: '{evek}+', label: 'év tapasztalat' },
-        { value: '4.9/5', label: 'értékelés' },
+        { value: '{ertekeles}/5', label: 'értékelés' },
         { value: '100%', label: 'kényelmes utazás' },
       ]),
       badges: safeStringify(badges?.draftValue ?? badges?.publishedValue ?? [
@@ -633,7 +633,8 @@ export function PortfolioEditorPage() {
             </p>
             <p className="text-sm text-muted-foreground">
               A szövegekben az <code>{'{evek}'}</code> helyére a cég alapítása (2003. augusztus 27.) óta eltelt évek
-              száma kerül, például „{'{evek}'}+ év tapasztalat”.
+              száma kerül, például „{'{evek}'}+ év tapasztalat”, az <code>{'{ertekeles}'}</code> helyére pedig a
+              Google-értékelés, például „{'{ertekeles}'}/5”.
             </p>
           </div>
 

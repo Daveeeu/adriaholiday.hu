@@ -33,9 +33,9 @@ export default function CinematicHero() {
   const heroStats = getValue("home.hero.stats", [
     { value: "10 000+", label: "elégedett utas" },
     { value: "{evek}+", label: "év tapasztalat" },
-    { value: "4.9/5", label: "értékelés" },
+    { value: "{ertekeles}/5", label: "értékelés" },
     { value: "100%", label: "kényelmes utazás" },
-  ]) as Array<{ value: string; label: string }>;
+  ]) as Array<{ value: string | number; label: string }>;
   const heroBadges = getValue("home.hero.badges", [
     { icon: "users", text: "Már csak 4 hely!" },
     { icon: "eye", text: "12 ember nézi most" },
@@ -262,7 +262,7 @@ export default function CinematicHero() {
                           fontWeight: 700,
                         }}
                       >
-                        {stat.value}
+                        {stat.value.toLocaleString("hu-HU")}
                       </div>
 
                       <div className="text-white/45 text-xs uppercase tracking-[0.15em]">

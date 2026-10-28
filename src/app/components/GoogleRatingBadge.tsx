@@ -1,6 +1,8 @@
 import { motion } from "motion/react";
 import { Star, ShieldCheck } from "lucide-react";
 
+import { GOOGLE_RATING, formatRating } from "../lib/googleRating";
+
 export default function GoogleRatingBadge() {
   return (
     <motion.div
@@ -38,19 +40,16 @@ export default function GoogleRatingBadge() {
 
       {/* Rating */}
       <div className="flex items-center gap-1.5">
-        <span className="text-gray-900 font-bold text-lg">4.9</span>
+        <span className="text-gray-900 font-bold text-lg">{formatRating()}</span>
         <div className="flex gap-0.5">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
-              className="w-3.5 h-3.5 fill-[#FBBC04] text-[#FBBC04]"
+              className={`w-3.5 h-3.5 ${i < Math.round(GOOGLE_RATING) ? "fill-[#FBBC04] text-[#FBBC04]" : "fill-gray-200 text-gray-200"}`}
             />
           ))}
         </div>
       </div>
-
-      {/* Review count */}
-      <span className="text-gray-500 text-xs font-medium">(1,240)</span>
 
       {/* Verified badge */}
       <ShieldCheck className="w-4 h-4 text-blue-500 ml-1" strokeWidth={2.5} />
