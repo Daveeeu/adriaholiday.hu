@@ -42,27 +42,10 @@ import {
   richTextBlockClassName,
 } from '@/lib/rich-text';
 import { RichTextPreview } from './rich-text-preview';
+import { DEFAULT_CONTROLS, type RichTextControl } from './rich-text-controls';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export type RichTextControl =
-  | 'bold'
-  | 'italic'
-  | 'underline'
-  | 'strike'
-  | 'heading'
-  | 'paragraph'
-  | 'bulletList'
-  | 'orderedList'
-  | 'blockquote'
-  | 'link'
-  | 'color'
-  | 'backgroundColor'
-  | 'textAlign'
-  | 'fontFamily'
-  | 'fontSize'
-  | 'undo'
-  | 'redo';
 
 type RichTextEditorProps = {
   value: string;
@@ -76,25 +59,14 @@ type RichTextEditorProps = {
   className?: string;
 };
 
-const DEFAULT_CONTROLS: RichTextControl[] = [
-  'bold',
-  'italic',
-  'underline',
-  'strike',
-  'heading',
-  'paragraph',
-  'bulletList',
-  'orderedList',
-  'blockquote',
-  'link',
-  'color',
-  'backgroundColor',
-  'textAlign',
-  'fontFamily',
-  'fontSize',
-  'undo',
-  'redo',
-];
+
+const TYPOGRAPHY_TYPES = ['textStyle', 'heading', 'paragraph'];
+
+const TYPOGRAPHY_CONTROLS: RichTextControl[] = ['color', 'backgroundColor', 'fontFamily', 'fontSize'];
+
+function hasTypographyControls(controls: Set<RichTextControl>): boolean {
+  return TYPOGRAPHY_CONTROLS.some((control) => controls.has(control));
+}
 
 const FONT_FAMILIES = [
   { label: 'Alapértelmezett', value: '' },
@@ -174,14 +146,14 @@ export function RichTextEditor({
         link: false,
         underline: false,
       }),
-      TextStyle,
-      Color.configure({ types: ['textStyle', 'heading', 'paragraph'] }),
-      BackgroundColor.configure({
-        types: ['textStyle', 'heading', 'paragraph'],
-      }),
-      FontFamily.configure({ types: ['textStyle', 'heading', 'paragraph'] }),
-      FontSize.configure({ types: ['textStyle', 'heading', 'paragraph'] }),
-      Underline,
+      // Typography extensions only with their controls: without them the
+      // editor drops inline colours, fonts and sizes, so a save cleans them.
+      ...(hasTypographyControls(controls) ? [TextStyle] : []),
+      ...(controls.has('color') ? [Color.configure({ types: TYPOGRAPHY_TYPES })] : []),
+      ...(controls.has('backgroundColor') ? [BackgroundColor.configure({ types: TYPOGRAPHY_TYPES })] : []),
+      ...(controls.has('fontFamily') ? [FontFamily.configure({ types: TYPOGRAPHY_TYPES })] : []),
+      ...(controls.has('fontSize') ? [FontSize.configure({ types: TYPOGRAPHY_TYPES })] : []),
+      ...(controls.has('underline') ? [Underline] : []),
       Link.configure({
         openOnClick: false,
         autolink: true,

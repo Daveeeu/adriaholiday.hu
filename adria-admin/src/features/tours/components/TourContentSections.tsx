@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MediaPicker } from '@/components/media/media-picker';
-import { RichTextEditor } from '@/components/editor/rich-text-editor';
+import { FIXED_FORMAT_CONTROLS, RichTextEditor } from '@/components/editor/rich-text-editor';
 
 import type { TourFormValues } from '../lib/tours.types';
 import { TourSearchKeywordsField } from './TourSearchKeywordsField';
@@ -45,6 +45,7 @@ function TextareaField({
               placeholder={placeholder}
               minHeight={minHeight}
               allowPreview
+              allowedControls={FIXED_FORMAT_CONTROLS}
             />
           </FormControl>
           <FormMessage />

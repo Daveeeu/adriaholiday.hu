@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MediaPicker } from '@/components/media/media-picker';
-import { RichTextEditor } from '@/components/editor/rich-text-editor';
+import { FIXED_FORMAT_CONTROLS, RichTextEditor } from '@/components/editor/rich-text-editor';
 
 import { renderProgramDayIcon } from '../lib/program-day-icon-map';
 import type { TourFormValues, TourProgramDayFormValue } from '../lib/tours.types';
@@ -247,6 +247,7 @@ function ProgramDayCard({
                   placeholder="Napi program leírása"
                   minHeight={200}
                   allowPreview
+                  allowedControls={FIXED_FORMAT_CONTROLS}
                 />
               </FormControl>
               <FormMessage />

@@ -2,7 +2,7 @@ import { lazy, Suspense, type ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
-export type { RichTextControl } from './rich-text-editor-impl';
+export { FIXED_FORMAT_CONTROLS, type RichTextControl } from './rich-text-controls';
 export { RichTextPreview } from './rich-text-preview';
 
 const RichTextEditorImpl = lazy(() =>
