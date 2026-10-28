@@ -47,7 +47,7 @@ final class BookingPaymentSchedule
     ];
 
     /**
-     * @param  array<int, array{number: int, title: string, percent: int, amount: float, includesInsurance: bool, dueAt: CarbonImmutable, dueRule: string, dueWithinHours: bool}>  $instalments
+     * @param  array<int, array{number: int, title: string, percent: int, amount: float, tripAmount: float, insuranceAmount: float, includesInsurance: bool, dueAt: CarbonImmutable, dueRule: string, dueWithinHours: bool}>  $instalments
      */
     private function __construct(private readonly array $instalments) {}
 
@@ -75,11 +75,13 @@ final class BookingPaymentSchedule
                 'number' => $index + 1,
                 'title' => match (true) {
                     $lastIndex === 0 => 'Teljes részvételi díj',
-                    $index === 0 => '1. részlet – előleg',
+                    $index === 0 => '1. részlet: előleg',
                     default => ($index + 1).'. részlet',
                 },
                 'percent' => $percent,
                 'amount' => $amount + ($index === 0 ? $insuranceTotal : 0.0),
+                'tripAmount' => $amount,
+                'insuranceAmount' => $index === 0 ? $insuranceTotal : 0.0,
                 'includesInsurance' => $index === 0 && $insuranceTotal > 0,
                 'dueAt' => $dueAt,
                 'dueRule' => $dueRule,
@@ -124,7 +126,7 @@ final class BookingPaymentSchedule
     }
 
     /**
-     * @return array<int, array{number: int, title: string, percent: int, amount: float, includesInsurance: bool, dueAt: CarbonImmutable, dueRule: string, dueWithinHours: bool}>
+     * @return array<int, array{number: int, title: string, percent: int, amount: float, tripAmount: float, insuranceAmount: float, includesInsurance: bool, dueAt: CarbonImmutable, dueRule: string, dueWithinHours: bool}>
      */
     public function instalments(): array
     {
@@ -135,7 +137,7 @@ final class BookingPaymentSchedule
      * Each instalment with how much of it the payments so far cover; payments
      * settle the instalments in order.
      *
-     * @return array<int, array{number: int, title: string, percent: int, amount: float, includesInsurance: bool, dueAt: CarbonImmutable, dueRule: string, dueWithinHours: bool, paidAmount: float, paid: bool, overdue: bool}>
+     * @return array<int, array{number: int, title: string, percent: int, amount: float, tripAmount: float, insuranceAmount: float, includesInsurance: bool, dueAt: CarbonImmutable, dueRule: string, dueWithinHours: bool, paidAmount: float, paid: bool, overdue: bool}>
      */
     public function withPayments(float $paidAmount, ?CarbonInterface $now = null): array
     {

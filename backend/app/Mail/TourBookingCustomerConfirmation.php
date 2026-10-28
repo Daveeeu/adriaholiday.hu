@@ -29,7 +29,7 @@ class TourBookingCustomerConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Foglalás visszaigazolás – {$this->tour->name}",
+            subject: "Foglalás visszaigazolás: {$this->tour->name}",
         );
     }
 

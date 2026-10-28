@@ -1,49 +1,132 @@
-@use('App\Support\Mail\EmailStyle')
-<x-email.layout
-    :title="'Új foglalás – '.$tour->name"
-    :preheader="'Új foglalás érkezett: '.$tour->name.' ('.($booking->customer_name ?? '-').')'"
-    eyebrow="Új foglalás érkezett"
-    :heading="$tour->name"
-    :subheading="'Foglalás azonosítója: #'.$booking->id.($booking->departure_date ? ' · Indulás: '.$booking->departure_date->format('Y.m.d.') : '')"
->
-    <x-email.button :url="$adminUrl">Foglalás megnyitása az adminban</x-email.button>
+{{--
+    The office's copy of a booking, printed on paper: plain, small type and
+    tables instead of cards, so a booking of two or three passengers fits on
+    one A4 page.
+--}}
+@php
+    $font = "font-family:Arial,Helvetica,sans-serif;";
+    $cell = $font.'padding:3px 6px;border:1px solid #cbd5e1;font-size:11px;color:#0f172a;vertical-align:top;';
+    $head = $cell.'background:#f1f5f9;font-weight:bold;text-align:left;';
+    $label = $font.'padding:2px 8px 2px 0;font-size:11px;color:#475569;vertical-align:top;white-space:nowrap;';
+    $value = $font.'padding:2px 0;font-size:11px;color:#0f172a;font-weight:bold;vertical-align:top;';
+    $section = $font.'margin:12px 0 4px;font-size:12px;font-weight:bold;color:#0f172a;text-transform:uppercase;letter-spacing:0.5px;';
+@endphp
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Új foglalás: {{ $tripName }}</title>
+    <style>
+        @page { margin: 12mm; }
+    </style>
+</head>
+<body style="margin:0;padding:16px;background:#ffffff;">
+<div style="max-width:760px;">
 
-    <x-email.card title="👤 Kapcsolattartó">
-        <x-email.rows :rows="[
-            ['label' => 'Név', 'value' => $booking->customer_name ?? '-'],
-            ['label' => 'E-mail', 'value' => $booking->email ?? '-'],
-            ['label' => 'Telefon', 'value' => $booking->phone ?? '-'],
-            ['label' => 'Utasok száma', 'value' => $booking->passenger_count ?? '-'],
-        ]" />
-    </x-email.card>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td style="{{ $font }}font-size:16px;font-weight:bold;color:#0f172a;">Új foglalás #{{ $booking->id }}: {{ $tripName }}</td>
+            <td align="right" style="{{ $font }}font-size:11px;color:#475569;white-space:nowrap;">
+                Beérkezett: {{ $booking->created_at?->timezone('Europe/Budapest')->format('Y.m.d. H:i') }}<br>
+                <a href="{{ $adminUrl }}" style="color:#0369a1;">Megnyitás az adminban</a>
+            </td>
+        </tr>
+    </table>
 
-    @if ($pricingLines !== [])
-        <x-email.card title="💳 Árösszesítő">
-            <x-email.lines :lines="$pricingLines" />
-            @if ($pricingTotal !== null)
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-                    <td style="{{ EmailStyle::FONT }}padding:14px 12px 0 0;color:#0f172a;font-size:16px;font-weight:800;">Végösszeg</td>
-                    <td align="right" style="{{ EmailStyle::FONT }}padding:14px 0 0;color:#00a878;font-size:20px;font-weight:800;white-space:nowrap;">{{ $pricingTotal }}</td>
-                </tr></table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+        <tr>
+            <td width="50%" style="vertical-align:top;padding-right:12px;">
+                <p style="{{ $section }}">Utazás</p>
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                    @foreach ($tripRows as $row)
+                        <tr><td style="{{ $label }}">{{ $row['label'] }}</td><td style="{{ $value }}">{{ $row['value'] }}</td></tr>
+                    @endforeach
+                </table>
+            </td>
+            <td width="50%" style="vertical-align:top;">
+                <p style="{{ $section }}">Megrendelő</p>
+                <table role="presentation" cellpadding="0" cellspacing="0">
+                    @foreach ($contactRows as $row)
+                        <tr><td style="{{ $label }}">{{ $row['label'] }}</td><td style="{{ $value }}">{{ $row['value'] }}</td></tr>
+                    @endforeach
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    @if ($passengerTable['rows'] !== [])
+        <p style="{{ $section }}">Utasok ({{ count($passengerTable['rows']) }} fő)</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            <tr>
+                <th style="{{ $head }}">#</th>
+                @foreach ($passengerTable['columns'] as $column)
+                    <th style="{{ $head }}">{{ $column }}</th>
+                @endforeach
+            </tr>
+            @foreach ($passengerTable['rows'] as $index => $passenger)
+                <tr>
+                    <td style="{{ $cell }}">{{ $index + 1 }}.</td>
+                    @foreach ($passengerTable['columns'] as $column)
+                        <td style="{{ $cell }}">{{ $passenger[$column] ?? '' }}</td>
+                    @endforeach
+                </tr>
+            @endforeach
+        </table>
+    @endif
+
+    @if ($priceRows !== [])
+        <p style="{{ $section }}">Ár</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            @foreach ($priceRows as $row)
+                <tr>
+                    <td style="{{ $cell }}">{{ $row['label'] }}</td>
+                    <td align="right" style="{{ $cell }}white-space:nowrap;">{{ $row['amount'] }}</td>
+                </tr>
+            @endforeach
+            @if ($total)
+                <tr>
+                    <td style="{{ $cell }}font-weight:bold;">Végösszeg</td>
+                    <td align="right" style="{{ $cell }}font-weight:bold;white-space:nowrap;">{{ $total }}</td>
+                </tr>
             @endif
-        </x-email.card>
+        </table>
     @endif
 
-    @if ($passengerSelections !== [])
-        <x-email.card title="👥 Utasok felárai, biztosításai">
-            <x-email.lines :lines="$passengerSelections" />
-        </x-email.card>
+    @if ($paymentSchedule !== [])
+        <p style="{{ $section }}">Fizetés</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            @foreach ($paymentSchedule as $instalment)
+                <tr>
+                    <td style="{{ $cell }}">{{ $instalment['title'] }} ({{ $instalment['detail'] }})</td>
+                    <td style="{{ $cell }}white-space:nowrap;">{{ $instalment['dueDate'] }}</td>
+                    <td align="right" style="{{ $cell }}white-space:nowrap;">{{ $instalment['amount'] }}</td>
+                </tr>
+            @endforeach
+        </table>
     @endif
 
-    @if ($extras !== [])
-        <x-email.card title="➕ Extra opciók">
-            <x-email.rows :rows="$extras" />
-        </x-email.card>
+    @if ($insuranceNames === [])
+        <p style="{{ $font }}margin:8px 0 0;font-size:11px;font-weight:bold;color:#b45309;">Az utas/utasok biztosítást nem rendelt(ek).</p>
     @endif
 
-    @if ($booking->message)
-        <x-email.card title="💬 Megjegyzés">
-            <p style="{{ EmailStyle::TEXT }}margin:0;white-space:pre-line;">{{ $booking->message }}</p>
-        </x-email.card>
+    @php
+        $optionRows = [...($paymentMethod ? [['label' => 'Fizetési mód', 'value' => $paymentMethod]] : []), ...$extraRows];
+    @endphp
+    @if ($optionRows !== [])
+        <p style="{{ $section }}">Extra opciók</p>
+        <table role="presentation" cellpadding="0" cellspacing="0">
+            @foreach ($optionRows as $row)
+                <tr><td style="{{ $label }}">{{ $row['label'] }}</td><td style="{{ $value }}">{{ $row['value'] }}</td></tr>
+            @endforeach
+        </table>
     @endif
-</x-email.layout>
+
+    @if ($note)
+        <p style="{{ $section }}">Megjegyzés</p>
+        <p style="{{ $font }}margin:0;font-size:11px;color:#0f172a;white-space:pre-line;">{{ $note }}</p>
+    @endif
+
+</div>
+</body>
+</html>

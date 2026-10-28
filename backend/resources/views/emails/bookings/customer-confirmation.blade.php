@@ -5,7 +5,7 @@
     $value = EmailStyle::VALUE;
 @endphp
 <x-email.layout
-    :title="'Foglalás visszaigazolás – '.$tripName"
+    :title="'Foglalás visszaigazolás: '.$tripName"
     :preheader="'Foglalásod rögzítettük: '.$tripName.'. Itt találod az utazás és a fizetés minden részletét.'"
     eyebrow="Foglalás visszaigazolás"
     :heading="$tripName"

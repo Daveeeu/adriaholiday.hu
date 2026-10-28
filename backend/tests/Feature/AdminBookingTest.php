@@ -606,7 +606,7 @@ class AdminBookingTest extends TestCase
         $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}")
             ->assertOk()
             ->assertJsonCount(2, 'data.paymentSchedule')
-            ->assertJsonPath('data.paymentSchedule.0.title', '1. részlet – előleg')
+            ->assertJsonPath('data.paymentSchedule.0.title', '1. részlet: előleg')
             ->assertJsonPath('data.paymentSchedule.0.amount', 45400)
             ->assertJsonPath('data.paymentSchedule.0.includesInsurance', true)
             ->assertJsonPath('data.paymentSchedule.1.amount', 60000)

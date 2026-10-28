@@ -24,53 +24,6 @@ final class BookingPriceSummary
     }
 
     /**
-     * One line per item with its calculation, e.g. "Egyágyas felár: 1 × 8.900 Ft = 8.900 Ft".
-     *
-     * @return array<int, string>
-     */
-    public function lines(): array
-    {
-        $lines = [];
-
-        if ($this->pricing['basePrice'] !== null) {
-            $lines[] = sprintf('Részvételi díj: %d fő × %s = %s', $this->pricing['passengers'], $this->format($this->pricing['basePrice']), $this->format($this->pricing['baseTotal']));
-        }
-
-        if ($this->pricing['discount'] !== null) {
-            $lines[] = sprintf('%s (-%s%%): -%s', $this->pricing['discount']['label'], $this->pricing['discount']['percent'], $this->format($this->pricing['discount']['amount']));
-        }
-
-        if ($this->pricing['departurePlace'] !== null) {
-            $place = $this->pricing['departurePlace'];
-            $lines[] = $place['total'] > 0
-                ? sprintf('Felszállás: %s – %s', $place['name'], $this->format($place['total']))
-                : sprintf('Felszállás: %s', $place['name']);
-        }
-
-        foreach ($this->pricing['extras'] as $extra) {
-            $lines[] = sprintf(
-                '%s%s: %d × %s = %s%s',
-                $extra['name'],
-                $extra['chargeRule'] === TourExtraChargeRule::MANDATORY ? ' (kötelező)' : '',
-                $extra['quantity'],
-                $this->format($extra['price']),
-                $this->format($extra['total']),
-                $extra['choice'] !== null ? " – {$extra['choice']}" : '',
-            );
-        }
-
-        if ($this->pricing['coupon'] !== null) {
-            $lines[] = sprintf('Kupon (%s): -%s', $this->pricing['coupon']['code'], $this->format($this->pricing['coupon']['amount']));
-        }
-
-        foreach ($this->pricing['insurances'] as $insurance) {
-            $lines[] = sprintf('%s (%s): %s', $insurance['name'], $insurance['detail'], $this->format($insurance['total']));
-        }
-
-        return $lines;
-    }
-
-    /**
      * The charged items as label/amount pairs for a price table; free items are left out.
      *
      * @return array<int, array{label: string, amount: string}>
@@ -93,7 +46,7 @@ final class BookingPriceSummary
 
         foreach ($this->pricing['extras'] as $extra) {
             $rows[] = [
-                'label' => sprintf('%s (%d × %s)%s', $extra['name'], $extra['quantity'], $this->format($extra['price']), $extra['choice'] !== null ? " – {$extra['choice']}" : ''),
+                'label' => sprintf('%s (%d × %s)', self::withChoice($extra['name'], $extra['choice']), $extra['quantity'], $this->format($extra['price'])),
                 'amount' => $this->format($extra['total']),
             ];
         }
@@ -110,7 +63,7 @@ final class BookingPriceSummary
     }
 
     /**
-     * The extras and insurances each passenger chose, e.g. [0 => ["Vacsora", "Egyágyas felár – egyedül", "Utasbiztosítás"]],
+     * The extras and insurances each passenger chose, e.g. [0 => ["Vacsora", "Egyágyas felár: egyedül", "Utasbiztosítás"]],
      * keyed by passenger index. Mandatory extras, which everyone has, are left out. A booking priced before
      * per-passenger choices charged its per-person extras and insurances for every passenger.
      *
@@ -129,7 +82,7 @@ final class BookingPriceSummary
             $passengers = $extra['passengers'] ?? array_map(fn (int $index): array => ['index' => $index, 'choice' => $extra['choice']], $everyone);
 
             foreach ($passengers as $passenger) {
-                $selections[$passenger['index']][] = $extra['name'].($passenger['choice'] !== null ? " – {$passenger['choice']}" : '');
+                $selections[$passenger['index']][] = self::withChoice($extra['name'], $passenger['choice']);
             }
         }
 
@@ -187,5 +140,14 @@ final class BookingPriceSummary
         $currency = strtoupper((string) ($this->pricing['currency'] ?? 'HUF'));
 
         return number_format($amount, 0, ',', '.').' '.($currency === 'HUF' ? 'Ft' : $currency);
+    }
+
+    /**
+     * An extra with the option chosen for it, "Egyágyas felár: egyedül"; a colon,
+     * not a dash, which next to prices reads as a minus.
+     */
+    private static function withChoice(string $name, ?string $choice): string
+    {
+        return $choice !== null ? "{$name}: {$choice}" : $name;
     }
 }

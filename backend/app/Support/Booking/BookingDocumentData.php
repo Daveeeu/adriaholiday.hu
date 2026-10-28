@@ -151,7 +151,7 @@ final class BookingDocumentData
         return array_values(array_filter([
             ['label' => 'Utazás', 'value' => $this->tripName()],
             ['label' => 'Időpont', 'value' => $start !== null
-                ? $start->format('Y.m.d.').($end !== null && ! $end->isSameDay($start) ? ' – '.$end->format('Y.m.d.') : '')
+                ? $start->format('Y.m.d.').($end !== null && ! $end->isSameDay($start) ? ' - '.$end->format('Y.m.d.') : '')
                 : ''],
             ['label' => 'Személyek száma', 'value' => $this->booking->passenger_count ? $this->booking->passenger_count.' fő' : ''],
             ['label' => 'Elhelyezés', 'value' => $this->tour !== null ? (string) TourMeta::accommodation($this->tour) : ''],
@@ -162,7 +162,8 @@ final class BookingDocumentData
     }
 
     /**
-     * The instalments with their amounts and deadlines, e.g. "1. részlet – előleg: 20% + biztosítás".
+     * The instalments with their amounts and deadlines, the deposit broken down into its
+     * parts, e.g. "1. részlet: előleg" with "40%: 55.920 Ft + biztosítás: 1.080 Ft".
      *
      * @return array<int, array{title: string, detail: string, amount: string, dueDate: string, dueRule: string}>
      */
@@ -172,7 +173,8 @@ final class BookingDocumentData
 
         return array_map(fn (array $instalment): array => [
             'title' => $instalment['title'],
-            'detail' => $instalment['percent'].'%'.($instalment['includesInsurance'] ? ' + biztosítás' : ''),
+            'detail' => $instalment['percent'].'%: '.$prices->format($instalment['tripAmount'])
+                .($instalment['includesInsurance'] ? ' + biztosítás: '.$prices->format($instalment['insuranceAmount']) : ''),
             'amount' => $prices->format($instalment['amount']),
             'dueDate' => $instalment['dueAt']->format($instalment['dueWithinHours'] ? 'Y.m.d. H:i' : 'Y.m.d.'),
             'dueRule' => $instalment['dueRule'],

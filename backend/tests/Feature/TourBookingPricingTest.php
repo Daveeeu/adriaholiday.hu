@@ -234,8 +234,10 @@ class TourBookingPricingTest extends TestCase
         $booking = Booking::query()->findOrFail($response->json('id'));
 
         $office = (new NewTourBookingOfficeNotification($booking, $this->tour))->render();
-        $this->assertStringContainsString('Utas 1: Vacsora, ALFA Compass utasbiztosítás', $office);
-        $this->assertStringContainsString('Utas 2: Egyágyas felár – '.self::ROOMMATE, $office);
+        $this->assertStringContainsString('Vacsora, ALFA Compass utasbiztosítás', $office);
+        $this->assertStringContainsString('Egyágyas felár: '.self::ROOMMATE, $office);
+        $this->assertStringContainsString('1051 Budapest, Fő utca 1.', $office);
+        $this->assertStringContainsString('AB123456', $office);
 
         $customer = (new TourBookingCustomerConfirmation($booking, $this->tour))->render();
         $this->assertStringContainsString('Felárak, biztosítás', $customer);
@@ -243,7 +245,7 @@ class TourBookingPricingTest extends TestCase
 
         $adminFields = (new BookingDetailResource($booking))->toArray(request())['passengerFields'];
         $this->assertContains(
-            ['key' => 'selections', 'label' => 'Felárak, biztosítás', 'value' => 'Egyágyas felár – '.self::ROOMMATE],
+            ['key' => 'selections', 'label' => 'Felárak, biztosítás', 'value' => 'Egyágyas felár: '.self::ROOMMATE],
             $adminFields[1],
         );
     }
@@ -271,7 +273,7 @@ class TourBookingPricingTest extends TestCase
         $customerCopy = $travelBook->html($booking->refresh());
         $this->assertStringContainsString('Utazási könyv', $customerCopy);
         $this->assertStringContainsString('Vacsora, ALFA Compass utasbiztosítás', $customerCopy);
-        $this->assertStringContainsString('Egyágyas felár – '.self::ROOMMATE, $customerCopy);
+        $this->assertStringContainsString('Egyágyas felár: '.self::ROOMMATE, $customerCopy);
         $this->assertStringContainsString('Érkezés Ljubljanába', $customerCopy);
         $this->assertStringContainsString('autóbusz közlekedés', $customerCopy);
         $this->assertStringContainsString('A programváltozás jogát fenntartjuk.', $customerCopy);
@@ -411,10 +413,15 @@ class TourBookingPricingTest extends TestCase
         $booking = Booking::query()->findOrFail($response->json('id'));
         $html = (new NewTourBookingOfficeNotification($booking, $this->tour))->render();
 
-        $this->assertStringContainsString('Felszállás: Budapest BOK csarnok – 4.700 Ft', $html);
-        $this->assertStringContainsString('Repülőjegy (kötelező): 1 × 30.000 Ft = 30.000 Ft', $html);
-        $this->assertStringContainsString('Egyágyas felár: 1 × 13.800 Ft = 13.800 Ft – '.self::ALONE, $html);
-        $this->assertStringContainsString('Kupon (HIR-ABC123): -5.000 Ft', $html);
+        $this->assertStringContainsString('Felszállási díj (Budapest BOK csarnok)', $html);
+        $this->assertStringContainsString('4.700 Ft', $html);
+        $this->assertStringContainsString('Repülőjegy (1 × 30.000 Ft)', $html);
+        $this->assertStringContainsString('Egyágyas felár: '.self::ALONE.' (1 × 13.800 Ft)', $html);
+        $this->assertStringContainsString('Kupon (HIR-ABC123)', $html);
+        $this->assertStringContainsString('-5.000 Ft', $html);
+        $this->assertStringNotContainsString(' – ', $html);
+        // The deposit is 40% of the 89 400 Ft trip price plus the 1 080 Ft insurance, each with its amount.
+        $this->assertStringContainsString('40%: 35.760 Ft + biztosítás: 1.080 Ft', $html);
         $this->assertStringContainsString('ALFA Compass utasbiztosítás', $html);
         // 45 900 + 4 700 + 30 000 + 13 800 − 5 000 + 540 × 2 days
         $this->assertMatchesRegularExpression('#>Végösszeg</td>\s*<td[^>]*>90.480 Ft</td>#', $html);
@@ -465,14 +472,14 @@ class TourBookingPricingTest extends TestCase
         $this->assertStringContainsString('Hotel***', $html);
         $this->assertStringContainsString('Autóbusszal', $html);
         $this->assertStringContainsString('Budapest BOK csarnok', $html);
-        $this->assertStringContainsString('Egyágyas felár (1 × 13.800 Ft) – '.self::ALONE, $html);
+        $this->assertStringContainsString('Egyágyas felár: '.self::ALONE.' (1 × 13.800 Ft)', $html);
         // 45 900 + 4 700 + 30 000 + 13 800
         $this->assertStringContainsString('94.400 Ft', $html);
         $this->assertStringContainsString('biztosítást nem rendelt', $html);
         $this->assertStringContainsString('OTP 11734004-20467221', $html);
         // 60 days to departure: 40% deposit within 48 hours, the rest 30 days before departure.
-        $this->assertStringContainsString('1. részlet – előleg', $html);
-        $this->assertStringContainsString('37.760 Ft', $html);
+        $this->assertStringContainsString('1. részlet: előleg', $html);
+        $this->assertStringContainsString('40%: 37.760 Ft', $html);
         $this->assertStringContainsString($booking->created_at->setTimezone('Europe/Budapest')->addHours(48)->format('Y.m.d. H:i'), $html);
         $this->assertStringContainsString('56.640 Ft', $html);
         $this->assertStringContainsString($this->tourDate->start_date->copy()->subDays(30)->format('Y.m.d.'), $html);

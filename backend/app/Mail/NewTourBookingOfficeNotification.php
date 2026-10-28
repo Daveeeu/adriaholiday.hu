@@ -3,9 +3,8 @@
 namespace App\Mail;
 
 use App\Models\Booking;
-use App\Models\BookingFormField;
 use App\Models\Tour;
-use App\Support\Booking\BookingPriceSummary;
+use App\Support\Booking\BookingDocumentData;
 use App\Support\Mail\AdminUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -13,6 +12,11 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * The office's copy of a new tour booking, laid out to be printed: an average
+ * booking of two or three passengers fits on one page, with every passenger's
+ * details in one table.
+ */
 class NewTourBookingOfficeNotification extends Mailable
 {
     use Queueable, SerializesModels;
@@ -25,66 +29,39 @@ class NewTourBookingOfficeNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Új foglalás érkezett – {$this->tour->name}",
+            subject: "Új foglalás érkezett: {$this->tour->name}",
         );
     }
 
     public function content(): Content
     {
-        $prices = BookingPriceSummary::of($this->booking);
+        $document = (new BookingDocumentData($this->booking, $this->tour))->toArray();
 
         return new Content(
             view: 'emails.bookings.new-office-notification',
             with: [
+                ...$document,
                 'adminUrl' => AdminUrl::to('/bookings/tour-bookings/'.$this->booking->id),
-                'booking' => $this->booking,
-                'tour' => $this->tour,
-                'extras' => $this->extraSelections(),
-                'pricingLines' => $prices?->lines() ?? [],
-                'pricingTotal' => $prices?->total(),
-                'passengerSelections' => $this->passengerSelections($prices),
+                'passengerTable' => $this->passengerTable($document['passengers']),
             ],
         );
     }
 
     /**
-     * "Kovács Anna: Vacsora, Utasbiztosítás" for every passenger who chose extras or insurance.
+     * The passengers as one table: a column for every detail any of them gave,
+     * in the booking form's order, and a row per passenger.
      *
-     * @return array<int, string>
+     * @param  array<int, array<int, array{label: string, value: string}>>  $passengers
+     * @return array{columns: array<int, string>, rows: array<int, array<string, string>>}
      */
-    private function passengerSelections(?BookingPriceSummary $prices): array
+    private function passengerTable(array $passengers): array
     {
-        $passengers = array_values($this->booking->payload['passengers'] ?? []);
-        $lines = [];
+        $rows = array_map(
+            fn (array $details): array => array_column($details, 'value', 'label'),
+            $passengers,
+        );
+        $columns = array_values(array_unique(array_merge([], ...array_map('array_keys', $rows))));
 
-        foreach ($prices?->passengerSelections() ?? [] as $index => $labels) {
-            $name = trim((string) ($passengers[$index]['passenger_name'] ?? '')) ?: ($index + 1).'. utas';
-            $lines[] = "{$name}: ".implode(', ', $labels);
-        }
-
-        return $lines;
-    }
-
-    /**
-     * Values the customer gave on the final "extra options" step; the note
-     * is excluded because the template shows it in its own section.
-     *
-     * @return array<int, array{label: string, value: string}>
-     */
-    private function extraSelections(): array
-    {
-        $formData = $this->booking->payload['formData'] ?? [];
-
-        return BookingFormField::query()
-            ->where('input_group', BookingFormField::EXTRA_GROUP)
-            ->whereIn('key', array_keys($formData))
-            ->where('key', '!=', 'note')
-            ->orderBy('sort_order')
-            ->get(['key', 'label'])
-            ->map(fn (BookingFormField $field): array => [
-                'label' => $field->label,
-                'value' => (string) $formData[$field->key],
-            ])
-            ->all();
+        return ['columns' => $columns, 'rows' => $rows];
     }
 }
