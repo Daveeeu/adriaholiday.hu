@@ -22,7 +22,7 @@ import {
   CreditCard,
   Mail,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import OfferGallerySection from "./OfferGallerySection";
 import OfferProgramTimeline from "./OfferProgramTimeline";
 import OfferContentSection from "./OfferContentSection";
@@ -38,7 +38,7 @@ import type { TripDetail } from "../routes/TripRoute";
 import OfferCard from "./OfferCard";
 import BookingHowItWorks from "./BookingHowItWorks";
 import TripSectionNav from "./TripSectionNav";
-import { tripSection } from "../lib/tripSection";
+import { TRIP_DATES_ID, tripSection } from "../lib/tripSection";
 import InfoPopover from "./InfoPopover";
 import { companyYears } from "../lib/companyYears";
 import { seatsLeftLabel, seatsOf } from "../lib/seatsLeft";
@@ -59,8 +59,6 @@ interface TripDetailPageProps {
   relatedTrips?: PortfolioFeaturedTour[];
   onBack: () => void;
 }
-
-const DATE_PICKER_ID = "idopontok";
 
 type IconLabelValueProps = {
   icon: ReactNode;
@@ -139,6 +137,15 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   // The route ("Firenze - Siena - Bologna") only when the title doesn't already name its stops.
   const stops = routeStops(trip.shortDescription);
   const showRoute = stops.length > 0 && !routeNamedIn(stops, `${trip.title} ${trip.subtitle ?? ""}`);
+  const { hash } = useLocation();
+
+  // A link to the trip's dates ("#idopontok", e.g. a listing's "+2 további időpont") lands on the list.
+  useEffect(() => {
+    if (hash === `#${TRIP_DATES_ID}`) {
+      document.getElementById(TRIP_DATES_ID)?.scrollIntoView({ block: "start" });
+    }
+  }, [hash]);
+
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
   const selectedSeats = seatsOf({ priceBox, seatsLeft: selectedDate.seatsLeft });
   const offeredDeparturePlaces =
@@ -259,7 +266,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   <button
                     type="button"
                     onClick={() =>
-                      document.getElementById(DATE_PICKER_ID)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                      document.getElementById(TRIP_DATES_ID)?.scrollIntoView({ behavior: "smooth", block: "start" })
                     }
                     className="text-[#5eead4] hover:text-white transition-colors"
                   >
@@ -305,7 +312,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 instalmentsMinTripTotal={selectedDate.instalmentsMinTripTotal ?? null}
                 otherDates={dateOptions.length - 1}
                 onShowDates={() =>
-                  document.getElementById(DATE_PICKER_ID)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  document.getElementById(TRIP_DATES_ID)?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }
               />
 
@@ -434,7 +441,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
             <aside className="space-y-6">
               <div className="sticky top-[92px] rounded-[34px] bg-white border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.08)] p-6 xl:max-h-[calc(100vh-110px)] xl:overflow-y-auto">
-                <div id={DATE_PICKER_ID} className="mb-6 scroll-mt-28">
+                <div id={TRIP_DATES_ID} className="mb-6 scroll-mt-28">
                   <h2 className="text-[#0f172a] text-lg font-bold mb-3">
                     {dateOptions.length > 1 ? "Időpontok" : "Időpont"}
                   </h2>

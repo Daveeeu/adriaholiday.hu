@@ -54,6 +54,7 @@ import {
   type UnifiedOfferCardModel,
 } from "../content/portfolio-offer-card-model";
 import { responsiveImage } from "../lib/responsiveImage";
+import { TRIP_DATES_ID } from "../lib/tripSection";
 
 type CategoryOffersPageProps = {
   /** Omit to list offers across all categories instead of scoping to one. */
@@ -140,13 +141,6 @@ function spotlightReasons(offer: OfferViewModel) {
     offer.card.mealsLabel,
     offer.raw.programTypeLabel,
   ].filter((value): value is string => Boolean(value && value.trim() !== ""));
-}
-
-function spotlightHighlights(offer: OfferViewModel) {
-  return [
-    offer.card.departureCountText ?? "Fix program",
-    offer.card.transportLabel ?? "Szervezett utazás",
-  ];
 }
 
 /**
@@ -509,6 +503,11 @@ export default function CategoryOffersPage({
   const hasActiveFilters = hasActiveQuickFilters || filters.order !== DEFAULT_ORDER;
   const showHighlights = hasResults && !hasActiveQuickFilters;
   const availableCountryCount = countryOptions.filter((option) => !option.disabled).length;
+  // "Segíts választani": the filters are where the visitor tells what they look for.
+  const showFilters = () => {
+    trackEvent("cta_click", { entity: analyticsEntity, metadata: { cta_name: "choice_help" } });
+    filterSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const choiceHelpBannerIndex = showHighlights
     ? Math.min(CHOICE_HELP_AFTER_CARD_COUNT, itemCards.length) - 1
     : -1;
@@ -563,7 +562,7 @@ export default function CategoryOffersPage({
         </div>
       </section>
 
-      <section ref={filterSectionRef} className="relative z-20 -mt-14">
+      <section ref={filterSectionRef} className="relative z-20 -mt-14 scroll-mt-28">
         <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
           <div className="rounded-[32px] border border-gray-100 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl">
             <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -780,13 +779,12 @@ export default function CategoryOffersPage({
                 {itemCards.map((offer, index) => (
                   <Fragment key={`result-${offer.card.id}`}>
                     <ResultOfferCard offer={offer} onOfferSelect={onOfferSelect} />
-                    {index === choiceHelpBannerIndex && spotlightOffer ? (
+                    {index === choiceHelpBannerIndex ? (
                       <div className="col-span-full">
                         <ChoiceHelpBanner
-                          offer={spotlightOffer}
                           totalCount={totalCount}
                           countryCount={availableCountryCount}
-                          onOfferSelect={onOfferSelect}
+                          onChoose={showFilters}
                         />
                       </div>
                     ) : null}
@@ -1124,7 +1122,8 @@ function ResultOfferCard({
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-slate-300 via-slate-200 to-slate-100" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+        {/* Darkened only behind the title, so the photo stays clear. */}
+        <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
         {offer.card.primaryBadge ? (
           <div className="absolute left-4 top-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-white/15 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
@@ -1141,20 +1140,20 @@ function ResultOfferCard({
       </OfferLink>
 
       <div className="p-6">
-        <div className="mb-5 grid grid-cols-2 gap-3">
+        <div className="mb-6 grid grid-cols-2 gap-3">
           {metaItems.map((item) => (
-            <ResultMetaItem key={item.key} icon={item.icon} value={item.value} />
+            <ResultMetaItem key={item.key} icon={item.icon} value={item.value}>
+              {item.key === "departure" && offer.card.otherDepartureCount > 0 ? (
+                <Link
+                  to={`/ajanlat/${offer.card.seoName}#${TRIP_DATES_ID}`}
+                  className="block text-xs font-bold text-[#00a878] hover:text-[#00c389]"
+                >
+                  +{offer.card.otherDepartureCount} további időpont
+                </Link>
+              ) : null}
+            </ResultMetaItem>
           ))}
         </div>
-
-        {offer.card.departureCountText ? (
-          <div className="mb-6 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00c389]/8 px-3 py-1.5 text-xs font-bold text-[#00a878]">
-              <Calendar className="h-3.5 w-3.5" />
-              {offer.card.departureCountText}
-            </span>
-          </div>
-        ) : null}
 
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
@@ -1179,28 +1178,33 @@ function ResultOfferCard({
 function ResultMetaItem({
   icon,
   value,
+  children,
 }: {
   icon: React.ReactNode;
   value: string;
+  /** A line under the value, e.g. the link to the trip's other dates. */
+  children?: ReactNode;
 }) {
   return (
     <div className="flex min-w-0 items-center gap-2 rounded-xl bg-[#f5f9fc] px-3 py-2 text-gray-700">
       <span className="shrink-0 text-[#00c389]">{icon}</span>
-      <span className="truncate text-xs font-semibold">{value}</span>
+      <span className="min-w-0">
+        <span className="block truncate text-xs font-semibold">{value}</span>
+        {children}
+      </span>
     </div>
   );
 }
 
+/** Invites an undecided visitor to narrow the trips down with the filters at the top of the list. */
 function ChoiceHelpBanner({
-  offer,
   totalCount,
   countryCount,
-  onOfferSelect,
+  onChoose,
 }: {
-  offer: OfferViewModel;
   totalCount: number;
   countryCount: number;
-  onOfferSelect: (slug: string) => void;
+  onChoose: () => void;
 }) {
   return (
     <div className="relative overflow-hidden rounded-[40px]">
@@ -1229,16 +1233,6 @@ function ChoiceHelpBanner({
             Segítünk megtalálni a hozzád illő utazást ár, időtartam, élmény és úti cél alapján.
             Pár kattintás és már mutatjuk is a legjobb ajánlatokat.
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            {spotlightHighlights(offer).map((item) => (
-              <div
-                key={item}
-                className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-white/85 backdrop-blur-md"
-              >
-                {item}
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="flex w-full flex-col gap-5 xl:w-auto xl:min-w-[320px]">
@@ -1247,13 +1241,13 @@ function ChoiceHelpBanner({
             <MetricCard value={displayCount(countryCount)} label="Európai ország" />
           </div>
 
-          <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="inline-block group relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-7 py-5 text-white shadow-[0_20px_50px_rgba(0,195,137,0.28)]">
+          <button type="button" onClick={onChoose} className="group relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-7 py-5 text-white shadow-[0_20px_50px_rgba(0,195,137,0.28)]">
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
             <span className="relative flex items-center justify-center gap-3 text-lg font-semibold">
               Segíts választani
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </span>
-          </OfferLink>
+          </button>
         </div>
       </div>
     </div>

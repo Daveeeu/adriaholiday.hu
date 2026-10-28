@@ -17,6 +17,8 @@ export type UnifiedOfferCardModel = {
   durationLabel: string | null;
   displayedPrice: string | null;
   departureCountText: string | null;
+  /** How many departures the tour has besides the one shown. */
+  otherDepartureCount: number;
   transportLabel: string | null;
   transportShortLabel: string | null;
   mealsLabel: string | null;
@@ -111,6 +113,7 @@ export function toUnifiedOfferCardModel(
     durationLabel: safeText(offer.duration),
     displayedPrice: safeText(offer.displayedPrice),
     departureCountText: departureCountText(offer.departureDateCount),
+    otherDepartureCount: Math.max(0, (offer.departureDateCount ?? 0) - 1),
     transportLabel: transportLabel(offer.transport),
     transportShortLabel: transportShortLabel(offer.transport),
     mealsLabel: safeText(offer.meals),
