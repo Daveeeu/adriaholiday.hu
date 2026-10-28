@@ -40,7 +40,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
                 }
             }
 
-            $sanitized = RichTextSanitizer::sanitize($trimmed);
+            $sanitized = RichTextSanitizer::sanitizeUniform($trimmed);
 
             return $sanitized !== '' ? $sanitized : null;
         };
@@ -114,7 +114,10 @@ class PortfolioOfferDetailResource extends TourDetailResource
      */
     private function programDays(Tour $tour, Request $request): array
     {
-        $days = TourProgramDayResource::collection($tour->programDays ?? [])->resolve($request);
+        $days = array_map(
+            fn (array $day): array => [...$day, 'description' => RichTextSanitizer::sanitizeUniform($day['description'] ?? null)],
+            TourProgramDayResource::collection($tour->programDays ?? [])->resolve($request),
+        );
         $fallbackImages = $tour->programDayFallbackImageUrls();
 
         if ($fallbackImages === []) {

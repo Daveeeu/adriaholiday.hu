@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Tour;
+use App\Models\TourDate;
 use Illuminate\Support\Str;
 
 /**
@@ -136,6 +137,20 @@ class TourMeta
         return $firstDate?->start_date && $firstDate->end_date
             ? $firstDate->start_date->format('Y.m.d.').' - '.$firstDate->end_date->format('d.')
             : self::INQUIRE_LABEL;
+    }
+
+    /**
+     * A date's span as the site shows it: "2027.04.04. - 04.10.".
+     */
+    public static function dateRangeLabel(TourDate $date): string
+    {
+        if ($date->start_date === null) {
+            return self::INQUIRE_LABEL;
+        }
+
+        return $date->end_date === null
+            ? $date->start_date->format('Y.m.d.')
+            : $date->start_date->format('Y.m.d.').' - '.$date->end_date->format('m.d.');
     }
 
     /**

@@ -65,6 +65,44 @@
             color: #ffffff;
         }
 
+        .page-footer td.phones {
+            padding-top: 3px;
+            color: #ffffff;
+        }
+
+        .dates {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+        }
+
+        .dates td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .dates .date-label {
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .dates .date-note {
+            color: #64748b;
+        }
+
+        .dates .date-price {
+            text-align: right;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .dates .date-original {
+            font-weight: normal;
+            color: #94a3b8;
+            text-decoration: line-through;
+            margin-right: 6px;
+        }
+
         .page-footer .accent {
             color: #34d6a4;
         }
@@ -332,21 +370,22 @@
         <table>
             <tr>
                 <td>
-                    <span class="brand-name">{{ $branding['siteName'] }}</span><br>
-                    <span class="accent">Utazási program</span> &middot; {{ $tour->name }}
+                    <span class="brand-name">{{ $branding['siteName'] }}</span>
+                    <span class="accent">&middot; Utazási program</span>
                 </td>
                 <td class="contact">
-                    @if ($branding['phones'] !== [])
-                        <span class="accent">Tel.:</span> {{ implode(' · ', $branding['phones']) }}
-                    @endif
-                    @if ($branding['phones'] !== [] && $branding['email'])
-                        <br>
-                    @endif
                     @if ($branding['email'])
                         <span class="accent">E-mail:</span> {{ $branding['email'] }}
                     @endif
                 </td>
             </tr>
+            @if ($branding['phones'] !== [])
+                <tr>
+                    <td class="phones" colspan="2">
+                        <span class="accent">Tel.:</span> {{ implode(' · ', $branding['phones']) }}
+                    </td>
+                </tr>
+            @endif
         </table>
     </div>
 
@@ -384,7 +423,7 @@
                 </td>
                 <td>
                     Indulás
-                    <strong>{{ $departureLabel }}</strong>
+                    <strong>{{ count($dates) > 1 ? count($dates).' időpont' : $departureLabel }}</strong>
                 </td>
                 <td>
                     Utazás
@@ -397,18 +436,36 @@
             </tr>
         </table>
 
-        @if ($tour->short_description)
-            <div class="lead">{!! $tour->short_description !!}</div>
+        @if ($content['shortDescription'])
+            <div class="lead">{!! $content['shortDescription'] !!}</div>
         @endif
 
-        @if ($tour->program_before)
+        @if (count($dates) > 1)
+            <h2>Időpontok és árak</h2>
+            <table class="dates">
+                @foreach ($dates as $date)
+                    <tr>
+                        <td class="date-label">{{ $date['label'] }}</td>
+                        <td class="date-note">{{ $date['soldOut'] ? 'Betelt' : $date['note'] }}</td>
+                        <td class="date-price">
+                            @if ($date['originalPrice'])
+                                <span class="date-original">{{ $date['originalPrice'] }}</span>
+                            @endif
+                            {{ $date['price'] ?? \App\Support\TourMeta::INQUIRE_LABEL }}
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+        @endif
+
+        @if ($content['programBefore'])
             <h2>Az utazásról</h2>
-            {!! $tour->program_before !!}
+            <div>{!! $content['programBefore'] !!}</div>
         @endif
 
-        @if ($programDays->isEmpty() && $programHtml)
+        @if ($programDays->isEmpty() && $content['program'])
             <h2>Program</h2>
-            <div class="day-body">{!! $programHtml !!}</div>
+            <div class="day-body">{!! $content['program'] !!}</div>
         @endif
 
         @if ($programDays->isNotEmpty())
@@ -421,8 +478,8 @@
                         </td>
                         <td>
                             <div class="day-title"><span class="day-label">{{ $day->day_number }}. nap</span> &ndash; {{ $day->title }}</div>
-                            @if ($day->description)
-                                <div class="day-body">{!! $day->description !!}</div>
+                            @if ($dayDescriptions[$day->id] ?? null)
+                                <div class="day-body">{!! $dayDescriptions[$day->id] !!}</div>
                             @endif
                         </td>
                     </tr>
@@ -430,8 +487,8 @@
             @endforeach
         @endif
 
-        @if ($programFooterHtml)
-            <div class="day-body">{!! $programFooterHtml !!}</div>
+        @if ($content['programFooter'])
+            <div class="day-body">{!! $content['programFooter'] !!}</div>
         @endif
 
         @if ($includedItems->isNotEmpty() || $excludedItems->isNotEmpty())
@@ -460,19 +517,19 @@
             </div>
         @endif
 
-        @if ($tour->payment_program)
+        @if ($content['paymentProgram'])
             <h2>Kiegészítő / fizető programok</h2>
-            {!! $tour->payment_program !!}
+            <div>{!! $content['paymentProgram'] !!}</div>
         @endif
 
-        @if ($tour->prices)
+        @if ($content['prices'])
             <h2>Árak</h2>
-            {!! $tour->prices !!}
+            <div>{!! $content['prices'] !!}</div>
         @endif
 
-        @if ($tour->discounts)
+        @if ($content['discounts'])
             <h2>Kedvezmények</h2>
-            {!! $tour->discounts !!}
+            <div>{!! $content['discounts'] !!}</div>
         @endif
 
         <div class="footer-note">

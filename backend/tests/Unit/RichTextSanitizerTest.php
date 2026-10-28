@@ -64,4 +64,20 @@ class RichTextSanitizerTest extends TestCase
 
         $this->assertSame('<table border="1"><tbody><tr><td colspan="2">Ár</td></tr></tbody></table>', $html);
     }
+
+    public function test_the_uniform_variant_drops_inline_fonts_sizes_colours_and_underlines(): void
+    {
+        $html = RichTextSanitizer::sanitizeUniform(
+            '<p style="text-align: center; font-family: Arial"><span style="color:#009900;font-size:20px;"><strong>1. nap</strong></span> <u>Firenze</u></p>'
+        );
+
+        $this->assertSame('<p style="text-align: center"><span><strong>1. nap</strong></span> Firenze</p>', $html);
+    }
+
+    public function test_the_default_variant_keeps_inline_typography(): void
+    {
+        $html = RichTextSanitizer::sanitize('<p><span style="color: #009900; font-size: 20px"><u>Firenze</u></span></p>');
+
+        $this->assertSame('<p><span style="color: #009900; font-size: 20px"><u>Firenze</u></span></p>', $html);
+    }
 }

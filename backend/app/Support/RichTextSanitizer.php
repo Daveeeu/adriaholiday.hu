@@ -55,6 +55,14 @@ class RichTextSanitizer
         'font-family',
     ];
 
+    /**
+     * The uniform variant for trip texts: every trip looks the same, so no
+     * fonts, sizes, colours or underlines of its own, only the alignment.
+     */
+    private const UNIFORM_STYLES = ['text-align'];
+
+    private const UNIFORM_UNWRAPPED_TAGS = ['u'];
+
     private const ALLOWED_TEXT_ALIGN = ['left', 'center', 'right', 'justify'];
 
     /** Tags that may carry an id, the target of an in-page link. */
@@ -63,6 +71,28 @@ class RichTextSanitizer
     private const ANCHOR_ID = '/^[a-z][a-z0-9_-]{0,63}$/';
 
     public static function sanitize(?string $value): ?string
+    {
+        return self::clean($value, self::ALLOWED_TAGS, self::ALLOWED_STYLES);
+    }
+
+    /**
+     * Sanitized like sanitize(), but in the site's own typography: inline
+     * fonts, sizes, colours and underlines are dropped, the text kept.
+     */
+    public static function sanitizeUniform(?string $value): ?string
+    {
+        return self::clean(
+            $value,
+            array_values(array_diff(self::ALLOWED_TAGS, self::UNIFORM_UNWRAPPED_TAGS)),
+            self::UNIFORM_STYLES,
+        );
+    }
+
+    /**
+     * @param  array<int, string>  $tags
+     * @param  array<int, string>  $styles
+     */
+    private static function clean(?string $value, array $tags, array $styles): ?string
     {
         if ($value === null) {
             return null;
@@ -95,7 +125,7 @@ class RichTextSanitizer
         $container = $output->createElement('div');
         $output->appendChild($container);
 
-        self::appendChildren($root, $output, $container);
+        self::appendChildren($root, $output, $container, ['tags' => $tags, 'styles' => $styles]);
 
         $sanitized = '';
         foreach (iterator_to_array($container->childNodes) as $child) {
@@ -105,14 +135,20 @@ class RichTextSanitizer
         return trim($sanitized);
     }
 
-    private static function appendChildren(DOMNode $source, DOMDocument $output, DOMElement $target): void
+    /**
+     * @param  array{tags: array<int, string>, styles: array<int, string>}  $rules
+     */
+    private static function appendChildren(DOMNode $source, DOMDocument $output, DOMElement $target, array $rules): void
     {
         foreach (iterator_to_array($source->childNodes) as $child) {
-            self::appendNode($child, $output, $target);
+            self::appendNode($child, $output, $target, $rules);
         }
     }
 
-    private static function appendNode(DOMNode $source, DOMDocument $output, DOMElement $target): void
+    /**
+     * @param  array{tags: array<int, string>, styles: array<int, string>}  $rules
+     */
+    private static function appendNode(DOMNode $source, DOMDocument $output, DOMElement $target, array $rules): void
     {
         if ($source->nodeType === XML_TEXT_NODE) {
             $target->appendChild($output->createTextNode($source->nodeValue ?? ''));
@@ -127,8 +163,8 @@ class RichTextSanitizer
         $tag = strtolower($source->nodeName);
         $tag = self::TAG_ALIASES[$tag] ?? $tag;
 
-        if (! in_array($tag, self::ALLOWED_TAGS, true)) {
-            self::appendChildren($source, $output, $target);
+        if (! in_array($tag, $rules['tags'], true)) {
+            self::appendChildren($source, $output, $target, $rules);
 
             return;
         }
@@ -150,7 +186,7 @@ class RichTextSanitizer
             }
 
             if ($name === 'style') {
-                $sanitizedStyle = self::sanitizeStyle($value);
+                $sanitizedStyle = self::sanitizeStyle($value, $rules['styles']);
 
                 if ($sanitizedStyle !== null) {
                     $element->setAttribute('style', $sanitizedStyle);
@@ -201,7 +237,7 @@ class RichTextSanitizer
             }
         }
 
-        self::appendChildren($source, $output, $element);
+        self::appendChildren($source, $output, $element, $rules);
         $target->appendChild($element);
     }
 
@@ -235,7 +271,10 @@ class RichTextSanitizer
         $target->appendChild($image);
     }
 
-    private static function sanitizeStyle(string $style): ?string
+    /**
+     * @param  array<int, string>  $allowedStyles
+     */
+    private static function sanitizeStyle(string $style, array $allowedStyles): ?string
     {
         $pairs = array_filter(array_map('trim', explode(';', $style)));
         $sanitized = [];
@@ -249,7 +288,7 @@ class RichTextSanitizer
             $property = strtolower($property);
             $value = trim($value);
 
-            if (! in_array($property, self::ALLOWED_STYLES, true)) {
+            if (! in_array($property, $allowedStyles, true)) {
                 continue;
             }
 
