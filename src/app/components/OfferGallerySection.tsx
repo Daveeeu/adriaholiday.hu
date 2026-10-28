@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Camera, ChevronLeft, ChevronRight, Expand, ImageOff, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Camera, ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
 
 import { trackEvent } from '@/app/analytics/trackEvent';
 import { renderContentIcon } from '@/app/content/icon-map';
@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import type { PortfolioOfferGalleryItem } from '../content/portfolio-offer-detail-api';
+import { galleryImageUrl, hasGalleryImage, visibleGalleryItems } from '../content/offer-gallery';
 import { responsiveImage } from "../lib/responsiveImage";
 import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 
@@ -32,14 +33,6 @@ function SectionEyebrow({ title }: { title: string }) {
   );
 }
 
-function hasImage(item: PortfolioOfferGalleryItem) {
-  return Boolean(item.image?.url || item.image?.thumbnailUrl);
-}
-
-function getImageUrl(item: PortfolioOfferGalleryItem) {
-  return item.image?.url || item.image?.thumbnailUrl || '';
-}
-
 function GalleryBigImage({
   item,
   onOpen,
@@ -47,7 +40,7 @@ function GalleryBigImage({
   item: PortfolioOfferGalleryItem;
   onOpen: () => void;
 }) {
-  const imageUrl = getImageUrl(item);
+  const imageUrl = galleryImageUrl(item);
   const altText = (item.alt || item.title || 'Galéria kép').trim();
   const title = item.title?.trim() || '';
   const caption = item.caption?.trim() || '';
@@ -76,40 +69,28 @@ function GalleryBigImage({
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(0,195,137,0.24),transparent_32%),radial-gradient(circle_at_82%_18%,rgba(22,184,255,0.2),transparent_28%),radial-gradient(circle_at_70%_82%,rgba(255,255,255,0.08),transparent_28%),linear-gradient(145deg,#07111f,#0d2240_58%,#12315d)]" />
         )}
 
-        <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-2 text-white backdrop-blur-xl shadow-[0_10px_28px_rgba(15,23,42,0.18)]">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/14 text-white">
-            {imageExists ? <Camera className="h-4 w-4" /> : <ImageOff className="h-4 w-4" />}
+        <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between gap-4 p-4 sm:p-5">
+          {title || caption ? (
+            <div className="min-w-0 rounded-[24px] border border-white/15 bg-black/30 p-4 text-white backdrop-blur-md sm:p-5">
+              {title ? (
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+                  {title}
+                </div>
+              ) : null}
+              {caption ? (
+                <div className="mt-1 text-lg font-bold leading-tight sm:text-xl">
+                  {caption}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <span />
+          )}
+
+          <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-black/30 px-3 py-2 text-xs font-semibold text-white backdrop-blur-md">
+            <Expand className="h-4 w-4" />
+            Nagyítás
           </span>
-          <div className="min-w-0">
-            <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">
-              Kép
-            </div>
-            <div className="truncate text-sm font-semibold">{title || altText}</div>
-          </div>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-          <div className="rounded-[24px] border border-white/15 bg-black/30 p-4 text-white backdrop-blur-md sm:p-5">
-            <div className="flex items-end justify-between gap-4">
-              <div className="min-w-0">
-                {title ? (
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-                    {title}
-                  </div>
-                ) : null}
-                {caption ? (
-                  <div className="mt-1 text-lg font-bold leading-tight sm:text-xl">
-                    {caption}
-                  </div>
-                ) : null}
-              </div>
-
-              <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold">
-                <Expand className="h-4 w-4" />
-                Nagyítás
-              </span>
-            </div>
-          </div>
         </div>
       </div>
     </button>
@@ -125,7 +106,7 @@ function GalleryThumbnail({
   active: boolean;
   onClick: () => void;
 }) {
-  const imageUrl = getImageUrl(item);
+  const imageUrl = galleryImageUrl(item);
   const altText = (item.alt || item.title || 'Galéria kép').trim();
   const imageExists = imageUrl.trim() !== '';
 
@@ -155,10 +136,6 @@ function GalleryThumbnail({
 
         <div className={`absolute inset-0 bg-black/0 transition-colors ${active ? 'bg-black/12' : 'group-hover:bg-black/8'}`} />
 
-        <div className="absolute left-2 top-2 rounded-full border border-white/15 bg-white/12 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/90 backdrop-blur-md">
-          Kép
-        </div>
-
         {active ? (
           <div className="absolute right-2 top-2 rounded-full bg-[#00c389] p-1.5 text-white shadow-[0_10px_24px_rgba(0,195,137,0.3)]">
             <Camera className="h-3.5 w-3.5" />
@@ -175,16 +152,7 @@ export default function OfferGallerySection({
   gallery,
 }: OfferGallerySectionProps) {
   const pageSize = 4;
-  const items = useMemo(
-    () =>
-      (gallery ?? [])
-        .filter((item) => item.active !== false)
-        .sort(
-          (a, b) =>
-            a.sortOrder - b.sortOrder || String(a.id).localeCompare(String(b.id)),
-        ),
-    [gallery],
-  );
+  const items = useMemo(() => visibleGalleryItems(gallery), [gallery]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [thumbPage, setThumbPage] = useState(0);
@@ -396,9 +364,9 @@ export default function OfferGallerySection({
               {selectedLightboxItem ? (
                 <div className="w-full max-w-5xl space-y-4">
                   <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0d2240] shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
-                    {hasImage(selectedLightboxItem) ? (
+                    {hasGalleryImage(selectedLightboxItem) ? (
                       <img
-                        {...responsiveImage(getImageUrl(selectedLightboxItem))}
+                        {...responsiveImage(galleryImageUrl(selectedLightboxItem))}
                         sizes="(min-width: 1024px) 1024px, 100vw"
                         alt={(selectedLightboxItem.alt || selectedLightboxItem.title || 'Galéria kép').trim()}
                         className="max-h-[68vh] w-full object-cover"

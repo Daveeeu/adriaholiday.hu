@@ -1,10 +1,11 @@
 /**
- * Marks a tour's search keywords in its description HTML. Matching ignores
+ * Marks a tour's search keywords in its description HTML, each only at its
+ * first mention, in bold and in the text's own colour. Matching ignores
  * accents and case and follows Hungarian suffixes ("Róma" marks "Rómában",
  * "Rómából", "római"), but never a longer word: "Róma" leaves "Románia" alone.
  */
 
-const HIGHLIGHT_CLASS_NAME = "bg-transparent font-semibold text-[#00a878]";
+const HIGHLIGHT_CLASS_NAME = "bg-transparent font-semibold text-inherit";
 
 /** Case endings (accent-free, as matched) a keyword may carry in running text. */
 const HUNGARIAN_SUFFIXES = [
@@ -37,18 +38,26 @@ function keywordPattern(keywords: string[]): RegExp | null {
   }
 
   return new RegExp(
-    `(?<![\\p{L}\\p{N}])(?:${folded.join("|")})(?:${HUNGARIAN_SUFFIXES.join("|")})?(?![\\p{L}\\p{N}])`,
+    `(?<![\\p{L}\\p{N}])(${folded.join("|")})(?:${HUNGARIAN_SUFFIXES.join("|")})?(?![\\p{L}\\p{N}])`,
     "gu",
   );
 }
 
-function highlightTextNode(node: Text, pattern: RegExp): void {
+/** Marks the keywords in a text node that are not in `marked` yet, and adds them to it. */
+function highlightTextNode(node: Text, pattern: RegExp, marked: Set<string>): void {
   const text = node.data;
   const folded = foldText(text);
   const fragment = node.ownerDocument.createDocumentFragment();
   let cursor = 0;
 
   for (const match of folded.matchAll(pattern)) {
+    const keyword = match[1].replace(/\s+/g, " ");
+
+    if (marked.has(keyword)) {
+      continue;
+    }
+
+    marked.add(keyword);
     const start = match.index ?? 0;
     const end = start + match[0].length;
 
@@ -98,7 +107,8 @@ export function createKeywordHighlighter(keywords: string[]): (html: string) => 
     const document = new DOMParser().parseFromString(`<body>${html}</body>`, "text/html");
     const textNodes: Text[] = [];
     collectTextNodes(document.body, textNodes);
-    textNodes.forEach((node) => highlightTextNode(node, pattern));
+    const marked = new Set<string>();
+    textNodes.forEach((node) => highlightTextNode(node, pattern, marked));
 
     const result = document.body.innerHTML;
     cache.set(html, result);

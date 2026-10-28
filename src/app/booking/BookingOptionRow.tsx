@@ -43,7 +43,7 @@ export default function BookingOptionRow({ title, note, info, price, checked, lo
           </span>
           {note ? <span className="block text-sm text-gray-500">{note}</span> : null}
         </span>
-        <span className="shrink-0 text-right font-bold tabular-nums text-[#00a878] sm:min-w-[9.5rem]">{price}</span>
+        <span className="shrink-0 text-right font-bold tabular-nums text-[#0f172a] sm:min-w-[9.5rem]">{price}</span>
       </label>
 
       {checked && children ? <div className="px-5 pb-4 pl-[3.25rem]">{children}</div> : null}

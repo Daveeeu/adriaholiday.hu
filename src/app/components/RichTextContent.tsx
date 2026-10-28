@@ -6,6 +6,8 @@ type RichTextContentProps = {
   html: string;
   size?: "base" | "lg";
   className?: string;
+  /** False when the HTML already has the search keywords marked. */
+  highlightKeywords?: boolean;
 };
 
 const BRAND_PROSE_CLASSES = [
@@ -22,13 +24,14 @@ export default function RichTextContent({
   html,
   size = "base",
   className,
+  highlightKeywords = true,
 }: RichTextContentProps) {
   const highlight = useKeywordHighlight();
 
   return (
     <div
       className={cn(BRAND_PROSE_CLASSES, size === "lg" && "prose-lg", className)}
-      dangerouslySetInnerHTML={{ __html: highlight(html) }}
+      dangerouslySetInnerHTML={{ __html: highlightKeywords ? highlight(html) : html }}
     />
   );
 }

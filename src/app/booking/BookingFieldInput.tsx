@@ -59,7 +59,7 @@ export default function BookingFieldInput({ field, value, onChange, onBlur, erro
           </div>
 
           {field.priceLabel ? (
-            <div className="font-bold text-[#00a878] whitespace-nowrap">{field.priceLabel}</div>
+            <div className="font-bold text-[#0f172a] whitespace-nowrap">{field.priceLabel}</div>
           ) : null}
         </label>
 
