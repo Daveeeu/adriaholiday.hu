@@ -38,6 +38,8 @@ import BarionPaymentBanner from "../components/BarionPaymentBanner";
 import { INSURANCE_PATH } from "./insurance";
 import { BookingTermsConsent, NewsletterConsent } from "./BookingConsents";
 import { bringIntoView } from "../lib/bringIntoView";
+import { seatsLeftLabel, seatsOf } from "../lib/seatsLeft";
+import { transportLabel } from "../lib/transport";
 
 type FieldErrorState = {
   form: BookingFieldErrors;
@@ -164,7 +166,6 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
   const [status, setStatus] = useState<"idle" | "submitting" | "redirecting" | "success" | "error">("idle");
   const [fieldErrors, setFieldErrors] = useState<FieldErrorState>(NO_ERRORS);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [bookingId, setBookingId] = useState<string | number | null>(null);
   const [departurePlaceId, setDeparturePlaceId] = useState("");
   const [departurePlaceError, setDeparturePlaceError] = useState<string | null>(null);
   const [extraSelection, setExtraSelection] = useState<ExtraSelection>({
@@ -599,7 +600,6 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         newsletterSubscribe,
       });
 
-      setBookingId(response.id);
       trackEvent("booking_success", {
         entity: { type: "tour", slug: trip.slug },
         metadata: { booking_id: response.id, participants: passengers.length },
@@ -699,7 +699,6 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
             Foglalásodat rögzítettük!
           </h2>
           <p className="text-white/65 text-lg max-w-xl mx-auto">
-            Foglalásod azonosítója: <span className="font-bold text-white">#{bookingId}</span>.
             Átirányítunk a Barion biztonságos fizetőoldalára…
           </p>
           <ConfirmationEmailNote email={formValues.contact_email} />
@@ -726,9 +725,8 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
             Köszönjük a foglalást!
           </h2>
           <p className="text-white/65 text-lg max-w-xl mx-auto">
-            Foglalásod azonosítója: <span className="font-bold text-white">#{bookingId}</span>.
-            Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
-            {onlinePayment ? " A fizetés részleteiről is tőle kapsz tájékoztatást." : null}
+            Foglalásodat rögzítettük. A visszaigazolásban megtalálod a fizetéssel kapcsolatos tudnivalókat
+            és az utazási könyvet.
           </p>
           <ConfirmationEmailNote email={formValues.contact_email} />
         </div>
@@ -798,7 +796,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                     <FormReadonly label="Dátum" value={selectedDate.label} />
                     <FormReadonly
                       label="Utazás módja"
-                      value={trip.transport === "bus" ? "Autóbuszos út" : "Repülős út"}
+                      value={transportLabel(trip.transport) ?? "-"}
                     />
                     <FormReadonly label="Ellátás" value={trip.meals || "-"} />
                     <FormReadonly label="Szállás" value={trip.hotel || "-"} />
@@ -1041,15 +1039,7 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
         <SummaryChip label="Státusz" value={selectedDate.status} />
         <SummaryChip
           label="Szabad hely"
-          value={
-            priceBox?.availableSeats !== null &&
-            priceBox?.availableSeats !== undefined
-              ? `Még ${priceBox.availableSeats} szabad hely`
-              : selectedDate.seatsLeft !== null &&
-                  selectedDate.seatsLeft !== undefined
-                ? `Még ${selectedDate.seatsLeft} szabad hely`
-                : null
-          }
+          value={seatsLeftLabel(seatsOf({ priceBox, seatsLeft: selectedDate.seatsLeft }))}
         />
         <SummaryChip label="Ellátás" value={trip.meals || null} />
         <SummaryChip label="Szállás" value={trip.hotel || null} />

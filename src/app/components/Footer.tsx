@@ -14,6 +14,12 @@ import LogoBadge from "./LogoBadge";
 
 const DEVELOPER_URL = "https://jandldavid.hu";
 
+function splitFirstSentence(text: string): [string, string] {
+  const end = text.search(/[.!?]\s/);
+
+  return end === -1 ? [text, ""] : [text.slice(0, end + 1), text.slice(end + 1).trim()];
+}
+
 function ExternalLink({
   href,
   label,
@@ -32,6 +38,8 @@ function ExternalLink({
 
 export default function Footer() {
   const { settings } = useSiteSettings();
+  // The tagline (the first sentence) keeps to one line on wide screens.
+  const [descriptionLead, descriptionRest] = splitFirstSentence(settings.footerDescription);
   const { openConsentPreferences } = useAnalytics();
 
   const socialItems: SocialLink[] = [
@@ -62,7 +70,7 @@ export default function Footer() {
       </div>
 
       <div className="relative max-w-[1400px] mx-auto px-6 md:px-8 lg:px-12 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 mb-12">
           <motion.div className="col-span-1 md:col-span-2" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             {(settings.logo?.url || settings.siteName) ? (
               <motion.div className="mb-4" whileHover={{ scale: 1.02 }}>
@@ -74,9 +82,10 @@ export default function Footer() {
               </motion.div>
             ) : null}
 
-            {settings.footerDescription ? (
-              <p className="text-white/70 mb-6 max-w-md leading-relaxed">
-                {settings.footerDescription}
+            {descriptionLead ? (
+              <p className="text-white/70 mb-6 max-w-xl leading-relaxed">
+                <span className="block xl:whitespace-nowrap">{descriptionLead}</span>
+                {descriptionRest}
               </p>
             ) : null}
 
@@ -143,7 +152,7 @@ export default function Footer() {
                   </div>
                   <a
                     href={`mailto:${settings.email}`}
-                    className="text-[15px] pt-1.5 break-all"
+                    className="text-[15px] pt-1.5 break-words"
                     onClick={() => trackEvent("email_click", { metadata: { placement: "footer" } })}
                   >
                     {settings.email}

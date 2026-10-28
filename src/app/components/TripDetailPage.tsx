@@ -39,6 +39,8 @@ import TripSectionNav from "./TripSectionNav";
 import { tripSection } from "../lib/tripSection";
 import InfoPopover from "./InfoPopover";
 import { companyYears } from "../lib/companyYears";
+import { seatsLeftLabel, seatsOf } from "../lib/seatsLeft";
+import { transportLabel } from "../lib/transport";
 import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 import BookingSection from "../booking/BookingSection";
 import { formatHuf } from "../booking/booking-pricing";
@@ -121,7 +123,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   }
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
-  const selectedSeats = priceBox?.availableSeats ?? selectedDate.seatsLeft ?? null;
+  const selectedSeats = seatsOf({ priceBox, seatsLeft: selectedDate.seatsLeft });
   const offeredDeparturePlaces =
     selectedDate.departurePlaceIds.length > 0
       ? trip.departurePlaces.filter((place) => selectedDate.departurePlaceIds.includes(Number(place.id)))
@@ -239,7 +241,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
             <HeroInfoCard
               icon={trip.transport === "plane" ? <Plane /> : <Bus />}
               label="Utazás"
-              value={trip.transport === "plane" ? "Repülős út" : "Autóbuszos út"}
+              value={transportLabel(trip.transport) ?? "Autóbusz"}
             />
             {/* The selected departure's own meals and accommodation, else the trip's. */}
             <HeroInfoCard
@@ -420,6 +422,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   <div className="space-y-3">
                     {dateOptions.map((date) => {
                       const active = selectedDateId === date.id;
+                      const seatsLabel = seatsLeftLabel(seatsOf(date));
 
                       return (
                         <button
@@ -461,15 +464,9 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                             <span className="px-2.5 py-1 rounded-full bg-white text-[#00a878] font-bold">
                               {date.status}
                             </span>
-                            {date.priceBox?.availableSeats !== null &&
-                            date.priceBox?.availableSeats !== undefined ? (
+                            {seatsLabel ? (
                               <span className="px-2.5 py-1 rounded-full bg-white text-gray-500 font-semibold">
-                                Még {date.priceBox.availableSeats} szabad hely
-                              </span>
-                            ) : date.seatsLeft !== null &&
-                              date.seatsLeft !== undefined ? (
-                              <span className="px-2.5 py-1 rounded-full bg-white text-gray-500 font-semibold">
-                                Még {date.seatsLeft} szabad hely
+                                {seatsLabel}
                               </span>
                             ) : null}
                             {date.displayedPrice || date.priceBox?.displayedPrice ? (
@@ -730,6 +727,7 @@ function SelectedDepartureSummary({
   otherDates: number;
   onShowDates: () => void;
 }) {
+  const seatsLabel = seatsLeftLabel(seats);
   // A full date takes no payment, so its rules are beside the point.
   const payment =
     !bookable || depositPercent === null
@@ -745,7 +743,7 @@ function SelectedDepartureSummary({
   const benefits = [
     ...(payment ? [{ icon: <CreditCard />, ...payment }] : []),
     { icon: <Mail />, title: "Azonnali visszaigazolás", text: "Emailben, a teljes utazási könyvvel." },
-    { icon: <ShieldCheck />, title: `${companyYears()} éve szervezünk utakat`, text: "Tapasztalt csapat, megbízható szervezés." },
+    { icon: <ShieldCheck />, title: `${companyYears()} éve szervezünk utazásokat`, text: "Tapasztalt csapat, megbízható szervezés." },
   ];
 
   return (
@@ -775,10 +773,10 @@ function SelectedDepartureSummary({
             <span className={`h-2 w-2 rounded-full ${bookable ? "bg-[#00c389]" : "bg-red-500"}`} />
             {status}
           </span>
-          {bookable && seats !== null ? (
+          {bookable && seatsLabel ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-[#f5f9fc] px-3.5 py-1.5 text-[#334155]">
               <Users className="h-4 w-4 text-[#00a878]" />
-              Még {seats} szabad hely
+              {seatsLabel}
             </span>
           ) : null}
           {duration ? (

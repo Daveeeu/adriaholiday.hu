@@ -1,4 +1,5 @@
 import type { PortfolioOfferCard } from "./portfolio-offers-api";
+import { transportLabel } from "../lib/transport";
 
 /** Shown instead of a departure date or price the tour does not have yet. */
 export const INQUIRE_LABEL = "Érdeklődj nálunk";
@@ -73,24 +74,6 @@ function departureCountText(count?: number | null): string | null {
   }
 
   return "Több időpont";
-}
-
-function transportLabel(value?: string | null): string | null {
-  const transport = safeText(value);
-
-  if (!transport) {
-    return null;
-  }
-
-  if (transport === "bus") {
-    return "Autóbuszos út";
-  }
-
-  if (transport === "plane") {
-    return "Repülős út";
-  }
-
-  return transport;
 }
 
 function transportShortLabel(value?: string | null): string | null {
