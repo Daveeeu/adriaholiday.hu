@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Check, CreditCard, Mail, ShieldCheck } from "lucide-react";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioBookingPayment, type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
@@ -149,9 +149,11 @@ type BookingSectionProps = {
   selectedDate: BookingDateOption;
   trip: BookingTrip;
   priceBox: PortfolioPriceBox | null;
+  /** Lets the date be changed in the form's first step; without it the date is only shown. */
+  datePicker?: ReactNode;
 };
 
-export default function BookingSection({ selectedDate, trip, priceBox }: BookingSectionProps) {
+export default function BookingSection({ selectedDate, trip, priceBox, datePicker }: BookingSectionProps) {
   const { trackEvent } = useAnalytics();
   const [step, setStep] = useState(1);
   const [hasStarted, setHasStarted] = useState(false);
@@ -791,9 +793,16 @@ export default function BookingSection({ selectedDate, trip, priceBox }: Booking
                   title="Utazás adatai"
                   text="Ellenőrizd a kiválasztott adatokat."
                 >
+                  {datePicker ? (
+                    <div className="mb-5">
+                      <div className="mb-2 text-sm font-semibold text-[#0f172a]">Időpont</div>
+                      {datePicker}
+                    </div>
+                  ) : null}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     <FormReadonly label="Utazás" value={trip.title} />
-                    <FormReadonly label="Dátum" value={selectedDate.label} />
+                    {datePicker ? null : <FormReadonly label="Dátum" value={selectedDate.label} />}
                     <FormReadonly
                       label="Utazás módja"
                       value={transportLabel(trip.transport) ?? "-"}

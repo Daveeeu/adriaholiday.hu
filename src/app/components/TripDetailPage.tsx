@@ -27,10 +27,12 @@ import OfferGallerySection from "./OfferGallerySection";
 import OfferProgramTimeline from "./OfferProgramTimeline";
 import OfferContentSection from "./OfferContentSection";
 import OfferTeaserCard from "./OfferTeaserCard";
+import TripDatePicker from "./TripDatePicker";
 import OfferPrintableVersion from "./OfferPrintableVersion";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import { toUnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
+import { hasGalleryImage, visibleGalleryItems } from "../content/offer-gallery";
 import type { PortfolioFeaturedTour } from "../content/portfolio-featured-tours-api";
 import type { TripDetail } from "../routes/TripRoute";
 import OfferCard from "./OfferCard";
@@ -41,6 +43,7 @@ import InfoPopover from "./InfoPopover";
 import { companyYears } from "../lib/companyYears";
 import { seatsLeftLabel, seatsOf } from "../lib/seatsLeft";
 import { transportLabel } from "../lib/transport";
+import { routeNamedIn, routeStops } from "../lib/tripRoute";
 import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 import BookingSection from "../booking/BookingSection";
 import { formatHuf } from "../booking/booking-pricing";
@@ -104,9 +107,20 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   const selectedDate =
     dateOptions.find((item) => item.id === selectedDateId) ||
     dateOptions[0];
+
+  function selectDate(date: (typeof dateOptions)[number]) {
+    setSelectedDateId(date.id);
+    trackEvent("date_select", {
+      entity: { type: "tour_date", id: date.id, slug: trip.slug },
+      metadata: { label: date.label, status: date.status, price: date.price },
+    });
+  }
   // A sold-out or cancelled date, or a tour without a bookable date, can
   // only be requested as a group quote.
   const canBook = trip.hasBookableDates && selectedDate.bookable;
+  const bookableDates = dateOptions.filter((date) => date.bookable);
+  // The gallery's photos past the first, which the gallery already shows large, break up the program text.
+  const programPhotos = visibleGalleryItems(trip.gallery).filter(hasGalleryImage).slice(1);
   const bookingSectionId = canBook ? "foglalas" : GROUP_INQUIRY_SECTION_ID;
   const bookLabel = canBook ? "Foglalás" : "Ajánlatot kérek";
   const [groupInquiryOpened, setGroupInquiryOpened] = useState(false);
@@ -122,6 +136,9 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
     });
   }
 
+  // The route ("Firenze - Siena - Bologna") only when the title doesn't already name its stops.
+  const stops = routeStops(trip.shortDescription);
+  const showRoute = stops.length > 0 && !routeNamedIn(stops, `${trip.title} ${trip.subtitle ?? ""}`);
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
   const selectedSeats = seatsOf({ priceBox, seatsLeft: selectedDate.seatsLeft });
   const offeredDeparturePlaces =
@@ -187,11 +204,29 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
           <div className="flex flex-wrap gap-3 mb-6">
             <Pill>{trip.country}</Pill>
+            {showRoute ? (
+              <Pill>
+                <MapPin className="w-4 h-4 text-[#00c389]" />
+                {trip.shortDescription}
+              </Pill>
+            ) : null}
             {trip.badge && <Pill active>{trip.badge}</Pill>}
             {priceBox?.ratingText ? (
               <Pill>
                 <Star className="w-4 h-4 text-[#00c389]" />
                 {priceBox.ratingText}
+              </Pill>
+            ) : null}
+            {priceBox?.discountText ? (
+              <Pill>
+                <Flame className="w-4 h-4 text-[#00c389]" />
+                {priceBox.discountText}
+              </Pill>
+            ) : null}
+            {priceBox?.urgencyText ? (
+              <Pill>
+                <Users className="w-4 h-4 text-[#00c389]" />
+                {priceBox.urgencyText}
               </Pill>
             ) : null}
           </div>
@@ -213,10 +248,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               {trip.subtitle}
             </p>
           ) : null}
-
-          <p className="text-white/75 text-lg max-w-2xl mt-6 leading-relaxed">
-            {trip.shortDescription}
-          </p>
 
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-10 max-w-6xl">
             <HeroInfoCard
@@ -328,6 +359,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                     title="Program"
                     content={[trip.program, trip.programFooter].filter(Boolean).join("")}
                     navLabel="Program"
+                    photos={programPhotos}
                   />
                 ) : (
                   <OfferContentSection title="Tudnivalók a programhoz" content={trip.programFooter} />
@@ -369,6 +401,11 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                       selectedDate={selectedDate}
                       trip={trip}
                       priceBox={priceBox}
+                      datePicker={
+                        bookableDates.length > 1 ? (
+                          <TripDatePicker dates={bookableDates} selectedId={selectedDateId} onSelect={selectDate} />
+                        ) : null
+                      }
                     />
                   ) : trip.hasBookableDates ? (
                     <div className="rounded-[28px] border border-red-100 bg-red-50 p-6 text-[#0f172a]">
@@ -397,112 +434,12 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
             <aside className="space-y-6">
               <div className="sticky top-[92px] rounded-[34px] bg-white border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.08)] p-6 xl:max-h-[calc(100vh-110px)] xl:overflow-y-auto">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-[#00c389]/10 text-[#00c389] flex items-center justify-center">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-
-                  <div>
-                    <div className="font-bold text-[#0f172a]">
-                      Biztonságos foglalás
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Gyors visszaigazolással
-                    </div>
-                  </div>
-                </div>
-
-                <OfferTeaserCard content={trip.teaser} className="hidden xl:block" />
-
                 <div id={DATE_PICKER_ID} className="mb-6 scroll-mt-28">
-                  <div className="text-[#0f172a] font-bold mb-3">
-                    Válassz időpontot
-                  </div>
+                  <h2 className="text-[#0f172a] text-lg font-bold mb-3">
+                    {dateOptions.length > 1 ? "Időpontok" : "Időpont"}
+                  </h2>
 
-                  <div className="space-y-3">
-                    {dateOptions.map((date) => {
-                      const active = selectedDateId === date.id;
-                      const seatsLabel = seatsLeftLabel(seatsOf(date));
-
-                      return (
-                        <button
-                          key={date.id}
-                          onClick={() => {
-                            setSelectedDateId(date.id);
-                            trackEvent("date_select", {
-                              entity: {
-                                type: "tour_date",
-                                id: date.id,
-                                slug: trip.slug,
-                              },
-                              metadata: {
-                                label: date.label,
-                                status: date.status,
-                                price: date.price,
-                              },
-                            });
-                          }}
-                          className={`w-full text-left rounded-2xl p-4 border transition-all ${
-                            active
-                              ? "border-[#00c389] bg-[#00c389]/8 shadow-[0_10px_26px_rgba(0,195,137,0.12)]"
-                              : "border-gray-100 bg-[#f5f9fc] hover:border-[#00c389]/40"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-3 mb-2">
-                            <div className="font-bold text-[#0f172a]">
-                              {date.label}
-                            </div>
-
-                            {active && (
-                              <div className="w-6 h-6 rounded-full bg-[#00c389] text-white flex items-center justify-center">
-                                <Check className="w-4 h-4" />
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex flex-wrap gap-2 text-xs">
-                            <span className="px-2.5 py-1 rounded-full bg-white text-[#00a878] font-bold">
-                              {date.status}
-                            </span>
-                            {seatsLabel ? (
-                              <span className="px-2.5 py-1 rounded-full bg-white text-gray-500 font-semibold">
-                                {seatsLabel}
-                              </span>
-                            ) : null}
-                            {date.displayedPrice || date.priceBox?.displayedPrice ? (
-                              <span className="px-2.5 py-1 rounded-full bg-white text-gray-900 font-bold">
-                                {date.priceBox?.originalDisplayedPrice ? (
-                                  <s className="mr-1.5 font-semibold text-gray-400">
-                                    {date.priceBox.originalDisplayedPrice}
-                                  </s>
-                                ) : null}
-                                {date.displayedPrice || date.priceBox?.displayedPrice}
-                              </span>
-                            ) : null}
-                            {date.priceBox?.label ? (
-                              <span className="px-2.5 py-1 rounded-full bg-red-50 text-red-600 font-bold">
-                                {date.priceBox.label}
-                              </span>
-                            ) : null}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="space-y-3 mb-6">
-                  {priceBox?.urgencyText ? (
-                    <SidebarInfo icon={<Users />} text={priceBox.urgencyText} />
-                  ) : null}
-
-                  {priceBox?.ratingText ? (
-                    <SidebarInfo icon={<Star />} text={priceBox.ratingText} />
-                  ) : null}
-
-                  {priceBox?.discountText ? (
-                    <SidebarInfo icon={<Flame />} text={priceBox.discountText} />
-                  ) : null}
+                  <TripDatePicker dates={dateOptions} selectedId={selectedDateId} onSelect={selectDate} />
                 </div>
 
                 {priceBox ? (
@@ -532,6 +469,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 {canBook ? (
                   <GroupInquiryLink tone="light" onClick={() => openGroupInquiry("sidebar")} />
                 ) : null}
+
+                <OfferTeaserCard content={trip.teaser} className="hidden xl:block mt-6" />
 
                 <OfferPrintableVersion slug={trip.slug} />
 
@@ -812,15 +751,6 @@ function SectionEyebrow({ title }: { title: ReactNode }) {
     <div className="inline-flex items-center gap-2 text-[#00a878] text-sm font-bold mb-4">
       <TrendingUp className="w-4 h-4" />
       {title}
-    </div>
-  );
-}
-
-function SidebarInfo({ icon, text }: { icon: ReactNode; text: ReactNode }) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl bg-[#f5f9fc] p-4">
-      <div className="text-[#00c389]">{icon}</div>
-      <div className="text-sm font-semibold text-[#0f172a]">{text}</div>
     </div>
   );
 }
