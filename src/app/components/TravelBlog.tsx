@@ -268,10 +268,6 @@ export default function TravelBlog() {
                           {featuredArticle.publishedAtLabel}
                         </span>
                       </div>
-                      <span className="text-sm text-white/55">•</span>
-                      <span className="font-mono text-xs tracking-[0.16em] text-white/70">
-                        /{featuredArticle.slug}
-                      </span>
                     </motion.div>
 
                     <motion.h3
@@ -390,10 +386,6 @@ export default function TravelBlog() {
                             <Clock className="h-3.5 w-3.5 text-[#00c389]" strokeWidth={2} />
                             <span>{article.readingTime} olvasás</span>
                           </div>
-                        </div>
-
-                        <div className="mb-2 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-gray-400">
-                          /{article.slug}
                         </div>
 
                         <h3 className="mb-2 text-[1.08rem] font-bold tracking-[-0.015em] leading-snug text-[#0f172a]">
