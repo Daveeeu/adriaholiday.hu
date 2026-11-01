@@ -18,7 +18,7 @@ services:
       app:
         condition: service_healthy
     ports:
-      - "${NGINX_HTTP_PORT:-80}:80"
+      - "127.0.0.1:${NGINX_HTTP_PORT:-80}:80"
     volumes:
       - laravel-storage:/var/www/backend/storage:ro
     healthcheck:
