@@ -1,5 +1,6 @@
 import {
   ArrowRightLeft,
+  BookOpen,
   Building2,
   FileText,
   CalendarDays,
@@ -41,7 +42,12 @@ export type NavigationItem = NavigationLink | NavigationGroup;
 
 export const staticNavigationItems: NavigationItem[] = [
   { to: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard, exact: true },
-  { to: '/analytics', labelKey: 'nav.analytics', icon: BarChart3, permission: 'analytics.view' },
+  {
+    to: '/analytics',
+    labelKey: 'nav.analytics',
+    icon: BarChart3,
+    permission: 'analytics.view',
+  },
   {
     labelKey: 'nav.apartments',
     icon: Building2,
@@ -227,7 +233,12 @@ export const staticNavigationItems: NavigationItem[] = [
     icon: GalleryVerticalEnd,
     permission: 'galleries.viewAny',
   },
-  { to: '/email-templates', labelKey: 'nav.emailTemplates', icon: Mail, permission: 'site-settings.view' },
+  {
+    to: '/email-templates',
+    labelKey: 'nav.emailTemplates',
+    icon: Mail,
+    permission: 'site-settings.view',
+  },
   {
     to: '/settings',
     labelKey: 'nav.settings',
@@ -259,4 +270,6 @@ export const staticNavigationItems: NavigationItem[] = [
       },
     ],
   },
+  // Everyone signed in may read the manual, so it needs no permission.
+  { to: '/user-guide', labelKey: 'nav.userGuide', icon: BookOpen },
 ];

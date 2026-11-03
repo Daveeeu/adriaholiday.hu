@@ -14,7 +14,11 @@ import { AdminPlaceholderPage } from '@/features/shared/components/admin-placeho
 import { APARTMENT_ADMIN_ROUTES } from '@/features/apartments/constants/apartmentTypes';
 
 function withPermission(path: string, element: ReactNode) {
-  return <RequirePermission permission={getRoutePermission(path)}>{element}</RequirePermission>;
+  return (
+    <RequirePermission permission={getRoutePermission(path)}>
+      {element}
+    </RequirePermission>
+  );
 }
 
 const DashboardPage = lazy(() =>
@@ -123,9 +127,11 @@ const SitePagesPage = lazy(() =>
   })),
 );
 const SeoRedirectsPage = lazy(() =>
-  import('@/features/seo-redirects/routes/seo-redirects-page').then((module) => ({
-    default: module.SeoRedirectsPage,
-  })),
+  import('@/features/seo-redirects/routes/seo-redirects-page').then(
+    (module) => ({
+      default: module.SeoRedirectsPage,
+    }),
+  ),
 );
 const CustomersPage = lazy(() =>
   import('@/features/customers/routes/customers-page').then((module) => ({
@@ -153,9 +159,11 @@ const RegionsPage = lazy(() =>
   })),
 );
 const ApartmentTypesPage = lazy(() =>
-  import('@/features/apartments/routes/apartment-types-page').then((module) => ({
-    default: module.ApartmentTypesPage,
-  })),
+  import('@/features/apartments/routes/apartment-types-page').then(
+    (module) => ({
+      default: module.ApartmentTypesPage,
+    }),
+  ),
 );
 const HomepageOffersPage = lazy(() =>
   import('@/features/homepage-offers/routes/homepage-offers-page').then(
@@ -215,6 +223,12 @@ const RolesPage = lazy(() =>
 const PermissionsPage = lazy(() =>
   import('@/features/permissions/routes/permissions-page').then((module) => ({
     default: module.PermissionsPage,
+  })),
+);
+
+const UserGuidePage = lazy(() =>
+  import('@/features/user-guide/routes/user-guide-page').then((module) => ({
+    default: module.UserGuidePage,
   })),
 );
 
@@ -395,7 +409,10 @@ const router = createBrowserRouter(
             },
             {
               path: 'booking-form-templates',
-              element: withPermission('/bookings/booking-form-templates', <BookingFormTemplatesPage />),
+              element: withPermission(
+                '/bookings/booking-form-templates',
+                <BookingFormTemplatesPage />,
+              ),
               handle: { crumbKey: 'nav.bookings.bookingFormTemplates' },
             },
           ],
@@ -478,7 +495,10 @@ const router = createBrowserRouter(
         },
         {
           path: 'portfolio-filter-chips',
-          element: withPermission('/portfolio-filter-chips', <PortfolioFilterChipsPage />),
+          element: withPermission(
+            '/portfolio-filter-chips',
+            <PortfolioFilterChipsPage />,
+          ),
           handle: { crumbKey: 'nav.portfolioFilterChips' },
         },
         {
@@ -532,6 +552,14 @@ const router = createBrowserRouter(
           path: 'permissions',
           element: withPermission('/permissions', <PermissionsPage />),
           handle: { crumbKey: 'nav.administration.permissions' },
+        },
+        {
+          path: 'user-guide',
+          handle: { crumbKey: 'nav.userGuide' },
+          children: [
+            { index: true, element: <UserGuidePage /> },
+            { path: ':chapterId', element: <UserGuidePage /> },
+          ],
         },
         { path: '*', element: <Navigate replace to="/" /> },
       ],

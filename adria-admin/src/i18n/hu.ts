@@ -52,6 +52,7 @@ export const hu = {
   'nav.administration.users': 'Felhasználók',
   'nav.administration.roles': 'Role-ok',
   'nav.administration.permissions': 'Permissionök',
+  'nav.userGuide': 'Felhasználói kézikönyv',
 
   'brand.name': 'Adria Holiday',
   'brand.admin': 'Adminisztráció',

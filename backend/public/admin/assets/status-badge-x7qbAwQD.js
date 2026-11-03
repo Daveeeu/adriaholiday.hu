@@ -1,0 +1,1 @@
+import{d as e}from"./tanstack-ykqXJhr_.js";import{t}from"./utils-Bpv5efiy.js";var n=e();function r({active:e,activeLabel:r,inactiveLabel:i}){return(0,n.jsx)(`span`,{className:t(`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold`,e?`bg-emerald-100 text-emerald-700`:`bg-slate-100 text-slate-700`),children:e?r:i})}export{r as t};

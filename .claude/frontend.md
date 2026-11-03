@@ -592,3 +592,40 @@ Frontend work is complete only when
 ✅ Build succeeds
 
 ✅ Code is production ready
+---
+
+# User Guide (Felhasználói kézikönyv)
+
+The admin ships an in-app user manual at
+
+```
+/user-guide
+```
+
+It is visible to every signed-in user; the route and its menu item need no permission.
+
+Structure
+
+```
+src/features/user-guide/
+
+content/      one file per chapter (plain data, built with the helpers in blocks.ts)
+
+components/   presentation only
+
+lib/          types, search, image URL helper
+```
+
+Screenshots live in
+
+```
+adria-admin/public/user-guide/<name>.webp
+```
+
+After adding or replacing a screenshot run `npm run user-guide:sizes` (in adria-admin). It records the image sizes so the page reserves their space before they load.
+
+Rules
+
+- When a form gains, loses or renames a field, update the matching chapter in the same change.
+- Describe for every field what it does and where it appears ("Hol jelenik meg"). Only state what the code actually does; mark admin-only fields with `ADMIN_ONLY`.
+- Screenshots must never show real customer data: mask names, e-mail addresses, phone numbers and addresses before capturing.
