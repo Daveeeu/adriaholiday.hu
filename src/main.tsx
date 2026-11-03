@@ -22,6 +22,7 @@ const BlogArticleRoute = lazy(() => import("./app/routes/BlogArticleRoute"));
 const RegionRoute = lazy(() => import("./app/routes/RegionRoute"));
 const TravelsRoute = lazy(() => import("./app/routes/TravelsRoute"));
 const NotFoundRoute = lazy(() => import("./app/routes/NotFoundRoute"));
+const CmsPageRoute = lazy(() => import("./app/routes/CmsPageRoute"));
 const TravelClubRoute = lazy(() => import("./app/routes/TravelClubRoute"));
 const PaymentResultRoute = lazy(() => import("./app/routes/PaymentResultRoute"));
 const ApartmentLocationRoute = lazy(() => import("./app/apartments/ApartmentLocationRoute"));
@@ -69,6 +70,7 @@ const router = createBrowserRouter([
       },
       { path: "fizetes/eredmeny", element: <PaymentResultRoute /> },
       { path: SALES_ASSISTANT_PATH.slice(1), element: <SalesAssistantRoute /> },
+      { path: ":pageSlug", element: <CmsPageRoute /> },
       { path: "*", element: <NotFoundRoute /> },
     ],
   },

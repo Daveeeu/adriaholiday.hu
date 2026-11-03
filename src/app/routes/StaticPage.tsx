@@ -12,11 +12,19 @@ export default function StaticPage({
   children,
   canonicalPath,
   noIndex,
+  html,
+  description: ownDescription,
+  seoTitle,
 }: {
   title: string;
   children?: React.ReactNode;
   canonicalPath?: string;
   noIndex?: boolean;
+  /** The page's own HTML, instead of the site setting of its path. */
+  html?: string | null;
+  description?: string;
+  /** The head title, when it differs from the page's heading. */
+  seoTitle?: string;
 }) {
   const { settings } = useSiteSettings();
   const path = canonicalPath ?? "/";
@@ -39,8 +47,8 @@ export default function StaticPage({
     [CLUB_TERMS_PATH]: "Az Adria Holiday Utazási Klub és a hírlevél-feliratkozáskor kapott kedvezménykupon felhasználási feltételei.",
   };
 
-  const contentHtml = sanitizeRichTextHtml(pageContentMap[path]);
-  const description = pageDescriptionMap[path] ?? (settings.siteName ? `${title} – ${settings.siteName}` : title);
+  const contentHtml = sanitizeRichTextHtml(html ?? pageContentMap[path]);
+  const description = ownDescription ?? pageDescriptionMap[path] ?? (settings.siteName ? `${title} – ${settings.siteName}` : title);
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -71,7 +79,7 @@ export default function StaticPage({
   return (
     <div className="min-h-screen bg-[#f7fbff]">
       <Seo
-        title={title}
+        title={seoTitle ?? title}
         description={description}
         canonicalPath={path}
         noIndex={noIndex}
