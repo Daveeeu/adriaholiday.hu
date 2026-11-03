@@ -878,6 +878,15 @@ Production run (only with the user's explicit go-ahead; the server DB is live):
 
 ---
 
+## Full legacy admin export import (`adria:legacy:import`)
+
+The whole legacy admin, exported from the browser into one JSON file, is imported by `adria:legacy:import {file} [--only=step] [--dry-run] [--media=listed|all|none]`; see `docs/legacy-admin-export-import.md` for the file format and every step.
+
+- `LegacyAdminExportReader` reads the file into `App\Support\Legacy\AdminExport\LegacyAdminExport`. Records are wrapped in `LegacyAdminExportRecord`, which reads list columns, form fields, JavaScript selections and view labels.
+- `LegacyAdminExportImportService` runs the steps (`App\Services\Legacy\AdminExport\Steps`, each a `LegacyAdminExportStep`) in a fixed order, so reference data comes before what refers to it. It records one `LegacyImportRun` and turns off the activity log for the run.
+- Steps that write one model per legacy record extend `RecordStep`, which uses `LegacyRecordRegistry` (`legacy_import_records`) for idempotency: changed records update the model they became, unchanged ones are skipped. `fillFromLegacy()` fills only the blank fields of records the office made itself.
+- Tours, apartments, tour bookings, the blog and testimonials go through the existing importers: `LegacyAdminExportCatalogAdapter` and `LegacyAdminExportApartmentAdapter` translate the export into `LegacyCatalog` and `LegacyApartmentExport`. Never duplicate their mapping in a step.
+
 # Partner XML Feeds (Travelgate, Travelmax, Cesys)
 
 Travel portals read the agency's tours from XML feeds the legacy site served; the new site serves them under the same addresses and in the same format (`routes/web.php`, `PartnerXmlFeedController`), so nothing changes for the partners at the domain switch:

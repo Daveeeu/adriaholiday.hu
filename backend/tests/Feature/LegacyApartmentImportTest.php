@@ -87,7 +87,7 @@ class LegacyApartmentImportTest extends TestCase
         $this->assertFalse(Apartment::query()->where('legacy_id', 1679)->firstOrFail()->is_active);
         $this->assertSame(Apartment::STATUS_DRAFT, Apartment::query()->where('legacy_id', 7)->firstOrFail()->status);
         $this->assertSame(5, LegacyImportRecord::query()->where('entity', LegacyImportRecord::APARTMENT)->where('status', LegacyImportRecord::IMPORTED)->count());
-        $this->assertSame(['italian', 'greek', 'bulgarian', 'montenegro'], ApartmentType::query()->orderBy('id')->pluck('slug')->all());
+        $this->assertSame(['italian', 'greek', 'bulgarian', 'montenegro', 'croatian'], ApartmentType::query()->orderBy('id')->pluck('slug')->all());
     }
 
     public function test_places_map_onto_locations_and_a_location_takes_over_its_legacy_page(): void
