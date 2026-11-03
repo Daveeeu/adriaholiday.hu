@@ -30,7 +30,7 @@ bash bootstrap.sh --import ~/adriaholiday_export_v2.json   # the import only on 
 4. Writes `.env.production` and `backend/.env.production` once. They hold generated secrets (mode 600) and are never committed.
 5. Builds the images and starts the stack. The entrypoint runs the migrations.
 6. Seeds the reference data. A new database gets `ProductionSeeder`: roles, the first admin, settings, regions and taxonomy, with no demo data. An existing database only gets `RolePermissionSeeder`, so the office's settings and content are never reset.
-7. Writes the Traefik route `/srv/apps/traefik/dynamic/adriaholiday.yml`. Its entry point and cert resolver are copied from an existing route. Its router, service and middleware names start with `adriaholiday-hu`, because the staging route already uses `adriaholiday`.
+7. Writes the Traefik route `/srv/apps/traefik/dynamic/adriaholiday.yml`. Its entry point and cert resolver are copied from an existing route. It serves `adriaholiday.hu` and redirects `www` and the former staging host `adriaholiday.jandldavid.hu` there. Its names start with `adriaholiday-hu`, so they never clash with another route file.
 8. Runs a health check through nginx.
 
 With `--import`, the legacy admin export is imported in the background (`docs/legacy-admin-export-import.md`), and the images are copied from the legacy site.
@@ -49,7 +49,7 @@ The import copies images from `https://adriaholiday.hu`. Keep the domain on the 
 docker exec adriaholiday-app-1 tail -f storage/logs/legacy-import.log
 ```
 
-Then point the A records of `adriaholiday.hu` and `www.adriaholiday.hu` to `217.144.53.91`. Traefik issues the certificate on the first request, and `www` redirects to the apex.
+Then point the A records of `adriaholiday.hu` and `www.adriaholiday.hu` to `217.144.53.91`. Traefik issues the certificate on the first request; `www` and `adriaholiday.jandldavid.hu` redirect to the apex.
 
 ## Day to day
 
