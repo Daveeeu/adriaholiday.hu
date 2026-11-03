@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { useDeferredValue, useState } from 'react';
 import { toast } from 'sonner';
 
+import { ListPagination } from '@/components/admin/list-pagination';
+import { StatusBadge } from '@/components/admin/status-badge';
 import { PageLoader } from '@/components/common/page-loader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
 
 import { TestimonialSidePanel } from '../components/TestimonialSidePanel';
@@ -71,8 +72,6 @@ export function TestimonialsPage() {
     );
   }
 
-  const pageCount = Math.max(1, Math.ceil(data.totalCount / PER_PAGE));
-
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -127,14 +126,7 @@ export function TestimonialsPage() {
                     </TableCell>
                     <TableCell>{testimonial.author ?? '—'}</TableCell>
                     <TableCell>
-                      <span
-                        className={cn(
-                          'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
-                          testimonial.active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700',
-                        )}
-                      >
-                        {testimonial.active ? 'Megjelenik' : 'Rejtett'}
-                      </span>
+                      <StatusBadge active={testimonial.active} activeLabel="Megjelenik" inactiveLabel="Rejtett" />
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
@@ -161,22 +153,7 @@ export function TestimonialsPage() {
           </Table>
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t px-4 py-4 text-sm text-muted-foreground">
-          <span>
-            Találatok: <span className="font-medium text-foreground">{data.totalCount}</span>
-          </span>
-          <div className="flex items-center gap-2">
-            <span>
-              {page} / {pageCount}
-            </span>
-            <Button variant="outline" size="icon" onClick={() => setPage(page - 1)} disabled={page <= 1}>
-              <ChevronLeft className="size-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => setPage(page + 1)} disabled={page >= pageCount}>
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
-        </div>
+        <ListPagination page={page} perPage={PER_PAGE} totalCount={data.totalCount} onPageChange={setPage} />
       </div>
 
       <TestimonialSidePanel
