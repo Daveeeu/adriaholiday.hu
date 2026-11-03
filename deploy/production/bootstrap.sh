@@ -13,11 +13,16 @@
 # MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_SCHEME (real SMTP;
 # without them mail goes to the platform Mailpit), BRANCH (default main),
 # DATABASE_STACK (platform-postgres or mariadb; an install that already runs the
-# stack's own MariaDB keeps it, a new install uses the platform Postgres).
+# stack's own MariaDB keeps it, a new install uses the platform Postgres),
+# PUBLIC_HOST (the host the site answers on: adriaholiday.jandldavid.hu until the
+# domain switch; the switch is `PUBLIC_HOST=adriaholiday.hu bash bootstrap.sh`
+# once the DNS points here). Both are kept in .env.production for later runs.
 
 set -euo pipefail
 
 APP_NAME=adriaholiday
+DOMAIN=adriaholiday.hu
+STAGING_HOST=adriaholiday.jandldavid.hu
 APP_DIR=/srv/apps/${APP_NAME}
 DATA_DIR=/srv/data/${APP_NAME}
 REPO_URL=https://github.com/Daveeeu/adriaholiday.hu.git
@@ -82,6 +87,14 @@ fi
 case "${DATABASE_STACK}" in
     platform-postgres | mariadb) ;;
     *) fail "Unknown DATABASE_STACK: ${DATABASE_STACK} (platform-postgres or mariadb)." ;;
+esac
+
+# The domain switch is a decision, never a side effect of a redeploy: the site stays on the staging host until asked.
+PUBLIC_HOST=${PUBLIC_HOST:-$(env_value .env.production PUBLIC_HOST)}
+PUBLIC_HOST=${PUBLIC_HOST:-${STAGING_HOST}}
+case "${PUBLIC_HOST}" in
+    "${DOMAIN}" | "${STAGING_HOST}") ;;
+    *) fail "Unknown PUBLIC_HOST: ${PUBLIC_HOST} (${DOMAIN} or ${STAGING_HOST})." ;;
 esac
 
 log "Platform: Traefik network"
@@ -149,6 +162,7 @@ set_env() {
 }
 
 set_env .env.production DATABASE_STACK "${DATABASE_STACK}"
+set_env .env.production PUBLIC_HOST "${PUBLIC_HOST}"
 set_env .env.production EDGE_NETWORK_NAME "${EDGE_NETWORK}"
 if [ "${DATABASE_STACK}" = platform-postgres ]; then
     set_env .env.production DATABASE_NETWORK_NAME "${DATABASE_NETWORK}"
@@ -180,6 +194,7 @@ set_env "${LARAVEL_ENV}" DB_DATABASE "${DB_DATABASE}"
 set_env "${LARAVEL_ENV}" DB_USERNAME "${DB_USERNAME}"
 set_env "${LARAVEL_ENV}" DB_PASSWORD "${DB_PASSWORD}"
 set_env "${LARAVEL_ENV}" REDIS_PASSWORD "${REDIS_PASSWORD}"
+set_env "${LARAVEL_ENV}" APP_URL "https://${PUBLIC_HOST}"
 
 if [ -n "${MAIL_HOST:-}" ]; then
     set_env "${LARAVEL_ENV}" MAIL_HOST "${MAIL_HOST}"
@@ -224,7 +239,7 @@ else
 fi
 compose exec -T queue php artisan queue:restart >/dev/null
 
-log "Traefik route: adriaholiday.hu → ${APP_NAME}-nginx-1"
+log "Traefik route: ${PUBLIC_HOST} → ${APP_NAME}-nginx-1"
 ROUTE_FILE=${TRAEFIK_DYNAMIC_DIR}/${APP_NAME}.yml
 REFERENCE_ROUTE=$(sudo_if_needed "${TRAEFIK_DYNAMIC_DIR}" find "${TRAEFIK_DYNAMIC_DIR}" -maxdepth 1 -name '*.yml' ! -name "${APP_NAME}.yml" | head -1 || true)
 ENTRYPOINT=websecure
@@ -237,13 +252,17 @@ if [ -n "${REFERENCE_ROUTE}" ]; then
     [ -n "${found}" ] && CERT_RESOLVER=${found}
 fi
 
-sed -e "s/__ENTRYPOINT__/${ENTRYPOINT}/" -e "s/__CERT_RESOLVER__/${CERT_RESOLVER}/" deploy/production/traefik-route.yml.template >/tmp/${APP_NAME}-route.yml
+# Before the switch the domain and www still point to the legacy server, so only the staging host is routed.
+REDIRECTS=()
+[ "${PUBLIC_HOST}" = "${DOMAIN}" ] || REDIRECTS=(-e '/# redirect:start/,/# redirect:end/d')
+sed "${REDIRECTS[@]}" -e '/# redirect:/d' -e "s/__PUBLIC_HOST__/${PUBLIC_HOST}/g" -e "s/__ENTRYPOINT__/${ENTRYPOINT}/" -e "s/__CERT_RESOLVER__/${CERT_RESOLVER}/" \
+    deploy/production/traefik-route.yml.template >/tmp/${APP_NAME}-route.yml
 sudo_if_needed "${ROUTE_FILE}" install -m 644 /tmp/${APP_NAME}-route.yml "${ROUTE_FILE}"
 rm -f /tmp/${APP_NAME}-route.yml
 echo "Route written (entry point ${ENTRYPOINT}, cert resolver ${CERT_RESOLVER})."
 
 log "Smoke check through nginx"
-docker exec "${APP_NAME}-nginx-1" wget -qO- --header 'Host: adriaholiday.hu' http://127.0.0.1/health || fail "Health check failed."
+docker exec "${APP_NAME}-nginx-1" wget -qO- --header "Host: ${PUBLIC_HOST}" http://127.0.0.1/health || fail "Health check failed."
 echo
 
 if [ -n "${IMPORT_FILE}" ]; then
@@ -256,5 +275,5 @@ if [ -n "${IMPORT_FILE}" ]; then
 fi
 
 log "Done"
-echo "Admin: https://adriaholiday.hu/admin  user: $(grep '^ADMIN_SEED_EMAIL=' "${LARAVEL_ENV}" | cut -d= -f2-)"
+echo "Admin: https://${PUBLIC_HOST}/admin  user: $(grep '^ADMIN_SEED_EMAIL=' "${LARAVEL_ENV}" | cut -d= -f2-)"
 echo "Admin password: grep ADMIN_SEED_PASSWORD ${APP_DIR}/${LARAVEL_ENV}"

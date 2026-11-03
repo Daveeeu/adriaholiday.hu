@@ -1,16 +1,18 @@
 # Written by deploy/production/bootstrap.sh; Traefik reloads it on change.
-# The site answers on adriaholiday.hu only: www and the former staging host
-# (adriaholiday.jandldavid.hu) redirect there permanently. The names start with
-# "adriaholiday-hu" so they never clash with another file in the directory.
+# The site answers on PUBLIC_HOST: the staging host until the domain switch,
+# then adriaholiday.hu, with www and the staging host redirecting there
+# permanently. The names start with "adriaholiday-hu" so they never clash with
+# another file in the directory.
 http:
   routers:
     adriaholiday-hu:
-      rule: "Host(`adriaholiday.hu`)"
+      rule: "Host(`__PUBLIC_HOST__`)"
       entryPoints:
         - __ENTRYPOINT__
       service: adriaholiday-hu
       tls:
         certResolver: __CERT_RESOLVER__
+    # redirect:start
     adriaholiday-hu-redirect:
       rule: "Host(`www.adriaholiday.hu`) || Host(`adriaholiday.jandldavid.hu`)"
       entryPoints:
@@ -20,11 +22,12 @@ http:
       service: adriaholiday-hu
       tls:
         certResolver: __CERT_RESOLVER__
+    # redirect:end
   middlewares:
     adriaholiday-hu-canonical-host:
       redirectRegex:
         regex: "^https?://[^/]+(.*)"
-        replacement: "https://adriaholiday.hu${1}"
+        replacement: "https://__PUBLIC_HOST__${1}"
         permanent: true
   services:
     adriaholiday-hu:
