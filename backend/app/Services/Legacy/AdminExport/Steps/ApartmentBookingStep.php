@@ -43,6 +43,16 @@ final class ApartmentBookingStep extends RecordStep
         return ['management.apartment_reservation'];
     }
 
+    /**
+     * A booking imported before its apartment links to it once the apartment is there.
+     */
+    protected function needsRefresh(Model $existing, LegacyAdminExportRecord $record): bool
+    {
+        $apartmentId = $record->selectedId('apartment_id');
+
+        return $existing->apartment_id === null && $apartmentId !== null && Apartment::withTrashed()->where('legacy_id', $apartmentId)->exists();
+    }
+
     protected function write(LegacyAdminExportRecord $record, ?Model $existing, LegacyAdminExport $export): ?Model
     {
         $apartmentId = $record->selectedId('apartment_id');

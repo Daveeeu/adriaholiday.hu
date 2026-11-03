@@ -133,6 +133,16 @@ class LegacyFullAdminExportImportTest extends TestCase
         $this->assertSame('/rolunk', SeoRedirect::query()->where('source_path', 'buszaink')->value('target'));
     }
 
+    public function test_a_booking_imported_before_its_apartment_links_to_it_on_a_re_run(): void
+    {
+        $this->import();
+        $apartment = Apartment::factory()->create(['legacy_id' => 125]);
+
+        $this->import();
+
+        $this->assertSame($apartment->id, Booking::query()->where('booking_type', 'apartment_booking')->sole()->apartment_id);
+    }
+
     public function test_an_unknown_step_is_refused(): void
     {
         $this->artisan('adria:legacy:import', ['file' => self::FIXTURE, '--only' => ['nope'], '--dry-run' => true])->assertFailed();

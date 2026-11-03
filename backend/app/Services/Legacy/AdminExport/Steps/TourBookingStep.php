@@ -77,7 +77,7 @@ final class TourBookingStep implements LegacyAdminExportStep
             'offerDate' => $record->listValue('Időpont'),
             'customDate' => $record->field('custome_offer_date'),
             'departureId' => $departureId,
-            'departure' => $departureId !== null ? $departurePlaces[$departureId]?->field('name') : null,
+            'departure' => $departureId !== null ? ($departurePlaces[$departureId] ?? null)?->field('name') : null,
             'name' => $record->field('name') ?? $record->listValue('Név'),
             'email' => $record->field('email') ?? $record->listValue('Email'),
             'mobile' => $record->field('mobile'),

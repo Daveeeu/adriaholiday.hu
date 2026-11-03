@@ -10,6 +10,7 @@ use App\Support\Legacy\AdminExport\LegacyAdminExport;
 use App\Support\Legacy\AdminExport\LegacyAdminExportRecord;
 use App\Support\MediaCategory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 /**
  * Legacy home page boxes ("Főoldali ajánlatok") → homepage offers (their
@@ -54,13 +55,13 @@ final class HomepageOfferStep extends RecordStep
             return null;
         }
 
-        $seoName = $record->field('seo_name.hu');
+        $seoName = $record->field('seo_name.hu') ?? Str::slug($name);
         $offer = $existing ?? ($seoName !== null ? HomepageOffer::withTrashed()->whereHas('translations', fn ($query) => $query->where('locale', 'hu')->where('seo_name', $seoName))->first() : null) ?? new HomepageOffer(['active' => false]);
         $this->fillFromLegacy($offer, [
             'sort_order' => (int) $record->field('order'),
             'image' => $this->image($export->fileUrl($record->field('image')), $name),
             'image_title' => $record->field('image_title') ?? $name,
-            'link' => $this->sitePath($record->field('link') ?? $record->listValue('Link')),
+            'link' => $this->sitePath($record->field('link') ?? $record->listValue('Link')) ?? '/',
         ], $existing !== null);
         $offer->save();
 

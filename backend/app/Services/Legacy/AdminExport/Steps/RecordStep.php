@@ -66,6 +66,17 @@ abstract class RecordStep implements LegacyAdminExportStep
     }
 
     /**
+     * Whether a record imported from unchanged legacy data still needs
+     * writing again, e.g. because what it refers to has been imported since.
+     *
+     * @param  TModel  $existing
+     */
+    protected function needsRefresh(Model $existing, LegacyAdminExportRecord $record): bool
+    {
+        return false;
+    }
+
+    /**
      * Whether the run copies legacy images (not with --media=none).
      */
     protected function copiesMedia(): bool
@@ -118,7 +129,7 @@ abstract class RecordStep implements LegacyAdminExportStep
         $payload = $record->payload();
         $existing = $this->existing($legacyId);
 
-        if ($existing !== null && $this->registry->unchanged($this->entity(), $legacyId, $payload)) {
+        if ($existing !== null && ! $this->needsRefresh($existing, $record) && $this->registry->unchanged($this->entity(), $legacyId, $payload)) {
             $result->count(LegacyAdminExportStepResult::UNCHANGED);
 
             return;

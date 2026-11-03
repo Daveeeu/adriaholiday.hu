@@ -41,6 +41,16 @@ final class TourInquiryStep extends RecordStep
         return ['management.inquiry'];
     }
 
+    /**
+     * An inquiry imported before its tour links to it once the tour is there.
+     */
+    protected function needsRefresh(Model $existing, LegacyAdminExportRecord $record): bool
+    {
+        $offerId = $record->selectedId('offer_id');
+
+        return $existing->tour_id === null && $offerId !== null && Tour::withTrashed()->where('legacy_id', $offerId)->exists();
+    }
+
     protected function write(LegacyAdminExportRecord $record, ?Model $existing, LegacyAdminExport $export): ?Model
     {
         $offerId = $record->selectedId('offer_id');
