@@ -7,6 +7,7 @@ use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\HomepageOffer;
 use App\Models\Location;
+use App\Models\Page;
 use App\Models\Region;
 use App\Models\SiteSetting;
 use App\Models\Tour;
@@ -53,6 +54,8 @@ class PortfolioSeoResolver
      */
     private ?array $settings = null;
 
+    public function __construct(private readonly SeoRedirectResolver $redirects) {}
+
     public function siteName(): string
     {
         return $this->setting('general.site_name') ?: 'Adria Holiday';
@@ -63,7 +66,7 @@ class PortfolioSeoResolver
         $path = trim($path, '/');
         $segments = $path === '' ? [] : explode('/', $path);
 
-        return match (true) {
+        $page = match (true) {
             $segments === [] => $this->home(),
             count($segments) === 1 && isset(self::STATIC_PAGES[$segments[0]]) => $this->staticPage($segments[0]),
             $segments === ['fizetes', 'eredmeny'] => new SeoPage('Fizetés eredménye', 'Az online fizetés eredménye.', '/fizetes/eredmeny', noIndex: true),
@@ -74,8 +77,34 @@ class PortfolioSeoResolver
             count($segments) === 2 && $segments[0] === 'regiok' => $this->region($segments[1]),
             count($segments) === 2 && $segments[0] === 'apartman' => $this->apartment($segments[1]),
             count($segments) === 3 && $segments[0] === 'apartmanok' => $this->apartmentLocation($segments[1], $segments[2]),
+            count($segments) === 1 => $this->page($segments[0]),
             default => SeoPage::notFound('/'.$path),
         };
+
+        // An old address no page lives at any more leads to where its content moved.
+        $target = $page->status === 404 ? $this->redirects->targetFor($path) : null;
+
+        return $target !== null ? SeoPage::movedTo($target) : $page;
+    }
+
+    private function page(string $slug): SeoPage
+    {
+        $page = Page::query()->published()->where('slug', rawurldecode($slug))->first();
+
+        if ($page === null) {
+            return SeoPage::notFound("/{$slug}");
+        }
+
+        $path = "/{$page->slug}";
+
+        return new SeoPage(
+            title: trim((string) $page->seo_title) ?: $page->title,
+            description: trim((string) $page->seo_description) ?: $this->plain($page->content) ?: $page->title,
+            canonicalPath: $path,
+            image: $this->defaultImage(),
+            jsonLd: [$this->breadcrumb([[$page->title, $path]])],
+            robots: RobotsDirective::restrictive($page->seo_robots),
+        );
     }
 
     private function home(): SeoPage

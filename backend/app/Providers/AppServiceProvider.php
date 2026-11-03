@@ -13,15 +13,18 @@ use App\Models\BookingFormTemplate;
 use App\Models\Bus;
 use App\Models\ContactMessage;
 use App\Models\Coupon;
+use App\Models\Customer;
 use App\Models\Gallery;
 use App\Models\HomepageOffer;
 use App\Models\Location;
+use App\Models\Page;
 use App\Models\PartnerBanner;
 use App\Models\PartnerFinanceRecord;
 use App\Models\PortfolioContentBlock;
 use App\Models\PortfolioFilterChip;
 use App\Models\Promotion;
 use App\Models\Region;
+use App\Models\SeoRedirect;
 use App\Models\SiteSetting;
 use App\Models\Tour;
 use App\Models\TourDate;
@@ -42,9 +45,11 @@ use App\Policies\BookingPolicy;
 use App\Policies\BusPolicy;
 use App\Policies\ContactMessagePolicy;
 use App\Policies\CouponPolicy;
+use App\Policies\CustomerPolicy;
 use App\Policies\GalleryPolicy;
 use App\Policies\HomepageOfferPolicy;
 use App\Policies\LocationPolicy;
+use App\Policies\PagePolicy;
 use App\Policies\PartnerBannerPolicy;
 use App\Policies\PartnerFinanceRecordPolicy;
 use App\Policies\PortfolioContentBlockPolicy;
@@ -52,6 +57,7 @@ use App\Policies\PortfolioFilterChipPolicy;
 use App\Policies\PromotionPolicy;
 use App\Policies\RegionPolicy;
 use App\Policies\RolePolicy;
+use App\Policies\SeoRedirectPolicy;
 use App\Policies\TourDeparturePlacePolicy;
 use App\Policies\TourPartnerOfferPolicy;
 use App\Policies\TourPolicy;
@@ -99,6 +105,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(PartnerBanner::class, PartnerBannerPolicy::class);
         Gate::policy(ContactMessage::class, ContactMessagePolicy::class);
         Gate::policy(Coupon::class, CouponPolicy::class);
+        Gate::policy(Customer::class, CustomerPolicy::class);
+        Gate::policy(Page::class, PagePolicy::class);
+        Gate::policy(SeoRedirect::class, SeoRedirectPolicy::class);
         Gate::policy(Promotion::class, PromotionPolicy::class);
         Gate::policy(Tour::class, TourPolicy::class);
         Gate::policy(TourRegionGroup::class, TourRegionGroupPolicy::class);
@@ -116,6 +125,9 @@ class AppServiceProvider extends ServiceProvider
             PublicContentCache::CATEGORY_LIST,
             PublicContentCache::SITEMAP,
         ));
+
+        Page::saved(fn () => PublicContentCache::bump(PublicContentCache::PAGES));
+        Page::deleted(fn () => PublicContentCache::bump(PublicContentCache::PAGES));
 
         BlogArticle::saved(fn () => PublicContentCache::bump(
             PublicContentCache::BLOG,

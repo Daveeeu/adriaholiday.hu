@@ -1,5 +1,7 @@
 import {
+  ArrowRightLeft,
   Building2,
+  FileText,
   CalendarDays,
   Mail,
   PencilLine,
@@ -85,6 +87,18 @@ export const staticNavigationItems: NavigationItem[] = [
     permission: 'testimonials.viewAny',
   },
   {
+    to: '/pages',
+    labelKey: 'nav.pages',
+    icon: FileText,
+    permission: 'pages.viewAny',
+  },
+  {
+    to: '/seo-redirects',
+    labelKey: 'nav.seoRedirects',
+    icon: ArrowRightLeft,
+    permission: 'seo-redirects.viewAny',
+  },
+  {
     labelKey: 'nav.blog',
     icon: Newspaper,
     permission: [
@@ -156,6 +170,12 @@ export const staticNavigationItems: NavigationItem[] = [
         labelKey: 'nav.bookings.messages',
         icon: Mail,
         permission: 'messages.viewAny',
+      },
+      {
+        to: '/bookings/customers',
+        labelKey: 'nav.bookings.customers',
+        icon: Users,
+        permission: 'customers.viewAny',
       },
       {
         to: '/bookings/coupons',

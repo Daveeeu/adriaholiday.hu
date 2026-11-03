@@ -1,0 +1,665 @@
+{
+ "meta": {
+  "source": "https://adriaholiday.hu/admin",
+  "exported_at": "2026-11-03T18:06:12.216Z",
+  "base_url_for_files": "https://adriaholiday.hu/"
+ },
+ "entities": {
+  "users.user": {
+   "source_list": "",
+   "columns": [],
+   "total": 2,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "9",
+     "list": {
+      "col_0": "",
+      "ID": "9",
+      "E-mail": "adriaholiday@adriaholiday.hu",
+      "Név": null,
+      "Ajánlói kód": null,
+      "Reg dátum": null,
+      "Első belépés": "2018-08-22 16:49:53"
+     },
+     "fields": {
+      "id": "9",
+      "email": "adriaholiday@adriaholiday.hu",
+      "groups": {
+       "0": [
+        "3"
+       ]
+      },
+      "user_data": {
+       "partner_id": "",
+       "name": "",
+       "phone": "",
+       "zip": "",
+       "city": "",
+       "address": "",
+       "reg_coupon": "",
+       "note": ""
+      }
+     }
+    },
+    {
+     "legacy_id": "13",
+     "list": {
+      "col_0": "",
+      "ID": "13",
+      "E-mail": "Pocsaine.Erzsi@example.com",
+      "Név": "Pocsai Istvánné",
+      "Ajánlói kód": "136431",
+      "Reg dátum": "2016-05-02 10:11:12",
+      "Első belépés": "2016-05-03 08:00:00"
+     },
+     "fields": {
+      "id": "13",
+      "email": "Pocsaine.Erzsi@example.com",
+      "groups": {
+       "0": [
+        "4"
+       ]
+      },
+      "user_data": {
+       "partner_id": "136431",
+       "name": "Pocsai Istvánné",
+       "phone": "06306068184",
+       "zip": "2760",
+       "city": "Nagykáta",
+       "address": "Mária utca 25/c",
+       "reg_coupon": "10000",
+       "note": "Törzsutas"
+      }
+     }
+    }
+   ]
+  },
+  "management.coupon": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "3",
+     "list": {
+      "col_0": "",
+      "ID": "3",
+      "Név": "Filipovits Andrea",
+      "E-mail": "filike@example.com",
+      "Kupon": "35179c0660",
+      "Érték": "5000",
+      "Kiosztva": "2019-02-13 15:30:39",
+      "Érvényes": "2024-12-31 23:59:59",
+      "Felhasználva": null
+     },
+     "fields": {
+      "id": "3",
+      "name": "Filipovits Andrea",
+      "email": "filike@example.com",
+      "coupon": "35179c0660",
+      "value": "5000",
+      "date_create": "2019-02-13 15:30:39",
+      "date_usable": "2024-12-31 23:59:59",
+      "date_use": ""
+     }
+    }
+   ]
+  },
+  "management.message": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "5",
+     "list": {
+      "col_0": "",
+      "ID": "5",
+      "Név": "Nagy Attila",
+      "E-mail": "big@example.com",
+      "Telefonszám": "",
+      "Létrehozva": null
+     },
+     "fields": {
+      "id": "5",
+      "created_at": ""
+     },
+     "view": {
+      "Név": "Nagy Attila",
+      "E-mail": "big@example.com",
+      "Telefon": "",
+      "Cég": "",
+      "Üzenet": "Üdv!\n\n\n\nSzép kártyával lehet fizetni?\n\n\n\nKöszönettel: Nagy Attila"
+     }
+    }
+   ]
+  },
+  "roundtrip.felszallas": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "51",
+     "list": {
+      "col_0": "",
+      "ID": "51",
+      "Név": "dunaújvárosi indulással",
+      "Város": "Bp-Mohács M6 mentén",
+      "Díj": "2500",
+      "Utazások": 10
+     },
+     "fields": {
+      "id": "51",
+      "name": "dunaújvárosi indulással",
+      "city": "Bp-Mohács M6 mentén",
+      "price": "2500"
+     }
+    }
+   ]
+  },
+  "management.reservation": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "8907",
+     "list": {
+      "col_0": "",
+      "ID": "8907",
+      "Poziciószám": "Ren-8907",
+      "Név": "Tóth Mária",
+      "Email": "toth@example.com",
+      "Ajánlat": "Reneszánsz advent Toszkánában",
+      "Időpont": "2026-12-03 - 2026-12-06",
+      "Jelentkezés időpontja": "2026-11-03 12:52:35",
+      "Foglalás értéke": "170 600 Ft",
+      "Lemondott?": "Aktív"
+     },
+     "fields": {
+      "id": "8907",
+      "created_at": "2026-11-03 12:52:35",
+      "position_number": "Ren-8907",
+      "name": "Tóth Mária",
+      "zip": "2800",
+      "city": "Tatabánya",
+      "street": "Szent Borbála 3/C",
+      "mobile": "06204871514",
+      "email": "toth@example.com",
+      "message": "",
+      "nr_adults": "1",
+      "custome_offer_date": "",
+      "description": "",
+      "passengers": "Tóth Mária [útiokmány: 362148UE, lakcím: 2800 Tatabánya, születési dátum: 1956-11-22], ",
+      "reservation_price": "170600"
+     },
+     "selected": {
+      "offer_id": "113",
+      "offer_date_id": "236",
+      "felszallas": "51"
+     }
+    }
+   ]
+  },
+  "management.inquiry": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "2242",
+     "list": {
+      "col_0": "",
+      "ID": "2242",
+      "Név": "Romsics Renáta",
+      "Email": "romsics@example.com",
+      "Ajánlat": "Szlovénia, Európa zöld gyöngyszeme",
+      "Időpont": "2018-06-16 - 2018-06-20",
+      "Jelentkezés időpontja": "2018-04-09 15:41:13"
+     },
+     "fields": {
+      "id": "2242",
+      "created_at": "2018-04-09 15:41:13",
+      "name": "Romsics Renáta",
+      "zip": "6337",
+      "city": "Újtelek",
+      "street": "Béke u. 9",
+      "phone": "",
+      "mobile": "203818551",
+      "email": "romsics@example.com",
+      "message": "Osztálykirándulás",
+      "nr_adults": "24",
+      "description": "",
+      "passengers": "",
+      "custome_offer_date": "",
+      "inquiry_arrival_date": "2018-06-16",
+      "inquery_departure_date": "2018-06-20"
+     },
+     "selected": {
+      "offer_id": "12"
+     }
+    }
+   ]
+  },
+  "management.apartment_reservation": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "1528",
+     "list": {
+      "col_0": "",
+      "ID": "1528",
+      "Név": "Gyabronka István",
+      "Email": "gyab@example.com",
+      "Apartman": "Atlante Apartman (125) Bibione",
+      "Jelentkezés időpontja": "2026-07-28 13:59:59",
+      "Foglalás értéke": "",
+      "Ajánlói kód": ""
+     },
+     "fields": {
+      "id": "1528",
+      "created_at": "2026-07-28 13:59:59",
+      "arrival": "2026-08-02",
+      "departure": "2026-08-09",
+      "name": "Gyabronka István",
+      "zip": "1115",
+      "city": "Budapest",
+      "street": "Etele út 62/b",
+      "phone": "+36204487303",
+      "mobile": "",
+      "email": "gyab@example.com",
+      "message": "",
+      "nr_applicant": "2",
+      "passengers": "Gyabronka István [útiokmány: 581298ME, lakcím: Bp., születési dátum: 1976-02-12], Gyabronka Léna [útiokmány: 241948PE, lakcím: Bp., születési dátum: 2010-12-02], ",
+      "type": " B-4",
+      "reservation_price": ""
+     },
+     "selected": {
+      "apartment_id": "125"
+     }
+    }
+   ]
+  },
+  "roundtrip.region": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "3",
+     "list": {
+      "col_0": "9. 3!9",
+      "ID": "3",
+      "Név": "Svájc",
+      "Kapcsolódó utak száma": "25",
+      "Főoldalra kiemelt?": "Igen",
+      "Típus": "Régió"
+     },
+     "fields": {
+      "id": "3",
+      "seo": {
+       "id": "",
+       "db_reference": "",
+       "title": "",
+       "description": "",
+       "keywords": "",
+       "author": "",
+       "robots": ""
+      },
+      "name": "Svájc",
+      "seo_name": "svajc",
+      "description": "<p>Az Alpok országa</p>"
+     }
+    }
+   ]
+  },
+  "roundtrip.offer_group": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "10",
+     "list": {
+      "col_0": "",
+      "ID": "10",
+      "Név": "Körutazás",
+      "Menü": "Utazási ajánlatok",
+      "Árajánlatos utak?": "Nem",
+      "Kapcsolódó utak száma": "215"
+     },
+     "fields": {
+      "id": "10",
+      "seo": {
+       "id": "",
+       "db_reference": "",
+       "title": "",
+       "description": "",
+       "keywords": "",
+       "author": "",
+       "robots": ""
+      },
+      "name": "Körutazás",
+      "seo_name": "korutazas",
+      "short_description": ""
+     }
+    }
+   ]
+  },
+  "bus.bus": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "3",
+     "list": {
+      "col_0": "4. 3!4",
+      "ID": "3",
+      "Név": "Scania Touring HD"
+     },
+     "fields": {
+      "id": "3",
+      "order": "4",
+      "name": {
+       "hu": "Scania Touring HD",
+       "en": "",
+       "de": ""
+      },
+      "seo_name": {
+       "hu": "scania-touring-hd",
+       "en": "",
+       "de": ""
+      },
+      "short": {
+       "hu": "<p>Férőhely: 49+1+1 fő</p><p>Rendszám: NZB-791</p>",
+       "en": "",
+       "de": ""
+      }
+     }
+    }
+   ]
+  },
+  "mainbox.mainbox": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "4",
+     "list": {
+      "col_0": "26. 4!26",
+      "ID": "4",
+      "Név": "Határtalanul pályázat",
+      "Link": "https://adriaholiday.hu/korutazasok/csoport/osztalykirandulasok/hatartalanul",
+      "Kép": ""
+     },
+     "fields": {
+      "id": "4",
+      "order": "26",
+      "image": "",
+      "image_title": "Határtalanul pályázat",
+      "link": "https://adriaholiday.hu/korutazasok/csoport/osztalykirandulasok/hatartalanul",
+      "name": {
+       "hu": "Határtalanul pályázat",
+       "en": "",
+       "de": ""
+      },
+      "seo_name": {
+       "hu": "hatartalanul",
+       "en": "",
+       "de": ""
+      },
+      "short": {
+       "hu": "Iskolai utak",
+       "en": "",
+       "de": ""
+      }
+     }
+    }
+   ]
+  },
+  "text.flatpage": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "4",
+     "list": {
+      "col_0": "",
+      "ID": "4",
+      "Név": "Autóbuszaink"
+     },
+     "fields": {
+      "id": "4",
+      "seo": {
+       "id": "",
+       "db_reference": "",
+       "title": "Buszaink",
+       "description": "",
+       "keywords": "",
+       "author": "",
+       "robots": ""
+      },
+      "name": "Autóbuszaink",
+      "seo_name": "autobuszaink",
+      "content": "<p>Modern buszok</p><script>alert(1)</script>"
+     }
+    }
+   ]
+  },
+  "text.textbox": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "8",
+     "list": {
+      "col_0": "",
+      "ID": "8",
+      "Név": "Síutak foglalás - biztosítási díj szövege"
+     },
+     "fields": {
+      "id": "8",
+      "name": "Síutak foglalás - biztosítási díj szövege",
+      "content": "<p><strong>+ a biztosítás díja!</strong></p>"
+     }
+    }
+   ]
+  },
+  "aboutus.rolunkirtak": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "7",
+     "list": {
+      "col_0": "",
+      "ID": "7",
+      "Név": "II. londoni kirándulás",
+      "Dátum": "2012-02-27 13:48:11"
+     },
+     "fields": {
+      "id": "7",
+      "seo": {
+       "id": "",
+       "db_reference": "",
+       "title": "",
+       "description": "",
+       "keywords": "",
+       "author": "",
+       "robots": ""
+      },
+      "title": "II. londoni kirándulás",
+      "created_at": "2012-02-27 13:48:11",
+      "intro": "<p>Ez volt a második angliai kirándulásom.</p><p>K Ágnes</p>"
+     }
+    }
+   ]
+  },
+  "blog.blog": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "26",
+     "list": {
+      "col_0": "4. 26!4",
+      "ID": "26",
+      "Név": "Előfoglalási akció",
+      "Dátum": "2018-03-26 16:57",
+      "Megjelenik": "2018-03-31",
+      "Megnyitva": "0"
+     },
+     "fields": {
+      "id": "26",
+      "order": "4",
+      "author": "Adria Holiday",
+      "date": "2018-03-26 16:57",
+      "image": "",
+      "image_title": "",
+      "seo": {
+       "id": "",
+       "db_reference": "",
+       "title": "",
+       "description": "",
+       "keywords": "",
+       "author": "",
+       "robots": ""
+      },
+      "name": {
+       "hu": "Előfoglalási akció",
+       "en": "",
+       "de": ""
+      },
+      "seo_name": {
+       "hu": "elofoglalasi-akcio",
+       "en": "",
+       "de": ""
+      },
+      "short": {
+       "hu": "",
+       "en": "",
+       "de": ""
+      },
+      "long": {
+       "hu": "<p>Foglaljon most!</p>",
+       "en": "",
+       "de": ""
+      }
+     }
+    }
+   ]
+  },
+  "management.reservation_finances": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "4",
+     "list": {
+      "ID": "4",
+      "Partner": "Kiszler Gyuláné(508550)",
+      "Kérés dátum": null,
+      "Teljesítés dátum": "2017-01-06 13:00:28",
+      "Esemény": "Apartman foglalás Olaszország 69/C-6",
+      "Érték": "8 001 Ft",
+      "Típus": "Jóváírás",
+      "Státusz": "Teljesítve",
+      "Egyenleg": "13 607 Ft",
+      "Módosítás": ""
+     }
+    }
+   ]
+  },
+  "management.reservation_bonus_place": {
+   "source_list": "",
+   "columns": [],
+   "total": 1,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": "5",
+     "list": {
+      "ID": "5",
+      "Partner": "Mudri Zsuzsa(944385)",
+      "Bekerülés dátum": "2017-01-27 15:43:40",
+      "Teljesítés dátum": "2018-05-23 11:24:42",
+      "Utazás": "Korzika, a szépség szigete",
+      "Időpont": "2017.06.30-07.09.",
+      "Típus": "Holiday home",
+      "Hely": "6",
+      "Érték": "953 400 Ft",
+      "Státusz": "Leutazva",
+      "Módosítás": "Leutazva"
+     }
+    }
+   ]
+  },
+  "redirect.redirect": {
+   "source_list": "",
+   "columns": [],
+   "total": 4,
+   "with_details": 0,
+   "records": [
+    {
+     "legacy_id": null,
+     "list": {
+      "col_0": "",
+      "Honnan": "/buszaink",
+      "Hova": "http://adriaholiday.hu/autobuszaink"
+     }
+    },
+    {
+     "legacy_id": null,
+     "list": {
+      "col_0": "",
+      "Honnan": "/buszaink",
+      "Hova": "http://adriaholiday.hu/autobuszaink"
+     }
+    },
+    {
+     "legacy_id": null,
+     "list": {
+      "col_0": "",
+      "Honnan": "/apartman/villa-damiana---%C5%BEminj",
+      "Hova": "http://adriaholiday.hu/korutazasok/regio/horvatorszag"
+     }
+    },
+    {
+     "legacy_id": null,
+     "list": {
+      "col_0": "",
+      "Honnan": "/kapcsolat",
+      "Hova": "http://adriaholiday.hu/kapcsolat"
+     }
+    }
+   ]
+  }
+ },
+ "relations": {}
+}

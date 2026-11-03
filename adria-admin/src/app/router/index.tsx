@@ -117,6 +117,21 @@ const TestimonialsPage = lazy(() =>
     default: module.TestimonialsPage,
   })),
 );
+const SitePagesPage = lazy(() =>
+  import('@/features/pages/routes/site-pages-page').then((module) => ({
+    default: module.SitePagesPage,
+  })),
+);
+const SeoRedirectsPage = lazy(() =>
+  import('@/features/seo-redirects/routes/seo-redirects-page').then((module) => ({
+    default: module.SeoRedirectsPage,
+  })),
+);
+const CustomersPage = lazy(() =>
+  import('@/features/customers/routes/customers-page').then((module) => ({
+    default: module.CustomersPage,
+  })),
+);
 const EmailTemplatesPage = lazy(() =>
   import('@/features/email-templates/routes/email-templates-page').then(
     (module) => ({ default: module.EmailTemplatesPage }),
@@ -359,6 +374,11 @@ const router = createBrowserRouter(
               handle: { crumbKey: 'nav.bookings.messages' },
             },
             {
+              path: 'customers',
+              element: withPermission('/bookings/customers', <CustomersPage />),
+              handle: { crumbKey: 'nav.bookings.customers' },
+            },
+            {
               path: 'coupons',
               element: <CouponsPage />,
               handle: { crumbKey: 'nav.bookings.coupons' },
@@ -389,6 +409,16 @@ const router = createBrowserRouter(
           path: 'testimonials',
           element: withPermission('/testimonials', <TestimonialsPage />),
           handle: { crumbKey: 'nav.testimonials' },
+        },
+        {
+          path: 'pages',
+          element: withPermission('/pages', <SitePagesPage />),
+          handle: { crumbKey: 'nav.pages' },
+        },
+        {
+          path: 'seo-redirects',
+          element: withPermission('/seo-redirects', <SeoRedirectsPage />),
+          handle: { crumbKey: 'nav.seoRedirects' },
         },
         {
           path: 'media',

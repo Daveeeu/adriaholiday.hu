@@ -20,6 +20,7 @@ return [
         'greece' => ['slug' => 'greek', 'name' => 'Görög apartmanok'],
         'bulgaria' => ['slug' => 'bulgarian', 'name' => 'Bulgáriai apartmanok'],
         'montenegro' => ['slug' => 'montenegro', 'name' => 'Montenegrói apartmanok'],
+        'croatia' => ['slug' => 'croatian', 'name' => 'Horvát apartmanok'],
     ],
 
     /*
