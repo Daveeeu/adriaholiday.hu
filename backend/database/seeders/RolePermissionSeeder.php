@@ -50,6 +50,8 @@ class RolePermissionSeeder extends Seeder
             ...$permissionGroups['portfolioContent'],
             ...$permissionGroups['testimonials'],
             ...$permissionGroups['media'],
+            ...$permissionGroups['pages'],
+            ...$permissionGroups['seoRedirects'],
         ]);
 
         $contentEditor->syncPermissions([
@@ -64,6 +66,7 @@ class RolePermissionSeeder extends Seeder
             ...$permissionGroups['media'],
             ...$permissionGroups['bookingFormTemplates'],
             ...$permissionGroups['testimonials'],
+            ...$permissionGroups['pages'],
             'portfolio-content.view', 'portfolio-content.update',
         ]);
 
@@ -73,6 +76,7 @@ class RolePermissionSeeder extends Seeder
             'tours.viewAny', 'tours.view',
             ...$permissionGroups['bookings'],
             ...$permissionGroups['messages'],
+            ...$permissionGroups['customers'],
             'coupons.viewAny', 'coupons.view',
             'partner-finances.viewAny', 'partner-finances.view',
             'email-csv-export.view',
@@ -127,6 +131,9 @@ class RolePermissionSeeder extends Seeder
             'messages' => ['messages.viewAny', 'messages.view', 'messages.create', 'messages.update', 'messages.delete', 'messages.status'],
             'coupons' => ['coupons.viewAny', 'coupons.view', 'coupons.create', 'coupons.update', 'coupons.delete', 'coupons.status'],
             'promotions' => ['promotions.viewAny', 'promotions.view', 'promotions.create', 'promotions.update', 'promotions.delete', 'promotions.status'],
+            'customers' => ['customers.viewAny', 'customers.view', 'customers.create', 'customers.update', 'customers.delete'],
+            'pages' => ['pages.viewAny', 'pages.view', 'pages.create', 'pages.update', 'pages.delete'],
+            'seoRedirects' => ['seo-redirects.viewAny', 'seo-redirects.view', 'seo-redirects.create', 'seo-redirects.update', 'seo-redirects.delete'],
             'emailCsvExport' => ['email-csv-export.view'],
             'users' => ['users.viewAny', 'users.view', 'users.create', 'users.update', 'users.delete'],
             'roles' => ['roles.viewAny', 'roles.view', 'roles.create', 'roles.update', 'roles.delete'],

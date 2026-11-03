@@ -12,12 +12,14 @@ use App\Http\Controllers\Admin\BookingFormTemplateController;
 use App\Http\Controllers\Admin\BusController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmailCsvExportController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HomepageOfferController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PartnerBannerController;
 use App\Http\Controllers\Admin\PartnerFinanceRecordController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -27,6 +29,7 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SelectOptionController;
+use App\Http\Controllers\Admin\SeoRedirectController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialController;
 use App\Http\Controllers\Admin\TourController;
@@ -46,6 +49,7 @@ use App\Http\Controllers\PortfolioFilterChipController;
 use App\Http\Controllers\PortfolioHomepageOfferController;
 use App\Http\Controllers\PortfolioOfferController;
 use App\Http\Controllers\PortfolioOfferPdfController;
+use App\Http\Controllers\PortfolioPageController;
 use App\Http\Controllers\PortfolioPromotionController;
 use App\Http\Controllers\PortfolioRegionController;
 use App\Http\Controllers\PortfolioSearchSuggestionController;
@@ -69,6 +73,7 @@ Route::get('portfolio/homepage-offers', [PortfolioHomepageOfferController::class
 Route::get('portfolio/promotion', [PortfolioPromotionController::class, 'active']);
 Route::get('portfolio/featured-tours', [PortfolioFeaturedTourController::class, 'index']);
 Route::get('portfolio/testimonials', [PortfolioTestimonialController::class, 'index']);
+Route::get('portfolio/pages/{slug}', [PortfolioPageController::class, 'show']);
 Route::get('portfolio/offers', [PortfolioOfferController::class, 'index']);
 Route::get('portfolio/search-suggestions', PortfolioSearchSuggestionController::class)->middleware('throttle:search-suggestions');
 Route::get('portfolio/offers/filters', [PortfolioFilterChipController::class, 'offerFilters']);
@@ -278,6 +283,12 @@ Route::prefix('admin')
         Route::apiResource('bookings/promotions', PromotionController::class)->whereNumber('promotion');
         Route::patch('bookings/promotions/{promotion}/status', [PromotionController::class, 'status'])->whereNumber('promotion');
         Route::get('bookings/email-csv-export', [EmailCsvExportController::class, 'index'])->middleware('permission:email-csv-export.view');
+
+        Route::apiResource('customers', CustomerController::class)->whereNumber('customer');
+        Route::apiResource('pages', PageController::class)->whereNumber('page');
+        Route::apiResource('seo-redirects', SeoRedirectController::class)->parameters([
+            'seo-redirects' => 'seoRedirect',
+        ])->whereNumber('seoRedirect');
 
         Route::apiResource('users', UserController::class);
         Route::patch('users/{user}/status', [UserController::class, 'status']);
