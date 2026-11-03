@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, MapPin } from "lucide-react";
+import { Building2, MapPin } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -7,14 +7,15 @@ import ApartmentCard from "../apartments/ApartmentCard";
 import { fetchApartmentHighlights, type ApartmentHighlights } from "../apartments/apartments-api";
 import { EditableText } from "../content/EditableFields";
 import { EditablePortfolioHeading } from "../content/PortfolioHeading";
-import { responsiveImage } from "../lib/responsiveImage";
 
 const NO_STAY = { arrival: "", departure: "", guests: null };
 
+type ApartmentLocationLink = ApartmentHighlights["locations"][number];
+
 /**
- * The home page's apartment section: the locations with apartments (with a
- * link to their list) and a few apartments to show off. Not shown while the
- * site has no public apartments.
+ * The home page's apartment section: a few apartments to show off and every
+ * location with apartments, linking to its list. Not shown while the site has
+ * no public apartments.
  */
 export default function ApartmentsShowcase() {
   const [highlights, setHighlights] = useState<ApartmentHighlights | null>(null);
@@ -42,15 +43,13 @@ export default function ApartmentsShowcase() {
     return null;
   }
 
-  const coverUrl = highlights.apartments[0]?.image?.url ?? null;
-
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#f5fbff] to-white py-16 md:py-20">
       <div className="absolute right-[6%] top-10 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-[#16b8ff]/8 to-transparent blur-3xl" />
 
       <div className="relative mx-auto max-w-[1450px] px-6 md:px-10 lg:px-16">
         <motion.div
-          className="mb-10 max-w-3xl"
+          className="mb-10 max-w-4xl"
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -74,50 +73,53 @@ export default function ApartmentsShowcase() {
             fieldKey="home.apartments.description"
             fallback="Apartmanok, villák és rezidenciák a tengerpart közelében, családoknak és baráti társaságoknak. Válaszd ki a kedvencedet, a foglalásodat kollégáink visszaigazolják."
             as="p"
-            className="text-lg leading-relaxed text-gray-600"
+            className="max-w-3xl text-lg leading-relaxed text-gray-600"
           />
         </motion.div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-8">
-          <div className="flex flex-col gap-6">
-            {highlights.locations.map((location, index) => (
-              <Link
-                key={location.link}
-                to={location.link}
-                className="group relative flex min-h-[260px] flex-1 flex-col justify-end overflow-hidden rounded-[28px] bg-[#071426] p-7 text-white shadow-[0_20px_70px_rgba(7,20,38,0.18)]"
-              >
-                {index === 0 && coverUrl ? (
-                  <img
-                    {...responsiveImage(coverUrl)}
-                    sizes="(min-width: 1024px) 25vw, 100vw"
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ) : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#071426] via-[#071426]/55 to-transparent" />
-                <div className="relative">
-                  <div className="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#7ff2ca]">
-                    <MapPin className="h-4 w-4" />
-                    {[location.areaName, location.regionName].filter(Boolean).join(" · ")}
-                  </div>
-                  <h3 className="text-3xl font-bold tracking-[-0.03em]">{location.name}</h3>
-                  <p className="mt-1 text-white/70">{location.apartmentCount} apartman</p>
-                  <span className="mt-5 inline-flex items-center gap-2 font-semibold text-white">
-                    Összes apartman
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </div>
-              </Link>
+        {highlights.apartments.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            {highlights.apartments.map((apartment) => (
+              <ApartmentCard key={apartment.id} apartment={apartment} stay={NO_STAY} />
             ))}
           </div>
+        ) : null}
 
-          {highlights.apartments.map((apartment) => (
-            <ApartmentCard key={apartment.id} apartment={apartment} stay={NO_STAY} />
-          ))}
+        <div className="mt-12">
+          <h3 className="mb-5 text-xl font-bold tracking-[-0.02em] text-[#0f172a]">Válassz úti célt</h3>
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {highlights.locations.map((location) => (
+              <li key={location.link}>
+                <LocationLink location={location} />
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
+  );
+}
+
+function LocationLink({ location }: { location: ApartmentLocationLink }) {
+  // Some locations' area is the country itself (Korfu: Görögország · Görögország).
+  const place = [...new Set([location.areaName, location.regionName].filter(Boolean))].join(" · ");
+
+  return (
+    <Link
+      to={location.link}
+      className="group flex h-full items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-0.5 hover:border-[#00c389]/30 hover:shadow-[0_14px_40px_rgba(15,23,42,0.08)]"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e8faf3] text-[#00a878]">
+        <MapPin className="h-5 w-5" aria-hidden="true" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-bold text-[#0f172a] group-hover:text-[#00a878]">{location.name}</span>
+        {place ? <span className="block truncate text-sm text-gray-500">{place}</span> : null}
+      </span>
+      <span className="shrink-0 text-right">
+        <span className="block font-bold leading-tight text-[#0f172a]">{location.apartmentCount}</span>
+        <span className="block text-xs text-gray-500">apartman</span>
+      </span>
+    </Link>
   );
 }
