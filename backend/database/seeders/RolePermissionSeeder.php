@@ -149,7 +149,8 @@ class RolePermissionSeeder extends Seeder
             return;
         }
 
-        $user = User::query()->updateOrCreate(
+        // Created once: a re-seed never resets a password or name changed since.
+        $user = User::query()->firstOrCreate(
             ['email' => $email],
             [
                 'name' => 'Jandl David',

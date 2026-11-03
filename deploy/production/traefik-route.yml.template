@@ -1,23 +1,25 @@
 # Written by deploy/production/bootstrap.sh; Traefik reloads it on change.
+# The names are unique across /srv/apps/traefik/dynamic: the staging route
+# (adriaholiday.jandldavid.hu.yml) already defines "adriaholiday".
 http:
   routers:
-    adriaholiday:
+    adriaholiday-hu:
       rule: "Host(`adriaholiday.hu`) || Host(`www.adriaholiday.hu`)"
       entryPoints:
         - __ENTRYPOINT__
       middlewares:
-        - adriaholiday-www-to-apex
-      service: adriaholiday
+        - adriaholiday-hu-www-to-apex
+      service: adriaholiday-hu
       tls:
         certResolver: __CERT_RESOLVER__
   middlewares:
-    adriaholiday-www-to-apex:
+    adriaholiday-hu-www-to-apex:
       redirectRegex:
         regex: "^https?://www\\.adriaholiday\\.hu/(.*)"
         replacement: "https://adriaholiday.hu/${1}"
         permanent: true
   services:
-    adriaholiday:
+    adriaholiday-hu:
       loadBalancer:
         passHostHeader: true
         servers:

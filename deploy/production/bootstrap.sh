@@ -11,7 +11,9 @@
 #
 # Optional environment: ADMIN_EMAIL (first admin, default adriaholiday@adriaholiday.hu),
 # MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_SCHEME (real SMTP;
-# without them mail goes to the platform Mailpit), BRANCH (default main).
+# without them mail goes to the platform Mailpit), BRANCH (default main),
+# DATABASE_STACK (platform-postgres or mariadb; an install that already runs the
+# stack's own MariaDB keeps it, a new install uses the platform Postgres).
 
 set -euo pipefail
 
@@ -45,8 +47,11 @@ networks_of() { docker inspect -f '{{range $name, $_ := .NetworkSettings.Network
 
 compose() {
     docker compose --project-name "${APP_NAME}" --env-file .env.production \
-        -f docker-compose.prod.yml -f deploy/production/compose.server.yml "$@"
+        -f docker-compose.prod.yml -f deploy/production/compose.server.yml \
+        -f "deploy/production/compose.${DATABASE_STACK}.yml" "$@"
 }
+
+env_value() { grep "^$2=" "$1" 2>/dev/null | cut -d= -f2- || true; }
 
 command -v docker >/dev/null || fail "docker is missing."
 command -v git >/dev/null || fail "git is missing."
@@ -69,35 +74,62 @@ fi
 
 cd "${APP_DIR}"
 
-log "Platform: Traefik and Postgres networks"
+# An install that already runs the stack's own MariaDB (DB_HOST=db) keeps it, so its data stays where it is.
+DATABASE_STACK=${DATABASE_STACK:-$(env_value .env.production DATABASE_STACK)}
+if [ -z "${DATABASE_STACK}" ]; then
+    if [ "$(env_value .env.production DB_HOST)" = db ]; then DATABASE_STACK=mariadb; else DATABASE_STACK=platform-postgres; fi
+fi
+case "${DATABASE_STACK}" in
+    platform-postgres | mariadb) ;;
+    *) fail "Unknown DATABASE_STACK: ${DATABASE_STACK} (platform-postgres or mariadb)." ;;
+esac
+
+log "Platform: Traefik network"
 TRAEFIK_CONTAINER=$(docker ps --format '{{.Names}}' | grep -m1 -i traefik || true)
 [ -n "${TRAEFIK_CONTAINER}" ] || fail "No running Traefik container found."
-docker inspect "${POSTGRES_CONTAINER}" >/dev/null 2>&1 || fail "Postgres container ${POSTGRES_CONTAINER} not found (set POSTGRES_CONTAINER)."
 EDGE_NETWORK=$(networks_of "${TRAEFIK_CONTAINER}" | head -1)
-# A Postgres network Traefik is not on keeps the database off the edge network, when there is one.
-DATABASE_NETWORK=$(networks_of "${POSTGRES_CONTAINER}" | grep -vxF "${EDGE_NETWORK}" | head -1 || true)
-DATABASE_NETWORK=${DATABASE_NETWORK:-$(networks_of "${POSTGRES_CONTAINER}" | head -1)}
-{ [ -n "${EDGE_NETWORK}" ] && [ -n "${DATABASE_NETWORK}" ]; } || fail "Could not find the Traefik or Postgres network."
-echo "Traefik: ${TRAEFIK_CONTAINER} on ${EDGE_NETWORK}; Postgres: ${POSTGRES_CONTAINER} on ${DATABASE_NETWORK}"
+[ -n "${EDGE_NETWORK}" ] || fail "Could not find the Traefik network."
+echo "Traefik: ${TRAEFIK_CONTAINER} on ${EDGE_NETWORK}"
 
-log "Database: role and database ${APP_NAME}"
-PG_SUPERUSER=$(docker exec "${POSTGRES_CONTAINER}" printenv POSTGRES_USER 2>/dev/null || echo postgres)
-psql_admin() { docker exec -i "${POSTGRES_CONTAINER}" psql -v ON_ERROR_STOP=1 -U "${PG_SUPERUSER}" -d postgres -tAc "$1"; }
+DB_PASSWORD=$(env_value .env.production DB_PASSWORD)
+DB_PASSWORD=${DB_PASSWORD:-$(secret 32)}
 
-if [ -f .env.production ] && grep -q '^DB_PASSWORD=' .env.production; then
-    DB_PASSWORD=$(grep '^DB_PASSWORD=' .env.production | cut -d= -f2-)
+if [ "${DATABASE_STACK}" = platform-postgres ]; then
+    log "Database: platform Postgres role and database ${APP_NAME}"
+    docker inspect "${POSTGRES_CONTAINER}" >/dev/null 2>&1 || fail "Postgres container ${POSTGRES_CONTAINER} not found (set POSTGRES_CONTAINER)."
+    # A Postgres network Traefik is not on keeps the database off the edge network, when there is one.
+    DATABASE_NETWORK=$(networks_of "${POSTGRES_CONTAINER}" | grep -vxF "${EDGE_NETWORK}" | head -1 || true)
+    DATABASE_NETWORK=${DATABASE_NETWORK:-$(networks_of "${POSTGRES_CONTAINER}" | head -1)}
+    [ -n "${DATABASE_NETWORK}" ] || fail "Could not find the Postgres network."
+    echo "Postgres: ${POSTGRES_CONTAINER} on ${DATABASE_NETWORK}"
+
+    PG_SUPERUSER=$(docker exec "${POSTGRES_CONTAINER}" printenv POSTGRES_USER 2>/dev/null || echo postgres)
+    psql_admin() { docker exec -i "${POSTGRES_CONTAINER}" psql -v ON_ERROR_STOP=1 -U "${PG_SUPERUSER}" -d postgres -tAc "$1"; }
+
+    if [ "$(psql_admin "SELECT 1 FROM pg_roles WHERE rolname = '${APP_NAME}'")" != "1" ]; then
+        psql_admin "CREATE ROLE ${APP_NAME} LOGIN PASSWORD '${DB_PASSWORD}'"
+    else
+        psql_admin "ALTER ROLE ${APP_NAME} LOGIN PASSWORD '${DB_PASSWORD}'"
+    fi
+
+    if [ "$(psql_admin "SELECT 1 FROM pg_database WHERE datname = '${APP_NAME}'")" != "1" ]; then
+        psql_admin "CREATE DATABASE ${APP_NAME} OWNER ${APP_NAME}"
+    fi
+
+    DB_CONNECTION=pgsql
+    DB_HOST=${POSTGRES_CONTAINER}
+    DB_PORT=5432
+    DB_DATABASE=${APP_NAME}
+    DB_USERNAME=${APP_NAME}
 else
-    DB_PASSWORD=$(secret 32)
-fi
-
-if [ "$(psql_admin "SELECT 1 FROM pg_roles WHERE rolname = '${APP_NAME}'")" != "1" ]; then
-    psql_admin "CREATE ROLE ${APP_NAME} LOGIN PASSWORD '${DB_PASSWORD}'"
-else
-    psql_admin "ALTER ROLE ${APP_NAME} LOGIN PASSWORD '${DB_PASSWORD}'"
-fi
-
-if [ "$(psql_admin "SELECT 1 FROM pg_database WHERE datname = '${APP_NAME}'")" != "1" ]; then
-    psql_admin "CREATE DATABASE ${APP_NAME} OWNER ${APP_NAME}"
+    log "Database: the stack's own MariaDB (deploy/production/compose.mariadb.yml)"
+    DB_CONNECTION=mysql
+    DB_HOST=db
+    DB_PORT=3306
+    DB_DATABASE=$(env_value .env.production DB_DATABASE)
+    DB_DATABASE=${DB_DATABASE:-${APP_NAME}}
+    DB_USERNAME=$(env_value .env.production DB_USERNAME)
+    DB_USERNAME=${DB_USERNAME:-${APP_NAME}}
 fi
 
 log "Environment files"
@@ -106,21 +138,27 @@ if [ ! -f .env.production ]; then
     chmod 600 .env.production
 fi
 
+# sed -i replaces the file through its directory, so it also works on a file the deploy group may only read.
 set_env() {
     local file=$1 key=$2 value=$3
-    if grep -q "^${key}=" "${file}"; then
+    if ! grep -q "^${key}=" "${file}"; then
+        sed -i "\$a ${key}=${value}" "${file}"
+    elif [ "$(env_value "${file}" "${key}")" != "${value}" ]; then
         sed -i "s|^${key}=.*|${key}=${value}|" "${file}"
-    else
-        printf '%s=%s\n' "${key}" "${value}" >>"${file}"
     fi
 }
 
+set_env .env.production DATABASE_STACK "${DATABASE_STACK}"
 set_env .env.production EDGE_NETWORK_NAME "${EDGE_NETWORK}"
-set_env .env.production DATABASE_NETWORK_NAME "${DATABASE_NETWORK}"
-set_env .env.production DB_HOST "${POSTGRES_CONTAINER}"
-set_env .env.production DB_PORT 5432
-set_env .env.production DB_DATABASE "${APP_NAME}"
-set_env .env.production DB_USERNAME "${APP_NAME}"
+if [ "${DATABASE_STACK}" = platform-postgres ]; then
+    set_env .env.production DATABASE_NETWORK_NAME "${DATABASE_NETWORK}"
+else
+    grep -q '^DB_ROOT_PASSWORD=.\+' .env.production || set_env .env.production DB_ROOT_PASSWORD "$(secret 32)"
+fi
+set_env .env.production DB_HOST "${DB_HOST}"
+set_env .env.production DB_PORT "${DB_PORT}"
+set_env .env.production DB_DATABASE "${DB_DATABASE}"
+set_env .env.production DB_USERNAME "${DB_USERNAME}"
 set_env .env.production DB_PASSWORD "${DB_PASSWORD}"
 set_env .env.production LARAVEL_ENV_FILE ./backend/.env.production
 grep -q '^REDIS_PASSWORD=.\+' .env.production || set_env .env.production REDIS_PASSWORD "$(secret 32)"
@@ -135,11 +173,11 @@ if [ ! -f "${LARAVEL_ENV}" ]; then
     set_env "${LARAVEL_ENV}" ADMIN_SEED_PASSWORD "$(secret 20)"
 fi
 
-set_env "${LARAVEL_ENV}" DB_CONNECTION pgsql
-set_env "${LARAVEL_ENV}" DB_HOST "${POSTGRES_CONTAINER}"
-set_env "${LARAVEL_ENV}" DB_PORT 5432
-set_env "${LARAVEL_ENV}" DB_DATABASE "${APP_NAME}"
-set_env "${LARAVEL_ENV}" DB_USERNAME "${APP_NAME}"
+set_env "${LARAVEL_ENV}" DB_CONNECTION "${DB_CONNECTION}"
+set_env "${LARAVEL_ENV}" DB_HOST "${DB_HOST}"
+set_env "${LARAVEL_ENV}" DB_PORT "${DB_PORT}"
+set_env "${LARAVEL_ENV}" DB_DATABASE "${DB_DATABASE}"
+set_env "${LARAVEL_ENV}" DB_USERNAME "${DB_USERNAME}"
 set_env "${LARAVEL_ENV}" DB_PASSWORD "${DB_PASSWORD}"
 set_env "${LARAVEL_ENV}" REDIS_PASSWORD "${REDIS_PASSWORD}"
 
@@ -150,7 +188,8 @@ if [ -n "${MAIL_HOST:-}" ]; then
     set_env "${LARAVEL_ENV}" MAIL_USERNAME "${MAIL_USERNAME:-}"
     set_env "${LARAVEL_ENV}" MAIL_PASSWORD "${MAIL_PASSWORD:-}"
 elif grep -q '^MAIL_HOST=smtp.example.com' "${LARAVEL_ENV}"; then
-    MAILPIT_CONTAINER=$(docker ps --format '{{.Names}}' | grep -m1 -i mailpit || true)
+    # Other apps run their own Mailpit; the platform one is shared.
+    MAILPIT_CONTAINER=$(docker ps --format '{{.Names}}' | grep -m1 -x 'platform-mailpit-1' || true)
     if [ -n "${MAILPIT_CONTAINER}" ]; then
         set_env "${LARAVEL_ENV}" MAIL_HOST "${MAILPIT_CONTAINER}"
         set_env "${LARAVEL_ENV}" MAIL_PORT 1025
@@ -173,8 +212,16 @@ for _ in $(seq 1 60); do
 done
 [ "${status}" = healthy ] || { compose logs --tail=80 app; fail "The app did not become healthy."; }
 
-log "Reference data (roles, first admin, settings, regions, taxonomy)"
-compose exec -T app php artisan db:seed --class=ProductionSeeder --force
+log "Reference data"
+seeded=$(compose exec -T app php artisan tinker --execute='echo Spatie\Permission\Models\Role::query()->exists() ? "yes" : "no";' </dev/null | tr -d '[:space:]')
+if [ "${seeded}" = no ]; then
+    echo "New database: roles, first admin, settings, regions and taxonomy."
+    compose exec -T app php artisan db:seed --class=ProductionSeeder --force
+else
+    # The office edits the settings, page content and taxonomy; only roles and permissions follow the code.
+    echo "Existing database: roles and permissions only."
+    compose exec -T app php artisan db:seed --class=RolePermissionSeeder --force
+fi
 compose exec -T queue php artisan queue:restart >/dev/null
 
 log "Traefik route: adriaholiday.hu → ${APP_NAME}-nginx-1"

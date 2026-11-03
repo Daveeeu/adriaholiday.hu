@@ -1,0 +1,30 @@
+# The stack's own MariaDB, for the install that ran on it before the platform
+# Postgres existed. The volume keeps its name (adriaholiday_mariadb-data).
+# Used by deploy/production/bootstrap.sh.
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "healthcheck.sh --connect --innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - internal
+
+  app:
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mariadb-data:

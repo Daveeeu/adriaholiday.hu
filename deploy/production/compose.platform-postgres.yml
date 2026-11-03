@@ -1,0 +1,22 @@
+# The platform Postgres (platform-postgres-1): the Laravel containers reach it
+# over its network. Used by deploy/production/bootstrap.sh.
+services:
+  app:
+    networks:
+      - internal
+      - database
+
+  queue:
+    networks:
+      - internal
+      - database
+
+  scheduler:
+    networks:
+      - internal
+      - database
+
+networks:
+  database:
+    external: true
+    name: ${DATABASE_NETWORK_NAME}

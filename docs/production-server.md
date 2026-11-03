@@ -6,11 +6,12 @@ adriaholiday.hu runs on the shared Debian Docker host (`217.144.53.91`). The hos
 - **Platform Postgres:** `platform-postgres-1`.
 - **Mailpit, Dozzle and Uptime Kuma.**
 
-The stack itself is `docker-compose.prod.yml` plus `deploy/production/compose.server.yml`:
+The stack itself is `docker-compose.prod.yml` plus two files from `deploy/production`:
 
-- nginx has no host port; Traefik reaches it over its own network.
-- The Laravel containers use the platform Postgres (database `adriaholiday`).
-- The stack keeps its own Redis.
+- `compose.server.yml`: nginx has no host port; Traefik reaches it over its own network. The stack keeps its own Redis.
+- The database file, chosen by `DATABASE_STACK` in `.env.production`:
+  - `compose.platform-postgres.yml`: the Laravel containers use the platform Postgres (database `adriaholiday`). New installs get this.
+  - `compose.mariadb.yml`: the stack's own MariaDB (`adriaholiday-db-1`, volume `adriaholiday_mariadb-data`). The install that already ran on it keeps it, with its data.
 
 ## First install and redeploys
 
@@ -24,12 +25,12 @@ bash bootstrap.sh --import ~/adriaholiday_export_v2.json   # the import only on 
 `bootstrap.sh` is idempotent. On every run it:
 
 1. Clones or updates `/srv/apps/adriaholiday` to `main`.
-2. Finds the Traefik and Postgres networks.
-3. Creates the Postgres role and database once.
+2. Picks the database: an install whose `.env.production` has `DB_HOST=db` keeps its MariaDB; otherwise the platform Postgres.
+3. Finds the Traefik network and, for Postgres, its network. Creates the Postgres role and database once.
 4. Writes `.env.production` and `backend/.env.production` once. They hold generated secrets (mode 600) and are never committed.
 5. Builds the images and starts the stack. The entrypoint runs the migrations.
-6. Runs `ProductionSeeder`: roles, the first admin, settings, regions and taxonomy, with no demo data.
-7. Writes the Traefik route `/srv/apps/traefik/dynamic/adriaholiday.yml`. Its entry point and cert resolver are copied from an existing route.
+6. Seeds the reference data. A new database gets `ProductionSeeder`: roles, the first admin, settings, regions and taxonomy, with no demo data. An existing database only gets `RolePermissionSeeder`, so the office's settings and content are never reset.
+7. Writes the Traefik route `/srv/apps/traefik/dynamic/adriaholiday.yml`. Its entry point and cert resolver are copied from an existing route. Its router, service and middleware names start with `adriaholiday-hu`, because the staging route already uses `adriaholiday`.
 8. Runs a health check through nginx.
 
 With `--import`, the legacy admin export is imported in the background (`docs/legacy-admin-export-import.md`), and the images are copied from the legacy site.
@@ -54,9 +55,9 @@ Then point the A records of `adriaholiday.hu` and `www.adriaholiday.hu` to `217.
 
 ```bash
 cd /srv/apps/adriaholiday
-docker compose --project-name adriaholiday --env-file .env.production -f docker-compose.prod.yml -f deploy/production/compose.server.yml ps
-docker compose --project-name adriaholiday --env-file .env.production -f docker-compose.prod.yml -f deploy/production/compose.server.yml logs -f app
-docker exec -it platform-postgres-1 psql -U adriaholiday -d adriaholiday
+DB_FILE=deploy/production/compose.$(grep '^DATABASE_STACK=' .env.production | cut -d= -f2).yml
+docker compose --project-name adriaholiday --env-file .env.production -f docker-compose.prod.yml -f deploy/production/compose.server.yml -f "$DB_FILE" ps
+docker compose --project-name adriaholiday --env-file .env.production -f docker-compose.prod.yml -f deploy/production/compose.server.yml -f "$DB_FILE" logs -f app
 ```
 
 - **Logs on the web:** https://logs.jandldavid.hu
