@@ -100,7 +100,7 @@ final class LegacyCatalogPlanner
      */
     public static function payloadHash(array $offer): string
     {
-        return hash('sha256', self::payloadJson($offer));
+        return LegacyImportRecord::hashPayload($offer);
     }
 
     /**
@@ -108,7 +108,7 @@ final class LegacyCatalogPlanner
      */
     public static function payloadJson(array $offer): string
     {
-        return json_encode($offer, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        return LegacyImportRecord::encodePayload($offer);
     }
 
     /**

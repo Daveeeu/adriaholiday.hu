@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Support\Booking\TourBookingStatus;
+use App\Support\Legacy\LegacyPassengerList;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -194,31 +195,16 @@ class LegacyBookingImporter
     }
 
     /**
-     * Legacy passenger list: "Name [útiokmány: X, lakcím: Y, születési dátum: Z], …".
-     *
      * @return array<int, array<string, string>>
      */
     private function passengers(string $text): array
     {
-        preg_match_all('/([^\[\],][^\[\]]*?)\s*\[([^\]]*)\]/u', $text, $matches, PREG_SET_ORDER);
-
-        return array_values(array_filter(array_map(function (array $match): array {
-            $details = $match[2];
-
-            return array_filter([
-                'passenger_name' => trim($match[1], " ,\t\n"),
-                'document_number' => $this->labelled($details, 'útiokmány'),
-                'passenger_address' => $this->labelled($details, 'lakcím'),
-                'passenger_birth_date' => $this->labelled($details, 'születési dátum'),
-            ], fn (?string $value): bool => $value !== null && $value !== '');
-        }, $matches)));
-    }
-
-    private function labelled(string $details, string $label): ?string
-    {
-        $pattern = '/'.preg_quote($label, '/').':\s*(.*?)\s*(?:,\s*(?:útiokmány|lakcím|születési dátum):|$)/u';
-
-        return preg_match($pattern, $details, $match) ? $this->nullable(trim($match[1], ' ,')) : null;
+        return array_map(fn (array $passenger): array => array_filter([
+            'passenger_name' => $passenger['name'] ?? null,
+            'document_number' => $passenger['document_number'] ?? null,
+            'passenger_address' => $passenger['address'] ?? null,
+            'passenger_birth_date' => $passenger['birth_date'] ?? null,
+        ], fn (?string $value): bool => $value !== null), LegacyPassengerList::parse($text));
     }
 
     /**
