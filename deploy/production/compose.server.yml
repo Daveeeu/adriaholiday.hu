@@ -1,0 +1,33 @@
+# The shared Docker host (Traefik + platform Postgres) on top of
+# docker-compose.prod.yml: nginx is reached by Traefik over its network instead
+# of a host port, the Laravel containers reach the platform Postgres over its
+# network, and the stack keeps its own Redis. Used by deploy/production/*.sh.
+services:
+  nginx:
+    ports: !reset []
+    networks:
+      - internal
+      - edge
+
+  app:
+    networks:
+      - internal
+      - database
+
+  queue:
+    networks:
+      - internal
+      - database
+
+  scheduler:
+    networks:
+      - internal
+      - database
+
+networks:
+  edge:
+    external: true
+    name: ${EDGE_NETWORK_NAME}
+  database:
+    external: true
+    name: ${DATABASE_NETWORK_NAME}

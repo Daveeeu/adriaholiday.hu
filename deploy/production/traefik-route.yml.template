@@ -1,0 +1,24 @@
+# Written by deploy/production/bootstrap.sh; Traefik reloads it on change.
+http:
+  routers:
+    adriaholiday:
+      rule: "Host(`adriaholiday.hu`) || Host(`www.adriaholiday.hu`)"
+      entryPoints:
+        - __ENTRYPOINT__
+      middlewares:
+        - adriaholiday-www-to-apex
+      service: adriaholiday
+      tls:
+        certResolver: __CERT_RESOLVER__
+  middlewares:
+    adriaholiday-www-to-apex:
+      redirectRegex:
+        regex: "^https?://www\\.adriaholiday\\.hu/(.*)"
+        replacement: "https://adriaholiday.hu/${1}"
+        permanent: true
+  services:
+    adriaholiday:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://adriaholiday-nginx-1:80"

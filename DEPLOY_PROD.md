@@ -1,5 +1,7 @@
 # Production Deploy Stack
 
+> The live site runs on the shared Docker host behind Traefik: see [docs/production-server.md](docs/production-server.md) and `deploy/production/bootstrap.sh`.
+
 Ez a repo productionban teljes Laravel + React stackként fut:
 
 - `nginx` reverse proxy és static asset kiszolgálás
