@@ -2,30 +2,15 @@
 
 namespace App\Http\Requests\Admin\Tour;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class UpdateTourDeparturePlaceRequest extends FormRequest
+/**
+ * The same as creating a departure place; its own name is not taken by itself.
+ */
+class UpdateTourDeparturePlaceRequest extends StoreTourDeparturePlaceRequest
 {
-    protected function prepareForValidation(): void
+    protected function placeId(): ?int
     {
-        $this->merge([
-            'active' => $this->boolean('active', true),
-            'fee' => $this->input('fee'),
-        ]);
-    }
+        $place = $this->route('tourDeparturePlace');
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    public function rules(): array
-    {
-        return [
-            'active' => ['boolean'],
-            'name' => ['required', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
-            'fee' => ['nullable', 'numeric'],
-        ];
+        return is_object($place) ? (int) $place->id : (is_numeric($place) ? (int) $place : null);
     }
 }

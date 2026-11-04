@@ -8,6 +8,7 @@ use App\Models\PortfolioFilterChip;
 use App\Models\Tour;
 use App\Models\TourReferenceOption;
 use App\Support\Tour\TourDateStatus;
+use Collator;
 use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -301,13 +302,15 @@ class PortfolioOfferQuery
             return [];
         }
 
+        $collator = new Collator('hu_HU');
+
         return TourReferenceOption::query()
             ->where('type', 'country')
             ->where('active', true)
             ->whereIn('code', $codes)
-            ->orderBy('sort_order')
-            ->orderBy('name')
             ->get(['code', 'name'])
+            // Visitors look a country up by name, so the list is alphabetical in Hungarian (Cs after C, É with E).
+            ->sort(fn (TourReferenceOption $a, TourReferenceOption $b): int => (int) $collator->compare($a->name, $b->name))
             ->map(function (TourReferenceOption $option) use ($counts, $selectedCountries): array {
                 $count = $counts[$option->code] ?? 0;
                 $isActive = in_array($option->code, $selectedCountries, true);

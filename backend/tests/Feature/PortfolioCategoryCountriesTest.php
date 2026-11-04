@@ -40,6 +40,31 @@ class PortfolioCategoryCountriesTest extends TestCase
         ]);
     }
 
+    public function test_countries_are_listed_alphabetically_in_hungarian_whatever_their_sort_order(): void
+    {
+        $category = $this->createCategory('Körutazások', 'korutazasok');
+        $countries = [
+            $this->createCountry('SI', 'Szlovénia', 0),
+            $this->createCountry('AT', 'Ausztria', 2),
+            $this->createCountry('CZ', 'Csehország', 0),
+            $this->createCountry('MK', 'Észak-Macedónia', 1),
+            $this->createCountry('GB', 'Egyesült Királyság', 12),
+            $this->createCountry('BE', 'Belgium', 11),
+        ];
+
+        foreach ($countries as $code) {
+            $this->createTour('tura-'.strtolower($code), $category->id, [$code]);
+        }
+
+        $response = $this->getJson('/api/portfolio/categories/korutazasok/countries');
+
+        $response->assertOk();
+        $this->assertSame(
+            ['Ausztria', 'Belgium', 'Csehország', 'Egyesült Királyság', 'Észak-Macedónia', 'Szlovénia'],
+            collect($response->json())->pluck('label')->all(),
+        );
+    }
+
     public function test_category_offers_endpoint_filters_by_country(): void
     {
         $category = $this->createCategory('Körutazások', 'korutazasok');
@@ -209,14 +234,14 @@ class PortfolioCategoryCountriesTest extends TestCase
         return $category;
     }
 
-    private function createCountry(string $code, string $name): string
+    private function createCountry(string $code, string $name, int $sortOrder = 1): string
     {
         TourReferenceOption::query()->create([
             'type' => 'country',
             'code' => $code,
             'name' => $name,
             'active' => true,
-            'sort_order' => 1,
+            'sort_order' => $sortOrder,
         ]);
 
         return $code;
