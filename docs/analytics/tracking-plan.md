@@ -9,9 +9,9 @@ Conversions API) is described in [../analytics-architecture.md](../analytics-arc
 | What | Id | Notes |
 | --- | --- | --- |
 | GA4 property | `G-JYZ3KL4M0B` (account „AdriaHoliday”, property „adriaholiday.hu”) | stream „AdriaHoliday web” → https://adriaholiday.hu |
-| GTM container | `PORTFOLIO_VITE_GTM_ID` | contents: [gtm-container.json](gtm-container.json) |
+| GTM container | `GTM-NTC5QFRN` (account „AdriaHoliday”, container „adriaholiday.hu”; `PORTFOLIO_VITE_GTM_ID`) | contents: [gtm-container.json](gtm-container.json) |
 | Search Console | URL-prefix property https://adriaholiday.hu/ | verified by HTML file, sitemap `/sitemap.xml` |
-| Meta Pixel | GTM constant `Meta Pixel ID` | must equal backend `META_PIXEL_ID` (Conversions API) |
+| Meta Pixel | GTM constant `Meta Pixel ID` (placeholder `0` keeps the Meta tag off) | must equal backend `META_PIXEL_ID` (Conversions API) |
 
 ## Flow
 

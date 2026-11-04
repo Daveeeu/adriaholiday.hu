@@ -481,7 +481,7 @@
               {
                 "type": "TEMPLATE",
                 "key": "arg1",
-                "value": "^[0-9]+$"
+                "value": "^[1-9][0-9]{5,}$"
               }
             ]
           }
@@ -873,7 +873,7 @@
           {
             "type": "TEMPLATE",
             "key": "value",
-            "value": ""
+            "value": "0"
           }
         ]
       }
