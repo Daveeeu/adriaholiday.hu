@@ -56,6 +56,8 @@ return [
 
     'legacy_adria' => [
         'base_url' => env('LEGACY_ADRIA_BASE_URL', 'https://adriaholiday.hu'),
+        // Where legacy URLs are downloaded from when adriaholiday.hu no longer reaches the legacy server (App\Support\Legacy\LegacyFetchUrl).
+        'fetch_origin' => env('LEGACY_ADRIA_FETCH_ORIGIN'),
         'user_agent' => env('LEGACY_ADRIA_USER_AGENT', 'AdriaHolidayLegacyImporter/1.0 (+https://adriaholiday.hu)'),
         'request_delay_ms' => env('LEGACY_ADRIA_DELAY_MS', 500),
         'timeout' => env('LEGACY_ADRIA_TIMEOUT', 15),

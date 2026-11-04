@@ -4,6 +4,7 @@ namespace App\Services\Legacy;
 
 use App\Models\AdminMediaItem;
 use App\Models\LegacyMediaFile;
+use App\Support\Legacy\LegacyFetchUrl;
 use App\Support\MediaCategory;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -127,7 +128,7 @@ class LegacyMediaMirror
         $this->throttle();
 
         try {
-            $response = Http::withUserAgent($this->userAgent)->timeout($this->timeout)->retry(2, 500, throw: false)->head($url);
+            $response = Http::withUserAgent($this->userAgent)->timeout($this->timeout)->retry(2, 500, throw: false)->head(LegacyFetchUrl::for($url));
         } catch (Throwable $exception) {
             return ['ok' => false, 'http_status' => null, 'error' => $exception->getMessage()];
         }
@@ -150,7 +151,7 @@ class LegacyMediaMirror
         $this->throttle();
 
         try {
-            $response = Http::withUserAgent($this->userAgent)->timeout($this->timeout)->retry(2, 500, throw: false)->get($url);
+            $response = Http::withUserAgent($this->userAgent)->timeout($this->timeout)->retry(2, 500, throw: false)->get(LegacyFetchUrl::for($url));
         } catch (Throwable $exception) {
             throw new LegacyFetchException("Failed to download {$url}: {$exception->getMessage()}", previous: $exception);
         }

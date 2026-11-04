@@ -31,7 +31,7 @@ Back up the database first. The run is idempotent:
 - A re-run skips unchanged records and updates changed ones.
 - One failing record never stops the others.
 
-`--media=listed|all|none` controls copying images from the legacy site:
+`--media=listed|all|none` controls copying images from the legacy site. They are downloaded from `LEGACY_ADRIA_FETCH_ORIGIN` when it is set (e.g. `http://admin.adriaholiday.hu`, once `adriaholiday.hu` serves the new site):
 
 - `listed` (the default) copies all images except apartment galleries, which are copied only for the apartments the legacy admin keeps active.
 - `all` copies every image, apartment galleries included.

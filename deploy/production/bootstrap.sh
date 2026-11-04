@@ -195,6 +195,8 @@ set_env "${LARAVEL_ENV}" DB_USERNAME "${DB_USERNAME}"
 set_env "${LARAVEL_ENV}" DB_PASSWORD "${DB_PASSWORD}"
 set_env "${LARAVEL_ENV}" REDIS_PASSWORD "${REDIS_PASSWORD}"
 set_env "${LARAVEL_ENV}" APP_URL "https://${PUBLIC_HOST}"
+# The legacy server keeps answering on admin.adriaholiday.hu after the switch (its certificate only names the domain, hence http).
+grep -q '^LEGACY_ADRIA_FETCH_ORIGIN=.\+' "${LARAVEL_ENV}" || set_env "${LARAVEL_ENV}" LEGACY_ADRIA_FETCH_ORIGIN "http://admin.${DOMAIN}"
 
 if [ -n "${MAIL_HOST:-}" ]; then
     set_env "${LARAVEL_ENV}" MAIL_HOST "${MAIL_HOST}"
