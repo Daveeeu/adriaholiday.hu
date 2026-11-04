@@ -34,7 +34,28 @@ class BookingFormField extends Model
 
     public const EXTRA_GROUP = 'extra';
 
-    public const VISIBILITIES = ['required', 'optional', 'hidden'];
+    /**
+     * required: must be filled in to book.
+     * deferred: needed, but the customer may book without it; we then e-mail
+     * them a link to give it later (see BookingDetailsRequestService).
+     * optional: may stay empty.
+     * hidden: not asked.
+     */
+    public const VISIBILITIES = ['required', self::VISIBILITY_DEFERRED, 'optional', 'hidden'];
+
+    public const VISIBILITY_DEFERRED = 'deferred';
+
+    /**
+     * Contact fields copied onto the booking's own columns, so the booking
+     * lists and e-mails can use them directly.
+     */
+    public const CONTACT_COLUMNS = [
+        'contact_name' => 'customer_name',
+        'contact_email' => 'email',
+        'contact_phone' => 'phone',
+        'contact_city' => 'city',
+        'contact_address' => 'address',
+    ];
 
     /**
      * Fields mapped onto dedicated booking columns by the public booking

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Services\Booking\BookingDetailsRequestService;
 use App\Services\Booking\BookingFormValidationService;
 use App\Support\Booking\BookingDocumentData;
 use App\Support\Booking\BookingPaymentSchedule;
@@ -40,6 +41,7 @@ class BookingDetailResource extends BookingResource
             'pricing' => $payload['pricing'] ?? null,
             'paymentSchedule' => $this->paymentSchedule(),
             'payments' => $this->whenLoaded('payments', fn () => BookingPaymentResource::collection($this->payments)->resolve()),
+            'pendingDetails' => $this->booking_type === 'tour_booking' ? app(BookingDetailsRequestService::class)->labels($this->resource) : [],
             'formDataFields' => collect($payload['formData'] ?? [])
                 ->map(fn ($value, $key) => [
                     'key' => $key,

@@ -170,6 +170,11 @@ export type TourBookingPayment = {
   createdAt: string;
 };
 
+export type BookingPendingDetails = {
+  title: string;
+  fields: string[];
+};
+
 export type TourBookingDetail = TourBooking & {
   tourId: string | null;
   tour: TourBookingTourSummary | null;
@@ -181,6 +186,8 @@ export type TourBookingDetail = TourBooking & {
   seatsReserved: boolean;
   formDataFields: BookingDynamicField[];
   passengerFields: BookingDynamicField[][];
+  /** Deferred details the customer has not given yet, by contact and passenger. */
+  pendingDetails: BookingPendingDetails[];
   pricing: TourBookingPricing | null;
   payments: TourBookingPayment[];
   paymentSchedule: TourBookingInstalment[] | null;

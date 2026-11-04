@@ -57,6 +57,7 @@ use App\Http\Controllers\PortfolioSearchSuggestionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
 use App\Http\Controllers\PortfolioTestimonialController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\PublicBookingDetailsController;
 use App\Http\Controllers\PublicBookingPaymentController;
 use App\Http\Controllers\PublicContactMessageController;
 use App\Http\Controllers\PublicNewsletterController;
@@ -91,6 +92,10 @@ Route::get('portfolio/apartments/{slug}', [PortfolioApartmentController::class, 
 Route::get('portfolio/offers/{slug}/pdf', PortfolioOfferPdfController::class)->middleware('throttle:offer-pdf');
 Route::post('analytics/events', AnalyticsEventController::class);
 Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('throttle:bookings');
+Route::middleware('throttle:bookings')->group(function (): void {
+    Route::get('booking-details/{token}', [PublicBookingDetailsController::class, 'show'])->where('token', '[A-Za-z0-9]{48}');
+    Route::post('booking-details/{token}', [PublicBookingDetailsController::class, 'complete'])->where('token', '[A-Za-z0-9]{48}');
+});
 Route::post('portfolio/apartments/{slug}/bookings', [PortfolioApartmentController::class, 'book'])->middleware('throttle:bookings');
 Route::post('payments/barion/callback', [PublicBookingPaymentController::class, 'callback'])->name('payments.barion.callback');
 Route::middleware('throttle:payments')->group(function (): void {
@@ -256,6 +261,7 @@ Route::prefix('admin')
         Route::get('bookings/tour-bookings/{booking}/analytics', [BookingController::class, 'analytics'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
         Route::get('bookings/tour-bookings/{booking}/emails', [BookingController::class, 'emails'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
         Route::get('bookings/tour-bookings/{booking}/pdf', [BookingController::class, 'pdf'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
+        Route::post('bookings/tour-bookings/{booking}/details-request', [BookingController::class, 'sendDetailsRequest'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
         Route::patch('bookings/tour-bookings/{booking}/status', [BookingController::class, 'status'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');
         Route::post('bookings/tour-bookings', [BookingController::class, 'store'])->defaults('booking_type', 'tour_booking');
         Route::patch('bookings/tour-bookings/{booking}', [BookingController::class, 'update'])->defaults('booking_type', 'tour_booking')->whereNumber('booking');

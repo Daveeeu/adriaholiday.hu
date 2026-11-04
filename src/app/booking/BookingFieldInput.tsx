@@ -1,6 +1,7 @@
 import { DATE_INPUT_MAX } from "../lib/dateInput";
 import {
   CHECKBOX_CHECKED_VALUE,
+  DEFERRED_FIELD_NOTE,
   FIELD_MAX_LENGTH,
   isBirthDateField,
   oldestBirthDateString,
@@ -176,7 +177,9 @@ export default function BookingFieldInput({ field, value, onChange, onBlur, erro
 }
 
 function FieldDescription({ field, className = "mt-1.5" }: { field: BookingFormField; className?: string }) {
-  const text = [field.description, field.priceLabel].filter(Boolean).join(" · ");
+  const text = [field.description, field.priceLabel, field.visibility === "deferred" ? DEFERRED_FIELD_NOTE : null]
+    .filter(Boolean)
+    .join(" · ");
 
   return text ? <span className={`${className} block text-sm text-gray-500`}>{text}</span> : null;
 }

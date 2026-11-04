@@ -557,8 +557,8 @@ export const bookingsChapter: GuideChapter = {
             'Minden sablon nélküli út foglalási űrlapján.',
           ),
           field(
-            'Mezők (Kötelező / Opcionális / Rejtett)',
-            'Mezőnként állítható: kötelező kitölteni, kitölthető, vagy nem jelenik meg. A nyilakkal a sorrend változtatható.',
+            'Mezők (Kötelező / Utólag e-mailben bekérjük / Opcionális / Rejtett)',
+            'Mezőnként állítható: kötelező kitölteni, kitölthető, vagy nem jelenik meg. Az „Utólag e-mailben bekérjük” mezőt az utas üresen hagyhatja; ilyenkor a foglalás után e-mailt kap egy linkkel, ahol pótolhatja, és az iroda értesítést kap, amikor megadta. Az e-mail cím nem kérhető be utólag. A nyilakkal a sorrend változtatható.',
             'A weboldal foglalási űrlapján.',
           ),
         ]),

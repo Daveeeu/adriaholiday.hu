@@ -16,7 +16,7 @@ use App\Support\Booking\DefaultBookingForm;
 class BookingFormFieldResolver
 {
     /**
-     * Visible (required or optional) fields in display order.
+     * Visible (required, deferred or optional) fields in display order.
      *
      * @return array<int, array{key: string, label: string, fieldType: string, inputGroup: string, options: array<int, string>|null, disabledOptions?: array<int, string>, description: string|null, priceLabel: string|null, visibility: string}>
      */

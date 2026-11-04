@@ -1,4 +1,4 @@
-export type BookingFormFieldVisibility = 'required' | 'optional' | 'hidden';
+export type BookingFormFieldVisibility = 'required' | 'deferred' | 'optional' | 'hidden';
 
 export type BookingFormInputGroup = 'contact' | 'passenger' | 'extra';
 

@@ -924,6 +924,8 @@ Public bookings are priced on the server by `App\Services\Booking\TourBookingPri
 
 Group quote requests for a custom date (min. `TourInquiry::MIN_PASSENGERS` = 20 people) go to `POST /api/tour-inquiries` (`TourInquiryService`), stored as `booking_type = tour_inquiry` with the requested period in `arrival`/`departure`. Tours without scheduled dates show only this form on the public site.
 
+Deferred booking details: a booking form template field may be `deferred` (admin: "Utólag e-mailben bekérjük") — needed, but the customer may book without it (the contact e-mail cannot be deferred: the link goes there). `BookingFormValidationService` lists the deferred fields left empty in `payload.pendingDetails` (`formData` keys, `passengers` index → keys). `BookingDetailsRequestService` e-mails the customer after booking (`BookingDetailsRequest`) a link to `/foglalas/adatok/{token}` (48 random characters; only the sha256 is stored in `bookings.details_token_hash`). That page reads and saves the details through `GET`/`POST /api/booking-details/{token}`: every pending field is required there, the values are merged into the payload (and the contact columns), the link is invalidated and the office is notified (`BookingDetailsCompletedOfficeNotification`). The admin booking detail lists what is still missing and can resend the link (`POST /api/admin/bookings/tour-bookings/{id}/details-request`, a new token replaces the old one). A field since removed from the tour's form is no longer asked.
+
 ---
 
 # Public Offer Search

@@ -61,6 +61,10 @@ class Booking extends Model
         'payload',
     ];
 
+    protected $hidden = [
+        'details_token_hash',
+    ];
+
     protected $casts = [
         'adults' => 'integer',
         'children' => 'integer',

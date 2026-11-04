@@ -47,6 +47,7 @@ export const BOOKING_FORM_VISIBILITY_LABELS: Record<
   string
 > = {
   required: 'Kötelező',
+  deferred: 'Utólag e-mailben bekérjük',
   optional: 'Opcionális',
   hidden: 'Rejtett',
 };

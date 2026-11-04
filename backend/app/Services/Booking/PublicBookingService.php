@@ -3,6 +3,7 @@
 namespace App\Services\Booking;
 
 use App\Models\Booking;
+use App\Models\BookingFormField;
 use App\Models\Coupon;
 use App\Models\Tour;
 use App\Models\TourDate;
@@ -16,7 +17,8 @@ use Illuminate\Validation\ValidationException;
 /**
  * Creates a Booking from a validated public booking submission: prices it
  * on the server, checks the tour date still has enough free seats, redeems
- * the coupon, persists the booking, and triggers the notification emails.
+ * the coupon, persists the booking, and triggers the notification emails,
+ * including the request for any details the customer left for later.
  */
 class PublicBookingService
 {
@@ -24,11 +26,12 @@ class PublicBookingService
         private readonly BookingNotificationService $notifications,
         private readonly TourBookingPriceCalculator $priceCalculator,
         private readonly NewsletterSubscriptionService $newsletter,
+        private readonly BookingDetailsRequestService $detailsRequest,
     ) {}
 
     /**
      * @param  array<string, mixed>  $validated
-     * @param  array{formData: array<string, mixed>, passengers: array<int, array<string, mixed>>}  $result
+     * @param  array{formData: array<string, mixed>, passengers: array<int, array<string, mixed>>, pendingDetails?: array<string, mixed>}  $result
      */
     public function submit(Tour $tour, array $validated, array $result): Booking
     {
@@ -50,6 +53,7 @@ class PublicBookingService
         });
 
         $this->notifications->sendNewBookingNotifications($booking, $tour);
+        $this->detailsRequest->send($booking);
 
         // The booking form's "Szeretnék hírlevélben értesülni" box, as on the legacy site.
         if (($validated['newsletter_subscribe'] ?? false) && filled($booking->email)) {
@@ -116,7 +120,7 @@ class PublicBookingService
 
     /**
      * @param  array<string, mixed>  $validated
-     * @param  array{formData: array<string, mixed>, passengers: array<int, array<string, mixed>>}  $result
+     * @param  array{formData: array<string, mixed>, passengers: array<int, array<string, mixed>>, pendingDetails?: array<string, mixed>}  $result
      * @param  array<string, mixed>|null  $pricing  breakdown from TourBookingPriceCalculator
      */
     private function createBooking(Tour $tour, ?TourDate $tourDate, array $validated, array $result, bool $seatsReserved, ?array $pricing): Booking
@@ -133,11 +137,9 @@ class PublicBookingService
             'tour_id' => $tour->id,
             'tour_date_id' => $tourDate?->id,
             'offer_name_snapshot' => $tour->name,
-            'customer_name' => $formData['contact_name'] ?? null,
-            'email' => $formData['contact_email'] ?? null,
-            'phone' => $formData['contact_phone'] ?? null,
-            'city' => $formData['contact_city'] ?? null,
-            'address' => $formData['contact_address'] ?? null,
+            ...collect(BookingFormField::CONTACT_COLUMNS)
+                ->mapWithKeys(fn (string $column, string $key): array => [$column => $formData[$key] ?? null])
+                ->all(),
             'passenger_count' => count($passengers) ?: ($validated['participants'] ?? null),
             'departure_date' => $tourDate?->start_date,
             'notes' => $formData['note'] ?? null,
@@ -151,6 +153,8 @@ class PublicBookingService
                 'participants' => $validated['participants'] ?? null,
                 'formData' => $formData,
                 'passengers' => $passengers,
+                // Deferred fields left empty, asked for later by e-mail.
+                ...(($result['pendingDetails'] ?? []) !== [] ? ['pendingDetails' => $result['pendingDetails']] : []),
                 'pricing' => $pricing,
                 // Proof that the customer accepted the terms and the privacy policy.
                 'termsAcceptedAt' => now()->toIso8601String(),

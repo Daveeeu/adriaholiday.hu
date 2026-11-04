@@ -8,6 +8,7 @@ import { BookingExportActions } from './booking-detail/booking-export-actions';
 import { BookingPassengersCard } from './booking-detail/booking-passengers-card';
 import { BookingPaymentScheduleCard } from './booking-detail/booking-payment-schedule-card';
 import { BookingPaymentsCard } from './booking-detail/booking-payments-card';
+import { BookingPendingDetailsCard } from './booking-detail/booking-pending-details-card';
 import { BookingPricingCard } from './booking-detail/booking-pricing-card';
 import { BookingRawDataAccordion } from './booking-detail/booking-raw-data-accordion';
 import { BookingStatusCard } from './booking-detail/booking-status-card';
@@ -35,6 +36,7 @@ export function TourBookingDetailPanel({ booking }: { booking: TourBookingDetail
 
         <div className="space-y-4">
           <BookingStatusCard booking={booking} />
+          <BookingPendingDetailsCard booking={booking} />
           <BookingAdminNoteCard booking={booking} />
           <BookingTimeline booking={booking} />
           <BookingEmailHistoryCard booking={booking} />

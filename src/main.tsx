@@ -28,6 +28,7 @@ const NotFoundRoute = lazy(() => import("./app/routes/NotFoundRoute"));
 const CmsPageRoute = lazy(() => import("./app/routes/CmsPageRoute"));
 const TravelClubRoute = lazy(() => import("./app/routes/TravelClubRoute"));
 const PaymentResultRoute = lazy(() => import("./app/routes/PaymentResultRoute"));
+const BookingDetailsRoute = lazy(() => import("./app/routes/BookingDetailsRoute"));
 const ApartmentLocationRoute = lazy(() => import("./app/apartments/ApartmentLocationRoute"));
 const ApartmentRoute = lazy(() => import("./app/apartments/ApartmentRoute"));
 const SalesAssistantRoute = lazy(() => import("./app/sales-assistant/SalesAssistantRoute"));
@@ -72,6 +73,7 @@ const router = createBrowserRouter([
         element: <StaticPage title="Biztosítások" canonicalPath={INSURANCE_PATH} />,
       },
       { path: "fizetes/eredmeny", element: <PaymentResultRoute /> },
+      { path: "foglalas/adatok/:token", element: <BookingDetailsRoute /> },
       { path: SALES_ASSISTANT_PATH.slice(1), element: <SalesAssistantRoute /> },
       { path: ":pageSlug", element: <CmsPageRoute /> },
       { path: "*", element: <NotFoundRoute /> },

@@ -43,7 +43,7 @@ const templateFormSchema = z.object({
   fields: z.array(
     z.object({
       fieldId: z.union([z.string(), z.number()]),
-      visibility: z.enum(['required', 'optional', 'hidden']),
+      visibility: z.enum(['required', 'deferred', 'optional', 'hidden']),
       sortOrder: z.number(),
     }),
   ),
@@ -70,6 +70,7 @@ function VisibilityBadge({
       className={cn(
         'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
         visibility === 'required' && 'bg-emerald-100 text-emerald-700',
+        visibility === 'deferred' && 'bg-amber-100 text-amber-700',
         visibility === 'optional' && 'bg-sky-100 text-sky-700',
         visibility === 'hidden' && 'bg-slate-100 text-slate-500',
       )}

@@ -1,6 +1,7 @@
 import { getBookingAnalyticsContext } from '../analytics/google-tag-manager';
 import { getStoredConsent } from '../analytics/storage';
 import { getPortfolioApiBaseUrl } from '../content/portfolio-api';
+import type { BookingFormField } from './booking-form-fields';
 import type { PassengerOptions } from './booking-pricing';
 
 export type BookingFormData = Record<string, string>;
@@ -81,6 +82,16 @@ export type BookingPaymentResult = {
   canRetry: boolean;
 };
 
+/** A booking's details left for later, as the e-mailed link's page asks them. */
+export type PendingBookingDetails = {
+  bookingId: number;
+  tourName: string | null;
+  departureDate: string | null;
+  customerName: string | null;
+  formDataFields: BookingFormField[];
+  passengers: Array<{ index: number; title: string; fields: BookingFormField[] }>;
+};
+
 export class BookingApiError extends Error {
   status: number;
 
@@ -134,6 +145,21 @@ export async function retryBookingPayment(paymentId: string): Promise<string> {
   return response.paymentUrl;
 }
 
+/** The details still to be given for the booking the e-mailed link belongs to. */
+export async function fetchPendingBookingDetails(token: string): Promise<PendingBookingDetails> {
+  const response = await request<{ data: PendingBookingDetails }>('GET', `/booking-details/${encodeURIComponent(token)}`);
+
+  return response.data;
+}
+
+/** Gives the pending details; passengers are keyed by their position in the booking. */
+export async function completeBookingDetails(
+  token: string,
+  payload: { formData: BookingFormData; passengers: Record<number, BookingPassenger> },
+): Promise<void> {
+  await request('POST', `/booking-details/${encodeURIComponent(token)}`, payload);
+}
+
 async function request<T>(method: 'GET' | 'POST', path: string, payload?: unknown): Promise<T> {
   const response = await fetch(`${getPortfolioApiBaseUrl()}${path}`, {
     method,
@@ -157,6 +183,10 @@ async function request<T>(method: 'GET' | 'POST', path: string, payload?: unknow
     }
 
     throw new BookingApiError(response.status, message);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return (await response.json()) as T;

@@ -1,4 +1,10 @@
-export type BookingFieldVisibility = "required" | "optional";
+/**
+ * deferred: needed, but may be left empty when booking; the customer is then
+ * e-mailed a link to give it later.
+ */
+export type BookingFieldVisibility = "required" | "deferred" | "optional";
+
+export const DEFERRED_FIELD_NOTE = "Ha most nem tudod, később is megadhatod: e-mailben elküldjük hozzá a linket.";
 
 /**
  * contact: asked once on the contact step.

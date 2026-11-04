@@ -12,7 +12,8 @@ use DateTimeImmutable;
  * resolved for the tour (see BookingFormFieldResolver), checks each value
  * against its field type and the well-known fields' formats (full name,
  * postal code, birth date), and strips any values that don't belong to a
- * visible (required or optional) field. The booking form in the public site
+ * visible (required, deferred or optional) field. Deferred fields left empty
+ * are listed as the booking's pending details. The booking form in the public site
  * (src/app/booking/booking-form-fields.ts) applies the same rules and messages.
  */
 class BookingFormValidationService
@@ -49,7 +50,7 @@ class BookingFormValidationService
     /**
      * @param  array<string, mixed>  $formData
      * @param  array<int, array<string, mixed>>  $passengers
-     * @return array{errors: array<string, string>, formData: array<string, mixed>, passengers: array<int, array<string, mixed>>}
+     * @return array{errors: array<string, string>, formData: array<string, mixed>, passengers: array<int, array<string, mixed>>, pendingDetails: array{formData?: array<int, string>, passengers?: array<int, array<int, string>>}}
      */
     public function validate(Tour $tour, array $formData, array $passengers): array
     {
@@ -58,6 +59,7 @@ class BookingFormValidationService
         $errors = [];
         $filteredFormData = [];
         $passengerFieldDefs = [];
+        $pendingDetails = [];
 
         foreach ($fields as $fieldDef) {
             if ($fieldDef['inputGroup'] === BookingFormField::PASSENGER_GROUP) {
@@ -76,6 +78,8 @@ class BookingFormValidationService
 
             if ($value !== '') {
                 $filteredFormData[$fieldDef['key']] = $value;
+            } elseif ($this->isDeferred($fieldDef)) {
+                $pendingDetails['formData'][] = $fieldDef['key'];
             }
         }
 
@@ -102,13 +106,42 @@ class BookingFormValidationService
 
                 if ($value !== '') {
                     $filteredPassenger[$fieldDef['key']] = $value;
+                } elseif ($this->isDeferred($fieldDef)) {
+                    $pendingDetails['passengers'][$index][] = $fieldDef['key'];
                 }
             }
 
             $filteredPassengers[] = $filteredPassenger;
         }
 
-        return ['errors' => $errors, 'formData' => $filteredFormData, 'passengers' => $filteredPassengers];
+        return [
+            'errors' => $errors,
+            'formData' => $filteredFormData,
+            'passengers' => $filteredPassengers,
+            'pendingDetails' => $pendingDetails,
+        ];
+    }
+
+    /**
+     * Checks a value the customer gives later for a deferred field, which is
+     * required by then.
+     *
+     * @param  array{key: string, label: string, fieldType: string, options: array<int, string>|null, disabledOptions?: array<int, string>, visibility: string}  $fieldDef
+     * @return array{value: string, error: string|null}
+     */
+    public function validateRequiredValue(array $fieldDef, mixed $value): array
+    {
+        $value = $this->sanitizeValue($value);
+
+        return ['value' => $value, 'error' => $this->validateValue([...$fieldDef, 'visibility' => 'required'], $value)];
+    }
+
+    /**
+     * @param  array{visibility: string}  $fieldDef
+     */
+    private function isDeferred(array $fieldDef): bool
+    {
+        return $fieldDef['visibility'] === BookingFormField::VISIBILITY_DEFERRED;
     }
 
     /**

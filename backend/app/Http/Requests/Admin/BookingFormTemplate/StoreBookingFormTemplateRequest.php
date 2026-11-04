@@ -6,6 +6,7 @@ use App\Models\BookingFormField;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreBookingFormTemplateRequest extends FormRequest
 {
@@ -48,5 +49,22 @@ class StoreBookingFormTemplateRequest extends FormRequest
             'fields.*.visibility' => ['required', 'string', Rule::in(BookingFormField::VISIBILITIES)],
             'fields.*.sort_order' => ['nullable', 'integer', 'min:0'],
         ];
+    }
+
+    /**
+     * The link for deferred details is sent to the contact e-mail, so that
+     * one cannot be deferred itself.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $emailFieldId = BookingFormField::query()->where('key', 'contact_email')->value('id');
+
+            foreach ($this->input('fields', []) as $index => $field) {
+                if ((int) ($field['field_id'] ?? 0) === $emailFieldId && ($field['visibility'] ?? null) === BookingFormField::VISIBILITY_DEFERRED) {
+                    $validator->errors()->add("fields.{$index}.visibility", 'Az e-mail cím nem kérhető be utólag, hiszen arra küldjük a linket.');
+                }
+            }
+        });
     }
 }

@@ -8,6 +8,7 @@ import type {
   BookingAnalyticsEvent,
   BookingDynamicField,
   BookingEmailLog,
+  BookingPendingDetails,
   ContactMessage,
   ContactMessageFormValues,
   Coupon,
@@ -104,6 +105,7 @@ type BookingDetailResource = BookingResource & {
   adminNote: string | null;
   seatsReserved: boolean;
   formDataFields: BookingDynamicField[];
+  pendingDetails?: BookingPendingDetails[];
   passengerFields: BookingDynamicField[][];
   pricing?: TourBookingPricing | null;
   payments?: TourBookingPayment[];
@@ -148,6 +150,7 @@ function mapTourBookingDetail(resource: BookingDetailResource): TourBookingDetai
     seatsReserved: resource.seatsReserved,
     formDataFields: resource.formDataFields ?? [],
     passengerFields: resource.passengerFields ?? [],
+    pendingDetails: resource.pendingDetails ?? [],
     pricing: resource.pricing ?? null,
     payments: resource.payments ?? [],
     paymentSchedule: resource.paymentSchedule ?? null,
@@ -360,6 +363,11 @@ export async function getTourBookingEmails(id: string): Promise<BookingEmailLog[
     `/api/admin/bookings/tour-bookings/${id}/emails`,
   );
   return Array.isArray(response) ? response : response.data;
+}
+
+/** E-mails the customer a new link for the details they left for later. */
+export function resendTourBookingDetailsRequest(id: string) {
+  return apiClient.post<void>(`/api/admin/bookings/tour-bookings/${id}/details-request`);
 }
 
 /** Downloads the booking's details as a branded PDF. */

@@ -14,10 +14,12 @@ use App\Http\Resources\BookingEmailLogResource;
 use App\Http\Resources\BookingResource;
 use App\Models\AnalyticsEvent;
 use App\Models\Booking;
+use App\Services\Booking\BookingDetailsRequestService;
 use App\Services\Booking\BookingTravelBook;
 use App\Services\Booking\TourBookingStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Models\Activity;
 
 class BookingController extends Controller
@@ -30,7 +32,7 @@ class BookingController extends Controller
         $this->middleware('permission:bookings.viewAny')->only('index');
         $this->middleware('permission:bookings.view')->only(['show', 'activities', 'analytics', 'emails', 'pdf']);
         $this->middleware('permission:bookings.create')->only('store');
-        $this->middleware('permission:bookings.update')->only('update');
+        $this->middleware('permission:bookings.update')->only(['update', 'sendDetailsRequest']);
         $this->middleware('permission:bookings.delete')->only('destroy');
         $this->middleware('permission:bookings.status')->only('status');
         $this->middleware('permission:bookings.export')->only('export');
@@ -221,6 +223,24 @@ class BookingController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$travelBook->fileName($booking).'"',
         ]);
+    }
+
+    /**
+     * E-mails the customer a new link for the booking details they left for
+     * later; the earlier link stops working.
+     */
+    public function sendDetailsRequest(Request $request, Booking $booking, BookingDetailsRequestService $detailsRequest)
+    {
+        $this->ensureBookingTypeMatches($request, $booking);
+        $this->authorize('update', $booking);
+
+        if (! $detailsRequest->send($booking)) {
+            throw ValidationException::withMessages([
+                'booking' => 'Ehhez a foglaláshoz nincs bekérendő adat, vagy hiányzik az ügyfél e-mail címe.',
+            ]);
+        }
+
+        return response()->noContent();
     }
 
     public function export(Request $request)
