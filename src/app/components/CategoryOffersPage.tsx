@@ -25,6 +25,7 @@ import ActiveOfferSearch from "./ActiveOfferSearch";
 import CountryFlag from "./CountryFlag";
 import FilterChipIcon from "./FilterChipIcon";
 import TripFinderDialog from "./TripFinderDialog";
+import { choiceHelpBannerIndex } from "../lib/choiceHelpPlacement";
 import { companyYears } from "../lib/companyYears";
 import {
   fetchPortfolioCategoryCountries,
@@ -525,8 +526,8 @@ export default function CategoryOffersPage({
     resultsRef.current?.focus({ preventScroll: true });
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  const choiceHelpBannerIndex = showHighlights
-    ? Math.min(CHOICE_HELP_AFTER_CARD_COUNT, itemCards.length) - 1
+  const choiceHelpBannerAfterIndex = showHighlights
+    ? choiceHelpBannerIndex(CHOICE_HELP_AFTER_CARD_COUNT, totalCount)
     : -1;
   const resultCountLabel = hasActiveFilters
     ? `${totalCount} elérhető utazás a kiválasztott szűrők alapján.`
@@ -803,7 +804,7 @@ export default function CategoryOffersPage({
                   {itemCards.map((offer, index) => (
                     <Fragment key={`result-${offer.card.id}`}>
                       <ResultOfferCard offer={offer} onOfferSelect={onOfferSelect} />
-                      {index === choiceHelpBannerIndex ? (
+                      {index === choiceHelpBannerAfterIndex ? (
                         <div className="col-span-full">
                           <ChoiceHelpBanner
                             totalCount={totalCount}
