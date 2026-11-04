@@ -29,10 +29,12 @@ trait ValidatesTourBookingOptions
                 ...(isset($extra['currency']) ? ['currency' => $extra['currency']] : []),
                 'price_unit' => $extra['price_unit'] ?? $extra['priceUnit'] ?? TourExtraPriceUnit::PER_PERSON,
                 'charge_rule' => $extra['charge_rule'] ?? $extra['chargeRule'] ?? TourExtraChargeRule::OPTIONAL,
-                // Accepts a list or one choice per line (the admin form's textarea).
+                // Accepts a list or one choice per line (the admin form's textarea);
+                // a repeated choice is kept once.
                 'choices' => collect(is_string($extra['choices'] ?? null) ? preg_split('/\R/', $extra['choices']) : ($extra['choices'] ?? []))
                     ->map(fn (mixed $choice): string => trim((string) $choice))
                     ->filter()
+                    ->unique()
                     ->values()
                     ->all(),
                 'sort_order' => $extra['sort_order'] ?? $extra['sortOrder'] ?? ($index + 1),
@@ -55,7 +57,9 @@ trait ValidatesTourBookingOptions
             'dates.*.extras.*.price_unit' => ['required', 'string', Rule::in(TourExtraPriceUnit::all())],
             'dates.*.extras.*.charge_rule' => ['required', 'string', Rule::in(TourExtraChargeRule::all())],
             'dates.*.extras.*.choices' => ['array', 'max:5'],
-            'dates.*.extras.*.choices.*' => ['string', 'max:255', 'distinct'],
+            // No `distinct`: across nested wildcards it compares the choices of
+            // every extra of every date, so dates sharing a choice could not be saved.
+            'dates.*.extras.*.choices.*' => ['string', 'max:255'],
             'dates.*.extras.*.sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }

@@ -821,6 +821,28 @@ class AdminToursTest extends TestCase
         $duplicate->assertJsonPath('data.dates.0.extras.2.choices.1', 'Szeretnék szobatársat');
     }
 
+    public function test_dates_may_share_extra_choices_and_repeated_choices_of_one_extra_are_merged(): void
+    {
+        $this->actingAsTourAdmin();
+        $soloSupplement = [
+            'name' => 'Egyágyas felár',
+            'price' => 29800,
+            'priceUnit' => 'per_person',
+            'chargeRule' => 'solo_traveller',
+            'choices' => "Egyedül szeretnék lenni a szobában\nSzeretnék szobatársat\nSzeretnék szobatársat",
+        ];
+
+        $this->postJson('/api/admin/tours', $this->payload([
+            'seo_name' => 'kozos-valasztasok',
+            'dates' => [
+                ['startDate' => '2027-05-21', 'endDate' => '2027-05-24', 'price' => 99800, 'status' => 'available', 'extras' => [$soloSupplement]],
+                ['startDate' => '2027-08-13', 'endDate' => '2027-08-16', 'price' => 99800, 'status' => 'available', 'extras' => [$soloSupplement]],
+            ],
+        ]))->assertCreated()
+            ->assertJsonPath('data.dates.0.extras.0.choices', ['Egyedül szeretnék lenni a szobában', 'Szeretnék szobatársat'])
+            ->assertJsonPath('data.dates.1.extras.0.choices', ['Egyedül szeretnék lenni a szobában', 'Szeretnék szobatársat']);
+    }
+
     public function test_saving_a_tour_keeps_its_dates_so_bookings_stay_linked(): void
     {
         $this->actingAsTourAdmin();
