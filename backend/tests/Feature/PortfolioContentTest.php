@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\PortfolioContentBlock;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -68,7 +69,7 @@ class PortfolioContentTest extends TestCase
             ->json();
 
         $this->assertCount(6, $response['about.team.members']['value'] ?? []);
-        $this->assertSame('Szakálos Zsanett', $response['about.team.members']['value'][0]['name'] ?? null);
+        $this->assertSame('Sziman Zita', $response['about.team.members']['value'][0]['name'] ?? null);
         $this->assertArrayHasKey('about.team.member.6.image', $response);
     }
 
@@ -95,16 +96,63 @@ class PortfolioContentTest extends TestCase
         copy($photo->getPathname(), $renamed);
         $this->beforeApplicationDestroyed(static fn () => @unlink($renamed));
 
-        $this->artisan('adria:set-content-image', ['key' => 'about.team.member.6.image', 'path' => $renamed])
+        $this->artisan('adria:set-content-image', ['key' => 'about.team.member.2.image', 'path' => $renamed])
             ->assertSuccessful();
 
         $image = $this->getJson('/api/portfolio/content?page=about')
             ->assertOk()
-            ->json()['about.team.member.6.image']['value'] ?? null;
+            ->json()['about.team.member.2.image']['value'] ?? null;
 
         $this->assertSame('kovacs-eszter.jpg', $image['fileName'] ?? null);
         $this->assertSame('Kovács Eszter', $image['alt'] ?? null);
         $this->assertFileExists($renamed);
+    }
+
+    public function test_a_photo_left_in_the_collection_of_an_old_key_is_reattached_to_its_block(): void
+    {
+        Storage::fake(config('media-library.disk_name'));
+        $photo = UploadedFile::fake()->image('portre.jpg', 600, 800);
+        $this->artisan('adria:set-content-image', ['key' => 'about.team.member.4.image', 'path' => $photo->getPathname()])
+            ->assertSuccessful();
+
+        // A reorder renamed the block but not its media collection.
+        $block = PortfolioContentBlock::query()->where('key', 'about.team.member.1.image')->firstOrFail();
+        $block->update(['key' => 'about.team.member.1.image.moving']);
+        PortfolioContentBlock::query()->where('key', 'about.team.member.4.image')->update(['key' => 'about.team.member.1.image']);
+        $block->update(['key' => 'about.team.member.4.image']);
+
+        $this->assertNull($this->publicAboutImage('about.team.member.1.image'));
+
+        $this->artisan('migrate:refresh', ['--path' => 'database/migrations/2026_11_04_100000_reattach_content_block_photos_to_their_blocks.php'])
+            ->assertSuccessful();
+
+        $this->assertNotNull($this->publicAboutImage('about.team.member.1.image'));
+        $this->assertNull($this->publicAboutImage('about.team.member.4.image'));
+    }
+
+    public function test_the_seventh_to_ninth_team_members_accept_portraits(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Super Admin');
+
+        Sanctum::actingAs($user);
+        Storage::fake(config('media-library.disk_name'));
+
+        $this->postJson('/api/admin/portfolio/content/about.team.member.9.image/media', [
+            'file' => UploadedFile::fake()->image('portre.jpg', 600, 800),
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.key', 'about.team.member.9.image');
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function publicAboutImage(string $key): ?array
+    {
+        $value = $this->getJson('/api/portfolio/content?page=about')->assertOk()->json()[$key]['value'] ?? null;
+
+        return isset($value['url']) ? $value : null;
     }
 
     public function test_set_content_image_command_rejects_non_media_blocks(): void
