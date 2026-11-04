@@ -165,6 +165,7 @@ export function TourDeparturePlacesPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: [...queryKey, queryParams],
     queryFn: () => getTourDeparturePlaces(queryParams),
+    placeholderData: (previous) => previous,
   });
 
   useEffect(() => {

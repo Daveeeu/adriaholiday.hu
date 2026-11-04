@@ -697,6 +697,7 @@ export function GalleriesPage() {
         page,
         perPage: 24,
       }),
+    placeholderData: (previous) => previous,
   });
 
   const listFilterKey = `${search}|${category}|${sort}`;

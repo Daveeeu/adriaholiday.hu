@@ -218,6 +218,7 @@ export function TourSeasonalGroupsPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: [...queryKey, queryParams],
     queryFn: () => getTourSeasonalGroups(queryParams),
+    placeholderData: (previous) => previous,
   });
 
   useEffect(() => {

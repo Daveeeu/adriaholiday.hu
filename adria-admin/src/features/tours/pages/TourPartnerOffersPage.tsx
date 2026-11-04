@@ -278,6 +278,7 @@ export function TourPartnerOffersPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: [...queryKey, queryParams],
     queryFn: () => getTourPartnerOffers(queryParams),
+    placeholderData: (previous) => previous,
   });
 
   useEffect(() => {

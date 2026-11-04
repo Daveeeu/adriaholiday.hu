@@ -295,6 +295,7 @@ export function TourRegionGroupsPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: [...queryKey, queryParams],
     queryFn: () => getTourRegionGroups(queryParams),
+    placeholderData: (previous) => previous,
   });
 
   useEffect(() => {

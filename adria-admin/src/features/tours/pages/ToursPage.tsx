@@ -198,6 +198,7 @@ export function ToursPage() {
   } = useQuery({
     queryKey: [...toursQueryKey, queryParams],
     queryFn: () => getTours(queryParams),
+    placeholderData: (previous) => previous,
   });
 
   const selectedTourId = selectedTour?.id;

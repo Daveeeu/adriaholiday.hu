@@ -1222,7 +1222,7 @@ function PassengerCountField({ count, max, onChange }: { count: number; max: num
   return (
     <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-[#f5f9fc] p-4">
       <div>
-        <div className="font-bold text-[#0f172a]">Hányan utaztok?</div>
+        <div className="font-bold text-[#0f172a]">Mennyien utaztok?</div>
         <div className="text-sm text-gray-500">Az árat és a felárakat a létszám szerint számoljuk.</div>
       </div>
 
