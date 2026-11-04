@@ -16,6 +16,7 @@
         .meta { font-size: 10px; color: #cbd5e1; }
         .status { display: inline-block; padding: 3px 10px; border-radius: 10px; background: #00c389; color: #fff; font-size: 9.5px; font-weight: bold; }
         .content { padding: 22px 40px 0; }
+        .route-map { width: 100%; border-radius: 10px; margin-bottom: 14px; }
         .section { margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; }
         .section-title { font-size: 12.5px; font-weight: bold; color: #0f172a; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 2px solid #00c389; }
         table { width: 100%; border-collapse: collapse; }
@@ -189,8 +190,12 @@
             </div>
         @endif
 
-        @if ($programDays->isNotEmpty() || $programHtml || $programFooterHtml || $includedItems->isNotEmpty() || $excludedItems->isNotEmpty() || $tripNotes)
+        @if ($routeMap || $programDays->isNotEmpty() || $programHtml || $programFooterHtml || $includedItems->isNotEmpty() || $excludedItems->isNotEmpty() || $tripNotes)
             <div class="program">
+                @if ($routeMap)
+                    <p class="program-title">Útvonal</p>
+                    <img class="route-map" src="{{ $routeMap }}" alt="Az utazás útvonala">
+                @endif
                 @if ($programDays->isEmpty() && $programHtml)
                     <p class="program-title">Program</p>
                     <div class="day-body">{!! $programHtml !!}</div>

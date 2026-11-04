@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/api-client';
 
 import type {
+  RouteStopPlace,
   TourDeparturePlace,
   TourDeparturePlaceFormValues,
   TourDeparturePlaceListQuery,
@@ -17,6 +18,7 @@ import type {
   TourRegionGroupFormValues,
   TourRegionGroupListQuery,
   TourRegionGroupListResponse,
+  TourRouteStop,
   TourSeasonalGroup,
   TourSeasonalGroupFormValues,
   TourSeasonalGroupListQuery,
@@ -258,4 +260,23 @@ export function suggestTourSearchKeywords(shortDescription: string): Promise<str
   return apiClient
     .post<ResourceEnvelope<string[]>>('/api/admin/tours/search-keyword-suggestions', { shortDescription })
     .then((response) => response.data);
+}
+
+/** Places matching the name, to add as route map stops. */
+export function searchRouteStopPlaces(query: string, signal?: AbortSignal): Promise<RouteStopPlace[]> {
+  return apiClient
+    .get<ResourceEnvelope<RouteStopPlace[]>>('/api/admin/tours/route-stop-places', { query: { q: query }, signal })
+    .then((response) => response.data);
+}
+
+/** Place names the saved program's day headings mention, to start the route from. */
+export function getRouteStopSuggestions(tourId: string): Promise<string[]> {
+  return apiClient
+    .get<ResourceEnvelope<string[]>>(`/api/admin/tours/${tourId}/route-stop-suggestions`)
+    .then((response) => response.data);
+}
+
+/** The route map of stops not saved yet, as a PNG. */
+export function previewRouteMap(routeStops: TourRouteStop[], signal?: AbortSignal): Promise<Blob> {
+  return apiClient.postForFile('/api/admin/tours/route-map-preview', { routeStops }, { signal });
 }

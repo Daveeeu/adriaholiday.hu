@@ -22,6 +22,7 @@ use App\Services\Tour\TourPdfService;
 use App\Support\PartnerXml\PartnerXmlSettings;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
+use App\Support\Tour\TourRouteStops;
 use App\Support\TourSearchIndex;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -426,6 +427,10 @@ class TourController extends Controller
 
         if (array_key_exists('program_footer', $validated)) {
             $content['program_footer'] = RichTextSanitizer::sanitize($validated['program_footer']);
+        }
+
+        if (array_key_exists('route_stops', $validated)) {
+            $content['route_stops'] = TourRouteStops::normalize($validated['route_stops']) ?: null;
         }
 
         if (array_key_exists('partner_xml', $validated)) {

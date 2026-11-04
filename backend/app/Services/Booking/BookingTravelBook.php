@@ -3,6 +3,7 @@
 namespace App\Services\Booking;
 
 use App\Models\Booking;
+use App\Services\Tour\RouteMap\TourRouteMapService;
 use App\Support\Booking\BookingDocumentData;
 use App\Support\Booking\TourBookingStatus;
 use App\Support\DocumentBranding;
@@ -19,6 +20,8 @@ use Illuminate\Support\Str;
  */
 class BookingTravelBook
 {
+    public function __construct(private readonly TourRouteMapService $routeMaps) {}
+
     public function pdf(Booking $booking, bool $internal = false): string
     {
         return Pdf::loadHTML($this->html($booking, $internal))->output();
@@ -38,6 +41,7 @@ class BookingTravelBook
             'statusLabel' => TourBookingStatus::label((string) $booking->status),
             'programDays' => $tour?->programDays ?? collect(),
             'programHtml' => RichTextSanitizer::sanitize($tour?->program),
+            'routeMap' => $tour ? $this->routeMaps->dataUri($tour) : null,
             'programFooterHtml' => RichTextSanitizer::sanitize($tour?->program_footer),
             'includedItems' => $tour?->priceItems->where('type', 'included')->values() ?? collect(),
             'excludedItems' => $tour?->priceItems->where('type', 'excluded')->values() ?? collect(),

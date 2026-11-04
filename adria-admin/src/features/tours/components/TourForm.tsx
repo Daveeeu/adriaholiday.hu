@@ -32,6 +32,7 @@ import { TourProgramDaysSection } from './TourProgramDaysSection';
 import { TourDateDeparturePlacesEditor } from './TourDateDeparturePlacesEditor';
 import { TourDateExtrasEditor } from './TourDateExtrasEditor';
 import { TourPriceItemsSection } from './TourPriceItemsSection';
+import { TourRouteMapSection } from './TourRouteMapSection';
 import { TourDatePartnerXmlFields } from './TourDatePartnerXmlFields';
 import { TourPartnerXmlSection } from './TourPartnerXmlSection';
 import { TourSeoSection } from './TourSeoSection';
@@ -49,6 +50,7 @@ type TourPanelSectionKey =
   | 'priceBox'
   | 'content'
   | 'programDays'
+  | 'routeMap'
   | 'priceItems'
   | 'filters'
   | 'dates'
@@ -63,6 +65,7 @@ const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
   priceBox: true,
   content: false,
   programDays: false,
+  routeMap: false,
   priceItems: false,
   filters: true,
   dates: true,
@@ -168,6 +171,7 @@ export function TourForm({ form, tour }: TourFormProps) {
   const gallery = useWatch({ control: form.control, name: 'gallery' }) ?? [];
   const programDays = useWatch({ control: form.control, name: 'programDays' }) ?? [];
   const priceItems = useWatch({ control: form.control, name: 'priceItems' }) ?? [];
+  const routeStopCount = (useWatch({ control: form.control, name: 'routeStops' }) ?? []).length;
   const [openSections, setOpenSections] = useState(DEFAULT_OPEN_SECTIONS);
 
   const sectionCounts = useMemo(
@@ -195,6 +199,7 @@ export function TourForm({ form, tour }: TourFormProps) {
       priceBox: open,
       content: open,
       programDays: open,
+      routeMap: open,
       priceItems: open,
       filters: open,
       dates: open,
@@ -505,6 +510,16 @@ export function TourForm({ form, tour }: TourFormProps) {
         onToggle={() => toggleSection('programDays')}
       >
         <TourProgramDaysSection form={form} />
+      </TourPanelSection>
+
+      <TourPanelSection
+        title="Útvonal térkép"
+        description="A megállók, amelyekből a rendszer térképet rajzol az utazás oldalára és a PDF-ekbe."
+        countLabel={`${routeStopCount} megálló`}
+        open={openSections.routeMap}
+        onToggle={() => toggleSection('routeMap')}
+      >
+        <TourRouteMapSection form={form} tourId={tour?.id ? String(tour.id) : undefined} />
       </TourPanelSection>
 
       <TourPanelSection

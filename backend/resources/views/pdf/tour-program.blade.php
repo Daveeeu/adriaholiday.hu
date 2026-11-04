@@ -233,6 +233,11 @@
             font-size: 12px;
         }
 
+        .route-map {
+            width: 100%;
+            border-radius: 10px;
+        }
+
         h2 {
             margin: 20px 0 10px;
             padding: 7px 12px;
@@ -461,6 +466,11 @@
         @if ($content['programBefore'])
             <h2>Az utazásról</h2>
             <div>{!! $content['programBefore'] !!}</div>
+        @endif
+
+        @if ($routeMap)
+            <h2>Útvonal</h2>
+            <img class="route-map" src="{{ $routeMap }}" alt="Az utazás útvonala">
         @endif
 
         @if ($programDays->isEmpty() && $content['program'])

@@ -135,6 +135,8 @@ export type PortfolioOfferDetail = {
   program?: string | null;
   /** The text under the program. */
   programFooter?: string | null;
+  /** The route map the server draws from the tour's stops; null: the tour has none. */
+  routeMap?: { url: string; alt: string } | null;
   /** The tour's own search engine title and description; empty: its name and short description. */
   seoTitle?: string | null;
   seoDescription?: string | null;

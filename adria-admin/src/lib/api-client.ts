@@ -169,6 +169,11 @@ async function file(path: string, options?: RequestOptions): Promise<{ blob: Blo
   return { blob: await response.blob(), fileName: attachmentFileName(response) };
 }
 
+/** A file the API makes from the posted data (e.g. a preview image). */
+async function postForFile(path: string, body?: unknown, options?: RequestOptions): Promise<Blob> {
+  return (await send('POST', path, { ...options, body })).blob();
+}
+
 /** Downloads a file the API serves and saves it in the browser. */
 async function download(path: string, fallbackFileName: string, options?: RequestOptions): Promise<void> {
   const { blob, fileName } = await file(path, options);
@@ -199,6 +204,7 @@ export const apiClient = {
     return request<T>('PUT', path, { ...options, body });
   },
   file,
+  postForFile,
   download,
 };
 

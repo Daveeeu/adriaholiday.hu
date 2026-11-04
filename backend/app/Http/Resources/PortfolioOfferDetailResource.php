@@ -5,9 +5,11 @@ namespace App\Http\Resources;
 use App\Models\Tour;
 use App\Services\Booking\BookingFormFieldResolver;
 use App\Services\Booking\BookingPaymentService;
+use App\Services\Tour\RouteMap\TourRouteMapService;
 use App\Support\Booking\BookingInsuranceSettings;
 use App\Support\RichTextSanitizer;
 use App\Support\Seo\RobotsDirective;
+use App\Support\Tour\TourRouteStops;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -23,7 +25,8 @@ class PortfolioOfferDetailResource extends TourDetailResource
         $priceItems = $tour->priceItems->where('active', true)->sortBy('sort_order')->values();
 
         $data = parent::toArray($request);
-        unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate'], $data['partnerXml']);
+        unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate'], $data['partnerXml'], $data['routeStops']);
+        $routeMapUrl = app(TourRouteMapService::class)->url($tour);
 
         $sanitizeContent = function (?string $value, bool $jsonAsNull = false): ?string {
             $trimmed = trim((string) $value);
@@ -68,6 +71,10 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'programBefore' => $sanitizeContent($tour->program_before),
             'program' => $sanitizeContent($tour->program),
             'programFooter' => $sanitizeContent($tour->program_footer),
+            'routeMap' => $routeMapUrl !== null ? [
+                'url' => $routeMapUrl,
+                'alt' => 'Az utazás útvonala: '.implode(' – ', array_column(TourRouteStops::normalize($tour->route_stops), 'name')),
+            ] : null,
             'robots' => RobotsDirective::restrictive($tour->seo_robots),
             'inclusions' => $sanitizeContent($tour->inclusions),
             'paymentProgram' => $sanitizeContent($tour->payment_program),

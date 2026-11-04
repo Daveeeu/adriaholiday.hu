@@ -902,6 +902,32 @@ class AdminToursTest extends TestCase
         $this->assertSame('2 ágyas szoba', Tour::query()->findOrFail($tourId)->accommodation_info);
     }
 
+    public function test_route_stops_are_saved_and_kept_when_a_form_leaves_them_out(): void
+    {
+        $this->actingAsTourAdmin();
+        $tourId = $this->postJson('/api/admin/tours', $this->payload([
+            'seo_name' => 'utvonal',
+            'routeStops' => [
+                ['name' => ' Belgrád ', 'latitude' => 44.8125, 'longitude' => 20.4612, 'accommodation' => false, 'clientId' => 'a'],
+                ['name' => 'Shkoder', 'latitude' => '42.0683', 'longitude' => '19.5126', 'accommodation' => true],
+            ],
+        ]))->assertCreated()
+            ->assertJsonPath('data.routeStops.0', ['name' => 'Belgrád', 'latitude' => 44.8125, 'longitude' => 20.4612, 'accommodation' => false])
+            ->assertJsonPath('data.routeStops.1.accommodation', true)
+            ->json('data.id');
+
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload(['seo_name' => 'utvonal']))->assertOk();
+        $this->assertCount(2, Tour::query()->findOrFail($tourId)->route_stops);
+
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload(['seo_name' => 'utvonal', 'routeStops' => []]))->assertOk();
+        $this->assertNull(Tour::query()->findOrFail($tourId)->route_stops);
+
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload([
+            'seo_name' => 'utvonal',
+            'routeStops' => [['name' => '', 'latitude' => 95, 'longitude' => 20]],
+        ]))->assertStatus(422)->assertJsonValidationErrors(['route_stops.0.name', 'route_stops.0.latitude']);
+    }
+
     public function test_a_date_saves_the_departure_places_it_offers(): void
     {
         $this->actingAsTourAdmin();

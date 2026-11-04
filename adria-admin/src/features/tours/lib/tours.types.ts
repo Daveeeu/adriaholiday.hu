@@ -85,6 +85,26 @@ export type TourPartnerBonus = {
   value: string;
 };
 
+/** A place on the tour's route map, in travel order; accommodations are drawn in red. */
+export type TourRouteStop = {
+  name: string;
+  latitude: number;
+  longitude: number;
+  accommodation: boolean;
+};
+
+export type TourRouteStopFormValue = TourRouteStop & {
+  clientId: string;
+};
+
+/** A place the place search found, to add as a route stop. */
+export type RouteStopPlace = {
+  name: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+};
+
 export type TourPriceItemType = 'included' | 'excluded';
 
 export type TourPriceItem = {
@@ -247,6 +267,7 @@ export type Tour = {
   programBefore: string;
   program: string;
   programFooter?: string | null;
+  routeStops?: TourRouteStop[];
   inclusions: string;
   paymentProgram: string;
   teaser: string;
@@ -347,6 +368,15 @@ export const tourFormSchema = z.object({
   programBefore: z.string(),
   program: z.string(),
   programFooter: z.string(),
+  routeStops: z.array(
+    z.object({
+      clientId: z.string(),
+      name: z.string().trim().min(1, 'Add meg a megálló nevét.').max(60, 'Legfeljebb 60 karakter.'),
+      latitude: z.number(),
+      longitude: z.number(),
+      accommodation: z.boolean(),
+    }),
+  ),
   inclusions: z.string(),
   paymentProgram: z.string(),
   teaser: z.string(),
@@ -609,6 +639,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     programBefore: tour?.programBefore ?? '',
     program: tour?.program ?? '',
     programFooter: tour?.programFooter ?? '',
+    routeStops: (tour?.routeStops ?? []).map((stop) => ({ ...stop, clientId: createClientId() })),
     inclusions: tour?.inclusions ?? '',
     paymentProgram: tour?.paymentProgram ?? '',
     teaser: tour?.teaser ?? '',

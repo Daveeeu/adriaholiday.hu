@@ -137,6 +137,7 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     programBefore: offer.programBefore,
     program: offer.program,
     programFooter: offer.programFooter ?? null,
+    routeMap: offer.routeMap ?? null,
     inclusions: offer.inclusions,
     paymentProgram: offer.paymentProgram,
     teaser: offer.teaser,

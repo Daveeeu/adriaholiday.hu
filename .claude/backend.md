@@ -978,6 +978,10 @@ Public `GET /api/portfolio/offers/{slug}/pdf` (throttled via the `offer-pdf` rat
 
 This is unrelated to the pre-existing `program_pdf_path`/`program_pdf_file`/`pdf` media-collection fields on `Tour`, which are a manual admin-upload attachment mechanism (a static file picked in the admin panel), not a generated one.
 
+# Tour Route Map
+
+A tour's stops for its route map live in `tours.route_stops` (`App\Support\Tour\TourRouteStops`: name as shown, latitude, longitude, `accommodation`), saved by the tour editor only when sent (`ValidatesOptionalTourContent`). `RouteMapRenderer` draws them with GD as a 960×640 PNG: the countries the stops lie in (`CountryShapes`, Natural Earth outlines in `resources/geo/countries.json` — see the README there; the UK by its countries), countries enclosed by them in pale green, dotted arcs from stop to stop, red dots and labels for accommodations, Open Sans labels placed clear of each other. `TourRouteMapService` stores it on the public disk as `route-maps/{sha1(version + stops)}.png`, drawn on first use (bump `RouteMapRenderer::VERSION` to redraw all), and gives the URL to `PortfolioOfferDetailResource` (`routeMap {url, alt}`, shown under the offer page's side panel) and a data URI to the program PDF and the travel book. The editor finds places through `PlaceSearch` (OpenStreetMap Nominatim, Hungarian names, cached 30 days; `services.nominatim`), suggests names from the program's day headings (`RouteStopSuggestions`) and previews unsaved stops (`POST /api/admin/tours/route-map-preview`).
+
 ---
 
 # Queues

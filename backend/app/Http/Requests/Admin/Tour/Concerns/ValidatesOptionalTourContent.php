@@ -2,12 +2,14 @@
 
 namespace App\Http\Requests\Admin\Tour\Concerns;
 
+use App\Support\Tour\TourRouteStops;
+
 /**
  * Tour fields an admin form may leave out — whether the offer lists show
  * the tour, the stay (accommodation and
  * meals, also per date), the text under the program and the tour's own SEO
  * title, description and robots, the partner XML settings (also per
- * date) — shared by the tour store and update
+ * date), the route map's stops — shared by the tour store and update
  * requests. A field is taken only when sent, so a save without it keeps
  * the stored (e.g. imported) value.
  */
@@ -24,6 +26,7 @@ trait ValidatesOptionalTourContent
         'seo_description' => 'seoDescription',
         'seo_robots' => 'seoRobots',
         'partner_xml' => 'partnerXml',
+        'route_stops' => 'routeStops',
     ];
 
     private const OPTIONAL_DATE_FIELDS = [
@@ -99,6 +102,7 @@ trait ValidatesOptionalTourContent
             'dates.*.partner_xml' => ['nullable', 'array'],
             'dates.*.partner_xml.cesys_accommodation' => ['nullable', 'string', 'max:255'],
             'dates.*.partner_xml.cesys_room' => ['nullable', 'string', 'max:255'],
+            ...TourRouteStops::rules('route_stops'),
             'partner_xml' => ['nullable', 'array'],
             'partner_xml.country_id' => ['nullable', 'integer', 'min:1'],
             'partner_xml.country_name' => ['nullable', 'string', 'max:255'],

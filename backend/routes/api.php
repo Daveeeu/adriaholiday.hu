@@ -38,6 +38,7 @@ use App\Http\Controllers\Admin\TourDeparturePlaceController;
 use App\Http\Controllers\Admin\TourPartnerOfferController;
 use App\Http\Controllers\Admin\TourReferenceOptionController;
 use App\Http\Controllers\Admin\TourRegionGroupController;
+use App\Http\Controllers\Admin\TourRouteMapController;
 use App\Http\Controllers\Admin\TourSeasonalGroupController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AnalyticsEventController;
@@ -225,6 +226,9 @@ Route::prefix('admin')
         Route::post('difficulties', [TourReferenceOptionController::class, 'storeDifficulty']);
 
         Route::post('tours/search-keyword-suggestions', [TourController::class, 'searchKeywordSuggestions']);
+        Route::get('tours/route-stop-places', [TourRouteMapController::class, 'places'])->middleware('throttle:30,1');
+        Route::post('tours/route-map-preview', [TourRouteMapController::class, 'preview']);
+        Route::get('tours/{tour}/route-stop-suggestions', [TourRouteMapController::class, 'suggestions']);
         Route::apiResource('tours', TourController::class);
         Route::patch('tours/{tour}/status', [TourController::class, 'status']);
         Route::get('tours/{tour}/pdf', [TourController::class, 'pdf']);

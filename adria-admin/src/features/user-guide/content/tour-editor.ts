@@ -40,6 +40,7 @@ export const tourEditorTopics: GuideTopic[] = [
           'Ár / PriceBox – az árdoboz tartalma',
           'Tartalmi blokkok – leírások, program, keresési kulcsszavak, PDF',
           'Program napok – napokra bontott program',
+          'Útvonal térkép – a megállókból rajzolt térkép',
           'Szállás és ellátás',
           'Ár tartalma – mit tartalmaz és mit nem az ár',
           'Szűrők és kapcsolatok – régió, kategória, ország, közlekedés, felszállási helyek',
@@ -420,6 +421,41 @@ export const tourEditorTopics: GuideTopic[] = [
       ]),
       p(
         'A napok sorrendje húzással módosítható, a másolás ikonnal egy nap lemásolható.',
+      ),
+    ],
+  },
+  {
+    id: 'tour-route-map',
+    title: 'Útvonal térkép',
+    summary:
+      'A megállók sorrendben, amelyekből a rendszer térképet rajzol az utazás oldalára és a PDF-ekbe.',
+    menu: EDITOR_MENU,
+    access: EDITOR_ACCESS,
+    blocks: [
+      fields('Mezők', [
+        field(
+          'Megálló hozzáadása',
+          'Kezdd el írni a város nevét, és válaszd ki a találatok közül (OpenStreetMap). A megálló a lista végére kerül.',
+          ADMIN_ONLY,
+        ),
+        field(
+          'Javaslat a programleírásból',
+          'A mentett program napcímeiből (pl. „1. NAP BELGRÁD: …”) kiolvasott helynevek. Egy névre kattintva rákeres; a találatot neked kell kiválasztani.',
+          ADMIN_ONLY,
+        ),
+        field(
+          'Megálló neve',
+          'Így jelenik meg a térképen; átírható (pl. „Skadar” helyett „Shkoder”).',
+          `${TOUR_PAGE}, a jobb oldali panel alatti térképen, a program PDF-ben és az utazási könyvben.`,
+        ),
+        field(
+          'Szállás',
+          'A szállás helye pirossal jelenik meg, a többi megálló feketével.',
+          'A térképen.',
+        ),
+      ]),
+      p(
+        'A térkép a megállókat a lista sorrendjében köti össze pontozott vonallal, és azokat az országokat mutatja, ahol megálló van. A nyilakkal a sorrend változtatható. Az előnézet mentés előtt is mutatja a térképet; üres listával nincs térkép.',
       ),
     ],
   },

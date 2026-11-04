@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\HomepageOffer;
 use App\Support\PriceBoxData;
 use App\Support\RichTextSanitizer;
+use App\Support\Tour\TourRouteStops;
 use App\Support\TourLabelResolver;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -81,6 +82,7 @@ class TourResource extends JsonResource
             'programBefore' => RichTextSanitizer::sanitize($this->program_before),
             'program' => RichTextSanitizer::sanitize($this->program),
             'programFooter' => RichTextSanitizer::sanitize($this->program_footer),
+            'routeStops' => TourRouteStops::normalize($this->route_stops),
             'teaser' => RichTextSanitizer::sanitize($this->teaser),
             'tickets' => RichTextSanitizer::sanitize($this->tickets),
             'optionalPrograms' => RichTextSanitizer::sanitize($this->optional_programs),

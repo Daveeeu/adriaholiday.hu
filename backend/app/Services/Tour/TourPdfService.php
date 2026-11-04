@@ -5,6 +5,7 @@ namespace App\Services\Tour;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourProgramDay;
+use App\Services\Tour\RouteMap\TourRouteMapService;
 use App\Support\DocumentBranding;
 use App\Support\PriceBoxData;
 use App\Support\RichTextSanitizer;
@@ -15,12 +16,14 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
 /**
- * The branded program PDF of a tour (program days, what the price includes and
- * excludes, dates, transport, price), served to visitors from the offer page and
+ * The branded program PDF of a tour (route map, program days, what the price
+ * includes and excludes, dates, transport, price), served to visitors from the offer page and
  * to admins from the tour list.
  */
 class TourPdfService
 {
+    public function __construct(private readonly TourRouteMapService $routeMaps) {}
+
     public function download(Tour $tour): Response
     {
         return Pdf::loadHTML($this->html($tour))->download(Str::slug($tour->seo_name ?: $tour->name).'-program.pdf');
@@ -55,6 +58,7 @@ class TourPdfService
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'generatedAt' => now()->format('Y.m.d. H:i'),
             'branding' => DocumentBranding::resolve(),
+            'routeMap' => $this->routeMaps->dataUri($tour),
         ])->render();
     }
 

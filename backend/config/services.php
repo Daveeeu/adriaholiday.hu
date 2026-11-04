@@ -54,6 +54,13 @@ return [
         'timeout' => (int) env('MAILCHIMP_TIMEOUT', 10),
     ],
 
+    // Place search for the tours' route map stops (OpenStreetMap; at most one request per second, with an identifying user agent).
+    'nominatim' => [
+        'base_url' => env('NOMINATIM_BASE_URL', 'https://nominatim.openstreetmap.org'),
+        'user_agent' => env('NOMINATIM_USER_AGENT', 'AdriaHoliday/1.0 (https://adriaholiday.hu)'),
+        'timeout' => (int) env('NOMINATIM_TIMEOUT', 8),
+    ],
+
     'legacy_adria' => [
         'base_url' => env('LEGACY_ADRIA_BASE_URL', 'https://adriaholiday.hu'),
         // Where legacy URLs are downloaded from when adriaholiday.hu no longer reaches the legacy server (App\Support\Legacy\LegacyFetchUrl).
