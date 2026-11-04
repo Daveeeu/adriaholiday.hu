@@ -6,9 +6,11 @@ import KeywordHighlightProvider from "../components/KeywordHighlightProvider";
 import StaticPage from "./StaticPage";
 import Seo from "../seo/Seo";
 import {
-  fetchPortfolioFeaturedTours,
+  fetchPortfolioRelatedTours,
   type PortfolioFeaturedTour,
 } from "../content/portfolio-featured-tours-api";
+import { getStoredConsent } from "../analytics/storage";
+import { readRecentlyViewedTours, rememberViewedTour } from "../lib/recentlyViewedTours";
 import {
   fetchPortfolioOfferDetail,
   type PortfolioOfferDetail,
@@ -193,9 +195,11 @@ export default function TripRoute() {
       setError(false);
       setNotFound(false);
 
+      // Earlier views shape the recommendations only with the visitor's consent to personalised offers.
+      const personalised = getStoredConsent().marketing;
       const [offerResult, relatedResult] = await Promise.allSettled([
         fetchPortfolioOfferDetail(offerSlug),
-        fetchPortfolioFeaturedTours(6),
+        fetchPortfolioRelatedTours(offerSlug, readRecentlyViewedTours(personalised)),
       ]);
 
       if (cancelled) {
@@ -204,6 +208,7 @@ export default function TripRoute() {
 
       if (offerResult.status === "fulfilled") {
         setOffer(mapOfferToTrip(offerResult.value));
+        rememberViewedTour(offerSlug, personalised);
       } else {
         setOffer(null);
         setNotFound(

@@ -45,6 +45,29 @@ export type PortfolioFeaturedToursResponse = {
   items: PortfolioFeaturedTour[];
 };
 
+/**
+ * The offers most like the trip being viewed and, when given, the visitor's
+ * earlier views (most recent first), as offer cards.
+ */
+export async function fetchPortfolioRelatedTours(
+  slug: string,
+  viewedSlugs: string[] = [],
+): Promise<PortfolioFeaturedToursResponse> {
+  const query = viewedSlugs.length > 0 ? `?viewed=${encodeURIComponent(viewedSlugs.join(','))}` : '';
+  const response = await fetch(`${getPortfolioApiBaseUrl()}/portfolio/offers/${encodeURIComponent(slug)}/related${query}`, {
+    headers: {
+      Accept: 'application/json',
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  return (await response.json()) as PortfolioFeaturedToursResponse;
+}
+
 export async function fetchPortfolioFeaturedTours(
   limit = 6,
 ): Promise<PortfolioFeaturedToursResponse> {

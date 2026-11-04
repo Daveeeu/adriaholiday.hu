@@ -54,6 +54,7 @@ use App\Http\Controllers\PortfolioOfferPdfController;
 use App\Http\Controllers\PortfolioPageController;
 use App\Http\Controllers\PortfolioPromotionController;
 use App\Http\Controllers\PortfolioRegionController;
+use App\Http\Controllers\PortfolioRelatedOfferController;
 use App\Http\Controllers\PortfolioSearchSuggestionController;
 use App\Http\Controllers\PortfolioSiteSettingController;
 use App\Http\Controllers\PortfolioTestimonialController;
@@ -91,6 +92,7 @@ Route::get('portfolio/apartment-locations/{area}/{location}', [PortfolioApartmen
 Route::get('portfolio/apartment-locations/{area}/{location}/apartments', [PortfolioApartmentController::class, 'apartments']);
 Route::get('portfolio/apartments/{slug}', [PortfolioApartmentController::class, 'show']);
 Route::get('portfolio/offers/{slug}/pdf', PortfolioOfferPdfController::class)->middleware('throttle:offer-pdf');
+Route::get('portfolio/offers/{slug}/related', PortfolioRelatedOfferController::class);
 Route::post('analytics/events', AnalyticsEventController::class);
 Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('throttle:bookings');
 Route::middleware('throttle:bookings')->group(function (): void {

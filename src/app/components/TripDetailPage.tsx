@@ -883,7 +883,7 @@ function SimilarTrips({
       </h2>
 
       <p className={`${TRIP_SECTION_SUBTITLE} mb-10`}>
-        Hasonló hangulatú, tengerparti és városnézős ajánlatok.
+        Az úti cél, a program jellege és a korábban megnézett utak alapján válogattuk.
       </p>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">

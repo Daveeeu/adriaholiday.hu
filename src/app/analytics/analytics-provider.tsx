@@ -21,6 +21,7 @@ import {
 } from "./google-tag-manager";
 import { setAnalyticsDispatcher } from "./runtime";
 import { useInteractionTracking } from "./useInteractionTracking";
+import { forgetViewedTours } from "../lib/recentlyViewedTours";
 import {
   captureFirstTouchUtm,
   getAnalyticsSessionCookieName,
@@ -188,6 +189,10 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
         // Stored only on the visitor's own choice: an unanswered banner shows
         // again on the next page load instead of counting as a refusal.
         setStoredConsent(nextConsent);
+
+        if (!nextConsent.marketing) {
+          forgetViewedTours();
+        }
         startTransition(() => {
           setConsentState(nextConsent);
           setConsentBannerOpen(false);
