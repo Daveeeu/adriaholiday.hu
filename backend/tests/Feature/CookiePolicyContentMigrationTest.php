@@ -28,7 +28,7 @@ HTML;
     {
         $this->storePolicy(self::PREVIOUS_DEFAULT);
 
-        $this->migration()->up();
+        $this->migration('2026_11_04_160000_update_cookie_policy_for_tag_manager')->up();
 
         $policy = $this->storedPolicy();
         $this->assertSame(LegalPageContent::defaults()['cookie_content'], $policy);
@@ -36,11 +36,23 @@ HTML;
         $this->assertStringContainsString('_fbp', $policy);
     }
 
+    public function test_the_untouched_tag_manager_policy_gets_the_clarity_cookies(): void
+    {
+        $this->storePolicy(trim((string) file_get_contents(__DIR__.'/../Fixtures/legal/cookie-policy-2026-11-04.html')));
+
+        $this->migration('2026_11_04_180000_add_clarity_to_cookie_policy')->up();
+
+        $policy = $this->storedPolicy();
+        $this->assertSame(LegalPageContent::defaults()['cookie_content'], $policy);
+        $this->assertStringContainsString('_clck', $policy);
+    }
+
     public function test_a_policy_edited_in_the_admin_is_kept(): void
     {
         $this->storePolicy('<p>Az iroda saját süti tájékoztatója.</p>');
 
-        $this->migration()->up();
+        $this->migration('2026_11_04_160000_update_cookie_policy_for_tag_manager')->up();
+        $this->migration('2026_11_04_180000_add_clarity_to_cookie_policy')->up();
 
         $this->assertSame('<p>Az iroda saját süti tájékoztatója.</p>', $this->storedPolicy());
     }
@@ -58,8 +70,8 @@ HTML;
         return DB::table('site_settings')->where('group', LegalPageContent::GROUP)->where('key', 'cookie_content')->value('value');
     }
 
-    private function migration(): object
+    private function migration(string $name): object
     {
-        return require database_path('migrations/2026_11_04_160000_update_cookie_policy_for_tag_manager.php');
+        return require database_path("migrations/{$name}.php");
     }
 }

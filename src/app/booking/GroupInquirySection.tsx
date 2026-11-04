@@ -144,7 +144,7 @@ export default function GroupInquirySection({ trip, requestOnly, opened, onOpen 
   }
 
   return (
-    <section id={GROUP_INQUIRY_SECTION_ID} className="scroll-mt-[92px] rounded-[40px] bg-white border border-gray-100 p-6 md:p-8 shadow-[0_16px_50px_rgba(15,23,42,0.06)]">
+    <section id={GROUP_INQUIRY_SECTION_ID} data-clarity-mask="true" className="scroll-mt-[92px] rounded-[40px] bg-white border border-gray-100 p-6 md:p-8 shadow-[0_16px_50px_rgba(15,23,42,0.06)]">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 shrink-0 rounded-2xl bg-[#00c389]/10 text-[#00c389] flex items-center justify-center">

@@ -766,7 +766,7 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
 
   if (status === "redirecting") {
     return (
-      <section id="foglalas" className="scroll-mt-[92px]">
+      <section id="foglalas" data-clarity-mask="true" className="scroll-mt-[92px]">
         <div
           ref={confirmationRef}
           tabIndex={-1}
@@ -792,7 +792,7 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
 
   if (status === "success") {
     return (
-      <section id="foglalas" className="scroll-mt-[92px]">
+      <section id="foglalas" data-clarity-mask="true" className="scroll-mt-[92px]">
         <div
           ref={confirmationRef}
           tabIndex={-1}
@@ -815,7 +815,7 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
   }
 
   return (
-    <section id="foglalas" className="scroll-mt-[92px]">
+    <section id="foglalas" data-clarity-mask="true" className="scroll-mt-[92px]">
       <div className="relative overflow-hidden rounded-[40px] bg-[#07111f] p-5 md:p-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,195,137,0.18),transparent_30%),radial-gradient(circle_at_80%_10%,rgba(22,184,255,0.15),transparent_30%)]" />
 

@@ -146,7 +146,7 @@ export default function ApartmentRoute() {
               </section>
             ) : null}
             <OfferContentSection title="Információk" content={information} navLabel="Információk" />
-            <div id={BOOKING_ID} className="mb-20 scroll-mt-28" {...tripSection("Foglalás")}>
+            <div id={BOOKING_ID} data-clarity-mask="true" className="mb-20 scroll-mt-28" {...tripSection("Foglalás")}>
               <ApartmentBookingForm apartment={apartment} stay={readStay(searchParams)} />
             </div>
           </TripSectionNav>

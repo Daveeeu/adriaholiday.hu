@@ -11,6 +11,7 @@ Conversions API) is described in [../analytics-architecture.md](../analytics-arc
 | GA4 property | `G-JYZ3KL4M0B` (account „AdriaHoliday”, property „adriaholiday.hu”) | stream „AdriaHoliday web” → https://adriaholiday.hu |
 | GTM container | `GTM-NTC5QFRN` (account „AdriaHoliday”, container „adriaholiday.hu”; `PORTFOLIO_VITE_GTM_ID`) | contents: [gtm-container.json](gtm-container.json) |
 | Search Console | URL-prefix property https://adriaholiday.hu/ | verified by HTML file, sitemap `/sitemap.xml` |
+| Microsoft Clarity | project `z8fxw09p8k` (GTM constant `Clarity Project ID`) | heatmaps and session recordings; „Microsoft Clarity” tag, statistics consent only |
 | Meta Pixel | GTM constant `Meta Pixel ID` (placeholder `0` keeps the Meta tag off) | must equal backend `META_PIXEL_ID` (Conversions API) |
 
 ## Flow
@@ -26,8 +27,11 @@ Conversions API) is described in [../analytics-architecture.md](../analytics-arc
    (`src/app/analytics/google-tag-manager.ts`), with Consent Mode v2 set before
    any tag: `analytics_storage` ← statistics, `ad_*` ← marketing. The page view
    of the page the consent was given on is replayed once GTM is loaded.
-4. In GTM, GA4 tags require `analytics_storage`, Meta and Google Ads tags
-   `ad_storage`.
+4. In GTM, GA4 and Clarity tags require `analytics_storage`, Meta and Google
+   Ads tags `ad_storage`. Clarity also gets its own `consentv2` signal. Areas
+   with personal data (booking, apartment booking, group inquiry and contact
+   forms, with their confirmations) carry `data-clarity-mask="true"`, so
+   recordings never show them; keep the attribute on any new form.
 5. A succeeded Barion payment is sent to GA4 from the server as `purchase`
    (`SendGooglePurchaseEventJob`, Measurement Protocol) for the visitor's GA
    client and session id stored with the booking — only when the visitor had
