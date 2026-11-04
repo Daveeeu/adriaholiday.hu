@@ -83,7 +83,7 @@ export const tourEditorTopics: GuideTopic[] = [
         field(
           'Megjelenik az ajánlatlistákban?',
           'Kikapcsolva az út aktív marad és a saját címén elérhető (pl. egy hírlevélből linkelve), de a listákban, kategóriaoldalakon és a főoldalon nem szerepel.',
-          'Ajánlatlisták, kategóriaoldalak, főoldali kiemelések.',
+          'Ajánlatlisták, kategóriaoldalak, főoldali kiemelések és az „Ezek is érdekelhetnek” ajánló.',
         ),
         field(
           'XML-ben szerepel?',
@@ -581,7 +581,7 @@ export const tourEditorTopics: GuideTopic[] = [
         field(
           'Kategóriák',
           'Az út kategóriái (pl. Körutazások, Adventi barangolások). A kategóriákat a Blog › Kategóriák oldalon lehet kezelni. A legördülőben új kategória is létrehozható.',
-          'A kategóriaoldalakon (adriaholiday.hu/kategoriak/<kategória>) és az ajánlatkártyák címkéiben.',
+          'A kategóriaoldalakon (adriaholiday.hu/kategoriak/<kategória>), az ajánlatkártyák címkéiben és az „Ezek is érdekelhetnek” ajánlóban.',
         ),
         field(
           'FIT / Program típus / Nehézségi szint',
@@ -596,7 +596,7 @@ export const tourEditorTopics: GuideTopic[] = [
         field(
           'Országok',
           'Az út által érintett országok.',
-          'A keresőben (országnévre is megtalálható az út), és a foglalás-visszaigazoló e-mailben a „Beutazási feltételek” linkek országonként.',
+          'A keresőben (országnévre is megtalálható az út), az „Ezek is érdekelhetnek” ajánlóban, és a foglalás-visszaigazoló e-mailben a „Beutazási feltételek” linkek országonként.',
         ),
         field(
           'Címkék',
@@ -614,6 +614,12 @@ export const tourEditorTopics: GuideTopic[] = [
           'A foglalási űrlap árösszesítőjében.',
         ),
       ]),
+      p(
+        'Az út oldalának alján az „Ezek is érdekelhetnek” blokk a megtekintett úthoz leginkább hasonló utakat ajánlja. A hasonlóságot elsősorban a közös kategóriák és országok adják, utána a régió, a közlekedés, az út hossza és az ár. Ha a látogató elfogadta a marketing sütiket, a korábban megnézett útjai is számítanak: minden harmadik ajánlat az érdeklődéséhez igazodik. A már megnézett és az időpont nélküli utak hátrébb kerülnek. Az ajánló csak a listákban megjelenő utakból választ.',
+      ),
+      tip(
+        'Az ajánlások annyira pontosak, amennyire a kategóriák és az országok: érdemes minden útnál kitölteni őket.',
+      ),
     ],
   },
   {

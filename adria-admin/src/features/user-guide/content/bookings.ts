@@ -95,7 +95,7 @@ export const bookingsChapter: GuideChapter = {
           ),
           field(
             'Foglalás információ',
-            'Azonosító, típus, kuponkód, státusz, létrehozás és módosítás ideje, a foglalás forrása (honnan érkezett a látogató).',
+            'Azonosító, típus, kuponkód, státusz, létrehozás és módosítás ideje, a foglalás forrása (honnan érkezett a látogató). Az azonosító belső adat: az ügyfél sem a visszaigazoló e-mailben, sem az utazási könyvben nem látja.',
             ADMIN_ONLY,
           ),
           field(
@@ -170,6 +170,11 @@ export const bookingsChapter: GuideChapter = {
           field(
             'Foglalási űrlap adatai',
             'A sablon szerint bekért további mezők (pl. fizetési mód, megjegyzés).',
+            ADMIN_ONLY,
+          ),
+          field(
+            'Hiányzó adatok',
+            'Csak akkor jelenik meg, ha az ügyfél egy „Utólag e-mailben bekérjük” mezőt üresen hagyott: utasonként felsorolja, mi hiányzik. Az ügyfél a foglalás után e-mailben kapott egy linket, ahol pótolhatja; ha megadta, a kártya eltűnik, és az iroda értesítést kap. Az „Adatbekérő e-mail újraküldése” gombbal a link újra kiküldhető (a korábbi link ezzel érvénytelenné válik).',
             ADMIN_ONLY,
           ),
           field(
@@ -519,7 +524,7 @@ export const bookingsChapter: GuideChapter = {
       id: 'booking-form-templates',
       title: 'Foglalási űrlap sablonok',
       summary:
-        'Meghatározza, milyen adatokat kér be a weboldal foglalási űrlapja. Egy sablonban minden mező kötelező, opcionális vagy rejtett lehet; az utakhoz a körutazás szerkesztőben rendelhető sablon.',
+        'Meghatározza, milyen adatokat kér be a weboldal foglalási űrlapja. Egy sablonban minden mező kötelező, utólag e-mailben bekérendő, opcionális vagy rejtett lehet; az utakhoz a körutazás szerkesztőben rendelhető sablon.',
       path: '/bookings/booking-form-templates',
       menu: 'Foglalások › Foglalási űrlap sablonok',
       access: 'Foglalási űrlap sablonok megtekintése',
