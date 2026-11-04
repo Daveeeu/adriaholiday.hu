@@ -9,7 +9,7 @@ import {
   type PortfolioHomepageOffer,
 } from '../content/portfolio-homepage-offers-api';
 import { usePortfolioContent } from '../content/PortfolioContentProvider';
-import { isExternalLink, resolveCategorySlugFromOfferLink } from '../content/portfolio-offer-routing';
+import { homepageCardRoute, isExternalLink } from '../content/portfolio-offer-routing';
 import MotionLink from './MotionLink';
 import { HOVER_HOST } from "../lib/hoverHost";
 import { responsiveImage } from "../lib/responsiveImage";
@@ -151,7 +151,7 @@ export default function TravelCategories() {
                   </motion.a>
                 ) : (
                   <MotionLink
-                    to={`/kategoriak/${resolveCategorySlugFromOfferLink(category.link)}`}
+                    to={homepageCardRoute(category.link)}
                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                     className="group block text-left"
                     {...HOVER_HOST}
