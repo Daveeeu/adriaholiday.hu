@@ -259,7 +259,7 @@ export const toursChapter: GuideChapter = {
       id: 'tour-departure-places',
       title: 'Felszállási helyek',
       summary:
-        'A buszos utak felszállási helyei (város, pontos hely) és az alapértelmezett felszállási díjuk. Az utaknál ezekből lehet választani.',
+        'A buszos utak felszállási helyei – egy hely egy település – és az alapértelmezett felszállási díjuk. Az utaknál ezekből lehet választani.',
       path: '/tours/departure-places',
       menu: 'Körutazások › Felszállási helyek',
       access: TOURS_ACCESS,
@@ -277,7 +277,7 @@ export const toursChapter: GuideChapter = {
         fields('Mezők', [
           field(
             'Név',
-            'A felszállási hely pontos megnevezése (pl. „Budapest, Népliget, autóbusz-állomás”).',
+            'Egyetlen település neve (pl. „Miskolc”). Útvonal vagy felsorolás („Miskolc-Mezőkövesd-Budapest”, „mezőkövesdi, gyöngyösi indulással”) nem adható meg, és ugyanaz a név nem szerepelhet kétszer.',
             'A foglalási űrlapon a felszállási hely választólistájában és a foglalás árösszesítőjében.',
           ),
           field('Város', 'A település neve; a kereséshez és csoportosításhoz.'),
@@ -290,6 +290,22 @@ export const toursChapter: GuideChapter = {
         ]),
         p(
           'Az utaknál a felszállási helyek díja felülírható (lásd „Szűrők és kapcsolatok”), és időpontonként szűkíthető, melyik hely választható (lásd „Időpontok”).',
+        ),
+        list(
+          [
+            'Olaszország, Horvátország, Szlovénia, Barangolás a francia riviérán: Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Székesfehérvár, Siófok, Nagykanizsa.',
+            'Ausztria, Németország, Svájc, Csehország, Hollandia, Egyesült Királyság, Franciaország: Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Tatabánya, Győr, Mosonmagyaróvár.',
+            'Szlovákia és Lengyelország egynapos, adventi és téli útjai: Miskolc; a többnapos utak (pl. Felvidéki barangolás, Lengyelországi kalandok): Budapest, Hatvan, Gyöngyös, Mezőkövesd, Miskolc.',
+            'Románia: Budapest, Miskolc.',
+            'Görögország: Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Kecskemét.',
+            'Albánia (és Montenegró Albánia kincseivel): Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Kecskemét, Kiskunfélegyháza, Szeged.',
+            'Bosznia, Montenegró, a mediterrán csoda: Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Dunaújváros, Paks, Szekszárd, Mohács.',
+            'Repülős utak: Budapest.',
+          ],
+          'Szokásos felszállási helyek úti cél szerint',
+        ),
+        tip(
+          'Új útnál egyszerűen pipáld be a fenti települések közül azokat, ahonnan indul. Ha egy helyen külön felár van (pl. Budapesten a BOK csarnoknál), azt az útnál add meg felárként, ne új felszállási helyként.',
         ),
         warning(
           'Felszállási helyet csak akkor törölj, ha egyetlen út sem használja; helyette inkább kapcsold ki.',
