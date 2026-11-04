@@ -85,7 +85,7 @@ offer pages and bookings join in GA4.
 
 - Data retention: 14 months.
 - Unwanted referrals: `barion.com`, `secure.barion.com` (customers return from the payment gateway).
-- Enhanced measurement: page views from browser history events **off** (the site sends `page_view`).
+- Enhanced measurement: page views from browser history events, scrolls, outbound clicks and form interactions **off** (the site sends `page_view`, `scroll_depth`, `ui_click` and the booking funnel events); site search, video and file downloads stay on.
 - Custom dimensions (event scope): `entity_type`, `entity_slug`, `placement`, `transport`, `cta_name`, `booking_type`, `payment_kind`, `payment_status`, `source`, `step_name`, `step_number`, `last_step_name`, `last_field`, `error_fields`, `click_text`, `click_section`, `link_path`, `link_domain`; custom metric `form_seconds`. `item_list_name` and `percent_scrolled` are built-in.
 - Explorations: „Foglalási tölcsér” (funnel: view_item → begin_checkout → booking_step 2/3/4 → booking_submitted), „Kilépő oldalak” (free form: page path × exits), „Foglalás megszakítás” (booking_abandon by last step / field).
 - Key events: `booking_submitted`, `purchase`, `generate_lead`, `newsletter_signup`, `phone_click`, `email_click`, `whatsapp_click`.
