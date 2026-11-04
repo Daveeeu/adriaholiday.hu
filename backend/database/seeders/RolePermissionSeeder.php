@@ -20,7 +20,7 @@ class RolePermissionSeeder extends Seeder
 
         $viewOnlyPermissions = collect($allPermissions)
             ->filter(fn (string $permission): bool => str_ends_with($permission, '.viewAny') || str_ends_with($permission, '.view'))
-            ->reject(fn (string $permission): bool => str_starts_with($permission, 'users.') || str_starts_with($permission, 'roles.') || str_starts_with($permission, 'permissions.'))
+            ->reject(fn (string $permission): bool => $this->isAccessManagementPermission($permission) || str_starts_with($permission, 'users.'))
             ->values()
             ->all();
 
@@ -35,7 +35,7 @@ class RolePermissionSeeder extends Seeder
         $superAdmin->syncPermissions($allPermissions);
 
         $adminPermissions = collect($allPermissions)
-            ->reject(fn (string $permission): bool => str_starts_with($permission, 'roles.') || str_starts_with($permission, 'permissions.'))
+            ->reject(fn (string $permission): bool => $this->isAccessManagementPermission($permission))
             ->values()
             ->all();
         $admin->syncPermissions($adminPermissions);
@@ -138,7 +138,19 @@ class RolePermissionSeeder extends Seeder
             'users' => ['users.viewAny', 'users.view', 'users.create', 'users.update', 'users.delete'],
             'roles' => ['roles.viewAny', 'roles.view', 'roles.create', 'roles.update', 'roles.delete'],
             'permissions' => ['permissions.viewAny'],
+            'activity' => ['activity.viewAny'],
         ];
+    }
+
+    /**
+     * Role and permission management and the admin activity log stay with
+     * the Super Admin.
+     */
+    private function isAccessManagementPermission(string $permission): bool
+    {
+        return str_starts_with($permission, 'roles.')
+            || str_starts_with($permission, 'permissions.')
+            || str_starts_with($permission, 'activity.');
     }
 
     private function seedAdminUser(Role $superAdmin): void

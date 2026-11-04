@@ -9,6 +9,8 @@ use App\Http\Requests\Admin\User\UpdateUserRequest;
 use App\Http\Requests\Admin\User\UpdateUserStatusRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\ActivityLog\AccessActivityLogger;
+use App\Support\ActivityLog\ActivityEvents;
 use App\Support\UserAccessGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,12 +64,12 @@ class UserController extends Controller
         return $this->paginated(UserResource::class, $paginator);
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request, AccessActivityLogger $accessLog)
     {
         $validated = $request->validated();
         $actor = $request->user();
 
-        $user = DB::transaction(function () use ($validated, $actor): User {
+        $user = DB::transaction(function () use ($validated, $actor, $accessLog): User {
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
@@ -78,11 +80,10 @@ class UserController extends Controller
             UserAccessGuard::syncRoles($actor, $user, $validated['roles'] ?? []);
             UserAccessGuard::syncPermissions($actor, $user, $validated['permissions'] ?? []);
             $this->syncDeniedPermissions($user, $validated['denied_permissions'] ?? []);
+            $accessLog->recordChanges($actor, $user, ActivityEvents::UPDATED, [], $accessLog->snapshot($user));
 
             return $user;
         });
-
-        activity()->causedBy($actor)->performedOn($user)->log('user_created');
 
         return new UserResource($user->load('roles', 'deniedPermissions'));
     }
@@ -92,30 +93,37 @@ class UserController extends Controller
         return new UserResource($user->load('roles', 'deniedPermissions'));
     }
 
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user, AccessActivityLogger $accessLog)
     {
         $validated = $request->validated();
         $actor = $request->user();
 
-        DB::transaction(function () use ($validated, $user, $actor): void {
+        DB::transaction(function () use ($validated, $user, $actor, $accessLog): void {
+            $accessBefore = $accessLog->snapshot($user);
+
             $user->fill([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'is_active' => $validated['is_active'] ?? $user->is_active,
             ]);
 
-            if (! empty($validated['password'])) {
+            $passwordChanged = ! empty($validated['password']);
+
+            if ($passwordChanged) {
                 $user->password = $validated['password'];
             }
 
             $user->save();
 
+            if ($passwordChanged) {
+                $accessLog->recordPasswordChange($actor, $user);
+            }
+
             UserAccessGuard::syncRoles($actor, $user, $validated['roles'] ?? []);
             UserAccessGuard::syncPermissions($actor, $user, $validated['permissions'] ?? []);
             $this->syncDeniedPermissions($user, $validated['denied_permissions'] ?? []);
+            $accessLog->recordChanges($actor, $user, ActivityEvents::UPDATED, $accessBefore, $accessLog->snapshot($user));
         });
-
-        activity()->causedBy($actor)->performedOn($user)->log('user_updated');
 
         return new UserResource($user->refresh()->load('roles', 'deniedPermissions'));
     }
@@ -128,8 +136,6 @@ class UserController extends Controller
 
         $user->update(['is_active' => false]);
         $user->tokens()->delete();
-
-        activity()->causedBy($actor)->performedOn($user)->log('user_deactivated');
 
         return response()->noContent();
     }
@@ -148,8 +154,6 @@ class UserController extends Controller
         if (! $validated['is_active']) {
             $user->tokens()->delete();
         }
-
-        activity()->causedBy($actor)->performedOn($user)->log($validated['is_active'] ? 'user_activated' : 'user_deactivated');
 
         return new UserResource($user->refresh()->load('roles', 'deniedPermissions'));
     }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Resources\MediaResource;
+use App\Models\Concerns\LogsModelActivity;
 use App\Support\RichTextSanitizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -10,6 +11,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class SiteSetting extends Model
 {
+    use LogsModelActivity;
+
     public const GROUPS = [
         'general',
         'brand',

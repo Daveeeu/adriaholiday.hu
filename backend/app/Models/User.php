@@ -2,21 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsModelActivity;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, LogsActivity, Notifiable {
+    use HasApiTokens, HasFactory, HasRoles, LogsModelActivity, Notifiable {
         HasRoles::hasPermissionTo as protected roleHasPermissionTo;
     }
 
@@ -36,6 +35,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'last_login_at' => 'datetime',
     ];
 
     /**
@@ -47,11 +47,6 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()->logAll()->logOnlyDirty()->dontLogEmptyChanges();
-    }
 
     /**
      * Pin permission/role checks to the "web" guard regardless of which guard

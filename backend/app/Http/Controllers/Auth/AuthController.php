@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\AuthUserResource;
+use App\Services\ActivityLog\AuthActivityLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,24 +15,29 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
-    public function login(LoginRequest $request): JsonResponse
+    public function login(LoginRequest $request, AuthActivityLogger $authLog): JsonResponse
     {
         $validated = $request->validated();
         $user = $request->userCandidate();
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
+            $authLog->loginFailed($validated['email'], $user, AuthActivityLogger::REASON_INVALID_CREDENTIALS, $request);
+
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
         }
 
         if (! $user->is_active) {
+            $authLog->loginFailed($validated['email'], $user, AuthActivityLogger::REASON_INACTIVE, $request);
+
             throw ValidationException::withMessages([
                 'email' => 'This account has been deactivated.',
             ]);
         }
 
         $token = $user->createToken('admin-ui')->plainTextToken;
+        $authLog->loginSucceeded($user, $request);
 
         return response()->json([
             'token' => $token,
@@ -45,8 +51,10 @@ class AuthController extends Controller
         return new AuthUserResource($request->user()->loadMissing('roles', 'permissions'));
     }
 
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request, AuthActivityLogger $authLog): JsonResponse
     {
+        $authLog->loggedOut($request->user(), $request);
+
         $bearerToken = $request->bearerToken();
 
         if ($bearerToken) {

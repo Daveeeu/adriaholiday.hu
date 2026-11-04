@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'directPermissions' => $this->getDirectPermissions()->pluck('name')->values()->all(),
             'deniedPermissions' => $deniedPermissions->values()->all(),
             'permissions' => $rolePermissions->diff($deniedPermissions)->values()->all(),
+            'lastLoginAt' => $this->last_login_at?->toISOString(),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
         ];

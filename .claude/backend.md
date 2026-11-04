@@ -598,6 +598,14 @@ Logs should help answer:
 - when it changed
 - why it matters
 
+How it is wired:
+
+- Models log through `App\Models\Concerns\LogsModelActivity` (dirty columns only). It never logs the model's `$hidden` attributes (passwords, tokens) or `updated_at`; anything sensitive must be in `$hidden`.
+- Pivot changes the model events cannot see (user roles/permissions, role permissions), role lifecycle and password changes go through `App\Services\ActivityLog\AccessActivityLogger`. The password value is never logged.
+- Admin sign-ins, failed sign-ins and sign-outs go through `App\Services\ActivityLog\AuthActivityLogger` (log name `auth`, IP and user agent in `properties`); it also sets `users.last_login_at` quietly so no user edit is logged.
+- The admin "Napló" page (`GET /api/admin/activity-log`, `activity.viewAny`, Super Admin only) filters by the record types in `App\Support\ActivityLog\ActivitySubjectTypes`. Register every new logged model there with its Hungarian label.
+- Bulk jobs that rewrite many rows (legacy imports) run inside `Activity::withoutLogging()`.
+
 ---
 
 # Exceptions

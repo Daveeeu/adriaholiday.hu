@@ -8,6 +8,7 @@ import {
   PencilLine,
   Newspaper,
   GalleryVerticalEnd,
+  History,
   LayoutDashboard,
   BarChart3,
   Megaphone,
@@ -248,7 +249,12 @@ export const staticNavigationItems: NavigationItem[] = [
   {
     labelKey: 'nav.administration',
     icon: ShieldCheck,
-    permission: ['users.viewAny', 'roles.viewAny', 'permissions.viewAny'],
+    permission: [
+      'users.viewAny',
+      'roles.viewAny',
+      'permissions.viewAny',
+      'activity.viewAny',
+    ],
     children: [
       {
         to: '/users',
@@ -267,6 +273,12 @@ export const staticNavigationItems: NavigationItem[] = [
         labelKey: 'nav.administration.permissions',
         icon: ShieldCheck,
         permission: 'permissions.viewAny',
+      },
+      {
+        to: '/activity-log',
+        labelKey: 'nav.administration.activityLog',
+        icon: History,
+        permission: 'activity.viewAny',
       },
     ],
   },

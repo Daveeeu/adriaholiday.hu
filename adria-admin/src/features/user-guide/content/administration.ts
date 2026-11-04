@@ -10,6 +10,7 @@ import {
   list,
   p,
   steps,
+  tip,
   warning,
 } from './blocks';
 
@@ -158,6 +159,53 @@ export const administrationChapter: GuideChapter = {
           field('status', 'Aktiválás / deaktiválás.'),
           field('export', 'Adatok exportálása.'),
         ]),
+      ],
+    },
+    {
+      id: 'activity-log',
+      title: 'Napló',
+      summary:
+        'Ki és mikor lépett be az adminba, és ki melyik rekordot hozta létre, módosította vagy törölte.',
+      path: '/activity-log',
+      menu: 'Rendszergazda › Napló',
+      access: 'Napló megtekintése (csak Super Admin)',
+      blocks: [
+        list(
+          [
+            'Belépés, sikertelen belépés és kijelentkezés: időpont, IP-cím és böngésző. Sikertelen belépésnél a megadott e-mail cím és az ok (hibás jelszó vagy letiltott fiók) is látszik, a jelszó soha.',
+            'Létrehozás, módosítás és törlés: melyik felhasználó, melyik rekordon (körutazás, időpont, foglalás, apartman, oldal, kupon, felhasználó, szerepkör stb.).',
+            'Felhasználók és szerepkörök szerepkör- és jogosultságváltozásai, valamint a jelszócsere ténye (az új jelszó nem).',
+          ],
+          'Mit rögzít a napló',
+        ),
+        fields('Szűrők', [
+          field(
+            'Felhasználó',
+            'Egy munkatárs műveletei és a fiókjába tett belépési kísérletek.',
+            ADMIN_ONLY,
+          ),
+          field(
+            'Művelet',
+            'Például csak a sikertelen belépések vagy csak a törlések.',
+            ADMIN_ONLY,
+          ),
+          field(
+            'Rekordtípus',
+            'Csak egy adott fajta rekord (pl. Körutazás, Kupon) változásai.',
+            ADMIN_ONLY,
+          ),
+          field(
+            'Dátumtól / Dátumig',
+            'Naptári napok magyar idő szerint, mindkét végpontot beleértve.',
+            ADMIN_ONLY,
+          ),
+        ]),
+        p(
+          'Egy sorra kattintva oldalt megnyílik a részletes nézet: a „Mi változott” táblázat mezőnként mutatja a régi és az új értéket. A már törölt rekordok neve áthúzva látszik.',
+        ),
+        tip(
+          'A sok sikertelen belépés ugyanarról az IP-címről jelszópróbálgatásra utalhat: ilyenkor érdemes az érintett munkatárssal jelszót cserélni.',
+        ),
       ],
     },
   ],

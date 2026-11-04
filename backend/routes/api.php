@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\ApartmentController;
 use App\Http\Controllers\Admin\ApartmentTypeController;
@@ -158,6 +159,10 @@ Route::prefix('admin')
         Route::apiResource('portfolio-filter-chips', AdminPortfolioFilterChipController::class);
         Route::apiResource('testimonials', AdminTestimonialController::class);
         Route::get('dashboard/summary', [DashboardController::class, 'summary'])->middleware('permission:dashboard.view');
+        Route::middleware('permission:activity.viewAny')->group(function (): void {
+            Route::get('activity-log', [ActivityLogController::class, 'index']);
+            Route::get('activity-log/filters', [ActivityLogController::class, 'filters']);
+        });
         Route::middleware('permission:analytics.view')->group(function (): void {
             Route::get('analytics/summary', [AnalyticsController::class, 'summary']);
             Route::get('analytics/top-offers', [AnalyticsController::class, 'topOffers']);

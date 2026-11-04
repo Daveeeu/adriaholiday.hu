@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Role\StoreRoleRequest;
 use App\Http\Requests\Admin\Role\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
+use App\Services\ActivityLog\AccessActivityLogger;
+use App\Support\ActivityLog\ActivityEvents;
 use App\Support\UserAccessGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -41,19 +43,18 @@ class RoleController extends Controller
         return $this->paginated(RoleResource::class, $paginator);
     }
 
-    public function store(StoreRoleRequest $request)
+    public function store(StoreRoleRequest $request, AccessActivityLogger $accessLog)
     {
         $validated = $request->validated();
         $actor = $request->user();
 
-        $role = DB::transaction(function () use ($validated, $actor): Role {
+        $role = DB::transaction(function () use ($validated, $actor, $accessLog): Role {
             $role = Role::create(['name' => $validated['name'], 'guard_name' => 'web']);
             UserAccessGuard::syncPermissions($actor, $role, $validated['permissions'] ?? []);
+            $accessLog->recordChanges($actor, $role, ActivityEvents::CREATED, [], $accessLog->snapshot($role));
 
             return $role;
         });
-
-        activity()->causedBy($actor)->performedOn($role)->log('role_created');
 
         return new RoleResource($role->load('permissions')->loadCount('users'));
     }
@@ -63,29 +64,29 @@ class RoleController extends Controller
         return new RoleResource($role->load('permissions')->loadCount('users'));
     }
 
-    public function update(UpdateRoleRequest $request, Role $role)
+    public function update(UpdateRoleRequest $request, Role $role, AccessActivityLogger $accessLog)
     {
         $validated = $request->validated();
         $actor = $request->user();
 
-        DB::transaction(function () use ($validated, $role, $actor): void {
+        DB::transaction(function () use ($validated, $role, $actor, $accessLog): void {
+            $before = $accessLog->snapshot($role);
             $role->update(['name' => $validated['name']]);
             UserAccessGuard::syncPermissions($actor, $role, $validated['permissions'] ?? []);
+            $accessLog->recordChanges($actor, $role, ActivityEvents::UPDATED, $before, $accessLog->snapshot($role));
         });
-
-        activity()->causedBy($actor)->performedOn($role)->log('role_updated');
 
         return new RoleResource($role->refresh()->load('permissions')->loadCount('users'));
     }
 
-    public function destroy(Request $request, Role $role)
+    public function destroy(Request $request, Role $role, AccessActivityLogger $accessLog)
     {
         UserAccessGuard::guardRoleDeletion($role);
 
-        $roleName = $role->name;
+        $before = $accessLog->snapshot($role);
         $role->delete();
 
-        activity()->causedBy($request->user())->log("role_deleted: {$roleName}");
+        $accessLog->recordChanges($request->user(), $role, ActivityEvents::DELETED, $before, []);
 
         return response()->noContent();
     }

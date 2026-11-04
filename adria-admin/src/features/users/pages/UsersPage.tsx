@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatDateTime } from '@/lib/date-format';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
 
@@ -115,6 +116,13 @@ export function UsersPage() {
         >
           {row.original.isActive ? 'Aktív' : 'Inaktív'}
         </span>
+      ),
+    },
+    {
+      accessorKey: 'lastLoginAt',
+      header: 'Utolsó belépés',
+      cell: ({ row }) => (
+        <span className="whitespace-nowrap text-sm text-muted-foreground">{formatDateTime(row.original.lastLoginAt)}</span>
       ),
     },
     {

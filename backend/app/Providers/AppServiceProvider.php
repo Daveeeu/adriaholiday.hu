@@ -34,6 +34,7 @@ use App\Models\TourPartnerOffer;
 use App\Models\TourRegionGroup;
 use App\Models\TourSeasonalGroup;
 use App\Models\User;
+use App\Policies\ActivityPolicy;
 use App\Policies\ApartmentPolicy;
 use App\Policies\ApartmentTypePolicy;
 use App\Policies\BlogArticlePolicy;
@@ -69,6 +70,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
@@ -116,6 +118,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TourPartnerOffer::class, TourPartnerOfferPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
+        Gate::policy(Activity::class, ActivityPolicy::class);
 
         HomepageOffer::saved(fn () => PublicContentCache::bump(
             PublicContentCache::CATEGORY_LIST,

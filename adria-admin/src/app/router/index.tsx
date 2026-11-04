@@ -220,6 +220,11 @@ const RolesPage = lazy(() =>
     default: module.RolesPage,
   })),
 );
+const ActivityLogPage = lazy(() =>
+  import('@/features/activity-log/routes/activity-log-page').then((module) => ({
+    default: module.ActivityLogPage,
+  })),
+);
 const PermissionsPage = lazy(() =>
   import('@/features/permissions/routes/permissions-page').then((module) => ({
     default: module.PermissionsPage,
@@ -552,6 +557,11 @@ const router = createBrowserRouter(
           path: 'permissions',
           element: withPermission('/permissions', <PermissionsPage />),
           handle: { crumbKey: 'nav.administration.permissions' },
+        },
+        {
+          path: 'activity-log',
+          element: withPermission('/activity-log', <ActivityLogPage />),
+          handle: { crumbKey: 'nav.administration.activityLog' },
         },
         {
           path: 'user-guide',

@@ -10,6 +10,7 @@ export type AdminUser = {
   directPermissions: string[];
   deniedPermissions: string[];
   permissions: string[];
+  lastLoginAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };
