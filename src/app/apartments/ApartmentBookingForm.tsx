@@ -1,5 +1,8 @@
 import { CheckCircle2, Loader2, Minus, Plus } from "lucide-react";
-import { type FormEvent, type ReactNode, useState } from "react";
+import { type FormEvent, type ReactNode, useRef, useState } from "react";
+
+import { apartmentItem } from "../analytics/analytics-items";
+import { trackEvent } from "../analytics/trackEvent";
 
 import BookingFieldInput from "../booking/BookingFieldInput";
 import { BookingTermsConsent, NewsletterConsent } from "../booking/BookingConsents";
@@ -112,6 +115,21 @@ export default function ApartmentBookingForm({ apartment, stay }: { apartment: A
   const [bookingId, setBookingId] = useState<number | string | null>(null);
 
   const nights = nightsBetween(stayValues.arrival ?? "", stayValues.departure ?? "");
+  const startedRef = useRef(false);
+
+  /** The visitor's first focus inside the form starts the booking funnel. */
+  function markStarted() {
+    if (startedRef.current) {
+      return;
+    }
+
+    startedRef.current = true;
+    trackEvent("booking_start", {
+      entity: { type: "apartment", slug: apartment.slug },
+      metadata: { booking_type: "apartment_booking" },
+      ecommerce: { items: [apartmentItem(apartment)] },
+    });
+  }
 
   function setGuestCount(count: number) {
     const next = Math.max(1, Math.min(MAX_GUESTS, count));
@@ -207,6 +225,19 @@ export default function ApartmentBookingForm({ apartment, stay }: { apartment: A
         newsletterSubscribe,
       });
 
+      trackEvent("booking_success", {
+        entity: { type: "apartment", slug: apartment.slug },
+        metadata: {
+          booking_id: response.id,
+          booking_type: "apartment_booking",
+          participants: guests.length,
+          ...(nights !== null ? { nights } : {}),
+        },
+        ecommerce: {
+          transactionId: response.id,
+          items: [apartmentItem(apartment, { quantity: nights ?? 1, ...(stayValues.arrival ? { variant: stayValues.arrival } : {}) })],
+        },
+      });
       setBookingId(response.id);
       document.getElementById("foglalas")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
@@ -246,7 +277,7 @@ export default function ApartmentBookingForm({ apartment, stay }: { apartment: A
   }
 
   return (
-    <form onSubmit={submit} noValidate className="space-y-6">
+    <form onSubmit={submit} onFocusCapture={markStarted} noValidate className="space-y-6">
       <div>
         <h2 className={`${TRIP_SECTION_HEADING} mb-2`}>Foglalás</h2>
         <p className="text-base text-gray-500">

@@ -1,5 +1,9 @@
 import { ArrowLeft, ChevronRight, Hash, MapPin, Users, Waves } from "lucide-react";
+import { useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
+
+import { apartmentItem } from "../analytics/analytics-items";
+import { trackEvent } from "../analytics/trackEvent";
 
 import LoadingScreen from "../components/LoadingScreen";
 import OfferContentSection from "../components/OfferContentSection";
@@ -29,6 +33,19 @@ export default function ApartmentRoute() {
   const [searchParams] = useSearchParams();
   const resource = usePortfolioResource(apartmentSlug, () => fetchApartment(apartmentSlug));
   const canonicalPath = `/apartman/${apartmentSlug}`;
+  const viewedApartment = resource.status === "ready" ? resource.data : null;
+
+  useEffect(() => {
+    if (!viewedApartment) {
+      return;
+    }
+
+    trackEvent("offer_view", {
+      entity: { type: "apartment", slug: viewedApartment.slug },
+      metadata: { title: viewedApartment.name },
+      ecommerce: { items: [apartmentItem(viewedApartment)] },
+    });
+  }, [viewedApartment]);
 
   if (resource.status === "loading") {
     return <LoadingScreen />;

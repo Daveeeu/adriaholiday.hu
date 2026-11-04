@@ -1,3 +1,5 @@
+import { getBookingAnalyticsContext } from '../analytics/google-tag-manager';
+import { getStoredConsent } from '../analytics/storage';
 import { getPortfolioApiBaseUrl } from '../content/portfolio-api';
 import type { PassengerOptions } from './booking-pricing';
 
@@ -100,7 +102,7 @@ export class BookingValidationError extends BookingApiError {
 }
 
 export function submitBooking(payload: SubmitBookingPayload): Promise<SubmitBookingResponse> {
-  return request('POST', '/bookings', payload);
+  return request('POST', '/bookings', { ...payload, analytics: getBookingAnalyticsContext(getStoredConsent()) });
 }
 
 export function submitApartmentBooking(slug: string, payload: SubmitApartmentBookingPayload): Promise<SubmitBookingResponse> {

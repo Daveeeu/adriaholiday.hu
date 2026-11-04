@@ -1,6 +1,7 @@
 import {
   createContext,
   startTransition,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -13,11 +14,11 @@ import { useLocation } from "react-router";
 import { postAnalyticsEvent } from "./analytics-api";
 import type { AnalyticsConsent, AnalyticsEventName, AnalyticsTrackPayload } from "./event-catalog";
 import {
-  ensureGoogleAnalytics,
-  sendGoogleAnalyticsEvent,
-  updateGoogleAnalyticsConsent,
-} from "./google-analytics-service";
-import { ensureMetaPixel, sendMetaPixelEvent } from "./meta-pixel-service";
+  ensureTagManager,
+  isTagManagerLoaded,
+  pushDataLayerEvent,
+  updateTagManagerConsent,
+} from "./google-tag-manager";
 import { setAnalyticsDispatcher } from "./runtime";
 import {
   captureFirstTouchUtm,
@@ -40,6 +41,11 @@ type AnalyticsContextValue = {
   openConsentPreferences: () => void;
 };
 
+type PendingPageView = {
+  eventId: string;
+  payload?: AnalyticsTrackPayload;
+};
+
 const AnalyticsContext = createContext<AnalyticsContextValue | null>(null);
 
 function analyticsEnabled() {
@@ -50,20 +56,14 @@ function analyticsDebugEnabled() {
   return import.meta.env.VITE_ANALYTICS_DEBUG === "true";
 }
 
-function googleAnalyticsEnabled() {
-  return import.meta.env.VITE_GA_ENABLED === "true";
+function tagManagerContainerId() {
+  return import.meta.env.VITE_GTM_ID || "";
 }
 
-function googleAnalyticsMeasurementId() {
-  return import.meta.env.VITE_GA_MEASUREMENT_ID || "";
-}
-
-function metaPixelId() {
-  return import.meta.env.VITE_META_PIXEL_ID || "";
-}
-
-function metaPixelEnabled() {
-  return import.meta.env.VITE_META_PIXEL_ENABLED === "true";
+function createEventId() {
+  return typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `evt_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
 export function AnalyticsProvider({ children }: { children: ReactNode }) {
@@ -74,6 +74,9 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   );
   const consentRef = useRef(consent);
   const lastTrackedPathRef = useRef<string | null>(null);
+  // The page view of the page the visitor gives consent on, replayed to GTM
+  // once the container loads.
+  const pendingPageViewRef = useRef<PendingPageView | null>(null);
 
   useEffect(() => {
     if (!analyticsEnabled()) {
@@ -81,58 +84,40 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     }
 
     captureFirstTouchUtm();
-    syncMetaCookies();
   }, []);
 
   useEffect(() => {
     consentRef.current = consent;
     setStoredConsent(consent);
-  }, [consent]);
 
-  useEffect(() => {
-    if (!analyticsEnabled() || !googleAnalyticsEnabled()) {
-      return;
-    }
-
-    updateGoogleAnalyticsConsent(consent);
-    ensureGoogleAnalytics({
-      enabled: true,
-      consent,
-      measurementId: googleAnalyticsMeasurementId(),
-    });
-  }, [consent]);
-
-  useEffect(() => {
-    if (!analyticsEnabled() || !consent.analytics || !consent.marketing) {
-      return;
-    }
-
-    const pixelId = metaPixelId();
-    if (pixelId) {
-      ensureMetaPixel({
-        enabled: metaPixelEnabled(),
-        marketingConsent: consent.marketing,
-        pixelId,
-      });
-    }
-  }, [consent.analytics, consent.marketing]);
-
-  const dispatchEvent = async (eventName: AnalyticsEventName, payload?: AnalyticsTrackPayload) => {
     if (!analyticsEnabled()) {
       return;
     }
 
-    const eventId =
-      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : `evt_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    const visitorId = getVisitorId();
-    const sessionId = getSessionId(getAnalyticsSessionCookieName());
+    if (consent.marketing) {
+      syncMetaCookies();
+    }
+
+    updateTagManagerConsent(consent);
+
+    const pendingPageView = pendingPageViewRef.current;
+    if (ensureTagManager(tagManagerContainerId(), consent) && pendingPageView) {
+      pushDataLayerEvent("page_view", pendingPageView.eventId, pendingPageView.payload);
+      pendingPageViewRef.current = null;
+    }
+  }, [consent]);
+
+  const dispatchEvent = useCallback(async (eventName: AnalyticsEventName, payload?: AnalyticsTrackPayload) => {
+    if (!analyticsEnabled()) {
+      return;
+    }
+
+    const eventId = createEventId();
     const currentConsent = consentRef.current;
     const eventPayload = {
       event_id: eventId,
-      session_id: sessionId,
-      visitor_id: visitorId,
+      session_id: getSessionId(getAnalyticsSessionCookieName()),
+      visitor_id: getVisitorId(),
       event_name: eventName,
       entity: payload?.entity,
       page: {
@@ -156,26 +141,15 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    if (currentConsent.analytics && googleAnalyticsEnabled()) {
-      sendGoogleAnalyticsEvent(eventName, payload);
+    if (isTagManagerLoaded()) {
+      pushDataLayerEvent(eventName, eventId, payload);
+    } else if (eventName === "page_view") {
+      pendingPageViewRef.current = { eventId, payload };
     }
-
-    if (
-      currentConsent.analytics &&
-      currentConsent.marketing &&
-      metaPixelEnabled() &&
-      metaPixelId()
-    ) {
-      sendMetaPixelEvent({
-        eventId,
-        eventName,
-        payload,
-      });
-    }
-  };
+  }, []);
 
   useEffect(() => {
-    setAnalyticsDispatcher((eventName, payload) => dispatchEvent(eventName, payload));
+    setAnalyticsDispatcher(dispatchEvent);
 
     return () => {
       setAnalyticsDispatcher(null);
@@ -190,7 +164,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     }
 
     lastTrackedPathRef.current = nextPath;
-    dispatchEvent("page_view", {
+    void dispatchEvent("page_view", {
       metadata: {
         route_name: location.pathname,
       },

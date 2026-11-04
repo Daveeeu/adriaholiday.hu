@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Clock, CreditCard, Home, RotateCcw, X } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
 
+import { trackEvent } from "../analytics/trackEvent";
 import BarionPaymentBanner from "../components/BarionPaymentBanner";
 import Seo from "../seo/Seo";
 import {
@@ -36,6 +37,27 @@ export default function PaymentResultRoute() {
   const [retrying, setRetrying] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
 
+  const trackedPaymentRef = useRef<string | null>(null);
+
+  // The paid booking itself reaches GA4 from the server (purchase); this
+  // records what the customer saw on returning from Barion.
+  function trackSettledPayment(payment: BookingPaymentResult) {
+    if ((payment.status !== "succeeded" && payment.status !== "failed") || trackedPaymentRef.current === payment.paymentId) {
+      return;
+    }
+
+    trackedPaymentRef.current = payment.paymentId;
+    trackEvent("payment_result", {
+      entity: { type: "booking", id: payment.bookingId },
+      metadata: {
+        payment_status: payment.status,
+        payment_kind: payment.kind,
+        value: payment.amount,
+        currency: payment.currency,
+      },
+    });
+  }
+
   useEffect(() => {
     if (!paymentId) {
       return;
@@ -52,6 +74,7 @@ export default function PaymentResultRoute() {
         }
 
         setState({ kind: "loaded", payment });
+        trackSettledPayment(payment);
 
         if ((payment.status === "started" || payment.status === "pending") && poll < MAX_POLLS) {
           timer = window.setTimeout(() => load(poll + 1), POLL_INTERVAL_MS);

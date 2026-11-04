@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Services\Newsletter\NewsletterSubscriptionService;
+use App\Support\Analytics\BookingAnalyticsContext;
 use App\Support\Booking\TourBookingSelection;
 use App\Support\Booking\TourBookingStatus;
 use Illuminate\Support\Facades\DB;
@@ -153,6 +154,7 @@ class PublicBookingService
                 'pricing' => $pricing,
                 // Proof that the customer accepted the terms and the privacy policy.
                 'termsAcceptedAt' => now()->toIso8601String(),
+                'googleAnalytics' => BookingAnalyticsContext::fromValidated($validated),
             ],
         ]);
     }

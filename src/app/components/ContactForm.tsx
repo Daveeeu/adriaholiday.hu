@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react";
 import { CheckCircle2, Send } from "lucide-react";
 import { Link } from "react-router";
 
+import { trackEvent } from "../analytics/trackEvent";
+
 import {
   ContactMessageValidationError,
   sendContactMessage,
@@ -34,6 +36,7 @@ export default function ContactForm() {
 
     try {
       await sendContactMessage(values);
+      trackEvent("lead_submit", { metadata: { source: "contact_form" } });
       setStatus("sent");
       setValues(EMPTY);
     } catch (error) {

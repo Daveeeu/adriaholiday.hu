@@ -3,6 +3,8 @@ export const analyticsEventNames = [
   "category_view",
   "homepage_offer_view",
   "offer_view",
+  "item_list_view",
+  "item_select",
   "gallery_open",
   "gallery_next",
   "gallery_previous",
@@ -26,6 +28,9 @@ export const analyticsEventNames = [
   "booking_start",
   "booking_success",
   "booking_error",
+  "newsletter_signup",
+  "payment_result",
+  "page_not_found",
 ] as const;
 
 export type AnalyticsEventName = (typeof analyticsEventNames)[number];
@@ -42,7 +47,29 @@ export type AnalyticsEntity = {
   slug?: string | null;
 };
 
+/** A tour, apartment or other bookable offer in a commerce event. */
+export type AnalyticsItem = {
+  id: string | number;
+  name: string;
+  category?: string;
+  variant?: string;
+  price?: number;
+  quantity?: number;
+  index?: number;
+  listName?: string;
+};
+
+/** Commerce data for GA4 ecommerce reports; sent to Google Tag Manager only. */
+export type AnalyticsEcommerce = {
+  items: AnalyticsItem[];
+  value?: number;
+  currency?: string;
+  transactionId?: string | number;
+  listName?: string;
+};
+
 export type AnalyticsTrackPayload = {
   entity?: AnalyticsEntity;
   metadata?: Record<string, unknown>;
+  ecommerce?: AnalyticsEcommerce;
 };

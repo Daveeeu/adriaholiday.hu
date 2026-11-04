@@ -1,5 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Check, CreditCard, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
+import { tourItem } from "../analytics/analytics-items";
+import type { AnalyticsEcommerce } from "../analytics/event-catalog";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioBookingPayment, type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import BookingFieldInput from "./BookingFieldInput";
@@ -317,8 +319,30 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
     setHasStarted(true);
     trackEvent("booking_start", {
       entity: { type: "tour", slug: trip.slug },
-      metadata: { transport: trip.transport },
+      metadata: { transport: trip.transport, booking_type: "tour_booking" },
+      ecommerce: bookingEcommerce(),
     });
+  }
+
+  /** The booked tour as a commerce item, priced from the current estimate. */
+  function bookingEcommerce(transactionId?: string | number): AnalyticsEcommerce {
+    const quantity = Math.max(passengers.length, 1);
+    const total = priceEstimate.total;
+
+    return {
+      ...(total !== null ? { value: total } : {}),
+      ...(transactionId !== undefined ? { transactionId } : {}),
+      items: [
+        tourItem(
+          { slug: trip.slug, name: trip.title },
+          {
+            quantity,
+            ...(startDate ? { variant: startDate } : {}),
+            ...(total !== null ? { price: Math.round(total / quantity) } : {}),
+          },
+        ),
+      ],
+    };
   }
 
   function changeDeparturePlace(id: string) {
@@ -620,7 +644,13 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
 
       trackEvent("booking_success", {
         entity: { type: "tour", slug: trip.slug },
-        metadata: { booking_id: response.id, participants: passengers.length },
+        metadata: {
+          booking_id: response.id,
+          participants: passengers.length,
+          booking_type: "tour_booking",
+          online_payment: Boolean(response.paymentUrl),
+        },
+        ecommerce: bookingEcommerce(response.id),
       });
 
       if (response.paymentUrl) {

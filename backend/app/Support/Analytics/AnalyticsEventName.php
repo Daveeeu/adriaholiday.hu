@@ -12,6 +12,10 @@ final class AnalyticsEventName
 
     public const OFFER_VIEW = 'offer_view';
 
+    public const ITEM_LIST_VIEW = 'item_list_view';
+
+    public const ITEM_SELECT = 'item_select';
+
     public const GALLERY_OPEN = 'gallery_open';
 
     public const GALLERY_NEXT = 'gallery_next';
@@ -60,6 +64,12 @@ final class AnalyticsEventName
 
     public const BOOKING_STATUS_CHANGE = 'booking_status_change';
 
+    public const NEWSLETTER_SIGNUP = 'newsletter_signup';
+
+    public const PAYMENT_RESULT = 'payment_result';
+
+    public const PAGE_NOT_FOUND = 'page_not_found';
+
     public static function all(): array
     {
         return [
@@ -67,6 +77,8 @@ final class AnalyticsEventName
             self::CATEGORY_VIEW,
             self::HOMEPAGE_OFFER_VIEW,
             self::OFFER_VIEW,
+            self::ITEM_LIST_VIEW,
+            self::ITEM_SELECT,
             self::GALLERY_OPEN,
             self::GALLERY_NEXT,
             self::GALLERY_PREVIOUS,
@@ -91,6 +103,9 @@ final class AnalyticsEventName
             self::BOOKING_SUCCESS,
             self::BOOKING_ERROR,
             self::BOOKING_STATUS_CHANGE,
+            self::NEWSLETTER_SIGNUP,
+            self::PAYMENT_RESULT,
+            self::PAGE_NOT_FOUND,
         ];
     }
 }

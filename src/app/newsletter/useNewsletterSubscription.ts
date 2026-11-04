@@ -1,11 +1,15 @@
 import { useState, type FormEvent } from "react";
 
+import { trackEvent } from "../analytics/trackEvent";
 import { NewsletterApiError, subscribeToNewsletter } from "./newsletter-api";
 
 export type NewsletterSubmitStatus = "idle" | "submitting" | "success" | "error";
 
-/** Email field state and submit handling shared by every newsletter sign-up form. */
-export function useNewsletterSubscription() {
+/**
+ * Email field state and submit handling shared by every newsletter sign-up
+ * form; `placement` names the form in analytics.
+ */
+export function useNewsletterSubscription(placement: string) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<NewsletterSubmitStatus>("idle");
   const [feedback, setFeedback] = useState("");
@@ -21,6 +25,9 @@ export function useNewsletterSubscription() {
 
     try {
       const response = await subscribeToNewsletter(email.trim());
+      trackEvent("newsletter_signup", {
+        metadata: { placement, already_subscribed: response.status === "already_subscribed" },
+      });
       setStatus("success");
       setFeedback(
         response.status === "already_subscribed"

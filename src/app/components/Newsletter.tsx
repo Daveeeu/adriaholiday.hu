@@ -42,7 +42,7 @@ export default function Newsletter() {
   const { getValue } = usePortfolioContent();
   const { settings } = useSiteSettings();
   const [isFocused, setIsFocused] = useState(false);
-  const { email, setEmail, status, feedback, isSubmitting, handleSubmit } = useNewsletterSubscription();
+  const { email, setEmail, status, feedback, isSubmitting, handleSubmit } = useNewsletterSubscription("newsletter_section");
   const worldMapAnimation = useLottieAnimation("world-map-pinging-and-searching.json");
 
   const placeholder = String(

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Public;
 
+use App\Support\Analytics\BookingAnalyticsContext;
 use App\Support\Tour\TourDateStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -122,6 +123,7 @@ class StorePublicBookingRequest extends FormRequest
             'type' => ['nullable', 'string', Rule::in(['tour_booking', 'tour_inquiry'])],
             'terms_accepted' => ['accepted'],
             'newsletter_subscribe' => ['boolean'],
+            ...BookingAnalyticsContext::rules(),
         ];
     }
 

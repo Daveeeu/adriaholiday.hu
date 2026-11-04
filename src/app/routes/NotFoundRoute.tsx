@@ -1,10 +1,17 @@
 import { Compass, Home, Search } from "lucide-react";
+import { useEffect } from "react";
 import { Link, useLocation } from "react-router";
+
+import { trackEvent } from "../analytics/trackEvent";
 
 import Seo from "../seo/Seo";
 
 export default function NotFoundRoute() {
   const location = useLocation();
+
+  useEffect(() => {
+    trackEvent("page_not_found", { metadata: { missing_path: location.pathname } });
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#e7fff5,transparent_28%),linear-gradient(180deg,#f8fcff_0%,#eef6fb_100%)]">

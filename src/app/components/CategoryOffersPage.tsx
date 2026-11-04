@@ -18,6 +18,7 @@ import {
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router";
 
+import { offerCardTour, trackItemListView, trackItemSelect } from "../analytics/analytics-items";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { DEFAULT_HERO_IMAGE } from "../content/default-images";
 import { useInfiniteScrollTrigger } from "../hooks/useInfiniteScrollTrigger";
@@ -185,7 +186,11 @@ export default function CategoryOffersPage({
   const showResultsAfterFinderRef = useRef(false);
   /** Incremented on every filter change so stale "load more" responses are discarded. */
   const listGenerationRef = useRef(0);
-  const analyticsEntity = { type: categorySlug ? "category" : "offer_list", slug: categorySlug ?? null };
+  const analyticsEntity = useMemo(
+    () => ({ type: categorySlug ? "category" : "offer_list", slug: categorySlug ?? null }),
+    [categorySlug],
+  );
+  const analyticsListName = categorySlug ?? "offer_list";
 
   const filters = useMemo<OfferFilters>(
     () => ({
@@ -247,6 +252,7 @@ export default function CategoryOffersPage({
 
         setItems(response.items ?? []);
         setRecommended(response.recommended ?? []);
+        trackItemListView(analyticsListName, analyticsEntity, (response.items ?? []).map(offerCardTour));
         setTotalCount(response.totalCount ?? 0);
         setPage(1);
         setHasMorePages(hasNextPage(1, response.items ?? [], response.totalCount ?? 0));
@@ -271,7 +277,7 @@ export default function CategoryOffersPage({
     return () => {
       cancelled = true;
     };
-  }, [fetchOfferPage]);
+  }, [analyticsEntity, analyticsListName, fetchOfferPage]);
 
   const canLoadMore = !isLoading && !isLoadingMore && !hasError && !hasLoadMoreError && hasMorePages;
 
@@ -292,6 +298,12 @@ export default function CategoryOffersPage({
         }
 
         const nextItems = response.items ?? [];
+        trackItemListView(
+          analyticsListName,
+          analyticsEntity,
+          nextItems.map(offerCardTour),
+          (nextPage - 1) * (response.perPage ?? nextItems.length),
+        );
 
         setItems((current) => {
           const knownIds = new Set(current.map((item) => item.id));
@@ -311,9 +323,20 @@ export default function CategoryOffersPage({
           setIsLoadingMore(false);
         }
       });
-  }, [canLoadMore, fetchOfferPage, page]);
+  }, [analyticsEntity, analyticsListName, canLoadMore, fetchOfferPage, page]);
 
   const retryLoadMore = () => setHasLoadMoreError(false);
+
+  function selectOffer(slug: string) {
+    const index = items.findIndex((item) => item.seoName === slug);
+    const offer = index >= 0 ? items[index] : recommended.find((item) => item.seoName === slug);
+
+    if (offer) {
+      trackItemSelect(analyticsListName, analyticsEntity, offerCardTour(offer), index >= 0 ? index : undefined);
+    }
+
+    onOfferSelect(slug);
+  }
 
   const loadMoreSentinelRef = useInfiniteScrollTrigger<HTMLDivElement>({
     enabled: canLoadMore,
@@ -756,7 +779,7 @@ export default function CategoryOffersPage({
             {showHighlights && spotlightOffer ? (
               <section className="pt-14">
                 <div className="mx-auto max-w-[1500px] px-8 md:px-12 lg:px-20">
-                  <SpotlightOfferCard offer={spotlightOffer} onOfferSelect={onOfferSelect} />
+                  <SpotlightOfferCard offer={spotlightOffer} onOfferSelect={selectOffer} />
                 </div>
               </section>
             ) : null}
@@ -779,7 +802,7 @@ export default function CategoryOffersPage({
                       <RecommendedOfferCard
                         key={`recommended-${offer.card.id}`}
                         offer={offer}
-                        onOfferSelect={onOfferSelect}
+                        onOfferSelect={selectOffer}
                       />
                     ))}
                   </div>
@@ -803,7 +826,7 @@ export default function CategoryOffersPage({
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                   {itemCards.map((offer, index) => (
                     <Fragment key={`result-${offer.card.id}`}>
-                      <ResultOfferCard offer={offer} onOfferSelect={onOfferSelect} />
+                      <ResultOfferCard offer={offer} onOfferSelect={selectOffer} />
                       {index === choiceHelpBannerAfterIndex ? (
                         <div className="col-span-full">
                           <ChoiceHelpBanner

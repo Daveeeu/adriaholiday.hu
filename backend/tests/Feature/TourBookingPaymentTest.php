@@ -13,6 +13,7 @@ use App\Support\Payment\BookingPaymentStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class TourBookingPaymentTest extends TestCase
@@ -230,6 +231,60 @@ class TourBookingPaymentTest extends TestCase
             ->assertJsonPath('bookingPayment', null);
     }
 
+    public function test_a_succeeded_payment_is_reported_to_ga4_as_a_purchase_of_the_booking_visitor(): void
+    {
+        config(['analytics.google.measurement_id' => 'G-TEST123', 'analytics.google.api_secret' => 'secret']);
+        $this->departInDays(20);
+        $this->fakeBarionStart('pay-1', state: 'Succeeded');
+        $booking = $this->book(['analytics' => [
+            'analytics_consent' => true,
+            'ga_client_id' => '123456789.1700000000',
+            'ga_session_id' => '1700000123',
+        ]]);
+
+        $this->post('/api/payments/barion/callback', ['paymentId' => 'pay-1'])->assertOk();
+        $this->post('/api/payments/barion/callback', ['paymentId' => 'pay-1'])->assertOk();
+
+        $payment = $booking->payments()->sole();
+        $purchases = Http::recorded(fn (Request $request): bool => str_starts_with($request->url(), 'https://www.google-analytics.com/mp/collect'));
+
+        $this->assertCount(1, $purchases);
+        [$request] = $purchases->first();
+        $this->assertStringContainsString('measurement_id=G-TEST123', $request->url());
+        $this->assertStringContainsString('api_secret=secret', $request->url());
+        $this->assertSame('123456789.1700000000', $request['client_id']);
+        $this->assertSame('purchase', $request['events'][0]['name']);
+        $params = $request['events'][0]['params'];
+        $this->assertSame("booking-{$booking->id}-payment-{$payment->id}", $params['transaction_id']);
+        $this->assertEquals((float) $payment->amount, $params['value']);
+        $this->assertSame('HUF', $params['currency']);
+        $this->assertSame('1700000123', $params['session_id']);
+        $this->assertSame(Str::after($this->tour->publicPath(), '/ajanlat/'), $params['items'][0]['item_id']);
+        $this->assertSame(2, $params['items'][0]['quantity']);
+    }
+
+    public function test_no_purchase_is_reported_to_ga4_without_analytics_consent(): void
+    {
+        config(['analytics.google.measurement_id' => 'G-TEST123', 'analytics.google.api_secret' => 'secret']);
+        $this->departInDays(20);
+        $this->fakeBarionStart('pay-1', state: 'Succeeded');
+        $booking = $this->book(['analytics' => ['analytics_consent' => false, 'ga_client_id' => '123456789.1700000000']]);
+
+        $this->post('/api/payments/barion/callback', ['paymentId' => 'pay-1'])->assertOk();
+
+        $this->assertArrayNotHasKey('googleAnalytics', array_filter($booking->refresh()->payload));
+        Http::assertNotSent(fn (Request $request): bool => str_starts_with($request->url(), 'https://www.google-analytics.com/'));
+    }
+
+    public function test_a_malformed_ga_client_id_is_rejected(): void
+    {
+        Http::fake();
+
+        $this->postJson('/api/bookings', [...$this->bookingPayload(), 'analytics' => ['analytics_consent' => true, 'ga_client_id' => '<script>']])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('analytics.ga_client_id');
+    }
+
     private function departInDays(int $days): void
     {
         $this->tourDate->update(['start_date' => today()->addDays($days), 'end_date' => today()->addDays($days + 1)]);
@@ -245,6 +300,7 @@ class TourBookingPaymentTest extends TestCase
                 'CompletedAt' => $state === 'Succeeded' ? now()->toIso8601String() : null,
                 'Errors' => [],
             ]),
+            'https://www.google-analytics.com/*' => Http::response(status: 204),
         ]);
     }
 
@@ -256,9 +312,12 @@ class TourBookingPaymentTest extends TestCase
         );
     }
 
-    private function book(): Booking
+    /**
+     * @param  array<string, mixed>  $overrides
+     */
+    private function book(array $overrides = []): Booking
     {
-        $response = $this->postJson('/api/bookings', $this->bookingPayload())->assertCreated();
+        $response = $this->postJson('/api/bookings', [...$this->bookingPayload(), ...$overrides])->assertCreated();
 
         return Booking::query()->findOrFail($response->json('id'));
     }

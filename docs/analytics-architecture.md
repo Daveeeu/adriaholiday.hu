@@ -10,7 +10,9 @@ The analytics stack is designed as a first-party event pipeline:
 4. Laravel validates and persists the event in `analytics_events`.
 5. Marketing-capable events are dispatched to the `analytics` queue.
 6. Queue fanout sends partner-ready events to destination services.
-7. Meta Pixel uses the same `event_id` in browser as CAPI uses in backend for deduplication.
+7. After cookie consent the event is also pushed to the Google Tag Manager dataLayer; GTM sends it to GA4, Meta Pixel and Google Ads. The Pixel uses the same `event_id` as CAPI for deduplication.
+
+The GTM / GA4 side (dataLayer contract, event table, GA4 settings, server-side `purchase`) is documented in [analytics/tracking-plan.md](analytics/tracking-plan.md).
 
 ## Frontend Structure
 
@@ -20,7 +22,9 @@ Files:
 - `src/app/analytics/useAnalytics.ts`
 - `src/app/analytics/analytics-provider.tsx`
 - `src/app/analytics/analytics-api.ts`
-- `src/app/analytics/meta-pixel-service.ts`
+- `src/app/analytics/google-tag-manager.ts` (consent-gated GTM loader, dataLayer pushes)
+- `src/app/analytics/data-layer-events.js` (site event → dataLayer mapping)
+- `src/app/analytics/analytics-items.ts` (tours and apartments as commerce items)
 - `src/app/analytics/storage.ts`
 - `src/app/analytics/event-catalog.ts`
 
@@ -37,7 +41,7 @@ Current wiring:
 
 Rule:
 
-- No component should call `fbq` directly.
+- No component should call `fbq`, `gtag` or push to `dataLayer` directly.
 - All future events must go through `trackEvent(...)`.
 
 ## Backend Structure
@@ -125,7 +129,7 @@ Next adapters can be:
 
 Browser side:
 
-- `meta-pixel-service.ts` loads Pixel centrally.
+- The Pixel runs in GTM („Meta - Pixel event” tag), fed by the dataLayer `meta_event` computed in `data-layer-events.js`.
 - `eventID` is always the frontend-generated `event_id`.
 
 Backend side:
@@ -153,6 +157,7 @@ Implemented baseline:
 - Event payload always carries `necessary`, `analytics`, `marketing`.
 - Without analytics consent, first-party analytics storage is skipped.
 - Without marketing consent, queue fanout and Pixel/CAPI dispatch are skipped.
+- Google Tag Manager loads only after statistics or marketing consent, with Consent Mode v2 set before any tag.
 
 Recommended next step:
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\Booking;
 
+use App\Jobs\SendGooglePurchaseEventJob;
 use App\Models\Booking;
 use App\Models\BookingPayment;
 use App\Services\Payment\Barion\BarionClient;
@@ -178,6 +179,10 @@ class BookingPaymentService
             'paid_amount' => $paidAmount,
             'payment_status' => $settled ? 'paid' : 'partial',
         ]);
+
+        SendGooglePurchaseEventJob::dispatch($payment->id)
+            ->onQueue(config('analytics.queue'))
+            ->afterCommit();
     }
 
     /**

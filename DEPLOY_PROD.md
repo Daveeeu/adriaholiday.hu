@@ -57,10 +57,7 @@ cp backend/.env.production.example backend/.env.production
 - `PORTFOLIO_VITE_ANALYTICS_ENABLED`
 - `PORTFOLIO_VITE_ANALYTICS_DEBUG`
 - `PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE`
-- `PORTFOLIO_VITE_GA_ENABLED`
-- `PORTFOLIO_VITE_GA_MEASUREMENT_ID`
-- `PORTFOLIO_VITE_META_PIXEL_ENABLED`
-- `PORTFOLIO_VITE_META_PIXEL_ID`
+- `PORTFOLIO_VITE_GTM_ID` (Google Tag Manager container; GA4, Meta Pixel and Google Ads tags live in it)
 - `ADMIN_VITE_API_BASE_URL`
 - `DB_HOST`
 - `DB_PORT`
@@ -94,6 +91,7 @@ cp backend/.env.production.example backend/.env.production
 - `BOOKING_OFFICE_EMAIL=adriaholiday@adriaholiday.hu` – erre a címre mennek a foglalási és ajánlatkérési értesítők; üresen hagyva az iroda **nem kap** értesítést
 - `SESSION_SECURE_COOKIE=true`
 - `ANALYTICS_*`
+- `GA_MEASUREMENT_ID`, `GA_API_SECRET` – GA4 Measurement Protocol: a sikeres online fizetés `purchase` eseményként a szerverről megy a GA4-be (GA4 Admin → Adatfolyamok → Measurement Protocol API secrets)
 - `META_*`
 - opcionális: `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD`
 

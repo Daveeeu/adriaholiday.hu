@@ -15,6 +15,7 @@ import {
   type PortfolioOfferDetailDate,
 } from "../content/portfolio-offer-detail-api";
 import { INQUIRE_LABEL } from "../content/portfolio-offer-card-model";
+import { tourItem } from "../analytics/analytics-items";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { absoluteUrl } from "../seo/site";
 
@@ -245,6 +246,10 @@ export default function TripRoute() {
         title: offer.title,
         country: offer.country,
         price: offer.priceNumber,
+      },
+      ecommerce: {
+        ...(typeof offer.priceNumber === "number" ? { value: offer.priceNumber } : {}),
+        items: [tourItem({ slug: offer.slug, name: offer.title, price: offer.priceNumber, country: offer.country })],
       },
     });
   }, [offer, trackEvent]);

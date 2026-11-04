@@ -7,6 +7,12 @@ return [
     'session_cookie' => env('ANALYTICS_SESSION_COOKIE', 'ah_session_id'),
     'session_lifetime_minutes' => (int) env('ANALYTICS_SESSION_LIFETIME', 30),
 
+    'google' => [
+        'measurement_id' => env('GA_MEASUREMENT_ID'),
+        'api_secret' => env('GA_API_SECRET'),
+        'timeout_seconds' => (int) env('GA_MP_TIMEOUT', 5),
+    ],
+
     'meta' => [
         'pixel_id' => env('META_PIXEL_ID'),
         'capi_enabled' => env('META_CAPI_ENABLED', false),
