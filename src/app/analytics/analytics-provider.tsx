@@ -12,6 +12,11 @@ import { useLocation } from "react-router";
 
 import { postAnalyticsEvent } from "./analytics-api";
 import type { AnalyticsConsent, AnalyticsEventName, AnalyticsTrackPayload } from "./event-catalog";
+import {
+  ensureGoogleAnalytics,
+  sendGoogleAnalyticsEvent,
+  updateGoogleAnalyticsConsent,
+} from "./google-analytics-service";
 import { ensureMetaPixel, sendMetaPixelEvent } from "./meta-pixel-service";
 import { setAnalyticsDispatcher } from "./runtime";
 import {
@@ -45,6 +50,14 @@ function analyticsDebugEnabled() {
   return import.meta.env.VITE_ANALYTICS_DEBUG === "true";
 }
 
+function googleAnalyticsEnabled() {
+  return import.meta.env.VITE_GA_ENABLED === "true";
+}
+
+function googleAnalyticsMeasurementId() {
+  return import.meta.env.VITE_GA_MEASUREMENT_ID || "";
+}
+
 function metaPixelId() {
   return import.meta.env.VITE_META_PIXEL_ID || "";
 }
@@ -74,6 +87,19 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     consentRef.current = consent;
     setStoredConsent(consent);
+  }, [consent]);
+
+  useEffect(() => {
+    if (!analyticsEnabled() || !googleAnalyticsEnabled()) {
+      return;
+    }
+
+    updateGoogleAnalyticsConsent(consent);
+    ensureGoogleAnalytics({
+      enabled: true,
+      consent,
+      measurementId: googleAnalyticsMeasurementId(),
+    });
   }, [consent]);
 
   useEffect(() => {
@@ -128,6 +154,10 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
       void postAnalyticsEvent(eventPayload).catch(() => {
         // Ignore client-side analytics transport failures.
       });
+    }
+
+    if (currentConsent.analytics && googleAnalyticsEnabled()) {
+      sendGoogleAnalyticsEvent(eventName, payload);
     }
 
     if (
