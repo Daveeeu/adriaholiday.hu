@@ -69,7 +69,7 @@ class DeparturePlaceConsolidator
 
             foreach ($tours as $tour) {
                 $oldTowns = $tour->departurePlaces->mapWithKeys(fn (TourDeparturePlace $place): array => [
-                    $place->id => $this->townsIn($place->name.' '.$place->city, $towns),
+                    $place->id => $this->townsIn($place->name, $towns),
                 ]);
                 $currentTowns = $oldTowns->flatten()->unique()->values()->all();
                 $route = $this->routeFor($tour, $currentTowns);
@@ -196,7 +196,9 @@ class DeparturePlaceConsolidator
     }
 
     /**
-     * The route towns and every existing place named after a single town.
+     * The route towns and every single town an existing place's name or
+     * city gives. The legacy city column also holds routes and abbreviations
+     * ("Bp-Szeged M5 mentén", "Bp, Hatvan"), which are skipped.
      *
      * @param  Collection<int, TourDeparturePlace>  $places
      * @return array<int, string>
@@ -204,9 +206,8 @@ class DeparturePlaceConsolidator
     private function knownTowns(Collection $places): array
     {
         $towns = collect(self::ROUTES)->flatten()
-            ->merge($places->pluck('city'))
-            ->merge($places->pluck('name')->filter(fn (string $name): bool => preg_match('/^\p{Lu}\p{Ll}+$/u', $name) === 1))
-            ->filter()
+            ->merge($places->pluck('city')->merge($places->pluck('name'))
+                ->filter(fn (?string $town): bool => preg_match('/^\p{Lu}\p{Ll}{2,}$/u', (string) $town) === 1))
             ->unique()
             ->values()
             ->all();

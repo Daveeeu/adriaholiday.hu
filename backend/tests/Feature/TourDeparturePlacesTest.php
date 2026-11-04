@@ -30,9 +30,9 @@ class TourDeparturePlacesTest extends TestCase
         $bok = $this->place('Budapest BOK Csarnok');
         $miskolcParking = $this->place('Miskolc, Centrum Áruház mögötti parkoló');
         $west = $this->place('tatabányai, győri, mosonmagyaróvári indulással');
-        $north = $this->place('mezőkövesdi, gyöngyösi, hatvani indulással');
+        $north = $this->place('mezőkövesdi, gyöngyösi, hatvani indulással', city: 'Mezökövesd, Gyöngyös, Hatvan');
         $route = $this->place('Miskolc-Mezőkövesd-Gyöngyös-Hatvan-Budapest');
-        $budapesti = $this->place('budapesti indulással');
+        $budapesti = $this->place('budapesti indulással', city: 'Bp');
         $seededSiofok = $this->place('Siófok', 18);
         $unused = $this->place('Zalaegerszeg');
 
@@ -72,6 +72,7 @@ class TourDeparturePlacesTest extends TestCase
         }
 
         $this->assertSame(1, TourDeparturePlace::query()->where('name', 'Budapest')->count());
+        $this->assertFalse(TourDeparturePlace::query()->whereIn('name', ['Bp', 'Mezökövesd'])->exists());
     }
 
     public function test_dry_run_changes_nothing(): void
@@ -98,9 +99,9 @@ class TourDeparturePlacesTest extends TestCase
         $this->putJson("/api/admin/tour-departure-places/{$miskolc->id}", ['name' => 'Miskolc'])->assertOk();
     }
 
-    private function place(string $name, ?float $fee = null): TourDeparturePlace
+    private function place(string $name, ?float $fee = null, ?string $city = null): TourDeparturePlace
     {
-        return TourDeparturePlace::query()->create(['active' => true, 'name' => $name, 'city' => null, 'fee' => $fee]);
+        return TourDeparturePlace::query()->create(['active' => true, 'name' => $name, 'city' => $city, 'fee' => $fee]);
     }
 
     /**
