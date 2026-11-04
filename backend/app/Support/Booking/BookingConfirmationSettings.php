@@ -18,7 +18,7 @@ final class BookingConfirmationSettings
      * @var array<string, array{type: string, value: string|int}>
      */
     public const DEFAULTS = [
-        'bank_account_number' => ['type' => 'string', 'value' => 'OTP 11734004-20467221'],
+        'bank_account_number' => ['type' => 'string', 'value' => 'Erste 11600006-00000002-08084747'],
         'bank_account_holder' => ['type' => 'string', 'value' => 'Adria Holiday Kft'],
         'agency_license_number' => ['type' => 'string', 'value' => 'BFKH eng.szám: U-000412'],
     ];

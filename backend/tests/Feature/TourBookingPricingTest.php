@@ -476,7 +476,7 @@ class TourBookingPricingTest extends TestCase
         // 45 900 + 4 700 + 30 000 + 13 800
         $this->assertStringContainsString('94.400 Ft', $html);
         $this->assertStringContainsString('biztosítást nem rendelt', $html);
-        $this->assertStringContainsString('OTP 11734004-20467221', $html);
+        $this->assertStringContainsString('Erste 11600006-00000002-08084747', $html);
         // 60 days to departure: 40% deposit within 48 hours, the rest 30 days before departure.
         $this->assertStringContainsString('1. részlet: előleg', $html);
         $this->assertStringContainsString('40%: 37.760 Ft', $html);

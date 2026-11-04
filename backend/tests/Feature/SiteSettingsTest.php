@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\AdminMediaItem;
+use App\Models\Page;
 use App\Models\SiteSetting;
 use App\Models\User;
+use App\Support\Booking\BookingConfirmationSettings;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\SiteSettingsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -116,6 +118,40 @@ class SiteSettingsTest extends TestCase
                 ['label' => 'Utazási Klub', 'to' => '/utazasi-klub'],
                 ['label' => 'Kapcsolat', 'to' => '/kapcsolat'],
             ]);
+    }
+
+    public function test_the_old_otp_bank_accounts_are_replaced_by_the_erste_accounts(): void
+    {
+        SiteSetting::query()->where('group', 'legal')->where('key', 'contact_content')->update([
+            'value' => '<h2>Bankszámlaszámok</h2>'."\n".'<p><strong>HUF:</strong> OTP Bank Nyrt. 11734004-20467221-00000000<br><strong>EUR:</strong> OTP Bank Nyrt. 11763347-60298889<br><strong>IBAN:</strong> HU39 1176 3347 6029 8889 0000 0000<br><strong>BIC (SWIFT):</strong> OTPVHUHB</p>',
+        ]);
+        SiteSetting::query()->updateOrCreate(
+            ['group' => 'booking', 'key' => 'bank_account_number'],
+            ['value' => 'OTP 11734004-20467221', 'type' => 'string', 'is_public' => false],
+        );
+        $block = Page::query()->create([
+            'kind' => Page::KIND_TEXT_BLOCK,
+            'title' => 'Kapcsolat - Cégadatok',
+            'content' => '<p>HUF – OTP BANK Nyrt. 11734004-20467221-00000000<br>BIC(SWIFT) KÓD: OTPVHUHB</p>',
+            'active' => true,
+        ]);
+        $archivedTerms = Page::query()->create([
+            'kind' => Page::KIND_PAGE,
+            'title' => 'ÁSZF 2018',
+            'slug' => 'aszf-2018',
+            'content' => '<p>Banksz.: OTP BANK Nyrt. 11734004-20467221-00000000</p>',
+            'active' => false,
+        ]);
+
+        $this->artisan('migrate:refresh', ['--path' => 'database/migrations/2026_11_04_140000_switch_bank_accounts_to_erste.php'])->assertSuccessful();
+
+        $contact = $this->getJson('/api/portfolio/site-settings')->assertOk()->json('legal.contact_content');
+        $this->assertStringContainsString('<strong>HUF:</strong> Erste Bank Hungary Zrt. 11600006-00000002-08084747', $contact);
+        $this->assertStringContainsString('<strong>IBAN (EUR):</strong> HU33 1160 0006 0000 0002 0808 4802', $contact);
+        $this->assertStringNotContainsString('OTP', $contact);
+        $this->assertSame('Erste 11600006-00000002-08084747', BookingConfirmationSettings::load()->bankAccountNumber);
+        $this->assertSame('<p>HUF – Erste Bank Hungary Zrt. 11600006-00000002-08084747<br>BIC(SWIFT) KÓD: GIBAHUHB</p>', $block->fresh()->content);
+        $this->assertStringContainsString('OTP BANK Nyrt.', $archivedTerms->fresh()->content);
     }
 
     public function test_the_travel_club_coupon_value_is_public_even_without_the_seeder(): void

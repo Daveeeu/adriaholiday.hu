@@ -15,7 +15,7 @@ export default function BookingHowItWorks() {
     "Ha foglalni szeretnél, töltsd ki a fenti űrlapot, és küldd el. Ha csak érdeklődnél, a lenti elérhetőségek bármelyikén megteheted.",
     "A foglalási adatok megérkezése után pár percen belül e-mailben megkapod a visszaigazolásunkat a fizetéssel kapcsolatos tudnivalókkal és az utazási könyvvel.",
     "Az előleg beérkezése után kollégáink elkészítik a szerződésedet és a (előleg)számládat, amelyet e-mailben küldünk el. Ezzel létrejön az utazási szerződés, amelyen módosítani csak az Általános Szerződési Feltételek szerint lehet.",
-    "Az előleget a visszaigazolásban szereplő bankszámlára utalhatod, vagy bármely OTP Bank fiókban készpénzben is befizetheted a foglalás után 48 órán belül, közeli indulásnál 24 órán belül.",
+    "Az előleget a visszaigazolásban szereplő bankszámlára utalhatod, vagy bármely Erste Bank fiókban készpénzben is befizetheted a foglalás után 48 órán belül, közeli indulásnál 24 órán belül.",
     "Az utazáshoz szükséges részvételi jegyet néhány nappal indulás előtt küldjük el, benne minden fontos információval.",
     settings.email ? (
       <>

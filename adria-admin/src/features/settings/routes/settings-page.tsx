@@ -631,7 +631,7 @@ export function SettingsPage() {
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
                 <FormField control={form.control} name="bankAccountNumber" render={({ field }) => (
-                  <FormItem><FormLabel>Bankszámlaszám</FormLabel><FormControl><Input {...field} placeholder="OTP 11734004-20467221" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Bankszámlaszám</FormLabel><FormControl><Input {...field} placeholder="Erste 11600006-00000002-08084747" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="bankAccountHolder" render={({ field }) => (
                   <FormItem><FormLabel>Számlatulajdonos</FormLabel><FormControl><Input {...field} placeholder="Adria Holiday Kft" /></FormControl><FormMessage /></FormItem>
