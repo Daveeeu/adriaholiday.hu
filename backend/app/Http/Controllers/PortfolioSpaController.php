@@ -42,7 +42,7 @@ class PortfolioSpaController extends Controller
         [$page, $siteName] = $this->seo($seo, $request);
 
         if ($page->redirectTo !== null) {
-            return redirect($page->redirectTo, 301);
+            return redirect($page->redirectTo, $page->status);
         }
 
         $indexable = PublicSiteUrl::isCanonicalHost($request);

@@ -33,6 +33,14 @@ final class SeoPage
         return new self('', '', $path, status: 301, redirectTo: $path);
     }
 
+    /**
+     * A page that is away for now and may come back: answered with a temporary redirect.
+     */
+    public static function temporarilyMovedTo(string $path): self
+    {
+        return new self('', '', $path, status: 302, redirectTo: $path);
+    }
+
     public static function notFound(string $path): self
     {
         return new self(

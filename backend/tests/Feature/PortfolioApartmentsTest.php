@@ -192,7 +192,8 @@ class PortfolioApartmentsTest extends TestCase
 
         $this->get('/apartman/'.$apartment->slug)->assertOk()->assertSee('<title data-rh="true">Negyvenkettő apartman Bibionéban | Adria Holiday</title>', false);
         $this->get('/apartmanok/veneto/bibione')->assertOk()->assertSee('<title data-rh="true">Bibione apartmanok | Adria Holiday</title>', false);
-        $this->get('/apartman/'.$hidden->slug)->assertNotFound();
+        // A hidden apartment leads to the apartments of its location until it is shown again.
+        $this->get('/apartman/'.$hidden->slug)->assertStatus(302)->assertRedirect('/apartmanok/veneto/bibione');
 
         $this->get('/sitemap.xml')
             ->assertOk()

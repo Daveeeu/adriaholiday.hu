@@ -54,7 +54,10 @@ class PortfolioSeoResolver
      */
     private ?array $settings = null;
 
-    public function __construct(private readonly SeoRedirectResolver $redirects) {}
+    public function __construct(
+        private readonly SeoRedirectResolver $redirects,
+        private readonly RetiredContentRedirects $retiredContent,
+    ) {}
 
     public function siteName(): string
     {
@@ -63,7 +66,8 @@ class PortfolioSeoResolver
 
     public function resolve(string $path): SeoPage
     {
-        $path = trim($path, '/');
+        // Links and crawlers often percent-encode the accents and brackets of the addresses ("%C4%8D", "%28").
+        $path = trim(rawurldecode($path), '/');
         $segments = $path === '' ? [] : explode('/', $path);
 
         $page = match (true) {
@@ -81,15 +85,20 @@ class PortfolioSeoResolver
             default => SeoPage::notFound('/'.$path),
         };
 
-        // An old address no page lives at any more leads to where its content moved.
-        $target = $page->status === 404 ? $this->redirects->targetFor($path) : null;
+        if ($page->status !== 404) {
+            return $page;
+        }
 
-        return $target !== null ? SeoPage::movedTo($target) : $page;
+        // An old address no page lives at any more leads to where its content moved: the office's
+        // redirect list first, then the closest listing of a retired trip, apartment or post.
+        $target = $this->redirects->targetFor($path);
+
+        return $target !== null ? SeoPage::movedTo($target) : ($this->retiredContent->for($segments) ?? $page);
     }
 
     private function page(string $slug): SeoPage
     {
-        $page = Page::query()->published()->where('slug', rawurldecode($slug))->first();
+        $page = Page::query()->published()->where('slug', $slug)->first();
 
         if ($page === null) {
             return SeoPage::notFound("/{$slug}");
@@ -205,7 +214,7 @@ class PortfolioSeoResolver
             ->first();
 
         if ($article === null) {
-            return $this->legacyArticleRedirect($slug) ?? SeoPage::notFound("/blog/{$slug}");
+            return SeoPage::notFound("/blog/{$slug}");
         }
 
         $translation = $article->translations->firstWhere('seo_name', $slug);
@@ -236,24 +245,6 @@ class PortfolioSeoResolver
                 ]),
             ],
         );
-    }
-
-    /**
-     * Legacy post URLs carried the post id after the URL name ("…-27"); they move
-     * to the URL without it.
-     */
-    private function legacyArticleRedirect(string $slug): ?SeoPage
-    {
-        if (! preg_match('/^(.+)-\d+$/', $slug, $match)) {
-            return null;
-        }
-
-        $exists = BlogArticle::query()
-            ->where('active', true)
-            ->whereHas('translations', fn ($query) => $query->where('seo_name', $match[1]))
-            ->exists();
-
-        return $exists ? SeoPage::movedTo("/blog/{$match[1]}") : null;
     }
 
     private function category(string $slug): SeoPage

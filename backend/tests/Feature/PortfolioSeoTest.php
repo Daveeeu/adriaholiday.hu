@@ -2,6 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Apartment;
+use App\Models\BlogArticle;
+use App\Models\BlogArticleTranslation;
+use App\Models\BlogCategory;
+use App\Models\Location;
+use App\Models\SeoRedirect;
 use App\Models\Tour;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
@@ -92,9 +98,7 @@ class PortfolioSeoTest extends TestCase
 
     public function test_missing_content_and_unknown_paths_answer_404_and_are_not_indexed(): void
     {
-        Tour::factory()->create(['active' => false, 'seo_name' => 'inaktiv-ut']);
-
-        foreach (['/ajanlat/inaktiv-ut', '/ajanlat/nincs-ilyen', '/blog/nincs-ilyen', '/kategoriak/nincs-ilyen', '/regiok/nincs-ilyen', '/nincs-ilyen-oldal'] as $path) {
+        foreach (['/ajanlat/nincs-ilyen', '/apartman/nincs-ilyen', '/blog/nincs-ilyen', '/kategoriak/nincs-ilyen', '/regiok/nincs-ilyen', '/nincs-ilyen-oldal'] as $path) {
             $this->assertStringContainsString('noindex,nofollow', $this->visit($path)->assertNotFound()->getContent(), $path);
         }
     }
@@ -165,5 +169,68 @@ class PortfolioSeoTest extends TestCase
     public function test_the_former_portfolio_duplicate_redirects_home(): void
     {
         $this->visit('/portfolio')->assertRedirect('/')->assertStatus(301);
+    }
+
+    public function test_percent_encoded_addresses_find_their_page(): void
+    {
+        Tour::factory()->create(['seo_name' => 'szlovenia-(3-nap)']);
+        Apartment::factory()->create(['slug' => "ca'-rossa-villa-(136)-pučišća"]);
+
+        $this->visit('/ajanlat/szlovenia-%283-nap%29')->assertOk();
+        $this->visit('/apartman/ca%27-rossa-villa-%28136%29-pu%C4%8Di%C5%A1%C4%87a')->assertOk();
+    }
+
+    public function test_a_trip_that_is_off_leads_to_its_first_category_with_a_page_for_now(): void
+    {
+        $off = BlogCategory::factory()->create(['active' => false]);
+        $advent = BlogCategory::factory()->create(['seo_name' => 'adventi-barangolasok']);
+        Tour::factory()->create(['active' => false, 'seo_name' => 'advent-pragaban', 'category_ids' => [(string) $off->id, (string) $advent->id]]);
+        Tour::factory()->create(['active' => false, 'seo_name' => 'kategoria-nelkul', 'category_ids' => []]);
+
+        $this->visit('/ajanlat/advent-pragaban')->assertStatus(302)->assertRedirect('/kategoriak/adventi-barangolasok');
+        $this->visit('/korutazasok/kategoria-nelkul')->assertStatus(301)->assertRedirect('/ajanlat/kategoria-nelkul');
+        $this->visit('/ajanlat/kategoria-nelkul')->assertStatus(302)->assertRedirect('/utazasok');
+    }
+
+    public function test_a_deleted_trip_moves_permanently(): void
+    {
+        Tour::factory()->create(['seo_name' => 'regi-ut', 'category_ids' => []])->delete();
+
+        $this->visit('/ajanlat/regi-ut')->assertStatus(301)->assertRedirect('/utazasok');
+    }
+
+    public function test_an_apartment_that_is_off_or_deleted_leads_to_the_apartments_of_its_location(): void
+    {
+        $bibione = Location::factory()->create(['area_slug' => 'veneto', 'slug' => 'bibione']);
+        Apartment::factory()->create(['location_id' => $bibione->id]);
+        Apartment::factory()->create(['location_id' => $bibione->id, 'slug' => 'del-sole-(54)-bibione', 'is_active' => false]);
+        Apartment::factory()->create(['location_id' => $bibione->id, 'slug' => 'regi-villa-bibione'])->delete();
+        Apartment::factory()->create(['slug' => 'maganyos-apartman', 'is_active' => false]);
+
+        $this->visit('/apartman/del-sole-%2854%29-bibione')->assertStatus(302)->assertRedirect('/apartmanok/veneto/bibione');
+        $this->visit('/apartman/regi-villa-bibione')->assertStatus(301)->assertRedirect('/apartmanok/veneto/bibione');
+        $this->visit('/apartman/maganyos-apartman')->assertStatus(302)->assertRedirect('/');
+    }
+
+    public function test_legacy_blog_addresses_lead_to_the_post_or_the_blog(): void
+    {
+        $live = BlogArticle::factory()->create(['published_at' => now()->subDay()]);
+        BlogArticleTranslation::factory()->for($live, 'blogArticle')->create(['seo_name' => 'karnevali-maszkok-velenceben']);
+        $off = BlogArticle::factory()->create(['active' => false]);
+        BlogArticleTranslation::factory()->for($off, 'blogArticle')->create(['seo_name' => 'kikapcsolt-cikk']);
+
+        $this->visit('/blog/karnevali-maszkok-velenceben-23')->assertStatus(301)->assertRedirect('/blog/karnevali-maszkok-velenceben');
+        $this->visit('/blog/teszt-2-25')->assertStatus(301)->assertRedirect('/blog');
+        $this->visit('/blog/kikapcsolt-cikk')->assertStatus(302)->assertRedirect('/blog');
+        $this->visit('/blog/cimke/utazas-2')->assertStatus(301)->assertRedirect('/blog');
+        $this->visit('/blog/kategoria/celpontban-3')->assertStatus(301)->assertRedirect('/blog');
+    }
+
+    public function test_the_offices_redirect_list_wins_over_the_listing_of_a_retired_apartment(): void
+    {
+        Apartment::factory()->create(['slug' => 'musan-i---gradac', 'is_active' => false]);
+        SeoRedirect::query()->create(['source_path' => 'apartman/musan-i---gradac', 'target' => '/regiok/croatia']);
+
+        $this->visit('/apartman/musan-i---gradac')->assertStatus(301)->assertRedirect('/regiok/croatia');
     }
 }
