@@ -409,9 +409,13 @@
                 "type": "TEMPLATE",
                 "key": "arg1",
                 "value": "gtm."
+              },
+              {
+                "type": "BOOLEAN",
+                "key": "negate",
+                "value": "true"
               }
-            ],
-            "negate": true
+            ]
           }
         ]
       },
@@ -451,9 +455,13 @@
                 "type": "TEMPLATE",
                 "key": "arg1",
                 "value": "gtm."
+              },
+              {
+                "type": "BOOLEAN",
+                "key": "negate",
+                "value": "true"
               }
-            ],
-            "negate": true
+            ]
           },
           {
             "type": "MATCH_REGEX",
