@@ -147,6 +147,8 @@ class PortfolioSeoTest extends TestCase
             '/korutazasok/csoport/tengerparti-udulesek/albania' => '/kategoriak/tengerpartok',
             '/korutazasok/csoport/advent/ausztria' => '/kategoriak/adventi-barangolasok',
             '/korutazasok/regio/Szlov%C3%A1kia' => '/utazasok',
+            '/korutazasok/regio/havas-kalandok' => '/kategoriak/havas-kalandok',
+            '/korutazasok/regio/repulos-utak' => '/kategoriak/repulos-korutazasok',
             '/korutazasok/akcio' => '/utazasok',
             '/altalanos-szerzodesi-feltetelek' => '/aszf',
             '/adatkezelesi-szabalyzat' => '/adatvedelem',

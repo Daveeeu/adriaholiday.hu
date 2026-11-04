@@ -28,7 +28,11 @@ Route::get('/korutazasok/csoport/{group}/{country?}', function (string $group) {
 
     return redirect(isset($categories[$group]) ? "/kategoriak/{$categories[$group]}" : '/utazasok', 301);
 })->where('country', '.*');
-Route::redirect('/korutazasok/regio/{country}', '/utazasok', 301)->where('country', '.*');
+Route::get('/korutazasok/regio/{region}', function (string $region) {
+    $categories = ['havas-kalandok' => 'havas-kalandok', 'repulos-utak' => 'repulos-korutazasok'];
+
+    return redirect(isset($categories[$region]) ? "/kategoriak/{$categories[$region]}" : '/utazasok', 301);
+})->where('region', '.*');
 Route::redirect('/korutazasok/akcio', '/utazasok', 301);
 Route::redirect('/altalanos-szerzodesi-feltetelek', '/aszf', 301);
 Route::redirect('/adatkezelesi-szabalyzat', '/adatvedelem', 301);

@@ -76,7 +76,7 @@ return [
         'Pár napos szomszédolások' => null,
         'TOP 5 program' => null,
         'Nyárindító ajánlatok' => null,
-        'Havas kalandok' => null,
+        'Havas kalandok' => 'Havas kalandok',
     ],
 
     /*
