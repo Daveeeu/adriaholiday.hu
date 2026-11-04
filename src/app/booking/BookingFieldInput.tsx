@@ -124,6 +124,7 @@ export default function BookingFieldInput({ field, value, onChange, onBlur, erro
 
       {field.fieldType === "textarea" ? (
         <textarea
+          name={field.key}
           value={value}
           maxLength={FIELD_MAX_LENGTH}
           aria-invalid={error ? true : undefined}
@@ -134,6 +135,7 @@ export default function BookingFieldInput({ field, value, onChange, onBlur, erro
         />
       ) : field.fieldType === "select" ? (
         <select
+          name={field.key}
           value={value}
           aria-invalid={error ? true : undefined}
           onChange={(event) => onChange(event.target.value)}
@@ -153,6 +155,7 @@ export default function BookingFieldInput({ field, value, onChange, onBlur, erro
         </select>
       ) : (
         <input
+          name={field.key}
           type={field.fieldType}
           min={isBirthDateField(field) ? oldestBirthDateString() : undefined}
           max={isBirthDateField(field) ? todayDateString() : field.fieldType === "date" ? DATE_INPUT_MAX : undefined}

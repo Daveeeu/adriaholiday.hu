@@ -1,8 +1,9 @@
 import { CheckCircle2, Loader2, Minus, Plus } from "lucide-react";
-import { type FormEvent, type ReactNode, useRef, useState } from "react";
+import { type FormEvent, type FocusEvent, type ReactNode, useState } from "react";
 
 import { apartmentItem } from "../analytics/analytics-items";
 import { trackEvent } from "../analytics/trackEvent";
+import { useBookingFunnelTracking } from "../analytics/useBookingFunnelTracking";
 
 import BookingFieldInput from "../booking/BookingFieldInput";
 import { BookingTermsConsent, NewsletterConsent } from "../booking/BookingConsents";
@@ -115,15 +116,25 @@ export default function ApartmentBookingForm({ apartment, stay }: { apartment: A
   const [bookingId, setBookingId] = useState<number | string | null>(null);
 
   const nights = nightsBetween(stayValues.arrival ?? "", stayValues.departure ?? "");
-  const startedRef = useRef(false);
+  const [started, setStarted] = useState(false);
+  const funnel = useBookingFunnelTracking({
+    entity: { type: "apartment", slug: apartment.slug },
+    bookingType: "apartment_booking",
+    started,
+    step: 1,
+    stepName: "Foglalási űrlap",
+    completed: bookingId !== null,
+  });
 
   /** The visitor's first focus inside the form starts the booking funnel. */
-  function markStarted() {
-    if (startedRef.current) {
+  function handleFormFocus(event: FocusEvent<HTMLFormElement>) {
+    funnel.trackFieldFocus(event);
+
+    if (started) {
       return;
     }
 
-    startedRef.current = true;
+    setStarted(true);
     trackEvent("booking_start", {
       entity: { type: "apartment", slug: apartment.slug },
       metadata: { booking_type: "apartment_booking" },
@@ -194,6 +205,8 @@ export default function ApartmentBookingForm({ apartment, stay }: { apartment: A
     setErrors(found);
 
     if (Object.keys(found).length > 0) {
+      // Guest fields are reported by name only, without the guest's position.
+      funnel.trackFieldErrors(Object.keys(found).map((key) => key.replace(/^guest\.\d+\./, "guest.")));
       requestAnimationFrame(() => document.querySelector("[data-booking-error]")?.scrollIntoView({ behavior: "smooth", block: "center" }));
 
       return;
@@ -277,7 +290,7 @@ export default function ApartmentBookingForm({ apartment, stay }: { apartment: A
   }
 
   return (
-    <form onSubmit={submit} onFocusCapture={markStarted} noValidate className="space-y-6">
+    <form onSubmit={submit} onFocusCapture={handleFormFocus} noValidate className="space-y-6">
       <div>
         <h2 className={`${TRIP_SECTION_HEADING} mb-2`}>Foglalás</h2>
         <p className="text-base text-gray-500">

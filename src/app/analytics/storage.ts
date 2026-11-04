@@ -97,7 +97,8 @@ export function getSessionId(cookieName = DEFAULT_SESSION_COOKIE) {
   return next;
 }
 
-export function captureFirstTouchUtm() {
+/** Stores the campaign parameters of the visit's landing page (`search`) once. */
+export function captureFirstTouchUtm(search: string) {
   if (!isBrowser()) {
     return null;
   }
@@ -107,7 +108,7 @@ export function captureFirstTouchUtm() {
     return existing;
   }
 
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(search);
   const payload: UtmPayload = {
     utm_source: params.get("utm_source") ?? undefined,
     utm_medium: params.get("utm_medium") ?? undefined,

@@ -26,11 +26,16 @@ export const analyticsEventNames = [
   "lead_start",
   "lead_submit",
   "booking_start",
+  "booking_step",
+  "booking_field_error",
+  "booking_abandon",
   "booking_success",
   "booking_error",
   "newsletter_signup",
   "payment_result",
   "page_not_found",
+  "ui_click",
+  "scroll_depth",
 ] as const;
 
 export type AnalyticsEventName = (typeof analyticsEventNames)[number];

@@ -17,7 +17,11 @@ Conversions API) is described in [../analytics-architecture.md](../analytics-arc
 
 1. Components call `trackEvent(name, payload)` (`src/app/analytics/trackEvent.ts`).
 2. `AnalyticsProvider` gives every event an `event_id`, posts it to the
-   first-party API (analytics consent) and pushes it to the dataLayer.
+   first-party API (analytics consent) and pushes it to the dataLayer. The
+   high-volume `ui_click` and `scroll_depth` go to the dataLayer only. The
+   first-party identifiers (`ah_session_id`, `ah_visitor_id`, first-touch UTM)
+   are created only with statistics consent, and the consent choice itself is
+   stored only when the visitor makes it — an unanswered banner shows again.
 3. GTM loads only after the visitor allowed statistics **or** marketing cookies
    (`src/app/analytics/google-tag-manager.ts`), with Consent Mode v2 set before
    any tag: `analytics_storage` ← statistics, `ad_*` ← marketing. The page view
@@ -70,6 +74,11 @@ offer pages and bookings join in GA4.
 | `newsletter_signup` | `newsletter_signup` | – | newsletter forms (`placement`) | ✔ |
 | `phone_click` / `email_click` / `whatsapp_click` | same | Contact | contact links | ✔ |
 | `page_not_found` | `page_not_found` | – | 404 page (`missing_path`) | |
+| `booking_step` | same | – | each booking step reached (`step_number`, `step_name`) | |
+| `booking_field_error` | same | – | validation failed (`error_fields`: field names only, `error_count`, step) | |
+| `booking_abandon` | same | – | left mid-booking: tab closed or navigated away (`last_step_*`, `last_field`, `form_seconds`) | |
+| `ui_click` (GA4 only) | same | – | any link/button click (`click_text`, `click_element`, `click_section`, `link_path` / `link_domain` + `outbound`) | |
+| `scroll_depth` (GA4 only) | same | – | 25/50/75/90% of a page (`percent_scrolled`) | |
 | other site events (`cta_click`, `filter_click`, `gallery_open`, `program_view`, …) | same | – | see `event-catalog.ts` | |
 
 ## GA4 property settings
@@ -77,7 +86,8 @@ offer pages and bookings join in GA4.
 - Data retention: 14 months.
 - Unwanted referrals: `barion.com`, `secure.barion.com` (customers return from the payment gateway).
 - Enhanced measurement: page views from browser history events **off** (the site sends `page_view`).
-- Custom dimensions (event scope): `entity_type`, `entity_slug`, `placement`, `transport`, `cta_name`, `booking_type`, `payment_kind`, `payment_status`, `item_list_name`, `source`.
+- Custom dimensions (event scope): `entity_type`, `entity_slug`, `placement`, `transport`, `cta_name`, `booking_type`, `payment_kind`, `payment_status`, `source`, `step_name`, `step_number`, `last_step_name`, `last_field`, `error_fields`, `click_text`, `click_section`, `link_path`, `link_domain`; custom metric `form_seconds`. `item_list_name` and `percent_scrolled` are built-in.
+- Explorations: „Foglalási tölcsér” (funnel: view_item → begin_checkout → booking_step 2/3/4 → booking_submitted), „Kilépő oldalak” (free form: page path × exits), „Foglalás megszakítás” (booking_abandon by last step / field).
 - Key events: `booking_submitted`, `purchase`, `generate_lead`, `newsletter_signup`, `phone_click`, `email_click`, `whatsapp_click`.
 - Measurement Protocol API secret → backend `GA_API_SECRET`.
 - Linked: Search Console; Google Ads (key events imported as conversions).

@@ -3,6 +3,7 @@ import { Check, CreditCard, Mail, Minus, Plus, ShieldCheck } from "lucide-react"
 import { tourItem } from "../analytics/analytics-items";
 import type { AnalyticsEcommerce } from "../analytics/event-catalog";
 import { useAnalytics } from "../analytics/useAnalytics";
+import { useBookingFunnelTracking } from "../analytics/useBookingFunnelTracking";
 import { type PortfolioBookingPayment, type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import BookingFieldInput from "./BookingFieldInput";
 import BookingOptionsPanel from "./BookingOptionsPanel";
@@ -102,6 +103,14 @@ function chosenOptions(charged: BookingExtra[], choices: Record<number, string>)
 }
 
 /** The earliest step showing one of the errors, so the customer lands on it. */
+/** The names (never the values) of the fields with an error, passenger fields prefixed. */
+function errorFieldNames(errors: FieldErrorState): string[] {
+  return [
+    ...Object.keys(errors.form),
+    ...Object.values(errors.passengers).flatMap((fieldErrors) => Object.keys(fieldErrors).map((key) => `passenger.${key}`)),
+  ];
+}
+
 function firstStepWithError(fields: BookingFormField[], errors: FieldErrorState): number | null {
   const steps = fields
     .filter((field) => field.key in errors.form)
@@ -311,6 +320,15 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
     { id: 4, title: "Véglegesítés" },
   ];
 
+  const funnel = useBookingFunnelTracking({
+    entity: { type: "tour", slug: trip.slug },
+    bookingType: "tour_booking",
+    started: hasStarted,
+    step,
+    stepName: steps[step - 1]?.title ?? String(step),
+    completed: status === "success" || status === "redirecting",
+  });
+
   function markStarted() {
     if (hasStarted) {
       return;
@@ -427,8 +445,13 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
 
   function validateBookingOptions(): boolean {
     const departureValid = validateDeparturePlace();
+    const choicesValid = validateExtraChoices();
 
-    return validateExtraChoices() && departureValid;
+    if (!departureValid || !choicesValid) {
+      funnel.trackFieldErrors([...(departureValid ? [] : ["departure_place"]), ...(choicesValid ? [] : ["extra_choices"])]);
+    }
+
+    return choicesValid && departureValid;
   }
 
   /** A tour with departure places needs one chosen before it can be booked. */
@@ -540,6 +563,8 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
   }
 
   function nextStep() {
+    markStarted();
+
     if (step === 1 && !validateBookingOptions()) {
       requestFocus("error");
       return;
@@ -549,6 +574,7 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
       const errors = fieldErrorsOf(contactFields, formValues);
       setFieldErrors((current) => ({ ...current, form: errors }));
       if (Object.keys(errors).length > 0) {
+        funnel.trackFieldErrors(Object.keys(errors));
         requestFocus("error");
         return;
       }
@@ -559,6 +585,10 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
       setFieldErrors((current) => ({ ...current, passengers: errors }));
       const choicesValid = validatePassengerChoices();
       if (Object.keys(errors).length > 0 || !choicesValid) {
+        funnel.trackFieldErrors([
+          ...errorFieldNames({ form: {}, passengers: errors }),
+          ...(choicesValid ? [] : ["passenger_options"]),
+        ]);
         requestFocus("error");
         return;
       }
@@ -591,11 +621,13 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
 
     const errorStep = firstStepWithError(fields, errors);
     if (errorStep !== null) {
+      funnel.trackFieldErrors(errorFieldNames(errors));
       setStep(errorStep);
       return false;
     }
 
     if (!termsAccepted) {
+      funnel.trackFieldErrors(["terms_accepted"]);
       setTermsError(TERMS_REQUIRED_MESSAGE);
       setStep(4);
       return false;
@@ -803,7 +835,7 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
             </p>
           </div>
 
-          <div ref={wizardRef} className="rounded-[30px] bg-white/8 border border-white/10 backdrop-blur-xl p-4 md:p-6">
+          <div ref={wizardRef} onFocusCapture={funnel.trackFieldFocus} className="rounded-[30px] bg-white/8 border border-white/10 backdrop-blur-xl p-4 md:p-6">
             <div className="grid grid-cols-4 gap-3 mb-6">
               {steps.map((item) => {
                 const active = step === item.id;

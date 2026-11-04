@@ -58,6 +58,12 @@ final class AnalyticsEventName
 
     public const BOOKING_START = 'booking_start';
 
+    public const BOOKING_STEP = 'booking_step';
+
+    public const BOOKING_FIELD_ERROR = 'booking_field_error';
+
+    public const BOOKING_ABANDON = 'booking_abandon';
+
     public const BOOKING_SUCCESS = 'booking_success';
 
     public const BOOKING_ERROR = 'booking_error';
@@ -100,6 +106,9 @@ final class AnalyticsEventName
             self::LEAD_START,
             self::LEAD_SUBMIT,
             self::BOOKING_START,
+            self::BOOKING_STEP,
+            self::BOOKING_FIELD_ERROR,
+            self::BOOKING_ABANDON,
             self::BOOKING_SUCCESS,
             self::BOOKING_ERROR,
             self::BOOKING_STATUS_CHANGE,
