@@ -47,8 +47,14 @@ class BookingTravelBook
         ])->render();
     }
 
-    public function fileName(Booking $booking): string
+    /**
+     * The customer's copy is named after the trip, as customers never see the
+     * booking number; the office's copy carries it to tell bookings apart.
+     */
+    public function fileName(Booking $booking, bool $internal = false): string
     {
-        return 'utazasi-konyv-'.Str::slug($booking->offer_code ?: (string) $booking->id).'.pdf';
+        $name = $booking->offer_code ?: ($internal ? (string) $booking->id : (string) $booking->offer_name_snapshot);
+
+        return 'utazasi-konyv-'.(Str::slug($name) ?: 'foglalas').'.pdf';
     }
 }

@@ -18,6 +18,7 @@ use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -267,7 +268,9 @@ class TourBookingPricingTest extends TestCase
 
         $attachments = (new TourBookingCustomerConfirmation($booking, $this->tour))->attachments();
         $this->assertCount(1, $attachments);
-        $this->assertSame("utazasi-konyv-{$booking->id}.pdf", $attachments[0]->as);
+        // Customers never see the booking number: their copy is named after the trip.
+        $this->assertSame('utazasi-konyv-'.Str::slug($this->tour->name).'.pdf', $attachments[0]->as);
+        $this->assertSame("utazasi-konyv-{$booking->id}.pdf", app(BookingTravelBook::class)->fileName($booking, internal: true));
 
         $travelBook = app(BookingTravelBook::class);
         $customerCopy = $travelBook->html($booking->refresh());
@@ -278,8 +281,11 @@ class TourBookingPricingTest extends TestCase
         $this->assertStringContainsString('autóbusz közlekedés', $customerCopy);
         $this->assertStringContainsString('A programváltozás jogát fenntartjuk.', $customerCopy);
         $this->assertStringNotContainsString('Csak az irodának szóló megjegyzés.', $customerCopy);
+        $this->assertStringNotContainsString("#{$booking->id} ·", $customerCopy);
 
-        $this->assertStringContainsString('Csak az irodának szóló megjegyzés.', $travelBook->html($booking, internal: true));
+        $officeCopy = $travelBook->html($booking, internal: true);
+        $this->assertStringContainsString('Csak az irodának szóló megjegyzés.', $officeCopy);
+        $this->assertStringContainsString("#{$booking->id} ·", $officeCopy);
         $this->assertStringStartsWith('%PDF', $travelBook->pdf($booking));
     }
 
@@ -468,6 +474,7 @@ class TourBookingPricingTest extends TestCase
         $html = (new TourBookingCustomerConfirmation($booking, $this->tour))->render();
 
         $this->assertStringContainsString('Kedves Kovács Anna!', $html);
+        $this->assertStringNotContainsString('Foglalási azonosító', $html);
         $this->assertStringContainsString('Utas 1', $html);
         $this->assertStringContainsString('Hotel***', $html);
         $this->assertStringContainsString('Autóbusszal', $html);

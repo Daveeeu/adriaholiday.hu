@@ -6,7 +6,6 @@
     :heading="$tripName"
     :company="$company"
 >
-    <x-slot:subheading>Foglalási azonosító: <strong>#{{ $booking->id }}</strong></x-slot:subheading>
 
     <p style="{{ EmailStyle::GREETING }}">Kedves {{ $customerName }}!</p>
     <p style="{{ EmailStyle::TEXT }}margin-bottom:24px;">Köszönjük a foglalásodat! Az utazáshoz az alábbi adatokra is szükségünk van, amelyeket a foglaláskor még nem adtál meg. Kérjük, az alábbi gombra kattintva pótold őket.</p>

@@ -179,12 +179,14 @@ function PaymentResultBody({ state }: { state: LoadState }) {
   const { payment } = state;
   const amount = formatAmount(payment.amount, payment.currency);
   const subject = payment.kind === "deposit" ? "Az előleg" : "A részvételi díj";
-  const booking = `#${payment.bookingId}${payment.tourName ? ` – ${payment.tourName}` : ""}`;
+  // The booking number is for the office only; customers never see it.
+  const yourBooking = payment.tourName ? `a(z) „${payment.tourName}” foglalásod` : "a foglalásod";
+  const YourBooking = `${yourBooking.charAt(0).toUpperCase()}${yourBooking.slice(1)}`;
 
   if (payment.status === "succeeded") {
     return (
       <ResultHeading icon={<Check className="size-8" />} tone="success" title="Sikeres fizetés!">
-        {subject} ({amount}) kifizetése sikerült a(z) {booking} foglaláshoz. A foglalás részleteit e-mailben is elküldtük, kérjük, nézd meg a postafiókodat (ha nem találod, a Spam vagy Promóciók mappát is). Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
+        {subject} ({amount}) kifizetése sikerült {yourBooking}hoz. A foglalás részleteit e-mailben is elküldtük, kérjük, nézd meg a postafiókodat (ha nem találod, a Spam vagy Promóciók mappát is). Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
       </ResultHeading>
     );
   }
@@ -192,7 +194,7 @@ function PaymentResultBody({ state }: { state: LoadState }) {
   if (payment.status === "failed") {
     return (
       <ResultHeading icon={<X className="size-8" />} tone="danger" title="A fizetés nem sikerült">
-        A(z) {booking} foglalásodat rögzítettük, de a fizetés ({amount}) megszakadt vagy elutasították.
+        {YourBooking}at rögzítettük, de a fizetés ({amount}) megszakadt vagy elutasították.
         {payment.canRetry
           ? " Újrapróbálhatod most, vagy munkatársunk felveszi veled a kapcsolatot."
           : " Munkatársunk hamarosan felveszi veled a kapcsolatot."}
@@ -202,7 +204,7 @@ function PaymentResultBody({ state }: { state: LoadState }) {
 
   return (
     <ResultHeading icon={<Clock className="size-8" />} tone="neutral" title="A fizetés feldolgozás alatt">
-      A(z) {booking} foglaláshoz tartozó fizetés ({amount}) még folyamatban van. Sikeres fizetés esetén automatikusan jóváírjuk, később frissítve ezt az oldalt is ellenőrizheted.
+      {YourBooking}hoz tartozó fizetés ({amount}) még folyamatban van. Sikeres fizetés esetén automatikusan jóváírjuk, később frissítve ezt az oldalt is ellenőrizheted.
     </ResultHeading>
   );
 }

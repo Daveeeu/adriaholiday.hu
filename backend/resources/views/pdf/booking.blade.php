@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
     <meta charset="utf-8">
-    <title>Utazási könyv {{ $booking->offer_code ?: '#'.$booking->id }}</title>
+    <title>Utazási könyv – {{ $tripName }}</title>
     <style>
         @page { margin: 34px 0 60px 0; }
         @page :first { margin-top: 0; }
@@ -68,8 +68,13 @@
         <div class="eyebrow">Utazási könyv</div>
         <div class="title">{{ $tripName }}</div>
         <div class="meta">
-            {{ $booking->offer_code ?: '#'.$booking->id }}
-            · Foglalva: {{ ($booking->booking_date ?? $booking->created_at)?->format('Y.m.d. H:i') }}
+            {{-- The booking number is for the office only; customers never see it. --}}
+            @if ($booking->offer_code)
+                {{ $booking->offer_code }} ·
+            @elseif ($internal)
+                #{{ $booking->id }} ·
+            @endif
+            Foglalva: {{ ($booking->booking_date ?? $booking->created_at)?->format('Y.m.d. H:i') }}
             @if ($internal)
                 &nbsp; <span class="status">{{ $statusLabel }}</span>
             @endif

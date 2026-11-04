@@ -282,7 +282,7 @@ export default function ApartmentBookingForm({ apartment, stay }: { apartment: A
         <CheckCircle2 className="mx-auto mb-4 h-14 w-14 text-[#00c389]" aria-hidden="true" />
         <h3 className="text-2xl font-bold tracking-tight text-[#0f172a]">Köszönjük, megkaptuk a foglalásodat!</h3>
         <p className="mx-auto mt-3 max-w-xl text-gray-600">
-          Foglalási azonosító: <strong>#{bookingId}</strong>. A részleteket e-mailben is elküldtük. Kollégáink ellenőrzik az apartman
+          A részleteket e-mailben is elküldtük. Kollégáink ellenőrzik az apartman
           szabad helyét, és visszaigazolják a foglalást a fizetés részleteivel és az előlegszámlával együtt.
         </p>
       </div>

@@ -11,7 +11,6 @@
     :heading="$tripName"
     :company="$company"
 >
-    <x-slot:subheading>Foglalási azonosító: <strong>#{{ $booking->id }}</strong></x-slot:subheading>
 
         {{-- Greeting --}}
         <p style="{{ EmailStyle::GREETING }}">Kedves {{ $customerName }}!</p>

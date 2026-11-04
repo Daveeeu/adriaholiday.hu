@@ -221,7 +221,7 @@ class BookingController extends Controller
 
         return response($travelBook->pdf($booking, internal: true), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.$travelBook->fileName($booking).'"',
+            'Content-Disposition' => 'attachment; filename="'.$travelBook->fileName($booking, internal: true).'"',
         ]);
     }
 

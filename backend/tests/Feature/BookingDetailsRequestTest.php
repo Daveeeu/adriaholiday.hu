@@ -64,7 +64,7 @@ class BookingDetailsRequestTest extends TestCase
 
         $this->getJson("/api/booking-details/{$token}")
             ->assertOk()
-            ->assertJsonPath('data.bookingId', $booking->id)
+            ->assertJsonMissingPath('data.bookingId')
             ->assertJsonPath('data.tourName', 'Adventi Bécs')
             ->assertJsonPath('data.formDataFields.0.key', 'contact_city')
             ->assertJsonPath('data.passengers.0.index', 0)

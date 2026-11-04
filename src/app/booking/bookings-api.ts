@@ -84,7 +84,6 @@ export type BookingPaymentResult = {
 
 /** A booking's details left for later, as the e-mailed link's page asks them. */
 export type PendingBookingDetails = {
-  bookingId: number;
   tourName: string | null;
   departureDate: string | null;
   customerName: string | null;

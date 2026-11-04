@@ -6,7 +6,6 @@
     :heading="$apartmentName"
     :company="$company"
 >
-    <x-slot:subheading>Foglalási azonosító: <strong>#{{ $booking->id }}</strong></x-slot:subheading>
 
     <p style="{{ EmailStyle::GREETING }}">Kedves {{ $customerName }}!</p>
     <p style="{{ EmailStyle::TEXT }}margin-bottom:24px;">Köszönjük a foglalásodat, megérkezett hozzánk. Kollégáink ellenőrzik az apartman szabad helyét, és e-mailben visszaigazolják a foglalást, a fizetés részleteivel és az előlegszámlával együtt. Az utazási szerződés az előleg beérkezésével jön létre.</p>

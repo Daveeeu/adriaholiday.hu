@@ -153,8 +153,8 @@ export default function BookingDetailsRoute() {
             <form noValidate onSubmit={(event) => handleSubmit(event, state.details)}>
               <ResultHeading icon={<ClipboardList className="size-8" />} tone="neutral" title="Hiányzó adatok">
                 {state.details.customerName ? `Kedves ${state.details.customerName}! ` : ""}
-                Kérjük, add meg az alábbi adatokat a(z) #{state.details.bookingId}
-                {state.details.tourName ? ` – ${state.details.tourName}` : ""}
+                Kérjük, add meg az alábbi adatokat
+                {state.details.tourName ? ` a(z) „${state.details.tourName}”` : " a"}
                 {state.details.departureDate ? ` (${formatDate(state.details.departureDate)})` : ""} foglalásodhoz.
               </ResultHeading>
 

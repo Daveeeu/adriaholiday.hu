@@ -18,7 +18,6 @@ class PublicBookingDetailsResource extends JsonResource
         $pending = $service->pendingFields($this->resource);
 
         return [
-            'bookingId' => $this->id,
             'tourName' => $this->offer_name_snapshot,
             'departureDate' => $this->departure_date?->toDateString(),
             'customerName' => $this->customer_name,
