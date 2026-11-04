@@ -44,7 +44,7 @@ Optional environment variables:
 
 ## Order of the switch
 
-The import copies images from `https://adriaholiday.hu`. Keep the domain on the legacy server until the import has finished:
+The import downloads the legacy images from `LEGACY_ADRIA_FETCH_ORIGIN` in `backend/.env.production`. The bootstrap sets it to `http://admin.adriaholiday.hu`, the legacy server's other host, so imports keep working after `adriaholiday.hu` moves here. Still let a running import finish before the switch:
 
 ```bash
 docker exec adriaholiday-app-1 tail -f storage/logs/legacy-import.log

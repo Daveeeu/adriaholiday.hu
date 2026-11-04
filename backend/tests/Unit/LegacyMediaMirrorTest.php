@@ -51,6 +51,19 @@ class LegacyMediaMirrorTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_a_fetch_origin_downloads_from_the_legacy_server_and_keeps_the_legacy_url(): void
+    {
+        config(['services.legacy_adria.fetch_origin' => 'http://admin.adriaholiday.hu']);
+        Http::fake(['admin.adriaholiday.hu/*' => Http::response(self::pngFor('origin'), 200, ['Content-Type' => 'image/png'])]);
+        $url = 'https://adriaholiday.hu/uploads/gallery/1/a.jpg';
+
+        $file = (new LegacyMediaMirror)->mirror($url);
+
+        $this->assertSame(LegacyMediaFile::MIRRORED, $file->status);
+        $this->assertSame($url, $file->legacy_url);
+        Http::assertSent(fn ($request): bool => $request->url() === 'http://admin.adriaholiday.hu/uploads/gallery/1/a.jpg');
+    }
+
     public function test_a_failed_download_is_recorded_and_retried_next_time(): void
     {
         Http::fake(['*' => Http::sequence()->push('', 503)->push('', 503)->push('', 503)->push(self::pngFor('x'), 200)]);

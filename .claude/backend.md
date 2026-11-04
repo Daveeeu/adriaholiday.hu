@@ -841,7 +841,7 @@ Run `php artisan adria:import-offers --update-existing` to bring every tour in l
 
 The listing pages do not show everything the legacy admin (`/admin/?p=roundtrip`) marks active: school trips ("Osztálykirándulás") are listed nowhere, and an offer's other groups (e.g. also a school trip) or the "Repülős utak" admin region never appear in its crawl context. Import those with `--slug` plus `--country` / `--category`, which are added to the crawl context: e.g. `--country=belfold --category=osztalykirandulas` for the domestic school trips, `--category=repulos-utak` for the flight tours (→ "Repülős körutazások"). Group slugs map to categories in `LegacyAdriaOfferParser::CATEGORY_NAMES`, country slugs to countries in `LegacyCountryDictionary`.
 
-Config: `config('services.legacy_adria')` (`LEGACY_ADRIA_BASE_URL`, `LEGACY_ADRIA_USER_AGENT`, `LEGACY_ADRIA_DELAY_MS`, `LEGACY_ADRIA_TIMEOUT`).
+Config: `config('services.legacy_adria')` (`LEGACY_ADRIA_BASE_URL`, `LEGACY_ADRIA_FETCH_ORIGIN`, `LEGACY_ADRIA_USER_AGENT`, `LEGACY_ADRIA_DELAY_MS`, `LEGACY_ADRIA_TIMEOUT`). `LEGACY_ADRIA_FETCH_ORIGIN` (e.g. `http://admin.adriaholiday.hu`) is where legacy URLs are downloaded from once adriaholiday.hu serves the new site (`App\Support\Legacy\LegacyFetchUrl`); records keep the `https://adriaholiday.hu/...` URL as their identity, so nothing is copied twice.
 
 ## Legacy catalog import (`adria:catalog:*`)
 

@@ -247,7 +247,10 @@ class LegacyCatalogImportTest extends TestCase
                 'contact_city' => 'Budapest',
                 'contact_address' => 'Fő utca 1.',
             ],
-            'passengers' => [['passenger_name' => 'Utas 1', 'passenger_birth_date' => '1990-01-01'], ['passenger_name' => 'Utas 2', 'passenger_birth_date' => '1990-01-01']],
+            'passengers' => [
+                ['passenger_name' => 'Utas 1', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB123456'],
+                ['passenger_name' => 'Utas 2', 'passenger_birth_date' => '1990-01-01', 'passenger_address' => '1051 Budapest, Fő utca 1.', 'document_number' => 'AB654321'],
+            ],
         ];
 
         $this->postJson('/api/bookings', $payload($tour->dates()->where('legacy_id', 9001)->firstOrFail()))

@@ -2,6 +2,7 @@
 
 namespace App\Services\Legacy;
 
+use App\Support\Legacy\LegacyFetchUrl;
 use DOMDocument;
 use DOMXPath;
 use Illuminate\Support\Facades\Http;
@@ -191,7 +192,7 @@ class LegacyAdriaOfferCrawler
             $response = Http::withUserAgent($this->userAgent)
                 ->timeout($this->timeout)
                 ->retry(2, 500)
-                ->get($url);
+                ->get(LegacyFetchUrl::for($url));
         } catch (Throwable $exception) {
             throw new LegacyFetchException("Failed to fetch {$url}: {$exception->getMessage()}", previous: $exception);
         }
