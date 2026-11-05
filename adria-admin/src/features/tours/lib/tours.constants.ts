@@ -22,6 +22,12 @@ export const TOUR_MAIN_NAV_ITEMS = [
     labelKey: 'nav.tours.departurePlaces',
     route: '/tours/departure-places',
   },
+  {
+    label: 'Sorrend listánként',
+    labelKey: 'nav.tours.listOrder',
+    route: '/tours/list-order',
+    permission: 'tours.reorder',
+  },
 ] as const;
 
 export const TOUR_REGION_GROUP_TYPES = [

@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialController;
 use App\Http\Controllers\Admin\TourController;
 use App\Http\Controllers\Admin\TourDeparturePlaceController;
+use App\Http\Controllers\Admin\TourListOrderController;
 use App\Http\Controllers\Admin\TourPartnerOfferController;
 use App\Http\Controllers\Admin\TourReferenceOptionController;
 use App\Http\Controllers\Admin\TourRegionGroupController;
@@ -65,6 +66,7 @@ use App\Http\Controllers\PublicContactMessageController;
 use App\Http\Controllers\PublicNewsletterController;
 use App\Http\Controllers\PublicTourInquiryController;
 use App\Http\Controllers\SalesAssistantController;
+use App\Support\Tour\TourList;
 use Illuminate\Support\Facades\Route;
 
 Route::get('portfolio/content', [PortfolioContentController::class, 'index']);
@@ -237,6 +239,14 @@ Route::prefix('admin')
         Route::post('tours/{tour}/duplicate', [TourController::class, 'duplicate']);
         Route::patch('tours/reorder', [TourController::class, 'reorder']);
         Route::post('tours/{tour}/move', [TourController::class, 'move']);
+        Route::get('tour-list-orders', [TourListOrderController::class, 'index']);
+        Route::prefix('tour-list-orders/{type}/{key}')
+            ->where(['type' => implode('|', TourList::types()), 'key' => '[A-Za-z0-9_-]{1,100}'])
+            ->group(function (): void {
+                Route::get('/', [TourListOrderController::class, 'show']);
+                Route::put('/', [TourListOrderController::class, 'update']);
+                Route::delete('/', [TourListOrderController::class, 'destroy']);
+            });
 
         Route::apiResource('tour-region-groups', TourRegionGroupController::class)->parameters([
             'tour-region-groups' => 'tourRegionGroup',

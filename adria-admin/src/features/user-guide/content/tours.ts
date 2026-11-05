@@ -22,7 +22,7 @@ export const toursChapter: GuideChapter = {
   id: 'tours',
   title: 'Körutazások',
   description:
-    'A körutazási ajánlatok teljes kezelése: lista, szerkesztő, időpontok és felárak, valamint a régiók, szezonális csoportok és felszállási helyek.',
+    'A körutazási ajánlatok teljes kezelése: lista, szerkesztő, időpontok és felárak, a régiók, szezonális csoportok és felszállási helyek, valamint az utak sorrendje csempénként és országonként.',
   icon: Ticket,
   topics: [
     {
@@ -89,8 +89,8 @@ export const toursChapter: GuideChapter = {
           ),
           field(
             'Fel / Le nyíl',
-            'Eggyel előrébb vagy hátrébb mozgatja az utat a sorrendben.',
-            'A publikus ajánlatlisták sorrendjében.',
+            'Eggyel előrébb vagy hátrébb mozgatja az utat az alapértelmezett sorrendben.',
+            'A publikus ajánlatlisták sorrendjében, ahol a listának nincs saját sorrendje (lásd „Sorrend listánként”).',
           ),
           field(
             'Piros kuka',
@@ -309,6 +309,68 @@ export const toursChapter: GuideChapter = {
         ),
         warning(
           'Felszállási helyet csak akkor törölj, ha egyetlen út sem használja; helyette inkább kapcsold ki.',
+        ),
+      ],
+    },
+    {
+      id: 'tour-list-order',
+      title: 'Sorrend listánként',
+      summary:
+        'Minden főoldali csempe kategóriaoldala és minden ország saját sorrendet kaphat, egymástól és az Ajánlatok oldali alapértelmezett sorrendtől függetlenül (pl. adventkor előre az adventi utak, vagy ár szerint).',
+      path: '/tours/list-order',
+      menu: 'Körutazások › Sorrend listánként',
+      access: 'Körutazások rendezése',
+      blocks: [
+        fields('Listák', [
+          field(
+            'Csempék',
+            'A főoldali ajánlatcsempék (Főoldali ajánlatok), amelyek kategóriaoldalra visznek, a főoldali sorrendjükben. A sorrend a csempe kategóriaoldalán (pl. /kategoriak/korutazasok) érvényes, akkor is, ha a látogató ott még országra is szűr.',
+            'A kategóriaoldalon, a „Legnépszerűbb” rendezésnél (ez az alapértelmezett).',
+          ),
+          field(
+            'Országok',
+            'Azok az országok, ahová legalább egy, a listákban megjelenő út visz, ábécérendben.',
+            'Az Utazások oldalon (/utazasok), ha a látogató pontosan erre az egy országra szűr, a „Legnépszerűbb” rendezésnél.',
+          ),
+          field(
+            'Kézi jelölés',
+            'A listának van elmentett saját sorrendje. Jelölés nélkül a lista az Ajánlatok oldali alapértelmezett sorrendet követi; a szám a listán szereplő utak száma.',
+          ),
+        ]),
+        fields('Gombok', [
+          field(
+            'Húzás / Fel–Le nyíl',
+            'Az út áthelyezése a listán belül. A változás csak a „Mentés” után él.',
+          ),
+          field(
+            'Ár szerint',
+            'Egy kattintással a legolcsóbb úttal kezdi a listát (az ár nélküli utak a végére kerülnek). Utána még kézzel is igazíthatsz rajta, majd ments.',
+          ),
+          field(
+            'Mentés',
+            'Elmenti a lista sorrendjét.',
+            'Azonnal a publikus weboldalon.',
+          ),
+          field('Mégse', 'Elveti a még nem mentett módosítást.'),
+          field(
+            'Alapértelmezett sorrend',
+            'Törli a lista saját sorrendjét, a lista újra az Ajánlatok oldali sorrendet követi.',
+            'Azonnal a publikus weboldalon.',
+          ),
+        ]),
+        steps(
+          [
+            'Válaszd ki bal oldalt a csempét vagy az országot.',
+            'Kattints az „Ár szerint” gombra, vagy húzd / nyilakkal tedd előre a kiemelni kívánt utakat.',
+            'Kattints a „Mentés” gombra, és nézd meg a listát a weboldalon.',
+          ],
+          'Például: adventi utak előre a Körutazások csempén',
+        ),
+        p(
+          'Ha egy elmentett sorrendű listára új út kerül (pl. új utat sorolsz a kategóriába), az a lista végén jelenik meg „Új a listán” jelöléssel, amíg el nem helyezed és nem mented. A látogató saját rendezése (Legolcsóbb, Legmelegebb) mindig felülírja a kézi sorrendet.',
+        ),
+        tip(
+          'A főoldali „Kiemelt utak” blokk sorrendje külön, az út „Kiemelt sorrend” mezőjében állítható; a csempék egymás közti sorrendje a Főoldali ajánlatok oldalon.',
         ),
       ],
     },

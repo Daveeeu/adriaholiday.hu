@@ -200,6 +200,11 @@ const TourRegionGroupsPage = lazy(() =>
     default: module.TourRegionGroupsPage,
   })),
 );
+const TourListOrderPage = lazy(() =>
+  import('@/features/tours/pages/TourListOrderPage').then((module) => ({
+    default: module.TourListOrderPage,
+  })),
+);
 const TourSeasonalGroupsPage = lazy(() =>
   import('@/features/tours/pages/TourSeasonalGroupsPage').then((module) => ({
     default: module.TourSeasonalGroupsPage,
@@ -490,6 +495,11 @@ const router = createBrowserRouter(
               path: 'departure-places',
               element: <TourDeparturePlacesPage />,
               handle: { crumbKey: 'nav.tours.departurePlaces' },
+            },
+            {
+              path: 'list-order',
+              element: withPermission('/tours/list-order', <TourListOrderPage />),
+              handle: { crumbKey: 'nav.tours.listOrder' },
             },
           ],
         },

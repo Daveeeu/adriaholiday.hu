@@ -375,6 +375,8 @@ class TourController extends Controller
             Tour::query()->whereKey($id)->update(['sort_order' => $index + 1]);
         }
 
+        PublicContentCache::bump(PublicContentCache::OFFERS);
+
         return response()->noContent();
     }
 
@@ -400,6 +402,7 @@ class TourController extends Controller
         [$tourSortOrder, $otherSortOrder] = [$tour->sort_order, $other->sort_order];
         $tour->update(['sort_order' => $otherSortOrder]);
         $other->update(['sort_order' => $tourSortOrder]);
+        PublicContentCache::bump(PublicContentCache::OFFERS);
 
         return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }

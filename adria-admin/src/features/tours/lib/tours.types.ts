@@ -885,3 +885,31 @@ export type TourDeparturePlaceListResponse = {
   page: number;
   perPage: number;
 };
+
+/** A public list whose tour order the office sets: a homepage tile's category page or a country. */
+export type OrderedTourListType = 'category' | 'country';
+
+export type OrderedTourList = {
+  type: OrderedTourListType;
+  key: string;
+  label: string;
+  categoryName?: string;
+  tourCount: number;
+  /** Whether the office set the list's own order (otherwise it follows the global order). */
+  ordered: boolean;
+};
+
+export type OrderedTourLists = {
+  tiles: OrderedTourList[];
+  countries: OrderedTourList[];
+};
+
+export type OrderedTourListItem = {
+  id: string;
+  name: string;
+  price: number | null;
+  thumbnailUrl: string | null;
+  link: string;
+  /** Whether the office placed the tour on the list (otherwise it follows the placed ones in the global order). */
+  placed: boolean;
+};

@@ -17,6 +17,7 @@ class PortfolioOfferController extends Controller
     {
         $query = PortfolioOfferQuery::buildBaseQuery($request);
         PortfolioOfferQuery::applyRequestChipFilters($query, $request, null);
+        PortfolioOfferQuery::applyListOrder($query, $request, null);
 
         return $this->cachedPaginatedResponse($request, 'index', $query, function () use ($request): array {
             return $this->recommendedItems($request, PortfolioOfferQuery::buildBaseQuery(new Request));
@@ -28,6 +29,7 @@ class PortfolioOfferController extends Controller
         $query = PortfolioOfferQuery::buildBaseQuery($request);
         PortfolioOfferQuery::applyCategoryScope($query, $slug);
         PortfolioOfferQuery::applyRequestChipFilters($query, $request, $slug);
+        PortfolioOfferQuery::applyListOrder($query, $request, $slug);
 
         return $this->cachedPaginatedResponse($request, "category:{$slug}", $query, function () use ($request, $slug): array {
             $recommendedQuery = PortfolioOfferQuery::buildBaseQuery(new Request);

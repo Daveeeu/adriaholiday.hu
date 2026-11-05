@@ -37,6 +37,7 @@ export const hu = {
   'nav.tours.regionGroups': 'Régiók és csoportok',
   'nav.tours.seasonalGroups': 'Szezonális ajánlat csoportok',
   'nav.tours.departurePlaces': 'Felszállási helyek',
+  'nav.tours.listOrder': 'Sorrend listánként',
   'nav.bookings.tourBookings': 'Körutazás foglalások',
   'nav.bookings.tourInquiries': 'Körutazás ajánlatkérések',
   'nav.bookings.apartmentBookings': 'Apartman foglalások',

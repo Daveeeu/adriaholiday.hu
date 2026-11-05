@@ -1,6 +1,9 @@
 import { apiClient } from '@/lib/api-client';
 
 import type {
+  OrderedTourList,
+  OrderedTourListItem,
+  OrderedTourLists,
   RouteStopPlace,
   TourDeparturePlace,
   TourDeparturePlaceFormValues,
@@ -108,6 +111,37 @@ export function duplicateTourOffer(id: string) {
 export function moveTourOffer(id: string, direction: 'up' | 'down') {
   return apiClient
     .post<Tour | ResourceEnvelope<Tour>>(`/api/admin/tours/${id}/move`, { direction })
+    .then(unwrapResource);
+}
+
+export function getOrderedTourLists() {
+  return apiClient
+    .get<ResourceEnvelope<OrderedTourLists>>('/api/admin/tour-list-orders')
+    .then(unwrapResource);
+}
+
+function orderedTourListPath(list: Pick<OrderedTourList, 'type' | 'key'>) {
+  return `/api/admin/tour-list-orders/${list.type}/${encodeURIComponent(list.key)}`;
+}
+
+export function getOrderedTourListItems(list: Pick<OrderedTourList, 'type' | 'key'>) {
+  return apiClient
+    .get<ResourceEnvelope<OrderedTourListItem[]>>(orderedTourListPath(list))
+    .then(unwrapResource);
+}
+
+export function saveOrderedTourList(list: Pick<OrderedTourList, 'type' | 'key'>, orderedIds: string[]) {
+  return apiClient
+    .put<ResourceEnvelope<OrderedTourListItem[]>>(orderedTourListPath(list), {
+      ids: orderedIds.map(Number),
+    })
+    .then(unwrapResource);
+}
+
+/** Returns the list to the global tour order. */
+export function resetOrderedTourList(list: Pick<OrderedTourList, 'type' | 'key'>) {
+  return apiClient
+    .delete<ResourceEnvelope<OrderedTourListItem[]>>(orderedTourListPath(list))
     .then(unwrapResource);
 }
 

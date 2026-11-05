@@ -219,7 +219,7 @@ export const staticNavigationItems: NavigationItem[] = [
       labelKey: item.labelKey ?? 'nav.tours.offers',
       icon: Ticket,
       exact: item.route === '/tours',
-      permission: 'tours.viewAny',
+      permission: 'permission' in item ? item.permission : 'tours.viewAny',
     })),
   },
   {

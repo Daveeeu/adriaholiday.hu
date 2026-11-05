@@ -6,8 +6,10 @@ use App\Models\BlogCategory;
 use App\Models\BlogTagTranslation;
 use App\Models\PortfolioFilterChip;
 use App\Models\Tour;
+use App\Models\TourListPosition;
 use App\Models\TourReferenceOption;
 use App\Support\Tour\TourDateStatus;
+use App\Support\Tour\TourList;
 use Collator;
 use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +26,16 @@ class PortfolioOfferQuery
      * was) when its category was left out in the admin.
      */
     private const CATEGORY_TRAVEL_MODES = ['repulos-korutazasok' => 'plane'];
+
+    /**
+     * Orders a visitor picks instead of the default one.
+     */
+    private const VISITOR_ORDERS = ['warmest', 'price_asc', 'price_desc', 'newest', 'oldest', 'name'];
+
+    /**
+     * Sorts the tours not placed on an ordered list after the placed ones.
+     */
+    private const UNPLACED_POSITION = 2147483647;
 
     public static function buildBaseQuery(Request $request): Builder
     {
@@ -106,7 +118,17 @@ class PortfolioOfferQuery
             return $query;
         }
 
-        $category = BlogCategory::query()
+        $category = self::resolveCategory($slug);
+
+        return $category ? self::applyCategoryFilter($query, $category) : $query->whereRaw('1 = 0');
+    }
+
+    /**
+     * The active category a category page's slug names.
+     */
+    public static function resolveCategory(string $slug): ?BlogCategory
+    {
+        return BlogCategory::query()
             ->where('active', true)
             ->where(function (Builder $builder) use ($slug): void {
                 $builder->where('seo_name', $slug)
@@ -115,16 +137,56 @@ class PortfolioOfferQuery
                     });
             })
             ->first();
+    }
 
-        if (! $category) {
-            return $query->whereRaw('1 = 0');
-        }
-
+    /**
+     * The tours a category page lists.
+     */
+    public static function applyCategoryFilter(Builder $query, BlogCategory $category): Builder
+    {
         $travelMode = self::CATEGORY_TRAVEL_MODES[$category->seo_name] ?? null;
 
         return $query->where(fn (Builder $builder) => $builder
             ->whereJsonContains('category_ids', (string) $category->id)
             ->when($travelMode !== null, fn (Builder $modeQuery) => $modeQuery->orWhere('travel_mode_id', $travelMode)));
+    }
+
+    /**
+     * Orders a listing by the office's own order of its list (see TourList)
+     * when the visitor keeps the default order: a category page follows its
+     * tile's order, the offers page filtered to one country that country's.
+     */
+    public static function applyListOrder(Builder $query, Request $request, ?string $categorySlug): Builder
+    {
+        if (in_array(self::requestedOrder($request), self::VISITOR_ORDERS, true)) {
+            return $query;
+        }
+
+        $list = self::listFor($request, $categorySlug);
+
+        return $list ? self::applyDefaultOrdering($query->reorder(), $list) : $query;
+    }
+
+    /**
+     * The global tour order, after the tour's place on the given list: tours
+     * not placed on it yet follow the placed ones.
+     */
+    public static function applyDefaultOrdering(Builder $query, ?TourList $list = null): Builder
+    {
+        if ($list !== null) {
+            $position = TourListPosition::query()
+                ->select('position')
+                ->whereColumn('tour_list_positions.tour_id', 'tours.id')
+                ->where('list_type', $list->type)
+                ->where('list_key', $list->key);
+
+            $query->orderByRaw(
+                'coalesce(('.$position->toSql().'), ?) asc',
+                [...$position->getBindings(), self::UNPLACED_POSITION],
+            );
+        }
+
+        return $query->orderBy('sort_order')->orderByDesc('created_at');
     }
 
     /**
@@ -498,9 +560,27 @@ class PortfolioOfferQuery
         };
     }
 
+    private static function listFor(Request $request, ?string $categorySlug): ?TourList
+    {
+        if ($categorySlug !== null) {
+            $category = self::resolveCategory($categorySlug);
+
+            return $category ? TourList::category($category->id) : null;
+        }
+
+        $countries = self::parseCountryCodes($request);
+
+        return count($countries) === 1 ? TourList::country($countries[0]) : null;
+    }
+
+    private static function requestedOrder(Request $request): string
+    {
+        return strtolower((string) $request->query('order', 'sort_order'));
+    }
+
     private static function applyOrdering(Builder $query, Request $request): Builder
     {
-        $order = strtolower((string) $request->query('order', 'sort_order'));
+        $order = self::requestedOrder($request);
 
         if ($order === 'warmest') {
             $warmChip = PortfolioFilterChip::query()
@@ -512,7 +592,7 @@ class PortfolioOfferQuery
                 $tagId = self::resolveThemeTagId((string) $warmChip->filter_value);
 
                 if (! $tagId) {
-                    return $query->orderBy('sort_order')->orderByDesc('created_at');
+                    return self::applyDefaultOrdering($query);
                 }
 
                 $needle = '%"'.$tagId.'"%';
@@ -530,7 +610,7 @@ class PortfolioOfferQuery
             'newest' => $query->orderByDesc('created_at')->orderBy('sort_order'),
             'oldest' => $query->orderBy('created_at')->orderBy('sort_order'),
             'name' => $query->orderBy('name')->orderBy('sort_order'),
-            default => $query->orderBy('sort_order')->orderByDesc('created_at'),
+            default => self::applyDefaultOrdering($query),
         };
     }
 }
