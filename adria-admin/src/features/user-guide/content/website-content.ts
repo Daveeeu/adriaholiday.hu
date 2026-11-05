@@ -219,7 +219,7 @@ export const websiteContentChapter: GuideChapter = {
         img(
           'testimonial-form',
           'Levél szerkesztése',
-          'Egy levél szerkesztése: cím, aláírás, dátum, megjelenés és a levél szövege.',
+          'Egy levél szerkesztése: cím, aláírás, dátum és annak megjelenítése, megjelenés és a levél szövege.',
         ),
         fields('Mezők', [
           field(
@@ -235,7 +235,12 @@ export const websiteContentChapter: GuideChapter = {
           field(
             'Dátum',
             'A levél dátuma; ez alapján rendeződnek.',
-            'A levél mellett; a legfrissebbek kerülnek a főoldalra.',
+            'A weboldalon csak akkor, ha a „Dátum megjelenítése” be van kapcsolva; a legfrissebbek kerülnek a főoldalra.',
+          ),
+          field(
+            'Dátum megjelenítése a weboldalon',
+            'Alapból kikapcsolva: a dátum ilyenkor csak a sorrendet adja, a weboldalon nem látszik. Bekapcsolva a levél mellett hónap és év formában megjelenik.',
+            'A „Rólunk írták” oldalon és a főoldalon, a levél mellett.',
           ),
           field(
             'Megjelenik',

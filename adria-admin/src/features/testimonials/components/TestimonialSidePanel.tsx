@@ -19,6 +19,7 @@ const testimonialFormSchema = z.object({
   author: z.string().trim().max(255),
   body: z.string().trim().min(1, 'A levél szövege kötelező.'),
   publishedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Adj meg egy dátumot.'),
+  showDate: z.boolean(),
   active: z.boolean(),
 });
 
@@ -30,6 +31,7 @@ function getFormDefaults(testimonial?: Testimonial): TestimonialFormValues {
     author: testimonial?.author ?? '',
     body: testimonial?.body ?? '',
     publishedAt: (testimonial?.publishedAt ?? new Date().toISOString()).slice(0, 10),
+    showDate: testimonial?.showDate ?? false,
     active: testimonial?.active ?? true,
   };
 }
@@ -156,6 +158,26 @@ export function TestimonialSidePanel({
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="showDate"
+              render={({ field }) => (
+                <FormItem>
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <input
+                      type="checkbox"
+                      checked={field.value}
+                      onChange={(event) => field.onChange(event.target.checked)}
+                    />
+                    Dátum megjelenítése a weboldalon
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    Kikapcsolva a dátum csak a sorrendet határozza meg, a weboldalon nem látszik.
+                  </p>
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

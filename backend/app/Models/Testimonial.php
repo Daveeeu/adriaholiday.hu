@@ -25,12 +25,14 @@ class Testimonial extends Model
         'author',
         'body',
         'published_at',
+        'show_date',
         'active',
         'legacy_id',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
+        'show_date' => 'boolean',
         'active' => 'boolean',
         'legacy_id' => 'integer',
     ];

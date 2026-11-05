@@ -5,6 +5,7 @@ export type Testimonial = {
   body: string;
   excerpt: string;
   publishedAt: string;
+  showDate: boolean;
   active: boolean;
   legacyId: number | null;
   createdAt: string;
@@ -16,6 +17,7 @@ export type TestimonialUpsertInput = {
   author: string;
   body: string;
   publishedAt: string;
+  showDate: boolean;
   active: boolean;
 };
 

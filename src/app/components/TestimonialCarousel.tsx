@@ -78,7 +78,8 @@ export default function TestimonialCarousel() {
                 <div>
                   <h4 className="text-[#0f172a] text-lg font-bold">{testimonial.author ?? "Utasunk"}</h4>
                   <p className="text-gray-500 text-sm">
-                    {testimonial.title} · {formatTestimonialDate(testimonial.publishedAt)}
+                    {testimonial.title}
+                    {testimonial.publishedAt ? ` · ${formatTestimonialDate(testimonial.publishedAt)}` : ""}
                   </p>
                 </div>
               </div>

@@ -20,6 +20,7 @@ class TestimonialResource extends JsonResource
             'body' => $this->body,
             'excerpt' => $this->excerpt(),
             'publishedAt' => $this->published_at?->toISOString(),
+            'showDate' => (bool) $this->show_date,
             'active' => (bool) $this->active,
             'legacyId' => $this->legacy_id,
             'createdAt' => $this->created_at?->toISOString(),

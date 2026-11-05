@@ -8,7 +8,8 @@ export type PortfolioTestimonial = {
   excerpt: string;
   /** Sanitized HTML of the whole letter. */
   body: string;
-  publishedAt: string;
+  /** Only when the office chose to show the letter's date. */
+  publishedAt: string | null;
 };
 
 export type PortfolioTestimonialsResponse = {

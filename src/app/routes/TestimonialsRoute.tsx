@@ -102,8 +102,9 @@ export default function TestimonialsRoute() {
               <div>
                 <h2 className="text-[#0f172a] text-xl font-bold">{testimonial.title}</h2>
                 <p className="text-sm text-gray-500">
-                  {testimonial.author ? `${testimonial.author} · ` : ""}
-                  {formatTestimonialDate(testimonial.publishedAt)}
+                  {[testimonial.author, testimonial.publishedAt && formatTestimonialDate(testimonial.publishedAt)]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
               </div>
             </header>

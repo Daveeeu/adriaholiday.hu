@@ -64,6 +64,24 @@ class TestimonialTest extends TestCase
         $this->assertStringNotContainsString('B Istvánné', $response->json('items.0.excerpt'));
     }
 
+    public function test_public_list_shows_the_date_only_of_letters_the_office_turned_it_on_for(): void
+    {
+        $this->actingAsAdmin(self::ALL_PERMISSIONS);
+
+        $id = $this->postJson('/api/admin/testimonials', $this->payload())
+            ->assertCreated()
+            ->assertJsonPath('data.showDate', false)
+            ->json('data.id');
+
+        $this->getJson('/api/portfolio/testimonials')->assertOk()->assertJsonPath('items.0.publishedAt', null);
+
+        $this->patchJson("/api/admin/testimonials/{$id}", [...$this->payload(), 'showDate' => true])
+            ->assertOk()
+            ->assertJsonPath('data.showDate', true);
+
+        $this->getJson('/api/portfolio/testimonials')->assertOk()->assertJsonPath('items.0.publishedAt', '2026-05-11');
+    }
+
     public function test_legacy_letters_are_imported_once_with_their_signature_and_a_sensible_date(): void
     {
         $path = tempnam(sys_get_temp_dir(), 'testimonials');

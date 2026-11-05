@@ -19,7 +19,8 @@ class PublicTestimonialResource extends JsonResource
             'author' => $this->author,
             'excerpt' => $this->excerpt(),
             'body' => $this->body,
-            'publishedAt' => $this->published_at?->toDateString(),
+            // The letter still sorts by its date when the office keeps it hidden.
+            'publishedAt' => $this->show_date ? $this->published_at?->toDateString() : null,
         ];
     }
 }

@@ -15,6 +15,10 @@ class StoreTestimonialRequest extends FormRequest
             'author' => $author !== '' ? $author : null,
             'published_at' => $this->input('published_at', $this->input('publishedAt')),
         ]);
+
+        if ($this->has('showDate')) {
+            $this->merge(['show_date' => $this->input('showDate')]);
+        }
     }
 
     public function authorize(): bool
@@ -29,6 +33,7 @@ class StoreTestimonialRequest extends FormRequest
             'author' => ['nullable', 'string', 'max:255'],
             'body' => ['required', 'string', 'max:100000'],
             'published_at' => ['required', 'date'],
+            'show_date' => ['sometimes', 'boolean'],
             'active' => ['sometimes', 'boolean'],
         ];
     }
