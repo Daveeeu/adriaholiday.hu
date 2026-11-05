@@ -308,18 +308,22 @@ class TourContentSyncService
 
     /**
      * Replaces one gallery of the tour (the one shown, by default); the
-     * tour's other galleries are left alone.
+     * tour's other galleries are left alone. The images keep the order their
+     * sort_order (else their position) gives, renumbered from 1.
      */
     public function syncGalleryItems(Tour $tour, array $galleryItems, string $collection = TourGalleryItem::MAIN): void
     {
         $tour->galleryCollection($collection)->delete();
 
-        foreach (array_values($galleryItems) as $index => $item) {
-            $mediaId = $item['media_id'] ?? null;
+        $orderedItems = collect(array_values($galleryItems))
+            ->filter(fn (array $item): bool => is_numeric($item['media_id'] ?? null))
+            ->map(fn (array $item, int $index): array => [$item, (int) ($item['sort_order'] ?? ($index + 1)), $index])
+            ->sort(fn (array $a, array $b): int => [$a[1], $a[2]] <=> [$b[1], $b[2]])
+            ->pluck(0)
+            ->values();
 
-            if (! is_numeric($mediaId)) {
-                continue;
-            }
+        foreach ($orderedItems as $index => $item) {
+            $mediaId = $item['media_id'];
 
             $tour->galleryCollection($collection)->make([
                 'media_id' => (int) $mediaId,
@@ -327,7 +331,7 @@ class TourContentSyncService
                 'title' => isset($item['title']) ? trim((string) $item['title']) : null,
                 'alt' => isset($item['alt']) ? trim((string) $item['alt']) : null,
                 'caption' => isset($item['caption']) ? trim((string) $item['caption']) : null,
-                'sort_order' => (int) ($item['sort_order'] ?? ($index + 1)),
+                'sort_order' => $index + 1,
                 'active' => filter_var($item['active'] ?? true, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true,
             ])->forceFill(['legacy_image_id' => $item['legacy_image_id'] ?? null])->save();
         }

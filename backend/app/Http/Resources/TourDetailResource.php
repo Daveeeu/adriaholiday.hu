@@ -19,11 +19,8 @@ class TourDetailResource extends TourResource
             'priceItems' => TourPriceItemResource::collection($this->priceItems)->resolve(),
             'galleryTitle' => $this->gallery_title ? trim((string) $this->gallery_title) : null,
             'gallerySubtitle' => $this->gallery_subtitle ? trim((string) $this->gallery_subtitle) : null,
-            'gallery' => TourGalleryItemResource::collection(
-                ($this->galleryItems ?? collect())
-                    ->where('active', true)
-                    ->values(),
-            )->resolve($request),
+            // Every image, hidden ones too, in their set order: the admin edits them all.
+            'gallery' => TourGalleryItemResource::collection($this->galleryItems->sortBy('sort_order')->values())->resolve($request),
         ]);
     }
 }

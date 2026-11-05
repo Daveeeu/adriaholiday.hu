@@ -170,14 +170,14 @@ export const tourEditorTopics: GuideTopic[] = [
     id: 'tour-gallery',
     title: 'Galéria és média',
     summary:
-      'Az út képei. Az első kép a borítókép, a többi a galériában jelenik meg.',
+      'Az út képei, tetszőleges sorrendben. Az első aktív kép a borítókép, a képek ebben a sorrendben jelennek meg a galériában.',
     menu: EDITOR_MENU,
     access: EDITOR_ACCESS,
     blocks: [
       img(
         'tour-form-gallery',
         'Galéria és média szekció',
-        'A galéria címe, alcíme és a képek listája; a képek húzással rendezhetők.',
+        'A galéria címe, alcíme és a képek listája; a képek húzással vagy a fel–le nyilakkal rendezhetők.',
       ),
       fields('Mezők', [
         field(
@@ -187,8 +187,8 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Képek',
-          'Képek hozzáadása a médiatárból vagy feltöltéssel. A sorrend húzással (fogantyú ikon) módosítható. Az első kép a borítókép.',
-          'A borítókép az ajánlatkártyákon, a főoldali kiemeléseknél és az út oldalának tetején; a többi kép az út galériájában.',
+          'Képek hozzáadása a médiatárból vagy feltöltéssel. A sorrendet a kártya bal felső sarkában lévő fogantyút megfogva, a kártyát a kívánt helyre húzva, vagy a jobb oldali fel–le nyilakkal állíthatod; a kártyán az „1. kép”, „2. kép”… címke mutatja a helyét. A sorrend mentéskor rögzül. Az első aktív kép a borítókép.',
+          'A borítókép az ajánlatkártyákon, a főoldali kiemeléseknél és az út oldalának tetején; a képek ugyanebben a sorrendben jelennek meg az út galériájában és a programleírás képei között, és a kép nélküli programnapok is ebben a sorrendben kapnak képet.',
         ),
         field(
           'Cím / Alt szöveg / Képaláírás',
@@ -197,7 +197,7 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Aktív / Megjelenik',
-          'Kikapcsolva a kép megmarad, de nem jelenik meg a weboldalon.',
+          'Kikapcsolva a kép megmarad a listában (a helyével együtt), de nem jelenik meg a weboldalon, és nem lehet borítókép.',
         ),
       ]),
       tip(

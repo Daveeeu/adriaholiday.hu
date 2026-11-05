@@ -1,6 +1,12 @@
 import type { UseFormReturn } from 'react-hook-form';
 
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import type { GalleryItemsFormValues } from '@/components/media/gallery-items';
 import { GalleryItemsEditor } from '@/components/media/gallery-items-editor';
@@ -17,7 +23,9 @@ export function TourGallerySection({ form }: TourGallerySectionProps) {
       <div>
         <h3 className="font-semibold">Galéria</h3>
         <p className="text-sm text-muted-foreground">
-          Ajánlathoz kötött képek a publikus detail oldalra.
+          Az út képei a publikus oldalon ebben a sorrendben jelennek meg; az
+          első aktív kép a borítókép. A sorrendet a fogantyúval húzva vagy a
+          fel–le nyilakkal állíthatod.
         </p>
       </div>
 
@@ -43,7 +51,10 @@ export function TourGallerySection({ form }: TourGallerySectionProps) {
             <FormItem>
               <FormLabel>Galéria alcím</FormLabel>
               <FormControl>
-                <Input placeholder="Tengerpart, városnézés és élmények egy helyen." {...field} />
+                <Input
+                  placeholder="Tengerpart, városnézés és élmények egy helyen."
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -261,7 +261,8 @@ class AdminToursTest extends TestCase
         $createResponse->assertJsonPath('data.categories.0.label', 'Klasszikus körutazás');
         $createResponse->assertJsonPath('data.galleryTitle', 'Galéria cím');
         $createResponse->assertJsonPath('data.gallerySubtitle', 'Galéria alcím');
-        $createResponse->assertJsonCount(2, 'data.gallery');
+        $createResponse->assertJsonCount(3, 'data.gallery');
+        $createResponse->assertJsonPath('data.gallery.2.active', false);
         $createResponse->assertJsonPath('data.gallery.0.title', 'Első kép');
         $createResponse->assertJsonPath('data.gallery.0.image.url', $galleryMedia[0]->getUrl());
         $createResponse->assertJsonCount(2, 'data.dates');
@@ -354,7 +355,7 @@ class AdminToursTest extends TestCase
         $showResponse->assertJsonPath('data.departurePlaces.0.name', 'Budapest');
         $showResponse->assertJsonCount(1, 'data.partnerBonuses');
         $showResponse->assertJsonCount(2, 'data.priceItems');
-        $showResponse->assertJsonCount(2, 'data.gallery');
+        $showResponse->assertJsonCount(3, 'data.gallery');
 
         $updateResponse = $this->patchJson("/api/admin/tours/{$tourId}", $this->payload([
             'name' => 'Teszt körutazás módosítva',

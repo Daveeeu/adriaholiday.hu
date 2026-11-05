@@ -85,6 +85,9 @@ class PortfolioOfferDetailResource extends TourDetailResource
             'prices' => $sanitizeContent($tour->prices),
             'discounts' => $sanitizeContent($tour->discounts),
             'notes' => $sanitizeContent($tour->notes, true),
+            'gallery' => TourGalleryItemResource::collection(
+                $tour->galleryItems->where('active', true)->whereNotNull('media')->sortBy('sort_order')->values(),
+            )->resolve($request),
             'programDays' => $this->programDays($tour, $request),
             'priceInformation' => [
                 'included' => $priceItems
