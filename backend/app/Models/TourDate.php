@@ -19,6 +19,7 @@ class TourDate extends Model
 
     protected $fillable = [
         'tour_id',
+        'sort_order',
         'start_date',
         'end_date',
         'price',
@@ -42,6 +43,7 @@ class TourDate extends Model
     ];
 
     protected $casts = [
+        'sort_order' => 'integer',
         'departure_place_ids' => 'array',
         'xml_enabled' => 'boolean',
         'partner_xml' => 'array',

@@ -126,11 +126,13 @@ class UpdateTourRequest extends FormRequest
             'tag_ids' => $this->input('tag_ids', $this->input('tagIds', [])),
             'search_keywords' => $this->input('search_keywords', $this->input('searchKeywords', [])),
             'category_ids' => $this->input('category_ids', $this->input('categoryIds', [])),
-            'dates' => collect($this->input('dates', []))->map(function (array $date): array {
+            'dates' => collect($this->input('dates', []))->values()->map(function (array $date, int $index): array {
                 $priceBox = $date['priceBox'] ?? [];
 
                 return [
                     'id' => $date['id'] ?? null,
+                    // The admin lists the dates in their order.
+                    'sort_order' => $index + 1,
                     'start_date' => $date['start_date'] ?? $date['startDate'] ?? null,
                     'end_date' => $date['end_date'] ?? $date['endDate'] ?? null,
                     'price' => $date['price'] ?? $priceBox['price'] ?? null,
@@ -272,6 +274,7 @@ class UpdateTourRequest extends FormRequest
             'category_ids.*' => ['nullable', 'string', 'max:255'],
             'dates' => ['nullable', 'array'],
             'dates.*.id' => ['nullable'],
+            'dates.*.sort_order' => ['integer', 'min:1'],
             'dates.*.start_date' => ['nullable', 'date'],
             'dates.*.end_date' => ['nullable', 'date', 'after_or_equal:dates.*.start_date'],
             'dates.*.price' => ['nullable', 'numeric'],

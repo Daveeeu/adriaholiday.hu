@@ -24,6 +24,7 @@ use Illuminate\Support\Collection;
 class TourContentSyncService
 {
     private const DATE_FIELDS = [
+        'sort_order',
         'start_date',
         'end_date',
         'price_box_original_price',
@@ -54,13 +55,15 @@ class TourContentSyncService
      * the rest created. Fields a requested date leaves out keep their stored
      * value. With $keepDeparted, stored dates already departed stay even when
      * not asked for (a source that lists only upcoming dates, like the legacy
-     * site); with $keepBooked, so do dates a booking was made for.
+     * site); with $keepBooked, so do dates a booking was made for. A new
+     * date without a sort_order goes after the stored ones.
      *
      * @param  array<int, array<string, mixed>>  $dates
      */
     public function syncDates(Tour $tour, array $dates, bool $keepDeparted = false, bool $keepBooked = false): void
     {
         $unmatched = $tour->dates()->get()->keyBy('id');
+        $nextSortOrder = (int) $unmatched->max('sort_order') + 1;
 
         foreach ($dates as $date) {
             $tourDate = $this->matchingDate($unmatched, $date) ?? new TourDate(['status' => TourDateStatus::AVAILABLE]);
@@ -74,6 +77,10 @@ class TourContentSyncService
             }
 
             $tourDate->status ??= TourDateStatus::AVAILABLE;
+
+            if (! $tourDate->exists && ! array_key_exists('sort_order', $date)) {
+                $tourDate->sort_order = $nextSortOrder++;
+            }
             $tour->dates()->save($tourDate);
 
             if (array_key_exists('extras', $date)) {

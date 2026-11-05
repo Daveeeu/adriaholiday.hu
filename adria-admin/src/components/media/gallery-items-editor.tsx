@@ -1,7 +1,7 @@
-import { useRef, useState, type DragEvent } from 'react';
 import { useFieldArray, useWatch, type UseFormReturn } from 'react-hook-form';
-import { ArrowDown, ArrowUp, GripVertical, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
+import { ReorderControls } from '@/components/admin/reorder-controls';
 import { Button } from '@/components/ui/button';
 import {
   FormControl,
@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { MediaPicker } from '@/components/media/media-picker';
 import type { MediaCategory } from '@/components/media/media.constants';
 import { createClientId } from '@/lib/client-id';
+import { useDragReorder, type DragHandleProps } from '@/lib/use-drag-reorder';
 
 import type { GalleryItemsFormValues } from './gallery-items';
 
@@ -43,8 +44,7 @@ function GalleryCard({
   count,
   onDelete,
   onMove,
-  onDragStart,
-  onDragEnd,
+  dragHandleProps,
   defaultCategory,
   sourceContext,
   showCaption,
@@ -56,8 +56,7 @@ function GalleryCard({
   count: number;
   onDelete: () => void;
   onMove: (toPosition: number) => void;
-  onDragStart: (event: DragEvent<HTMLButtonElement>) => void;
-  onDragEnd: () => void;
+  dragHandleProps: DragHandleProps;
   defaultCategory: MediaCategory;
   sourceContext: string;
   showCaption: boolean;
@@ -65,48 +64,13 @@ function GalleryCard({
   return (
     <div className="grid gap-4 rounded-2xl border bg-background p-4 shadow-sm lg:grid-cols-[minmax(0,320px)_1fr_auto]">
       <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            draggable
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            className="cursor-grab rounded-lg border bg-muted/60 p-2 text-muted-foreground active:cursor-grabbing"
-            aria-label="Áthúzás máshová"
-            title="Fogd meg és húzd a kép új helyére"
-          >
-            <GripVertical className="size-4" />
-          </button>
-
-          <div className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-            {position + 1}. kép
-          </div>
-
-          <div className="ml-auto flex items-center gap-1">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={() => onMove(position - 1)}
-              disabled={position === 0}
-              aria-label="Feljebb"
-              title="Feljebb"
-            >
-              <ArrowUp className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={() => onMove(position + 1)}
-              disabled={position === count - 1}
-              aria-label="Lejjebb"
-              title="Lejjebb"
-            >
-              <ArrowDown className="size-4" />
-            </Button>
-          </div>
-        </div>
+        <ReorderControls
+          position={position}
+          count={count}
+          itemLabel="kép"
+          onMove={onMove}
+          dragHandleProps={dragHandleProps}
+        />
 
         <FormField
           control={form.control}
@@ -270,8 +234,6 @@ export function GalleryItemsEditor({
       control: form.control,
       name: 'gallery',
     }) ?? [];
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const cardElements = useRef<Record<string, HTMLDivElement | null>>({});
 
   const rows: GalleryRow[] = fields.map((field, index) => {
     const value = watchedItems[index];
@@ -318,6 +280,8 @@ export function GalleryItemsEditor({
     });
   };
 
+  const { draggingKey, handleProps, itemProps } = useDragReorder(move);
+
   const appendItem = () => {
     const nextSortOrder = Math.max(0, ...rows.map((row) => row.sortOrder)) + 1;
 
@@ -337,28 +301,11 @@ export function GalleryItemsEditor({
     <>
       <div className="space-y-3">
         {orderedRows.map((row, position) => {
-          const isDragging = draggingId === row.clientId;
-
           return (
             <div
               key={row.fieldId}
-              ref={(element) => {
-                cardElements.current[row.clientId] = element;
-              }}
-              onDragOver={(event) => {
-                if (draggingId) {
-                  event.preventDefault();
-                  event.dataTransfer.dropEffect = 'move';
-                }
-              }}
-              onDrop={(event) => {
-                event.preventDefault();
-                if (draggingId) {
-                  move(draggingId, position);
-                }
-                setDraggingId(null);
-              }}
-              className={isDragging ? 'opacity-60' : ''}
+              {...itemProps(row.clientId, position)}
+              className={draggingKey === row.clientId ? 'opacity-60' : ''}
             >
               <GalleryCard
                 form={form}
@@ -366,16 +313,7 @@ export function GalleryItemsEditor({
                 position={position}
                 count={orderedRows.length}
                 onMove={(toPosition) => move(row.clientId, toPosition)}
-                onDragStart={(event) => {
-                  event.dataTransfer.effectAllowed = 'move';
-                  event.dataTransfer.setData('text/plain', row.clientId);
-                  const card = cardElements.current[row.clientId];
-                  if (card) {
-                    event.dataTransfer.setDragImage(card, 24, 24);
-                  }
-                  setDraggingId(row.clientId);
-                }}
-                onDragEnd={() => setDraggingId(null)}
+                dragHandleProps={handleProps(row.clientId)}
                 onDelete={() => remove(row.index)}
                 defaultCategory={defaultCategory}
                 sourceContext={sourceContext}

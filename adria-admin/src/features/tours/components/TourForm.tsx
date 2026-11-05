@@ -22,18 +22,15 @@ import {
   BOOKING_FORM_INPUT_GROUP_LABELS,
   BOOKING_FORM_VISIBILITY_LABELS,
 } from '@/features/booking-form-templates/lib/booking-form.constants';
-import { TOUR_DATE_STATUSES } from '../lib/tours.constants';
 import type { Tour, TourFormValues } from '../lib/tours.types';
 import { TourContentSections } from './TourContentSections';
 import { TourCreatableSelectField } from './TourCreatableSelectField';
 import { TourFilterSections } from './TourFilterSections';
 import { TourGallerySection } from './TourGallerySection';
 import { TourProgramDaysSection } from './TourProgramDaysSection';
-import { TourDateDeparturePlacesEditor } from './TourDateDeparturePlacesEditor';
-import { TourDateExtrasEditor } from './TourDateExtrasEditor';
+import { TourDatesSection } from './TourDatesSection';
 import { TourPriceItemsSection } from './TourPriceItemsSection';
 import { TourRouteMapSection } from './TourRouteMapSection';
-import { TourDatePartnerXmlFields } from './TourDatePartnerXmlFields';
 import { TourPartnerXmlSection } from './TourPartnerXmlSection';
 import { TourSeoSection } from './TourSeoSection';
 import { TourStaySection } from './TourStaySection';
@@ -158,16 +155,12 @@ function BooleanField({
 }
 
 export function TourForm({ form, tour }: TourFormProps) {
-  const dates = useFieldArray({
-    control: form.control,
-    name: 'dates',
-  });
-
   const bonuses = useFieldArray({
     control: form.control,
     name: 'partnerBonuses',
   });
 
+  const dates = useWatch({ control: form.control, name: 'dates' }) ?? [];
   const gallery = useWatch({ control: form.control, name: 'gallery' }) ?? [];
   const programDays = useWatch({ control: form.control, name: 'programDays' }) ?? [];
   const priceItems = useWatch({ control: form.control, name: 'priceItems' }) ?? [];
@@ -179,9 +172,9 @@ export function TourForm({ form, tour }: TourFormProps) {
       gallery: gallery.length,
       programDays: programDays.length,
       priceItems: priceItems.length,
-      dates: dates.fields.length,
+      dates: dates.length,
     }),
-    [dates.fields.length, gallery.length, priceItems.length, programDays.length],
+    [dates.length, gallery.length, priceItems.length, programDays.length],
   );
 
   const toggleSection = (key: TourPanelSectionKey) => {
@@ -557,253 +550,7 @@ export function TourForm({ form, tour }: TourFormProps) {
         open={openSections.dates}
         onToggle={() => toggleSection('dates')}
       >
-        <div className="space-y-3">
-          {dates.fields.map((field, index) => (
-            <div key={field.id} className="rounded-xl border bg-background p-3 space-y-3">
-              <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_1fr_auto]">
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.startDate`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Indulás</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.endDate`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Érkezés</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.price`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Ár</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1200" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.status`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Státusz</FormLabel>
-                      <FormControl>
-                        <select
-                          className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
-                          {...dateField}
-                        >
-                          {TOUR_DATE_STATUSES.map((status) => (
-                            <option key={status.value} value={status.value}>
-                              {status.label}
-                            </option>
-                          ))}
-                        </select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex items-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => dates.remove(index)}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 border-t pt-3">
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.price`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Ár</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} placeholder="199000" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.displayedPrice`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Megjelenített ár</FormLabel>
-                      <FormControl>
-                        <Input placeholder="199 000 Ft-tól" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.availableSeats`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Szabad férőhely</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} placeholder="12" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.capacity`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Kapacitás</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} placeholder="49" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.minParticipants`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Minimum fő</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} placeholder="1" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.maxParticipants`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Maximum fő</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} placeholder="49" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.discountBadge`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Kedvezmény badge</FormLabel>
-                      <FormControl>
-                        <Input placeholder="-15%" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.originalPrice`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Eredeti ár (áthúzva)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} placeholder="136600" {...dateField} />
-                      </FormControl>
-                      <p className="text-xs text-muted-foreground">
-                        Akciónál az akció előtti ár; csak az árnál nagyobb érték látszik.
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`dates.${index}.priceBox.label`}
-                  render={({ field: dateField }) => (
-                    <FormItem>
-                      <FormLabel>Címke az ár mellett</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Előfoglalási akció" {...dateField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <TourStaySection form={form} dateIndex={index} />
-
-              <TourDatePartnerXmlFields form={form} dateIndex={index} />
-
-              <TourDateDeparturePlacesEditor form={form} tour={tour} dateIndex={index} />
-
-              <TourDateExtrasEditor form={form} dateIndex={index} dateCount={dates.fields.length} />
-            </div>
-          ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  dates.append({
-                    id: createClientId(),
-                    startDate: '',
-                    endDate: '',
-                    price: '',
-                    displayedPrice: '',
-                    status: 'available',
-                    departurePlaceIds: [],
-                    accommodation: '',
-                    accommodationInfo: '',
-                    catering: '',
-                    cateringInfo: '',
-                    xmlEnabled: true,
-                    partnerXml: { cesysAccommodation: '', cesysRoom: '' },
-                    priceBox: {
-                      price: '',
-                      displayedPrice: '',
-                      discountBadge: '',
-                      originalPrice: '',
-                      label: '',
-                      minParticipants: '',
-                      maxParticipants: '',
-                      availableSeats: '',
-                      capacity: '',
-                    },
-                    extras: [],
-                  })
-                }
-              >
-            <Plus className="size-4" />
-            Időpont hozzáadása
-          </Button>
-        </div>
+        <TourDatesSection form={form} tour={tour} />
       </TourPanelSection>
 
       <TourPanelSection

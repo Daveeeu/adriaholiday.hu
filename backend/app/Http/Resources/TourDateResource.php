@@ -15,6 +15,7 @@ class TourDateResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'sortOrder' => (int) $this->sort_order,
             'tourId' => $this->tour_id,
             'startDate' => $this->start_date?->toDateString(),
             'endDate' => $this->end_date?->toDateString(),

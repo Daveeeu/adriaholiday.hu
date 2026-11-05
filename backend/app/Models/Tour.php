@@ -178,9 +178,12 @@ class Tour extends Model implements HasMedia
         return $this->belongsTo(BookingFormTemplate::class);
     }
 
+    /**
+     * The tour's dates in the order the office set (new dates go last).
+     */
     public function dates(): HasMany
     {
-        return $this->hasMany(TourDate::class);
+        return $this->hasMany(TourDate::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public function partnerBonuses(): HasMany

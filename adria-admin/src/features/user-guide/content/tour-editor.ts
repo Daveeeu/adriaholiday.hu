@@ -626,7 +626,7 @@ export const tourEditorTopics: GuideTopic[] = [
     id: 'tour-dates',
     title: 'Időpontok és felárak',
     summary:
-      'Az út indulási időpontjai. Minden időponthoz külön ár, státusz, akciós ár, felárak és felszállási helyek tartozhatnak. A weboldal a jövőbeli időpontokat kínálja foglalásra.',
+      'Az út indulási időpontjai, tetszőleges sorrendben. Minden időponthoz külön ár, státusz, akciós ár, felárak és felszállási helyek tartozhatnak. A weboldal a jövőbeli időpontokat kínálja foglalásra, az itt beállított sorrendben.',
     menu: EDITOR_MENU,
     access: EDITOR_ACCESS,
     blocks: [
@@ -635,6 +635,18 @@ export const tourEditorTopics: GuideTopic[] = [
         'Időpontok szekció',
         'Időpontonként indulás, érkezés, ár, státusz, akciós ár, felárak és felszállási helyek.',
       ),
+      fields('Sorrend', [
+        field(
+          'Fogantyú / Fel–le nyilak',
+          'Az időpont kártyáját a bal felső fogantyúnál megfogva a kívánt helyre húzhatod, vagy a jobb oldali nyilakkal egy hellyel feljebb vagy lejjebb teheted; a kártyán az „1. időpont”, „2. időpont”… címke mutatja a helyét. Az új időpont a lista végére kerül. A sorrend mentéskor rögzül.',
+          `${TOUR_PAGE} az időpontválasztóban és a foglalási űrlapon, valamint a program PDF időpontlistájában.`,
+        ),
+        field(
+          'Rendezés dátum szerint',
+          'Egy kattintással indulási dátum szerint sorba teszi az időpontokat (a legkorábbi elöl, a dátum nélküliek a végén). Utána kézzel még módosíthatsz, és mentened kell.',
+          ADMIN_ONLY,
+        ),
+      ]),
       fields('Egy időpont mezői', [
         field(
           'Indulás / Érkezés',

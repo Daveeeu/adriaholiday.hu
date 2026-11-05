@@ -84,7 +84,8 @@ class TourPdfService
     }
 
     /**
-     * Every upcoming, not cancelled departure with its price and note.
+     * Every upcoming, not cancelled departure with its price and note, in
+     * the order the office set.
      *
      * @return list<array{label: string, price: ?string, originalPrice: ?string, note: ?string, soldOut: bool}>
      */
@@ -92,7 +93,6 @@ class TourPdfService
     {
         return $tour->dates
             ->reject(fn (TourDate $date) => $date->status === TourDateStatus::CANCELLED)
-            ->sortBy('start_date')
             ->map(function (TourDate $date): array {
                 $priceBox = PriceBoxData::fromDate($date);
 
