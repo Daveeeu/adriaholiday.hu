@@ -12,7 +12,7 @@ Conversions API) is described in [../analytics-architecture.md](../analytics-arc
 | GTM container | `GTM-NTC5QFRN` (account „AdriaHoliday”, container „adriaholiday.hu”; `PORTFOLIO_VITE_GTM_ID`) | contents: [gtm-container.json](gtm-container.json) |
 | Search Console | URL-prefix property https://adriaholiday.hu/ | verified by HTML file, sitemap `/sitemap.xml` |
 | Microsoft Clarity | project `z8fxw09p8k` (GTM constant `Clarity Project ID`) | heatmaps and session recordings; „Microsoft Clarity” tag, statistics consent only |
-| Meta Pixel | GTM constant `Meta Pixel ID` (placeholder `0` keeps the Meta tag off) | must equal backend `META_PIXEL_ID` (Conversions API) |
+| Meta Pixel | `2208625503322180` (GTM constant `Meta Pixel ID`; `0` turns the Meta tag off) | must equal backend `META_PIXEL_ID` (Conversions API) |
 
 ## Flow
 
@@ -103,6 +103,10 @@ Edit tags in GTM, then export the container (Admin → Export container) over
 event needs: the name in `event-catalog.ts` and `AnalyticsEventName.php`, and —
 if it should get a GA4 or Meta name — an entry in `data-layer-events.js`
 (Meta also in `MetaEventMapper.php`).
+
+Both custom-event triggers skip events matching `^(gtm|gtag)\.`. The Google
+tag pushes its own `gtag.config` event, so excluding only `gtm.` would replay
+the site and Meta tags on it.
 
 ## QA
 
