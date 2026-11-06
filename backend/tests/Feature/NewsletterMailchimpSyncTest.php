@@ -26,6 +26,7 @@ class NewsletterMailchimpSyncTest extends TestCase
         config([
             'services.mailchimp.api_key' => 'secret-key-us21',
             'services.mailchimp.audience_id' => 'audience123',
+            'services.mailchimp.travel_club_audience_id' => 'club456',
             'services.mailchimp.double_opt_in' => false,
         ]);
     }
@@ -70,6 +71,21 @@ class NewsletterMailchimpSyncTest extends TestCase
                 && $request['email_address'] === 'new@example.com'
                 && $request['status_if_new'] === 'subscribed';
         });
+        $this->assertNotNull($subscriber->fresh()->mailchimp_synced_at);
+    }
+
+    public function test_the_job_adds_a_travel_club_member_to_the_club_audience(): void
+    {
+        Http::fake(['https://us21.api.mailchimp.com/3.0/lists/club456/members/*' => Http::response(['status' => 'subscribed'])]);
+        $subscriber = NewsletterSubscriber::create([
+            'email' => 'club@example.com',
+            'audience' => NewsletterSubscriber::AUDIENCE_TRAVEL_CLUB,
+        ]);
+
+        SyncNewsletterSubscriberToMailchimpJob::dispatchSync($subscriber->id);
+
+        Http::assertSentCount(1);
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://us21.api.mailchimp.com/3.0/lists/club456/members/'.md5('club@example.com'));
         $this->assertNotNull($subscriber->fresh()->mailchimp_synced_at);
     }
 
@@ -138,6 +154,74 @@ class NewsletterMailchimpSyncTest extends TestCase
 
         $this->artisan('newsletter:sync-mailchimp')->assertFailed();
 
+        Queue::assertNothingPushed();
+    }
+
+    public function test_the_sync_is_off_without_the_travel_club_audience(): void
+    {
+        Queue::fake();
+        NewsletterSubscriber::create(['email' => 'pending@example.com']);
+        config(['services.mailchimp.travel_club_audience_id' => '']);
+
+        $this->artisan('newsletter:sync-mailchimp')->assertFailed();
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_a_signup_on_the_club_page_joins_the_travel_club(): void
+    {
+        Mail::fake();
+        Queue::fake();
+
+        $this->postJson('/api/newsletter/subscribe', ['email' => 'club@example.com', 'audience' => 'travel_club'])
+            ->assertCreated()
+            ->assertJson(['status' => 'subscribed']);
+
+        $this->assertSame(
+            NewsletterSubscriber::AUDIENCE_TRAVEL_CLUB,
+            NewsletterSubscriber::query()->where('email', 'club@example.com')->value('audience'),
+        );
+    }
+
+    public function test_an_unknown_audience_is_rejected(): void
+    {
+        Mail::fake();
+
+        $this->postJson('/api/newsletter/subscribe', ['email' => 'new@example.com', 'audience' => 'vip'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('audience');
+    }
+
+    public function test_a_newsletter_subscriber_joining_the_club_moves_and_syncs_again_without_a_new_coupon(): void
+    {
+        Mail::fake();
+        Queue::fake();
+        $subscriber = NewsletterSubscriber::create(['email' => 'old@example.com', 'mailchimp_synced_at' => now()]);
+
+        $this->postJson('/api/newsletter/subscribe', ['email' => 'old@example.com', 'audience' => 'travel_club'])
+            ->assertCreated()
+            ->assertJson(['status' => 'already_subscribed']);
+
+        $subscriber->refresh();
+        $this->assertSame(NewsletterSubscriber::AUDIENCE_TRAVEL_CLUB, $subscriber->audience);
+        $this->assertNull($subscriber->mailchimp_synced_at);
+        Queue::assertPushed(SyncNewsletterSubscriberToMailchimpJob::class, 1);
+        Mail::assertNothingOutgoing();
+    }
+
+    public function test_a_club_member_stays_in_the_club_when_signing_up_for_the_newsletter(): void
+    {
+        Mail::fake();
+        Queue::fake();
+        $subscriber = NewsletterSubscriber::create([
+            'email' => 'club@example.com',
+            'audience' => NewsletterSubscriber::AUDIENCE_TRAVEL_CLUB,
+            'mailchimp_synced_at' => now(),
+        ]);
+
+        $this->postJson('/api/newsletter/subscribe', ['email' => 'club@example.com'])->assertCreated();
+
+        $this->assertSame(NewsletterSubscriber::AUDIENCE_TRAVEL_CLUB, $subscriber->fresh()->audience);
         Queue::assertNothingPushed();
     }
 }

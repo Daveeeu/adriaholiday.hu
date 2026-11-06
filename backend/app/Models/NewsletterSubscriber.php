@@ -8,9 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NewsletterSubscriber extends Model
 {
+    public const AUDIENCE_NEWSLETTER = 'newsletter';
+
+    public const AUDIENCE_TRAVEL_CLUB = 'travel_club';
+
+    public const AUDIENCES = [self::AUDIENCE_NEWSLETTER, self::AUDIENCE_TRAVEL_CLUB];
+
     protected $fillable = [
         'email',
         'coupon_id',
+        'audience',
         'mailchimp_synced_at',
     ];
 

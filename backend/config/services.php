@@ -44,11 +44,12 @@ return [
         'timeout' => env('BARION_TIMEOUT', 15),
     ],
 
-    // Newsletter subscribers are mirrored into this Mailchimp audience.
-    // Leave MAILCHIMP_API_KEY or MAILCHIMP_AUDIENCE_ID empty to disable the sync.
+    // Newsletter subscribers are mirrored into these Mailchimp audiences.
+    // Leave MAILCHIMP_API_KEY or either audience empty to disable the sync.
     'mailchimp' => [
         'api_key' => env('MAILCHIMP_API_KEY'),
         'audience_id' => env('MAILCHIMP_AUDIENCE_ID'),
+        'travel_club_audience_id' => env('MAILCHIMP_TRAVEL_CLUB_AUDIENCE_ID'),
         // true: Mailchimp emails a confirmation link and the member stays "pending" until clicked.
         'double_opt_in' => (bool) env('MAILCHIMP_DOUBLE_OPT_IN', false),
         'timeout' => (int) env('MAILCHIMP_TIMEOUT', 10),

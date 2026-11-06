@@ -1,5 +1,7 @@
 import { getPortfolioApiBaseUrl } from '../content/portfolio-api';
 
+export type NewsletterAudience = 'newsletter' | 'travel_club';
+
 export type NewsletterSubscribeResponse = {
   status: 'subscribed' | 'already_subscribed';
 };
@@ -14,7 +16,10 @@ export class NewsletterApiError extends Error {
   }
 }
 
-export async function subscribeToNewsletter(email: string): Promise<NewsletterSubscribeResponse> {
+export async function subscribeToNewsletter(
+  email: string,
+  audience: NewsletterAudience,
+): Promise<NewsletterSubscribeResponse> {
   const response = await fetch(`${getPortfolioApiBaseUrl()}/newsletter/subscribe`, {
     method: 'POST',
     headers: {
@@ -22,7 +27,7 @@ export async function subscribeToNewsletter(email: string): Promise<NewsletterSu
       'Content-Type': 'application/json',
     },
     credentials: 'include',
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email, audience }),
   });
 
   if (!response.ok) {

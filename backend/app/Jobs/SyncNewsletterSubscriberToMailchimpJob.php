@@ -36,7 +36,7 @@ class SyncNewsletterSubscriberToMailchimpJob implements ShouldQueue
         }
 
         try {
-            $mailchimp->subscribe($subscriber->email);
+            $mailchimp->subscribe($subscriber->email, $subscriber->audience);
         } catch (RequestException $exception) {
             if (! $this->isPermanentFailure($exception)) {
                 throw $exception;

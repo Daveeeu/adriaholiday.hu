@@ -42,7 +42,7 @@ const rules = [
 
 export default function TravelClubRoute() {
   const { settings } = useSiteSettings();
-  const { email, setEmail, status, feedback, isSubmitting, handleSubmit } = useNewsletterSubscription("travel_club");
+  const { email, setEmail, status, feedback, isSubmitting, handleSubmit } = useNewsletterSubscription("travel_club", "travel_club");
   const couponValue = settings.newsletterCouponValue;
   const couponLabel = couponValue > 0 ? `${couponValue.toLocaleString("hu-HU")} Ft` : "";
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Public;
 
+use App\Models\NewsletterSubscriber;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePublicNewsletterSubscriptionRequest extends FormRequest
 {
@@ -15,6 +17,7 @@ class StorePublicNewsletterSubscriptionRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'max:255'],
+            'audience' => ['sometimes', 'string', Rule::in(NewsletterSubscriber::AUDIENCES)],
         ];
     }
 

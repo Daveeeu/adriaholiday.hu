@@ -1,15 +1,16 @@
 import { useState, type FormEvent } from "react";
 
 import { trackEvent } from "../analytics/trackEvent";
-import { NewsletterApiError, subscribeToNewsletter } from "./newsletter-api";
+import { NewsletterApiError, subscribeToNewsletter, type NewsletterAudience } from "./newsletter-api";
 
 export type NewsletterSubmitStatus = "idle" | "submitting" | "success" | "error";
 
 /**
  * Email field state and submit handling shared by every newsletter sign-up
- * form; `placement` names the form in analytics.
+ * form; `placement` names the form in analytics, `audience` the Mailchimp
+ * list the subscriber belongs to.
  */
-export function useNewsletterSubscription(placement: string) {
+export function useNewsletterSubscription(placement: string, audience: NewsletterAudience = "newsletter") {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<NewsletterSubmitStatus>("idle");
   const [feedback, setFeedback] = useState("");
@@ -24,7 +25,7 @@ export function useNewsletterSubscription(placement: string) {
     setStatus("submitting");
 
     try {
-      const response = await subscribeToNewsletter(email.trim());
+      const response = await subscribeToNewsletter(email.trim(), audience);
       trackEvent("newsletter_signup", {
         metadata: { placement, already_subscribed: response.status === "already_subscribed" },
       });
