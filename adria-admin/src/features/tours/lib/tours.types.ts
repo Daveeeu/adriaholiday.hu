@@ -887,7 +887,7 @@ export type TourDeparturePlaceListResponse = {
 };
 
 /** A public list whose tour order the office sets: a homepage tile's category page or a country. */
-export type OrderedTourListType = 'category' | 'country';
+export type OrderedTourListType = 'category' | 'country' | 'featured';
 
 export type OrderedTourList = {
   type: OrderedTourListType;
@@ -902,6 +902,7 @@ export type OrderedTourList = {
 export type OrderedTourLists = {
   tiles: OrderedTourList[];
   countries: OrderedTourList[];
+  featured: OrderedTourList[];
 };
 
 export type OrderedTourListItem = {

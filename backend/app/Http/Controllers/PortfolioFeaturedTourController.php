@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PortfolioFeaturedTourResource;
 use App\Models\Tour;
+use App\Support\PortfolioOfferQuery;
 use Illuminate\Http\Request;
 
 class PortfolioFeaturedTourController extends Controller
@@ -15,15 +16,12 @@ class PortfolioFeaturedTourController extends Controller
     {
         $limit = max(1, min(self::MAX_LIMIT, (int) $request->query('limit', 6)));
 
-        $tours = Tour::query()
-            ->listedPublicly()
-            ->where('featured', true)
-            ->with(['region', 'dates' => fn ($query) => $query->upcoming(), 'media', 'galleryItems.media'])
-            // The admin's featured order first; tours without one after them.
-            ->orderByRaw('featured_order is null')
-            ->orderBy('featured_order')
-            ->orderBy('sort_order')
-            ->orderByDesc('created_at')
+        $tours = PortfolioOfferQuery::applyFeaturedOrdering(
+            Tour::query()
+                ->listedPublicly()
+                ->where('featured', true)
+                ->with(['region', 'dates' => fn ($query) => $query->upcoming(), 'media', 'galleryItems.media']),
+        )
             ->limit($limit)
             ->get();
 

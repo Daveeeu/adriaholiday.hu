@@ -19,6 +19,9 @@ import { cn } from '@/lib/utils';
 
 import type { Tour } from '../lib/tours.types';
 
+/** Keeps the actions next to the row's name while the wide table scrolls under them. */
+const STICKY_ACTIONS_CLASS = 'sticky right-0 border-l bg-card text-right';
+
 type ToursTableProps = {
   table: ReactTable<Tour>;
   sorting: SortingState;
@@ -48,7 +51,7 @@ export function ToursTable({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={cn(header.column.id === 'actions' && 'text-right')}
+                    className={cn(header.column.id === 'actions' && STICKY_ACTIONS_CLASS)}
                   >
                     {header.isPlaceholder
                       ? null
@@ -69,7 +72,7 @@ export function ToursTable({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className={cn(cell.column.id === 'actions' && 'text-right')}
+                      className={cn(cell.column.id === 'actions' && STICKY_ACTIONS_CLASS)}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

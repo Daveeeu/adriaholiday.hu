@@ -18,13 +18,32 @@ use Illuminate\Support\Str;
 
 /**
  * The office's own order of the tours on a public list: the category page a
- * homepage tile leads to, or the offers page filtered to one country. A list
- * nobody ordered (and every tour not placed on it yet) follows the global
- * tour order.
+ * homepage tile leads to, the offers page filtered to one country, or the
+ * homepage's featured offers (kept in tours.featured_order, which the tour
+ * form edits too). A list nobody ordered (and every tour not placed on it
+ * yet) follows the global tour order.
  */
 class TourListOrder
 {
     private const CATEGORY_PATH_PREFIX = '/kategoriak/';
+
+    /**
+     * The homepage's featured offers, as the one list of its kind.
+     *
+     * @return array{type: string, key: string, label: string, tourCount: int, ordered: bool}
+     */
+    public function featuredList(): array
+    {
+        $list = TourList::featured();
+
+        return [
+            'type' => $list->type,
+            'key' => $list->key,
+            'label' => 'Kiemelt ajánlatok',
+            'tourCount' => $this->query($list)->count(),
+            'ordered' => $this->placedTourIds($list) !== [],
+        ];
+    }
 
     /**
      * The homepage tiles that lead to a category page, in their homepage order.
@@ -120,6 +139,10 @@ class TourListOrder
     {
         $query = Tour::query()->listedPublicly();
 
+        if ($list->type === TourList::FEATURED) {
+            return PortfolioOfferQuery::applyFeaturedOrdering($query->where('featured', true));
+        }
+
         if ($list->type === TourList::CATEGORY) {
             $category = BlogCategory::query()->where('active', true)->find($list->key);
 
@@ -148,7 +171,11 @@ class TourListOrder
      */
     public function placedTourIds(TourList $list): array
     {
-        return $this->positions($list)->pluck('tour_id')->map(fn ($id): int => (int) $id)->all();
+        $placed = $list->type === TourList::FEATURED
+            ? Tour::query()->where('featured', true)->whereNotNull('featured_order')->pluck('id')
+            : $this->positions($list)->pluck('tour_id');
+
+        return $placed->map(fn ($id): int => (int) $id)->all();
     }
 
     /**
@@ -160,7 +187,15 @@ class TourListOrder
     public function save(TourList $list, array $tourIds): void
     {
         DB::transaction(function () use ($list, $tourIds): void {
-            $this->positions($list)->delete();
+            $this->clear($list);
+
+            if ($list->type === TourList::FEATURED) {
+                foreach (array_values($tourIds) as $index => $tourId) {
+                    Tour::query()->whereKey($tourId)->update(['featured_order' => $index + 1]);
+                }
+
+                return;
+            }
 
             $now = now();
 
@@ -186,9 +221,20 @@ class TourListOrder
      */
     public function reset(TourList $list): void
     {
-        $this->positions($list)->delete();
+        $this->clear($list);
 
         PublicContentCache::bump(PublicContentCache::OFFERS);
+    }
+
+    private function clear(TourList $list): void
+    {
+        if ($list->type === TourList::FEATURED) {
+            Tour::query()->whereNotNull('featured_order')->update(['featured_order' => null]);
+
+            return;
+        }
+
+        $this->positions($list)->delete();
     }
 
     /**

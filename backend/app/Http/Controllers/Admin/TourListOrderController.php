@@ -11,8 +11,8 @@ use App\Support\Tour\TourList;
 use Illuminate\Http\JsonResponse;
 
 /**
- * The tour order of each homepage tile's category page and of each country
- * (see TourListOrder).
+ * The tour order of each homepage tile's category page, of each country and
+ * of the homepage's featured offers (see TourListOrder).
  */
 class TourListOrderController extends Controller
 {
@@ -29,6 +29,7 @@ class TourListOrderController extends Controller
             'data' => [
                 'tiles' => $this->listOrder->tileLists(),
                 'countries' => $this->listOrder->countryLists(),
+                'featured' => [$this->listOrder->featuredList()],
             ],
         ]);
     }

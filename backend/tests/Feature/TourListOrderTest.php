@@ -114,6 +114,40 @@ class TourListOrderTest extends TestCase
         $this->assertSame([$first->id, $second->id], $this->offersPageIds('?country=HR'));
     }
 
+    public function test_the_featured_offers_order_drives_the_homepage_list(): void
+    {
+        $this->actingAsReorderer();
+        $category = $this->createCategory('korutazasok');
+        $first = $this->createTour('Első', $category, ['HR'], sortOrder: 1);
+        $second = $this->createTour('Második', $category, ['HR'], sortOrder: 2);
+        $notFeatured = $this->createTour('Nem kiemelt', $category, ['HR'], sortOrder: 3);
+        $first->update(['featured' => true]);
+        $second->update(['featured' => true]);
+
+        $this->getJson('/api/admin/tour-list-orders')
+            ->assertOk()
+            ->assertJsonPath('data.featured.0.type', 'featured')
+            ->assertJsonPath('data.featured.0.key', 'home')
+            ->assertJsonPath('data.featured.0.tourCount', 2)
+            ->assertJsonPath('data.featured.0.ordered', false);
+
+        $this->putJson('/api/admin/tour-list-orders/featured/home', ['ids' => [$notFeatured->id]])
+            ->assertUnprocessable();
+
+        $this->putJson('/api/admin/tour-list-orders/featured/home', ['ids' => [$second->id, $first->id]])
+            ->assertOk()
+            ->assertJsonPath('data.0.id', (string) $second->id)
+            ->assertJsonPath('data.0.placed', true);
+
+        $this->assertSame(1, $second->fresh()->featured_order);
+        $this->assertSame([$second->id, $first->id], $this->featuredIds());
+
+        $this->deleteJson('/api/admin/tour-list-orders/featured/home')->assertOk();
+
+        $this->assertNull($second->fresh()->featured_order);
+        $this->assertSame([$first->id, $second->id], $this->featuredIds());
+    }
+
     public function test_only_the_lists_own_tours_can_be_placed_on_it(): void
     {
         $this->actingAsReorderer();
@@ -167,6 +201,14 @@ class TourListOrderTest extends TestCase
         return collect($this->getJson('/api/portfolio/offers'.$query)->assertOk()->json('items'))
             ->pluck('id')
             ->all();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function featuredIds(): array
+    {
+        return array_column($this->getJson('/api/portfolio/featured-tours?limit=24')->assertOk()->json('items'), 'id');
     }
 
     private function actingAsReorderer(): void

@@ -258,7 +258,7 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
                 <Input type="number" min={0} max={999} placeholder="1" {...field} />
               </FormControl>
               <p className="text-xs text-muted-foreground">
-                A főoldali kiemelt ajánlatok sorrendje; üresen a végére kerül.
+                A főoldali kiemelt ajánlatok sorrendje; üresen a végére kerül. Kényelmesebben a Sorrend listánként oldalon állítható.
               </p>
               <FormMessage />
             </FormItem>

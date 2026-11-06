@@ -15,7 +15,7 @@ import {
   resetOrderedTourList,
   saveOrderedTourList,
 } from '../lib/tours.api';
-import type { OrderedTourList, OrderedTourListItem } from '../lib/tours.types';
+import type { OrderedTourList, OrderedTourListItem, OrderedTourListType } from '../lib/tours.types';
 
 const listsQueryKey = ['tour-list-orders'];
 
@@ -26,6 +26,12 @@ function listQueryKey(list: OrderedTourList) {
 function sameList(a: OrderedTourList | null, b: OrderedTourList) {
   return a?.type === b.type && a.key === b.key;
 }
+
+const LIST_DESCRIPTIONS: Record<OrderedTourListType, (list: OrderedTourList) => string> = {
+  category: (list) => `A csempe kategóriaoldala (${list.categoryName}), országszűrővel együtt is.`,
+  country: () => 'Az Utazások oldal, ha a látogató csak erre az országra szűr.',
+  featured: () => 'A főoldal kiemelt ajánlatai. Egy út a szerkesztőjében a „Kiemelt?” jelölővel kerül ide.',
+};
 
 function moveItem<T>(items: T[], from: number, to: number) {
   if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) {
@@ -151,9 +157,7 @@ function ListEditor({ list, onDirtyChange }: { list: OrderedTourList; onDirtyCha
         <div>
           <h2 className="text-lg font-semibold">{list.label}</h2>
           <p className="text-sm text-muted-foreground">
-            {list.type === 'category'
-              ? `A csempe kategóriaoldala (${list.categoryName}), országszűrővel együtt is.`
-              : 'Az Utazások oldal, ha a látogató csak erre az országra szűr.'}
+            {LIST_DESCRIPTIONS[list.type](list)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -265,8 +269,9 @@ function ListEditor({ list, onDirtyChange }: { list: OrderedTourList; onDirtyCha
 }
 
 /**
- * The tour order of each homepage tile's category page and of each country,
- * set apart from the global order on the Ajánlatok page.
+ * The tour order of each homepage tile's category page, of each country and
+ * of the homepage's featured offers, set apart from the global order on the
+ * Ajánlatok page.
  */
 export function TourListOrderPage() {
   const [selected, setSelected] = useState<OrderedTourList | null>(null);
@@ -285,7 +290,7 @@ export function TourListOrderPage() {
     );
   }
 
-  const current = selected ?? data.tiles[0] ?? data.countries[0] ?? null;
+  const current = selected ?? data.featured[0] ?? data.tiles[0] ?? data.countries[0] ?? null;
   const select = (list: OrderedTourList) => {
     if (sameList(current, list)) return;
     if (hasUnsavedOrder && !window.confirm('A lista sorrendje nincs elmentve. Elveted a módosítást?')) return;
@@ -300,12 +305,19 @@ export function TourListOrderPage() {
         <p className="text-sm font-medium text-primary">Körutazások</p>
         <h1 className="text-3xl font-semibold tracking-tight">Sorrend listánként</h1>
         <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-          Minden csempe és ország saját sorrendet kaphat, a többitől függetlenül. Húzd az utakat, vagy használd a nyilakat,
+          A kiemelt ajánlatok, minden csempe és ország saját sorrendet kaphat, a többitől függetlenül. Húzd az utakat, vagy használd a nyilakat,
           az „Ár szerint” gomb a legolcsóbbal kezdi a listát. A „Mentés” után a honlap azonnal ezt a sorrendet mutatja.
         </p>
       </div>
       <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
         <div className="space-y-4">
+          <ListPicker
+            title="Főoldal"
+            description="A főoldal kiemelt ajánlatai."
+            lists={data.featured}
+            selected={current}
+            onSelect={select}
+          />
           <ListPicker
             title="Csempék"
             description="A főoldali ajánlatcsempék kategóriaoldalai."

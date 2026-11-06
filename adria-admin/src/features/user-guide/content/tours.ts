@@ -316,12 +316,17 @@ export const toursChapter: GuideChapter = {
       id: 'tour-list-order',
       title: 'Sorrend listánként',
       summary:
-        'Minden főoldali csempe kategóriaoldala és minden ország saját sorrendet kaphat, egymástól és az Ajánlatok oldali alapértelmezett sorrendtől függetlenül (pl. adventkor előre az adventi utak, vagy ár szerint).',
+        'A főoldal kiemelt ajánlatai, minden főoldali csempe kategóriaoldala és minden ország saját sorrendet kaphat, egymástól és az Ajánlatok oldali alapértelmezett sorrendtől függetlenül (pl. adventkor előre az adventi utak, vagy ár szerint).',
       path: '/tours/list-order',
       menu: 'Körutazások › Sorrend listánként',
       access: 'Körutazások rendezése',
       blocks: [
         fields('Listák', [
+          field(
+            'Főoldal – Kiemelt ajánlatok',
+            'A „Kiemelt?” jelölésű utak sorrendje. Ez ugyanaz az érték, mint az út szerkesztőjében a „Kiemelt sorrend” mező, itt egyben, húzással állítható. Út felvenni vagy levenni a szerkesztőben, a „Kiemelt?” jelölővel lehet.',
+            'A főoldal kiemelt ajánlatai között.',
+          ),
           field(
             'Csempék',
             'A főoldali ajánlatcsempék (Főoldali ajánlatok), amelyek kategóriaoldalra visznek, a főoldali sorrendjükben. A sorrend a csempe kategóriaoldalán (pl. /kategoriak/korutazasok) érvényes, akkor is, ha a látogató ott még országra is szűr.',
@@ -370,7 +375,7 @@ export const toursChapter: GuideChapter = {
           'Ha egy elmentett sorrendű listára új út kerül (pl. új utat sorolsz a kategóriába), az a lista végén jelenik meg „Új a listán” jelöléssel, amíg el nem helyezed és nem mented. A látogató saját rendezése (Legolcsóbb, Legmelegebb) mindig felülírja a kézi sorrendet.',
         ),
         tip(
-          'A főoldali „Kiemelt utak” blokk sorrendje külön, az út „Kiemelt sorrend” mezőjében állítható; a csempék egymás közti sorrendje a Főoldali ajánlatok oldalon.',
+          'A főoldali „Kiemelt utak” blokk sorrendje a Sorrend listánként oldalon (vagy utanként a „Kiemelt sorrend” mezőben) állítható; a csempék egymás közti sorrendje a Főoldali ajánlatok oldalon.',
         ),
       ],
     },

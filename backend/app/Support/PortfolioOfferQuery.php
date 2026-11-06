@@ -190,6 +190,22 @@ class PortfolioOfferQuery
     }
 
     /**
+     * The homepage's featured offers: the office's order first, tours without
+     * one after them.
+     *
+     * @param  Builder<Tour>  $query
+     * @return Builder<Tour>
+     */
+    public static function applyFeaturedOrdering(Builder $query): Builder
+    {
+        return $query
+            ->orderByRaw('featured_order is null')
+            ->orderBy('featured_order')
+            ->orderBy('sort_order')
+            ->orderByDesc('created_at');
+    }
+
+    /**
      * @return array<int, string>
      */
     public static function parseFilterSlugs(?string $value): array

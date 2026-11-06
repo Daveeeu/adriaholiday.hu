@@ -444,6 +444,8 @@ export function ToursPage() {
             <Button
               variant="outline"
               size="icon"
+              title="Megtekintés"
+              aria-label="Megtekintés"
               onClick={() => {
                 setSelectedTour(row.original);
                 setPanelMode('detail');
@@ -456,6 +458,8 @@ export function ToursPage() {
               <Button
                 variant="outline"
                 size="icon"
+                title="Szerkesztés"
+                aria-label="Szerkesztés"
                 onClick={() => {
                   setSelectedTour(row.original);
                   setPanelMode('edit');
@@ -469,6 +473,8 @@ export function ToursPage() {
               <Button
                 variant="outline"
                 size="icon"
+                title={row.original.active ? 'Kikapcsolás' : 'Bekapcsolás'}
+                aria-label={row.original.active ? 'Kikapcsolás' : 'Bekapcsolás'}
                 onClick={() =>
                   statusMutation.mutate({
                     tourId: row.original.id,
@@ -495,6 +501,8 @@ export function ToursPage() {
               <Button
                 variant="outline"
                 size="icon"
+                title="Másolás új útként"
+                aria-label="Másolás új útként"
                 onClick={() => duplicateMutation.mutate(row.original.id)}
               >
                 <Copy className="size-4" />
@@ -504,6 +512,8 @@ export function ToursPage() {
               <Button
                 variant="outline"
                 size="icon"
+                title="Feljebb az alapsorrendben"
+                aria-label="Feljebb az alapsorrendben"
                 onClick={() =>
                   moveMutation.mutate({
                     tourId: row.original.id,
@@ -518,6 +528,8 @@ export function ToursPage() {
               <Button
                 variant="outline"
                 size="icon"
+                title="Lejjebb az alapsorrendben"
+                aria-label="Lejjebb az alapsorrendben"
                 onClick={() =>
                   moveMutation.mutate({
                     tourId: row.original.id,
@@ -532,6 +544,8 @@ export function ToursPage() {
               <Button
                 variant="destructive"
                 size="icon"
+                title="Törlés"
+                aria-label="Törlés"
                 onClick={() => {
                   if (window.confirm(`Biztosan törlöd ezt a körutazást? (${row.original.name})`)) {
                     deleteMutation.mutate(row.original.id);
