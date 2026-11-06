@@ -8,7 +8,7 @@ use Throwable;
 
 /**
  * Sends server-side events to GA4 (Measurement Protocol). Used for what the
- * browser cannot report reliably, such as a payment confirmed by Barion's
+ * browser cannot report reliably, such as a payment confirmed by SimplePay's
  * callback; does nothing until the measurement id and API secret are set.
  */
 class GoogleAnalyticsMeasurementProtocol

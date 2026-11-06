@@ -80,7 +80,6 @@ export type SiteSettingsFormValues = {
   travelInsuranceInfo: string;
   cancellationInsuranceInfo: string;
   onlinePaymentEnabled: boolean;
-  barionPixelId: string;
   bankAccountNumber: string;
   bankAccountHolder: string;
   agencyLicenseNumber: string;

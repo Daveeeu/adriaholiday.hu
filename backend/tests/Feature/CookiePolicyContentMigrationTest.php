@@ -47,12 +47,24 @@ HTML;
         $this->assertStringContainsString('_clck', $policy);
     }
 
+    public function test_the_untouched_clarity_policy_loses_the_barion_pixel(): void
+    {
+        $this->storePolicy(trim((string) file_get_contents(__DIR__.'/../Fixtures/legal/cookie-policy-2026-11-06.html')));
+
+        $this->migration('2026_11_06_100000_replace_barion_with_simplepay')->up();
+
+        $policy = $this->storedPolicy();
+        $this->assertSame(LegalPageContent::defaults()['cookie_content'], $policy);
+        $this->assertStringNotContainsString('Barion', $policy);
+    }
+
     public function test_a_policy_edited_in_the_admin_is_kept(): void
     {
         $this->storePolicy('<p>Az iroda saját süti tájékoztatója.</p>');
 
         $this->migration('2026_11_04_160000_update_cookie_policy_for_tag_manager')->up();
         $this->migration('2026_11_04_180000_add_clarity_to_cookie_policy')->up();
+        $this->migration('2026_11_06_100000_replace_barion_with_simplepay')->up();
 
         $this->assertSame('<p>Az iroda saját süti tájékoztatója.</p>', $this->storedPolicy());
     }

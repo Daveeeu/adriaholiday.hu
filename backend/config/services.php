@@ -35,13 +35,16 @@ return [
         ],
     ],
 
-    'barion' => [
-        'environment' => env('BARION_ENVIRONMENT', 'test'),
-        'pos_key' => env('BARION_POS_KEY'),
-        'payee' => env('BARION_PAYEE_EMAIL'),
-        // Where Barion sends the customer back; defaults to APP_URL/fizetes/eredmeny.
-        'redirect_url' => env('BARION_REDIRECT_URL'),
-        'timeout' => env('BARION_TIMEOUT', 15),
+    'simplepay' => [
+        'environment' => env('SIMPLEPAY_ENVIRONMENT', 'test'),
+        // Every SimplePay merchant account is bound to one currency.
+        'merchants' => [
+            'HUF' => ['id' => env('SIMPLEPAY_HUF_MERCHANT'), 'secret' => env('SIMPLEPAY_HUF_SECRET_KEY')],
+            'EUR' => ['id' => env('SIMPLEPAY_EUR_MERCHANT'), 'secret' => env('SIMPLEPAY_EUR_SECRET_KEY')],
+        ],
+        // Where SimplePay sends the customer back; defaults to APP_URL/fizetes/eredmeny.
+        'redirect_url' => env('SIMPLEPAY_REDIRECT_URL'),
+        'timeout' => env('SIMPLEPAY_TIMEOUT', 15),
     ],
 
     // Newsletter subscribers are mirrored into these Mailchimp audiences.

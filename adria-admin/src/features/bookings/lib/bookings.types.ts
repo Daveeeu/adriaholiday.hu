@@ -156,7 +156,7 @@ export type TourBookingPricing = {
   total: number | null;
 };
 
-/** One online (Barion) payment attempt of a booking. */
+/** One online payment attempt of a booking. */
 export type TourBookingPayment = {
   id: number;
   provider: string;

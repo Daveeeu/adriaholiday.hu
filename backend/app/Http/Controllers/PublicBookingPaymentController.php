@@ -2,34 +2,64 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Public\BarionCallbackRequest;
+use App\Http\Requests\Public\SimplePayReturnRequest;
 use App\Http\Resources\PublicBookingPaymentResource;
 use App\Models\BookingPayment;
 use App\Services\Booking\BookingPaymentService;
+use App\Services\Payment\SimplePay\SimplePayClient;
+use App\Services\Payment\SimplePay\SimplePayException;
 use App\Support\Payment\BookingPaymentStatus;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
- * Public side of the Barion payment flow: the gateway's callback, the
- * result page's status query and retrying a failed payment. Payments are
- * addressed by Barion's unguessable payment id, which only the customer
- * (via the redirect back from Barion) and Barion itself know.
+ * Public side of the SimplePay payment flow: the gateway's IPN and the
+ * customer's return, the result page's status query and retrying a failed
+ * payment. SimplePay's transaction ids are sequential, so the public routes
+ * address a payment by its unguessable payment_request_id, which only the
+ * customer (through the signed return) and SimplePay know.
  */
 class PublicBookingPaymentController extends Controller
 {
-    public function __construct(private readonly BookingPaymentService $payments) {}
+    public function __construct(
+        private readonly BookingPaymentService $payments,
+        private readonly SimplePayClient $simplePay,
+    ) {}
 
-    public function callback(BarionCallbackRequest $request): Response
+    public function notification(Request $request): Response
     {
-        $payment = BookingPayment::query()
-            ->where('provider', BookingPaymentService::PROVIDER)
-            ->where('provider_payment_id', $request->validated('payment_id'))
-            ->firstOrFail();
+        try {
+            $notification = $this->simplePay->readNotification($request->getContent(), $request->header('Signature'));
+        } catch (SimplePayException) {
+            abort(400);
+        }
 
-        $this->payments->sync($payment);
+        $payment = $this->payments->sync($this->payments->findByOrderRef($notification['orderRef']));
 
-        return response('', 200);
+        // Not confirming makes SimplePay repeat the message until the state
+        // could be read, so a paid booking is not left uncredited.
+        if (! BookingPaymentStatus::isFinal($payment->status)) {
+            return response('', 503);
+        }
+
+        $confirmation = $this->simplePay->confirmNotification($notification);
+
+        return response($confirmation['body'], 200, [
+            'Content-Type' => 'application/json',
+            'Signature' => $confirmation['signature'],
+        ]);
+    }
+
+    public function return(SimplePayReturnRequest $request): PublicBookingPaymentResource
+    {
+        try {
+            $orderRef = $this->simplePay->orderRefOfReturn($request->validated('r'), $request->validated('s'));
+        } catch (SimplePayException) {
+            abort(404);
+        }
+
+        return new PublicBookingPaymentResource($this->payments->sync($this->payments->findByOrderRef($orderRef))->load('booking'));
     }
 
     public function show(BookingPayment $bookingPayment): PublicBookingPaymentResource

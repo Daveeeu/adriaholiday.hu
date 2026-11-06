@@ -9,7 +9,7 @@ import { TRAVEL_CLUB_PATH } from "../newsletter/travel-club";
 import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { socialLinks, type SocialLink } from "../site-settings/social-links";
-import BarionPaymentBanner from "./BarionPaymentBanner";
+import SimplePayLogo from "./SimplePayLogo";
 import LogoBadge from "./LogoBadge";
 
 const DEVELOPER_URL = "https://jandldavid.hu";
@@ -182,7 +182,7 @@ export default function Footer() {
         {settings.onlinePaymentEnabled ? (
           <div className="mb-8 flex flex-col items-center gap-3 md:items-start">
             <span className="text-sm text-white/50">Biztonságos online fizetés</span>
-            <BarionPaymentBanner variant="dark" />
+            <SimplePayLogo />
           </div>
         ) : null}
 

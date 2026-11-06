@@ -13,10 +13,10 @@ test("internal links are reported by label, section and path without the query",
 });
 
 test("external links are reported by domain as outbound", () => {
-  assert.deepEqual(describeClick({ tagName: "A", text: "Barion", href: "https://www.barion.com/hu/", origin, section: null }), {
-    click_text: "Barion",
+  assert.deepEqual(describeClick({ tagName: "A", text: "SimplePay", href: "https://simplepay.hu/", origin, section: null }), {
+    click_text: "SimplePay",
     click_element: "link",
-    link_domain: "www.barion.com",
+    link_domain: "simplepay.hu",
     outbound: true,
   });
 });

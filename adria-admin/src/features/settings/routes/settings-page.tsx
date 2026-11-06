@@ -99,10 +99,6 @@ const settingsSchema = z.object({
   travelInsuranceInfo: z.string().trim().max(1000, 'Legfeljebb 1000 karakter lehet.'),
   cancellationInsuranceInfo: z.string().trim().max(1000, 'Legfeljebb 1000 karakter lehet.'),
   onlinePaymentEnabled: z.boolean(),
-  barionPixelId: z
-    .string()
-    .trim()
-    .regex(/^(BP-[A-Za-z0-9]{10}-[A-Za-z0-9]{2})?$/, 'Formátum: BP-0000000000-00'),
   bankAccountNumber: z.string().trim(),
   bankAccountHolder: z.string().trim(),
   agencyLicenseNumber: z.string().trim(),
@@ -151,7 +147,6 @@ const emptyValues: SiteSettingsFormValues = {
   travelInsuranceInfo: '',
   cancellationInsuranceInfo: '',
   onlinePaymentEnabled: false,
-  barionPixelId: '',
   bankAccountNumber: '',
   bankAccountHolder: '',
   agencyLicenseNumber: '',
@@ -601,9 +596,9 @@ export function SettingsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Online fizetés (Barion)</CardTitle>
+                <CardTitle>Online fizetés (SimplePay)</CardTitle>
                 <CardDescription>
-                  Foglalás után az ügyfél a Barion fizetőoldalán fizeti az előleget (a fizetési ütemezés 1. részletét; 35 napon belüli indulásnál a teljes összeget). Csak akkor működik, ha a szerveren be van állítva a Barion POSKey és a fogadó e-mail cím.
+                  Foglalás után az ügyfél a SimplePay fizetőoldalán fizeti az előleget (a fizetési ütemezés 1. részletét; 35 napon belüli indulásnál a teljes összeget). Csak akkor működik, ha a szerveren be van állítva az adott pénznem SimplePay kereskedői fiókja.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4">

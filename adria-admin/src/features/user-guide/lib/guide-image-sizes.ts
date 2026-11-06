@@ -65,7 +65,6 @@ export const GUIDE_IMAGE_SIZES: Record<
   'settings-header-navigation': { width: 1120, height: 640 },
   'settings-legal-page-content': { width: 1120, height: 909 },
   'settings-legal': { width: 556, height: 448 },
-  'settings-online-fizetes-barion': { width: 556, height: 756 },
   'settings-social': { width: 556, height: 368 },
   settings: { width: 1440, height: 1000 },
   'sidebar-collapsed': { width: 1440, height: 900 },

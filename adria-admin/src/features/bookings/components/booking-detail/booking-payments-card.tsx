@@ -14,6 +14,11 @@ const STATUS_BADGES: Record<
   failed: { label: 'Sikertelen', tone: 'danger' },
 };
 
+const PROVIDER_LABELS: Record<string, string> = {
+  simplepay: 'SimplePay',
+  barion: 'Barion',
+};
+
 const KIND_LABELS: Record<TourBookingPayment['kind'], string> = {
   full: 'Teljes összeg',
   deposit: 'Előleg',
@@ -25,7 +30,7 @@ export function BookingPaymentsCard({ booking }: { booking: TourBookingDetail })
   }
 
   return (
-    <FormSection title="Online fizetések" description="Barion fizetési kísérletek, a legújabb elöl.">
+    <FormSection title="Online fizetések" description="Online fizetési kísérletek, a legújabb elöl.">
       <div className="space-y-2">
         {booking.payments.map((payment) => {
           const badge = STATUS_BADGES[payment.status];
@@ -40,7 +45,7 @@ export function BookingPaymentsCard({ booking }: { booking: TourBookingDetail })
               </div>
               <div className="mt-1 text-xs text-muted-foreground">
                 {formatDateTime(payment.completedAt ?? payment.createdAt)}
-                {payment.providerPaymentId ? ` · Barion azonosító: ${payment.providerPaymentId}` : null}
+                {payment.providerPaymentId ? ` · ${PROVIDER_LABELS[payment.provider] ?? payment.provider} azonosító: ${payment.providerPaymentId}` : null}
                 {payment.providerStatus ? ` · ${payment.providerStatus}` : null}
               </div>
             </div>

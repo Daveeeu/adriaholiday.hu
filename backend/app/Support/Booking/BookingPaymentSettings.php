@@ -18,8 +18,6 @@ final class BookingPaymentSettings
      */
     public const DEFAULTS = [
         'online_payment_enabled' => ['type' => 'boolean', 'value' => true],
-        // Base Barion Pixel (fraud prevention), loaded by the public site on every page.
-        'barion_pixel_id' => ['type' => 'string', 'value' => ''],
     ];
 
     public function __construct(public readonly bool $enabled) {}

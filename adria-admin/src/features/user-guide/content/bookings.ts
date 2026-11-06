@@ -137,7 +137,7 @@ export const bookingsChapter: GuideChapter = {
           ),
           field(
             'Online fizetések',
-            'A Barion fizetési kísérletek: Előkészítve, Fizetésre vár, Sikeres vagy Sikertelen. Sikertelen fizetésnél az ügyfél újra próbálkozhat.',
+            'Az online fizetési kísérletek: Előkészítve, Fizetésre vár, Sikeres vagy Sikertelen. Sikertelen fizetésnél az ügyfél újra próbálkozhat.',
             ADMIN_ONLY,
           ),
           field(

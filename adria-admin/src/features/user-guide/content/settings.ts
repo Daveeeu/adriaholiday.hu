@@ -191,7 +191,7 @@ export const settingsChapter: GuideChapter = {
       id: 'settings-booking',
       title: 'Biztosítások, online fizetés és visszaigazoló e-mail',
       summary:
-        'A foglaláskor választható biztosítások díja, a Barion online fizetés és a visszaigazoló e-mail banki adatai.',
+        'A foglaláskor választható biztosítások díja, a SimplePay online fizetés és a visszaigazoló e-mail banki adatai.',
       path: '/settings',
       menu: 'Beállítások',
       blocks: [
@@ -232,15 +232,10 @@ export const settingsChapter: GuideChapter = {
             'A foglalási űrlapon a biztosítás melletti ⓘ ikon mögött.',
           ),
         ]),
-        img(
-          'settings-online-fizetes-barion',
-          'Online fizetés (Barion)',
-          'Az online fizetés kapcsolója.',
-        ),
-        fields('Online fizetés (Barion)', [
+        fields('Online fizetés (SimplePay)', [
           field(
             'Online fizetés',
-            'Bekapcsolva foglalás után az ügyfél a Barion fizetőoldalán fizeti az előleget (a fizetési ütemezés 1. részletét; 35 napon belüli indulásnál a teljes összeget). Csak akkor működik, ha a szerveren be van állítva a Barion azonosító és a fogadó e-mail cím.',
+            'Bekapcsolva foglalás után az ügyfél a SimplePay fizetőoldalán fizeti az előleget (a fizetési ütemezés 1. részletét; 35 napon belüli indulásnál a teljes összeget). Csak akkor működik, ha a szerveren be van állítva az adott pénznem SimplePay kereskedői fiókja.',
             'A foglalás utolsó lépésében és a fizetés eredményoldalán.',
           ),
         ]),

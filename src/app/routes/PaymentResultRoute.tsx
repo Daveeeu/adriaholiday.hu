@@ -3,18 +3,19 @@ import { Check, Clock, CreditCard, Home, RotateCcw, X } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
 
 import { trackEvent } from "../analytics/trackEvent";
-import BarionPaymentBanner from "../components/BarionPaymentBanner";
+import SimplePayLogo from "../components/SimplePayLogo";
 import ResultHeading from "../components/ResultHeading";
 import Seo from "../seo/Seo";
 import {
   BookingApiError,
   fetchBookingPayment,
+  fetchReturnedBookingPayment,
   retryBookingPayment,
   type BookingPaymentResult,
 } from "../booking/bookings-api";
 import { formatHuf } from "../booking/booking-pricing";
 
-/** Barion may still be settling the payment when the customer returns. */
+/** SimplePay may still be settling the payment when the customer returns. */
 const POLL_INTERVAL_MS = 3000;
 const MAX_POLLS = 10;
 
@@ -31,9 +32,10 @@ function formatAmount(amount: number, currency: string) {
 
 export default function PaymentResultRoute() {
   const [searchParams] = useSearchParams();
-  const paymentId = searchParams.get("paymentId");
+  const result = searchParams.get("r");
+  const signature = searchParams.get("s");
   const [state, setState] = useState<LoadState>(
-    paymentId ? { kind: "loading" } : { kind: "error", message: "Hiányzó fizetési azonosító." },
+    result && signature ? { kind: "loading" } : { kind: "error", message: "Hiányzó fizetési azonosító." },
   );
   const [retrying, setRetrying] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
@@ -41,13 +43,13 @@ export default function PaymentResultRoute() {
   const trackedPaymentRef = useRef<string | null>(null);
 
   // The paid booking itself reaches GA4 from the server (purchase); this
-  // records what the customer saw on returning from Barion.
+  // records what the customer saw on returning from SimplePay.
   function trackSettledPayment(payment: BookingPaymentResult) {
-    if ((payment.status !== "succeeded" && payment.status !== "failed") || trackedPaymentRef.current === payment.paymentId) {
+    if ((payment.status !== "succeeded" && payment.status !== "failed") || trackedPaymentRef.current === payment.reference) {
       return;
     }
 
-    trackedPaymentRef.current = payment.paymentId;
+    trackedPaymentRef.current = payment.reference;
     trackEvent("payment_result", {
       entity: { type: "booking", id: payment.bookingId },
       metadata: {
@@ -60,16 +62,20 @@ export default function PaymentResultRoute() {
   }
 
   useEffect(() => {
-    if (!paymentId) {
+    if (!result || !signature) {
       return;
     }
 
+    const returnResult = result;
+    const returnSignature = signature;
     let cancelled = false;
     let timer: number | undefined;
 
-    async function load(poll: number) {
+    async function load(poll: number, reference: string | null) {
       try {
-        const payment = await fetchBookingPayment(paymentId as string);
+        const payment = reference
+          ? await fetchBookingPayment(reference)
+          : await fetchReturnedBookingPayment(returnResult, returnSignature);
         if (cancelled) {
           return;
         }
@@ -78,7 +84,7 @@ export default function PaymentResultRoute() {
         trackSettledPayment(payment);
 
         if ((payment.status === "started" || payment.status === "pending") && poll < MAX_POLLS) {
-          timer = window.setTimeout(() => load(poll + 1), POLL_INTERVAL_MS);
+          timer = window.setTimeout(() => load(poll + 1, payment.reference), POLL_INTERVAL_MS);
         }
       } catch (error) {
         if (!cancelled) {
@@ -93,16 +99,16 @@ export default function PaymentResultRoute() {
       }
     }
 
-    load(1);
+    load(1, null);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [paymentId]);
+  }, [result, signature]);
 
   async function handleRetry() {
-    if (!paymentId) {
+    if (state.kind !== "loaded") {
       return;
     }
 
@@ -110,7 +116,7 @@ export default function PaymentResultRoute() {
     setRetryError(null);
 
     try {
-      window.location.assign(await retryBookingPayment(paymentId));
+      window.location.assign(await retryBookingPayment(state.payment.reference));
     } catch (error) {
       setRetrying(false);
       setRetryError(
@@ -130,7 +136,7 @@ export default function PaymentResultRoute() {
           {retryError ? <p className="mt-4 text-sm font-medium text-rose-600">{retryError}</p> : null}
 
           <div className="mt-8 flex justify-center">
-            <BarionPaymentBanner variant="light" />
+            <SimplePayLogo />
           </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-4">
@@ -157,6 +163,10 @@ export default function PaymentResultRoute() {
       </div>
     </div>
   );
+}
+
+function TransactionId({ id }: { id: string | null }) {
+  return id ? <span className="mt-3 block font-semibold">SimplePay tranzakcióazonosító: {id}</span> : null;
 }
 
 function PaymentResultBody({ state }: { state: LoadState }) {
@@ -187,17 +197,39 @@ function PaymentResultBody({ state }: { state: LoadState }) {
     return (
       <ResultHeading icon={<Check className="size-8" />} tone="success" title="Sikeres fizetés!">
         {subject} ({amount}) kifizetése sikerült {yourBooking}hoz. A foglalás részleteit e-mailben is elküldtük, kérjük, nézd meg a postafiókodat (ha nem találod, a Spam vagy Promóciók mappát is). Munkatársunk hamarosan felveszi veled a kapcsolatot a visszaigazolás érdekében.
+        <TransactionId id={payment.transactionId} />
+      </ResultHeading>
+    );
+  }
+
+  const nextStep = payment.canRetry
+    ? " Újrapróbálhatod most, vagy munkatársunk felveszi veled a kapcsolatot."
+    : " Munkatársunk hamarosan felveszi veled a kapcsolatot.";
+
+  // SimplePay's rule: no payment was attempted here, so this may not read as
+  // a failed payment and may not show a transaction id.
+  if (payment.failure === "cancelled" || payment.failure === "timeout") {
+    return (
+      <ResultHeading
+        icon={<Clock className="size-8" />}
+        tone="neutral"
+        title={payment.failure === "cancelled" ? "Megszakított fizetés" : "Időtúllépés"}
+      >
+        {payment.failure === "cancelled"
+          ? "Megszakítottad a fizetést, ezért nem történt terhelés."
+          : "Túllépted a tranzakció elindításának lehetséges maximális idejét, ezért nem történt terhelés."}{" "}
+        {YourBooking}at rögzítettük.
+        {nextStep}
       </ResultHeading>
     );
   }
 
   if (payment.status === "failed") {
     return (
-      <ResultHeading icon={<X className="size-8" />} tone="danger" title="A fizetés nem sikerült">
-        {YourBooking}at rögzítettük, de a fizetés ({amount}) megszakadt vagy elutasították.
-        {payment.canRetry
-          ? " Újrapróbálhatod most, vagy munkatársunk felveszi veled a kapcsolatot."
-          : " Munkatársunk hamarosan felveszi veled a kapcsolatot."}
+      <ResultHeading icon={<X className="size-8" />} tone="danger" title="Sikertelen tranzakció">
+        {YourBooking}at rögzítettük, de a fizetés ({amount}) nem sikerült. Kérjük, ellenőrizd a tranzakció során megadott adatok helyességét. Ha minden adatot helyesen adtál meg, a visszautasítás okának kivizsgálása érdekében lépj kapcsolatba a kártyakibocsátó bankoddal.
+        {nextStep}
+        <TransactionId id={payment.transactionId} />
       </ResultHeading>
     );
   }

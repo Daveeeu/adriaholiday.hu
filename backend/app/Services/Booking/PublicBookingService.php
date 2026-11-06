@@ -158,6 +158,8 @@ class PublicBookingService
                 'pricing' => $pricing,
                 // Proof that the customer accepted the terms and the privacy policy.
                 'termsAcceptedAt' => now()->toIso8601String(),
+                // Proof that the customer accepted the transfer of their data to SimplePay.
+                ...(($validated['payment_data_transfer_accepted'] ?? false) ? ['paymentDataTransferAcceptedAt' => now()->toIso8601String()] : []),
                 'googleAnalytics' => BookingAnalyticsContext::fromValidated($validated),
             ],
         ]);

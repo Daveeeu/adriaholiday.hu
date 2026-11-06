@@ -47,6 +47,51 @@ export function BookingTermsConsent({
   );
 }
 
+/**
+ * SimplePay's mandatory data transfer statement, accepted before the payment
+ * starts. Its wording is prescribed: only the bracketed merchant details of
+ * SimplePay's template are ours, and they have to match the contract.
+ */
+export function PaymentDataTransferConsent({
+  checked,
+  error,
+  onChange,
+}: {
+  checked: boolean;
+  error?: string | null;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <div>
+      <label className="flex items-start gap-3 text-sm text-[#0f172a] cursor-pointer">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(event) => onChange(event.target.checked)}
+          className="mt-1 accent-[#00c389]"
+        />
+        <span>
+          Tudomásul veszem, hogy a(z) Adria-Holiday Kft. (1076 Budapest, Garay utca 16 Fsz/4) adatkezelő által a(z)
+          adriaholiday.hu felhasználói adatbázisában tárolt alábbi személyes adataim átadásra kerülnek a SimplePay
+          Zrt., mint adatfeldolgozó részére. Az adatkezelő által továbbított adatok köre az alábbi: név, e-mail cím,
+          telefonszám, számlázási cím. Az adatfeldolgozó által végzett adatfeldolgozási tevékenység jellege és célja a
+          SimplePay Adatkezelési tájékoztatóban, az alábbi linken tekinthető meg:{" "}
+          <a
+            href="https://simplepay.hu/adatkezelesi-tajekoztatok/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-bold text-[#00a878] underline"
+          >
+            https://simplepay.hu/adatkezelesi-tajekoztatok/
+          </a>
+          *
+        </span>
+      </label>
+      {error ? <p data-booking-error className="mt-2 text-sm font-medium text-red-600">{error}</p> : null}
+    </div>
+  );
+}
+
 /** Opting in to the newsletter (and its coupon, when the site offers one). */
 export function NewsletterConsent({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
   const { settings } = useSiteSettings();

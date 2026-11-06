@@ -74,7 +74,7 @@ export function UserGuidePage() {
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Keresés a kézikönyvben (pl. kupon, SEO cím, felár, Barion)..."
+          placeholder="Keresés a kézikönyvben (pl. kupon, SEO cím, felár, SimplePay)..."
           aria-label="Keresés a kézikönyvben"
           className="pl-9 pr-10"
         />

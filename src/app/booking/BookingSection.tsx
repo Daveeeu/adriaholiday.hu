@@ -37,9 +37,9 @@ import {
   type BookingFormField,
 } from "./booking-form-fields";
 import { submitBooking, BookingApiError, BookingValidationError } from "./bookings-api";
-import BarionPaymentBanner from "../components/BarionPaymentBanner";
+import SimplePayLogo from "../components/SimplePayLogo";
 import { INSURANCE_PATH } from "./insurance";
-import { BookingTermsConsent, NewsletterConsent } from "./BookingConsents";
+import { BookingTermsConsent, NewsletterConsent, PaymentDataTransferConsent } from "./BookingConsents";
 import { bringIntoView } from "../lib/bringIntoView";
 import { seatsLeftLabel, seatsOf } from "../lib/seatsLeft";
 import { transportLabel } from "../lib/transport";
@@ -66,6 +66,7 @@ const COUPON_FIELD: BookingFormField = {
 const MAX_PASSENGERS = 20;
 
 const TERMS_REQUIRED_MESSAGE = "Az ÁSZF és az adatkezelési tájékoztató elfogadása kötelező.";
+const DATA_TRANSFER_REQUIRED_MESSAGE = "Az adattovábbítási nyilatkozat elfogadása kötelező.";
 
 const STEP_OF_GROUP: Record<BookingFieldGroup, number> = {
   contact: 2,
@@ -176,6 +177,8 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
   );
   const [couponCode, setCouponCode] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [dataTransferAccepted, setDataTransferAccepted] = useState(false);
+  const [dataTransferError, setDataTransferError] = useState<string | null>(null);
   const [newsletterSubscribe, setNewsletterSubscribe] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
   const [passengers, setPassengers] = useState<BookingFieldValues[]>([]);
@@ -633,6 +636,13 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
       return false;
     }
 
+    if (onlinePayment && !dataTransferAccepted) {
+      funnel.trackFieldErrors(["payment_data_transfer_accepted"]);
+      setDataTransferError(DATA_TRANSFER_REQUIRED_MESSAGE);
+      setStep(4);
+      return false;
+    }
+
     return true;
   }
 
@@ -671,6 +681,7 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
         }),
         type: "tour_booking",
         termsAccepted,
+        paymentDataTransferAccepted: dataTransferAccepted,
         newsletterSubscribe,
       });
 
@@ -742,6 +753,13 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
           return;
         }
 
+        const dataTransferMessage = submitError.errors.payment_data_transfer_accepted?.[0];
+        if (dataTransferMessage) {
+          setDataTransferError(dataTransferMessage);
+          setStep(4);
+          return;
+        }
+
         if (submitError.errors.couponCode?.[0]) {
           setStep(4);
           return;
@@ -779,11 +797,11 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
             Foglalásodat rögzítettük!
           </h2>
           <p className="text-white/65 text-lg max-w-xl mx-auto">
-            Átirányítunk a Barion biztonságos fizetőoldalára…
+            Átirányítunk a SimplePay biztonságos fizetőoldalára…
           </p>
           <ConfirmationEmailNote email={formValues.contact_email} />
           <div className="mt-6 flex justify-center">
-            <BarionPaymentBanner variant="dark" />
+            <SimplePayLogo />
           </div>
         </div>
       </section>
@@ -1052,6 +1070,17 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
                       }}
                     />
 
+                    {onlinePayment ? (
+                      <PaymentDataTransferConsent
+                        checked={dataTransferAccepted}
+                        error={dataTransferError}
+                        onChange={(checked) => {
+                          setDataTransferAccepted(checked);
+                          setDataTransferError(null);
+                        }}
+                      />
+                    ) : null}
+
                     <NewsletterConsent checked={newsletterSubscribe} onChange={setNewsletterSubscribe} />
 
                     <p className="rounded-2xl bg-[#f5f9fc] p-4 text-sm text-gray-600">
@@ -1080,11 +1109,11 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
                     <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
                       <CreditCard className="w-4 h-4 text-[#00a878]" />
                       {onlineDeposit
-                        ? `A foglalás után az előleget (${onlineDeposit.label}: ${formatHuf(onlineDeposit.amount)}) fizeted online, Barionnal. A további részletek határidejét a visszaigazoló emailben küldjük.`
-                        : "A foglalás után a teljes összeget online fizeted, Barionnal."}
+                        ? `A foglalás után az előleget (${onlineDeposit.label}: ${formatHuf(onlineDeposit.amount)}) fizeted online, SimplePay-jel. A további részletek határidejét a visszaigazoló emailben küldjük.`
+                        : "A foglalás után a teljes összeget online fizeted, SimplePay-jel."}
                     </div>
                   ) : null}
-                  {onlinePayment && step === 4 ? <BarionPaymentBanner variant="light" className="mt-3" /> : null}
+                  {onlinePayment && step === 4 ? <SimplePayLogo className="mt-3" /> : null}
                 </div>
 
                 <div className="flex gap-3">

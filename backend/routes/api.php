@@ -102,10 +102,11 @@ Route::middleware('throttle:bookings')->group(function (): void {
     Route::post('booking-details/{token}', [PublicBookingDetailsController::class, 'complete'])->where('token', '[A-Za-z0-9]{48}');
 });
 Route::post('portfolio/apartments/{slug}/bookings', [PortfolioApartmentController::class, 'book'])->middleware('throttle:bookings');
-Route::post('payments/barion/callback', [PublicBookingPaymentController::class, 'callback'])->name('payments.barion.callback');
+Route::post('payments/simplepay/ipn', [PublicBookingPaymentController::class, 'notification'])->name('payments.simplepay.ipn');
 Route::middleware('throttle:payments')->group(function (): void {
-    Route::get('payments/barion/{bookingPayment:provider_payment_id}', [PublicBookingPaymentController::class, 'show']);
-    Route::post('payments/barion/{bookingPayment:provider_payment_id}/retry', [PublicBookingPaymentController::class, 'retry']);
+    Route::post('payments/simplepay/return', [PublicBookingPaymentController::class, 'return']);
+    Route::get('payments/{bookingPayment:payment_request_id}', [PublicBookingPaymentController::class, 'show'])->whereUuid('bookingPayment');
+    Route::post('payments/{bookingPayment:payment_request_id}/retry', [PublicBookingPaymentController::class, 'retry'])->whereUuid('bookingPayment');
 });
 Route::post('tour-inquiries', [PublicTourInquiryController::class, 'store'])->middleware('throttle:bookings');
 Route::post('newsletter/subscribe', [PublicNewsletterController::class, 'store'])->middleware('throttle:newsletter');

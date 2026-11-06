@@ -33,6 +33,12 @@ class PublicBookingController extends Controller
             throw ValidationException::withMessages($result['errors']);
         }
 
+        if ($paymentService->publicOptions($tour->price_box_currency ?: 'HUF') !== null && ! $validated['payment_data_transfer_accepted']) {
+            throw ValidationException::withMessages([
+                'payment_data_transfer_accepted' => 'Az adattovábbítási nyilatkozat elfogadása kötelező.',
+            ]);
+        }
+
         $booking = $bookingService->submit($tour, $validated, $result);
 
         return response()->json([

@@ -48,7 +48,7 @@ export type PortfolioBookingInsurances = {
   cancellationInsurance: { name: string; percent: number; minDaysBeforeDeparture: number; info?: string | null };
 };
 
-/** Online payment (Barion) of the deposit right after booking; its share comes with each date. */
+/** Online payment (SimplePay) of the deposit right after booking; its share comes with each date. */
 export type PortfolioBookingPayment = {
   provider: string;
 };

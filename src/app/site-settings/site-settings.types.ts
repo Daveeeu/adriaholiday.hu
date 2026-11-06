@@ -67,7 +67,7 @@ export type ResolvedSiteSettings = {
   defaultSeoDescription: string;
   defaultOgImage: SiteMedia;
   newsletterCouponValue: number;
-  /** Online payment (Barion) is switched on; the Barion payment banner is shown. */
+  /** Online payment (SimplePay) is switched on; the SimplePay logo is shown. */
   onlinePaymentEnabled: boolean;
   imprintUrl: string;
   privacyUrl: string;

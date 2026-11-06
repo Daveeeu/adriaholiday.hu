@@ -24,6 +24,8 @@ export type SubmitBookingPayload = {
   type?: 'tour_booking' | 'tour_inquiry';
   /** The customer accepted the terms (ÁSZF) and the privacy policy. */
   termsAccepted: boolean;
+  /** The customer accepted SimplePay's data transfer statement. */
+  paymentDataTransferAccepted?: boolean;
   /** Also subscribe the contact e-mail to the newsletter (and its coupon). */
   newsletterSubscribe?: boolean;
 };
@@ -65,15 +67,19 @@ export type SubmitApartmentBookingPayload = {
 export type SubmitBookingResponse = {
   id: number | string;
   status: string;
-  /** Barion gateway to send the customer to; null when there is nothing to pay online. */
+  /** SimplePay gateway to send the customer to; null when there is nothing to pay online. */
   paymentUrl?: string | null;
 };
 
 export type BookingPaymentStatus = "pending" | "started" | "succeeded" | "failed";
 
 export type BookingPaymentResult = {
-  paymentId: string;
+  /** Addresses the payment on the public API; unlike transactionId it cannot be guessed. */
+  reference: string;
   status: BookingPaymentStatus;
+  failure: "cancelled" | "timeout" | "declined" | null;
+  /** SimplePay's id, which must be shown after a completed or declined payment. */
+  transactionId: string | null;
   kind: "full" | "deposit";
   amount: number;
   currency: string;
@@ -124,21 +130,31 @@ export function submitTourInquiry(payload: SubmitTourInquiryPayload): Promise<Su
   return request('POST', '/tour-inquiries', payload);
 }
 
-/** Current state of a Barion payment, identified by the id Barion appends to the return URL. */
-export async function fetchBookingPayment(paymentId: string): Promise<BookingPaymentResult> {
+/** The payment the customer returned from, from the signed result SimplePay appends to the return URL. */
+export async function fetchReturnedBookingPayment(result: string, signature: string): Promise<BookingPaymentResult> {
+  const response = await request<{ data: BookingPaymentResult }>('POST', '/payments/simplepay/return', {
+    r: result,
+    s: signature,
+  });
+
+  return response.data;
+}
+
+/** Current state of a payment. */
+export async function fetchBookingPayment(reference: string): Promise<BookingPaymentResult> {
   const response = await request<{ data: BookingPaymentResult }>(
     'GET',
-    `/payments/barion/${encodeURIComponent(paymentId)}`,
+    `/payments/${encodeURIComponent(reference)}`,
   );
 
   return response.data;
 }
 
-/** Starts a new payment in place of a failed one and returns the Barion gateway URL. */
-export async function retryBookingPayment(paymentId: string): Promise<string> {
+/** Starts a new payment in place of a failed one and returns the SimplePay gateway URL. */
+export async function retryBookingPayment(reference: string): Promise<string> {
   const response = await request<{ paymentUrl: string }>(
     'POST',
-    `/payments/barion/${encodeURIComponent(paymentId)}/retry`,
+    `/payments/${encodeURIComponent(reference)}/retry`,
   );
 
   return response.paymentUrl;

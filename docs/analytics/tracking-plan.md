@@ -32,7 +32,7 @@ Conversions API) is described in [../analytics-architecture.md](../analytics-arc
    with personal data (booking, apartment booking, group inquiry and contact
    forms, with their confirmations) carry `data-clarity-mask="true"`, so
    recordings never show them; keep the attribute on any new form.
-5. A succeeded Barion payment is sent to GA4 from the server as `purchase`
+5. A succeeded SimplePay payment is sent to GA4 from the server as `purchase`
    (`SendGooglePurchaseEventJob`, Measurement Protocol) for the visitor's GA
    client and session id stored with the booking — only when the visitor had
    given analytics consent at booking time.
@@ -72,7 +72,7 @@ offer pages and bookings join in GA4.
 | `search` | `search` | Search | home hero search, trip finder | |
 | `booking_start` | `begin_checkout` | InitiateCheckout | first booking interaction (tour, apartment) | |
 | `booking_success` | `booking_submitted` | Purchase | booking request accepted (tour, apartment) | ✔ |
-| — (server) | `purchase` | – | Barion payment succeeded | ✔ |
+| — (server) | `purchase` | – | SimplePay payment succeeded | ✔ |
 | `payment_result` | `payment_result` | – | payment result page, settled status | |
 | `lead_submit` | `generate_lead` | Lead | group inquiry, contact form (`source`) | ✔ |
 | `newsletter_signup` | `newsletter_signup` | – | newsletter forms (`placement`) | ✔ |
@@ -88,7 +88,7 @@ offer pages and bookings join in GA4.
 ## GA4 property settings
 
 - Data retention: 14 months.
-- Unwanted referrals: `barion.com`, `secure.barion.com` (customers return from the payment gateway).
+- Unwanted referrals: `simplepay.hu`, `secure.simplepay.hu` (customers return from the payment gateway).
 - Enhanced measurement: page views from browser history events, scrolls, outbound clicks and form interactions **off** (the site sends `page_view`, `scroll_depth`, `ui_click` and the booking funnel events); site search, video and file downloads stay on.
 - Custom dimensions (event scope): `entity_type`, `entity_slug`, `placement`, `transport`, `cta_name`, `booking_type`, `payment_kind`, `payment_status`, `source`, `step_name`, `step_number`, `last_step_name`, `last_field`, `error_fields`, `click_text`, `click_section`, `link_path`, `link_domain`; custom metric `form_seconds`. `item_list_name` and `percent_scrolled` are built-in.
 - Explorations: „Foglalási tölcsér” (funnel: view_item → begin_checkout → booking_step 2/3/4 → booking_submitted), „Kilépő oldalak” (free form: page path × exits), „Foglalás megszakítás” (booking_abandon by last step / field).

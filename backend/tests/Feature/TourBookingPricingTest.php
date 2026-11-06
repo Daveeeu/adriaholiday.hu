@@ -462,7 +462,7 @@ class TourBookingPricingTest extends TestCase
 
     public function test_customer_confirmation_lists_the_booking_and_how_to_pay_by_bank_transfer(): void
     {
-        config(['services.barion.pos_key' => null]);
+        config(['services.simplepay.merchants.HUF.secret' => null]);
         TourReferenceOption::query()->create(['type' => 'country', 'code' => 'si', 'name' => 'Szlovénia', 'active' => true, 'sort_order' => 0]);
         $this->tour->update(['country_ids' => ['si'], 'accommodation' => 'Hotel***', 'catering' => 'reggeli', 'travel_mode_id' => 'bus']);
 

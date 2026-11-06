@@ -411,7 +411,7 @@ class BookingFormFieldTest extends TestCase
             'formData' => [
                 ...$contact,
                 'extra_terms' => BookingFormField::CHECKBOX_CHECKED_VALUE,
-                'extra_payment_method' => 'Online bankkártyás fizetés (Barion)',
+                'extra_payment_method' => 'Online bankkártyás fizetés (SimplePay)',
             ],
         ])->assertStatus(422)->assertJsonValidationErrors(['formData.extra_payment_method']);
 

@@ -20,7 +20,7 @@ class BookingPaymentFactory extends Factory
     {
         return [
             'booking_id' => Booking::factory(),
-            'provider' => 'barion',
+            'provider' => 'simplepay',
             'payment_request_id' => (string) Str::uuid(),
             'provider_payment_id' => str_replace('-', '', (string) Str::uuid()),
             'status' => BookingPaymentStatus::STARTED,

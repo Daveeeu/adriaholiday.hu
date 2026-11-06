@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Payment\Barion\BarionPixel;
 use App\Services\Seo\PortfolioSeoResolver;
 use App\Support\Seo\PublicSiteUrl;
 use App\Support\Seo\SeoHeadRenderer;
@@ -15,7 +14,7 @@ use Throwable;
 /**
  * Serves the public site's single-page app for every non-API path, with the
  * page's own SEO head (title, description, canonical, Open Graph, structured
- * data) and status code, and the Base Barion Pixel when a pixel id is set.
+ * data) and status code.
  */
 class PortfolioSpaController extends Controller
 {
@@ -33,7 +32,6 @@ class PortfolioSpaController extends Controller
 
     public function __invoke(
         Request $request,
-        BarionPixel $barionPixel,
         PortfolioSeoResolver $seo,
         SeoHeadRenderer $head,
     ): Response|RedirectResponse {
@@ -47,11 +45,6 @@ class PortfolioSpaController extends Controller
 
         $indexable = PublicSiteUrl::isCanonicalHost($request);
         $html = $head->render((string) file_get_contents(public_path('portfolio/index.html')), $page, $siteName, $indexable);
-        $pixel = $barionPixel->snippet();
-
-        if ($pixel !== null) {
-            $html = preg_replace('~</head>~i', $pixel."\n</head>", $html, 1) ?? $html;
-        }
 
         $headers = [
             'Content-Type' => 'text/html; charset=UTF-8',
