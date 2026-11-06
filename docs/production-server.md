@@ -28,7 +28,7 @@ bash bootstrap.sh --import ~/adriaholiday_export_v2.json   # the import only on 
 2. Picks the database: an install whose `.env.production` has `DB_HOST=db` keeps its MariaDB; otherwise the platform Postgres.
 3. Finds the Traefik network and, for Postgres, its network. Creates the Postgres role and database once.
 4. Writes `.env.production` and `backend/.env.production` once. They hold generated secrets (mode 600) and are never committed.
-5. Builds the images and starts the stack. The entrypoint runs the migrations.
+5. Builds the images and starts the stack. The entrypoint runs the migrations and writes the caches; the app only reports healthy after that.
 6. Seeds the reference data. A new database gets `ProductionSeeder`: roles, the first admin, settings, regions and taxonomy, with no demo data. An existing database only gets `RolePermissionSeeder`, so the office's settings and content are never reset.
 7. Writes the Traefik route `/srv/apps/traefik/dynamic/adriaholiday.yml`. Its entry point and cert resolver are copied from an existing route. It serves `PUBLIC_HOST` and sets `APP_URL` to it. Until the domain switch that is the staging host `adriaholiday.jandldavid.hu`; after it, `adriaholiday.hu`, with `www` and the staging host redirecting there. Its names start with `adriaholiday-hu`, so they never clash with another route file.
 8. Runs a health check through nginx.

@@ -1,6 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
+# The healthcheck requires this file, so the container only reports healthy
+# once the caches below are written. A restart keeps /tmp, hence the rm.
+READY_FILE=/tmp/app-ready
+rm -f "$READY_FILE"
+
 cd /var/www/backend
 
 mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs storage/app/public bootstrap/cache
@@ -15,5 +20,7 @@ php artisan config:cache
 php artisan migrate --force --isolated
 php artisan route:cache
 php artisan view:cache
+
+touch "$READY_FILE"
 
 exec "$@"

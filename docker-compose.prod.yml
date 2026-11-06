@@ -72,11 +72,11 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "php artisan app:healthcheck >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "test -f /tmp/app-ready && php artisan app:healthcheck >/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 45s
+      start_period: 180s
     networks:
       - internal
 
