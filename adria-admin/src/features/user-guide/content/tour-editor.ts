@@ -609,9 +609,9 @@ export const tourEditorTopics: GuideTopic[] = [
           'A foglalási űrlap felszállási hely választólistájában.',
         ),
         field(
-          'Felszállási helyek felára ennél az útnál',
-          'Ft/fő. Üresen hagyva a felszállási hely általános díja érvényes; kitöltve csak ennél az útnál más a díj.',
-          'A foglalási űrlap árösszesítőjében.',
+          'Felszállási helyek sorrendje és felára ennél az útnál',
+          'A kiválasztott helyek listája. A sorrendet a fogantyúval húzva vagy a fel–le nyilakkal állíthatod, a busz útvonala szerint (pl. Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest); az új hely a végére kerül. A felár Ft/fő: üresen hagyva a felszállási hely általános díja érvényes, kitöltve csak ennél az útnál más a díj.',
+          'A foglalási űrlap választólistájában ebben a sorrendben, a felár az árösszesítőben.',
         ),
       ]),
       p(

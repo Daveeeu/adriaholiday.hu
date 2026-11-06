@@ -29,7 +29,7 @@ class DeparturePlaceConsolidator
         'plane' => ['Budapest'],
         'south' => [...self::NORTH, 'Székesfehérvár', 'Siófok', 'Nagykanizsa'],
         'west' => [...self::NORTH, 'Tatabánya', 'Győr', 'Mosonmagyaróvár'],
-        'north' => self::NORTH,
+        'north' => ['Budapest', 'Hatvan', 'Gyöngyös', 'Mezőkövesd', 'Miskolc'],
         'miskolc' => ['Miskolc'],
         'romania' => ['Budapest', 'Miskolc'],
         'greece' => [...self::NORTH, 'Kecskemét'],
@@ -116,8 +116,8 @@ class DeparturePlaceConsolidator
                     return [$town => $place->id];
                 });
 
-                $tour->departurePlaces()->sync($newPlaces->mapWithKeys(fn (int $id, string $town): array => [
-                    $id => ['fee' => $fees[$town] ?? null],
+                $tour->departurePlaces()->sync($newPlaces->values()->mapWithKeys(fn (int $id, int $index): array => [
+                    $id => ['fee' => $fees[$newPlaces->search($id)] ?? null, 'sort_order' => $index + 1],
                 ])->all());
 
                 $dates += $this->remapDates($tour, $oldTowns, $newPlaces);

@@ -107,7 +107,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
             'departurePlaceNames' => ['miskolci indulással', 'budapesti indulással'],
         ]), updateExisting: true);
 
-        $this->assertSame(['budapesti indulással', 'miskolci indulással'], $tour->departurePlaces()->orderBy('name')->pluck('name')->all());
+        $this->assertSame(['miskolci indulással', 'budapesti indulással'], $tour->departurePlaces()->pluck('name')->all());
     }
 
     public function test_first_import_creates_the_tour_and_its_related_records(): void

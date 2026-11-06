@@ -70,7 +70,7 @@ class GetPickupLocationsTool implements SalesAssistantTool
      */
     private function places(Tour $tour, ?int $departureId): Collection
     {
-        $places = $tour->departurePlaces()->where('active', true)->orderBy('name')->get();
+        $places = $tour->departurePlaces()->where('active', true)->get();
 
         if ($departureId === null) {
             return $places;

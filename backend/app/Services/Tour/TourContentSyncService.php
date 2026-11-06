@@ -233,8 +233,12 @@ class TourContentSyncService
     public function syncDeparturePlaces(Tour $tour, array $departurePlaceIds, array $fees = []): void
     {
         $tour->departurePlaces()->sync(collect($departurePlaceIds)
-            ->mapWithKeys(fn (int|string $id): array => [
-                (int) $id => ['fee' => is_numeric($fees[$id] ?? null) ? (float) $fees[$id] : null],
+            ->values()
+            ->mapWithKeys(fn (int|string $id, int $index): array => [
+                (int) $id => [
+                    'fee' => is_numeric($fees[$id] ?? null) ? (float) $fees[$id] : null,
+                    'sort_order' => $index + 1,
+                ],
             ])
             ->all());
     }

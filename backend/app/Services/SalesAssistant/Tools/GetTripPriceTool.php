@@ -171,7 +171,7 @@ class GetTripPriceTool implements SalesAssistantTool
                 );
             }
 
-            $places = $tour->departurePlaces()->where('active', true)->orderBy('name')->get();
+            $places = $tour->departurePlaces()->where('active', true)->get();
 
             throw new SalesAssistantToolException(
                 'pickup_location_required',

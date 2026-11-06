@@ -219,9 +219,15 @@ class Tour extends Model implements HasMedia
         return $this->hasMany(TourPriceItem::class)->orderBy('sort_order');
     }
 
+    /**
+     * The places the tour boards at, in the order the bus reaches them.
+     */
     public function departurePlaces(): BelongsToMany
     {
-        return $this->belongsToMany(TourDeparturePlace::class, 'tour_departure_place_tour')->withPivot('fee');
+        return $this->belongsToMany(TourDeparturePlace::class, 'tour_departure_place_tour')
+            ->withPivot('fee', 'sort_order')
+            ->orderByPivot('sort_order')
+            ->orderBy('tour_departure_places.id');
     }
 
     /**

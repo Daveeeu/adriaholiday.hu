@@ -7,6 +7,7 @@ use App\Models\TourDate;
 use App\Models\TourDeparturePlace;
 use App\Models\User;
 use App\Services\Tour\DeparturePlaceConsolidator;
+use App\Services\Tour\TourContentSyncService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
@@ -86,6 +87,60 @@ class TourDeparturePlacesTest extends TestCase
         $this->assertSame(1, TourDeparturePlace::query()->count());
     }
 
+    public function test_a_tour_keeps_the_order_of_its_departure_places_on_the_public_page(): void
+    {
+        $this->actingAsPlaceAdmin();
+        $budapest = $this->place('Budapest');
+        $gyor = $this->place('Győr');
+        $miskolc = $this->place('Miskolc');
+        $tour = Tour::factory()->create(['active' => true, 'seo_name' => 'utvonal-sorrend']);
+        app(TourContentSyncService::class)->syncDeparturePlaces($tour, [$miskolc->id, $budapest->id, $gyor->id]);
+
+        $this->getJson('/api/portfolio/offers/utvonal-sorrend')
+            ->assertOk()
+            ->assertJsonPath('departurePlaces.0.name', 'Miskolc')
+            ->assertJsonPath('departurePlaces.1.name', 'Budapest')
+            ->assertJsonPath('departurePlaces.2.name', 'Győr');
+
+        $this->getJson("/api/admin/tours/{$tour->id}")
+            ->assertOk()
+            ->assertJsonPath('data.departurePlaceIds', [$miskolc->id, $budapest->id, $gyor->id]);
+
+        app(TourContentSyncService::class)->syncDeparturePlaces($tour, [$gyor->id, $miskolc->id, $budapest->id]);
+
+        $this->assertSame(['Győr', 'Miskolc', 'Budapest'], $tour->departurePlaces()->pluck('name')->all());
+    }
+
+    public function test_route_order_puts_places_in_the_boarding_order_of_the_offices_route(): void
+    {
+        $places = collect(['Budapest', 'Győr', 'Gyöngyös', 'Hatvan', 'Mezőkövesd', 'Miskolc', 'Mosonmagyaróvár', 'Tatabánya', 'Zalaegerszeg'])
+            ->mapWithKeys(fn (string $town): array => [$town => $this->place($town)->id]);
+        $attach = fn (array $towns, ?float $fee = null): array => $places->only($towns)->values()
+            ->mapWithKeys(fn (int $id): array => [$id => ['fee' => $fee]])->all();
+
+        $austria = $this->tour('Hallstatt', ['at'], 'bus', []);
+        $austria->departurePlaces()->attach($attach(['Budapest', 'Győr', 'Gyöngyös', 'Hatvan', 'Mezőkövesd', 'Miskolc', 'Mosonmagyaróvár', 'Tatabánya'], 500));
+        $slovakia = $this->tour('Felvidéki barangolás', ['sk'], 'bus', []);
+        $slovakia->departurePlaces()->attach($attach(['Miskolc', 'Budapest', 'Hatvan', 'Gyöngyös', 'Mezőkövesd']));
+        $elsewhere = $this->tour('Különjárat', ['hu'], 'bus', []);
+        $elsewhere->departurePlaces()->attach($attach(['Zalaegerszeg', 'Budapest']));
+
+        $this->artisan('adria:departure-places:route-order', ['--dry-run' => true])->assertSuccessful();
+        $this->assertSame(0, (int) $austria->departurePlaces()->max('tour_departure_place_tour.sort_order'));
+
+        $this->artisan('adria:departure-places:route-order', ['--force' => true])->assertSuccessful();
+
+        $this->assertSame(DeparturePlaceConsolidator::ROUTES['west'], $austria->departurePlaces()->pluck('name')->all());
+        $this->assertSame(['Budapest', 'Hatvan', 'Gyöngyös', 'Mezőkövesd', 'Miskolc'], $slovakia->departurePlaces()->pluck('name')->all());
+        $this->assertSame(['Budapest', 'Zalaegerszeg'], $elsewhere->departurePlaces()->pluck('name')->all());
+        $this->assertEquals(500, $austria->departurePlaces()->first()->pivot->fee);
+
+        // A second run finds nothing to do.
+        $this->artisan('adria:departure-places:route-order', ['--force' => true])
+            ->expectsOutputToContain('Changed: 0, already in order: 2, on no route: 1')
+            ->assertSuccessful();
+    }
+
     public function test_a_place_name_must_be_a_single_town_and_unique(): void
     {
         $this->actingAsPlaceAdmin();
@@ -125,7 +180,7 @@ class TourDeparturePlacesTest extends TestCase
 
     private function actingAsPlaceAdmin(): void
     {
-        $permissions = ['tour-departure-places.create', 'tour-departure-places.update'];
+        $permissions = ['tour-departure-places.create', 'tour-departure-places.update', 'tours.view'];
 
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission, 'web');
