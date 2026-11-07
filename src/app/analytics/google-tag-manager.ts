@@ -86,14 +86,14 @@ export function pushDataLayerEvent(
     return;
   }
 
-  const event = toDataLayerEvent(eventName, eventId, payload);
-
-  if (event.ecommerce) {
-    // GA4 merges ecommerce objects across pushes unless the previous one is cleared.
-    dataLayer().push({ ecommerce: null });
-  }
-
-  dataLayer().push(event);
+  // GTM's data model keeps every key ever pushed, so a parameter of an earlier
+  // event (ecommerce, last_field, entity_slug, ...) would be sent again with
+  // each later event that lacks it. Resetting the model first sends only this
+  // event's own parameters.
+  dataLayer().push(function (this: { reset: () => void }) {
+    this.reset();
+  });
+  dataLayer().push(toDataLayerEvent(eventName, eventId, payload));
 }
 
 function readCookie(name: string) {

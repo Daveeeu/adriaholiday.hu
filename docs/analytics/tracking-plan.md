@@ -50,12 +50,16 @@ Built by `toDataLayerEvent()` in `src/app/analytics/data-layer-events.js`:
   entity_type: "tour",
   entity_slug: "velencei-karneval",
   ...scalar metadata,          // placement, transport, booking_type, …
-  ecommerce: {                 // commerce events only; preceded by { ecommerce: null }
+  ecommerce: {                 // commerce events only
     currency: "HUF", value: 259800, transaction_id: "1234",
     items: [{ item_id: "<slug>", item_name, item_category: "tour" | "apartment", item_variant, price, quantity, index }]
   }
 }
 ```
+
+`pushDataLayerEvent()` resets GTM's data model before each event, because the
+model keeps every key ever pushed: without the reset an earlier event's
+`last_field`, `entity_slug` or `ecommerce` would be sent again with later events.
 
 Never personal data: names, e-mails, phone numbers and passenger data stay out of
 event parameters. `item_id` is the offer/apartment slug on every event, so lists,
