@@ -11,8 +11,17 @@ class RobotsController extends Controller
     public function __invoke(Request $request): Response
     {
         // Only the canonical host may be crawled; staging and aliases are closed.
+        // The public site loads its content from /api/portfolio in the browser: without
+        // access to it crawlers render every page as an empty error state.
         $rules = PublicSiteUrl::isCanonicalHost($request)
-            ? ['Allow: /', 'Disallow: /admin', 'Disallow: /api', 'Disallow: /fizetes/']
+            ? [
+                'Allow: /',
+                'Allow: /api/portfolio/',
+                'Disallow: /admin',
+                'Disallow: /api',
+                'Disallow: /api/portfolio/offers/*/pdf',
+                'Disallow: /fizetes/',
+            ]
             : ['Disallow: /'];
 
         $body = implode("\n", [

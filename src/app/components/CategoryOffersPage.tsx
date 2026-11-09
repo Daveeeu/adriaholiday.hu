@@ -1335,7 +1335,7 @@ function ErrorState() {
   return (
     <div className="rounded-[30px] border border-red-200 bg-red-50 p-8 text-red-700">
       <div className="text-lg font-semibold">Nem sikerült betölteni az ajánlatokat.</div>
-      <p className="mt-2 text-sm">Kérjük, próbáld újra később. A lista kizárólag a Laravel API-ból töltődik.</p>
+      <p className="mt-2 text-sm">Kérjük, próbáld újra később.</p>
     </div>
   );
 }

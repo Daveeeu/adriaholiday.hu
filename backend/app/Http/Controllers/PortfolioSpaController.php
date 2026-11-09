@@ -37,6 +37,12 @@ class PortfolioSpaController extends Controller
     ): Response|RedirectResponse {
         abort_if($request->is(...self::RESERVED_PATHS), 404);
 
+        $cleanUri = PublicSiteUrl::cleanRequestUri($request);
+
+        if ($cleanUri !== null) {
+            return redirect($cleanUri, 301);
+        }
+
         [$page, $siteName] = $this->seo($seo, $request);
 
         if ($page->redirectTo !== null) {
@@ -61,8 +67,7 @@ class PortfolioSpaController extends Controller
     /**
      * The page still loads when its SEO data cannot be looked up; it then gets
      * the site's generic head instead of an error.
-     */
-    /**
+     *
      * @return array{0: SeoPage, 1: string} the page's head data and the site name
      */
     private function seo(PortfolioSeoResolver $seo, Request $request): array

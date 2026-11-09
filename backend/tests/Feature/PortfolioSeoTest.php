@@ -9,7 +9,9 @@ use App\Models\BlogCategory;
 use App\Models\Location;
 use App\Models\SeoRedirect;
 use App\Models\Tour;
+use App\Support\Seo\PublicSiteUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -136,6 +138,33 @@ class PortfolioSeoTest extends TestCase
         $this->assertStringContainsString('Sitemap: '.self::SITE.'/sitemap.xml', $canonical);
         $this->assertStringContainsString("Disallow: /\n", $staging);
         $this->assertStringNotContainsString('Allow: /', $staging);
+    }
+
+    public function test_robots_txt_lets_crawlers_load_the_public_content_api_only(): void
+    {
+        $canonical = $this->visit('/robots.txt')->assertOk()->getContent();
+
+        $this->assertStringContainsString("Allow: /api/portfolio/\n", $canonical);
+        $this->assertStringContainsString("Disallow: /api\n", $canonical);
+        $this->assertStringContainsString("Disallow: /api/portfolio/offers/*/pdf\n", $canonical);
+    }
+
+    public function test_front_controller_and_trailing_slash_addresses_redirect_to_the_clean_page(): void
+    {
+        $this->visit('/index.php')->assertStatus(301)->assertRedirect(self::SITE);
+        $this->visit('/index.php?id=5')->assertStatus(301)->assertRedirect(self::SITE.'?id=5');
+        $this->visit('/index.php/kapcsolat')->assertStatus(301)->assertRedirect(self::SITE.'/kapcsolat');
+        // The test client trims a bare trailing slash before sending, so that case is asserted on the request.
+        $this->assertSame('/kapcsolat', PublicSiteUrl::cleanRequestUri(Request::create(self::SITE.'/kapcsolat/')));
+        $this->visit('/kapcsolat/?utm_source=hirlevel')->assertStatus(301)->assertRedirect(self::SITE.'/kapcsolat?utm_source=hirlevel');
+    }
+
+    public function test_clean_addresses_are_served_without_a_redirect(): void
+    {
+        $this->visit('/')->assertOk();
+        $this->visit('/?utm_source=hirlevel')->assertOk();
+        $this->visit('/kapcsolat')->assertOk();
+        $this->visit('/index.phpx')->assertNotFound();
     }
 
     public function test_legacy_site_urls_redirect_to_their_new_pages(): void

@@ -20,6 +20,23 @@ final class PublicSiteUrl
     }
 
     /**
+     * The clean form of an address carrying the front controller's name or a
+     * trailing slash ("/index.php/kapcsolat", "/kapcsolat/"), which would otherwise
+     * answer as a duplicate of the page; null when the address is already clean.
+     */
+    public static function cleanRequestUri(Request $request): ?string
+    {
+        [$path, $query] = array_pad(explode('?', $request->getRequestUri(), 2), 2, null);
+        $cleanPath = '/'.trim((string) preg_replace('~^/index\.php(?=/|$)~', '', $path), '/');
+
+        if ($cleanPath === $path) {
+            return null;
+        }
+
+        return $query === null ? $cleanPath : "{$cleanPath}?{$query}";
+    }
+
+    /**
      * Whether the request reached the canonical host; any other host (staging,
      * server IP, old aliases) must not be indexed.
      */
