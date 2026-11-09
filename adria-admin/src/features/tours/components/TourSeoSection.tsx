@@ -46,9 +46,9 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
     <section className="space-y-4 rounded-2xl border bg-card p-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="font-semibold">SEO</h3>
+          <h3 className="font-semibold">Név és keresők</h3>
           <p className="text-sm text-muted-foreground">
-            Név, akciók, SEO név, valamint a keresőben megjelenő cím és leírás.
+            Név, akciók, webcím, valamint a keresőben megjelenő cím és leírás.
           </p>
         </div>
         <Button
@@ -128,7 +128,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="seoName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>SEO név</FormLabel>
+              <FormLabel>Webcím</FormLabel>
               <FormControl>
                 <Input
                   placeholder="korutazasok"
@@ -148,7 +148,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="seoTitle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>SEO cím</FormLabel>
+              <FormLabel>Keresőben megjelenő cím</FormLabel>
               <FormControl>
                 <Input placeholder="Üresen az utazás neve" {...field} />
               </FormControl>
@@ -165,7 +165,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="seoRobots"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Keresők (robots)</FormLabel>
+              <FormLabel>Megjelenjen a keresőkben?</FormLabel>
               <FormControl>
                 <select
                   className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
@@ -188,7 +188,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="seoDescription"
           render={({ field }) => (
             <FormItem className="md:col-span-2">
-              <FormLabel>SEO leírás</FormLabel>
+              <FormLabel>Keresőben megjelenő leírás</FormLabel>
               <FormControl>
                 <Textarea
                   rows={3}

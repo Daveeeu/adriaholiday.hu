@@ -300,7 +300,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.priceBox.discountBadge`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Kedvezmény badge</FormLabel>
+                  <FormLabel>Kedvezmény címke</FormLabel>
                   <FormControl>
                     <Input placeholder="-15%" {...dateField} />
                   </FormControl>

@@ -46,7 +46,7 @@ export function HomepageOffersToolbar({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             className="pl-9"
-            placeholder="Keresés név, link vagy SEO név alapján..."
+            placeholder="Keresés név, link vagy webcím alapján..."
           />
         </div>
 

@@ -59,7 +59,7 @@ export function CouponsPage() {
       description:
         'Kuponkezelő lista oldalsó szerkesztéssel, aktív jelzőkkel és lejárati dátummal.',
       toolbarTitle: 'Kuponok',
-      toolbarDescription: 'Keresés, rendezés és CRUD műveletek.',
+      toolbarDescription: 'Keresés a kuponok között.',
       searchPlaceholder: 'Keresés név, email, kuponkód vagy lejárat alapján...',
       createLabel: 'Új kupon',
       emptyText: 'Nincs a keresésnek megfelelő kupon.',
@@ -99,7 +99,7 @@ export function CouponsPage() {
       panelDescription: (mode: 'create' | 'edit' | 'detail', record: Coupon | null) => {
         if (mode === 'create') return 'Hozz létre új kuponkódot és állítsd be az értékét.';
         if (mode === 'edit') return 'Frissítsd a kupon adatait.';
-        return record ? `${formatMoney(record.value)} • ${formatDateTime(record.createdAt)}` : 'Válassz egy rekordot a listából.';
+        return record ? `${formatMoney(record.value)} • ${formatDateTime(record.createdAt)}` : 'Válassz egy elemet a listából.';
       },
       renderPanel: ({
         mode,

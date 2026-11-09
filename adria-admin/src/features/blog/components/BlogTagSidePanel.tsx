@@ -100,7 +100,7 @@ export function BlogTagSidePanel({
           <>
             {onToggleActive ? (
               <Button type="button" variant="outline" onClick={onToggleActive}>
-                {tag.active ? 'Deaktiválás' : 'Aktiválás'}
+                {tag.active ? 'Inaktiválás' : 'Aktiválás'}
               </Button>
             ) : null}
             {onDelete ? (

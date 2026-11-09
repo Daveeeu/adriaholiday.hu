@@ -445,7 +445,7 @@ export function ToursPage() {
             className="-ml-3"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            XML-ben szerepel <ArrowUpDown className="size-4" />
+            Partnerportálon megjelenik <ArrowUpDown className="size-4" />
           </Button>
         ),
         cell: ({ row }) => <TourBooleanBadge value={row.original.xmlEnabled} />,
@@ -488,8 +488,8 @@ export function ToursPage() {
               <Button
                 variant="outline"
                 size="icon"
-                title={row.original.active ? 'Kikapcsolás' : 'Bekapcsolás'}
-                aria-label={row.original.active ? 'Kikapcsolás' : 'Bekapcsolás'}
+                title={row.original.active ? 'Inaktiválás' : 'Aktiválás'}
+                aria-label={row.original.active ? 'Inaktiválás' : 'Aktiválás'}
                 onClick={() =>
                   statusMutation.mutate({
                     tourId: row.original.id,
@@ -633,7 +633,7 @@ export function ToursPage() {
         <p className="text-sm font-medium text-primary">Körutazások</p>
         <h1 className="text-3xl font-semibold tracking-tight">Ajánlatok</h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          A körutazási ajánlatok kezelése, többféle szűréssel és side paneles szerkesztéssel.
+          A körutazási ajánlatok kezelése.
         </p>
       </div>
 
@@ -697,8 +697,8 @@ export function ToursPage() {
             value={xmlEnabled}
             onChange={(event) => setXmlEnabled(event.target.value as typeof xmlEnabled)}
           >
-            <option value="all">XML állapot</option>
-            <option value="true">XML-ben szerepel</option>
+            <option value="all">Partnerportál</option>
+            <option value="true">Partnerportálon megjelenik</option>
             <option value="false">Nem szerepel</option>
           </Select>
 
@@ -715,7 +715,6 @@ export function ToursPage() {
 
       <ToursTable
         table={table}
-        sorting={sorting}
         pagination={pagination}
         totalCount={totalCount}
         onPageSizeChange={(pageSize) =>

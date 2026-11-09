@@ -69,7 +69,7 @@ export function ActivityLogFiltersBar({
       </label>
 
       <label className="space-y-1 text-xs font-medium text-muted-foreground">
-        Rekordtípus
+        Elem típusa
         <select
           className={selectClassName}
           value={filters.subjectType ?? ''}

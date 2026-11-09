@@ -136,7 +136,7 @@ export function DataTable<T>({
                     className="py-8"
                   >
                     <CrudEmptyState
-                      title="Nincs megjeleníthető rekord"
+                      title="Nincs találat"
                       description={emptyText}
                     />
                   </TableCell>
@@ -163,8 +163,8 @@ export function DataTable<T>({
         <div className="flex flex-col gap-3 rounded-2xl border bg-muted/25 px-4 py-3 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
           <div>
             {totalCount === 0
-              ? 'Nincs megjeleníthető rekord.'
-              : `${start}-${end} / ${totalCount} rekord`}
+              ? 'Nincs találat.'
+              : `${start}-${end} / ${totalCount} találat`}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <label className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">

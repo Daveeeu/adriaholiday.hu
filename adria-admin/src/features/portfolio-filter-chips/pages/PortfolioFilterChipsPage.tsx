@@ -51,16 +51,16 @@ const EMPTY_FORM: PortfolioFilterChipUpsertInput = {
 };
 
 const ICON_OPTIONS = [
-  { value: 'waves', label: 'Waves' },
-  { value: 'building-2', label: 'Building' },
-  { value: 'mountain', label: 'Tree / Nature' },
-  { value: 'bus', label: 'Bus' },
-  { value: 'plane', label: 'Plane' },
-  { value: 'sparkles', label: 'Sun / Sparkles' },
-  { value: 'tag', label: 'Tag' },
-  { value: 'map', label: 'Map' },
-  { value: 'compass', label: 'Compass' },
-  { value: 'wallet', label: 'Wallet' },
+  { value: 'waves', label: 'Hullámok' },
+  { value: 'building-2', label: 'Épület' },
+  { value: 'mountain', label: 'Fa / természet' },
+  { value: 'bus', label: 'Busz' },
+  { value: 'plane', label: 'Repülő' },
+  { value: 'sparkles', label: 'Nap / csillogás' },
+  { value: 'tag', label: 'Címke' },
+  { value: 'map', label: 'Térkép' },
+  { value: 'compass', label: 'Iránytű' },
+  { value: 'wallet', label: 'Pénztárca' },
 ] as const;
 
 function getFormValues(chip?: PortfolioFilterChip): PortfolioFilterChipUpsertInput {
@@ -122,7 +122,7 @@ function translateFilterType(type: PortfolioFilterChip['filterType']) {
     case 'price':
       return 'Ár';
     default:
-      return 'Custom';
+      return 'Egyéni';
   }
 }
 
@@ -205,7 +205,7 @@ export function PortfolioFilterChipsPage() {
     mutationFn: createPortfolioFilterChip,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey });
-      toast.success('Filter chip létrehozva.');
+      toast.success('Szűrőgomb létrehozva.');
       setDialogOpen(false);
       setSelectedChip(undefined);
     },
@@ -217,7 +217,7 @@ export function PortfolioFilterChipsPage() {
       updatePortfolioFilterChip(id, values),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey });
-      toast.success('Filter chip módosítva.');
+      toast.success('Szűrőgomb módosítva.');
       setDialogOpen(false);
       setSelectedChip(undefined);
     },
@@ -228,7 +228,7 @@ export function PortfolioFilterChipsPage() {
     mutationFn: deletePortfolioFilterChip,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey });
-      toast.success('Filter chip törölve.');
+      toast.success('Szűrőgomb törölve.');
       setDialogOpen(false);
       setSelectedChip(undefined);
     },
@@ -344,7 +344,7 @@ export function PortfolioFilterChipsPage() {
         const parsed = JSON.parse(customConfigText || '{}') as Record<string, unknown>;
         filterConfig = Object.keys(parsed).length > 0 ? parsed : null;
       } catch {
-        toast.error('A custom filter config csak érvényes JSON lehet.');
+        toast.error('Az egyéni beállítás csak érvényes JSON lehet.');
         return;
       }
     }
@@ -377,7 +377,7 @@ export function PortfolioFilterChipsPage() {
 
   const formatScope = (chip: PortfolioFilterChip) => {
     if (chip.scopeType === 'global') {
-      return 'Globális';
+      return 'Minden oldalon';
     }
     if (chip.scopeType === 'category') {
       return `Kategória: ${optionLabelMaps.categoryScope.get(chip.scopeValue ?? '') ?? chip.scopeValue ?? '—'}`;
@@ -411,14 +411,14 @@ export function PortfolioFilterChipsPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-primary">Portfólió</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Filter chipek</h1>
+        <p className="text-sm font-medium text-primary">Honlap</p>
+        <h1 className="text-3xl font-semibold tracking-tight">Szűrőgombok</h1>
       </div>
 
       <div className="rounded-2xl border bg-card p-4 shadow-sm">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold tracking-tight">Kategória oldali filter chipek</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Szűrőgombok a kategóriaoldalakon</h2>
             <p className="text-sm text-muted-foreground">{data.totalCount} találat.</p>
           </div>
           {canCreate ? (
@@ -426,7 +426,7 @@ export function PortfolioFilterChipsPage() {
               onClick={() => openDialog()}
             >
               <Plus className="size-4" />
-              Új filter chip
+              Új szűrőgomb
             </Button>
           ) : null}
         </div>
@@ -437,7 +437,7 @@ export function PortfolioFilterChipsPage() {
               setSearch(event.target.value);
               setPage(1);
             }}
-            placeholder="Keresés címke, slug vagy scope alapján..."
+            placeholder="Keresés címke vagy webcím alapján..."
           />
         </div>
       </div>
@@ -449,8 +449,8 @@ export function PortfolioFilterChipsPage() {
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Címke</TableHead>
-                <TableHead>Scope</TableHead>
-                <TableHead>Filter</TableHead>
+                <TableHead>Hol jelenik meg</TableHead>
+                <TableHead>Szűrés</TableHead>
                 <TableHead>Sorrend</TableHead>
                 <TableHead>Állapot</TableHead>
                 <TableHead className="text-right">Műveletek</TableHead>
@@ -507,7 +507,7 @@ export function PortfolioFilterChipsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={7} className="h-28 text-center text-sm text-muted-foreground">
-                    Nincs megjeleníthető filter chip.
+                    Nincs találat.
                   </TableCell>
                 </TableRow>
               )}
@@ -536,14 +536,14 @@ export function PortfolioFilterChipsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{selectedChip ? 'Filter chip szerkesztése' : 'Új filter chip'}</DialogTitle>
+            <DialogTitle>{selectedChip ? 'Szűrőgomb szerkesztése' : 'Új szűrőgomb'}</DialogTitle>
           </DialogHeader>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Label">
+            <Field label="Felirat">
               <Input value={formValues.label} onChange={(event) => setFormValues((current) => ({ ...current, label: event.target.value }))} />
             </Field>
-            <Field label="Slug">
+            <Field label="Webcím">
               <Input value={formValues.slug} onChange={(event) => setFormValues((current) => ({ ...current, slug: event.target.value }))} />
             </Field>
             <Field label="Ikon">
@@ -562,7 +562,7 @@ export function PortfolioFilterChipsPage() {
             <Field label="Sorrend">
               <Input type="number" value={formValues.sortOrder} onChange={(event) => setFormValues((current) => ({ ...current, sortOrder: Number(event.target.value) || 0 }))} />
             </Field>
-            <Field label="Scope típus">
+            <Field label="Hol jelenjen meg">
               <select
                 value={formValues.scopeType}
                 onChange={(event) =>
@@ -574,14 +574,14 @@ export function PortfolioFilterChipsPage() {
                 }
                 className="h-10 rounded-md border border-input bg-background px-3 text-sm"
               >
-                <option value="global">Globális</option>
+                <option value="global">Minden oldalon</option>
                 <option value="category">Kategória</option>
                 <option value="homepage_offer">Főoldali ajánlat</option>
               </select>
             </Field>
-            <Field label="Scope érték">
+            <Field label="Melyik oldalon">
               {formValues.scopeType === 'global' ? (
-                <Input value="" disabled placeholder="Globális chipnél nincs scope érték" />
+                <Input value="" disabled placeholder="Ennél a beállításnál nem kell megadni" />
               ) : (
                 <select
                   value={formValues.scopeValue ?? ''}
@@ -597,7 +597,7 @@ export function PortfolioFilterChipsPage() {
                 </select>
               )}
             </Field>
-            <Field label="Filter típus">
+            <Field label="Szűrés típusa">
               <select
                 value={formValues.filterType}
                 onChange={(event) =>
@@ -615,10 +615,10 @@ export function PortfolioFilterChipsPage() {
                 <option value="category">Kategória</option>
                 <option value="country">Ország</option>
                 <option value="price">Ár</option>
-                <option value="custom">Custom</option>
+                <option value="custom">Egyéni</option>
               </select>
             </Field>
-            <Field label="Filter érték">
+            <Field label="Szűrés értéke">
               {['travel_mode', 'tag', 'theme', 'category', 'country'].includes(formValues.filterType) ? (
                 <select
                   value={formValues.filterValue ?? ''}
@@ -651,14 +651,14 @@ export function PortfolioFilterChipsPage() {
                 <Input
                   value={formValues.filterValue ?? ''}
                   onChange={(event) => setFormValues((current) => ({ ...current, filterValue: event.target.value }))}
-                  placeholder="Custom érték"
+                  placeholder="Egyéni érték"
                 />
               )}
             </Field>
           </div>
 
           {formValues.filterType === 'custom' ? (
-            <Field label="Custom config JSON">
+            <Field label="Egyéni beállítás (fejlesztőknek)">
               <div className="space-y-2">
                 <p className="text-xs text-amber-600">Haladó beállítás. Csak fejlesztői használatra.</p>
                 <Textarea

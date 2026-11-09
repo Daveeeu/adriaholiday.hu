@@ -113,7 +113,7 @@ export function BannerGeneratorPage() {
       panelDescription: (mode: 'create' | 'edit' | 'detail', record: PartnerBanner | null) => {
         if (mode === 'create') return 'Állítsd be a banner méretét, képét és beágyazó kódját.';
         if (mode === 'edit') return 'Frissítsd a banner konfigurációját.';
-        return record ? `${record.width}x${record.height} • ${formatDateTime(record.updatedAt)}` : 'Válassz egy rekordot a listából.';
+        return record ? `${record.width}x${record.height} • ${formatDateTime(record.updatedAt)}` : 'Válassz egy elemet a listából.';
       },
       renderPanel: ({
         mode,

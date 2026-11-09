@@ -103,7 +103,7 @@ export const gettingStartedChapter: GuideChapter = {
         fields('Listák', [
           field(
             'Kereső',
-            'Gépelés közben szűri a listát. Minden oldalon a mező szürke szövege mutatja, mi alapján keres (pl. név, SEO név, e-mail).',
+            'Gépelés közben szűri a listát. Minden oldalon a mező szürke szövege mutatja, mi alapján keres (pl. név, Webcím, e-mail).',
           ),
           field(
             'Szűrők (legördülő listák)',
@@ -150,15 +150,15 @@ export const gettingStartedChapter: GuideChapter = {
             'Szám, amely a megjelenítés sorrendjét adja: a kisebb szám kerül előrébb.',
           ),
           field(
-            'Slug / SEO név',
+            'Webcím',
             'Az elem webcímben (URL-ben) használt neve, ékezetek és szóközök nélkül, kötőjelekkel (pl. del-erdely-es-a-vaskapu-szoros). A „Generálás” gomb vagy az „Automatikus generálás” jelölő a névből készíti el. Már élő oldal SEO nevét csak indokolt esetben módosítsd, mert a régi cím megszűnik – ilyenkor vegyél fel átirányítást.',
           ),
           field(
-            'SEO cím és SEO leírás',
+            'Keresőben megjelenő cím és Keresőben megjelenő leírás',
             'A keresőkben megjelenő cím és leírás. Ha üresen hagyod, a rendszer a névből és a leírás elejéből készíti el. A leírás ideális hossza 120–160 karakter, a mező alatt látod a karakterszámot.',
           ),
           field(
-            'Keresők (robots)',
+            'Megjelenjen a keresőkben?',
             '„Alapértelmezett (indexelhető)”: a keresők megjeleníthetik az oldalt. „Ne jelenjen meg a keresőkben”: a Google nem veszi fel a találatok közé. Belső vagy ideiglenes oldalaknál hasznos.',
           ),
           field(
@@ -173,7 +173,7 @@ export const gettingStartedChapter: GuideChapter = {
           ),
           field(
             'Kép kiválasztása',
-            'A képmezőknél feltölthetsz új fájlt a gépedről (húzd rá a mezőre vagy kattints), vagy kiválaszthatsz egy korábban feltöltött képet a médiatárból. A feltöltött kép automatikusan bekerül a Galériák (médiatár) oldalra is.',
+            'A képmezőknél feltölthetsz új fájlt a gépedről (húzd rá a mezőre vagy kattints), vagy kiválaszthatsz egy korábban feltöltött képet a médiatárból. A feltöltött kép automatikusan bekerül a Képek és média oldalra is.',
           ),
           field(
             'Alt szöveg és kép címe',
@@ -192,7 +192,7 @@ export const gettingStartedChapter: GuideChapter = {
         'Mindenki csak azokat a menüpontokat és gombokat látja, amelyekhez a szerepköre jogot ad. Ez a kézikönyv viszont mindenkinek elérhető.',
       blocks: [
         list([
-          'A jogosultságokat szerepkörök (role-ok) fogják össze, pl. „Super Admin” vagy „Marketing”. Egy felhasználónak több szerepköre is lehet.',
+          'A jogosultságokat szerepkörök fogják össze, pl. „Főadminisztrátor” vagy „Marketing”. Egy felhasználónak több szerepköre is lehet.',
           'Ha egy menüpont hiányzik, vagy egy oldalon „Nincs jogosultságod ehhez az oldalhoz” üzenet jelenik meg, a rendszergazdától kérj hozzáférést.',
           'A listákon a szerkesztés, törlés, másolás gombok is jogosultsághoz kötöttek: lehet, hogy egy oldalt látsz, de módosítani nem tudod.',
           'A jogosultságok kezelését a „Rendszergazda” fejezet írja le részletesen.',

@@ -233,9 +233,6 @@ export function RichTextEditor({
             <TabsTrigger value="edit">Szerkesztés</TabsTrigger>
             <TabsTrigger value="preview">Előnézet</TabsTrigger>
           </TabsList>
-          <div className="text-xs text-muted-foreground">
-            HTML mentés, sanitizált előnézet
-          </div>
         </div>
 
         <TabsContent value="edit" className="space-y-2">
@@ -463,7 +460,7 @@ function RichTextToolbar({
               disabled={disabled}
               onClick={() => editor.chain().focus().unsetColor().run()}
             >
-              reset
+              Visszaállítás
             </button>
           </label>
         ) : null}
@@ -495,7 +492,7 @@ function RichTextToolbar({
                 editor.chain().focus().unsetBackgroundColor().run()
               }
             >
-              reset
+              Visszaállítás
             </button>
           </label>
         ) : null}

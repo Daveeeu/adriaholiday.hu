@@ -615,3 +615,37 @@ UI work is complete only when:
 ✅ Consistent with other admin pages
 
 ✅ Production ready
+---
+
+# Admin Wording
+
+The admin is used by travel agency staff, not developers.
+
+Never show technical words in the interface: CRUD, API, REST, Laravel, JSON, readonly, record, metadata, module, slug, CTA, hero, badge, scope.
+
+Stored names stay in code and the database; translate them where they are displayed:
+
+- `features/roles/lib/role-labels.ts`
+- `features/permissions/lib/permission-labels.ts`
+- `features/analytics/lib/analytics-labels.ts`
+
+Use these words consistently:
+
+| Say | Instead of |
+| --- | --- |
+| Honlap | Portfólió, portfolio |
+| Webcím | Slug, SEO név |
+| Gomb | CTA |
+| Nyitókép | Hero |
+| Címke | Badge |
+| Árdoboz | PriceBox |
+| Szerepkör | Role |
+| Jogosultság | Permission |
+| Szűrőgomb | Filter chip |
+| Partnerportál | XML |
+| Piszkozat, Közzétéve | Draft, Published |
+| Elem, vagy a dolog neve | Rekord |
+| Aktiválás, Inaktiválás | Bekapcsolás, Kikapcsolás, Deaktiválás |
+| Ügyfél | Partner, when it means the traveller |
+
+When a label changes, update the matching text in `features/user-guide/content`.

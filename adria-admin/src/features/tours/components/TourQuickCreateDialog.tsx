@@ -55,7 +55,7 @@ const KIND_LABELS: Record<TourQuickCreateKind, string> = {
 function codeLabelForKind(kind: TourQuickCreateKind) {
   switch (kind) {
     case 'region':
-      return 'Slug / SEO név';
+      return 'Webcím';
     case 'group':
     case 'offer-group':
     case 'fit':
@@ -63,10 +63,10 @@ function codeLabelForKind(kind: TourQuickCreateKind) {
     case 'travel-mode':
     case 'difficulty':
     case 'country':
-      return 'Kód / value';
+      return 'Kód';
     case 'tag':
     case 'category':
-      return 'Slug / SEO név';
+      return 'Webcím';
     case 'departure-place':
       return '';
   }
@@ -152,7 +152,7 @@ export function TourQuickCreateDialog({
                   setCode(event.target.value);
                   setCodeTouched(true);
                 }}
-                placeholder="auto-generált"
+                placeholder="automatikus"
               />
             </div>
           ) : null}

@@ -174,7 +174,7 @@ export function HomepageOfferForm({
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center justify-between gap-3">
-                    <FormLabel>SEO név</FormLabel>
+                    <FormLabel>Webcím</FormLabel>
                     <FormField
                       control={form.control}
                       name={`translations.${activeLanguage}.seoAutoGenerate`}

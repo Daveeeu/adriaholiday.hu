@@ -3,6 +3,11 @@ import { useQuery } from '@tanstack/react-query';
 import { BarChart3, CalendarRange, Filter, Funnel, MousePointerClick, MousePointerSquareDashed, Tags, TicketPercent } from 'lucide-react';
 
 import { PageLoader } from '@/components/common/page-loader';
+import {
+  getAnalyticsCtaLabel,
+  getAnalyticsEntityTypeLabel,
+  getAnalyticsEventLabel,
+} from '@/features/analytics/lib/analytics-labels';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -188,30 +193,29 @@ export function AnalyticsPage() {
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Analytics dashboard V1
+                A honlap forgalma
               </h1>
               <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                First-party analytics riport az `analytics_events` táblából. A kártyák,
-                toplisták és eseménytábla ugyanazokat a dátum- és entitásszűrőket használják.
+                Mit csinálnak a látogatók a honlapon. A kártyákra és a listákra ugyanazok a szűrők vonatkoznak.
               </p>
             </div>
           </div>
 
           <Card className="border-white/40 bg-background/80 shadow-sm backdrop-blur">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Gyakori CTA-k</CardTitle>
+              <CardTitle className="text-lg">Gyakori gombok</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {summary.topCtas.length > 0 ? (
                 summary.topCtas.slice(0, 4).map((cta) => (
                   <div key={cta.ctaName} className="flex items-center justify-between rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
-                    <span className="text-sm text-muted-foreground">{cta.ctaName}</span>
+                    <span className="text-sm text-muted-foreground">{getAnalyticsCtaLabel(cta.ctaName)}</span>
                     <span className="text-lg font-semibold">{formatNumber(cta.eventCount)}</span>
                   </div>
                 ))
               ) : (
                 <div className="rounded-2xl border border-dashed border-border/60 px-4 py-6 text-sm text-muted-foreground">
-                  A kiválasztott szűrőkkel nincs CTA adat.
+                  A kiválasztott szűrőkkel nincs gombkattintás.
                 </div>
               )}
             </CardContent>
@@ -258,13 +262,13 @@ export function AnalyticsPage() {
               <option value="">Összes</option>
               {EVENT_OPTIONS.filter(Boolean).map((option) => (
                 <option key={option} value={option}>
-                  {option}
+                  {getAnalyticsEventLabel(option)}
                 </option>
               ))}
             </Select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Entitás típus</label>
+            <label className="text-sm font-medium">Tartalom típusa</label>
             <Select
               value={filters.entityType}
               onChange={(event) => {
@@ -275,13 +279,13 @@ export function AnalyticsPage() {
               <option value="">Összes</option>
               {ENTITY_TYPE_OPTIONS.filter(Boolean).map((option) => (
                 <option key={option} value={option}>
-                  {option}
+                  {getAnalyticsEntityTypeLabel(option)}
                 </option>
               ))}
             </Select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Entity slug</label>
+            <label className="text-sm font-medium">Oldal webcíme</label>
             <Input
               placeholder="offer-alfa"
               value={filters.entitySlug}
@@ -292,7 +296,7 @@ export function AnalyticsPage() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">UTM kampány</label>
+            <label className="text-sm font-medium">Kampány</label>
             <Input
               placeholder="summer-launch"
               value={filters.utmCampaign}
@@ -303,7 +307,7 @@ export function AnalyticsPage() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Offer slug (funnel)</label>
+            <label className="text-sm font-medium">Ajánlat webcíme (tölcsérhez)</label>
             <Input
               placeholder="offer-alfa"
               value={filters.offerSlug}
@@ -314,7 +318,7 @@ export function AnalyticsPage() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Category slug (funnel)</label>
+            <label className="text-sm font-medium">Kategória webcíme (tölcsérhez)</label>
             <Input
               placeholder="korutazasok"
               value={filters.categorySlug}
@@ -349,13 +353,13 @@ export function AnalyticsPage() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AnalyticsMetricCard label="Összes page_view" value={summary.counts.pageViews} hint="Oldalmegtekintés események" icon={metricIcons[0]} />
-        <AnalyticsMetricCard label="Összes offer_view" value={summary.counts.offerViews} hint="Ajánlat részletmegtekintések" icon={metricIcons[1]} />
-        <AnalyticsMetricCard label="Összes category_view" value={summary.counts.categoryViews} hint="Kategóriaoldal megtekintések" icon={metricIcons[2]} />
-        <AnalyticsMetricCard label="CTA kattintások" value={summary.counts.ctaClicks} hint="Közös CTA helperből mért kattintások" icon={metricIcons[3]} />
-        <AnalyticsMetricCard label="PriceBox megjelenések" value={summary.counts.priceboxViews} hint="Offer oldali PriceBox view események" icon={metricIcons[4]} />
-        <AnalyticsMetricCard label="Date select" value={summary.counts.dateSelects} hint="Utazási dátum választások" icon={metricIcons[5]} />
-        <AnalyticsMetricCard label="Filter click" value={summary.counts.filterClicks} hint="Kategória szűrő használatok" icon={metricIcons[6]} />
+        <AnalyticsMetricCard label="Oldalmegtekintések" value={summary.counts.pageViews} hint="A honlap összes oldalmegtekintése." icon={metricIcons[0]} />
+        <AnalyticsMetricCard label="Ajánlat megtekintések" value={summary.counts.offerViews} hint="Hányszor nyitottak meg ajánlatot." icon={metricIcons[1]} />
+        <AnalyticsMetricCard label="Kategóriaoldal megtekintések" value={summary.counts.categoryViews} hint="Hányszor nyitottak meg kategóriaoldalt." icon={metricIcons[2]} />
+        <AnalyticsMetricCard label="Gombkattintások" value={summary.counts.ctaClicks} hint="Kattintások a honlap fő gombjaira." icon={metricIcons[3]} />
+        <AnalyticsMetricCard label="Árdoboz megjelenések" value={summary.counts.priceboxViews} hint="Hányszor látszott az árdoboz az ajánlat oldalán." icon={metricIcons[4]} />
+        <AnalyticsMetricCard label="Időpontválasztások" value={summary.counts.dateSelects} hint="Hányszor választottak utazási időpontot." icon={metricIcons[5]} />
+        <AnalyticsMetricCard label="Szűrőhasználat" value={summary.counts.filterClicks} hint="Hányszor használták a kategóriaoldal szűrőit." icon={metricIcons[6]} />
       </div>
 
       <Card className="border-border/60 bg-card/95 shadow-sm">
@@ -376,7 +380,6 @@ export function AnalyticsPage() {
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
                       <div className="text-sm font-semibold text-foreground">{index + 1}. {step.label}</div>
-                      <div className="text-xs text-muted-foreground">{step.key}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-semibold">{formatNumber(step.count)}</div>
@@ -406,15 +409,15 @@ export function AnalyticsPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <Card className="border-border/60 bg-card/95 shadow-sm">
           <CardHeader>
-            <CardTitle>Top ajánlatok</CardTitle>
+            <CardTitle>Legnézettebb ajánlatok</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Slug</TableHead>
+                  <TableHead>Webcím</TableHead>
                   <TableHead>Megtekintés</TableHead>
-                  <TableHead>Egyedi visitor</TableHead>
+                  <TableHead>Egyedi látogató</TableHead>
                   <TableHead>Utolsó esemény</TableHead>
                 </TableRow>
               </TableHeader>
@@ -438,15 +441,15 @@ export function AnalyticsPage() {
 
         <Card className="border-border/60 bg-card/95 shadow-sm">
           <CardHeader>
-            <CardTitle>Top kategóriák</CardTitle>
+            <CardTitle>Legnézettebb kategóriák</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Slug</TableHead>
+                  <TableHead>Webcím</TableHead>
                   <TableHead>Megtekintés</TableHead>
-                  <TableHead>Egyedi visitor</TableHead>
+                  <TableHead>Egyedi látogató</TableHead>
                   <TableHead>Utolsó esemény</TableHead>
                 </TableRow>
               </TableHeader>
@@ -479,8 +482,8 @@ export function AnalyticsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Esemény</TableHead>
-                  <TableHead>Entitás</TableHead>
-                  <TableHead>UTM kampány</TableHead>
+                  <TableHead>Tartalom</TableHead>
+                  <TableHead>Kampány</TableHead>
                   <TableHead>Oldal</TableHead>
                   <TableHead>Időpont</TableHead>
                 </TableRow>
@@ -489,8 +492,8 @@ export function AnalyticsPage() {
                 {events.items.length > 0 ? (
                   events.items.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.eventName}</TableCell>
-                      <TableCell>{item.entitySlug ?? item.entityType ?? 'Nincs'}</TableCell>
+                      <TableCell className="font-medium">{getAnalyticsEventLabel(item.eventName)}</TableCell>
+                      <TableCell>{item.entitySlug ?? (item.entityType ? getAnalyticsEntityTypeLabel(item.entityType) : 'Nincs')}</TableCell>
                       <TableCell>{item.utmCampaign ?? 'Nincs'}</TableCell>
                       <TableCell className="max-w-[240px] truncate">{item.pagePath}</TableCell>
                       <TableCell>{formatDateTime(item.createdAt)}</TableCell>
@@ -520,16 +523,16 @@ export function AnalyticsPage() {
 
         <Card className="border-border/60 bg-card/95 shadow-sm">
           <CardHeader>
-            <CardTitle>Top UTM kampányok</CardTitle>
+            <CardTitle>Legjobb kampányok</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Kampány</TableHead>
-                  <TableHead>Összes event</TableHead>
-                  <TableHead>Offer view</TableHead>
-                  <TableHead>Visitor</TableHead>
+                  <TableHead>Összes esemény</TableHead>
+                  <TableHead>Ajánlat megtekintése</TableHead>
+                  <TableHead>Látogató</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -543,7 +546,7 @@ export function AnalyticsPage() {
                     </TableRow>
                   ))
                 ) : (
-                  <EmptyTableRow colSpan={4} label="Nincs UTM kampány adat a kiválasztott szűrőkkel." />
+                  <EmptyTableRow colSpan={4} label="Nincs kampány adat a kiválasztott szűrőkkel." />
                 )}
               </TableBody>
             </Table>

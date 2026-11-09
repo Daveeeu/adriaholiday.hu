@@ -55,9 +55,9 @@ function summarize(entry: ActivityLogEntry) {
 
   if (entry.changes.length === 0) return '—';
   if (entry.event === 'created')
-    return `Új rekord, ${entry.changes.length} mező kitöltve`;
+    return `Új elem, ${entry.changes.length} mező kitöltve`;
   if (entry.event === 'deleted')
-    return `Törölt rekord, ${entry.changes.length} mező mentve`;
+    return `Törölt elem, ${entry.changes.length} mező mentve`;
 
   const fields = entry.changes
     .slice(0, MAX_SUMMARY_FIELDS)
@@ -101,7 +101,7 @@ export function ActivityLogPage() {
         <p className="text-sm font-medium text-primary">Rendszergazda</p>
         <h1 className="text-3xl font-semibold tracking-tight">Napló</h1>
         <p className="text-sm text-muted-foreground">
-          Ki és mikor lépett be az adminba, és ki melyik rekordot hozta létre,
+          Ki és mikor lépett be az adminba, és ki melyik elemet hozta létre,
           módosította vagy törölte. Egy sorra kattintva látod, mi változott.
         </p>
       </div>
@@ -123,7 +123,7 @@ export function ActivityLogPage() {
                 <TableHead className="whitespace-nowrap">Időpont</TableHead>
                 <TableHead>Felhasználó</TableHead>
                 <TableHead>Művelet</TableHead>
-                <TableHead>Rekord</TableHead>
+                <TableHead>Elem</TableHead>
                 <TableHead>Részletek</TableHead>
               </TableRow>
             </TableHeader>

@@ -78,7 +78,7 @@ function ProgramDayBadgesField({
 
       <div className="space-y-2">
         {fields.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nincs még badge megadva.</p>
+          <p className="text-sm text-muted-foreground">Nincs még címke megadva.</p>
         ) : (
           fields.map((field, badgeIndex) => (
             <div key={field.id} className="grid gap-2 md:grid-cols-[1fr_auto]">

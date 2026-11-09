@@ -99,25 +99,10 @@ export function LoginPage() {
                 Belépés a tartalom- és foglaláskezelő felületre.
               </h1>
               <p className="max-w-xl text-base text-white/70 md:text-lg">
-                Az admin felület most már a Laravel backend által hitelesített
-                felhasználóval működik. Jelentkezz be a folytatáshoz.
+                Jelentkezz be a folytatáshoz.
               </p>
             </div>
 
-            <div className="grid max-w-2xl gap-4 sm:grid-cols-3">
-              {[
-                'Sanctum token alapú auth',
-                'Role és permission kezelés',
-                'API + SPA egy domainen',
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="rounded-2xl border border-white/12 bg-white/6 p-4 text-sm text-white/80 backdrop-blur"
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="flex items-center justify-center">
@@ -128,7 +113,7 @@ export function LoginPage() {
                 </div>
                 <CardTitle className="text-2xl">Admin belépés</CardTitle>
                 <CardDescription className="text-white/60">
-                  Add meg a Laravel backend admin fiókodat.
+                  Add meg az e-mail címedet és a jelszavadat.
                 </CardDescription>
               </CardHeader>
               <CardContent>

@@ -22,7 +22,7 @@ export function ToursToolbar({
           <Input
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Keresés név, SEO vagy akció alapján..."
+            placeholder="Keresés név, webcím vagy akció alapján..."
             className="pl-9"
           />
         </div>

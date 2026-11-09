@@ -37,7 +37,7 @@ export const toursChapter: GuideChapter = {
         img(
           'tours-list',
           'A körutazások listája',
-          'Az ajánlatok listája: felül a kereső és az „Új körutazás” gomb, alatta a szűrők, a táblázatban pedig utanként a fő jelölők (Kiemelt, Aktív, Képes ajánlat, XML-ben szerepel).',
+          'Az ajánlatok listája: felül a kereső és az „Új körutazás” gomb, alatta a szűrők, a táblázatban pedig utanként a fő jelölők (Kiemelt, Aktív, Képes ajánlat, Partnerportálokon megjelenik).',
         ),
         fields('Szűrők és oszlopok', [
           field(
@@ -61,7 +61,7 @@ export const toursChapter: GuideChapter = {
             'Az út besorolása (a szerkesztő „Szűrők és kapcsolatok” részében állítható).',
           ),
           field(
-            'Kiemelt, Aktív, Képes ajánlat, XML-ben szerepel',
+            'Kiemelt, Aktív, Képes ajánlat, Partnerportálokon megjelenik',
             'Igen / Nem jelzés a szerkesztő azonos nevű kapcsolói alapján.',
           ),
         ]),
@@ -105,11 +105,11 @@ export const toursChapter: GuideChapter = {
         steps(
           [
             'Kattints az „Új körutazás” gombra, vagy egy hasonló út sorában a másolás ikonra.',
-            'Töltsd ki legalább a nevet (SEO és elnevezés), az árat (Ár / PriceBox) és a régiót (Szűrők és kapcsolatok).',
+            'Töltsd ki legalább a nevet (Név és webcím), az árat (Árdoboz) és a régiót (Szűrők és kapcsolatok).',
             'Add meg az indulási időpontokat az „Időpontok” részben, szükség esetén a felárakkal.',
             'Írd meg a leírásokat és a programot, tölts fel képeket.',
             'Pipáld be az „Aktív?” és a „Megjelenik az ajánlatlistákban?” jelölőt, majd ments.',
-            'Nyisd meg az utat a weboldalon (/ajanlat/<SEO név>), és ellenőrizd a megjelenést.',
+            'Nyisd meg az utat a weboldalon (/ajanlat/<Webcím>), és ellenőrizd a megjelenést.',
           ],
           'Új út felvitele lépésről lépésre',
         ),
@@ -203,7 +203,7 @@ export const toursChapter: GuideChapter = {
             'Jelöli, hogy a régió/csoport kiemelt helyen szerepelhet.',
           ),
           field(
-            'SEO név + Automatikus generálás',
+            'Webcím + Automatikus generálás',
             'A webcímben használt név; az automatikus generálás a névből készíti.',
           ),
           field('Galéria', 'A régióhoz tartozó képek.'),
@@ -249,7 +249,7 @@ export const toursChapter: GuideChapter = {
             'Jelöli, hogy a csoport ajánlott utakat gyűjt.',
           ),
           field(
-            'SEO név + Automatikus generálás',
+            'Webcím + Automatikus generálás',
             'A csoport webcímben használt neve.',
           ),
         ]),

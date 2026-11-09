@@ -19,6 +19,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { RoleSidePanel } from '../components/RoleSidePanel';
 import { createRole, deleteRole, getRoles, updateRole } from '../lib/roles.api';
 import type { Role } from '../lib/roles.types';
+import { getRoleLabel } from '../lib/role-labels';
 
 const queryKey = ['roles'];
 
@@ -44,7 +45,7 @@ export function RolesPage() {
     mutationFn: createRole,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success('Role létrehozva.');
+      toast.success('Szerepkör létrehozva.');
       setPanelOpen(false);
     },
   });
@@ -53,7 +54,7 @@ export function RolesPage() {
       updateRole(id, values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success('Role módosítva.');
+      toast.success('Szerepkör módosítva.');
       setPanelOpen(false);
     },
   });
@@ -61,7 +62,7 @@ export function RolesPage() {
     mutationFn: deleteRole,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success('Role törölve.');
+      toast.success('Szerepkör törölve.');
       setPanelOpen(false);
     },
   });
@@ -72,9 +73,9 @@ export function RolesPage() {
       header: 'Megnevezés',
       cell: ({ row }) => (
         <div className="flex items-center gap-2 font-medium">
-          {row.original.name}
+          {getRoleLabel(row.original.name)}
           {row.original.isSystemRole ? (
-            <span title="Rendszer role">
+            <span title="Rendszerszerepkör">
               <ShieldAlert className="size-4 text-muted-foreground" />
             </span>
           ) : null}
@@ -115,7 +116,7 @@ export function RolesPage() {
               size="icon"
               onClick={() => {
                 if (row.original.usersCount > 0) {
-                  toast.error('A role nem törölhető, amíg felhasználók vannak hozzárendelve.');
+                  toast.error('A szerepkör nem törölhető, amíg felhasználók vannak hozzárendelve.');
                   return;
                 }
                 deleteMutation.mutate(row.original.id);
@@ -149,13 +150,13 @@ export function RolesPage() {
     <div className="space-y-6">
       <div className="space-y-2">
         <p className="text-sm font-medium text-primary">Rendszergazda</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Role-ok</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Szerepkörök</h1>
       </div>
 
       <div className="rounded-2xl border bg-card p-4 shadow-sm">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold tracking-tight">Role-ok kezelése</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Szerepkörök kezelése</h2>
             <p className="text-sm text-muted-foreground">{data.totalCount} találat.</p>
           </div>
           {canCreate ? (
@@ -166,7 +167,7 @@ export function RolesPage() {
                 setPanelOpen(true);
               }}
             >
-              Új role
+              Új szerepkör
             </Button>
           ) : null}
         </div>
@@ -174,7 +175,7 @@ export function RolesPage() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Keresés role név alapján..."
+            placeholder="Keresés szerepkör neve alapján..."
           />
         </div>
       </div>

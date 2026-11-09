@@ -118,7 +118,7 @@ const SOURCE_CONTEXT_LABELS: Record<string, string> = {
   tour: 'Körutazás',
   tour_program_pdf: 'Körutazás program PDF',
   apartment: 'Apartman',
-  portfolio_content: 'Portfólió tartalom',
+  portfolio_content: 'Főoldal tartalma',
   homepage_offer: 'Főoldali ajánlat',
   gallery: 'Galéria',
   region: 'Régió',
@@ -440,7 +440,7 @@ function MediaDetailSheet({
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
           <SheetHeader>
             <SheetTitle>Média részletei</SheetTitle>
-            <SheetDescription>Előnézet, kategória, metaadatok és használati információk.</SheetDescription>
+            <SheetDescription>Előnézet, kategória, adatok és az, hogy hol van használva.</SheetDescription>
           </SheetHeader>
 
           {media ? (
@@ -572,7 +572,7 @@ function MediaDetailSheet({
                     <span className="font-medium">{formatDateTimeLong(media.createdAt)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">Kategória badge</span>
+                    <span className="text-muted-foreground">Kategória címke</span>
                     <Badge>{media.categoryLabel || getMediaCategoryLabel(media.category)}</Badge>
                   </div>
                 </div>

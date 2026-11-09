@@ -222,7 +222,7 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
   }
 
   function handleDelete(record: T) {
-    if (!window.confirm('Biztosan törlöd ezt a rekordot?')) {
+    if (!window.confirm('Biztosan törlöd ezt az elemet?')) {
       return;
     }
 

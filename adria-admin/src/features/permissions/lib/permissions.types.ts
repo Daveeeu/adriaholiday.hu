@@ -1,3 +1,5 @@
+import { getPermissionGroupLabel } from './permission-labels';
+
 export type Permission = {
   id: string | number;
   name: string;
@@ -21,5 +23,5 @@ export function groupPermissions(permissions: Permission[]): PermissionGroup[] {
 
   return Array.from(groups.entries())
     .map(([group, groupPermissions]) => ({ group, permissions: groupPermissions }))
-    .sort((a, b) => a.group.localeCompare(b.group));
+    .sort((a, b) => getPermissionGroupLabel(a.group).localeCompare(getPermissionGroupLabel(b.group), 'hu'));
 }

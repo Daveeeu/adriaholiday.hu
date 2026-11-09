@@ -93,7 +93,7 @@ const columns = [
   },
   {
     key: 'partner',
-    label: 'Partner',
+    label: 'Ügyfél',
     sortable: true,
     render: (item: TourBooking) => (
       <div className="space-y-1">
@@ -184,7 +184,7 @@ export function TourBookingsPage() {
       description:
         'A körutazási foglalások, partner adatok és állapotok központi kezelése, modern listanézettel és oldalsó szerkesztőpanellel.',
       toolbarTitle: 'Körutazás foglalások',
-      toolbarDescription: 'Keresés, szűrés, rendezés, lapozás és gyors CRUD műveletek.',
+      toolbarDescription: 'Keresés és szűrés a foglalások között.',
       searchPlaceholder: 'Keresés partner, email vagy telefon alapján...',
       createLabel: 'Új foglalás',
       emptyText: 'Nincs a keresésnek megfelelő körutazás foglalás.',
@@ -266,7 +266,7 @@ export function TourBookingsPage() {
       panelDescription: (mode: 'create' | 'edit' | 'detail', record: TourBooking | null) => {
         if (mode === 'create') return 'Adj hozzá új foglalást partner és utazási adatokkal.';
         if (mode === 'edit') return 'Frissítsd a partner vagy foglalási adatokat.';
-        return record ? `${record.offerName} • ${formatDate(record.applicationDate)}` : 'Válassz egy rekordot a listából.';
+        return record ? `${record.offerName} • ${formatDate(record.applicationDate)}` : 'Válassz egy elemet a listából.';
       },
       renderPanel: ({
         mode,
@@ -439,7 +439,7 @@ export function TourBookingsPage() {
                 <div className="flex items-center justify-between rounded-2xl border bg-muted/30 px-4 py-3">
                   <div>
                     <div className="text-sm font-medium">Lemondott?</div>
-                    <div className="text-xs text-muted-foreground">A rekord törlés helyett jelölhető is.</div>
+                    <div className="text-xs text-muted-foreground">A foglalás törlés helyett lemondottként is jelölhető.</div>
                   </div>
                   <input
                     type="checkbox"

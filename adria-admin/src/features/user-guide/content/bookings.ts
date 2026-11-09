@@ -281,7 +281,7 @@ export const bookingsChapter: GuideChapter = {
         img(
           'partner-finances',
           'Partner pénzügyek',
-          'A partner pénzügyek fülei és a rekordok listája partnerrel, dátummal, összeggel, típussal, státusszal és egyenleggel.',
+          'A partner pénzügyek fülei és a tételek listája partnerrel, dátummal, összeggel, típussal, státusszal és egyenleggel.',
         ),
         fields('Mezők', [
           field('Partner', 'A partner neve.', ADMIN_ONLY),
@@ -537,7 +537,7 @@ export const bookingsChapter: GuideChapter = {
         img(
           'booking-form-template-form',
           'Sablon szerkesztése',
-          'Egy sablon szerkesztése: név, slug, leírás, aktív és alapértelmezett jelölő, valamint a mezők beállítása.',
+          'Egy sablon szerkesztése: név, webcím, leírás, aktív és alapértelmezett jelölő, valamint a mezők beállítása.',
         ),
         fields('Sablon mezői', [
           field(
@@ -546,7 +546,7 @@ export const bookingsChapter: GuideChapter = {
             'A körutazás szerkesztő sablonválasztójában.',
           ),
           field(
-            'Slug',
+            'Webcím',
             'Technikai azonosító; üresen automatikusan készül.',
             ADMIN_ONLY,
           ),

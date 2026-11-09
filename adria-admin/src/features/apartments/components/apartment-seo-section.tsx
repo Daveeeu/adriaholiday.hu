@@ -46,7 +46,7 @@ export function ApartmentSeoSection({ form }: ApartmentSeoSectionProps) {
   return (
     <section className="space-y-4 rounded-2xl border bg-card p-4">
       <div>
-        <h3 className="text-base font-semibold">SEO blokk</h3>
+        <h3 className="text-base font-semibold">Név, webcím és keresők</h3>
         <p className="text-sm text-muted-foreground">
           A név, a SEO név és az azonosító mezők itt kezelhetők.
         </p>
@@ -87,7 +87,7 @@ export function ApartmentSeoSection({ form }: ApartmentSeoSectionProps) {
           render={({ field }) => (
             <FormItem>
               <div className="flex items-center justify-between gap-3">
-                <FormLabel>SEO név</FormLabel>
+                <FormLabel>Webcím</FormLabel>
                 <FormField
                   control={form.control}
                   name="autoGenerateSeoName"
@@ -153,7 +153,7 @@ export function ApartmentSeoSection({ form }: ApartmentSeoSectionProps) {
           name="slug"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Slug</FormLabel>
+              <FormLabel>Webcím</FormLabel>
               <FormControl>
                 <div className="flex gap-2">
                   <Input
@@ -186,7 +186,7 @@ export function ApartmentSeoSection({ form }: ApartmentSeoSectionProps) {
           name="seoTitle"
           render={({ field }) => (
             <FormItem className="md:col-span-2">
-              <FormLabel>Oldal címe (title)</FormLabel>
+              <FormLabel>Keresőben megjelenő cím</FormLabel>
               <FormControl>
                 <Input placeholder="Üresen az apartman neve" {...field} />
               </FormControl>
@@ -200,7 +200,7 @@ export function ApartmentSeoSection({ form }: ApartmentSeoSectionProps) {
           name="seoDescription"
           render={({ field }) => (
             <FormItem className="md:col-span-2">
-              <FormLabel>Meta leírás</FormLabel>
+              <FormLabel>Keresőben megjelenő leírás</FormLabel>
               <FormControl>
                 <Input placeholder="Üresen az ismertető eleje" {...field} />
               </FormControl>
@@ -214,7 +214,7 @@ export function ApartmentSeoSection({ form }: ApartmentSeoSectionProps) {
           name="seoRobots"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Robots</FormLabel>
+              <FormLabel>Megjelenjen a keresőkben?</FormLabel>
               <FormControl>
                 <Input placeholder="pl. noindex, follow" {...field} />
               </FormControl>

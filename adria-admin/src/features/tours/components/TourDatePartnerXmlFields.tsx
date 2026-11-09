@@ -22,10 +22,10 @@ export function TourDatePartnerXmlFields({ form, dateIndex }: TourDatePartnerXml
         name={`dates.${dateIndex}.xmlEnabled`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Partner XML</FormLabel>
+            <FormLabel>Partnerportálok</FormLabel>
             <label className="flex h-10 items-center gap-2 rounded-xl border bg-background px-3 text-sm">
               <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
-              XML-ben szerepel
+              Partnerportálokon megjelenik
             </label>
           </FormItem>
         )}

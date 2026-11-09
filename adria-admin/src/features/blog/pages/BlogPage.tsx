@@ -208,7 +208,7 @@ export function BlogPage() {
       },
       {
         accessorKey: 'portfolioFeatured',
-        header: 'Portfólió',
+        header: 'Kiemelt a honlapon',
         cell: ({ row }) => (
           <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-semibold">
             {row.original.portfolioFeatured ? 'Kiemelt' : 'Nem'}
@@ -217,7 +217,7 @@ export function BlogPage() {
       },
       {
         accessorKey: 'portfolioSortOrder',
-        header: 'Portfólió sorrend',
+        header: 'Sorrend a honlapon',
       },
       {
         accessorKey: 'views',
@@ -321,7 +321,7 @@ export function BlogPage() {
         <p className="text-sm font-medium text-primary">Blog</p>
         <h1 className="text-3xl font-semibold tracking-tight">Blog cikkek</h1>
         <p className="text-sm text-muted-foreground">
-          Lista, keresés, rendezés és side paneles CRUD a blog cikkekhez.
+          A honlap blog cikkei.
         </p>
       </div>
 

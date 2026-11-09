@@ -1,7 +1,6 @@
 import {
   flexRender,
   type PaginationState,
-  type SortingState,
   type Table as ReactTable,
 } from '@tanstack/react-table';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -24,7 +23,6 @@ const STICKY_ACTIONS_CLASS = 'sticky right-0 border-l bg-card text-right';
 
 type ToursTableProps = {
   table: ReactTable<Tour>;
-  sorting: SortingState;
   pagination: PaginationState;
   totalCount: number;
   onPageSizeChange: (pageSize: number) => void;
@@ -32,7 +30,6 @@ type ToursTableProps = {
 
 export function ToursTable({
   table,
-  sorting,
   pagination,
   totalCount,
   onPageSizeChange,
@@ -99,12 +96,6 @@ export function ToursTable({
           <span className="font-medium text-foreground">{pageTo}</span> /{' '}
           <span className="font-medium text-foreground">{totalCount}</span>{' '}
           összesen
-          <span className="ml-2">
-            | Rendezés:{' '}
-            <span className="font-medium text-foreground">
-              {sorting[0]?.id ?? 'sortOrder'}
-            </span>
-          </span>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

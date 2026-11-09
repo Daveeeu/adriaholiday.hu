@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { EntitySidePanel } from '@/components/admin/entity-side-panel';
+import { getRoleLabel } from '@/features/roles/lib/role-labels';
 import { PermissionCheckboxGroup } from '@/components/admin/permission-checkbox-group';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -189,7 +190,7 @@ export function UserSidePanel({
                       form.setValue('roles', next, { shouldDirty: true });
                     }}
                   />
-                  {role.name}
+                  {getRoleLabel(role.name)}
                 </label>
               ))}
             </div>

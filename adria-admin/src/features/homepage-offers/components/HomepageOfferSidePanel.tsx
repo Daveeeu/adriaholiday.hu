@@ -107,7 +107,7 @@ function HomepageOfferDetailView({
                     <span>{translation.name || '—'}</span>
                   </div>
                   <div>
-                    <span className="font-medium">SEO: </span>
+                    <span className="font-medium">Webcím: </span>
                     <span>{translation.seoName || '—'}</span>
                   </div>
                   <div>
@@ -188,7 +188,7 @@ export function HomepageOfferSidePanel({
                 {onToggleActive ? (
                   <Button type="button" variant="outline" onClick={onToggleActive}>
                     <Power className="size-4" />
-                    {offer.active ? 'Deaktiválás' : 'Aktiválás'}
+                    {offer.active ? 'Inaktiválás' : 'Aktiválás'}
                   </Button>
                 ) : null}
                 {onEdit ? (

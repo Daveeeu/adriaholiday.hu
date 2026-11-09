@@ -1,4 +1,4 @@
-import type { Table, PaginationState, SortingState } from '@tanstack/react-table';
+import type { Table, PaginationState } from '@tanstack/react-table';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -18,14 +18,12 @@ import type { HomepageOffer } from '../lib/homepage-offer-schema';
 
 type HomepageOffersTableProps = {
   table: Table<HomepageOffer>;
-  sorting: SortingState;
   pagination: PaginationState;
   onPageSizeChange: (pageSize: number) => void;
 };
 
 export function HomepageOffersTable({
   table,
-  sorting,
   pagination,
   onPageSizeChange,
 }: HomepageOffersTableProps) {
@@ -69,10 +67,6 @@ export function HomepageOffersTable({
       </div>
 
       <div className="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-sm text-muted-foreground">
-          Rendezés: <span className="font-medium text-foreground">{sorting[0]?.id ?? 'name'}</span>{' '}
-          ({sorting[0]?.desc ? 'csökkenő' : 'növekvő'})
-        </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="flex items-center gap-2 text-sm text-muted-foreground">

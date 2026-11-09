@@ -2,6 +2,10 @@ import { useMemo, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import {
+  getPermissionActionLabel,
+  getPermissionGroupLabel,
+} from '@/features/permissions/lib/permission-labels';
+import {
   groupPermissions,
   type Permission,
   type PermissionGroup,
@@ -28,6 +32,8 @@ export function PermissionCheckboxGroup({
     if (!query) return permissions;
     return permissions.filter(
       (permission) =>
+        getPermissionGroupLabel(permission.group).toLowerCase().includes(query) ||
+        getPermissionActionLabel(permission.action).toLowerCase().includes(query) ||
         permission.group.toLowerCase().includes(query) ||
         permission.action.toLowerCase().includes(query) ||
         permission.name.toLowerCase().includes(query),
@@ -79,7 +85,7 @@ export function PermissionCheckboxGroup({
                   }}
                   onChange={(event) => toggleGroup(group, event.target.checked)}
                 />
-                {group.group}
+                {getPermissionGroupLabel(group.group)}
               </label>
               <div className="mt-2 space-y-1.5">
                 {group.permissions.map((permission) => (
@@ -92,7 +98,7 @@ export function PermissionCheckboxGroup({
                       checked={selectedSet.has(permission.name)}
                       onChange={() => togglePermission(permission.name)}
                     />
-                    {permission.action}
+                    {getPermissionActionLabel(permission.action)}
                   </label>
                 ))}
               </div>

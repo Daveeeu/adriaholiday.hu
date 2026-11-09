@@ -94,7 +94,7 @@ function BusDetailView({ bus }: { bus: Bus }) {
                     <span>{translation.name || '—'}</span>
                   </div>
                   <div>
-                    <span className="font-medium">SEO: </span>
+                    <span className="font-medium">Webcím: </span>
                     <span>{translation.seoName || '—'}</span>
                   </div>
                   <div>
@@ -206,7 +206,7 @@ export function BusSidePanel({
               <>
                 {onToggleActive ? (
                   <Button type="button" variant="outline" onClick={onToggleActive}>
-                    {bus.active ? 'Deaktiválás' : 'Aktiválás'}
+                    {bus.active ? 'Inaktiválás' : 'Aktiválás'}
                   </Button>
                 ) : null}
                 {onDelete ? (
@@ -333,7 +333,7 @@ export function BusSidePanel({
                                 name={`translations.${language}.seoName` as const}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>SEO név</FormLabel>
+                                    <FormLabel>Webcím</FormLabel>
                                     <FormControl>
                                       <Input
                                         {...field}

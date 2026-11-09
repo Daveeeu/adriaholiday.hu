@@ -1,7 +1,6 @@
 import {
   flexRender,
   type PaginationState,
-  type SortingState,
   type Table as ReactTable,
 } from '@tanstack/react-table';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -14,7 +13,6 @@ import type { HomepageOffer } from '../lib/homepage-offers.types';
 
 type HomepageOffersTableProps = {
   table: ReactTable<HomepageOffer>;
-  sorting: SortingState;
   pagination: PaginationState;
   totalCount: number;
   onPageSizeChange: (pageSize: number) => void;
@@ -22,7 +20,6 @@ type HomepageOffersTableProps = {
 
 export function HomepageOffersTable({
   table,
-  sorting,
   pagination,
   totalCount,
   onPageSizeChange,
@@ -88,12 +85,6 @@ export function HomepageOffersTable({
           Találatok: <span className="font-medium text-foreground">{pageFrom}</span>-
           <span className="font-medium text-foreground">{pageTo}</span> /{' '}
           <span className="font-medium text-foreground">{totalCount}</span> összesen
-          <span className="ml-2">
-            | Rendezés:{' '}
-            <span className="font-medium text-foreground">
-              {sorting[0]?.id ?? 'sortOrder'}
-            </span>
-          </span>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

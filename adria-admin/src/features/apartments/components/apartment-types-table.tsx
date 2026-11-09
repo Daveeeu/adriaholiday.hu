@@ -1,7 +1,6 @@
 import {
   flexRender,
   type PaginationState,
-  type SortingState,
   type Table as ReactTable,
 } from '@tanstack/react-table';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -19,14 +18,12 @@ import type { ApartmentType } from '@/types/domain';
 
 type ApartmentTypesTableProps = {
   table: ReactTable<ApartmentType>;
-  sorting: SortingState;
   pagination: PaginationState;
   onPageSizeChange: (pageSize: number) => void;
 };
 
 export function ApartmentTypesTable({
   table,
-  sorting,
   pagination,
   onPageSizeChange,
 }: ApartmentTypesTableProps) {
@@ -81,13 +78,6 @@ export function ApartmentTypesTable({
       </div>
 
       <div className="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-sm text-muted-foreground">
-          Rendezés:{' '}
-          <span className="font-medium text-foreground">
-            {sorting[0]?.id ?? 'sortOrder'}
-          </span>{' '}
-          ({sorting[0]?.desc ? 'csökkenő' : 'növekvő'})
-        </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="flex items-center gap-2 text-sm text-muted-foreground">

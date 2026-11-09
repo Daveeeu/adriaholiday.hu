@@ -316,7 +316,7 @@ function HomepageOfferTranslations({
             name={`translations.${activeLanguage}.seoName`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>SEO név</FormLabel>
+                <FormLabel>Webcím</FormLabel>
                 <FormControl>
                   <Input disabled={autoSeo} placeholder="seo-nev" {...field} />
                 </FormControl>

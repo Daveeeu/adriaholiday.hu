@@ -158,7 +158,7 @@ export function BookingsOverviewPage() {
       },
       {
         title: 'Üzenetek',
-        description: 'Kapcsolatfelvételi üzenetek readonly tartalommal.',
+        description: 'A honlapról érkezett kapcsolatfelvételi üzenetek.',
         to: '/bookings/messages',
         count: messages.count,
         icon: Mail,
@@ -199,7 +199,7 @@ export function BookingsOverviewPage() {
             Foglalások áttekintés
           </h1>
           <p className="max-w-3xl text-sm text-muted-foreground">
-            Innen éred el a bookings modul minden alrészét. A kártyák az
+            Innen éred el a foglalásokkal kapcsolatos összes oldalt. A kártyák az
             aktuális darabszámokat mutatják.
           </p>
         </div>

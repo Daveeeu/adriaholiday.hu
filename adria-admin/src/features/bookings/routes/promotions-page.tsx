@@ -91,7 +91,7 @@ export function PromotionsPage() {
       description:
         'A publikus főoldalon megjelenő aktív promóció kezelése. Csak az aktív és az időablakban lévő promóció jelenik meg a látogatóknak.',
       toolbarTitle: 'Promóció',
-      toolbarDescription: 'Keresés, rendezés és CRUD műveletek.',
+      toolbarDescription: 'Keresés a promóciók között.',
       searchPlaceholder: 'Keresés cím, üzenet vagy kód alapján...',
       createLabel: 'Új promóció',
       emptyText: 'Nincs a keresésnek megfelelő promóció.',
@@ -131,7 +131,7 @@ export function PromotionsPage() {
       panelDescription: (mode: 'create' | 'edit' | 'detail', record: Promotion | null) => {
         if (mode === 'create') return 'Hozz létre új promóciót a főoldali értesítéshez.';
         if (mode === 'edit') return 'Frissítsd a promóció adatait.';
-        return record ? promotionStatus(record).label : 'Válassz egy rekordot a listából.';
+        return record ? promotionStatus(record).label : 'Válassz egy elemet a listából.';
       },
       renderPanel: ({
         mode,

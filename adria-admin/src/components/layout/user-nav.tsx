@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { getRoleLabel } from '@/features/roles/lib/role-labels';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,7 +34,7 @@ export function UserNav() {
               {user?.name ?? t('layout.user.guest')}
             </p>
             <p className="text-muted-foreground">
-              {role ?? t('layout.user.inactive')}
+              {role ? getRoleLabel(role) : t('layout.user.inactive')}
             </p>
           </div>
         </button>

@@ -229,7 +229,7 @@ function TourDetailView({ tour }: { tour: Tour }) {
           <DetailItem label="Ajánlott" value={tour.recommended} />
           <DetailItem label="Partner ajánlat" value={tour.partnerOffer} />
           <DetailItem label="Képes ajánlat" value={tour.imageOffer} />
-          <DetailItem label="XML" value={tour.xmlEnabled} />
+          <DetailItem label="Partnerportálokon" value={tour.xmlEnabled} />
           <DetailItem label="Slider kép" value={tour.sliderImageEnabled} />
           <DetailItem label="Slider szöveg" value={tour.sliderTextEnabled} />
           <DetailItem
@@ -240,12 +240,12 @@ function TourDetailView({ tour }: { tour: Tour }) {
       </section>
 
       <section className="space-y-3 rounded-2xl border bg-card p-4">
-        <h4 className="font-semibold">Ár / PriceBox</h4>
+        <h4 className="font-semibold">Árdoboz</h4>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <DetailItem label="Alapár" value={priceBox?.price ?? tour.price} />
           <DetailItem label="Pénznem" value={priceBox?.currency} />
           <DetailItem label="Ár utótag" value={priceBox?.priceSuffix} />
-          <DetailItem label="Kedvezmény badge" value={priceBox?.discountBadge} />
+          <DetailItem label="Kedvezmény címke" value={priceBox?.discountBadge} />
           <DetailItem label="Kedvezmény szöveg" value={priceBox?.discountText} />
           <DetailItem label="Urgency szöveg" value={priceBox?.urgencyText} />
           <DetailItem label="Értékelés szöveg" value={priceBox?.ratingText} />
@@ -253,8 +253,8 @@ function TourDetailView({ tour }: { tour: Tour }) {
           <DetailItem label="Maximum fő" value={priceBox?.maxParticipants} />
           <DetailItem label="Szabad férőhely" value={priceBox?.availableSeats} />
           <DetailItem label="Kapacitás" value={priceBox?.capacity} />
-          <DetailItem label="Elsődleges CTA" value={priceBox?.ctaPrimaryLabel} />
-          <DetailItem label="Másodlagos CTA" value={priceBox?.ctaSecondaryLabel} />
+          <DetailItem label="Elsődleges gomb" value={priceBox?.ctaPrimaryLabel} />
+          <DetailItem label="Másodlagos gomb" value={priceBox?.ctaSecondaryLabel} />
         </div>
       </section>
 
@@ -442,7 +442,7 @@ export function TourSidePanel({
       <EntitySidePanel
         open={open}
         title={mode === 'edit' ? 'Körutazás szerkesztése' : 'Körutazás részletei'}
-        description="A körutazás teljes adminisztrációs felülete."
+        description="A körutazás minden adata egy helyen."
         onOpenChange={onOpenChange}
       >
         <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed bg-muted/20 p-6 text-sm text-muted-foreground">
@@ -457,7 +457,7 @@ export function TourSidePanel({
       <EntitySidePanel
         open={open}
         title={mode === 'edit' ? 'Körutazás szerkesztése' : 'Körutazás részletei'}
-        description="A körutazás teljes adminisztrációs felülete."
+        description="A körutazás minden adata egy helyen."
         onOpenChange={onOpenChange}
       >
         <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
@@ -478,7 +478,7 @@ export function TourSidePanel({
     <EntitySidePanel
       open={open}
       title={title}
-      description="A körutazás teljes adminisztrációs felülete."
+      description="A körutazás minden adata egy helyen."
       onOpenChange={onOpenChange}
       headerActions={
         mode === 'detail' && tour ? (
@@ -486,7 +486,7 @@ export function TourSidePanel({
             {onToggleActive ? (
               <Button type="button" variant="outline" onClick={onToggleActive}>
                 <Power className="size-4" />
-                {tour.active ? 'Deaktiválás' : 'Aktiválás'}
+                {tour.active ? 'Inaktiválás' : 'Aktiválás'}
               </Button>
             ) : null}
             {onDuplicate ? (

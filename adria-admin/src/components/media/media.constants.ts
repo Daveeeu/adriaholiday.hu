@@ -14,7 +14,7 @@ export const MEDIA_CATEGORY_OPTIONS: Array<{ value: MediaCategory; label: string
   { value: 'tours', label: 'Utazások' },
   { value: 'apartments', label: 'Apartmanok' },
   { value: 'homepage_offers', label: 'Főoldali ajánlatok' },
-  { value: 'portfolio', label: 'Portfólió' },
+  { value: 'portfolio', label: 'Honlap' },
   { value: 'galleries', label: 'Galériák' },
   { value: 'buses', label: 'Buszok' },
 ];

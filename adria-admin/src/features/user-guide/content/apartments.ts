@@ -14,7 +14,7 @@ import {
 } from './blocks';
 
 const APARTMENT_PAGE =
-  'Az apartman saját oldalán (adriaholiday.hu/apartman/<SEO név>)';
+  'Az apartman saját oldalán (adriaholiday.hu/apartman/<Webcím>)';
 const ACCESS =
   'Apartmanok megtekintése (a módosításhoz szerkesztési jog is kell)';
 
@@ -40,14 +40,14 @@ export const apartmentsChapter: GuideChapter = {
           'Az apartmanok listája: kereső, „Új apartman” gomb, a táblázat fejlécében szűrők (típus, szállás, aktív, kiemelt), soronként a műveletgombok.',
         ),
         fields('Lista', [
-          field('Kereső', 'Név, kód, cím vagy SEO név alapján keres.'),
+          field('Kereső', 'Név, kód, cím vagy Webcím alapján keres.'),
           field(
             'Oszlopszűrők',
             'A táblázat fejléce alatti mezőkkel típusra, aktív, kiemelt és szállás állapotra szűrhetsz.',
           ),
           field(
             'Műveletgombok',
-            'Szem: megtekintés, ceruza: szerkesztés, bekapcsoló: aktiválás/deaktiválás, kuka: törlés.',
+            'Szem: megtekintés, ceruza: szerkesztés, bekapcsoló: aktiválás/inaktiválás, kuka: törlés.',
           ),
           field(
             'Típus szerinti menüpontok',
@@ -115,7 +115,7 @@ export const apartmentsChapter: GuideChapter = {
         img(
           'apartment-form-1',
           'Kapacitás, méret és SEO blokk',
-          'A kapacitás és távolságok, valamint a SEO blokk (név, kód, SEO név, slug) mezői.',
+          'A kapacitás és távolságok, valamint a SEO blokk (név, kód, webcím) mezői.',
         ),
         fields('Kapacitás, méret és távolságok', [
           field(
@@ -141,18 +141,18 @@ export const apartmentsChapter: GuideChapter = {
             'Az apartman foglalásoknál „Ajánlati kód”-ként.',
           ),
           field(
-            'SEO név + Automatikus generálás / Generálás',
-            'Az apartman webcíme (adriaholiday.hu/apartman/<SEO név>).',
+            'Webcím + Automatikus generálás / Generálás',
+            'Az apartman webcíme (adriaholiday.hu/apartman/<Webcím>).',
             'A böngésző címsorában.',
           ),
-          field('Slug', 'Technikai azonosító.', ADMIN_ONLY),
+          field('Webcím', 'Technikai azonosító.', ADMIN_ONLY),
           field(
-            'Oldal címe (title)',
+            'Keresőben megjelenő cím',
             'A keresőkben megjelenő cím. Üresen az apartman neve.',
             SEARCH_RESULTS,
           ),
           field(
-            'Meta leírás',
+            'Keresőben megjelenő leírás',
             'A keresőtalálat leírása. Üresen az ismertető eleje.',
             SEARCH_RESULTS,
           ),
@@ -283,7 +283,7 @@ export const apartmentsChapter: GuideChapter = {
         img(
           'apartment-type-form',
           'Apartman típus szerkesztése',
-          'Egy típus szerkesztése: név, slug, sorrend és állapot.',
+          'Egy típus szerkesztése: név, webcím, sorrend és állapot.',
         ),
         fields('Mezők', [
           field(
@@ -292,7 +292,7 @@ export const apartmentsChapter: GuideChapter = {
             'Az admin menüjében és az apartman szerkesztő típusválasztójában.',
           ),
           field(
-            'Slug + Generálás',
+            'Webcím + Generálás',
             'A típus azonosítója (pl. „italian”); az admin címében használt.',
             ADMIN_ONLY,
           ),
@@ -365,11 +365,11 @@ export const apartmentsChapter: GuideChapter = {
             'A hely minden apartmanjának saját oldalán.',
           ),
           field(
-            'Oldal címe (title)',
+            'Keresőben megjelenő cím',
             'Üresen: „{hely} apartmanok”.',
             SEARCH_RESULTS,
           ),
-          field('Meta leírás', 'Üresen a bevezető eleje.', SEARCH_RESULTS),
+          field('Keresőben megjelenő leírás', 'Üresen a bevezető eleje.', SEARCH_RESULTS),
           field(
             'Robots',
             'Pl. „noindex, follow”, ha az oldal ne kerüljön a keresőkbe.',
@@ -393,21 +393,21 @@ export const apartmentsChapter: GuideChapter = {
         img(
           'regions',
           'Régiók listája',
-          'A régiók listája névvel, sluggal és állapottal, soronként aktiválás, szerkesztés és törlés.',
+          'A régiók listája névvel, webcímmel és állapottal, soronként aktiválás, szerkesztés és törlés.',
         ),
         img(
           'region-form',
           'Régió szerkesztése',
-          'A régió szerkesztő ablaka a portfólió kiemelés beállításaival és a képekkel.',
+          'A régió szerkesztő ablaka a honlapon való kiemelés beállításaival és a képekkel.',
         ),
         fields('Mezők', [
           field(
             'Név',
             'A régió neve.',
-            'A régióoldal címe (adriaholiday.hu/regiok/<slug>), a régiókártyák és az apartmanok adatai.',
+            'A régióoldal címe (adriaholiday.hu/regiok/<webcím>), a régiókártyák és az apartmanok adatai.',
           ),
           field(
-            'Slug + Generálás',
+            'Webcím + Generálás',
             'A régió webcímben használt neve, kisbetűvel (pl. „albania”).',
             'A régióoldal webcímében.',
           ),
@@ -417,12 +417,12 @@ export const apartmentsChapter: GuideChapter = {
             'A régióoldalon és a régiókártyákon.',
           ),
           field(
-            'Portfólió kiemelt',
+            'Kiemelt a honlapon',
             'Csak a kiemelt régiók jelennek meg a főoldal régiókártyái (TravelCategories blokk) között.',
             'A főoldal „úti célok” régiókártyáin.',
           ),
           field(
-            'Portfólió sorrend',
+            'Sorrend a honlapon',
             'A kiemelt régiók sorrendje; kisebb szám előrébb.',
             'A főoldal régiókártyáinak sorrendjében.',
           ),
@@ -432,12 +432,12 @@ export const apartmentsChapter: GuideChapter = {
             'A régióoldal tetején és megosztáskor (Facebook) előnézeti képként.',
           ),
           field(
-            'Portfólió kép',
+            'Kép a honlapon',
             'A főoldali régiókártya képe. Ha üres, a fő kép látszik.',
             'A főoldal régiókártyáján.',
           ),
           field(
-            'Portfólió rövid leírás',
+            'Rövid leírás a honlapon',
             'Rövid leírás a régiókártyához.',
             'A főoldal régiókártyáján és a régióoldal bevezetőjében.',
           ),

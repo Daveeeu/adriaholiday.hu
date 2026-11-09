@@ -26,7 +26,7 @@ export function HomepageOffersToolbar({
             Főoldali ajánlatok kezelése
           </h2>
           <p className="text-sm text-muted-foreground">
-            {resultCount} találat a {totalCount} rekordból
+            {resultCount} találat, összesen {totalCount}
           </p>
         </div>
 
@@ -45,7 +45,7 @@ export function HomepageOffersToolbar({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             className="pl-9"
-            placeholder="Keresés név, SEO név, link vagy kép címe alapján..."
+            placeholder="Keresés név, webcím, link vagy kép címe alapján..."
           />
         </div>
       </div>

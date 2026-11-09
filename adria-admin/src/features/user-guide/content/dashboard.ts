@@ -80,7 +80,7 @@ export const dashboardChapter: GuideChapter = {
         img(
           'analytics',
           'Az Analitika oldal',
-          'Az Analitika oldal: felül a szűrők, alattuk az eseményszámlálók és a konverziós tölcsér. Lejjebb a top ajánlatok, top kategóriák, UTM kampányok és a legutóbbi események listája.',
+          'Az Analitika oldal: felül a szűrők, alattuk az eseményszámlálók és a konverziós tölcsér. Lejjebb a top ajánlatok, top kategóriák, kampányok és a legutóbbi események listája.',
         ),
         p(
           'Az adatokat a publikus weboldal saját mérése gyűjti (nem a Google Analytics). Az oldal csak megjelenít, itt semmit nem lehet elrontani.',
@@ -92,26 +92,26 @@ export const dashboardChapter: GuideChapter = {
           ),
           field(
             'Esemény',
-            'Egy eseménytípusra szűkít (pl. csak oldalmegtekintések vagy csak CTA kattintások).',
+            'Egy eseménytípusra szűkít (pl. csak oldalmegtekintések vagy csak gombkattintások).',
           ),
           field(
-            'Entitás típus / Entity slug',
+            'Tartalom típusa / Oldal webcíme',
             'Egy adott ajánlatra vagy kategóriára szűkít a webcímben szereplő neve alapján.',
           ),
           field(
-            'UTM kampány',
+            'Kampány',
             'Hirdetési kampány neve (a linkekben szereplő utm_campaign érték). Így látod, egy kampányból érkezők mit néztek meg.',
           ),
           field(
-            'Offer slug / Category slug (funnel)',
+            'Ajánlat webcíme / Kategória webcíme (tölcsérhez)',
             'A konverziós tölcsért szűkíti egy ajánlatra vagy kategóriára.',
           ),
           field('Szűrők törlése', 'Minden szűrőt alaphelyzetbe állít.'),
         ]),
         fields('A számlálók jelentése', [
-          field('Összes page_view', 'Az összes oldalmegtekintés.'),
+          field('Oldalmegtekintések', 'Az összes oldalmegtekintés.'),
           field(
-            'Összes offer_view',
+            'Ajánlat megtekintések',
             'Hányszor nyitották meg egy utazás részletes oldalát.',
           ),
           field(
@@ -119,24 +119,24 @@ export const dashboardChapter: GuideChapter = {
             'Kategóriaoldalak (pl. Körutazások, Apartmanok) megtekintései.',
           ),
           field(
-            'CTA kattintások',
+            'Gombkattintások',
             'Kattintások a fő gombokra (pl. „Ajánlatot kérek”, „Lefoglalom az utat”).',
           ),
           field(
-            'PriceBox megjelenések',
+            'Árdoboz megjelenések',
             'Hányszor jelent meg az utazás oldalán az árdoboz.',
           ),
-          field('Date select', 'Hányszor választottak indulási időpontot.'),
+          field('Időpontválasztások', 'Hányszor választottak indulási időpontot.'),
           field(
-            'Filter click',
-            'Hányszor használták a kategóriaoldalak szűrő gombjait (filter chipjeit).',
+            'Szűrőhasználat',
+            'Hányszor használták a kategóriaoldalak szűrőgombjait.',
           ),
         ]),
         list(
           [
             'Konverziós tölcsér: lépésenként mutatja, hány látogató jutott el az oldalmegtekintéstől az ajánlaton és az árdobozon át a foglalásig, és hány százalék morzsolódott le az egyes lépések között.',
-            'Top ajánlatok / Top kategóriák: a legtöbbet megnézett utazások és kategóriák, az egyedi látogatók számával.',
-            'Top UTM kampányok: mely hirdetési kampányok hozták a legtöbb eseményt.',
+            'Legnézettebb ajánlatok / Legnézettebb kategóriák: a legtöbbet megnézett utazások és kategóriák, az egyedi látogatók számával.',
+            'Legjobb kampányok: mely hirdetési kampányok hozták a legtöbb eseményt.',
             'Legutóbbi események: a legfrissebb mért események időrendben, lapozható listában.',
           ],
           'A további blokkok',

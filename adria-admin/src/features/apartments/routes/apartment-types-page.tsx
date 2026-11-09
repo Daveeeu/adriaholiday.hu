@@ -136,7 +136,7 @@ export function ApartmentTypesPage() {
           className="-ml-3"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Slug
+          Webcím
           <ArrowUpDown className="size-4" />
         </Button>
       ),
@@ -289,7 +289,6 @@ export function ApartmentTypesPage() {
 
       <ApartmentTypesTable
         table={table}
-        sorting={sorting}
         pagination={pagination}
         onPageSizeChange={(pageSize) =>
           setPagination((currentPagination) => ({

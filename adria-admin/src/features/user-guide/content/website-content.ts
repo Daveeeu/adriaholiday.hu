@@ -19,7 +19,7 @@ export const websiteContentChapter: GuideChapter = {
   id: 'website-content',
   title: 'Weboldal tartalma',
   description:
-    'A publikus weboldal tartalmai: főoldali ajánlatblokkok, a kategóriaoldalak szűrői, a főoldali hero, utasaink levelei, szöveges oldalak, átirányítások és a buszok.',
+    'A publikus weboldal tartalmai: főoldali ajánlatblokkok, a kategóriaoldalak szűrői, a főoldali nyitókép, utasaink levelei, szöveges oldalak, átirányítások és a buszok.',
   icon: PencilLine,
   topics: [
     {
@@ -68,7 +68,7 @@ export const websiteContentChapter: GuideChapter = {
             'A főoldali csempén.',
           ),
           field(
-            'SEO név + Automatikus generálás',
+            'Webcím + Automatikus generálás',
             'A csempe azonosító neve.',
             ADMIN_ONLY,
           ),
@@ -80,22 +80,22 @@ export const websiteContentChapter: GuideChapter = {
     },
     {
       id: 'filter-chips',
-      title: 'Portfólió filter chipek',
+      title: 'Szűrőgombok a honlapon',
       summary:
         'A kategóriaoldalak tetején megjelenő gyorsszűrő gombok (chipek), pl. „Autóbuszos utak”, „Tengerpart”, „Max. 25 ezer Ft”.',
       path: '/portfolio-filter-chips',
-      menu: 'Portfólió filter chipek',
-      access: 'Filter chipek megtekintése',
+      menu: 'Szűrőgombok a honlapon',
+      access: 'Szűrőgombok megtekintése',
       blocks: [
         img(
           'filter-chips',
-          'Filter chipek listája',
-          'A filter chipek listája címkével, hatókörrel, szűrővel, sorrenddel és állapottal.',
+          'Szűrőgombok listája',
+          'A szűrőgombok listája címkével, hatókörrel, szűrővel, sorrenddel és állapottal.',
         ),
         img(
           'filter-chip-form',
-          'Filter chip szerkesztése',
-          'Egy filter chip szerkesztése.',
+          'Szűrőgomb szerkesztése',
+          'Egy szűrőgomb szerkesztése.',
         ),
         fields('Mezők', [
           field(
@@ -104,7 +104,7 @@ export const websiteContentChapter: GuideChapter = {
             'A kategóriaoldalak szűrősávjában.',
           ),
           field(
-            'Slug',
+            'Webcím',
             'Technikai azonosító; a webcímbe is bekerül, ha a látogató rákattint.',
             'A böngésző címsorában szűréskor.',
           ),
@@ -119,17 +119,17 @@ export const websiteContentChapter: GuideChapter = {
             'A szűrősávban.',
           ),
           field(
-            'Scope típus / Scope érték',
+            'Hol jelenjen meg / Melyik oldalon',
             'Hol jelenjen meg a chip. „Globális”: minden kategóriaoldalon. „Kategória”: csak a megadott kategória oldalán. „Főoldali ajánlat”: csak az adott főoldali ajánlat oldalán.',
             'Az érintett kategóriaoldalakon.',
           ),
           field(
-            'Filter típus / Filter érték',
+            'Szűrés típusa / Szűrés értéke',
             'Mi alapján szűr a gomb: téma, címke, kategória, közlekedés, ország vagy ár. Árnál minimum és maximum ár adható meg.',
             'A gombra kattintva a lista ennek megfelelően szűkül.',
           ),
           field(
-            'Custom érték / Custom config JSON',
+            'Egyéni érték / Egyéni beállítás (fejlesztőknek)',
             'Haladó beállítás, csak fejlesztői használatra. Ne módosítsd.',
             ADMIN_ONLY,
           ),
@@ -144,61 +144,61 @@ export const websiteContentChapter: GuideChapter = {
     },
     {
       id: 'portfolio-editor',
-      title: 'Portfólió szerkesztése (főoldal)',
+      title: 'Főoldal szerkesztése (főoldal)',
       summary:
-        'A főoldal felső, nagy bemutató részének (hero) és további szövegblokkjainak szerkesztése. A módosítás először piszkozat, és csak a publikálás után látszik a weboldalon.',
+        'A főoldal felső, nagy bemutató részének (nyitókép) és további szövegblokkjainak szerkesztése. A módosítás először piszkozat, és csak a publikálás után látszik a weboldalon.',
       path: '/portfolio-editor',
-      menu: 'Portfólió szerkesztése',
-      access: 'Portfólió tartalom megtekintése / szerkesztése',
+      menu: 'Főoldal szerkesztése',
+      access: 'Főoldal tartalma megtekintése / szerkesztése',
       blocks: [
         img(
           'portfolio-editor',
-          'Portfólió szerkesztése',
-          'Bal oldalt a hero szekció szerkesztője, jobb oldalt a háttérkép és videó; fent a piszkozat mentése és a publikálás gombjai.',
+          'Főoldal szerkesztése',
+          'Bal oldalt a nyitókép szerkesztője, jobb oldalt a háttérkép és videó; fent a piszkozat mentése és a publikálás gombjai.',
         ),
-        fields('Hero szekció', [
+        fields('Főoldali nyitókép', [
           field(
-            'Hero alcím',
+            'Nyitókép alcíme',
             'A főcím fölötti kis felirat.',
             'A főoldal tetején.',
           ),
           field(
-            'Hero főcím részek',
+            'Főcím részei',
             'A főcím darabokban; minden darabhoz stílus választható (default, gradient, muted, accent), így egy-egy szó kiemelhető.',
             'A főoldal nagy főcíme.',
           ),
           field(
-            'Hero alcím / leírás',
+            'Nyitókép leírása',
             'A főcím alatti bekezdés.',
             'A főoldal tetején.',
           ),
           field(
-            'Elsődleges / Másodlagos CTA szöveg és link',
-            'A hero két gombjának felirata és célja.',
+            'Elsődleges / Másodlagos gomb felirata és link',
+            'A nyitókép két gombjának felirata és célja.',
             'A főoldal tetején lévő gombok.',
           ),
           field(
-            'Hero statisztikák / Hero badge-ek',
+            'Számok a nyitóképen / Kiemelt címkék',
             'Számkártyák (pl. „{evek}+ év tapasztalat”) és lebegő címkék. A {evek} helyére a cég alapítása óta eltelt évek, a {ertekeles} helyére a Google-értékelés kerül automatikusan.',
             'A főoldal tetején.',
           ),
           field(
-            'Hero háttérkép / Hero videó',
-            'A hero háttere. Ha van videó, az játszódik le, a kép tartalékként szolgál.',
+            'Nyitókép háttérképe / Nyitókép videója',
+            'A nyitókép háttere. Ha van videó, az játszódik le, a kép tartalékként szolgál.',
             'A főoldal tetején.',
           ),
         ]),
         steps(
           [
             'Módosítsd a szövegeket vagy képeket.',
-            'Kattints a „Mentés draftként” gombra – ekkor még csak piszkozat, a látogatók nem látják.',
-            'A „Portfólió megnyitása szerkesztői módban” gombbal megnézheted az eredményt a weboldalon, és ott közvetlenül is szerkesztheted a blokkokat.',
-            'Ha minden rendben, kattints a „Hero publikálása” (vagy az „Összes publikálása”) gombra.',
+            'Kattints a „Mentés piszkozatként” gombra – ekkor még csak piszkozat, a látogatók nem látják.',
+            'A „Honlap megnyitása szerkesztői módban” gombbal megnézheted az eredményt a weboldalon, és ott közvetlenül is szerkesztheted a blokkokat.',
+            'Ha minden rendben, kattints a „Nyitókép közzététele” (vagy az „Összes közzététele”) gombra.',
           ],
           'Szerkesztés menete',
         ),
         p(
-          'A blokklistában a „Draft van” címke jelzi, ha egy blokknak publikálatlan módosítása van.',
+          'A blokklistában a „Van piszkozat” címke jelzi, ha egy blokknak publikálatlan módosítása van.',
         ),
       ],
     },
@@ -286,7 +286,7 @@ export const websiteContentChapter: GuideChapter = {
             'A böngésző címsorában.',
           ),
           field(
-            'SEO cím / SEO leírás (opcionális)',
+            'Keresőben megjelenő cím / Keresőben megjelenő leírás (opcionális)',
             'Üresen a címből és a tartalom elejéből készül.',
             SEARCH_RESULTS,
           ),
@@ -297,7 +297,7 @@ export const websiteContentChapter: GuideChapter = {
           ),
         ]),
         tip(
-          'Az új oldalt a fejléc menüjébe a Beállítások › Header navigation részben veheted fel.',
+          'Az új oldalt a fejléc menüjébe a Beállítások › Felső menü részben veheted fel.',
         ),
       ],
     },
@@ -379,7 +379,7 @@ export const websiteContentChapter: GuideChapter = {
             ADMIN_ONLY,
           ),
           field(
-            'Név / SEO név (nyelvenként)',
+            'Név / Webcím (nyelvenként)',
             'A busz megnevezése.',
             ADMIN_ONLY,
           ),

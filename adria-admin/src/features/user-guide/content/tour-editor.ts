@@ -12,7 +12,7 @@ import {
   warning,
 } from './blocks';
 
-const TOUR_PAGE = 'Az utazás saját oldalán (adriaholiday.hu/ajanlat/<SEO név>)';
+const TOUR_PAGE = 'Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>)';
 const EDITOR_MENU = 'Körutazások › Ajánlatok › ceruza ikon';
 const EDITOR_ACCESS = 'Körutazások szerkesztése';
 
@@ -35,9 +35,9 @@ export const tourEditorTopics: GuideTopic[] = [
       list(
         [
           'Alapadatok – láthatóság és alapkapcsolók',
-          'SEO és elnevezés – név, alcím, webcím, keresőben megjelenő szöveg',
+          'Név és webcím – név, alcím, webcím, keresőben megjelenő szöveg',
           'Galéria és média – képek',
-          'Ár / PriceBox – az árdoboz tartalma',
+          'Árdoboz – az árdoboz tartalma',
           'Tartalmi blokkok – leírások, program, keresési kulcsszavak, PDF',
           'Program napok – napokra bontott program',
           'Útvonal térkép – a megállókból rajzolt térkép',
@@ -45,7 +45,7 @@ export const tourEditorTopics: GuideTopic[] = [
           'Ár tartalma – mit tartalmaz és mit nem az ár',
           'Szűrők és kapcsolatok – régió, kategória, ország, közlekedés, felszállási helyek',
           'Időpontok – indulások, időpontonkénti ár, felárak',
-          'Partner XML – partnerportálok feedjei',
+          'Partnerportálok – partnerportálok feedjei',
           'Foglalási űrlap beállításai – melyik űrlapsablont használja a foglalás',
           'Partner bónuszok',
         ],
@@ -86,9 +86,9 @@ export const tourEditorTopics: GuideTopic[] = [
           'Ajánlatlisták, kategóriaoldalak, főoldali kiemelések és az „Ezek is érdekelhetnek” ajánló.',
         ),
         field(
-          'XML-ben szerepel?',
-          'Bekapcsolva az út bekerül a partnerportálok (Travelgate, Travelmax, Cesys és az általános feed) XML-jébe. A részleteket a „Partner XML” szekcióban adhatod meg.',
-          'A partnerek XML feedjeiben (/xmltravel, /xmltravelmax, /xmlcesys, /xml).',
+          'Partnerportálokon megjelenik?',
+          'Bekapcsolva az út bekerül a partnerportálok (Travelgate, Travelmax, Cesys és az általános feed) adataiba. A részleteket a „Partnerportálok” szekcióban adhatod meg.',
+          'A partnerek adatfolyamaiban (/xmltravel, /xmltravelmax, /xmlcesys, /xml).',
         ),
         field(
           'Kuponozható?',
@@ -110,15 +110,15 @@ export const tourEditorTopics: GuideTopic[] = [
   },
   {
     id: 'tour-seo',
-    title: 'SEO és elnevezés',
+    title: 'Név és webcím',
     summary: 'Az út neve, alcíme, webcíme és a keresőkben megjelenő szövegek.',
     menu: EDITOR_MENU,
     access: EDITOR_ACCESS,
     blocks: [
       img(
         'tour-form-seo',
-        'SEO és elnevezés szekció',
-        'A név, alcím, akciók, SEO név, SEO cím, robots és SEO leírás mezői.',
+        'Név és webcím szekció',
+        'A név, alcím, akciók, Webcím, Keresőben megjelenő cím, robots és Keresőben megjelenő leírás mezői.',
       ),
       fields('Mezők', [
         field(
@@ -137,28 +137,28 @@ export const tourEditorTopics: GuideTopic[] = [
           ADMIN_ONLY,
         ),
         field(
-          'SEO név',
-          'Az út webcíme: adriaholiday.hu/ajanlat/<SEO név>. Csak kisbetű, szám és kötőjel. A „Generálás” gomb a névből készíti el.',
+          'Webcím',
+          'Az út webcíme: adriaholiday.hu/ajanlat/<Webcím>. Csak kisbetű, szám és kötőjel. A „Generálás” gomb a névből készíti el.',
           'A böngésző címsorában és minden, az útra mutató linkben.',
         ),
         field(
-          'SEO cím',
+          'Keresőben megjelenő cím',
           'A keresőkben megjelenő cím. Üresen az út neve lesz.',
           SEARCH_RESULTS,
         ),
         field(
-          'Keresők (robots)',
+          'Megjelenjen a keresőkben?',
           'Alapértelmezetten az út megjelenhet a Google-ben. A „Ne jelenjen meg a keresőkben” beállítás belső vagy kísérleti utaknál hasznos.',
           'Csak a keresőrobotok látják.',
         ),
         field(
-          'SEO leírás',
+          'Keresőben megjelenő leírás',
           'A keresőtalálat alatti 1–2 mondatos leírás. Üresen az ismertető szöveg eleje lesz. A mező alatti számláló segít: 120–160 karakter az ideális.',
           `${SEARCH_RESULTS} Facebookon megosztva is ez a leírás látszik.`,
         ),
         field(
           'Automatikus generálás',
-          'Bekapcsolva a SEO név minden mentéskor a névből készül. Élő útnál kapcsold ki, ha nem akarod, hogy a név módosítása megváltoztassa a webcímet.',
+          'Bekapcsolva a Webcím minden mentéskor a névből készül. Élő útnál kapcsold ki, ha nem akarod, hogy a név módosítása megváltoztassa a webcímet.',
         ),
       ]),
       warning(
@@ -207,7 +207,7 @@ export const tourEditorTopics: GuideTopic[] = [
   },
   {
     id: 'tour-pricebox',
-    title: 'Ár / PriceBox',
+    title: 'Árdoboz',
     summary:
       'Az út árdoboza: az alapár, a megjelenített ár szövege és a kedvezmények. Az időpontoknál időpontonként eltérő ár is megadható, az felülírja az itteni alapárat.',
     menu: EDITOR_MENU,
@@ -215,7 +215,7 @@ export const tourEditorTopics: GuideTopic[] = [
     blocks: [
       img(
         'tour-form-pricebox',
-        'Ár / PriceBox szekció',
+        'Árdoboz szekció',
         'Az árdoboz mezői: alapár, megjelenített ár, pénznem, utótag, kedvezmény és létszámadatok.',
       ),
       fields('Mezők', [
@@ -236,7 +236,7 @@ export const tourEditorTopics: GuideTopic[] = [
           `${TOUR_PAGE}, az árdobozban az ár mellett.`,
         ),
         field(
-          'Kedvezmény badge',
+          'Kedvezmény címke',
           'Kedvezmény jelölése. Ha százalékot írsz (pl. „-15%”), az árdoboz áthúzza az eredeti árat és a kedvezményes árat mutatja, és a foglaláskor is ennyivel csökken a részvételi díj.',
           `${TOUR_PAGE} az árdobozban és a foglalás árösszesítőjében.`,
         ),
@@ -246,7 +246,7 @@ export const tourEditorTopics: GuideTopic[] = [
           `${TOUR_PAGE}, az árdobozban és a foglalás árösszesítőjében.`,
         ),
         field(
-          'Urgency / érdeklődő szöveg',
+          'Sürgető felirat',
           'Sürgető, figyelemfelkeltő rövid szöveg (pl. „18 fő érdeklődött az elmúlt 72 órában”). Csak valós adatot írj!',
           `${TOUR_PAGE}, az árdoboz alatt.`,
         ),
@@ -266,7 +266,7 @@ export const tourEditorTopics: GuideTopic[] = [
           ADMIN_ONLY,
         ),
         field(
-          'Elsődleges / Másodlagos CTA felirat',
+          'Elsődleges / Másodlagos gomb felirata',
           'A régi árdoboz gombfeliratai. A weboldal gombjainak szövegét az oldal maga határozza meg.',
           ADMIN_ONLY,
         ),
@@ -297,7 +297,7 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Ismertető szöveg',
-          'Az út rövid bemutatása. Ebből készül automatikusan a SEO leírás, ha az üres, és ebből javasol keresési kulcsszavakat a rendszer.',
+          'Az út rövid bemutatása. Ebből készül automatikusan a Keresőben megjelenő leírás, ha az üres, és ebből javasol keresési kulcsszavakat a rendszer.',
           `${TOUR_PAGE}, a cím alatti bevezetőben.`,
         ),
         field(
@@ -379,7 +379,7 @@ export const tourEditorTopics: GuideTopic[] = [
       img(
         'tour-form-program-days',
         'Program napok szekció',
-        'A programnapok listája; egy nap címmel, leírással, ikonnal, képpel és badge-ekkel.',
+        'A programnapok listája; egy nap címmel, leírással, ikonnal, képpel és címkékkel.',
       ),
       fields('Egy programnap mezői', [
         field(
@@ -546,7 +546,7 @@ export const tourEditorTopics: GuideTopic[] = [
         field(
           'Régiók',
           'A körutazás régiója (Körutazások › Régiók és csoportok).',
-          'A listák szűrőiben, az út adatai között és a partner XML-ben.',
+          'A listák szűrőiben, az út adatai között és a partnerportálok adataiban.',
         ),
         field(
           'Csoportok',
@@ -689,9 +689,9 @@ export const tourEditorTopics: GuideTopic[] = [
           'A foglalási űrlap felszállási hely választólistájában.',
         ),
         field(
-          'Partner XML (XML-ben szerepel, Szállás – Cesys, Szobatípus – Cesys)',
+          'Partnerportálok (Partnerportálokon megjelenik, Szállás – Cesys, Szobatípus – Cesys)',
           'Az időpont megjelenése a partnerfeedekben és a Cesys számára küldött szállásadatok.',
-          'A partner XML feedekben.',
+          'A partnerportálok adataiban.',
         ),
       ]),
       fields('Felárak (időpontonként)', [
@@ -733,15 +733,15 @@ export const tourEditorTopics: GuideTopic[] = [
   },
   {
     id: 'tour-partner-xml',
-    title: 'Partner XML (Travelgate, Travelmax, Cesys)',
+    title: 'Partnerportálok (Travelgate, Travelmax, Cesys)',
     summary:
-      'Amit az út a partnerportálok XML feedjeiben mutat. Csak akkor számít, ha az Alapadatoknál az „XML-ben szerepel?” be van kapcsolva.',
+      'Amit az út a partnerportálokon mutat. Csak akkor számít, ha az Alapadatoknál a „Partnerportálokon megjelenik?” be van kapcsolva.',
     menu: EDITOR_MENU,
     access: EDITOR_ACCESS,
     blocks: [
       img(
         'tour-form-partner-xml',
-        'Partner XML szekció',
+        'Partnerportálok szekció',
         'A partnerportálokon használt régió, utazástípusok, szállás és biztosítás adatai.',
       ),
       fields('Mezők', [

@@ -555,7 +555,7 @@ export function ApartmentsPage() {
 
   const title = routeTypeDefinition?.name ?? 'Összes apartman';
   const description = routeTypeDefinition
-    ? `A(z) ${routeTypeDefinition.name.toLowerCase()} kategória rekordjai.`
+    ? `A(z) ${routeTypeDefinition.name.toLowerCase()} kategória apartmanjai.`
     : 'A teljes apartmanállomány kezelése.';
   const totalCount = apartmentsPage?.totalCount ?? 0;
   const submitting =
@@ -571,7 +571,7 @@ export function ApartmentsPage() {
 
       <ApartmentsToolbar
         title={title}
-        description={`${totalCount} találat a ${totalCount} rekordból`}
+        description={`${totalCount} apartman`}
         search={search}
         resultCount={totalCount}
         totalCount={totalCount}
@@ -587,7 +587,6 @@ export function ApartmentsPage() {
 
       <ApartmentsTable
         table={table}
-        sorting={sorting}
         pagination={pagination}
         totalCount={totalCount}
         apartmentTypes={apartmentTypes ?? []}

@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { getRoleLabel } from '@/features/roles/lib/role-labels';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -98,7 +99,7 @@ export function UsersPage() {
         <div className="flex flex-wrap gap-1">
           {row.original.roles.map((role) => (
             <Badge key={role} className="bg-muted text-muted-foreground">
-              {role}
+              {getRoleLabel(role)}
             </Badge>
           ))}
         </div>

@@ -72,7 +72,7 @@ export function ApartmentPricingMatrix({
         <h3 className="text-base font-semibold">{header || 'Árak'}</h3>
         <p className="text-sm text-muted-foreground">
           Ha egy oszlopban nincs minden dátum kitöltve, vagy egy sorban hiányzik a
-          kategória / ágyszám, akkor az érintett rekord törlődhet.
+          kategória / ágyszám, akkor az érintett ár törlődhet.
         </p>
       </div>
 

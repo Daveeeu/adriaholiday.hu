@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { getPermissions } from '@/features/permissions/lib/permissions.api';
+import { getRoleLabel } from '@/features/roles/lib/role-labels';
 
 import {
   getRoleFormDefaults,
@@ -58,14 +59,14 @@ export function RoleSidePanel({
 
   if (!open) return null;
 
-  const title = mode === 'edit' ? 'Role szerkesztése' : 'Új role létrehozása';
+  const title = mode === 'edit' ? 'Szerepkör szerkesztése' : 'Új szerepkör létrehozása';
   const isSystemRole = role?.isSystemRole ?? false;
 
   return (
     <EntitySidePanel
       open={open}
       title={title}
-      description="Adja meg a role nevét és jelölje ki a hozzá tartozó jogosultságokat."
+      description="Add meg a szerepkör nevét, és jelöld ki a hozzá tartozó jogosultságokat."
       onOpenChange={onOpenChange}
       footer={
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -101,7 +102,7 @@ export function RoleSidePanel({
                 </FormControl>
                 {isSystemRole ? (
                   <p className="text-xs text-muted-foreground">
-                    Ez egy rendszer role, a neve nem módosítható.
+                    Ez egy rendszerszerepkör, a neve nem módosítható. A listákban így látszik: {getRoleLabel(field.value)}.
                   </p>
                 ) : null}
                 <FormMessage />

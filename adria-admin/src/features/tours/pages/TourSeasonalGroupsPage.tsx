@@ -148,7 +148,7 @@ function SeasonalGroupPanel({
                 )} />
                 <FormField control={form.control} name="seoName" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>SEO név</FormLabel>
+                    <FormLabel>Webcím</FormLabel>
                     <FormControl><Input {...field} readOnly={seoAuto} /></FormControl>
                   </FormItem>
                 )} />

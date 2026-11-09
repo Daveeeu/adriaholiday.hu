@@ -74,7 +74,7 @@ function BlogCategoryDetailView({ category }: { category: BlogCategory }) {
                     <span>{translation.name || '—'}</span>
                   </div>
                   <div>
-                    <span className="font-medium">SEO: </span>
+                    <span className="font-medium">Webcím: </span>
                     <span>{translation.seoName || '—'}</span>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export function BlogCategorySidePanel({
           <>
             {onToggleActive ? (
               <Button type="button" variant="outline" onClick={onToggleActive}>
-                {category.active ? 'Deaktiválás' : 'Aktiválás'}
+                {category.active ? 'Inaktiválás' : 'Aktiválás'}
               </Button>
             ) : null}
             {onDelete ? (
@@ -255,7 +255,7 @@ export function BlogCategorySidePanel({
                                 name={`translations.${language}.seoName` as const}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>SEO név</FormLabel>
+                                  <FormLabel>Webcím</FormLabel>
                                   <FormControl>
                                       <Input {...field} readOnly={seoAutoByLanguage[language]} />
                                   </FormControl>

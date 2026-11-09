@@ -61,8 +61,6 @@ export function MediaPickerField({
   const [isDragActive, setIsDragActive] = useState(false);
   const previewUrl = media?.sizes?.preview ?? media?.thumbnailUrl ?? media?.url ?? '';
   const originalUrl = media?.sizes?.original ?? media?.url ?? '';
-  const thumbnailUrl = media?.sizes?.thumbnail ?? media?.thumbnailUrl ?? media?.url ?? '';
-  const largeUrl = media?.sizes?.large ?? media?.url ?? '';
 
   return (
     <div
@@ -83,7 +81,7 @@ export function MediaPickerField({
       <div className="flex items-center justify-between gap-3">
         <div>
           <h4 className="text-sm font-semibold text-foreground">{title}</h4>
-          <p className="text-xs text-muted-foreground">Drag & drop feltöltés, csere és törlés.</p>
+          <p className="text-xs text-muted-foreground">Húzd ide a fájlt, vagy kattints a feltöltéshez.</p>
         </div>
         {media ? (
           <Button type="button" variant="ghost" size="sm" onClick={onDelete} disabled={isSaving}>
@@ -124,11 +122,11 @@ export function MediaPickerField({
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block text-sm">
-          Alt
+          Kép leírása
           <Input className="mt-2" value={alt} onChange={(event) => onAltChange(event.target.value)} />
         </label>
         <label className="block text-sm">
-          Title
+          Kép címe
           <Input
             className="mt-2"
             value={mediaTitle}
@@ -161,17 +159,8 @@ export function MediaPickerField({
           disabled={!originalUrl}
         >
           <Download className="size-4" />
-          Original
+          Eredeti megnyitása
         </Button>
-        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground">
-          Thumb: {thumbnailUrl ? 'igen' : 'nem'}
-        </span>
-        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground">
-          Preview: {previewUrl ? 'igen' : 'nem'}
-        </span>
-        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground">
-          Large: {largeUrl ? 'igen' : 'nem'}
-        </span>
       </div>
 
       {footer ?? null}

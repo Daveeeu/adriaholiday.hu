@@ -44,7 +44,7 @@ export function ActivityLogDetailPanel({
     },
     entry.subject
       ? {
-          label: 'Rekord',
+          label: 'Elem',
           value: [
             entry.subject.typeLabel,
             entry.subject.label,

@@ -178,7 +178,7 @@ function RegionGroupPanel({
                   name="seoName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>SEO név</FormLabel>
+                      <FormLabel>Webcím</FormLabel>
                       <FormControl><Input {...field} readOnly={seoAuto} /></FormControl>
                     </FormItem>
                   )}

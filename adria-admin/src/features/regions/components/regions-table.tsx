@@ -1,7 +1,6 @@
 import {
   flexRender,
   type PaginationState,
-  type SortingState,
   type Table as ReactTable,
 } from '@tanstack/react-table';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -20,14 +19,12 @@ import type { Region } from '@/types/domain';
 
 type RegionsTableProps = {
   table: ReactTable<Region>;
-  sorting: SortingState;
   pagination: PaginationState;
   onPageSizeChange: (pageSize: number) => void;
 };
 
 export function RegionsTable({
   table,
-  sorting,
   pagination,
   onPageSizeChange,
 }: RegionsTableProps) {
@@ -82,13 +79,6 @@ export function RegionsTable({
       </div>
 
       <div className="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-sm text-muted-foreground">
-          {t('regions.table.sortedBy')}{' '}
-          <span className="font-medium text-foreground">
-            {sorting[0]?.id ?? 'name'}
-          </span>{' '}
-          ({sorting[0]?.desc ? t('common.descending') : t('common.ascending')})
-        </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="flex items-center gap-2 text-sm text-muted-foreground">

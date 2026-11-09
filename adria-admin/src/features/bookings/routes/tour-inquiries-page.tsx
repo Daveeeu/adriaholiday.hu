@@ -121,7 +121,7 @@ export function TourInquiriesPage() {
       panelDescription: (mode: 'create' | 'edit' | 'detail', record: TourInquiry | null) => {
         if (mode === 'create') return 'Adj hozzá egy új érdeklődést.';
         if (mode === 'edit') return 'Szerkeszd az ajánlatkérés mezőit és státuszát.';
-        return record ? `${record.offerName} • ${formatDateTime(record.createdAt)}` : 'Válassz egy rekordot a listából.';
+        return record ? `${record.offerName} • ${formatDateTime(record.createdAt)}` : 'Válassz egy elemet a listából.';
       },
       renderPanel: ({
         mode,

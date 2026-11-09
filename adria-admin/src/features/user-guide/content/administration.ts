@@ -18,7 +18,7 @@ export const administrationChapter: GuideChapter = {
   id: 'administration',
   title: 'Rendszergazda',
   description:
-    'Felhasználók, szerepkörök (role-ok) és jogosultságok kezelése: ki mit láthat és módosíthat az adminban.',
+    'Felhasználók, szerepkörök és jogosultságok kezelése: ki mit láthat és módosíthat az adminban.',
   icon: ShieldCheck,
   topics: [
     {
@@ -88,27 +88,27 @@ export const administrationChapter: GuideChapter = {
     },
     {
       id: 'roles',
-      title: 'Role-ok (szerepkörök)',
+      title: 'Szerepkörök (szerepkörök)',
       summary:
         'A szerepkör jogosultságok csoportja egy munkakörhöz. A felhasználókat szerepkörhöz rendeled, nem egyenként jogokhoz.',
       path: '/roles',
-      menu: 'Rendszergazda › Role-ok',
-      access: 'Role-ok megtekintése',
+      menu: 'Rendszergazda › Szerepkörök',
+      access: 'Szerepkörök megtekintése',
       blocks: [
         img(
           'roles',
-          'Role-ok',
+          'Szerepkörök',
           'A szerepkörök listája a jogosultságok és felhasználók számával.',
         ),
         img(
           'role-form',
-          'Role szerkesztése',
-          'Egy szerepkör szerkesztése: megnevezés és a modulonként csoportosított jogosultságok.',
+          'Szerepkör szerkesztése',
+          'Egy szerepkör szerkesztése: megnevezés és a területenként csoportosított jogosultságok.',
         ),
         fields('Mezők', [
           field(
             'Megnevezés',
-            'A szerepkör neve. A rendszer szerepkörök (pl. Super Admin) neve nem módosítható.',
+            'A szerepkör neve. A rendszer szerepkörök (pl. Főadminisztrátor) neve nem módosítható.',
             ADMIN_ONLY,
           ),
           field(
@@ -119,10 +119,10 @@ export const administrationChapter: GuideChapter = {
         ]),
         list(
           [
-            'Super Admin: minden jog.',
+            'Főadminisztrátor: minden jog.',
             'Admin: minden, kivéve a szerepkörök és jogosultságok kezelését.',
-            'Marketing: analitika, blog, főoldali ajánlatok, portfólió, Rólunk írták, médiatár, oldalak, átirányítások.',
-            'Content Editor: blog, körutazások és kapcsolódó listák, médiatár, foglalási űrlap sablonok, Rólunk írták, oldalak, portfólió.',
+            'Marketing: analitika, blog, főoldali ajánlatok, főoldal szerkesztése, Rólunk írták, médiatár, oldalak, átirányítások.',
+            'Tartalomszerkesztő: blog, körutazások és kapcsolódó listák, médiatár, foglalási űrlap sablonok, Rólunk írták, oldalak, portfólió.',
             'Sales: foglalások, üzenetek, ügyfelek, kuponok megtekintése és kezelése, körutazások megtekintése.',
             'Operator, Partner Manager, Support, Viewer: szűkebb, munkakörre szabott jogok; a Viewer csak megtekinthet.',
           ],
@@ -135,29 +135,29 @@ export const administrationChapter: GuideChapter = {
     },
     {
       id: 'permissions',
-      title: 'Permissionök (jogosultságok)',
+      title: 'Jogosultságok (jogosultságok)',
       summary:
-        'Az összes létező jogosultság modulonként, csak olvasható listában.',
+        'Az összes létező jogosultság területenként, csak olvasható listában.',
       path: '/permissions',
-      menu: 'Rendszergazda › Permissionök',
+      menu: 'Rendszergazda › Jogosultságok',
       access: 'Jogosultságok megtekintése',
       blocks: [
         img(
           'permissions',
-          'Permissionök',
-          'A jogosultságok modulonként csoportosítva.',
+          'Jogosultságok',
+          'A jogosultságok területenként csoportosítva.',
         ),
         fields('A műveletek jelentése', [
           field(
-            'viewAny',
+            'Lista megtekintése',
             'A lista megtekintése (a menüpont is ettől látszik).',
           ),
-          field('view', 'Egy elem részleteinek megtekintése.'),
-          field('create', 'Új elem létrehozása.'),
-          field('update', 'Meglévő elem módosítása.'),
-          field('delete', 'Törlés.'),
-          field('status', 'Aktiválás / deaktiválás.'),
-          field('export', 'Adatok exportálása.'),
+          field('Megtekintés', 'Egy elem részleteinek megtekintése.'),
+          field('Létrehozás', 'Új elem létrehozása.'),
+          field('Módosítás', 'Meglévő elem módosítása.'),
+          field('Törlés', 'Törlés.'),
+          field('Állapot módosítása', 'Aktiválás / deaktiválás.'),
+          field('Exportálás', 'Adatok exportálása.'),
         ]),
       ],
     },
@@ -165,15 +165,15 @@ export const administrationChapter: GuideChapter = {
       id: 'activity-log',
       title: 'Napló',
       summary:
-        'Ki és mikor lépett be az adminba, és ki melyik rekordot hozta létre, módosította vagy törölte.',
+        'Ki és mikor lépett be az adminba, és ki melyik elemet hozta létre, módosította vagy törölte.',
       path: '/activity-log',
       menu: 'Rendszergazda › Napló',
-      access: 'Napló megtekintése (csak Super Admin)',
+      access: 'Napló megtekintése (csak Főadminisztrátor)',
       blocks: [
         list(
           [
             'Belépés, sikertelen belépés és kijelentkezés: időpont, IP-cím és böngésző. Sikertelen belépésnél a megadott e-mail cím és az ok (hibás jelszó vagy letiltott fiók) is látszik, a jelszó soha.',
-            'Létrehozás, módosítás és törlés: melyik felhasználó, melyik rekordon (körutazás, időpont, foglalás, apartman, oldal, kupon, felhasználó, szerepkör stb.).',
+            'Létrehozás, módosítás és törlés: melyik felhasználó, melyik elemen (körutazás, időpont, foglalás, apartman, oldal, kupon, felhasználó, szerepkör stb.).',
             'Felhasználók és szerepkörök szerepkör- és jogosultságváltozásai, valamint a jelszócsere ténye (az új jelszó nem).',
           ],
           'Mit rögzít a napló',
@@ -190,8 +190,8 @@ export const administrationChapter: GuideChapter = {
             ADMIN_ONLY,
           ),
           field(
-            'Rekordtípus',
-            'Csak egy adott fajta rekord (pl. Körutazás, Kupon) változásai.',
+            'Elem típusa',
+            'Csak egy adott fajta elem (pl. Körutazás, Kupon) változásai.',
             ADMIN_ONLY,
           ),
           field(
@@ -201,7 +201,7 @@ export const administrationChapter: GuideChapter = {
           ),
         ]),
         p(
-          'Egy sorra kattintva oldalt megnyílik a részletes nézet: a „Mi változott” táblázat mezőnként mutatja a régi és az új értéket. A már törölt rekordok neve áthúzva látszik.',
+          'Egy sorra kattintva oldalt megnyílik a részletes nézet: a „Mi változott” táblázat mezőnként mutatja a régi és az új értéket. A már törölt elemek neve áthúzva látszik.',
         ),
         tip(
           'A sok sikertelen belépés ugyanarról az IP-címről jelszópróbálgatásra utalhat: ilyenkor érdemes az érintett munkatárssal jelszót cserélni.',

@@ -223,7 +223,7 @@ export function HomepageOffersPage() {
               {row.original.translations.hu.name}
             </div>
             <div className="text-xs text-muted-foreground">
-              SEO: {row.original.translations.hu.seoName || '—'}
+              Webcím: {row.original.translations.hu.seoName || '—'}
             </div>
           </div>
         ),
@@ -410,7 +410,6 @@ export function HomepageOffersPage() {
 
       <HomepageOffersTable
         table={table}
-        sorting={sorting}
         pagination={pagination}
         totalCount={homepageOffersResponse.totalCount}
         onPageSizeChange={(pageSize) =>

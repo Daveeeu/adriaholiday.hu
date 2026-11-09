@@ -6,7 +6,7 @@ import { ADMIN_ONLY, field, fields, img, list, tip, warning } from './blocks';
 
 export const mediaChapter: GuideChapter = {
   id: 'media',
-  title: 'Galériák (médiatár)',
+  title: 'Képek és média',
   description:
     'Az összes feltöltött kép, PDF és dokumentum egy helyen: feltöltés, keresés, adatok szerkesztése és törlés.',
   icon: GalleryVerticalEnd,

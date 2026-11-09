@@ -16,7 +16,7 @@ export const settingsChapter: GuideChapter = {
   topics: [
     {
       id: 'site-settings',
-      title: 'Site Settings – áttekintés',
+      title: 'Weboldal beállításai – áttekintés',
       summary:
         'Egyetlen hosszú űrlap, kártyákra bontva. Bármit módosítasz, az oldal alján lévő „Site settings mentése” gombbal kell elmentened; a mentés után a weboldal azonnal az új adatokat mutatja.',
       path: '/settings',
@@ -27,7 +27,7 @@ export const settingsChapter: GuideChapter = {
         img(
           'settings',
           'A Beállítások oldal',
-          'A Beállítások oldal teteje: General és Contact kártya, alatta Social és CTA.',
+          'A Beállítások oldal teteje: Általános és Kapcsolat kártya, alatta Közösségi média és Fő gomb.',
         ),
         steps([
           'Görgess a módosítandó kártyához, és írd át a mezőt.',
@@ -41,20 +41,20 @@ export const settingsChapter: GuideChapter = {
     },
     {
       id: 'settings-contact',
-      title: 'General, Contact, Social és CTA',
+      title: 'Általános, Kapcsolat, Közösségi média és Fő gomb',
       summary:
         'A cég neve, elérhetőségei, közösségi profiljai és a fő „Ajánlatot kérek” gomb.',
       path: '/settings',
       menu: 'Beállítások',
       blocks: [
-        fields('General', [
+        fields('Általános', [
           field(
-            'Site name',
+            'Oldal neve',
             'A weboldal / cég neve (pl. „Adria Holiday”).',
             'A fejlécben a logónál, a láblécben, a böngésző fülén és a keresőtalálatok címében.',
           ),
         ]),
-        fields('Contact', [
+        fields('Kapcsolat', [
           field(
             'Fő telefonszám (fejléc)',
             'Egy telefonszám, kattintható hívás linkként.',
@@ -76,7 +76,7 @@ export const settingsChapter: GuideChapter = {
             'Mobilon az alsó, lebegő gombsávban és a Kapcsolat oldalon.',
           ),
           field(
-            'Address',
+            'Cím',
             'Az iroda címe.',
             'A láblécben és a Kapcsolat oldalon.',
           ),
@@ -88,24 +88,24 @@ export const settingsChapter: GuideChapter = {
         ]),
         img(
           'settings-social',
-          'Social kártya',
+          'Közösségi média kártya',
           'A közösségi profilok linkjei.',
         ),
-        fields('Social', [
+        fields('Közösségi média', [
           field(
             'Facebook / Instagram / TikTok',
             'A profil teljes címe http(s)://-sel kezdve. Üresen hagyható.',
             'A lábléc közösségi ikonjainál, valamint a weboldal háttéradataiban (a Google ebből ismeri fel a cég profiljait).',
           ),
         ]),
-        fields('CTA', [
+        fields('Fő gomb', [
           field(
-            'Primary CTA text',
+            'Gomb felirata',
             'A fő gomb felirata (pl. „Ajánlatot kérek”).',
             'A fejléc jobb oldalán, a mobil menüben és mobilon az alsó lebegő gombsávban.',
           ),
           field(
-            'Primary CTA link',
+            'Gomb linkje',
             'Hova vigyen a gomb (pl. /kapcsolat).',
             'Ugyanott.',
           ),
@@ -122,14 +122,14 @@ export const settingsChapter: GuideChapter = {
       blocks: [
         img(
           'settings-header-navigation',
-          'Header navigation',
+          'Felső menü',
           'A fejléc menüpontjai: címke és hivatkozás párok, törléssel és „Új link” gombbal.',
         ),
-        fields('Header navigation / Footer quick links', [
+        fields('Felső menü / Lábléc linkjei', [
           field(
             'Címke',
             'A menüpont felirata (pl. „Utazások”).',
-            'Header navigation: a fejléc menüjében és a mobil menüben. Footer quick links: a lábléc gyorslinkjei között.',
+            'Felső menü: a fejléc menüjében és a mobil menüben. Lábléc linkjei: a lábléc gyorslinkjei között.',
           ),
           field(
             'Hivatkozás',
@@ -143,44 +143,44 @@ export const settingsChapter: GuideChapter = {
         ]),
         img(
           'settings-footer',
-          'Footer kártya',
+          'Lábléc kártya',
           'A lábléc leírása és copyright szövege.',
         ),
-        fields('Footer', [
+        fields('Lábléc', [
           field(
             'Leírás',
             'Rövid bemutatkozó szöveg. A {evek} helyére a cég alapítása óta eltelt évek száma kerül.',
             FOOTER,
           ),
           field(
-            'Copyright',
+            'Szerzői jogi sor',
             'Pl. „© 2026 Adria Holiday. Minden jog fenntartva.”',
             'A lábléc legalján.',
           ),
         ]),
         img(
           'settings-brand-logo',
-          'Brand logo',
+          'Logó',
           'A logó feltöltése: kép, alt és title szöveg, kategória.',
         ),
         fields('Logó és SEO', [
           field(
-            'Brand logo',
+            'Logó',
             'A cég logója. „Feltöltés vagy csere” gombbal cserélhető, a kuka ikonnal törölhető.',
             'A fejlécben és a láblécben.',
           ),
           field(
-            'Default OG image',
+            'Megosztási kép',
             'Az alapértelmezett megosztási kép.',
             'Facebookon / Messengerben megosztott linkek előnézeti képeként, ha az oldalnak nincs saját képe.',
           ),
           field(
-            'Default SEO title',
+            'Alapértelmezett cím a keresőben',
             'Alapértelmezett cím, ha egy oldalnak nincs sajátja.',
             'A keresőtalálatokban és a böngésző fülén.',
           ),
           field(
-            'Default SEO description',
+            'Alapértelmezett leírás a keresőben',
             'Alapértelmezett leírás, ha egy oldalnak nincs sajátja.',
             'A keresőtalálatokban.',
           ),
@@ -266,9 +266,9 @@ export const settingsChapter: GuideChapter = {
             'A hírlevél feliratkozó blokkban, a feliratkozási e-mailben, majd a Foglalások › Kuponok listában.',
           ),
         ]),
-        fields('Analytics', [
+        fields('Mérés', [
           field(
-            'Meta Pixel enabled / Meta Pixel ID',
+            'Meta Pixel bekapcsolva / Meta Pixel ID',
             'A Facebook (Meta) hirdetések méréséhez. Csak a marketinges által megadott azonosítóval kapcsold be.',
             'A látogató számára nem látható; a weboldal mérőkódja használja.',
           ),
@@ -288,10 +288,10 @@ export const settingsChapter: GuideChapter = {
       blocks: [
         img(
           'settings-legal',
-          'Legal kártya',
+          'Jogi oldalak kártya',
           'A jogi oldalak publikus útvonalai.',
         ),
-        fields('Legal', [
+        fields('Jogi oldalak', [
           field(
             'Impresszum / Adatkezelés / ÁSZF / Cookie URL',
             'A jogi oldalak címe (pl. /aszf).',
@@ -300,10 +300,10 @@ export const settingsChapter: GuideChapter = {
         ]),
         img(
           'settings-legal-page-content',
-          'Legal page content',
+          'Jogi oldalak szövege',
           'A jogi oldalak szövegének szerkesztője.',
         ),
-        fields('Legal page content', [
+        fields('Jogi oldalak szövege', [
           field(
             'Kapcsolat tartalom',
             'Elérhetőségek, cégadatok, bankszámlák.',

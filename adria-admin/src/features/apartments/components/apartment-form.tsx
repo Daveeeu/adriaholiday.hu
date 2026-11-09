@@ -279,7 +279,7 @@ export function ApartmentForm({
             name="allInclusiveDescription"
             render={({ field }) => (
               <FormItem className="md:col-span-2 xl:col-span-4">
-                <FormLabel>All-inclusive szerkesztése</FormLabel>
+                <FormLabel>All inclusive szerkesztése</FormLabel>
                 <FormControl>
                   <RichTextEditor
                     value={field.value}

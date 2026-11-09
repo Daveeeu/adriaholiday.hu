@@ -135,10 +135,10 @@ export function PartnerFinancesPage() {
     description:
       'Jutalék jóváírások, kifizetések, hely jóváírások és leutazható egyenlegek egy tabos nézetben.',
     toolbarTitle: financeModes.find((mode) => mode.type === activeType)?.label ?? 'Partner pénzügyek',
-    toolbarDescription: 'Keresés, rendezés, lapozás és gyors pénzügyi CRUD műveletek.',
+    toolbarDescription: 'Keresés a pénzügyi tételek között.',
     searchPlaceholder: 'Keresés partner, dátum vagy megjegyzés alapján...',
-    createLabel: 'Új pénzügyi rekord',
-    emptyText: 'Nincs a keresésnek megfelelő pénzügyi rekord.',
+    createLabel: 'Új pénzügyi tétel',
+    emptyText: 'Nincs a keresésnek megfelelő pénzügyi tétel.',
     queryKey: ['bookings', 'partner-finances', activeType],
     listQuery: (query: Parameters<typeof getPartnerFinances>[0]) =>
       getPartnerFinances({ ...query, type: activeType }),
@@ -170,14 +170,14 @@ export function PartnerFinancesPage() {
     updateRecord: updatePartnerFinanceRecord,
     deleteRecord: deletePartnerFinanceRecord,
     panelTitle: (mode: 'create' | 'edit' | 'detail', record: PartnerFinanceRecord | null) => {
-      if (mode === 'create') return 'Új partner pénzügyi rekord';
-      if (mode === 'edit') return `Pénzügyi rekord szerkesztése: ${record?.partnerName ?? ''}`;
-      return record ? record.partnerName : 'Pénzügyi rekord részletei';
+      if (mode === 'create') return 'Új partner pénzügyi tétel';
+      if (mode === 'edit') return `Pénzügyi tétel szerkesztése: ${record?.partnerName ?? ''}`;
+      return record ? record.partnerName : 'Pénzügyi tétel részletei';
     },
     panelDescription: (mode: 'create' | 'edit' | 'detail', record: PartnerFinanceRecord | null) => {
       if (mode === 'create') return 'Válassz típust, összeget és állapotot.';
       if (mode === 'edit') return 'Frissítsd a jutalék adatokat.';
-      return record ? `${getFinanceTypeLabel(record.type)} • ${formatDate(record.date)}` : 'Válassz egy rekordot a listából.';
+      return record ? `${getFinanceTypeLabel(record.type)} • ${formatDate(record.date)}` : 'Válassz egy elemet a listából.';
     },
     renderPanel: ({
       mode,
@@ -215,7 +215,7 @@ export function PartnerFinancesPage() {
 
         return (
           <div className="space-y-4">
-            <FormSection title="Pénzügyi rekord">
+            <FormSection title="Pénzügyi tétel">
               <div className="grid gap-3">
                 <Input value={draft.partnerName} onChange={(event) => setDraft((current) => ({ ...current, partnerName: event.target.value }))} placeholder="Partner" />
                 <Input type="date" value={draft.date} onChange={(event) => setDraft((current) => ({ ...current, date: event.target.value }))} />

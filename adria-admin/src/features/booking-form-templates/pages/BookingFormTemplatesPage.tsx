@@ -190,7 +190,7 @@ function BookingFormTemplatesSection() {
             <TableHeader>
               <TableRow>
                 <TableHead>Név</TableHead>
-                <TableHead>Slug</TableHead>
+                <TableHead>Webcím</TableHead>
                 <TableHead>Mezők</TableHead>
                 <TableHead>Aktív</TableHead>
                 <TableHead className="text-right">Műveletek</TableHead>

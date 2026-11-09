@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 
 import { getPermissions } from '../lib/permissions.api';
+import { getPermissionActionLabel, getPermissionGroupLabel } from '../lib/permission-labels';
 import { groupPermissions } from '../lib/permissions.types';
 
 export function PermissionsPage() {
@@ -22,6 +23,8 @@ export function PermissionsPage() {
     const filtered = query
       ? permissions.filter(
           (permission) =>
+            getPermissionGroupLabel(permission.group).toLowerCase().includes(query) ||
+            getPermissionActionLabel(permission.action).toLowerCase().includes(query) ||
             permission.group.toLowerCase().includes(query) ||
             permission.action.toLowerCase().includes(query) ||
             permission.name.toLowerCase().includes(query),
@@ -44,10 +47,10 @@ export function PermissionsPage() {
     <div className="space-y-6">
       <div className="space-y-2">
         <p className="text-sm font-medium text-primary">Rendszergazda</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Permissionök</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Jogosultságok</h1>
         <p className="text-sm text-muted-foreground">
-          A rendszerben elérhető összes jogosultság, modulonként csoportosítva. Ez a lista csak
-          olvasható — a jogosultságokat a Role-ok kezelése oldalon lehet szerepkörökhöz rendelni.
+          A rendszerben elérhető összes jogosultság, területenként csoportosítva. Ez a lista csak
+          olvasható — a jogosultságokat a Szerepkörök oldalon lehet szerepkörökhöz rendelni.
         </p>
       </div>
 
@@ -55,7 +58,7 @@ export function PermissionsPage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Keresés modul vagy művelet alapján..."
+          placeholder="Keresés terület vagy művelet alapján..."
         />
       </div>
 
@@ -67,11 +70,11 @@ export function PermissionsPage() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {groups.map((group) => (
             <div key={group.group} className="rounded-2xl border bg-card p-4 shadow-sm">
-              <h2 className="font-semibold">{group.group}</h2>
+              <h2 className="font-semibold">{getPermissionGroupLabel(group.group)}</h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 {group.permissions.map((permission) => (
                   <Badge key={permission.name} className="bg-muted text-muted-foreground">
-                    {permission.action}
+                    {getPermissionActionLabel(permission.action)}
                   </Badge>
                 ))}
               </div>

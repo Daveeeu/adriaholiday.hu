@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { getContentBlockLabel } from '@/features/portfolio-content/lib/content-block-labels';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -171,10 +172,10 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['portfolio-content', PORTFOLIO_PAGE] });
-      toast.success('Hero draft mentve.');
+      toast.success('Nyitókép piszkozat mentve.');
     },
     onError: () => {
-      toast.error('Nem sikerült menteni a hero blokkot.');
+      toast.error('Nem sikerült menteni a nyitóképet.');
     },
   });
 
@@ -184,10 +185,10 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['portfolio-content', PORTFOLIO_PAGE] });
-      toast.success('Hero publikálva.');
+      toast.success('Nyitókép közzétéve.');
     },
     onError: () => {
-      toast.error('Nem sikerült publikálni a hero blokkot.');
+      toast.error('Nem sikerült közzétenni a nyitóképet.');
     },
   });
 
@@ -195,9 +196,9 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
     <Card className="p-6 space-y-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-xl font-semibold">Hero szekció</h2>
+          <h2 className="text-xl font-semibold">Főoldali nyitókép</h2>
           <p className="text-sm text-muted-foreground">
-            A teljes hero tartalom külön editorban.
+            A főoldal tetején látható kép, cím és gombok.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -208,7 +209,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
             }}
           >
             <Save className="size-4" />
-            Mentés draftként
+            Mentés piszkozatként
           </Button>
           <Button
             onClick={() => {
@@ -216,7 +217,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
             }}
           >
             <Upload className="size-4" />
-            Hero publikálása
+            Nyitókép közzététele
           </Button>
         </div>
       </div>
@@ -224,33 +225,33 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <FieldInput label="Hero alcím" value={draft.accent} onChange={(value) => setDraft((current) => ({ ...current, accent: value }))} />
+            <FieldInput label="Nyitókép alcíme" value={draft.accent} onChange={(value) => setDraft((current) => ({ ...current, accent: value }))} />
             <HeadingPartsEditor
-              label="Hero főcím részek"
+              label="Főcím részei"
               value={draft.titleParts}
               onChange={(value) => setDraft((current) => ({ ...current, titleParts: value }))}
               className="md:col-span-2"
             />
-            <FieldTextarea label="Hero alcím / leírás" value={draft.subtitle} onChange={(value) => setDraft((current) => ({ ...current, subtitle: value }))} className="md:col-span-2" />
-            <FieldInput label="Elsődleges CTA szöveg" value={draft.primaryLabel} onChange={(value) => setDraft((current) => ({ ...current, primaryLabel: value }))} />
-            <FieldInput label="Elsődleges CTA link" value={draft.primaryUrl} onChange={(value) => setDraft((current) => ({ ...current, primaryUrl: value }))} />
-            <FieldInput label="Másodlagos CTA szöveg" value={draft.secondaryLabel} onChange={(value) => setDraft((current) => ({ ...current, secondaryLabel: value }))} />
-            <FieldInput label="Másodlagos CTA link" value={draft.secondaryUrl} onChange={(value) => setDraft((current) => ({ ...current, secondaryUrl: value }))} />
+            <FieldTextarea label="Nyitókép leírása" value={draft.subtitle} onChange={(value) => setDraft((current) => ({ ...current, subtitle: value }))} className="md:col-span-2" />
+            <FieldInput label="Elsődleges gomb felirata" value={draft.primaryLabel} onChange={(value) => setDraft((current) => ({ ...current, primaryLabel: value }))} />
+            <FieldInput label="Elsődleges gomb linkje" value={draft.primaryUrl} onChange={(value) => setDraft((current) => ({ ...current, primaryUrl: value }))} />
+            <FieldInput label="Másodlagos gomb felirata" value={draft.secondaryLabel} onChange={(value) => setDraft((current) => ({ ...current, secondaryLabel: value }))} />
+            <FieldInput label="Másodlagos gomb linkje" value={draft.secondaryUrl} onChange={(value) => setDraft((current) => ({ ...current, secondaryUrl: value }))} />
           </div>
 
           <FieldTextarea
-            label="Hero statisztikák"
+            label="Számok a nyitóképen"
             value={draft.stats}
             onChange={(value) => setDraft((current) => ({ ...current, stats: value }))}
-            helper="JSON tömb, a jelenlegi statisztika kártyákhoz."
+            helper="A nyitóképen látható számok. Csak a mintának megfelelő formátumban módosítsd."
             className="min-h-56"
           />
 
           <FieldTextarea
-            label="Hero badge-ek"
+            label="Kiemelt címkék"
             value={draft.badges}
             onChange={(value) => setDraft((current) => ({ ...current, badges: value }))}
-            helper="JSON tömb, a lebegő badge-ekhez."
+            helper="A nyitóképen lebegő címkék. Csak a mintának megfelelő formátumban módosítsd."
             className="min-h-56"
           />
         </div>
@@ -259,7 +260,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
           <HeroMediaEditor
             key={blocks['home.hero.image']?.updatedAt ?? 'hero-image'}
             block={blocks['home.hero.image']}
-            title="Hero háttérkép"
+            title="Nyitókép háttérképe"
             accept="image/*"
             previewMode="image"
             onRefresh={async () => {
@@ -269,7 +270,7 @@ function HeroSectionEditor({ blocks }: { blocks: Record<string, PortfolioContent
           <HeroMediaEditor
             key={blocks['home.hero.video']?.updatedAt ?? 'hero-video'}
             block={blocks['home.hero.video']}
-            title="Hero videó"
+            title="Nyitókép videója"
             accept="video/*"
             previewMode="video"
             onRefresh={async () => {
@@ -348,7 +349,7 @@ function HeadingPartsEditor({
     <div className={`block text-sm ${className}`}>
       <div className="flex items-center justify-between gap-3">
         <span>{label}</span>
-        <span className="text-xs text-muted-foreground">Text | Típus</span>
+        <span className="text-xs text-muted-foreground">Szöveg | Stílus</span>
       </div>
 
       <div className="mt-2 space-y-3 rounded-2xl border border-border bg-background p-4">
@@ -373,10 +374,10 @@ function HeadingPartsEditor({
               }}
               className="h-10 rounded-md border border-input bg-background px-3 text-sm"
             >
-              <option value="default">default</option>
-              <option value="gradient">gradient</option>
-              <option value="muted">muted</option>
-              <option value="accent">accent</option>
+              <option value="default">Alap</option>
+              <option value="gradient">Színátmenetes</option>
+              <option value="muted">Halvány</option>
+              <option value="accent">Kiemelt</option>
             </select>
 
             <Button
@@ -482,11 +483,11 @@ function HeroMediaEditor({
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="font-semibold">{title}</h3>
-          <p className="text-xs text-muted-foreground">{block?.key ?? 'Nincs blokk'}</p>
+          {block ? null : <p className="text-xs text-muted-foreground">Ez a tartalom nem érhető el.</p>}
         </div>
         {block ? (
           <span className={`rounded-full px-2 py-1 text-xs ${block.hasDraft ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-            {block.hasDraft ? 'Draft van' : 'Publikált'}
+            {block.hasDraft ? 'Van piszkozat' : 'Közzétéve'}
           </span>
         ) : null}
       </div>
@@ -616,7 +617,7 @@ export function PortfolioEditorPage() {
     mutationFn: () => publishAllPortfolioContent(PORTFOLIO_PAGE),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['portfolio-content', PORTFOLIO_PAGE] });
-      toast.success('Az összes draft publikálva.');
+      toast.success('Az összes piszkozat közzétéve.');
     },
   });
 
@@ -626,10 +627,10 @@ export function PortfolioEditorPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Portfólió szerkesztése
+              Főoldal szerkesztése
             </h1>
             <p className="text-sm text-muted-foreground">
-              A home oldal inline szerkesztésének alapjai.
+              A honlap főoldalának szövegei és képei.
             </p>
             <p className="text-sm text-muted-foreground">
               A szövegekben az <code>{'{evek}'}</code> helyére a cég alapítása (2003. augusztus 27.) óta eltelt évek
@@ -644,7 +645,7 @@ export function PortfolioEditorPage() {
               onClick={() => window.open('/portfolio?editor=1', '_blank', 'noopener,noreferrer')}
             >
               <ExternalLink className="size-4" />
-              Portfólió megnyitása szerkesztői módban
+              Honlap megnyitása szerkesztői módban
             </Button>
             <Button
               variant="outline"
@@ -653,7 +654,7 @@ export function PortfolioEditorPage() {
               }}
             >
               <Upload className="size-4" />
-              Összes publikálása
+              Összes közzététele
             </Button>
           </div>
         </div>
@@ -671,26 +672,22 @@ export function PortfolioEditorPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="font-semibold">{block.label}</h2>
-                      <span className="rounded-full bg-muted px-2 py-1 text-xs">
-                        {block.type}
-                      </span>
+                      <h2 className="font-semibold">{getContentBlockLabel(block.label)}</h2>
                       {block.hasDraft ? (
                         <span className="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-700">
-                          Draft van
+                          Van piszkozat
                         </span>
                       ) : (
                         <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-700">
-                          Publikált
+                          Közzétéve
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{block.key}</p>
                     <p className="text-sm text-muted-foreground">
-                      Published: {safeStringify(block.publishedValue)}
+                      Közzétéve: {safeStringify(block.publishedValue)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Draft: {safeStringify(block.draftValue)}
+                      Piszkozat: {safeStringify(block.draftValue)}
                     </p>
                   </div>
 
@@ -736,7 +733,7 @@ export function PortfolioEditorPage() {
                         void publishMutation.mutateAsync(block.key);
                       }}
                     >
-                      Publikálás
+                      Közzététel
                     </Button>
                   </div>
                 </div>
@@ -748,9 +745,9 @@ export function PortfolioEditorPage() {
         <Card className="sticky top-6 h-fit p-5">
           <div className="flex items-center justify-between gap-3 border-b pb-4">
             <div>
-              <h2 className="font-semibold">Editor panel</h2>
+              <h2 className="font-semibold">Szerkesztés</h2>
               <p className="text-sm text-muted-foreground">
-                {selectedBlock?.label ?? 'Válassz egy blokkot'}
+                {selectedBlock ? getContentBlockLabel(selectedBlock.label) : 'Válassz egy blokkot'}
               </p>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setSelectedKey(null)}>
@@ -760,11 +757,6 @@ export function PortfolioEditorPage() {
 
           {selectedBlock ? (
             <div className="space-y-4 pt-4">
-              <div className="rounded-xl bg-muted p-3 text-xs">
-                <p><strong>Key:</strong> {selectedBlock.key}</p>
-                <p><strong>Típus:</strong> {selectedBlock.type}</p>
-              </div>
-
               {isTitlePartsBlock(selectedBlock) ? (
                 <HeadingPartsEditor
                   label="Főcím részek"
@@ -783,7 +775,7 @@ export function PortfolioEditorPage() {
                   onChange={setDraftText}
                   minHeight={320}
                   allowPreview
-                  placeholder={selectedBlock.label}
+                  placeholder={getContentBlockLabel(selectedBlock.label)}
                 />
               ) : (
                 <Input
@@ -800,7 +792,7 @@ export function PortfolioEditorPage() {
                   }}
                 >
                   <Save className="size-4" />
-                  Mentés draftként
+                  Mentés piszkozatként
                 </Button>
                 <Button
                   variant="outline"
@@ -809,7 +801,7 @@ export function PortfolioEditorPage() {
                     void publishMutation.mutateAsync(selectedBlock.key);
                   }}
                 >
-                  Publikálás
+                  Közzététel
                 </Button>
               </div>
             </div>

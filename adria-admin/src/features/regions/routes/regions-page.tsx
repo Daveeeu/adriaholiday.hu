@@ -421,7 +421,6 @@ export function RegionsPage() {
 
       <RegionsTable
         table={table}
-        sorting={sorting}
         pagination={pagination}
         onPageSizeChange={(pageSize) =>
           setPagination((currentPagination) => ({

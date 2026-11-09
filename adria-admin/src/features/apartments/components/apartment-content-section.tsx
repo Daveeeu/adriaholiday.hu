@@ -76,25 +76,25 @@ export function ApartmentContentSection({ form }: ApartmentContentSectionProps) 
             <ContentBlock
               form={form}
               name="apartment_type_content"
-              label="Apartment type content"
+              label="Típus szövege"
               placeholder="Típusspecifikus tartalom"
             />
             <ContentBlock
               form={form}
               name="apartment_type_description"
-              label="Apartment type description"
+              label="Típus leírása"
               placeholder="Extra típus leírás"
             />
             <ContentBlock
               form={form}
               name="apartment_type_text_description"
-              label="Apartment type text description"
+              label="Típus részletes leírása"
               placeholder="Első extra szöveges leírás"
             />
             <ContentBlock
               form={form}
               name="apartment_type_text_description_2"
-              label="Apartment type text description 2"
+              label="Típus részletes leírása 2"
               placeholder="Második extra szöveges leírás"
             />
           </div>
@@ -108,7 +108,7 @@ export function ApartmentContentSection({ form }: ApartmentContentSectionProps) 
             <ContentBlock
               form={form}
               name="all_inclusive_content"
-              label="All inclusive content"
+              label="All inclusive szöveg"
               placeholder="All inclusive tartalom"
             />
           </div>

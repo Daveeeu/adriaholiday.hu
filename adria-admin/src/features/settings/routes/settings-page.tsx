@@ -26,7 +26,7 @@ const LEGAL_CONTENT_FIELDS = [
   { name: 'imprintContent', label: 'Impresszum tartalom', placeholder: 'Cégadatok, üzemeltető...' },
   { name: 'privacyContent', label: 'Adatkezelés tartalom', placeholder: 'Adatkezelési tájékoztató...' },
   { name: 'termsContent', label: 'ÁSZF tartalom', placeholder: 'Szerződési feltételek...' },
-  { name: 'cookieContent', label: 'Cookie tartalom', placeholder: 'Cookie tájékoztató...' },
+  { name: 'cookieContent', label: 'Süti tájékoztató tartalom', placeholder: 'Cookie tájékoztató...' },
   { name: 'clubTermsContent', label: 'Utazási Klub feltételei', placeholder: 'A hírlevél-kupon felhasználási feltételei...' },
   { name: 'insuranceContent', label: 'Biztosítások', placeholder: 'Utas- és útlemondási biztosítás díjai, feltételei...' },
 ] as const satisfies ReadonlyArray<{ name: keyof SiteSettingsFormValues; label: string; placeholder: string }>;
@@ -289,7 +289,7 @@ export function SettingsPage() {
       toast.success('A site settings beállítások elmentve.');
     },
     onError: () => {
-      toast.error('A site settings mentése nem sikerült.');
+      toast.error('A beállítások mentése nem sikerült.');
     },
   });
 
@@ -335,9 +335,9 @@ export function SettingsPage() {
     <div className="space-y-6">
       <div className="space-y-2">
         <p className="text-sm font-medium text-primary">Beállítások</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Site Settings</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Weboldal beállításai</h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          A publikus header, footer, kontakt, CTA, social és globális SEO adatok központi kezelőfelülete.
+          A honlap fejlécének, láblécének, elérhetőségeinek és keresőbeállításainak kezelése.
         </p>
       </div>
 
@@ -346,7 +346,7 @@ export function SettingsPage() {
           <div className="grid gap-6 xl:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>General</CardTitle>
+                <CardTitle>Általános</CardTitle>
                 <CardDescription>Alapvető webhely beállítások.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -355,7 +355,7 @@ export function SettingsPage() {
                   name="siteName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Site name</FormLabel>
+                      <FormLabel>Oldal neve</FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="Adria Holiday" />
                       </FormControl>
@@ -368,8 +368,8 @@ export function SettingsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Contact</CardTitle>
-                <CardDescription>Publikus kapcsolatfelvételi adatok.</CardDescription>
+                <CardTitle>Kapcsolat</CardTitle>
+                <CardDescription>A honlapon megjelenő elérhetőségek.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
                 <FormField control={form.control} name="phone" render={({ field }) => (
@@ -379,13 +379,13 @@ export function SettingsPage() {
                   <FormItem><FormLabel>Telefonszámok (lábléc, kapcsolat oldal, e-mailek, PDF)</FormLabel><FormControl><Textarea {...field} rows={4} placeholder="+36 46 508 688&#10;+36 46 508 689" /></FormControl><p className="text-xs text-muted-foreground">Soronként egy szám.</p><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} placeholder="adriaholiday@adriaholiday.hu" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>E-mail</FormLabel><FormControl><Input {...field} placeholder="adriaholiday@adriaholiday.hu" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="whatsapp" render={({ field }) => (
                   <FormItem><FormLabel>WhatsApp</FormLabel><FormControl><Input {...field} placeholder="36123456789" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="address" render={({ field }) => (
-                  <FormItem><FormLabel>Address</FormLabel><FormControl><Textarea {...field} placeholder="3530 Miskolc, Városház tér 22." /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Cím</FormLabel><FormControl><Textarea {...field} placeholder="3530 Miskolc, Városház tér 22." /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="openingHours" render={({ field }) => (
                   <FormItem><FormLabel>Nyitvatartás</FormLabel><FormControl><Textarea {...field} placeholder="Hétfő–Péntek: 08:00–17:00&#10;Szombat–Vasárnap: zárva" /></FormControl><FormMessage /></FormItem>
@@ -397,8 +397,8 @@ export function SettingsPage() {
           <div className="grid gap-6 xl:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Social</CardTitle>
-                <CardDescription>Publikus social profilok linkjei.</CardDescription>
+                <CardTitle>Közösségi média</CardTitle>
+                <CardDescription>A közösségi oldalak linkjei.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4">
                 <FormField control={form.control} name="facebook" render={({ field }) => (
@@ -415,15 +415,15 @@ export function SettingsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>CTA</CardTitle>
-                <CardDescription>Globális elsődleges CTA beállítások.</CardDescription>
+                <CardTitle>Fő gomb</CardTitle>
+                <CardDescription>A honlapon megjelenő fő gomb felirata és linkje.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4">
                 <FormField control={form.control} name="primaryCtaText" render={({ field }) => (
-                  <FormItem><FormLabel>Primary CTA text</FormLabel><FormControl><Input {...field} placeholder="Ajánlatot kérek" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Gomb felirata</FormLabel><FormControl><Input {...field} placeholder="Ajánlatot kérek" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="primaryCtaLink" render={({ field }) => (
-                  <FormItem><FormLabel>Primary CTA link</FormLabel><FormControl><Input {...field} placeholder="/kapcsolat" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Gomb linkje</FormLabel><FormControl><Input {...field} placeholder="/kapcsolat" /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>
@@ -432,30 +432,30 @@ export function SettingsPage() {
           <div className="grid gap-6 xl:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Footer</CardTitle>
-                <CardDescription>Footer szöveg és gyors linkek.</CardDescription>
+                <CardTitle>Lábléc</CardTitle>
+                <CardDescription>A lábléc szövege és a szerzői jogi sor.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField control={form.control} name="footerDescription" render={({ field }) => (
                   <FormItem><FormLabel>Leírás</FormLabel><FormControl><Textarea {...field} rows={4} placeholder="Prémium autóbuszos utazások Európa legszebb úti céljaihoz..." /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="footerCopyright" render={({ field }) => (
-                  <FormItem><FormLabel>Copyright</FormLabel><FormControl><Input {...field} placeholder="© 2026 Adria Holiday. Minden jog fenntartva." /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Szerzői jogi sor</FormLabel><FormControl><Input {...field} placeholder="© 2026 Adria Holiday. Minden jog fenntartva." /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>SEO</CardTitle>
-                <CardDescription>Globális SEO fallbackek és OG média.</CardDescription>
+                <CardTitle>Keresők</CardTitle>
+                <CardDescription>Alapértelmezett keresőbeállítások és megosztási kép.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4">
                 <FormField control={form.control} name="defaultSeoTitle" render={({ field }) => (
-                  <FormItem><FormLabel>Default SEO title</FormLabel><FormControl><Input {...field} placeholder="Adria Holiday" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Alapértelmezett cím a keresőben</FormLabel><FormControl><Input {...field} placeholder="Adria Holiday" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="defaultSeoDescription" render={({ field }) => (
-                  <FormItem><FormLabel>Default SEO description</FormLabel><FormControl><Textarea {...field} placeholder="Prémium autóbuszos és repülős utazások..." /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Alapértelmezett leírás a keresőben</FormLabel><FormControl><Textarea {...field} placeholder="Prémium autóbuszos és repülős utazások..." /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>
@@ -467,7 +467,7 @@ export function SettingsPage() {
               name="logo"
               render={({ field }) => (
                 <MediaPickerField
-                  title="Brand logo"
+                  title="Logó"
                   media={field.value}
                   accept="image/*"
                   previewMode="image"
@@ -489,7 +489,7 @@ export function SettingsPage() {
               name="defaultOgImage"
               render={({ field }) => (
                 <MediaPickerField
-                  title="Default OG image"
+                  title="Megosztási kép"
                   media={field.value}
                   accept="image/*"
                   previewMode="image"
@@ -508,8 +508,8 @@ export function SettingsPage() {
           </div>
 
           <LinkArrayEditor
-            title="Header navigation"
-            description="A felső navigáció publikus menüpontjai."
+            title="Felső menü"
+            description="A honlap felső menüjének pontjai."
             items={headerNavigation.fields}
             onAdd={() => headerNavigation.append({ label: '', to: '' })}
             onRemove={(index) => headerNavigation.remove(index)}
@@ -518,8 +518,8 @@ export function SettingsPage() {
           />
 
           <LinkArrayEditor
-            title="Footer quick links"
-            description="A footer gyors link blokk elemei."
+            title="Lábléc linkjei"
+            description="A láblécben megjelenő linkek."
             items={footerQuickLinks.fields}
             onAdd={() => footerQuickLinks.append({ label: '', to: '' })}
             onRemove={(index) => footerQuickLinks.remove(index)}
@@ -530,13 +530,13 @@ export function SettingsPage() {
           <div className="grid gap-6 xl:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Analytics</CardTitle>
-                <CardDescription>Privát analytics konfigurációk, nem kerülnek ki a publikus API-ba.</CardDescription>
+                <CardTitle>Mérés</CardTitle>
+                <CardDescription>Ezek az adatok a látogatók számára nem láthatók.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4">
                 <FormField control={form.control} name="metaPixelEnabled" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Meta Pixel enabled</FormLabel>
+                    <FormLabel>Meta Pixel bekapcsolva</FormLabel>
                     <FormControl>
                       <label className="flex items-center gap-3 rounded-xl border border-input px-3 py-2 text-sm">
                         <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
@@ -639,21 +639,21 @@ export function SettingsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Legal</CardTitle>
-                <CardDescription>Jogi oldalak publikus útvonalai.</CardDescription>
+                <CardTitle>Jogi oldalak</CardTitle>
+                <CardDescription>A jogi oldalak címe a honlapon.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4">
                 <FormField control={form.control} name="imprintUrl" render={({ field }) => (
-                  <FormItem><FormLabel>Impresszum URL</FormLabel><FormControl><Input {...field} placeholder="/impresszum" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Impresszum címe</FormLabel><FormControl><Input {...field} placeholder="/impresszum" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="privacyUrl" render={({ field }) => (
-                  <FormItem><FormLabel>Adatkezelés URL</FormLabel><FormControl><Input {...field} placeholder="/adatvedelem" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Adatkezelés címe</FormLabel><FormControl><Input {...field} placeholder="/adatvedelem" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="termsUrl" render={({ field }) => (
-                  <FormItem><FormLabel>ÁSZF URL</FormLabel><FormControl><Input {...field} placeholder="/aszf" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>ÁSZF címe</FormLabel><FormControl><Input {...field} placeholder="/aszf" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="cookieUrl" render={({ field }) => (
-                  <FormItem><FormLabel>Cookie URL</FormLabel><FormControl><Input {...field} placeholder="/sutik" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Süti tájékoztató címe</FormLabel><FormControl><Input {...field} placeholder="/sutik" /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
             </Card>
@@ -661,7 +661,7 @@ export function SettingsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Legal page content</CardTitle>
+              <CardTitle>Jogi oldalak szövege</CardTitle>
               <CardDescription>A Kapcsolat, Impresszum, Adatkezelés, ÁSZF és Süti oldalak szövege.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6">
@@ -682,7 +682,7 @@ export function SettingsPage() {
           <div className="flex justify-end">
             <Button type="submit" disabled={mutation.isPending || isUploadingLogo || isUploadingOgImage}>
               <Save className="size-4" />
-              {mutation.isPending ? 'Mentés...' : 'Site settings mentése'}
+              {mutation.isPending ? 'Mentés...' : 'Beállítások mentése'}
             </Button>
           </div>
         </form>

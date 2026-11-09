@@ -31,7 +31,7 @@ export function ApartmentsToolbar({
             {description}
           </p>
           <p className="text-xs text-muted-foreground">
-            {resultCount} találat a {totalCount} rekordból
+            {resultCount} találat, összesen {totalCount}
           </p>
         </div>
 

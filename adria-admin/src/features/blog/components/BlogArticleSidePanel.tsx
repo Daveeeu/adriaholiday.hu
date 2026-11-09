@@ -82,8 +82,8 @@ function BlogArticleDetailView({ article }: { article: BlogArticle }) {
           <DetailCard label="ID" value={article.id} />
           <DetailCard label="Dátum" value={article.publishedAt} />
           <DetailCard label="Megjelenik" value={article.showOnHomepage} />
-          <DetailCard label="Portfólió kiemelt" value={article.portfolioFeatured} />
-          <DetailCard label="Portfólió sorrend" value={article.portfolioSortOrder} />
+          <DetailCard label="Kiemelt a honlapon" value={article.portfolioFeatured} />
+          <DetailCard label="Sorrend a honlapon" value={article.portfolioSortOrder} />
           <DetailCard label="Megnyitva" value={article.views} />
         </div>
 
@@ -110,7 +110,7 @@ function BlogArticleDetailView({ article }: { article: BlogArticle }) {
                       <span>{translation.title || '—'}</span>
                     </div>
                   <div>
-                    <span className="font-medium">SEO: </span>
+                    <span className="font-medium">Webcím: </span>
                     <span>{translation.seoName || '—'}</span>
                   </div>
                     <div>
@@ -232,7 +232,7 @@ export function BlogArticleSidePanel({
               <>
                 {onToggleActive ? (
                   <Button type="button" variant="outline" onClick={onToggleActive}>
-                    {article.active ? 'Deaktiválás' : 'Aktiválás'}
+                    {article.active ? 'Inaktiválás' : 'Aktiválás'}
                   </Button>
                 ) : null}
                 {onDelete ? (
@@ -305,7 +305,7 @@ export function BlogArticleSidePanel({
                               checked={field.value}
                               onChange={(event) => field.onChange(event.target.checked)}
                             />
-                            Portfólió főoldalon?
+                            Kiemelt a honlap főoldalán?
                           </label>
                         </FormItem>
                       )}
@@ -331,7 +331,7 @@ export function BlogArticleSidePanel({
                       name="portfolioSortOrder"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Portfólió sorrend</FormLabel>
+                          <FormLabel>Sorrend a honlapon</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -447,7 +447,7 @@ export function BlogArticleSidePanel({
                                 name={`translations.${language}.seoName` as const}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>SEO név</FormLabel>
+                                    <FormLabel>Webcím</FormLabel>
                                     <FormControl>
                                       <Input {...field} readOnly={seoAutoByLanguage[language]} />
                                     </FormControl>

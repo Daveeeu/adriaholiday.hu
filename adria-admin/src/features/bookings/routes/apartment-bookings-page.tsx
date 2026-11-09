@@ -88,7 +88,7 @@ export function ApartmentBookingsPage() {
       description:
         'Az apartman foglalások listája az utasokkal, időpontokkal és jóváírási állapotokkal.',
       toolbarTitle: 'Apartman foglalások',
-      toolbarDescription: 'Keresés, rendezés, CRUD és oldalsó szerkesztés.',
+      toolbarDescription: 'Keresés az apartman foglalások között.',
       searchPlaceholder: 'Keresés név, email, apartman vagy kód alapján...',
       createLabel: 'Új foglalás',
       emptyText: 'Nincs a keresésnek megfelelő apartman foglalás.',
@@ -128,7 +128,7 @@ export function ApartmentBookingsPage() {
       panelDescription: (mode: 'create' | 'edit' | 'detail', record: ApartmentBooking | null) => {
         if (mode === 'create') return 'Adj hozzá új apartman foglalást.';
         if (mode === 'edit') return 'Szerkeszd a foglaló és apartman adatait.';
-        return record ? `${record.apartmentName} • ${formatDate(record.bookingDate)}` : 'Válassz egy rekordot a listából.';
+        return record ? `${record.apartmentName} • ${formatDate(record.bookingDate)}` : 'Válassz egy elemet a listából.';
       },
       renderPanel: ({
         mode,

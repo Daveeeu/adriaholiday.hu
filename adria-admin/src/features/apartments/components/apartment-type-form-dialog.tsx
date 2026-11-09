@@ -94,7 +94,7 @@ export function ApartmentTypeFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center justify-between gap-3">
-                    <FormLabel>Slug</FormLabel>
+                    <FormLabel>Webcím</FormLabel>
                     <Button
                       type="button"
                       variant="ghost"

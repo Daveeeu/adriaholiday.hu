@@ -1,7 +1,6 @@
 import {
   flexRender,
   type PaginationState,
-  type SortingState,
   type Table as ReactTable,
 } from '@tanstack/react-table';
 import { ChevronLeft, ChevronRight, Eye, Pencil, Power, Trash2 } from 'lucide-react';
@@ -24,7 +23,6 @@ import type { ApartmentRow } from '@/features/apartments/routes/apartments-page'
 
 type ApartmentsTableProps = {
   table: ReactTable<ApartmentRow>;
-  sorting: SortingState;
   pagination: PaginationState;
   totalCount: number;
   apartmentTypes: ApartmentType[];
@@ -123,7 +121,6 @@ function ColumnFilter({
 
 export function ApartmentsTable({
   table,
-  sorting,
   pagination,
   totalCount,
   apartmentTypes,
@@ -247,9 +244,6 @@ export function ApartmentsTable({
           Találatok: <span className="font-medium text-foreground">{pageFrom}</span>
           - <span className="font-medium text-foreground">{pageTo}</span> /{' '}
           <span className="font-medium text-foreground">{totalCount}</span> összesen
-          <span className="ml-2">
-            | Rendezés: <span className="font-medium text-foreground">{sorting[0]?.id ?? 'name'}</span>
-          </span>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

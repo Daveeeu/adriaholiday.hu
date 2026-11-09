@@ -241,7 +241,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
       <TourPanelSection
         title="Alapadatok"
-        description="Aktív, megjelenési és alap kapcsolóbeállítások."
+        description="Aktív-e az út, és hol jelenjen meg."
         open={openSections.basic}
         onToggle={() => toggleSection('basic')}
       >
@@ -267,7 +267,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
           <BooleanField form={form} name="active" label="Aktív?" />
           <BooleanField form={form} name="listed" label="Megjelenik az ajánlatlistákban?" />
-          <BooleanField form={form} name="xmlEnabled" label="XML-ben szerepel?" />
+          <BooleanField form={form} name="xmlEnabled" label="Partnerportálokon megjelenik?" />
           <BooleanField form={form} name="couponable" label="Kuponozható?" />
           <BooleanField form={form} name="imageOffer" label="Képes ajánlat?" />
           <BooleanField form={form} name="sliderImageEnabled" label="Slider kép" />
@@ -276,8 +276,8 @@ export function TourForm({ form, tour }: TourFormProps) {
       </TourPanelSection>
 
       <TourPanelSection
-        title="SEO és elnevezés"
-        description="Név, slug és akciós címkeszövegek kezelése."
+        title="Név és webcím"
+        description="Név, webcím, akciós feliratok és keresőbeállítások."
         open={openSections.seo}
         onToggle={() => toggleSection('seo')}
       >
@@ -286,7 +286,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
       <TourPanelSection
         title="Galéria és média"
-        description="Hero, galéria és médiatári képek."
+        description="Az utazás fő képe és galériája."
         countLabel={`${sectionCounts.gallery} elem`}
         open={openSections.gallery}
         onToggle={() => toggleSection('gallery')}
@@ -295,8 +295,8 @@ export function TourForm({ form, tour }: TourFormProps) {
       </TourPanelSection>
 
       <TourPanelSection
-        title="Ár / PriceBox"
-        description="Kártya- és detail oldali ármegjelenítés, CTA-k, férőhely adatok."
+        title="Árdoboz"
+        description="Az ajánlatkártyán és az utazás oldalán látszó ár, gombok és férőhelyek."
         open={openSections.priceBox}
         onToggle={() => toggleSection('priceBox')}
       >
@@ -358,7 +358,7 @@ export function TourForm({ form, tour }: TourFormProps) {
             name="priceBox.discountBadge"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kedvezmény badge</FormLabel>
+                <FormLabel>Kedvezmény címke</FormLabel>
                 <FormControl>
                   <Input placeholder="-15%" {...field} />
                 </FormControl>
@@ -384,7 +384,7 @@ export function TourForm({ form, tour }: TourFormProps) {
             name="priceBox.urgencyText"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Urgency / érdeklődő szöveg</FormLabel>
+                <FormLabel>Sürgető felirat</FormLabel>
                 <FormControl>
                   <Input placeholder="18 fő érdeklődött az elmúlt 72 órában" {...field} />
                 </FormControl>
@@ -462,7 +462,7 @@ export function TourForm({ form, tour }: TourFormProps) {
             name="priceBox.ctaPrimaryLabel"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Elsődleges CTA felirat</FormLabel>
+                <FormLabel>Elsődleges gomb felirata</FormLabel>
                 <FormControl>
                   <Input placeholder="Ajánlatot kérek" {...field} />
                 </FormControl>
@@ -475,7 +475,7 @@ export function TourForm({ form, tour }: TourFormProps) {
             name="priceBox.ctaSecondaryLabel"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Másodlagos CTA felirat</FormLabel>
+                <FormLabel>Másodlagos gomb felirata</FormLabel>
                 <FormControl>
                   <Input placeholder="Lefoglalom az utat" {...field} />
                 </FormControl>
@@ -488,7 +488,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
       <TourPanelSection
         title="Tartalmi blokkok"
-        description="Leírások, szolgáltatási információk, PDF és rich text tartalom."
+        description="Leírások, szolgáltatási információk és a program PDF."
         open={openSections.content}
         onToggle={() => toggleSection('content')}
       >
@@ -497,7 +497,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
       <TourPanelSection
         title="Program napok"
-        description="Napi bontás, ikonok, képek és badge-ek."
+        description="Napi bontás, ikonok, képek és címkék."
         countLabel={`${sectionCounts.programDays} nap`}
         open={openSections.programDays}
         onToggle={() => toggleSection('programDays')}
@@ -545,7 +545,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
       <TourPanelSection
         title="Időpontok"
-        description="Indulási dátumok, státuszok és dátumspecifikus árak."
+        description="Indulási dátumok, állapotok és az időpontokhoz tartozó árak."
         countLabel={`${sectionCounts.dates} időpont`}
         open={openSections.dates}
         onToggle={() => toggleSection('dates')}
@@ -554,8 +554,8 @@ export function TourForm({ form, tour }: TourFormProps) {
       </TourPanelSection>
 
       <TourPanelSection
-        title="Partner XML (Travelgate, Travelmax, Cesys)"
-        description="Amit az út a partnerportálok feedjeiben mutat: régió, utazástípusok, szállás, biztosítás."
+        title="Partnerportálok (Travelgate, Travelmax, Cesys)"
+        description="Amit az út a partnerportálokon mutat: régió, utazástípusok, szállás, biztosítás."
         open={openSections.partnerXml}
         onToggle={() => toggleSection('partnerXml')}
       >

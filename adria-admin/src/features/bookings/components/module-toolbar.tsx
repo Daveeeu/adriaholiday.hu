@@ -25,7 +25,7 @@ export function ModuleToolbar({
   placeholder,
   onSearchChange,
   onCreate,
-  createLabel = 'Új rekord',
+  createLabel = 'Új elem',
   onReset,
   extraControls,
   className,

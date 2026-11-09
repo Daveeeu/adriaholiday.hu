@@ -268,7 +268,7 @@ export function BookingFormTemplateSidePanel({
                       name="slug"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Slug</FormLabel>
+                          <FormLabel>Webcím</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="buszos-ut (üresen automatikus)"

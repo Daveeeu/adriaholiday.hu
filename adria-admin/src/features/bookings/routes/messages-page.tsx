@@ -61,9 +61,9 @@ export function MessagesPage() {
       eyebrow: 'Foglalások',
       title: 'Üzenetek',
       description:
-        'Kapcsolatfelvételi üzenetek listája. Az üzenet tartalma readonly, de a rekord többi metaadata kezelhető.',
+        'A honlapról érkezett üzenetek. Az üzenet szövege nem módosítható, a többi adata igen.',
       toolbarTitle: 'Üzenetek',
-      toolbarDescription: 'Keresés, rendezés és oldalsó rekordkezelés.',
+      toolbarDescription: 'Keresés az üzenetek között.',
       searchPlaceholder: 'Keresés név, email vagy telefonszám alapján...',
       createLabel: 'Új üzenet',
       emptyText: 'Nincs a keresésnek megfelelő üzenet.',
@@ -102,8 +102,8 @@ export function MessagesPage() {
       },
       panelDescription: (mode: 'create' | 'edit' | 'detail', record: ContactMessage | null) => {
         if (mode === 'create') return 'Új kapcsolatfelvétel rögzítése.';
-        if (mode === 'edit') return 'Frissítsd a rekord metaadatait.';
-        return record ? `${formatDateTime(record.createdAt)} • ${record.email}` : 'Válassz egy rekordot a listából.';
+        if (mode === 'edit') return 'Frissítsd az üzenet adatait.';
+        return record ? `${formatDateTime(record.createdAt)} • ${record.email}` : 'Válassz egy elemet a listából.';
       },
       renderPanel: ({
         mode,
@@ -140,7 +140,7 @@ export function MessagesPage() {
 
         return (
           <div className="space-y-4">
-            <FormSection title="Rekord adatok">
+            <FormSection title="Az üzenet adatai">
               <div className="grid gap-3">
                 <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Név" />
                 <Input value={draft.email} onChange={(event) => setDraft((current) => ({ ...current, email: event.target.value }))} placeholder="Email" />
@@ -155,7 +155,7 @@ export function MessagesPage() {
                   value={draft.message}
                   readOnly
                   className="min-h-32 bg-muted/30"
-                  placeholder="Az üzenet tartalma readonly"
+                  placeholder="Az üzenet szövege nem módosítható"
                 />
               </div>
             </FormSection>

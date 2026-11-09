@@ -4,7 +4,7 @@ import type { GuideChapter } from '../lib/user-guide.types';
 
 import { ADMIN_ONLY, field, fields, img, p, tip, warning } from './blocks';
 
-const ARTICLE_PAGE = 'A cikk oldalán (adriaholiday.hu/blog/<SEO név>)';
+const ARTICLE_PAGE = 'A cikk oldalán (adriaholiday.hu/blog/<Webcím>)';
 
 export const blogChapter: GuideChapter = {
   id: 'blog',
@@ -43,12 +43,12 @@ export const blogChapter: GuideChapter = {
             'A blog listájának elején.',
           ),
           field(
-            'Portfólió főoldalon?',
+            'Kiemelt a honlap főoldalán?',
             'Bekapcsolva a cikk a weboldal főoldalának blog blokkjában szerepel.',
             'A főoldal blog blokkjában.',
           ),
           field(
-            'Portfólió sorrend',
+            'Sorrend a honlapon',
             'A főoldali blog blokk sorrendje; kisebb szám előrébb.',
             'A főoldal blog blokkjában.',
           ),
@@ -83,7 +83,7 @@ export const blogChapter: GuideChapter = {
             `${ARTICLE_PAGE} főcímként és a bloglistában.`,
           ),
           field(
-            'SEO név + Automatikus generálás',
+            'Webcím + Automatikus generálás',
             'A cikk webcíme.',
             'A böngésző címsorában.',
           ),
@@ -107,7 +107,7 @@ export const blogChapter: GuideChapter = {
       id: 'blog-categories',
       title: 'Kategóriák',
       summary:
-        'A blogcikkek és a körutazások közös kategóriái. Minden aktív kategóriának saját oldala van (adriaholiday.hu/kategoriak/<SEO név>), ahol a kategóriába sorolt utak jelennek meg.',
+        'A blogcikkek és a körutazások közös kategóriái. Minden aktív kategóriának saját oldala van (adriaholiday.hu/kategoriak/<Webcím>), ahol a kategóriába sorolt utak jelennek meg.',
       path: '/blog/categories',
       menu: 'Blog › Kategóriák',
       access: 'Blog kategóriák megtekintése',
@@ -120,13 +120,13 @@ export const blogChapter: GuideChapter = {
         img(
           'blog-category-form',
           'Kategória szerkesztése',
-          'Egy kategória szerkesztése: aktív, oszlop és nyelvenkénti név, SEO név.',
+          'Egy kategória szerkesztése: aktív, oszlop és nyelvenkénti név, Webcím.',
         ),
         fields('Mezők', [
           field(
             'Aktív',
             'Inaktív kategória oldala nem érhető el.',
-            'adriaholiday.hu/kategoriak/<SEO név>',
+            'adriaholiday.hu/kategoriak/<Webcím>',
           ),
           field(
             'Oszlop',
@@ -139,7 +139,7 @@ export const blogChapter: GuideChapter = {
             'A kategóriaoldal címe, az ajánlatkártyák és cikkek címkéi.',
           ),
           field(
-            'SEO név + Automatikus generálás',
+            'Webcím + Automatikus generálás',
             'A kategóriaoldal webcíme.',
             'A kategóriaoldal webcímében; a főoldali ajánlatok linkjei is erre mutatnak.',
           ),
