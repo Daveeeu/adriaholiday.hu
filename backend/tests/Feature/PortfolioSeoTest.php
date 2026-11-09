@@ -151,12 +151,25 @@ class PortfolioSeoTest extends TestCase
 
     public function test_front_controller_and_trailing_slash_addresses_redirect_to_the_clean_page(): void
     {
-        $this->visit('/index.php')->assertStatus(301)->assertRedirect(self::SITE);
-        $this->visit('/index.php?id=5')->assertStatus(301)->assertRedirect(self::SITE.'?id=5');
+        $this->visit('/index.php')->assertStatus(301)->assertHeader('Location', self::SITE.'/');
+        $this->visit('/index.php?id=5')->assertStatus(301)->assertHeader('Location', self::SITE.'/?id=5');
         $this->visit('/index.php/kapcsolat')->assertStatus(301)->assertRedirect(self::SITE.'/kapcsolat');
         // The test client trims a bare trailing slash before sending, so that case is asserted on the request.
         $this->assertSame('/kapcsolat', PublicSiteUrl::cleanRequestUri(Request::create(self::SITE.'/kapcsolat/')));
         $this->visit('/kapcsolat/?utm_source=hirlevel')->assertStatus(301)->assertRedirect(self::SITE.'/kapcsolat?utm_source=hirlevel');
+    }
+
+    public function test_front_controller_addresses_redirect_out_of_the_script_path_as_on_the_server(): void
+    {
+        // As PHP-FPM reports it: the request's base URL is then "/index.php", and URLs built from it would loop.
+        $this->withServerVariables([
+            'SCRIPT_FILENAME' => public_path('index.php'),
+            'SCRIPT_NAME' => '/index.php',
+            'PHP_SELF' => '/index.php',
+        ]);
+
+        $this->visit('/index.php')->assertStatus(301)->assertHeader('Location', self::SITE.'/');
+        $this->visit('/index.php/kapcsolat')->assertStatus(301)->assertHeader('Location', self::SITE.'/kapcsolat');
     }
 
     public function test_clean_addresses_are_served_without_a_redirect(): void

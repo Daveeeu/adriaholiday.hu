@@ -39,8 +39,10 @@ class PortfolioSpaController extends Controller
 
         $cleanUri = PublicSiteUrl::cleanRequestUri($request);
 
+        // Built from the host alone: on an /index.php address the request's base URL is that
+        // script, so the URL generator would point the redirect right back at it.
         if ($cleanUri !== null) {
-            return redirect($cleanUri, 301);
+            return redirect()->away($request->getSchemeAndHttpHost().$cleanUri, 301);
         }
 
         [$page, $siteName] = $this->seo($seo, $request);
