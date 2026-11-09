@@ -15,6 +15,7 @@ export default function StaticPage({
   html,
   description: ownDescription,
   seoTitle,
+  keepServerHead,
 }: {
   title: string;
   children?: React.ReactNode;
@@ -25,6 +26,12 @@ export default function StaticPage({
   description?: string;
   /** The head title, when it differs from the page's heading. */
   seoTitle?: string;
+  /**
+   * For a page whose data failed to load: the server already sent its real title,
+   * canonical and robots tags, and a passing API error must not replace them. A
+   * crawler visiting at that moment would otherwise drop the page from its index.
+   */
+  keepServerHead?: boolean;
 }) {
   const { settings } = useSiteSettings();
   const path = canonicalPath ?? "/";
@@ -78,13 +85,15 @@ export default function StaticPage({
 
   return (
     <div className="min-h-screen bg-[#f7fbff]">
-      <Seo
-        title={seoTitle ?? title}
-        description={description}
-        canonicalPath={path}
-        noIndex={noIndex}
-        jsonLd={[breadcrumbJsonLd, pageJsonLd]}
-      />
+      {keepServerHead ? null : (
+        <Seo
+          title={seoTitle ?? title}
+          description={description}
+          canonicalPath={path}
+          noIndex={noIndex}
+          jsonLd={[breadcrumbJsonLd, pageJsonLd]}
+        />
+      )}
       <div className="mx-auto max-w-5xl px-8 py-16 md:px-12 lg:px-20">
         <div className="rounded-[36px] border border-[#dbe7f1] bg-white p-8 shadow-[0_22px_70px_rgba(15,23,42,0.06)] md:p-12">
           <h1 className="text-4xl font-bold tracking-tight text-[#0f172a]">

@@ -264,18 +264,18 @@ export default function TripRoute() {
     return <LoadingScreen />;
   }
 
-  if (notFound || !offer) {
+  if (error) {
     return (
-      <StaticPage title="Az ajánlat nem található" noIndex canonicalPath={`/ajanlat/${offerSlug ?? ""}`}>
-        <p>A keresett ajánlat nem létezik vagy már nem elérhető.</p>
+      <StaticPage title="Nem sikerült betölteni az ajánlatot" keepServerHead>
+        <p>Az ajánlat adatainak betöltése közben hiba történt.</p>
       </StaticPage>
     );
   }
 
-  if (error) {
+  if (notFound || !offer) {
     return (
-      <StaticPage title="Nem sikerült betölteni az ajánlatot" noIndex canonicalPath={`/ajanlat/${offerSlug ?? ""}`}>
-        <p>Az ajánlat adatainak betöltése közben hiba történt.</p>
+      <StaticPage title="Az ajánlat nem található" noIndex canonicalPath={`/ajanlat/${offerSlug ?? ""}`}>
+        <p>A keresett ajánlat nem létezik vagy már nem elérhető.</p>
       </StaticPage>
     );
   }

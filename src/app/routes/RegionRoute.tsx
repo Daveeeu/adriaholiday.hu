@@ -139,18 +139,18 @@ export default function RegionRoute() {
     return <LoadingScreen />;
   }
 
-  if (notFound || !region) {
+  if (hasError) {
     return (
-      <StaticPage title="A régió nem található" noIndex canonicalPath={canonicalPath}>
-        <p>A keresett régió nem elérhető vagy már nem publikus.</p>
+      <StaticPage title="Nem sikerült betölteni a régiót" keepServerHead>
+        <p>A régió adatainak betöltése közben hiba történt.</p>
       </StaticPage>
     );
   }
 
-  if (hasError) {
+  if (notFound || !region) {
     return (
-      <StaticPage title="Nem sikerült betölteni a régiót" noIndex canonicalPath={canonicalPath}>
-        <p>A régió adatainak betöltése közben hiba történt.</p>
+      <StaticPage title="A régió nem található" noIndex canonicalPath={canonicalPath}>
+        <p>A keresett régió nem elérhető vagy már nem publikus.</p>
       </StaticPage>
     );
   }

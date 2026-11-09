@@ -51,6 +51,14 @@ export default function ApartmentRoute() {
     return <LoadingScreen />;
   }
 
+  if (resource.status === "error") {
+    return (
+      <StaticPage title="Nem sikerült betölteni az apartmant" keepServerHead>
+        <p>Az apartman adatainak betöltése közben hiba történt.</p>
+      </StaticPage>
+    );
+  }
+
   if (resource.status !== "ready") {
     return (
       <StaticPage title="Az apartman nem található" noIndex canonicalPath={canonicalPath}>

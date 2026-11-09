@@ -40,7 +40,15 @@ export default function ApartmentLocationRoute() {
     return <LoadingScreen />;
   }
 
-  if (location.status === "notFound" || location.status === "error" || location.data === null) {
+  if (location.status === "error") {
+    return (
+      <StaticPage title="Nem sikerült betölteni a helyszínt" keepServerHead>
+        <p>A helyszín apartmanjainak betöltése közben hiba történt.</p>
+      </StaticPage>
+    );
+  }
+
+  if (location.status === "notFound" || location.data === null) {
     return (
       <StaticPage title="A helyszín nem található" noIndex canonicalPath={canonicalPath}>
         <p>A keresett helyszín apartmanjai jelenleg nem elérhetők.</p>

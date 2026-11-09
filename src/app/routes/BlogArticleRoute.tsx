@@ -132,18 +132,18 @@ export default function BlogArticleRoute() {
     return <LoadingScreen />;
   }
 
-  if (notFound || !article) {
+  if (error) {
     return (
-      <StaticPage title="A blog cikk nem található" noIndex canonicalPath={`/blog/${slug ?? ""}`}>
-        <p>A keresett blog bejegyzés nem érhető el.</p>
+      <StaticPage title="Nem sikerült betölteni a blog cikket" keepServerHead>
+        <p>A blog cikk betöltése közben hiba történt.</p>
       </StaticPage>
     );
   }
 
-  if (error) {
+  if (notFound || !article) {
     return (
-      <StaticPage title="Nem sikerült betölteni a blog cikket" noIndex canonicalPath={`/blog/${slug ?? ""}`}>
-        <p>A blog cikk betöltése közben hiba történt.</p>
+      <StaticPage title="A blog cikk nem található" noIndex canonicalPath={`/blog/${slug ?? ""}`}>
+        <p>A keresett blog bejegyzés nem érhető el.</p>
       </StaticPage>
     );
   }
