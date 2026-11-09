@@ -9,6 +9,7 @@ use App\Support\Tour\TourRouteStops;
 use App\Support\TourLabelResolver;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 class TourResource extends JsonResource
 {
@@ -127,6 +128,9 @@ class TourResource extends JsonResource
             'searchKeywords' => $this->search_keywords ?? [],
             'categoryIds' => $this->category_ids ?? [],
             'categories' => TourLabelResolver::blogCategoryItems($this->category_ids ?? []),
+            'lastBookingAt' => $this->whenHas('last_booking_at', fn ($value) => $value ? Carbon::parse($value)->toISOString() : null),
+            'bookingsCount' => $this->whenHas('bookings_count', fn ($value) => (int) $value),
+            'nextDepartureDate' => $this->whenHas('next_departure_date', fn ($value) => $value ? Carbon::parse($value)->toDateString() : null),
             'price' => $priceBox['price'] ?? ($this->price !== null ? (float) $this->price : null),
             'displayedPrice' => $priceBox['displayedPrice'] ?? $this->displayed_price,
             'sliderText' => $this->slider_text,

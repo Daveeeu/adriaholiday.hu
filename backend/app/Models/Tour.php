@@ -181,6 +181,11 @@ class Tour extends Model implements HasMedia
     /**
      * The tour's dates in the order the office set (new dates go last).
      */
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class)->where('booking_type', 'tour_booking');
+    }
+
     public function dates(): HasMany
     {
         return $this->hasMany(TourDate::class)->orderBy('sort_order')->orderBy('id');

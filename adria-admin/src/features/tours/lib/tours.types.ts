@@ -292,6 +292,11 @@ export type Tour = {
   seasonalGroupId: string;
   seasonalGroupLabel?: string | null;
   departurePlaceIds: number[];
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  lastBookingAt?: string | null;
+  bookingsCount?: number;
+  nextDepartureDate?: string | null;
   departurePlaces?: TourDeparturePlace[];
   countryIds: string[];
   countries?: SelectOption[];
@@ -745,7 +750,7 @@ export type TourListQuery = {
   page: number;
   perPage: number;
   search?: string;
-  sortBy?: keyof Pick<Tour, 'sortOrder' | 'id' | 'name' | 'regionId' | 'groupId' | 'featured' | 'active' | 'imageOffer' | 'xmlEnabled'>;
+  sortBy?: string;
   sortDirection?: 'asc' | 'desc';
   regionId?: string;
   groupId?: string;

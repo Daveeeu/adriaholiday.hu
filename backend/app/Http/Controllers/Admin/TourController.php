@@ -12,6 +12,7 @@ use App\Http\Requests\Admin\Tour\UpdateTourRequest;
 use App\Http\Requests\Admin\Tour\UpdateTourStatusRequest;
 use App\Http\Resources\TourDetailResource;
 use App\Http\Resources\TourResource;
+use App\Models\Booking;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourDateExtra;
@@ -24,6 +25,7 @@ use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use App\Support\Tour\TourRouteStops;
 use App\Support\TourSearchIndex;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -32,6 +34,8 @@ use Illuminate\Support\Str;
 
 class TourController extends Controller
 {
+    private const LIST_SORT_COLUMNS = ['id', 'sort_order', 'name', 'region_id', 'group_id', 'seasonal_group_id', 'displayed_price', 'active', 'featured', 'image_offer', 'xml_enabled', 'created_at', 'updated_at'];
+
     use RespondsWithPagination;
 
     public function __construct(private readonly TourContentSyncService $tourContentSync)
@@ -88,16 +92,39 @@ class TourController extends Controller
 
         $sortBy = Str::snake((string) $request->query('sort_by', $request->query('sortBy', 'sort_order')));
         $perPage = (int) $request->query('per_page', $request->query('perPage', 25));
-        $sortDirection = $request->query('sort_direction', $request->query('sortDirection', 'asc'));
-        $allowedSorts = ['id', 'sort_order', 'name', 'region_id', 'group_id', 'seasonal_group_id', 'price', 'displayed_price', 'active', 'featured', 'image_offer', 'xml_enabled', 'created_at'];
-        if (! in_array($sortBy, $allowedSorts, true)) {
-            $sortBy = 'sort_order';
-        }
+        $sortDirection = $request->query('sort_direction', $request->query('sortDirection', 'asc')) === 'desc' ? 'desc' : 'asc';
 
-        $paginator = $query->orderBy($sortBy, $sortDirection === 'desc' ? 'desc' : 'asc')
-            ->paginate($perPage);
+        $query
+            ->withMax('bookings as last_booking_at', 'created_at')
+            ->withCount(['bookings as bookings_count' => fn ($bookings) => $bookings->where('cancelled', false)])
+            ->withMin(['dates as next_departure_date' => fn ($dates) => $dates->whereDate('start_date', '>=', today())], 'start_date');
+
+        $this->applyListSort($query, $sortBy, $sortDirection);
+
+        $paginator = $query->orderBy('id')->paginate($perPage);
 
         return $this->paginated(TourResource::class, $paginator);
+    }
+
+    /** Tours without the sorted value (no price, no booking, no upcoming date) always come last. */
+    private function applyListSort(Builder $query, string $sortBy, string $direction): void
+    {
+        match ($sortBy) {
+            'price' => $query->orderByRaw('price is null')->orderBy('price', $direction),
+            'last_booking_at' => $query->orderByRaw(
+                '(select max(b.created_at) from bookings b where b.tour_id = tours.id and b.booking_type = ? and b.deleted_at is null) is null',
+                ['tour_booking'],
+            )->orderBy('last_booking_at', $direction),
+            'bookings_count' => $query->orderBy('bookings_count', $direction),
+            'next_departure_date' => $query->orderByRaw(
+                '(select min(d.start_date) from tour_dates d where d.tour_id = tours.id and d.start_date >= ?) is null',
+                [today()->toDateString()],
+            )->orderBy('next_departure_date', $direction),
+            default => $query->orderBy(
+                in_array($sortBy, self::LIST_SORT_COLUMNS, true) ? $sortBy : 'sort_order',
+                $direction,
+            ),
+        };
     }
 
     public function store(StoreTourRequest $request)

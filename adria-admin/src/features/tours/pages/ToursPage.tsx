@@ -43,6 +43,12 @@ import {
   TOUR_DEFAULT_SORT_BY,
 } from '../lib/tours.constants';
 import {
+  fromTourSortValue,
+  getTourSortDetail,
+  toTourSortValue,
+  TOUR_SORT_OPTIONS,
+} from '../lib/tour-sort-options';
+import {
   getGroupOptions,
   getOfferGroupOptions,
   getRegionOptions,
@@ -188,7 +194,7 @@ export function ToursPage() {
       page: pagination.pageIndex + 1,
       perPage: pagination.pageSize,
       search,
-      sortBy: sorting[0]?.id as TourListQuery['sortBy'],
+      sortBy: sorting[0]?.id,
       sortDirection: sorting[0]?.desc ? 'desc' : 'asc',
       regionId: regionId === 'all' ? undefined : regionId,
       groupId: groupId === 'all' ? undefined : groupId,
@@ -345,9 +351,14 @@ export function ToursPage() {
             Név / Akció 1 / Akció 2 <ArrowUpDown className="size-4" />
           </Button>
         ),
-        cell: ({ row }) => (
+        cell: ({ row, table }) => (
           <div className="space-y-1">
             <div className="font-medium text-foreground">{row.original.name}</div>
+            {getTourSortDetail(row.original, table.getState().sorting[0]?.id) ? (
+              <div className="text-xs font-medium text-primary">
+                {getTourSortDetail(row.original, table.getState().sorting[0]?.id)}
+              </div>
+            ) : null}
             <div className="text-xs text-muted-foreground">
               {[row.original.action1, row.original.action2].filter(Boolean).join(' • ') || '—'}
             </div>
@@ -628,7 +639,22 @@ export function ToursPage() {
         }
       />
 
-      <div className="grid gap-3 rounded-2xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 rounded-2xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Select
+          aria-label="Rendezés"
+          value={toTourSortValue(sorting[0])}
+          onChange={(event) => setSorting([fromTourSortValue(event.target.value)])}
+        >
+          <option value="" hidden>
+            Rendezés: oszlop szerint
+          </option>
+          {TOUR_SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              Rendezés: {option.label}
+            </option>
+          ))}
+        </Select>
+
         <Select value={regionId} onChange={(event) => setRegionId(event.target.value)}>
           <option value="all">Összes régió</option>
           {regionOptions.map((option) => (
@@ -659,7 +685,7 @@ export function ToursPage() {
           ))}
         </Select>
 
-        <div className="grid grid-cols-2 gap-2 sm:col-span-2 md:grid-cols-4 lg:col-span-3">
+        <div className="grid grid-cols-2 gap-2 sm:col-span-2 md:grid-cols-4 lg:col-span-4">
           <Select value={active} onChange={(event) => setActive(event.target.value as typeof active)}>
             <option value="all">Aktív állapot</option>
             <option value="true">Aktív</option>

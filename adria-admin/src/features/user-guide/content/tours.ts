@@ -65,6 +65,12 @@ export const toursChapter: GuideChapter = {
             'Igen / Nem jelzés a szerkesztő azonos nevű kapcsolói alapján.',
           ),
         ]),
+        fields('Rendezés', [
+          field(
+            'Rendezés választó',
+            'A szűrők első listájában választhatsz: alapértelmezett sorrend, név, létrehozás, módosítás, ár, legutóbbi foglalás, legtöbb foglalás vagy legközelebbi indulás. A név alatt megjelenik a rendezés alapja, például az utolsó foglalás dátuma. Csak az admin listát rendezi, a honlap sorrendjét nem változtatja meg.',
+          ),
+        ]),
         fields('Műveletek egy sor végén: Szem, Ceruza és a „…” menü', [
           field(
             'Szem',
