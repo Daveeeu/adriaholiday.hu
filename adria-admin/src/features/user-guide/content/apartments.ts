@@ -10,7 +10,6 @@ import {
   img,
   list,
   p,
-  tip,
   warning,
 } from './blocks';
 
@@ -55,9 +54,6 @@ export const apartmentsChapter: GuideChapter = {
             'A menüben minden aktív apartman típus (Apartmanok › Típusok) külön menüpontot kap, ahol csak az adott típus apartmanjai látszanak.',
           ),
         ]),
-        tip(
-          'A „Szolgáltatások”, „Akciók” és „Egyedi intervallumok” menüpontok előkészített, még nem használható modulok – jelenleg nincs rajtuk teendő.',
-        ),
       ],
     },
     {

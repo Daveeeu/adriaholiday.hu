@@ -291,7 +291,7 @@ export type Tour = {
   groupLabel?: string | null;
   seasonalGroupId: string;
   seasonalGroupLabel?: string | null;
-  departurePlaceIds: string[];
+  departurePlaceIds: number[];
   departurePlaces?: TourDeparturePlace[];
   countryIds: string[];
   countries?: SelectOption[];
@@ -679,7 +679,7 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     homepageOfferId: tour?.homepageOfferId ? String(tour.homepageOfferId) : '',
     groupId: tour?.groupId ?? '',
     seasonalGroupId: tour?.seasonalGroupId ?? '',
-    departurePlaceIds: tour?.departurePlaceIds ?? [],
+    departurePlaceIds: (tour?.departurePlaceIds ?? []).map(String),
     departurePlaceFees: Object.fromEntries(
       (tour?.departurePlaces ?? []).map((place) => [
         String(place.id),

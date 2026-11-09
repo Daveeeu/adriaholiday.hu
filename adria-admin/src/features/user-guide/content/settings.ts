@@ -346,13 +346,10 @@ export const settingsChapter: GuideChapter = {
       ],
     },
     {
-      id: 'email-templates',
-      title: 'E-mail sablonok',
+      id: 'automatic-emails',
+      title: 'Automatikus e-mailek',
       summary:
-        'Előkészített áttekintő oldal az e-mail sablonokról. A kiküldött e-mailek szövegét jelenleg nem itt, hanem a rendszer határozza meg; a változtatható részek (telefonszámok, banki adatok, engedélyszám) a Beállításokban vannak.',
-      path: '/email-templates',
-      menu: 'E-mail sablonok',
-      access: 'Webhely beállítások megtekintése',
+        'A kiküldött e-mailek szövegét a rendszer határozza meg; a változtatható részek (telefonszámok, banki adatok, engedélyszám) a Beállításokban vannak.',
       blocks: [
         p(
           'A rendszer automatikusan küld e-mailt: új foglaláskor az irodának és az ügyfélnek (visszaigazolás), új ajánlatkéréskor és kapcsolati üzenetkor az irodának, apartman foglaláskor mindkét félnek, valamint hírlevél-feliratkozáskor a kuponkóddal. Az elküldött e-maileket a foglalás adatlapján, az „Email előzmények” blokkban láthatod.',

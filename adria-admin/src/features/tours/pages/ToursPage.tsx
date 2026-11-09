@@ -33,11 +33,13 @@ import { TourBooleanBadge } from '../components/tour-boolean-badge';
 import { TourSidePanel } from '../components/TourSidePanel';
 import { ToursToolbar } from '../components/ToursToolbar';
 import {
-  TOUR_GROUP_OPTIONS,
-  TOUR_REGION_OPTIONS,
-  TOUR_SEASONAL_GROUP_OPTIONS,
   TOUR_DEFAULT_SORT_BY,
 } from '../lib/tours.constants';
+import {
+  getGroupOptions,
+  getOfferGroupOptions,
+  getRegionOptions,
+} from '../lib/tour-select-options.api';
 import type { Tour, TourFormValues, TourListQuery } from '../lib/tours.types';
 import {
   createTour,
@@ -160,6 +162,19 @@ export function ToursPage() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelMode, setPanelMode] = useState<'create' | 'edit' | 'detail'>('create');
   const [selectedTour, setSelectedTour] = useState<Tour | undefined>();
+
+  const { data: regionOptions = [] } = useQuery({
+    queryKey: ['tour-select-options', 'regions'],
+    queryFn: () => getRegionOptions(),
+  });
+  const { data: groupOptions = [] } = useQuery({
+    queryKey: ['tour-select-options', 'groups'],
+    queryFn: () => getGroupOptions(),
+  });
+  const { data: seasonalGroupOptions = [] } = useQuery({
+    queryKey: ['tour-select-options', 'offer-groups'],
+    queryFn: () => getOfferGroupOptions(),
+  });
 
   const queryParams = useMemo<TourListQuery>(
     () => ({
@@ -639,7 +654,7 @@ export function ToursPage() {
       <div className="grid gap-3 rounded-2xl border bg-card p-4 lg:grid-cols-4">
         <Select value={regionId} onChange={(event) => setRegionId(event.target.value)}>
           <option value="all">Összes régió</option>
-          {TOUR_REGION_OPTIONS.map((option) => (
+          {regionOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -648,7 +663,7 @@ export function ToursPage() {
 
         <Select value={groupId} onChange={(event) => setGroupId(event.target.value)}>
           <option value="all">Összes csoport</option>
-          {TOUR_GROUP_OPTIONS.map((option) => (
+          {groupOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -660,7 +675,7 @@ export function ToursPage() {
           onChange={(event) => setSeasonalGroupId(event.target.value)}
         >
           <option value="all">Összes szezonális csoport</option>
-          {TOUR_SEASONAL_GROUP_OPTIONS.map((option) => (
+          {seasonalGroupOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

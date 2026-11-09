@@ -235,12 +235,6 @@ export const staticNavigationItems: NavigationItem[] = [
     permission: 'galleries.viewAny',
   },
   {
-    to: '/email-templates',
-    labelKey: 'nav.emailTemplates',
-    icon: Mail,
-    permission: 'site-settings.view',
-  },
-  {
     to: '/settings',
     labelKey: 'nav.settings',
     icon: Settings,

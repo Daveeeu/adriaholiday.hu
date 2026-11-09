@@ -43,30 +43,6 @@ export const TOUR_SEASONAL_MENU_TYPES = [
   { value: 'icon', label: 'Ikonalapúakat' },
 ] as const;
 
-export const TOUR_REGION_OPTIONS = [
-  { value: '1', label: 'Itália' },
-  { value: '2', label: 'Franciaország' },
-  { value: '3', label: 'Balkán' },
-] as const;
-
-export const TOUR_GROUP_OPTIONS = [
-  { value: '10', label: 'Klasszikus körutak' },
-  { value: '11', label: 'Szezonális utak' },
-  { value: '12', label: 'Őszi különlegességek' },
-] as const;
-
-export const TOUR_SEASONAL_GROUP_OPTIONS = [
-  { value: '20', label: 'Bevezető utak' },
-  { value: '21', label: 'Ajánlatkérő utak' },
-  { value: '22', label: 'Híres menüben' },
-] as const;
-
-export const TOUR_DEPARTURE_PLACE_OPTIONS = [
-  { value: '1', label: 'Budapest' },
-  { value: '2', label: 'Szeged' },
-  { value: '3', label: 'Pécs' },
-] as const;
-
 export const TOUR_PROGRAM_TYPE_OPTIONS = [
   { value: 'classic-tour', label: 'Klasszikus körút' },
   { value: 'city-break', label: 'City break' },

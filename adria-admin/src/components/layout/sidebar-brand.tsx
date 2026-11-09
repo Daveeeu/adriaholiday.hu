@@ -33,7 +33,7 @@ export function SidebarBrand({ collapsed = false }: SidebarBrandProps) {
           </div>
         ) : null}
       </div>
-      {!collapsed ? (
+      {!collapsed && import.meta.env.DEV ? (
         <Badge className="border-transparent bg-sidebar-accent text-sidebar-accent-foreground">
           {t('brand.test')}
         </Badge>

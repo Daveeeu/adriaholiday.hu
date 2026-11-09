@@ -148,6 +148,12 @@ Lint:
 npm run lint
 ```
 
+Run the tests
+
+```bash
+npm test
+```
+
 Preview build:
 
 ```bash

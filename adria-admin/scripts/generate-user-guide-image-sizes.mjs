@@ -1,4 +1,4 @@
-// Writes the pixel size of every user guide screenshot (public/user-guide/*.webp)
+// Writes the pixel size of every user guide screenshot (public/guide-images/*.webp)
 // to src/features/user-guide/lib/guide-image-sizes.ts. Run it after adding or
 // replacing a screenshot: npm run user-guide:sizes
 import { execFileSync } from 'node:child_process';
@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const imageDir = path.join(root, 'public/user-guide');
+const imageDir = path.join(root, 'public/guide-images');
 const target = path.join(
   root,
   'src/features/user-guide/lib/guide-image-sizes.ts',

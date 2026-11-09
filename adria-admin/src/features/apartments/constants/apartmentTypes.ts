@@ -26,12 +26,6 @@ export const APARTMENT_ADMIN_ROUTES = [
   { route: '/apartments/regions', labelKey: 'nav.apartments.regions' },
   { route: '/apartments/places', labelKey: 'nav.apartments.places' },
   { route: '/apartments/types', labelKey: 'nav.apartments.types' },
-  { route: '/apartments/services', labelKey: 'nav.apartments.services' },
-  { route: '/apartments/actions', labelKey: 'nav.apartments.actions' },
-  {
-    route: '/apartments/custom-intervals',
-    labelKey: 'nav.apartments.customIntervals',
-  },
 ] as const satisfies readonly ApartmentAdminRouteDefinition[];
 
 export function getApartmentListRoute(type?: string | null) {

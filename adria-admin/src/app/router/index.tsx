@@ -10,8 +10,6 @@ import { RouteErrorFallback } from '@/components/common/route-error-fallback';
 import { RequirePermission } from '@/components/common/require-permission';
 import { AppShell } from '@/components/layout/app-shell';
 import { getRoutePermission } from '@/config/navigation-permissions';
-import { AdminPlaceholderPage } from '@/features/shared/components/admin-placeholder-page';
-import { APARTMENT_ADMIN_ROUTES } from '@/features/apartments/constants/apartmentTypes';
 
 function withPermission(path: string, element: ReactNode) {
   return (
@@ -138,16 +136,6 @@ const CustomersPage = lazy(() =>
     default: module.CustomersPage,
   })),
 );
-const EmailTemplatesPage = lazy(() =>
-  import('@/features/email-templates/routes/email-templates-page').then(
-    (module) => ({ default: module.EmailTemplatesPage }),
-  ),
-);
-const GuestsPage = lazy(() =>
-  import('@/features/guests/routes/guests-page').then((module) => ({
-    default: module.GuestsPage,
-  })),
-);
 const LocationsPage = lazy(() =>
   import('@/features/locations/routes/locations-page').then((module) => ({
     default: module.LocationsPage,
@@ -269,43 +257,21 @@ const apartmentModuleRoutes = [
         element: <ApartmentsPage />,
         handle: { crumbKey: 'nav.apartments.edit' },
       },
-      ...APARTMENT_ADMIN_ROUTES.map((route) => ({
-        path: route.route.replace('/apartments/', ''),
-        element:
-          route.route === '/apartments/regions' ? (
-            <RegionsPage />
-          ) : route.route === '/apartments/places' ? (
-            <LocationsPage />
-          ) : route.route === '/apartments/types' ? (
-            <ApartmentTypesPage />
-          ) : (
-            <AdminPlaceholderPage
-              eyebrow="Apartmanok"
-              title={
-                route.route === '/apartments/services'
-                  ? 'Szolgáltatások'
-                  : route.route === '/apartments/actions'
-                    ? 'Akciók'
-                    : 'Egyedi intervallumok'
-              }
-              description={
-                route.route === '/apartments/services'
-                  ? 'Szolgáltatás katalógus kezelőfelület.'
-                  : route.route === '/apartments/actions'
-                    ? 'Apartman akciók kezelőfelülete.'
-                    : 'Egyedi időintervallumok kezelése.'
-              }
-              metrics={[
-                {
-                  label: 'Állapot',
-                  value: 'Előkészítve',
-                  hint: 'A modul jelenleg előkészített állapotban van.',
-                },
-              ]}
-            />
-          ),
-        handle: { crumbKey: route.labelKey },
-      })),
+      {
+        path: 'regions',
+        element: <RegionsPage />,
+        handle: { crumbKey: 'nav.apartments.regions' },
+      },
+      {
+        path: 'places',
+        element: <LocationsPage />,
+        handle: { crumbKey: 'nav.apartments.places' },
+      },
+      {
+        path: 'types',
+        element: <ApartmentTypesPage />,
+        handle: { crumbKey: 'nav.apartments.types' },
+      },
       {
         path: ':typeSlug',
         element: <Outlet />,
@@ -462,11 +428,6 @@ const router = createBrowserRouter(
           element: <Navigate replace to="/media" />,
         },
         {
-          path: 'email-templates',
-          element: withPermission('/email-templates', <EmailTemplatesPage />),
-          handle: { crumbKey: 'nav.emailTemplates' },
-        },
-        {
           path: 'tours',
           element: withPermission('/tours', <Outlet />),
           handle: { crumbKey: 'nav.tours' },
@@ -498,7 +459,10 @@ const router = createBrowserRouter(
             },
             {
               path: 'list-order',
-              element: withPermission('/tours/list-order', <TourListOrderPage />),
+              element: withPermission(
+                '/tours/list-order',
+                <TourListOrderPage />,
+              ),
               handle: { crumbKey: 'nav.tours.listOrder' },
             },
           ],
@@ -542,11 +506,6 @@ const router = createBrowserRouter(
               handle: { crumbKey: 'nav.blog.tags' },
             },
           ],
-        },
-        {
-          path: 'guests',
-          element: <GuestsPage />,
-          handle: { crumbKey: 'nav.guests' },
         },
         {
           path: 'settings',

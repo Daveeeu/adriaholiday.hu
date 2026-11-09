@@ -111,6 +111,7 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
             <FormLabel>{label}</FormLabel>
             <FormControl>
               <AsyncCreatableSelect
+                unstyled
                 isMulti={isMulti}
                 isClearable
                 isSearchable
@@ -187,8 +188,11 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                 noOptionsMessage={() => 'Nincs találat'}
                 loadingMessage={() => 'Betöltés...'}
                 classNames={{
-                  control: () =>
-                    'min-h-10 rounded-xl border border-input bg-background text-sm shadow-sm',
+                  control: ({ isFocused }) =>
+                    cn(
+                      'min-h-10 rounded-xl border border-input bg-background text-sm shadow-sm',
+                      isFocused && 'border-ring ring-1 ring-ring',
+                    ),
                   valueContainer: () => 'gap-1 px-3 py-1.5',
                   input: () => 'text-sm text-foreground',
                   placeholder: () => 'text-muted-foreground',
@@ -197,16 +201,19 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                     'rounded-md border border-border bg-muted px-1.5 py-0.5',
                   multiValueLabel: () => 'text-xs text-foreground',
                   multiValueRemove: () => 'text-muted-foreground hover:bg-transparent hover:text-foreground',
-                  menu: () => 'overflow-hidden rounded-xl border bg-popover shadow-lg',
+                  menu: () =>
+                    'mt-1 overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-lg',
                   menuPortal: () => '',
                   menuList: () => 'max-h-64 py-1',
                   option: ({ isFocused, isSelected }) =>
                     cn(
                       'cursor-pointer px-3 py-2 text-sm',
-                      isFocused && 'bg-accent text-accent-foreground',
+                      isFocused && !isSelected && 'bg-accent text-accent-foreground',
                       isSelected && 'bg-primary text-primary-foreground',
                     ),
-                  indicatorsContainer: () => 'px-1',
+                  noOptionsMessage: () => 'px-3 py-2 text-sm text-muted-foreground',
+                  loadingMessage: () => 'px-3 py-2 text-sm text-muted-foreground',
+                  indicatorsContainer: () => 'gap-1 px-2',
                   dropdownIndicator: () => 'text-muted-foreground',
                   clearIndicator: () => 'text-muted-foreground',
                 }}
