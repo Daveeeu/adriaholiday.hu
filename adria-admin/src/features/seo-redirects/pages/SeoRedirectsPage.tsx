@@ -147,7 +147,7 @@ export function SeoRedirectsPage() {
                       <StatusBadge active={redirect.active} activeLabel="Aktív" inactiveLabel="Kikapcsolva" />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
+                      <Button title="Szerkesztés" aria-label="Szerkesztés"
                         variant="outline"
                         size="icon"
                         onClick={() => {

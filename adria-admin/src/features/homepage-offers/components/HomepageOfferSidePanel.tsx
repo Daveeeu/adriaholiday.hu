@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { TechnicalDetails } from '@/components/common/technical-details';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
@@ -83,11 +84,12 @@ function HomepageOfferDetailView({
         </div>
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <DetailCard label="ID" value={offer.id} />
           <DetailCard label="Sorrend" value={offer.sortOrder} />
           <DetailCard label="Kép címe" value={offer.imageTitle} />
           <DetailCard label="Kép" value={offer.image ?? '—'} />
         </div>
+
+        <TechnicalDetails items={[{ label: 'Rendszerazonosító', value: offer.id }]} />
       </section>
 
       <section className="space-y-3 rounded-2xl border bg-card p-4">
@@ -206,7 +208,7 @@ export function HomepageOfferSidePanel({
               </>
             ) : null}
 
-            <Button
+            <Button title="Bezárás" aria-label="Bezárás"
               type="button"
               variant="ghost"
               size="icon"

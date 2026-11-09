@@ -13,6 +13,7 @@ import { ArrowUpDown, Eye, Pencil, Power, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { formatDate } from '@/lib/date-format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -37,15 +38,6 @@ import type {
 } from '../lib/blog.types';
 
 const queryKey = ['blog-articles'];
-
-function formatDate(date?: string) {
-  if (!date) return '—';
-  const parsed = new Date(date);
-  if (Number.isNaN(parsed.getTime())) {
-    return date;
-  }
-  return parsed.toLocaleDateString('hu-HU');
-}
 
 export function BlogPage() {
   const queryClient = useQueryClient();
@@ -154,18 +146,6 @@ export function BlogPage() {
   const columns = useMemo<ColumnDef<BlogArticle>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            ID <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-      },
-      {
         id: 'title',
         accessorFn: (article) => article.translations.hu.title,
         header: ({ column }) => (
@@ -237,7 +217,7 @@ export function BlogPage() {
         enableSorting: false,
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
-            <Button
+            <Button title="Megtekintés" aria-label="Megtekintés"
               variant="outline"
               size="icon"
               onClick={() => {
@@ -249,7 +229,7 @@ export function BlogPage() {
               <Eye className="size-4" />
             </Button>
             {canUpdate ? (
-              <Button
+              <Button title="Szerkesztés" aria-label="Szerkesztés"
                 variant="outline"
                 size="icon"
                 onClick={() => {
@@ -262,7 +242,7 @@ export function BlogPage() {
               </Button>
             ) : null}
             {canUpdate ? (
-              <Button
+              <Button title="Állapot váltása" aria-label="Állapot váltása"
                 variant="outline"
                 size="icon"
                 onClick={() =>
@@ -276,7 +256,7 @@ export function BlogPage() {
               </Button>
             ) : null}
             {canDelete ? (
-              <Button
+              <Button title="Törlés" aria-label="Törlés"
                 variant="destructive"
                 size="icon"
                 onClick={() => deleteMutation.mutate(row.original.id)}

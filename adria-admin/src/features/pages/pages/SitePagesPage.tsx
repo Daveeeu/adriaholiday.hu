@@ -135,7 +135,7 @@ export function SitePagesPage() {
                       <StatusBadge active={sitePage.active} activeLabel="Megjelenik" inactiveLabel="Rejtett" />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
+                      <Button title="Szerkesztés" aria-label="Szerkesztés"
                         variant="outline"
                         size="icon"
                         onClick={() => {

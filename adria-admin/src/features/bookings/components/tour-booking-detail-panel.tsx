@@ -1,3 +1,5 @@
+import { TechnicalDetails } from '@/components/common/technical-details';
+
 import type { TourBookingDetail } from '../lib/bookings.types';
 import { BookingAdminNoteCard } from './booking-detail/booking-admin-note-card';
 import { BookingAnalyticsCard } from './booking-detail/booking-analytics-card';
@@ -31,7 +33,6 @@ export function TourBookingDetailPanel({ booking }: { booking: TourBookingDetail
           <BookingContactCard booking={booking} />
           <BookingPassengersCard booking={booking} />
           <BookingDynamicFieldsCard booking={booking} />
-          <BookingRawDataAccordion booking={booking} />
         </div>
 
         <div className="space-y-4">
@@ -40,9 +41,13 @@ export function TourBookingDetailPanel({ booking }: { booking: TourBookingDetail
           <BookingAdminNoteCard booking={booking} />
           <BookingTimeline booking={booking} />
           <BookingEmailHistoryCard booking={booking} />
-          <BookingAnalyticsCard booking={booking} />
         </div>
       </div>
+
+      <TechnicalDetails>
+        <BookingAnalyticsCard booking={booking} />
+        <BookingRawDataAccordion booking={booking} />
+      </TechnicalDetails>
     </div>
   );
 }

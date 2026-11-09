@@ -6,8 +6,6 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 type ModuleToolbarProps = {
-  title: string;
-  description: string;
   search: string;
   placeholder: string;
   onSearchChange: (value: string) => void;
@@ -19,8 +17,6 @@ type ModuleToolbarProps = {
 };
 
 export function ModuleToolbar({
-  title,
-  description,
   search,
   placeholder,
   onSearchChange,
@@ -37,12 +33,7 @@ export function ModuleToolbar({
         className,
       )}
     >
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-end">
         <div className="flex flex-wrap items-center gap-2">
           {onReset ? (
             <Button type="button" variant="outline" onClick={onReset}>

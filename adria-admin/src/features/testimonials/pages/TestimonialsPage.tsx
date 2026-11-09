@@ -4,6 +4,7 @@ import { useDeferredValue, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ListPagination } from '@/components/admin/list-pagination';
+import { formatDate } from '@/lib/date-format';
 import { StatusBadge } from '@/components/admin/status-badge';
 import { PageLoader } from '@/components/common/page-loader';
 import { Button } from '@/components/ui/button';
@@ -119,7 +120,7 @@ export function TestimonialsPage() {
               {data.items.length > 0 ? (
                 data.items.map((testimonial) => (
                   <TableRow key={testimonial.id}>
-                    <TableCell className="whitespace-nowrap">{testimonial.publishedAt.slice(0, 10)}</TableCell>
+                    <TableCell className="whitespace-nowrap">{formatDate(testimonial.publishedAt)}</TableCell>
                     <TableCell>
                       <div className="font-medium">{testimonial.title}</div>
                       <div className="line-clamp-1 max-w-xl text-xs text-muted-foreground">{testimonial.excerpt}</div>
@@ -129,7 +130,7 @@ export function TestimonialsPage() {
                       <StatusBadge active={testimonial.active} activeLabel="Megjelenik" inactiveLabel="Rejtett" />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
+                      <Button title="Szerkesztés" aria-label="Szerkesztés"
                         variant="outline"
                         size="icon"
                         onClick={() => {

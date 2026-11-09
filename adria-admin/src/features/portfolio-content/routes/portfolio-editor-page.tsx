@@ -750,7 +750,7 @@ export function PortfolioEditorPage() {
                 {selectedBlock ? getContentBlockLabel(selectedBlock.label) : 'Válassz egy blokkot'}
               </p>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setSelectedKey(null)}>
+            <Button title="Bezárás" aria-label="Bezárás" variant="ghost" size="icon" onClick={() => setSelectedKey(null)}>
               <X className="size-4" />
             </Button>
           </div>

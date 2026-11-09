@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\TourDate;
 use App\Support\ActivityLog\ActivitySubjectTypes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ class ActivityLogResource extends JsonResource
         'source_path',
         'email',
         'slug',
+        'start_date',
     ];
 
     public function toArray(Request $request): array
@@ -73,6 +75,10 @@ class ActivityLogResource extends JsonResource
      */
     private function subjectLabel(array $attributes, array $old): ?string
     {
+        if ($this->subject instanceof TourDate) {
+            return trim(sprintf('%s • %s', $this->subject->tour?->name, $this->subject->start_date?->format('Y. m. d.')), ' •');
+        }
+
         $sources = [$this->subject?->getAttributes() ?? [], $attributes, $old];
 
         foreach (self::LABEL_ATTRIBUTES as $attribute) {

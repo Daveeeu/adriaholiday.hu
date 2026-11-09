@@ -35,7 +35,6 @@ import type {
 } from '../lib/bookings.types';
 import {
   formatDate,
-  formatDateTime,
   toInputDate,
 } from '../lib/bookings.utils';
 import {
@@ -87,9 +86,9 @@ function initialDraft(record?: TourBooking | null): TourBookingFormValues {
 const columns = [
   {
     key: 'id',
-    label: 'ID',
+    label: 'Foglalásszám',
     sortable: true,
-    render: (item: TourBooking) => <span className="font-medium">{item.id}</span>,
+    render: (item: TourBooking) => <span className="font-medium">#{item.id}</span>,
   },
   {
     key: 'partner',
@@ -115,10 +114,11 @@ const columns = [
     render: (item: TourBooking) => item.offerName,
   },
   {
-    key: 'appointmentTime',
-    label: 'Időpont',
+    key: 'departureDate',
+    label: 'Indulás',
     sortable: true,
-    render: (item: TourBooking) => formatDateTime(item.appointmentTime),
+    render: (item: TourBooking) =>
+      item.departureDate ? formatDate(item.departureDate) : formatDate(item.appointmentTime),
   },
   {
     key: 'applicationDate',
@@ -131,17 +131,9 @@ const columns = [
     label: 'Foglalás állapota',
     sortable: true,
     render: (item: TourBooking) => (
-      <StatusBadge label={getTourBookingStatusLabel(item.status)} tone={statusTone(item.status)} />
-    ),
-  },
-  {
-    key: 'cancelled',
-    label: 'Lemondott?',
-    sortable: true,
-    render: (item: TourBooking) => (
       <StatusBadge
-        label={item.cancelled ? 'Igen' : 'Nem'}
-        tone={item.cancelled ? 'danger' : 'success'}
+        label={item.cancelled ? 'Lemondva' : getTourBookingStatusLabel(item.status)}
+        tone={item.cancelled ? 'danger' : statusTone(item.status)}
       />
     ),
   },
@@ -183,8 +175,6 @@ export function TourBookingsPage() {
       title: 'Körutazás foglalások',
       description:
         'A körutazási foglalások, partner adatok és állapotok központi kezelése, modern listanézettel és oldalsó szerkesztőpanellel.',
-      toolbarTitle: 'Körutazás foglalások',
-      toolbarDescription: 'Keresés és szűrés a foglalások között.',
       searchPlaceholder: 'Keresés partner, email vagy telefon alapján...',
       createLabel: 'Új foglalás',
       emptyText: 'Nincs a keresésnek megfelelő körutazás foglalás.',

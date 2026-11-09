@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { TechnicalDetails } from '@/components/common/technical-details';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { createSlug } from '@/data/generators/core-generators';
@@ -189,10 +190,8 @@ function ApartmentDetailView({
         </div>
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <DetailField label="ID" value={apartment.id} />
           <DetailField label="Kód" value={apartment.code} />
-          <DetailField label="SEO név" value={apartment.seoName ?? apartment.seo_name} />
-          <DetailField label="Slug" value={apartment.slug} />
+          <DetailField label="Webcím" value={apartment.seoName ?? apartment.seo_name} />
           <DetailField
             label="Csillagok"
             value={apartment.stars ? `${apartment.stars} csillag` : '—'}
@@ -204,8 +203,15 @@ function ApartmentDetailView({
         </div>
       </section>
 
+      <TechnicalDetails
+        items={[
+          { label: 'Rendszerazonosító', value: apartment.id },
+          { label: 'Régi rendszerbeli azonosító', value: apartment.legacyId != null ? String(apartment.legacyId) : null },
+        ]}
+      />
+
       <section className="space-y-3 rounded-2xl border bg-card p-4">
-        <h4 className="font-semibold">SEO és tartalom</h4>
+        <h4 className="font-semibold">Elhelyezkedés és tartalom</h4>
         <div className="grid gap-3 md:grid-cols-2">
           <DetailField label="Típus" value={typeLabel} />
           <DetailField label="Régió" value={regionName} />
@@ -216,8 +222,7 @@ function ApartmentDetailView({
             label="Távolság a központtól / tengerparttól"
             value={`${apartment.distanceToCenterM != null ? `${apartment.distanceToCenterM} m` : '–'} / ${apartment.distanceToSeaM != null ? `${apartment.distanceToSeaM} m` : '–'}`}
           />
-          <DetailField label="SEO cím" value={apartment.seoTitle} />
-          <DetailField label="Régi rendszerbeli azonosító" value={apartment.legacyId != null ? String(apartment.legacyId) : null} />
+          <DetailField label="Keresőben megjelenő cím" value={apartment.seoTitle} />
         </div>
         <div className="grid gap-3">
           <div className="rounded-xl border bg-background p-3">
@@ -459,7 +464,7 @@ export function ApartmentSidePanel({
               </>
             ) : null}
 
-            <Button
+            <Button title="Bezárás" aria-label="Bezárás"
               type="button"
               variant="ghost"
               size="icon"

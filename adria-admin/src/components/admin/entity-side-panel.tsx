@@ -56,7 +56,7 @@ export function EntitySidePanel({
 
         <div className="flex items-center gap-2">
           {headerActions}
-          <Button type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+          <Button title="Bezárás" aria-label="Bezárás" type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
             <X className="size-4" />
           </Button>
         </div>

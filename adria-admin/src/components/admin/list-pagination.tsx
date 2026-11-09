@@ -21,7 +21,7 @@ export function ListPagination({ page, perPage, totalCount, onPageChange }: List
         <span>
           {page} / {pageCount}
         </span>
-        <Button variant="outline" size="icon" onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
+        <Button title="Előző" aria-label="Előző" variant="outline" size="icon" onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
           <ChevronLeft className="size-4" />
         </Button>
         <Button variant="outline" size="icon" onClick={() => onPageChange(page + 1)} disabled={page >= pageCount}>

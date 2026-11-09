@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/date-format';
+import { TechnicalDetails } from '@/components/common/technical-details';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -79,13 +81,14 @@ function BlogArticleDetailView({ article }: { article: BlogArticle }) {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <DetailCard label="ID" value={article.id} />
-          <DetailCard label="Dátum" value={article.publishedAt} />
+          <DetailCard label="Dátum" value={formatDate(article.publishedAt)} />
           <DetailCard label="Megjelenik" value={article.showOnHomepage} />
           <DetailCard label="Kiemelt a honlapon" value={article.portfolioFeatured} />
           <DetailCard label="Sorrend a honlapon" value={article.portfolioSortOrder} />
           <DetailCard label="Megnyitva" value={article.views} />
         </div>
+
+        <TechnicalDetails items={[{ label: 'Rendszerazonosító', value: article.id }]} />
 
         <div className="grid gap-3 md:grid-cols-2">
           <DetailCard label="Kép címe" value={article.imageTitle} />
@@ -243,7 +246,7 @@ export function BlogArticleSidePanel({
                 ) : null}
               </>
             ) : null}
-            <Button type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+            <Button title="Bezárás" aria-label="Bezárás" type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
               <X className="size-4" />
             </Button>
           </div>

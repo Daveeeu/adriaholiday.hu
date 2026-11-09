@@ -3,6 +3,7 @@ import { FileJson, Printer, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/store/auth-store';
 
 import { downloadTourBookingPdf, printTourBookingPdf } from '../../lib/bookings.api';
 import type { TourBookingDetail } from '../../lib/bookings.types';
@@ -22,6 +23,7 @@ export function BookingExportActions({ booking }: { booking: TourBookingDetail }
     mutationFn: () => downloadTourBookingPdf(booking.id),
     onError: () => toast.error('Nem sikerült elkészíteni a PDF-et.'),
   });
+  const canSeeTechnical = useAuthStore((state) => state.hasPermission('activity.viewAny'));
   const printMutation = useMutation({
     mutationFn: () => printTourBookingPdf(booking.id),
     onError: () => toast.error('Nem sikerült elkészíteni a nyomtatandó PDF-et.'),
@@ -33,10 +35,12 @@ export function BookingExportActions({ booking }: { booking: TourBookingDetail }
         <FileText className="size-4" />
         Utazási könyv (PDF)
       </Button>
+      {canSeeTechnical ? (
       <Button type="button" variant="outline" size="sm" onClick={() => downloadJson(booking)}>
         <FileJson className="size-4" />
-        JSON
+        Adatok letöltése
       </Button>
+      ) : null}
       <Button type="button" variant="outline" size="sm" disabled={printMutation.isPending} onClick={() => printMutation.mutate()}>
         <Printer className="size-4" />
         Nyomtatás

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/date-format';
+import { TechnicalDetails } from '@/components/common/technical-details';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -72,10 +74,11 @@ function BusDetailView({ bus }: { bus: Bus }) {
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <DetailCard label="ID" value={bus.id} />
           <DetailCard label="Jármű kód" value={bus.vehicleCode} />
-          <DetailCard label="Módosítva" value={bus.updatedAt.slice(0, 10)} />
+          <DetailCard label="Módosítva" value={formatDate(bus.updatedAt)} />
         </div>
+
+        <TechnicalDetails items={[{ label: 'Rendszerazonosító', value: bus.id }]} />
       </section>
 
       <section className="space-y-3 rounded-2xl border bg-card p-4">
@@ -217,7 +220,7 @@ export function BusSidePanel({
                 ) : null}
               </>
             ) : null}
-            <Button type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+            <Button title="Bezárás" aria-label="Bezárás" type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
               <X className="size-4" />
             </Button>
           </div>

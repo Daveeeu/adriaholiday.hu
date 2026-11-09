@@ -98,7 +98,7 @@ export function RolesPage() {
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
           {canUpdate ? (
-            <Button
+            <Button title="Szerkesztés" aria-label="Szerkesztés"
               variant="outline"
               size="icon"
               onClick={() => {

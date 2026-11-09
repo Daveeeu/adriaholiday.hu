@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeftRight, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { Button } from '@/components/ui/button';
 import { PageLoader } from '@/components/common/page-loader';
@@ -33,8 +33,6 @@ export type CrudModulePageProps<T, D, Q extends CrudListQuery = CrudListQuery> =
   eyebrow: string;
   title: string;
   description: string;
-  toolbarTitle: string;
-  toolbarDescription: string;
   searchPlaceholder: string;
   createLabel: string;
   emptyText: string;
@@ -73,8 +71,6 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
   eyebrow,
   title,
   description,
-  toolbarTitle,
-  toolbarDescription,
   searchPlaceholder,
   createLabel,
   emptyText,
@@ -264,8 +260,6 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
       {topContent}
 
       <ModuleToolbar
-        title={toolbarTitle}
-        description={toolbarDescription}
         search={search}
         placeholder={searchPlaceholder}
         onSearchChange={(value) => {
@@ -286,8 +280,6 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
       <div className="space-y-4">
         <div className="space-y-4">
           <DataTable
-            title={toolbarTitle}
-            description={toolbarDescription}
             columns={columns}
             items={listData?.items ?? []}
             totalCount={listData?.totalCount ?? 0}
@@ -295,7 +287,7 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
             perPage={perPage}
             sortBy={sortBy}
             sortDirection={sortDirection}
-            emptyText={emptyText}
+            emptyText={search ? emptyText : undefined}
             isLoading={listFetching}
             onSortChange={(key) => {
               if (sortBy === key) {
@@ -319,15 +311,19 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
                   type="button"
                   variant="outline"
                   size="icon"
+                  title="Megtekintés"
+                  aria-label="Megtekintés"
                   onClick={() => handleView(record)}
                 >
-                  <ArrowLeftRight className="size-4" />
+                  <Eye className="size-4" />
                 </Button>
                 {canUpdate ? (
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
+                    title="Szerkesztés"
+                    aria-label="Szerkesztés"
                     onClick={() => handleEdit(record)}
                   >
                     <Pencil className="size-4" />
@@ -338,6 +334,8 @@ export function CrudModulePage<T, D, Q extends CrudListQuery = CrudListQuery>({
                     type="button"
                     variant="outline"
                     size="icon"
+                    title="Törlés"
+                    aria-label="Törlés"
                     onClick={() => handleDelete(record)}
                   >
                     <Trash2 className="size-4" />

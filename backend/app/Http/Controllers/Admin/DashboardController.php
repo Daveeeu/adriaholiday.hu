@@ -19,6 +19,10 @@ use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
+    private const ACTIVITY_LIMIT = 8;
+
+    private const ACTIVITY_LOOKBACK = 60;
+
     public function __construct()
     {
         $this->middleware('permission:dashboard.view');
@@ -28,16 +32,33 @@ class DashboardController extends Controller
     {
         $counts = [
             'apartments' => Apartment::query()->count(),
-            'tours' => Tour::query()->count(),
+            'tours' => Tour::query()->where('active', true)->count(),
             'bookings' => Booking::query()->count(),
             'messages' => ContactMessage::query()->count(),
-            'coupons' => Coupon::query()->count(),
+            'coupons' => Coupon::query()
+                ->where('active', true)
+                ->where('used', false)
+                ->where(fn ($query) => $query->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))
+                ->count(),
             'homepageOffers' => HomepageOffer::query()->count(),
             'blogArticles' => BlogArticle::query()->count(),
             'buses' => Bus::query()->count(),
-            'activeBookings' => Booking::query()
+            'newBookings' => Booking::query()
                 ->whereIn('booking_type', ['tour_booking', 'apartment_booking'])
                 ->where('cancelled', false)
+                ->where('status', 'new')
+                ->count(),
+            'upcomingBookings' => Booking::query()
+                ->where('cancelled', false)
+                ->where(function ($query): void {
+                    $query
+                        ->where(fn ($tour) => $tour
+                            ->where('booking_type', 'tour_booking')
+                            ->whereDate('departure_date', '>=', today()))
+                        ->orWhere(fn ($apartment) => $apartment
+                            ->where('booking_type', 'apartment_booking')
+                            ->whereDate('check_in', '>=', today()));
+                })
                 ->count(),
             'newInquiries' => Booking::query()
                 ->where('booking_type', 'tour_inquiry')
@@ -63,7 +84,8 @@ class DashboardController extends Controller
      */
     private function buildMonthlyRevenueSeries(): array
     {
-        $period = CarbonPeriod::create(now()->subMonths(11)->startOfMonth(), '1 month', now()->startOfMonth());
+        $from = now()->subMonths(11)->startOfMonth();
+        $period = CarbonPeriod::create($from, '1 month', now()->startOfMonth());
         $revenueByMonth = [];
 
         foreach ($period as $month) {
@@ -73,6 +95,7 @@ class DashboardController extends Controller
         Booking::query()
             ->whereIn('booking_type', ['tour_booking', 'apartment_booking'])
             ->where('cancelled', false)
+            ->where('created_at', '>=', $from)
             ->get(['created_at', 'total_amount'])
             ->groupBy(fn (Booking $booking): string => Carbon::parse($booking->created_at ?? now())->format('Y-m'))
             ->each(function (Collection $bookings, string $monthKey) use (&$revenueByMonth): void {
@@ -84,7 +107,7 @@ class DashboardController extends Controller
         return collect($revenueByMonth)
             ->map(function (float $revenue, string $monthKey): array {
                 return [
-                    'month' => Carbon::createFromFormat('Y-m', $monthKey)->format('M'),
+                    'month' => $monthKey,
                     'revenue' => $revenue,
                 ];
             })
@@ -115,24 +138,38 @@ class DashboardController extends Controller
                 HomepageOffer::class,
                 Bus::class,
             ])
-            ->with('subject')
+            ->with(['subject', 'causer'])
             ->latest()
-            ->limit(8)
+            ->latest('id')
+            ->limit(self::ACTIVITY_LOOKBACK)
             ->get()
-            ->map(function (Activity $activity): array {
-                $subject = $activity->subject;
+            ->chunkWhile(fn (Activity $current, int $key, Collection $chunk): bool => $this->isSameActivity($current, $chunk->last()))
+            ->take(self::ACTIVITY_LIMIT)
+            ->map(function (Collection $group): array {
+                $activity = $group->first();
                 $subjectType = class_basename((string) $activity->subject_type);
+                $title = $this->resolveActivityTitle($activity, $subjectType);
 
                 return [
                     'id' => (string) $activity->id,
-                    'title' => $this->resolveActivityTitle($activity, $subjectType),
-                    'description' => $this->resolveActivityDescription($activity, $subject),
+                    'title' => $group->count() > 1 ? sprintf('%s (%d×)', $title, $group->count()) : $title,
+                    'description' => $this->resolveActivityDescription($activity, $activity->subject),
                     'timestamp' => $activity->created_at?->toISOString() ?? now()->toISOString(),
                     'targetUrl' => $this->resolveTargetUrl($activity, $subjectType),
                     'kind' => $this->resolveActivityKind($activity, $subjectType),
                 ];
             })
+            ->values()
             ->all();
+    }
+
+    /** Several saves of one thing in a row are one event for the reader. */
+    private function isSameActivity(Activity $current, Activity $previous): bool
+    {
+        return $current->subject_type === $previous->subject_type
+            && $current->subject_id === $previous->subject_id
+            && $current->event === $previous->event
+            && $current->causer_id === $previous->causer_id;
     }
 
     private function resolveActivityTitle(Activity $activity, string $subjectType): string
@@ -220,6 +257,14 @@ class DashboardController extends Controller
 
     private function resolveActivityDescription(Activity $activity, mixed $subject): string
     {
+        $description = $this->describeSubject($subject);
+        $causer = $activity->causer?->name;
+
+        return $causer ? sprintf('%s • %s', $description, $causer) : $description;
+    }
+
+    private function describeSubject(mixed $subject): string
+    {
         if ($subject instanceof Booking) {
             return trim(sprintf(
                 '%s • %s',
@@ -242,19 +287,19 @@ class DashboardController extends Controller
     {
         return match ($subjectType) {
             'Booking' => match ($activity->subject?->booking_type) {
-                'tour_booking' => '/admin/bookings/tour-bookings',
-                'tour_inquiry' => '/admin/bookings/tour-inquiries',
-                'apartment_booking' => '/admin/bookings/apartment-bookings',
-                default => '/admin/bookings',
+                'tour_booking' => '/bookings/tour-bookings',
+                'tour_inquiry' => '/bookings/tour-inquiries',
+                'apartment_booking' => '/bookings/apartment-bookings',
+                default => '/bookings',
             },
-            'ContactMessage' => '/admin/bookings/messages',
-            'Coupon' => '/admin/bookings/coupons',
-            'Tour' => '/admin/tours',
-            'Apartment' => '/admin/apartments',
-            'BlogArticle' => '/admin/blog',
-            'HomepageOffer' => '/admin/homepage-offers',
-            'Bus' => '/admin/buses',
-            default => '/admin',
+            'ContactMessage' => '/bookings/messages',
+            'Coupon' => '/bookings/coupons',
+            'Tour' => '/tours',
+            'Apartment' => '/apartments',
+            'BlogArticle' => '/blog',
+            'HomepageOffer' => '/homepage-offers',
+            'Bus' => '/buses',
+            default => '/',
         };
     }
 

@@ -226,7 +226,7 @@ export function BookingFormTemplateSidePanel({
                 Törlés
               </Button>
             ) : null}
-            <Button
+            <Button title="Bezárás" aria-label="Bezárás"
               type="button"
               variant="ghost"
               size="icon"
@@ -402,7 +402,7 @@ export function BookingFormTemplateSidePanel({
                                   </Select>
                                 )}
                               />
-                              <Button
+                              <Button title="Feljebb" aria-label="Feljebb"
                                 type="button"
                                 variant="outline"
                                 size="icon"
@@ -411,7 +411,7 @@ export function BookingFormTemplateSidePanel({
                               >
                                 <ArrowUp className="size-4" />
                               </Button>
-                              <Button
+                              <Button title="Lejjebb" aria-label="Lejjebb"
                                 type="button"
                                 variant="outline"
                                 size="icon"

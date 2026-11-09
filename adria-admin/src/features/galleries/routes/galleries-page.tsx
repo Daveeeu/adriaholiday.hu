@@ -18,6 +18,7 @@ import {
 import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
+import { formatDate, formatDateTime } from '@/lib/date-format';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -71,42 +72,6 @@ function formatBytes(bytes?: number | null) {
   }
 
   return `${(bytes / 1024).toFixed(0)} KB`;
-}
-
-function formatDateTime(value?: string | null) {
-  if (!value) {
-    return 'Ismeretlen';
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return 'Ismeretlen';
-  }
-
-  return new Intl.DateTimeFormat('hu-HU', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(date);
-}
-
-function formatDateTimeLong(value?: string | null) {
-  if (!value) {
-    return 'Ismeretlen';
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return 'Ismeretlen';
-  }
-
-  return new Intl.DateTimeFormat('hu-HU', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
 }
 
 function copyText(value: string) {
@@ -569,7 +534,7 @@ function MediaDetailSheet({
                 <div className="grid gap-3 rounded-2xl border bg-muted/20 p-4 text-sm">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-muted-foreground">Feltöltés dátuma</span>
-                    <span className="font-medium">{formatDateTimeLong(media.createdAt)}</span>
+                    <span className="font-medium">{formatDateTime(media.createdAt)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-muted-foreground">Kategória címke</span>
@@ -910,7 +875,7 @@ export function GalleriesPage() {
                     </div>
                     <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                       <span className="rounded-full border bg-muted/40 px-2.5 py-1">{formatBytes(media.size)}</span>
-                      <span className="rounded-full border bg-muted/40 px-2.5 py-1">{formatDateTime(media.createdAt)}</span>
+                      <span className="rounded-full border bg-muted/40 px-2.5 py-1">{formatDate(media.createdAt)}</span>
                     </div>
                   </div>
                 </button>

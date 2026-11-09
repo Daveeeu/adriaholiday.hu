@@ -2,7 +2,7 @@ import { ArrowUpDown } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -27,8 +27,6 @@ export type DataTableColumn<T> = {
 };
 
 type DataTableProps<T> = {
-  title: string;
-  description?: string;
   columns: Array<DataTableColumn<T>>;
   items: T[];
   totalCount: number;
@@ -36,7 +34,7 @@ type DataTableProps<T> = {
   perPage: number;
   sortBy: string;
   sortDirection: CrudSortDirection;
-  emptyText: string;
+  emptyText?: string;
   isLoading?: boolean;
   actionsLabel?: string;
   onSortChange: (key: string) => void;
@@ -46,8 +44,6 @@ type DataTableProps<T> = {
 }
 
 export function DataTable<T>({
-  title,
-  description,
   columns,
   items,
   totalCount,
@@ -69,11 +65,7 @@ export function DataTable<T>({
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="space-y-2">
-        <CardTitle>{title}</CardTitle>
-        {description ? <CardDescription>{description}</CardDescription> : null}
-      </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-6">
         {isLoading ? <div className="h-1 w-full rounded-full bg-primary/20" /> : null}
         <div className="overflow-x-auto rounded-2xl border">
           <Table>
@@ -162,9 +154,7 @@ export function DataTable<T>({
 
         <div className="flex flex-col gap-3 rounded-2xl border bg-muted/25 px-4 py-3 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
           <div>
-            {totalCount === 0
-              ? 'Nincs találat.'
-              : `${start}-${end} / ${totalCount} találat`}
+            {totalCount === 0 ? null : `${start}-${end} / ${totalCount} találat`}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <label className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">

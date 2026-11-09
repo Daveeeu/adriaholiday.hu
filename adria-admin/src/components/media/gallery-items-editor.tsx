@@ -196,7 +196,7 @@ function GalleryCard({
       </div>
 
       <div className="flex items-start justify-end">
-        <Button type="button" variant="outline" size="icon" onClick={onDelete}>
+        <Button title="Törlés" aria-label="Törlés" type="button" variant="outline" size="icon" onClick={onDelete}>
           <Trash2 className="size-4" />
         </Button>
       </div>

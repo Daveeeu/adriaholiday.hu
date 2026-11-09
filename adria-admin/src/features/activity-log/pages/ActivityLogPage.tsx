@@ -187,7 +187,7 @@ export function ActivityLogPage() {
                               !entry.subject.exists && 'line-through',
                             )}
                           >
-                            {entry.subject.label ?? `#${entry.subject.id}`}
+                            {entry.subject.label ?? 'Név nélkül'}
                           </div>
                         </div>
                       ) : (

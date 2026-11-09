@@ -48,7 +48,6 @@ export function ActivityLogDetailPanel({
           value: [
             entry.subject.typeLabel,
             entry.subject.label,
-            entry.subject.id ? `#${entry.subject.id}` : null,
             entry.subject.exists ? null : '(már nem létezik)',
           ]
             .filter(Boolean)

@@ -65,8 +65,8 @@ export const bookingsChapter: GuideChapter = {
             'A szűrt lista letöltése táblázatként (pl. Excelben megnyitható CSV).',
           ),
           field(
-            'Foglalás állapota / Lemondott?',
-            'A lista oszlopai; a lemondott foglalás törlés helyett jelölhető.',
+            'Foglalás állapota',
+            'A lista oszlopa; a lemondott foglalás törlés helyett jelölhető, ilyenkor „Lemondva” látszik.',
           ),
         ]),
         steps(
@@ -146,7 +146,7 @@ export const bookingsChapter: GuideChapter = {
             ADMIN_ONLY,
           ),
           field(
-            'Analytics',
+            'Technikai adatok › Mérési események',
             'A foglaláshoz tartozó mérési adatok (UTM kampány, hivatkozó oldal).',
             ADMIN_ONLY,
           ),
@@ -178,7 +178,7 @@ export const bookingsChapter: GuideChapter = {
             ADMIN_ONLY,
           ),
           field(
-            'Nyers adatok',
+            'Technikai adatok › Nyers adatok',
             'A foglalás összes adata technikai formában; hibakereséshez.',
             ADMIN_ONLY,
           ),

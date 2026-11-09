@@ -14,6 +14,7 @@ import {
   updatePromotionRecord,
 } from '../lib/bookings.api';
 import type { Promotion, PromotionFormValues } from '../lib/bookings.types';
+import { formatDate } from '../lib/bookings.utils';
 import type { DataTableColumn } from '../components/data-table';
 
 function initialDraft(record?: Promotion | null): PromotionFormValues {
@@ -65,7 +66,7 @@ const columns = [
     key: 'expiresAt',
     label: 'Lejárat',
     sortable: true,
-    render: (item: Promotion) => item.expiresAt || '—',
+    render: (item: Promotion) => formatDate(item.expiresAt),
   },
   {
     key: 'isActive',
@@ -90,8 +91,6 @@ export function PromotionsPage() {
       title: 'Promóció',
       description:
         'A publikus főoldalon megjelenő aktív promóció kezelése. Csak az aktív és az időablakban lévő promóció jelenik meg a látogatóknak.',
-      toolbarTitle: 'Promóció',
-      toolbarDescription: 'Keresés a promóciók között.',
       searchPlaceholder: 'Keresés cím, üzenet vagy kód alapján...',
       createLabel: 'Új promóció',
       emptyText: 'Nincs a keresésnek megfelelő promóció.',

@@ -24,15 +24,19 @@ export const dashboardChapter: GuideChapter = {
           'A Vezérlőpult',
           'A Vezérlőpult: felül a gyors áttekintés, alatta a számláló kártyák, lent a havi bevétel grafikonja és a legutóbbi aktivitások.',
         ),
-        fields('A kártyák jelentése', [
+        fields('A kártyák jelentése (kattintásra megnyílik a kapcsolódó oldal)', [
           field(
             'Apartmanok száma',
             'Az adminban rögzített összes apartman (aktív és inaktív együtt).',
           ),
-          field('Körutazások száma', 'A rögzített körutazási ajánlatok száma.'),
+          field('Aktív körutazások', 'A honlapon látható, aktív körutazások száma.'),
           field(
-            'Aktív foglalások',
-            'Beérkezett és még nyitott (nem lemondott, nem lejárt) foglalások. Ezekkel még dolgozni kell.',
+            'Új foglalások',
+            'Az „Új” állapotú, nem lemondott körutazás- és apartmanfoglalások. Ezekkel még dolgozni kell.',
+          ),
+          field(
+            'Közelgő utazások',
+            'A nem lemondott foglalások, amelyek indulása még hátravan.',
           ),
           field(
             'Új ajánlatkérések',
@@ -40,11 +44,11 @@ export const dashboardChapter: GuideChapter = {
           ),
           field(
             'Havi bevétel (Ft)',
-            'Az aktuális hónap aktív foglalásainak összértéke.',
+            'Az aktuális hónap nem lemondott foglalásainak összértéke.',
           ),
           field(
-            'Kuponok száma',
-            'A rendszerben lévő kuponkódok (pl. hírlevél-feliratkozáskor kiküldöttek).',
+            'Felhasználható kuponok',
+            'A még fel nem használt, le nem járt kuponkódok (pl. hírlevél-feliratkozáskor kiküldöttek).',
           ),
           field(
             'Blog cikkek száma',

@@ -65,7 +65,7 @@ export const toursChapter: GuideChapter = {
             'Igen / Nem jelzés a szerkesztő azonos nevű kapcsolói alapján.',
           ),
         ]),
-        fields('Műveletgombok egy sor végén (balról jobbra)', [
+        fields('Műveletek egy sor végén: Szem, Ceruza és a „…” menü', [
           field(
             'Szem',
             'Megtekintés: az út összes adata csak olvasható nézetben, oldalsó panelen.',
@@ -75,26 +75,26 @@ export const toursChapter: GuideChapter = {
             'Szerkesztés: megnyitja a teljes körutazás szerkesztőt.',
           ),
           field(
-            'Bekapcsoló',
-            'Aktiválás / deaktiválás egy kattintással. Az inaktív út eltűnik a publikus oldalról, de minden adata megmarad.',
+            '„…” menü: Aktiválás / Inaktiválás',
+            'Egy kattintással aktiválja vagy inaktiválja az utat. Az inaktív út eltűnik a publikus oldalról, de minden adata megmarad.',
             'Azonnal a publikus weboldalon (listák, kereső, az út saját oldala).',
           ),
           field(
-            'Letöltés (nyíl lefelé)',
+            '„…” menü: Program PDF letöltése',
             'Letölti az út programját PDF-ben, ugyanúgy, ahogy a látogatók a weboldalon.',
           ),
           field(
-            'Másolás',
+            '„…” menü: Másolás új útként',
             'Teljes másolatot készít az útról (időpontokkal, szövegekkel). Új, hasonló út felviteléhez a leggyorsabb.',
           ),
           field(
-            'Fel / Le nyíl',
+            '„…” menü: Feljebb / Lejjebb az alapsorrendben',
             'Eggyel előrébb vagy hátrébb mozgatja az utat az alapértelmezett sorrendben.',
             'A publikus ajánlatlisták sorrendjében, ahol a listának nincs saját sorrendje (lásd „Sorrend listánként”).',
           ),
           field(
-            'Piros kuka',
-            'Végleges törlés megerősítés után. Ha csak elrejtenéd az utat, inkább deaktiváld.',
+            '„…” menü: Törlés',
+            'Végleges törlés megerősítés után. Ha csak elrejtenéd az utat, inkább inaktiváld.',
           ),
         ]),
         img(

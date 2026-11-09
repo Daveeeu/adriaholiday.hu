@@ -180,7 +180,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               )}
             />
             <div className="flex items-end">
-              <Button
+              <Button title="Törlés" aria-label="Törlés"
                 type="button"
                 variant="outline"
                 size="icon"

@@ -32,7 +32,7 @@ export const gettingStartedChapter: GuideChapter = {
           'A bejelentkezés a böngészőben megmarad, így a lap bezárása után sem kell újra belépned. Közös vagy idegen gépen mindig jelentkezz ki a munka végén.',
         ),
         warning(
-          'Ha a fiókodat a rendszergazda deaktiválja, vagy a munkameneted lejár, az admin automatikusan visszadob a belépési oldalra. A nem mentett módosítások ilyenkor elvesznek.',
+          'Ha a fiókodat a rendszergazda inaktiválja, vagy a munkameneted lejár, az admin automatikusan visszadob a belépési oldalra. A nem mentett módosítások ilyenkor elvesznek.',
         ),
       ],
     },
@@ -119,7 +119,7 @@ export const gettingStartedChapter: GuideChapter = {
           ),
           field(
             'Műveletgombok a sor végén',
-            'Szem ikon: megtekintés. Ceruza: szerkesztés. Bekapcsoló ikon: aktiválás / deaktiválás. Másolás ikon: másolat készítése. Nyilak: sorrend módosítása. Piros kuka: törlés. Csak azok a gombok jelennek meg, amelyekhez van jogosultságod.',
+            'Szem ikon: megtekintés. Ceruza: szerkesztés. Bekapcsoló ikon: aktiválás / inaktiválás. A körutazásoknál a ritkább műveletek a „…” menüben vannak. Másolás ikon: másolat készítése. Nyilak: sorrend módosítása. Piros kuka: törlés. Csak azok a gombok jelennek meg, amelyekhez van jogosultságod.',
           ),
         ]),
         fields('Szerkesztés oldalsó panelen', [

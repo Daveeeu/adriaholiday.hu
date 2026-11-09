@@ -175,7 +175,7 @@ export function ApartmentsTable({
                       return (
                         <TableCell key={cell.id} className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Button
+                            <Button title="Megtekintés" aria-label="Megtekintés"
                               variant="outline"
                               size="icon"
                               onClick={() => onViewApartment(row.original)}
@@ -183,7 +183,7 @@ export function ApartmentsTable({
                               <Eye className="size-4" />
                             </Button>
                             {onEditApartment ? (
-                              <Button
+                              <Button title="Szerkesztés" aria-label="Szerkesztés"
                                 variant="outline"
                                 size="icon"
                                 onClick={() => onEditApartment(row.original)}
@@ -192,7 +192,7 @@ export function ApartmentsTable({
                               </Button>
                             ) : null}
                             {onToggleActive ? (
-                              <Button
+                              <Button title="Állapot váltása" aria-label="Állapot váltása"
                                 variant="outline"
                                 size="icon"
                                 onClick={() => onToggleActive(row.original)}
@@ -201,7 +201,7 @@ export function ApartmentsTable({
                               </Button>
                             ) : null}
                             {onDeleteApartment ? (
-                              <Button
+                              <Button title="Törlés" aria-label="Törlés"
                                 variant="destructive"
                                 size="icon"
                                 onClick={() => onDeleteApartment(row.original)}
@@ -269,7 +269,7 @@ export function ApartmentsTable({
                 count: table.getPageCount() || 1,
               })}
             </span>
-            <Button
+            <Button title="Előző" aria-label="Előző"
               variant="outline"
               size="icon"
               onClick={() => table.previousPage()}
@@ -277,7 +277,7 @@ export function ApartmentsTable({
             >
               <ChevronLeft className="size-4" />
             </Button>
-            <Button
+            <Button title="Következő" aria-label="Következő"
               variant="outline"
               size="icon"
               onClick={() => table.nextPage()}

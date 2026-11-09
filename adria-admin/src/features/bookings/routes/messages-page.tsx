@@ -43,7 +43,6 @@ function initialDraft(record?: ContactMessage | null): ContactMessageFormValues 
 }
 
 const columns = [
-  { key: 'id', label: 'ID', sortable: true, render: (item: ContactMessage) => item.id },
   { key: 'name', label: 'Név', sortable: true, render: (item: ContactMessage) => item.name },
   { key: 'email', label: 'Email', sortable: true, render: (item: ContactMessage) => item.email },
   { key: 'phone', label: 'Telefonszám', sortable: true, render: (item: ContactMessage) => item.phone },
@@ -52,7 +51,6 @@ const columns = [
 
 export function MessagesPage() {
   const hasPermission = useAuthStore((state) => state.hasPermission);
-  const canCreate = hasPermission('messages.create');
   const canUpdate = hasPermission('messages.update');
   const canDelete = hasPermission('messages.delete');
 
@@ -62,8 +60,6 @@ export function MessagesPage() {
       title: 'Üzenetek',
       description:
         'A honlapról érkezett üzenetek. Az üzenet szövege nem módosítható, a többi adata igen.',
-      toolbarTitle: 'Üzenetek',
-      toolbarDescription: 'Keresés az üzenetek között.',
       searchPlaceholder: 'Keresés név, email vagy telefonszám alapján...',
       createLabel: 'Új üzenet',
       emptyText: 'Nincs a keresésnek megfelelő üzenet.',
@@ -170,7 +166,7 @@ export function MessagesPage() {
   return (
     <CrudModulePage
       {...pageConfig}
-      canCreate={canCreate}
+      canCreate={false}
       canUpdate={canUpdate}
       canDelete={canDelete}
     />

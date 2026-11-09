@@ -231,7 +231,7 @@ function BookingFormTemplatesSection() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
+                        <Button title="Megtekintés" aria-label="Megtekintés"
                           variant="outline"
                           size="icon"
                           onClick={() => {
@@ -243,7 +243,7 @@ function BookingFormTemplatesSection() {
                           <Eye className="size-4" />
                         </Button>
                         {canUpdate ? (
-                          <Button
+                          <Button title="Szerkesztés" aria-label="Szerkesztés"
                             variant="outline"
                             size="icon"
                             onClick={() => {
@@ -256,7 +256,7 @@ function BookingFormTemplatesSection() {
                           </Button>
                         ) : null}
                         {canDelete ? (
-                          <Button
+                          <Button title="Törlés" aria-label="Törlés"
                             variant="destructive"
                             size="icon"
                             onClick={() => confirmDelete(template)}

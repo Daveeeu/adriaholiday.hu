@@ -106,7 +106,6 @@ export function BlogTagsPage() {
 
   const columns = useMemo<ColumnDef<BlogTag>[]>(
     () => [
-      { accessorKey: 'id', header: 'ID' },
       {
         id: 'name',
         accessorFn: (tag) => tag.translations.hu.name,
@@ -123,21 +122,21 @@ export function BlogTagsPage() {
         enableSorting: false,
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="icon" onClick={() => { setSelectedTag(row.original); setPanelMode('detail'); setPanelOpen(true); }}>
+            <Button title="Megtekintés" aria-label="Megtekintés" variant="outline" size="icon" onClick={() => { setSelectedTag(row.original); setPanelMode('detail'); setPanelOpen(true); }}>
               <Eye className="size-4" />
             </Button>
             {canUpdate ? (
-              <Button variant="outline" size="icon" onClick={() => { setSelectedTag(row.original); setPanelMode('edit'); setPanelOpen(true); }}>
+              <Button title="Szerkesztés" aria-label="Szerkesztés" variant="outline" size="icon" onClick={() => { setSelectedTag(row.original); setPanelMode('edit'); setPanelOpen(true); }}>
                 <Pencil className="size-4" />
               </Button>
             ) : null}
             {canUpdate ? (
-              <Button variant="outline" size="icon" onClick={() => toggleMutation.mutate({ id: row.original.id, active: !row.original.active })}>
+              <Button title="Állapot váltása" aria-label="Állapot váltása" variant="outline" size="icon" onClick={() => toggleMutation.mutate({ id: row.original.id, active: !row.original.active })}>
                 <Power className="size-4" />
               </Button>
             ) : null}
             {canDelete ? (
-              <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(row.original.id)}>
+              <Button title="Törlés" aria-label="Törlés" variant="destructive" size="icon" onClick={() => deleteMutation.mutate(row.original.id)}>
                 <Trash2 className="size-4" />
               </Button>
             ) : null}

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BarChart3, CalendarRange, Filter, Funnel, MousePointerClick, MousePointerSquareDashed, Tags, TicketPercent } from 'lucide-react';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { formatDateTime } from '@/lib/date-format';
 import {
   getAnalyticsCtaLabel,
   getAnalyticsEntityTypeLabel,
@@ -54,20 +55,6 @@ const ENTITY_TYPE_OPTIONS = ['', 'tour', 'category', 'tour_date', 'program_day',
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat('hu-HU').format(value);
-}
-
-function formatDateTime(value: string | null) {
-  if (!value) {
-    return 'Nincs adat';
-  }
-
-  return new Intl.DateTimeFormat('hu-HU', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
 }
 
 function AnalyticsMetricCard({

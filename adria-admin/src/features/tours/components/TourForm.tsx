@@ -676,7 +676,7 @@ export function TourForm({ form, tour }: TourFormProps) {
                 )}
               />
               <div className="flex items-end">
-                <Button
+                <Button title="Törlés" aria-label="Törlés"
                   type="button"
                   variant="outline"
                   size="icon"

@@ -155,7 +155,7 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
                     </button>
 
                     <div className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-                      #{item.sortOrder}
+                      {item.sortOrder}. tétel
                     </div>
                   </div>
 
@@ -194,7 +194,7 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
                   </div>
 
                   <div className="flex items-end justify-end">
-                    <Button
+                    <Button title="Törlés" aria-label="Törlés"
                       type="button"
                       variant="outline"
                       size="icon"

@@ -4,6 +4,7 @@ import { useDeferredValue, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ListPagination } from '@/components/admin/list-pagination';
+import { formatDate } from '@/lib/date-format';
 import { PageLoader } from '@/components/common/page-loader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -119,9 +120,9 @@ export function CustomersPage() {
                     <TableCell>{customer.phone ?? '—'}</TableCell>
                     <TableCell>{customer.referralCode ?? '—'}</TableCell>
                     <TableCell className="text-right tabular-nums">{customer.bookingsCount ?? 0}</TableCell>
-                    <TableCell className="whitespace-nowrap">{customer.registeredAt?.slice(0, 10) ?? '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap">{formatDate(customer.registeredAt)}</TableCell>
                     <TableCell className="text-right">
-                      <Button
+                      <Button title="Szerkesztés" aria-label="Szerkesztés"
                         variant="outline"
                         size="icon"
                         onClick={() => {

@@ -100,7 +100,7 @@ export function HomepageOfferFormDialog({
             </p>
           </div>
 
-          <Button
+          <Button title="Bezárás" aria-label="Bezárás"
             type="button"
             variant="ghost"
             size="icon"

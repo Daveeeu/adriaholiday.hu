@@ -99,7 +99,7 @@ export function ApartmentTypesTable({
             <span className="text-sm text-muted-foreground">
               {pagination.pageIndex + 1}. oldal / {table.getPageCount() || 1}
             </span>
-            <Button
+            <Button title="Előző" aria-label="Előző"
               variant="outline"
               size="icon"
               onClick={() => table.previousPage()}
@@ -107,7 +107,7 @@ export function ApartmentTypesTable({
             >
               <ChevronLeft className="size-4" />
             </Button>
-            <Button
+            <Button title="Következő" aria-label="Következő"
               variant="outline"
               size="icon"
               onClick={() => table.nextPage()}

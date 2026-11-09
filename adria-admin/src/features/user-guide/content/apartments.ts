@@ -443,7 +443,7 @@ export const apartmentsChapter: GuideChapter = {
           ),
         ]),
         list([
-          'A bekapcsoló ikon azonnal aktiválja vagy deaktiválja a régiót.',
+          'A bekapcsoló ikon azonnal aktiválja vagy inaktiválja a régiót.',
           'Régiót csak akkor törölj, ha nincs hozzá rendelve apartman.',
         ]),
       ],

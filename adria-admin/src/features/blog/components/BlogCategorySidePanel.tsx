@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { TechnicalDetails } from '@/components/common/technical-details';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -52,11 +53,8 @@ function BlogCategoryDetailView({ category }: { category: BlogCategory }) {
               {BLOG_CATEGORY_COLUMNS.find((item) => item.value === category.column)?.label ?? category.column}
             </div>
           </div>
-          <div className="rounded-xl border bg-background p-3">
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">ID</div>
-            <div className="mt-1 text-sm font-medium">{category.id}</div>
-          </div>
         </div>
+        <TechnicalDetails items={[{ label: 'Rendszerazonosító', value: category.id }]} />
       </section>
       <section className="rounded-2xl border bg-card p-4">
         <h4 className="font-semibold">Nyelvi tartalmak</h4>

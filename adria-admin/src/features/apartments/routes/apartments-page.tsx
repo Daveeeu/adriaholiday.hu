@@ -397,20 +397,6 @@ export function ApartmentsPage() {
   const columns: ColumnDef<ApartmentRow>[] = useMemo(
     () => [
       {
-        accessorKey: 'id',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            ID
-            <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        filterFn: 'includesString',
-      },
-      {
         accessorKey: 'name',
         header: ({ column }) => (
           <Button
@@ -440,7 +426,7 @@ export function ApartmentsPage() {
                 {row.original.name}
               </div>
               <div className="text-xs text-muted-foreground">
-                {row.original.code ?? '—'} · {row.original.regionName} ·{' '}
+                Kód: {row.original.code ?? '—'} · {row.original.regionName} ·{' '}
                 {row.original.locationName} · {row.original.typeLabel}
               </div>
             </div>

@@ -28,20 +28,27 @@ import { t } from '@/i18n';
 import { getDashboardSummary } from '@/services/dashboard-service';
 
 const metricIcons = [
-  Building2,
-  MapPinned,
   CalendarCheck2,
   FileText,
+  MapPinned,
   TrendingUp,
+  Mail,
+  MapPinned,
+  Building2,
   Ticket,
   LayoutGrid,
-  Mail,
 ] as const;
 
 function formatHuf(value: number) {
   return new Intl.NumberFormat('hu-HU', {
     maximumFractionDigits: 0,
   }).format(value) + ' Ft';
+}
+
+function formatAxisHuf(value: number) {
+  return value >= 1_000_000
+    ? `${new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 1 }).format(value / 1_000_000)} M Ft`
+    : formatHuf(value);
 }
 
 function toNumericValue(value: number | string | readonly (number | string)[] | undefined) {
@@ -106,15 +113,15 @@ export function DashboardPage() {
                   {t('dashboard.metric.monthlyRevenue')}
                 </span>
                 <span className="text-lg font-semibold">
-                  {data.metrics[4]?.value}
+                  {data.metrics[3]?.value}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
                 <span className="text-sm text-muted-foreground">
-                  {t('dashboard.metric.activeBookings')}
+                  {t('dashboard.metric.newBookings')}
                 </span>
                 <span className="text-lg font-semibold">
-                  {data.metrics[2]?.value}
+                  {data.metrics[0]?.value}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
@@ -122,7 +129,7 @@ export function DashboardPage() {
                   {t('dashboard.metric.newInquiries')}
                 </span>
                 <span className="text-lg font-semibold">
-                  {data.metrics[3]?.value}
+                  {data.metrics[1]?.value}
                 </span>
               </div>
             </CardContent>
@@ -147,9 +154,10 @@ export function DashboardPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data.monthlyRevenue}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.2} />
-                  <XAxis dataKey="month" tickLine={false} axisLine={false} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
                   <YAxis
-                    tickFormatter={(value) => formatHuf(toNumericValue(value))}
+                    width={92}
+                    tickFormatter={(value) => formatAxisHuf(toNumericValue(value))}
                     tickLine={false}
                     axisLine={false}
                   />
@@ -158,6 +166,7 @@ export function DashboardPage() {
                   />
                   <Line
                     type="monotone"
+                    isAnimationActive={false}
                     dataKey="revenue"
                     stroke="#0f766e"
                     strokeWidth={3}
@@ -173,9 +182,6 @@ export function DashboardPage() {
         <RecentActivityFeed items={data.recentActivity} />
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-muted/10 px-4 py-3 text-sm text-muted-foreground">
-        Az Adria Holiday rendszer aktuális állapota.
-      </div>
     </div>
   );
 }

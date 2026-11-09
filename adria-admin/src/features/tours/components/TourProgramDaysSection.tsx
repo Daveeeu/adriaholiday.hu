@@ -97,7 +97,7 @@ function ProgramDayBadgesField({
               />
 
               <div className="flex items-end">
-                <Button
+                <Button title="Törlés" aria-label="Törlés"
                   type="button"
                   variant="outline"
                   size="icon"
@@ -143,7 +143,7 @@ function ProgramDayCard({
         </button>
 
         <div className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-          #{row.sortOrder}
+          {row.sortOrder}. nap
         </div>
       </div>
 
@@ -282,10 +282,10 @@ function ProgramDayCard({
       </div>
 
       <div className="flex items-start justify-end gap-2">
-        <Button type="button" variant="outline" size="icon" onClick={onCopy}>
+        <Button title="Másolás" aria-label="Másolás" type="button" variant="outline" size="icon" onClick={onCopy}>
           <Copy className="size-4" />
         </Button>
-        <Button type="button" variant="outline" size="icon" onClick={onDelete}>
+        <Button title="Törlés" aria-label="Törlés" type="button" variant="outline" size="icon" onClick={onDelete}>
           <Trash2 className="size-4" />
         </Button>
       </div>

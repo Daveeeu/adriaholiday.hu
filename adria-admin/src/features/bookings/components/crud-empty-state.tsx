@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 type CrudEmptyStateProps = {
   title: string;
-  description: string;
+  description?: string;
   className?: string;
   action?: ReactNode;
 };
@@ -24,7 +24,7 @@ export function CrudEmptyState({
     >
       <div className="max-w-md space-y-3">
         <div className="text-lg font-semibold tracking-tight">{title}</div>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
         {action ? <div className="pt-2">{action}</div> : null}
       </div>
     </div>

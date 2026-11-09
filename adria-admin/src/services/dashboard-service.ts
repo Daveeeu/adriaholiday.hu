@@ -16,7 +16,7 @@ export type DashboardMetric = {
   label: string;
   value: string;
   hint: string;
-  trend: string;
+  to: string;
 };
 
 export type DashboardMonthlyPoint = {
@@ -49,7 +49,8 @@ type DashboardSummaryResponse = {
     homepageOffers: number;
     blogArticles: number;
     buses: number;
-    activeBookings: number;
+    newBookings: number;
+    upcomingBookings: number;
     newInquiries: number;
     monthlyRevenue: number;
   };
@@ -67,59 +68,75 @@ function formatHuf(value: number) {
   }).format(value) + ' Ft';
 }
 
+const MONTH_FORMAT = new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'short' });
+
+/** A Y-m key from the API as a Hungarian label, e.g. 2026. nov. */
+function formatMonth(month: string) {
+  return MONTH_FORMAT.format(new Date(`${month}-01T12:00:00`));
+}
+
 function toMetricSummary(response: DashboardSummaryResponse): DashboardSummary {
   return {
     metrics: [
       {
-        label: t('dashboard.metric.apartments'),
-        value: formatNumber(response.counts.apartments),
-        hint: t('dashboard.metric.apartmentsHint'),
-        trend: t('dashboard.metric.apartmentsTrend'),
-      },
-      {
-        label: t('dashboard.metric.tours'),
-        value: formatNumber(response.counts.tours),
-        hint: t('dashboard.metric.toursHint'),
-        trend: t('dashboard.metric.toursTrend'),
-      },
-      {
-        label: t('dashboard.metric.activeBookings'),
-        value: formatNumber(response.counts.activeBookings),
-        hint: t('dashboard.metric.activeBookingsHint'),
-        trend: t('dashboard.metric.activeBookingsTrend'),
+        label: t('dashboard.metric.newBookings'),
+        value: formatNumber(response.counts.newBookings),
+        hint: t('dashboard.metric.newBookingsHint'),
+        to: '/bookings/tour-bookings',
       },
       {
         label: t('dashboard.metric.newInquiries'),
         value: formatNumber(response.counts.newInquiries),
         hint: t('dashboard.metric.newInquiriesHint'),
-        trend: t('dashboard.metric.newInquiriesTrend'),
+        to: '/bookings/tour-inquiries',
+      },
+      {
+        label: t('dashboard.metric.upcomingBookings'),
+        value: formatNumber(response.counts.upcomingBookings),
+        hint: t('dashboard.metric.upcomingBookingsHint'),
+        to: '/bookings/tour-bookings',
       },
       {
         label: t('dashboard.metric.monthlyRevenue'),
         value: formatHuf(response.counts.monthlyRevenue),
         hint: t('dashboard.metric.monthlyRevenueHint'),
-        trend: t('dashboard.metric.monthlyRevenueTrend'),
-      },
-      {
-        label: t('dashboard.metric.coupons'),
-        value: formatNumber(response.counts.coupons),
-        hint: t('dashboard.metric.couponsHint'),
-        trend: t('dashboard.metric.couponsTrend'),
-      },
-      {
-        label: t('dashboard.metric.blogArticles'),
-        value: formatNumber(response.counts.blogArticles),
-        hint: t('dashboard.metric.blogArticlesHint'),
-        trend: t('dashboard.metric.blogArticlesTrend'),
+        to: '/bookings',
       },
       {
         label: t('dashboard.metric.messages'),
         value: formatNumber(response.counts.messages),
         hint: t('dashboard.metric.messagesHint'),
-        trend: t('dashboard.metric.messagesTrend'),
+        to: '/bookings/messages',
+      },
+      {
+        label: t('dashboard.metric.tours'),
+        value: formatNumber(response.counts.tours),
+        hint: t('dashboard.metric.toursHint'),
+        to: '/tours',
+      },
+      {
+        label: t('dashboard.metric.apartments'),
+        value: formatNumber(response.counts.apartments),
+        hint: t('dashboard.metric.apartmentsHint'),
+        to: '/apartments',
+      },
+      {
+        label: t('dashboard.metric.coupons'),
+        value: formatNumber(response.counts.coupons),
+        hint: t('dashboard.metric.couponsHint'),
+        to: '/bookings/coupons',
+      },
+      {
+        label: t('dashboard.metric.blogArticles'),
+        value: formatNumber(response.counts.blogArticles),
+        hint: t('dashboard.metric.blogArticlesHint'),
+        to: '/blog',
       },
     ],
-    monthlyRevenue: response.monthlyRevenue,
+    monthlyRevenue: response.monthlyRevenue.map(({ month, revenue }) => ({
+      month: formatMonth(month),
+      revenue,
+    })),
     recentActivity: response.recentActivity,
   };
 }

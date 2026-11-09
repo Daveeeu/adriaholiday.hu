@@ -134,8 +134,6 @@ export function PartnerFinancesPage() {
     title: 'Partner pénzügyek',
     description:
       'Jutalék jóváírások, kifizetések, hely jóváírások és leutazható egyenlegek egy tabos nézetben.',
-    toolbarTitle: financeModes.find((mode) => mode.type === activeType)?.label ?? 'Partner pénzügyek',
-    toolbarDescription: 'Keresés a pénzügyi tételek között.',
     searchPlaceholder: 'Keresés partner, dátum vagy megjegyzés alapján...',
     createLabel: 'Új pénzügyi tétel',
     emptyText: 'Nincs a keresésnek megfelelő pénzügyi tétel.',

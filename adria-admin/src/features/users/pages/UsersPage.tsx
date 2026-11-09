@@ -134,7 +134,7 @@ export function UsersPage() {
         return (
           <div className="flex justify-end gap-2">
             {canUpdate ? (
-              <Button
+              <Button title="Szerkesztés" aria-label="Szerkesztés"
                 variant="outline"
                 size="icon"
                 onClick={() => {
@@ -147,7 +147,7 @@ export function UsersPage() {
               </Button>
             ) : null}
             {canUpdate && !isSelf ? (
-              <Button
+              <Button title="Állapot váltása" aria-label="Állapot váltása"
                 variant="outline"
                 size="icon"
                 onClick={() =>

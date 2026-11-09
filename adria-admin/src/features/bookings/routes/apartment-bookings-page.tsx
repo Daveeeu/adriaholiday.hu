@@ -17,7 +17,7 @@ import type {
   ApartmentBooking,
   ApartmentBookingFormValues,
 } from '../lib/bookings.types';
-import { formatDate, formatDateTime } from '../lib/bookings.utils';
+import { formatDate } from '../lib/bookings.utils';
 import { getApartmentBookingStatusLabel } from '../lib/bookings.constants';
 import type { DataTableColumn } from '../components/data-table';
 
@@ -62,11 +62,11 @@ function initialDraft(record?: ApartmentBooking | null): ApartmentBookingFormVal
 }
 
 const columns = [
-  { key: 'id', label: 'ID', sortable: true, render: (item: ApartmentBooking) => item.id },
+  { key: 'id', label: 'Foglalásszám', sortable: true, render: (item: ApartmentBooking) => `#${item.id}` },
   { key: 'name', label: 'Név', sortable: true, render: (item: ApartmentBooking) => item.guestName },
   { key: 'email', label: 'Email', sortable: true, render: (item: ApartmentBooking) => item.email },
   { key: 'apartment', label: 'Apartman', sortable: true, render: (item: ApartmentBooking) => item.apartmentName },
-  { key: 'applicationTime', label: 'Jelentkezés időpontja', sortable: true, render: (item: ApartmentBooking) => formatDateTime(item.applicationTime) },
+  { key: 'applicationTime', label: 'Jelentkezés dátuma', sortable: true, render: (item: ApartmentBooking) => formatDate(item.applicationTime) },
   { key: 'bookingDate', label: 'Foglalás dátuma', sortable: true, render: (item: ApartmentBooking) => formatDate(item.bookingDate) },
   { key: 'offerCode', label: 'Ajánlati kód', sortable: true, render: (item: ApartmentBooking) => item.offerCode },
   { key: 'passengers', label: 'Utasok', sortable: true, render: (item: ApartmentBooking) => `${item.passengers} fő` },
@@ -87,8 +87,6 @@ export function ApartmentBookingsPage() {
       title: 'Apartman foglalások',
       description:
         'Az apartman foglalások listája az utasokkal, időpontokkal és jóváírási állapotokkal.',
-      toolbarTitle: 'Apartman foglalások',
-      toolbarDescription: 'Keresés az apartman foglalások között.',
       searchPlaceholder: 'Keresés név, email, apartman vagy kód alapján...',
       createLabel: 'Új foglalás',
       emptyText: 'Nincs a keresésnek megfelelő apartman foglalás.',

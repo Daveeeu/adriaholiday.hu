@@ -8,9 +8,8 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowUpDown, Eye, Pencil, Power, Trash2 } from 'lucide-react';
+import { ArrowUpDown, ExternalLink, Eye, Pencil, Power, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
@@ -45,7 +44,6 @@ function getSortBy(sorting: SortingState): NonNullable<HomepageOffersListQuery['
 
 export function HomepageOffersPage() {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const canCreate = hasPermission('homepage-offers.create');
   const canUpdate = hasPermission('homepage-offers.update');
@@ -171,41 +169,6 @@ export function HomepageOffersPage() {
         ),
       },
       {
-        accessorKey: 'id',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            ID <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        cell: ({ row }) => (
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-auto p-0 text-sm font-medium text-muted-foreground"
-            disabled={!row.original.link}
-            onClick={() => {
-              const link = row.original.link?.trim();
-              if (!link) {
-                return;
-              }
-
-              if (/^https?:\/\//i.test(link) || link.startsWith('//')) {
-                window.open(link, '_blank', 'noopener,noreferrer');
-                return;
-              }
-
-              navigate(link);
-            }}
-          >
-            {row.original.id}
-          </Button>
-        ),
-      },
-      {
         id: 'name',
         accessorFn: (offer) => offer.translations.hu.name,
         header: ({ column }) => (
@@ -269,6 +232,20 @@ export function HomepageOffersPage() {
             <Button
               variant="outline"
               size="icon"
+              title="Megnyitás a honlapon"
+              aria-label="Megnyitás a honlapon"
+              disabled={!row.original.link?.trim()}
+              onClick={() => {
+                window.open(row.original.link?.trim(), '_blank', 'noopener,noreferrer');
+              }}
+            >
+              <ExternalLink className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              title="Megtekintés"
+              aria-label="Megtekintés"
               onClick={() => {
                 setSelectedOffer(row.original);
                 setPanelMode('detail');
@@ -278,7 +255,7 @@ export function HomepageOffersPage() {
               <Eye className="size-4" />
             </Button>
             {canUpdate ? (
-              <Button
+              <Button title="Szerkesztés" aria-label="Szerkesztés"
                 variant="outline"
                 size="icon"
                 onClick={() => {
@@ -291,7 +268,7 @@ export function HomepageOffersPage() {
               </Button>
             ) : null}
             {canUpdate ? (
-              <Button
+              <Button title="Állapot váltása" aria-label="Állapot váltása"
                 variant="outline"
                 size="icon"
                 onClick={() =>
@@ -305,7 +282,7 @@ export function HomepageOffersPage() {
               </Button>
             ) : null}
             {canDelete ? (
-              <Button
+              <Button title="Törlés" aria-label="Törlés"
                 variant="destructive"
                 size="icon"
                 onClick={() => {
@@ -325,7 +302,7 @@ export function HomepageOffersPage() {
         ),
       },
     ],
-    [canDelete, canUpdate, deleteMutation, navigate, statusMutation],
+    [canDelete, canUpdate, deleteMutation, statusMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library

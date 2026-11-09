@@ -72,8 +72,6 @@ export function BannerGeneratorPage() {
       title: 'Banner generálás',
       description:
         'Partner bannerek konfigurálása élő előnézettel és szerkesztőpanellel.',
-      toolbarTitle: 'Banner generálás',
-      toolbarDescription: 'Egyszerre több partner banner állítható össze és szerkeszthető.',
       searchPlaceholder: 'Keresés név, URL, kód vagy státusz alapján...',
       createLabel: 'Új banner',
       emptyText: 'Nincs a keresésnek megfelelő banner.',

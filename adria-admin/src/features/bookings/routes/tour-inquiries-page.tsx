@@ -55,7 +55,7 @@ function initialDraft(record?: TourInquiry | null): TourInquiryFormValues {
 }
 
 const columns = [
-  { key: 'id', label: 'ID', sortable: true, render: (item: TourInquiry) => item.id },
+  { key: 'id', label: 'Szám', sortable: true, render: (item: TourInquiry) => `#${item.id}` },
   { key: 'name', label: 'Név', sortable: true, render: (item: TourInquiry) => item.name },
   { key: 'email', label: 'Email', sortable: true, render: (item: TourInquiry) => item.email },
   { key: 'offer', label: 'Ajánlat', sortable: true, render: (item: TourInquiry) => item.offerName },
@@ -80,8 +80,6 @@ export function TourInquiriesPage() {
       title: 'Körutazás ajánlatkérések',
       description:
         'Ajánlatkérések listája modern kereséssel, rendezéssel és oldalsó szerkesztőpanellel.',
-      toolbarTitle: 'Körutazás ajánlatkérések',
-      toolbarDescription: 'Gyorsan feldolgozható érdeklődések és státuszok.',
       searchPlaceholder: 'Keresés név, email, ajánlat vagy üzenet alapján...',
       createLabel: 'Új ajánlatkérés',
       emptyText: 'Nincs a keresésnek megfelelő ajánlatkérés.',

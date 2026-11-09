@@ -10,6 +10,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowUpDown,
+  MoreHorizontal,
   Copy,
   FileDown,
   Eye,
@@ -23,6 +24,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { createClientId } from '@/lib/client-id';
@@ -328,18 +335,6 @@ export function ToursPage() {
   const columns = useMemo<ColumnDef<Tour>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            ID <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-      },
-      {
         accessorKey: 'name',
         header: ({ column }) => (
           <Button
@@ -484,91 +479,73 @@ export function ToursPage() {
                 <Pencil className="size-4" />
               </Button>
             ) : null}
-            {canUpdateStatus ? (
-              <Button
-                variant="outline"
-                size="icon"
-                title={row.original.active ? 'Inaktiválás' : 'Aktiválás'}
-                aria-label={row.original.active ? 'Inaktiválás' : 'Aktiválás'}
-                onClick={() =>
-                  statusMutation.mutate({
-                    tourId: row.original.id,
-                    active: !row.original.active,
-                  })
-                }
-              >
-                <Power className="size-4" />
-              </Button>
-            ) : null}
-            {canDownloadPdf ? (
-              <Button
-                variant="outline"
-                size="icon"
-                title="Program PDF letöltése"
-                aria-label="Program PDF letöltése"
-                disabled={pdfMutation.isPending && pdfMutation.variables?.id === row.original.id}
-                onClick={() => pdfMutation.mutate(row.original)}
-              >
-                <FileDown className="size-4" />
-              </Button>
-            ) : null}
-            {canDuplicate ? (
-              <Button
-                variant="outline"
-                size="icon"
-                title="Másolás új útként"
-                aria-label="Másolás új útként"
-                onClick={() => duplicateMutation.mutate(row.original.id)}
-              >
-                <Copy className="size-4" />
-              </Button>
-            ) : null}
-            {canReorder ? (
-              <Button
-                variant="outline"
-                size="icon"
-                title="Feljebb az alapsorrendben"
-                aria-label="Feljebb az alapsorrendben"
-                onClick={() =>
-                  moveMutation.mutate({
-                    tourId: row.original.id,
-                    direction: 'up',
-                  })
-                }
-              >
-                <ArrowUp className="size-4" />
-              </Button>
-            ) : null}
-            {canReorder ? (
-              <Button
-                variant="outline"
-                size="icon"
-                title="Lejjebb az alapsorrendben"
-                aria-label="Lejjebb az alapsorrendben"
-                onClick={() =>
-                  moveMutation.mutate({
-                    tourId: row.original.id,
-                    direction: 'down',
-                  })
-                }
-              >
-                <ArrowDown className="size-4" />
-              </Button>
-            ) : null}
-            {canDelete ? (
-              <Button
-                variant="destructive"
-                size="icon"
-                title="Törlés"
-                aria-label="Törlés"
-                onClick={() => {
-                  if (window.confirm(`Biztosan törlöd ezt a körutazást? (${row.original.name})`)) {
-                    deleteMutation.mutate(row.original.id);
-                  }
-                }}
-              >
-                <Trash2 className="size-4" />
-              </Button>
+            {canUpdateStatus || canDownloadPdf || canDuplicate || canReorder || canDelete ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" title="További műveletek" aria-label="További műveletek">
+                    <MoreHorizontal className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {canUpdateStatus ? (
+                    <DropdownMenuItem
+                      onSelect={() =>
+                        statusMutation.mutate({
+                          tourId: row.original.id,
+                          active: !row.original.active,
+                        })
+                      }
+                    >
+                      <Power className="size-4" />
+                      {row.original.active ? 'Inaktiválás' : 'Aktiválás'}
+                    </DropdownMenuItem>
+                  ) : null}
+                  {canDownloadPdf ? (
+                    <DropdownMenuItem
+                      disabled={pdfMutation.isPending && pdfMutation.variables?.id === row.original.id}
+                      onSelect={() => pdfMutation.mutate(row.original)}
+                    >
+                      <FileDown className="size-4" />
+                      Program PDF letöltése
+                    </DropdownMenuItem>
+                  ) : null}
+                  {canDuplicate ? (
+                    <DropdownMenuItem onSelect={() => duplicateMutation.mutate(row.original.id)}>
+                      <Copy className="size-4" />
+                      Másolás új útként
+                    </DropdownMenuItem>
+                  ) : null}
+                  {canReorder ? (
+                    <DropdownMenuItem
+                      onSelect={() => moveMutation.mutate({ tourId: row.original.id, direction: 'up' })}
+                    >
+                      <ArrowUp className="size-4" />
+                      Feljebb az alapsorrendben
+                    </DropdownMenuItem>
+                  ) : null}
+                  {canReorder ? (
+                    <DropdownMenuItem
+                      onSelect={() => moveMutation.mutate({ tourId: row.original.id, direction: 'down' })}
+                    >
+                      <ArrowDown className="size-4" />
+                      Lejjebb az alapsorrendben
+                    </DropdownMenuItem>
+                  ) : null}
+                  {canDelete ? (
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onSelect={() => {
+                        if (window.confirm(`Biztosan törlöd ezt a körutazást? (${row.original.name})`)) {
+                          deleteMutation.mutate(row.original.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="size-4" />
+                      Törlés
+                    </DropdownMenuItem>
+                  ) : null}
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : null}
           </div>
         ),

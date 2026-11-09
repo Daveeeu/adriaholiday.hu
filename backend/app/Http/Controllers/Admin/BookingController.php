@@ -322,6 +322,7 @@ class BookingController extends Controller
                 'email' => 'email',
                 'offer' => 'offer_name_snapshot',
                 'appointment_time' => 'appointment_time',
+                'departure_date' => 'departure_date',
                 'application_date' => 'application_date',
                 'status' => 'status',
                 'cancelled' => 'cancelled',

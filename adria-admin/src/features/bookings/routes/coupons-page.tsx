@@ -13,7 +13,7 @@ import {
   updateCouponRecord,
 } from '../lib/bookings.api';
 import type { Coupon, CouponFormValues } from '../lib/bookings.types';
-import { formatDateTime, formatMoney } from '../lib/bookings.utils';
+import { formatDate, formatDateTime, formatMoney } from '../lib/bookings.utils';
 import type { DataTableColumn } from '../components/data-table';
 
 function initialDraft(record?: Coupon | null): CouponFormValues {
@@ -29,13 +29,13 @@ function initialDraft(record?: Coupon | null): CouponFormValues {
 }
 
 const columns = [
-  { key: 'id', label: 'ID', sortable: true, render: (item: Coupon) => item.id },
+  { key: 'id', label: 'Sorszám', sortable: true, render: (item: Coupon) => `#${item.id}` },
   { key: 'name', label: 'Név', sortable: true, render: (item: Coupon) => item.name },
   { key: 'email', label: 'Email', sortable: true, render: (item: Coupon) => item.email },
   { key: 'code', label: 'Kupon', sortable: true, render: (item: Coupon) => item.code },
   { key: 'value', label: 'Érték', sortable: true, render: (item: Coupon) => formatMoney(item.value) },
   { key: 'createdAt', label: 'Létrehozva', sortable: true, render: (item: Coupon) => formatDateTime(item.createdAt) },
-  { key: 'expiresAt', label: 'Lejárat', sortable: true, render: (item: Coupon) => item.expiresAt },
+  { key: 'expiresAt', label: 'Lejárat', sortable: true, render: (item: Coupon) => formatDate(item.expiresAt) },
   {
     key: 'used',
     label: 'Felhasználva',
@@ -58,8 +58,6 @@ export function CouponsPage() {
       title: 'Kuponok',
       description:
         'Kuponkezelő lista oldalsó szerkesztéssel, aktív jelzőkkel és lejárati dátummal.',
-      toolbarTitle: 'Kuponok',
-      toolbarDescription: 'Keresés a kuponok között.',
       searchPlaceholder: 'Keresés név, email, kuponkód vagy lejárat alapján...',
       createLabel: 'Új kupon',
       emptyText: 'Nincs a keresésnek megfelelő kupon.',

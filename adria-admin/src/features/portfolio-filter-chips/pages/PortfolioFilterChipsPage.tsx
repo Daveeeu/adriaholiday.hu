@@ -447,7 +447,6 @@ export function PortfolioFilterChipsPage() {
           <Table>
             <TableHeader className="sticky top-0 z-10 bg-card">
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Címke</TableHead>
                 <TableHead>Hol jelenik meg</TableHead>
                 <TableHead>Szűrés</TableHead>
@@ -460,7 +459,6 @@ export function PortfolioFilterChipsPage() {
               {data.items.length > 0 ? (
                 data.items.map((chip) => (
                   <TableRow key={chip.id}>
-                    <TableCell>{chip.id}</TableCell>
                     <TableCell>
                       <div className="space-y-1">
                         <div className="font-medium">{chip.label}</div>
@@ -483,7 +481,7 @@ export function PortfolioFilterChipsPage() {
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {canUpdate ? (
-                          <Button
+                          <Button title="Szerkesztés" aria-label="Szerkesztés"
                             variant="outline"
                             size="icon"
                             onClick={() => openDialog(chip)}
@@ -492,7 +490,7 @@ export function PortfolioFilterChipsPage() {
                           </Button>
                         ) : null}
                         {canDelete ? (
-                          <Button
+                          <Button title="Törlés" aria-label="Törlés"
                             variant="destructive"
                             size="icon"
                             onClick={() => deleteMutation.mutate(chip.id)}
@@ -506,7 +504,7 @@ export function PortfolioFilterChipsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-28 text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={6} className="h-28 text-center text-sm text-muted-foreground">
                     Nincs találat.
                   </TableCell>
                 </TableRow>

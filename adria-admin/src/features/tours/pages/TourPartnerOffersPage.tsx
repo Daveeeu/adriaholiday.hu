@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { formatDate } from '@/lib/date-format';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -324,14 +325,6 @@ export function TourPartnerOffersPage() {
   const columns = useMemo<ColumnDef<TourPartnerOffer>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: ({ column }) => (
-          <Button variant="ghost" className="-ml-3" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-            ID <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-      },
-      {
         accessorKey: 'name',
         header: ({ column }) => (
           <Button variant="ghost" className="-ml-3" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -341,14 +334,18 @@ export function TourPartnerOffersPage() {
       },
       { accessorKey: 'partnerName', header: 'Partner' },
       { accessorKey: 'partnerEmail', header: 'Partner email' },
-      { accessorKey: 'inquiryDate', header: 'Érdeklődés dátuma' },
+      {
+        accessorKey: 'inquiryDate',
+        header: 'Érdeklődés dátuma',
+        cell: ({ row }) => formatDate(row.original.inquiryDate),
+      },
       {
         id: 'actions',
         header: 'Műveletek',
         enableSorting: false,
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
-            <Button
+            <Button title="Megtekintés" aria-label="Megtekintés"
               variant="outline"
               size="icon"
               onClick={() => {
@@ -360,7 +357,7 @@ export function TourPartnerOffersPage() {
               <Eye className="size-4" />
             </Button>
             {canUpdate ? (
-              <Button
+              <Button title="Szerkesztés" aria-label="Szerkesztés"
                 variant="outline"
                 size="icon"
                 onClick={() => {
@@ -373,7 +370,7 @@ export function TourPartnerOffersPage() {
               </Button>
             ) : null}
             {canUpdateStatus ? (
-              <Button
+              <Button title="Állapot váltása" aria-label="Állapot váltása"
                 variant="outline"
                 size="icon"
                 onClick={() =>
@@ -387,7 +384,7 @@ export function TourPartnerOffersPage() {
               </Button>
             ) : null}
             {canDelete ? (
-              <Button
+              <Button title="Törlés" aria-label="Törlés"
                 variant="destructive"
                 size="icon"
                 onClick={() => deleteMutation.mutate(row.original.id)}
