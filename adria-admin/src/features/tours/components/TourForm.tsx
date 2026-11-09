@@ -219,7 +219,7 @@ export function TourForm({ form, tour }: TourFormProps) {
 
   return (
     <div className="space-y-5">
-      <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-background/95 px-4 py-3 backdrop-blur">
+      <div className="sticky -top-5 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-background px-4 py-3">
         <div>
           <div className="text-sm font-semibold text-foreground">Körutazás szekciók</div>
           <div className="text-xs text-muted-foreground">

@@ -31,7 +31,7 @@ export function BookingStatusCard({ booking }: { booking: TourBookingDetail }) {
   const allowedTransitions = getAllowedTourBookingStatusTransitions(booking.status);
 
   return (
-    <FormSection title="Státuszváltás" description="A foglalás állapotának kezelése az engedélyezett workflow szerint.">
+    <FormSection title="Státuszváltás" description="A foglalás állapotának módosítása.">
       <div className="flex flex-wrap items-center gap-3">
         <StatusBadge label={getTourBookingStatusLabel(booking.status)} tone={statusTone(booking.status)} />
 

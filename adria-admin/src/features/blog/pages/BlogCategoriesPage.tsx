@@ -203,7 +203,7 @@ export function BlogCategoriesPage() {
           ) : null}
         </div>
         <div className="mt-4">
-          <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Keresés név vagy SEO alapján..." />
+          <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Keresés név vagy webcím alapján..." />
         </div>
       </div>
 

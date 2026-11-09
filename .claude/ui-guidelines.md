@@ -649,3 +649,13 @@ Use these words consistently:
 | Ügyfél | Partner, when it means the traveller |
 
 When a label changes, update the matching text in `features/user-guide/content`.
+
+---
+
+# Admin Side Panels
+
+Render every side panel through `components/admin/side-panel-portal.tsx`, or use `EntitySidePanel`, which already does.
+
+A fixed panel inside the scrolling `main` breaks in Safari: its sticky parts are pushed down by the height of the page header.
+
+Do not make the panel's own header or footer sticky; they are flex children and stay in place.

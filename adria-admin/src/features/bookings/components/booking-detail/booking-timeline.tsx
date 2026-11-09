@@ -47,7 +47,7 @@ export function BookingTimeline({ booking }: { booking: TourBookingDetail }) {
   ].sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
 
   return (
-    <FormSection title="Activity Timeline" description="Létrejövés, státuszváltások, email küldés és admin módosítások.">
+    <FormSection title="Előzmények" description="Létrejövés, státuszváltások, email küldés és admin módosítások.">
       {isLoading ? (
         <div className="space-y-2">
           <Skeleton className="h-12 w-full" />

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { SidePanelPortal } from '@/components/admin/side-panel-portal';
 import { formatDate } from '@/lib/date-format';
 import { TechnicalDetails } from '@/components/common/technical-details';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -185,224 +186,226 @@ export function BusSidePanel({
   }
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button
-        type="button"
-        aria-label="Bezárás"
-        className="absolute inset-0 bg-black/40"
-        onClick={() => onOpenChange(false)}
-      />
+    <SidePanelPortal>
+      <div className="fixed inset-0 z-50">
+        <button
+          type="button"
+          aria-label="Bezárás"
+          className="absolute inset-0 bg-black/40"
+          onClick={() => onOpenChange(false)}
+        />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100vw,1100px)] flex-col bg-background shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold">{title}</h2>
-            <p className="text-sm text-muted-foreground">
-              {mode === 'detail'
-                ? 'A busz teljes előnézete.'
-                : 'Aktív státusz, jármű választás és többnyelvű SEO mezők.'}
-            </p>
+        <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100vw,1100px)] flex-col bg-background shadow-2xl">
+          <div className="shrink-0 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">{title}</h2>
+              <p className="text-sm text-muted-foreground">
+                {mode === 'detail'
+                  ? 'A busz teljes előnézete.'
+                  : 'Aktív státusz, jármű választás és többnyelvű SEO mezők.'}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {mode === 'detail' && bus ? (
+                <>
+                  {onToggleActive ? (
+                    <Button type="button" variant="outline" onClick={onToggleActive}>
+                      {bus.active ? 'Inaktiválás' : 'Aktiválás'}
+                    </Button>
+                  ) : null}
+                  {onDelete ? (
+                    <Button type="button" variant="destructive" onClick={onDelete}>
+                      <Trash2 className="size-4" />
+                      Törlés
+                    </Button>
+                  ) : null}
+                </>
+              ) : null}
+              <Button title="Bezárás" aria-label="Bezárás" type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+                <X className="size-4" />
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {mode === 'detail' && bus ? (
-              <>
-                {onToggleActive ? (
-                  <Button type="button" variant="outline" onClick={onToggleActive}>
-                    {bus.active ? 'Inaktiválás' : 'Aktiválás'}
-                  </Button>
-                ) : null}
-                {onDelete ? (
-                  <Button type="button" variant="destructive" onClick={onDelete}>
-                    <Trash2 className="size-4" />
-                    Törlés
-                  </Button>
-                ) : null}
-              </>
-            ) : null}
-            <Button title="Bezárás" aria-label="Bezárás" type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-              <X className="size-4" />
-            </Button>
-          </div>
-        </div>
+          <Separator />
 
-        <Separator />
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto px-6 py-5">
+              {mode === 'detail' && bus ? (
+                <BusDetailView bus={bus} />
+              ) : (
+                <Form {...form}>
+                  <form
+                    className="flex min-h-full flex-col gap-5"
+                    onSubmit={form.handleSubmit((values) => onSubmit(normalizeBusFormValues(values)))}
+                  >
+                    <FormField
+                      control={form.control}
+                      name="active"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={(event) => field.onChange(event.target.checked)}
+                            />
+                            Aktív
+                          </label>
+                        </FormItem>
+                      )}
+                    />
 
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto px-6 py-5">
-            {mode === 'detail' && bus ? (
-              <BusDetailView bus={bus} />
-            ) : (
-              <Form {...form}>
-                <form
-                  className="flex min-h-full flex-col gap-5"
-                  onSubmit={form.handleSubmit((values) => onSubmit(normalizeBusFormValues(values)))}
-                >
-                  <FormField
-                    control={form.control}
-                    name="active"
-                    render={({ field }) => (
-                      <FormItem>
-                        <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={(event) => field.onChange(event.target.checked)}
-                          />
-                          Aktív
-                        </label>
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="vehicleCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Busz kiválasztása</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onChange={field.onChange}>
+                              <option value="">Válassz buszt</option>
+                              {BUS_VEHICLE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <div className="text-xs text-muted-foreground">
+                            Jelenlegi érték: {vehicleOption?.label ?? '—'}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="vehicleCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Busz kiválasztása</FormLabel>
-                        <FormControl>
-                          <Select value={field.value} onChange={field.onChange}>
-                            <option value="">Válassz buszt</option>
-                            {BUS_VEHICLE_OPTIONS.map((option) => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </Select>
-                        </FormControl>
-                        <div className="text-xs text-muted-foreground">
-                          Jelenlegi érték: {vehicleOption?.label ?? '—'}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="vehicleCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Jármű kód</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="man-lions-coach-r08-2019"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="vehicleCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Jármű kód</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="man-lions-coach-r08-2019"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <section className="rounded-2xl border bg-card p-4">
+                      <div className="space-y-1">
+                        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                          Nyelvi tartalom
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Minden nyelvnél külön név és SEO mező áll rendelkezésre.
+                        </p>
+                      </div>
 
-                  <section className="rounded-2xl border bg-card p-4">
-                    <div className="space-y-1">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        Nyelvi tartalom
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Minden nyelvnél külön név és SEO mező áll rendelkezésre.
-                      </p>
-                    </div>
-
-                    <div className="mt-4">
-                      <BusLanguageTabs
-                        activeLanguage={activeLanguage}
-                        onLanguageChange={setActiveLanguage}
-                      />
                       <div className="mt-4">
-                        {BUS_LANGUAGES.map((language) => (
-                          <div
-                            key={language}
-                            className={cn(activeLanguage === language ? 'block' : 'hidden', 'space-y-4')}
-                          >
-                            <div className="grid gap-4 md:grid-cols-2">
+                        <BusLanguageTabs
+                          activeLanguage={activeLanguage}
+                          onLanguageChange={setActiveLanguage}
+                        />
+                        <div className="mt-4">
+                          {BUS_LANGUAGES.map((language) => (
+                            <div
+                              key={language}
+                              className={cn(activeLanguage === language ? 'block' : 'hidden', 'space-y-4')}
+                            >
+                              <div className="grid gap-4 md:grid-cols-2">
+                                <FormField
+                                  control={form.control}
+                                  name={`translations.${language}.name` as const}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Név</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name={`translations.${language}.seoName` as const}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Webcím</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          {...field}
+                                          readOnly={seoAutoByLanguage[language]}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
                               <FormField
                                 control={form.control}
-                                name={`translations.${language}.name` as const}
+                                name={`translations.${language}.seoAutoGenerate` as const}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Név</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name={`translations.${language}.seoName` as const}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Webcím</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        readOnly={seoAutoByLanguage[language]}
+                                    <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                                      <input
+                                        type="checkbox"
+                                        checked={field.value}
+                                        onChange={(event) => field.onChange(event.target.checked)}
                                       />
-                                    </FormControl>
-                                    <FormMessage />
+                                      Automatikus generálás
+                                    </label>
                                   </FormItem>
                                 )}
                               />
                             </div>
-
-                            <FormField
-                              control={form.control}
-                              name={`translations.${language}.seoAutoGenerate` as const}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                                    <input
-                                      type="checkbox"
-                                      checked={field.value}
-                                      onChange={(event) => field.onChange(event.target.checked)}
-                                    />
-                                    Automatikus generálás
-                                  </label>
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </section>
+                    </section>
 
-                  <div className="sticky bottom-0 mt-2 border-t bg-background/95 py-4 backdrop-blur">
-                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                      {mode === 'edit' && onDelete ? (
+                    <div className="sticky -bottom-5 mt-2 border-t bg-background py-4">
+                      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        {mode === 'edit' && onDelete ? (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={onDelete}
+                            disabled={submitting}
+                          >
+                            <Trash2 className="size-4" />
+                            Törlés
+                          </Button>
+                        ) : null}
                         <Button
                           type="button"
-                          variant="destructive"
-                          onClick={onDelete}
+                          variant="outline"
+                          onClick={() => onOpenChange(false)}
                           disabled={submitting}
                         >
-                          <Trash2 className="size-4" />
-                          Törlés
+                          Mégse
                         </Button>
-                      ) : null}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        disabled={submitting}
-                      >
-                        Mégse
-                      </Button>
-                      <Button type="submit" disabled={submitting}>
-                        Mentés
-                      </Button>
+                        <Button type="submit" disabled={submitting}>
+                          Mentés
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </form>
-              </Form>
-            )}
+                  </form>
+                </Form>
+              )}
+            </div>
           </div>
-        </div>
-      </aside>
-    </div>
+        </aside>
+      </div>
+    </SidePanelPortal>
   );
 }

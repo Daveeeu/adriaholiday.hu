@@ -329,7 +329,7 @@ export function BlogPage() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Keresés cím, SEO, kivonat vagy tartalom alapján..."
+            placeholder="Keresés cím, webcím, kivonat vagy tartalom alapján..."
           />
         </div>
       </div>

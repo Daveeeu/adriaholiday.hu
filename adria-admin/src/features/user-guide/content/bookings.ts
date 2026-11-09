@@ -114,7 +114,7 @@ export const bookingsChapter: GuideChapter = {
             ADMIN_ONLY,
           ),
           field(
-            'Activity Timeline',
+            'Előzmények',
             'Időrendben minden esemény: létrejövés, státuszváltások, kiküldött e-mailek és admin módosítások.',
             ADMIN_ONLY,
           ),

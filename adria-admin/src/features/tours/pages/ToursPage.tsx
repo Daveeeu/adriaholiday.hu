@@ -628,7 +628,7 @@ export function ToursPage() {
         }
       />
 
-      <div className="grid gap-3 rounded-2xl border bg-card p-4 lg:grid-cols-4">
+      <div className="grid gap-3 rounded-2xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-3">
         <Select value={regionId} onChange={(event) => setRegionId(event.target.value)}>
           <option value="all">Összes régió</option>
           {regionOptions.map((option) => (
@@ -659,7 +659,7 @@ export function ToursPage() {
           ))}
         </Select>
 
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:col-span-2 md:grid-cols-4 lg:col-span-3">
           <Select value={active} onChange={(event) => setActive(event.target.value as typeof active)}>
             <option value="all">Aktív állapot</option>
             <option value="true">Aktív</option>

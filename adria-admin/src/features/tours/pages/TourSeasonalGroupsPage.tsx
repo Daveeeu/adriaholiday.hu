@@ -15,6 +15,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { SidePanelPortal } from '@/components/admin/side-panel-portal';
 import { RichTextEditor, RichTextPreview } from '@/components/editor/rich-text-editor';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
@@ -85,108 +86,110 @@ function SeasonalGroupPanel({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col bg-background shadow-2xl">
-        <div className="sticky top-0 z-10 border-b bg-background px-6 py-5">
-          <h2 className="text-lg font-semibold">
-            {mode === 'create' ? 'Szezonális csoport hozzáadása' : mode === 'edit' ? 'Szezonális csoport szerkesztése' : 'Szezonális csoport részletei'}
-          </h2>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-          {mode === 'detail' && item ? (
-            <div className="space-y-3">
-              <div className="rounded-2xl border bg-card p-4">
-                <div className="text-sm text-muted-foreground">Név</div>
-                <div className="font-medium">{item.name}</div>
-              </div>
-              <div className="rounded-2xl border bg-card p-4">
-                <div className="text-sm text-muted-foreground">Menü típus</div>
-                <div className="font-medium">{TOUR_SEASONAL_MENU_TYPES.find((opt) => opt.value === item.menuType)?.label ?? item.menuType}</div>
-              </div>
-              <div className="rounded-2xl border bg-card p-4">
-                <div className="text-sm text-muted-foreground">Doboz szöveg</div>
-                <RichTextPreview value={item.boxText || ''} className="mt-2 border-0 bg-transparent p-0 rounded-none" />
-              </div>
-            </div>
-          ) : (
-            <Form {...form}>
-              <form className="space-y-4" onSubmit={form.handleSubmit((values) => onSubmit(values))}>
-                <FormField control={form.control} name="active" render={({ field }) => (
-                  <FormItem>
-                    <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                      <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
-                      Aktív
-                    </label>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="hasOffers" render={({ field }) => (
-                  <FormItem>
-                    <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                      <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
-                      Ajánlatos utak?
-                    </label>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="menuType" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Menü típus</FormLabel>
-                    <FormControl>
-                      <select className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" {...field}>
-                        {TOUR_SEASONAL_MENU_TYPES.map((item) => (
-                          <option key={item.value} value={item.value}>{item.label}</option>
-                        ))}
-                      </select>
-                    </FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Név</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="seoName" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Webcím</FormLabel>
-                    <FormControl><Input {...field} readOnly={seoAuto} /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="seoAutoGenerate" render={({ field }) => (
-                  <FormItem>
-                    <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                      <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
-                      Automatikus generálás
-                    </label>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="boxText" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Doboz szöveg</FormLabel>
-                    <FormControl>
-                      <RichTextEditor
-                        value={field.value}
-                        onChange={(value) => field.onChange(value)}
-                        minHeight={140}
-                        allowPreview
-                        placeholder="Doboz szöveg"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )} />
-                <div className="sticky bottom-0 border-t bg-background/95 py-4">
-                  <div className="flex justify-end gap-2">
-                    {mode === 'edit' && onDelete ? <Button type="button" variant="destructive" onClick={onDelete}>Törlés</Button> : null}
-                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Mégse</Button>
-                    <Button type="submit">Mentés</Button>
-                  </div>
+    <SidePanelPortal>
+      <div className="fixed inset-0 z-50">
+        <button className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
+        <aside className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col bg-background shadow-2xl">
+          <div className="shrink-0 border-b bg-background px-6 py-5">
+            <h2 className="text-lg font-semibold">
+              {mode === 'create' ? 'Szezonális csoport hozzáadása' : mode === 'edit' ? 'Szezonális csoport szerkesztése' : 'Szezonális csoport részletei'}
+            </h2>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+            {mode === 'detail' && item ? (
+              <div className="space-y-3">
+                <div className="rounded-2xl border bg-card p-4">
+                  <div className="text-sm text-muted-foreground">Név</div>
+                  <div className="font-medium">{item.name}</div>
                 </div>
-              </form>
-            </Form>
-          )}
-        </div>
-      </aside>
-    </div>
+                <div className="rounded-2xl border bg-card p-4">
+                  <div className="text-sm text-muted-foreground">Menü típus</div>
+                  <div className="font-medium">{TOUR_SEASONAL_MENU_TYPES.find((opt) => opt.value === item.menuType)?.label ?? item.menuType}</div>
+                </div>
+                <div className="rounded-2xl border bg-card p-4">
+                  <div className="text-sm text-muted-foreground">Doboz szöveg</div>
+                  <RichTextPreview value={item.boxText || ''} className="mt-2 border-0 bg-transparent p-0 rounded-none" />
+                </div>
+              </div>
+            ) : (
+              <Form {...form}>
+                <form className="space-y-4" onSubmit={form.handleSubmit((values) => onSubmit(values))}>
+                  <FormField control={form.control} name="active" render={({ field }) => (
+                    <FormItem>
+                      <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                        <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
+                        Aktív
+                      </label>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="hasOffers" render={({ field }) => (
+                    <FormItem>
+                      <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                        <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
+                        Ajánlatos utak?
+                      </label>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="menuType" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Menü típus</FormLabel>
+                      <FormControl>
+                        <select className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" {...field}>
+                          {TOUR_SEASONAL_MENU_TYPES.map((item) => (
+                            <option key={item.value} value={item.value}>{item.label}</option>
+                          ))}
+                        </select>
+                      </FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Név</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="seoName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Webcím</FormLabel>
+                      <FormControl><Input {...field} readOnly={seoAuto} /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="seoAutoGenerate" render={({ field }) => (
+                    <FormItem>
+                      <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                        <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
+                        Automatikus generálás
+                      </label>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="boxText" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Doboz szöveg</FormLabel>
+                      <FormControl>
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={(value) => field.onChange(value)}
+                          minHeight={140}
+                          allowPreview
+                          placeholder="Doboz szöveg"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )} />
+                  <div className="sticky -bottom-5 border-t bg-background py-4">
+                    <div className="flex justify-end gap-2">
+                      {mode === 'edit' && onDelete ? <Button type="button" variant="destructive" onClick={onDelete}>Törlés</Button> : null}
+                      <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Mégse</Button>
+                      <Button type="submit">Mentés</Button>
+                    </div>
+                  </div>
+                </form>
+              </Form>
+            )}
+          </div>
+        </aside>
+      </div>
+    </SidePanelPortal>
   );
 }
 

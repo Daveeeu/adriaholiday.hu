@@ -50,7 +50,7 @@ export function ApartmentsToolbar({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             className="pl-9"
-            placeholder="Keresés név, kód, cím vagy SEO név alapján..."
+            placeholder="Keresés név, kód, cím vagy webcím alapján..."
           />
         </div>
       </div>

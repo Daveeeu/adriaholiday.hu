@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { SidePanelPortal } from '@/components/admin/side-panel-portal';
 import { TechnicalDetails } from '@/components/common/technical-details';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
@@ -165,119 +166,121 @@ export function HomepageOfferSidePanel({
         : 'Főoldali ajánlat részletei';
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button
-        type="button"
-        aria-label="Bezárás"
-        className="absolute inset-0 bg-black/40"
-        onClick={() => onOpenChange(false)}
-      />
+    <SidePanelPortal>
+      <div className="fixed inset-0 z-50">
+        <button
+          type="button"
+          aria-label="Bezárás"
+          className="absolute inset-0 bg-black/40"
+          onClick={() => onOpenChange(false)}
+        />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100vw,1100px)] flex-col bg-background shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold">{title}</h2>
-            <p className="text-sm text-muted-foreground">
-              {mode === 'detail'
-                ? 'A főoldali ajánlat teljes előnézete.'
-                : 'Aktív státusz, sorrend, kép, link és többnyelvű SEO mezők.'}
-            </p>
+        <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100vw,1100px)] flex-col bg-background shadow-2xl">
+          <div className="shrink-0 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">{title}</h2>
+              <p className="text-sm text-muted-foreground">
+                {mode === 'detail'
+                  ? 'A főoldali ajánlat teljes előnézete.'
+                  : 'Aktív státusz, sorrend, kép, link és többnyelvű SEO mezők.'}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {mode === 'detail' && offer ? (
+                <>
+                  {onToggleActive ? (
+                    <Button type="button" variant="outline" onClick={onToggleActive}>
+                      <Power className="size-4" />
+                      {offer.active ? 'Inaktiválás' : 'Aktiválás'}
+                    </Button>
+                  ) : null}
+                  {onEdit ? (
+                    <Button type="button" variant="outline" onClick={onEdit}>
+                      <Pencil className="size-4" />
+                      Szerkesztés
+                    </Button>
+                  ) : null}
+                  {onDelete ? (
+                    <Button type="button" variant="destructive" onClick={onDelete}>
+                      <Trash2 className="size-4" />
+                      Törlés
+                    </Button>
+                  ) : null}
+                </>
+              ) : null}
+
+              <Button title="Bezárás" aria-label="Bezárás"
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {mode === 'detail' && offer ? (
-              <>
-                {onToggleActive ? (
-                  <Button type="button" variant="outline" onClick={onToggleActive}>
-                    <Power className="size-4" />
-                    {offer.active ? 'Inaktiválás' : 'Aktiválás'}
-                  </Button>
-                ) : null}
-                {onEdit ? (
-                  <Button type="button" variant="outline" onClick={onEdit}>
-                    <Pencil className="size-4" />
-                    Szerkesztés
-                  </Button>
-                ) : null}
-                {onDelete ? (
-                  <Button type="button" variant="destructive" onClick={onDelete}>
-                    <Trash2 className="size-4" />
-                    Törlés
-                  </Button>
-                ) : null}
-              </>
-            ) : null}
+          <Separator />
 
-            <Button title="Bezárás" aria-label="Bezárás"
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
-        </div>
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto px-6 py-5">
+              {mode === 'detail' && offer ? (
+                <HomepageOfferDetailView offer={offer} />
+              ) : (
+                <Form {...form}>
+                  <form
+                    className="flex min-h-full flex-col"
+                    onSubmit={form.handleSubmit((values) =>
+                      onSubmit({
+                        active: values.active,
+                        sortOrder: values.sortOrder,
+                        image: values.image.trim() ? values.image.trim() : null,
+                        imageTitle: values.imageTitle.trim(),
+                        link: values.link.trim(),
+                        translations: values.translations,
+                      }),
+                    )}
+                  >
+                    <HomepageOfferForm
+                      form={form}
+                      activeLanguage={activeLanguage}
+                      onLanguageChange={setActiveLanguage}
+                    />
 
-        <Separator />
-
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto px-6 py-5">
-            {mode === 'detail' && offer ? (
-              <HomepageOfferDetailView offer={offer} />
-            ) : (
-              <Form {...form}>
-                <form
-                  className="flex min-h-full flex-col"
-                  onSubmit={form.handleSubmit((values) =>
-                    onSubmit({
-                      active: values.active,
-                      sortOrder: values.sortOrder,
-                      image: values.image.trim() ? values.image.trim() : null,
-                      imageTitle: values.imageTitle.trim(),
-                      link: values.link.trim(),
-                      translations: values.translations,
-                    }),
-                  )}
-                >
-                  <HomepageOfferForm
-                    form={form}
-                    activeLanguage={activeLanguage}
-                    onLanguageChange={setActiveLanguage}
-                  />
-
-                  <div className="sticky bottom-0 mt-6 border-t bg-background/95 px-0 py-4 backdrop-blur">
-                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                      {mode === 'edit' && onDelete ? (
+                    <div className="sticky -bottom-5 mt-6 border-t bg-background px-0 py-4">
+                      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        {mode === 'edit' && onDelete ? (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={onDelete}
+                            disabled={submitting}
+                          >
+                            <Trash2 className="size-4" />
+                            Törlés
+                          </Button>
+                        ) : null}
                         <Button
                           type="button"
-                          variant="destructive"
-                          onClick={onDelete}
+                          variant="outline"
+                          onClick={() => onOpenChange(false)}
                           disabled={submitting}
                         >
-                          <Trash2 className="size-4" />
-                          Törlés
+                          Mégse
                         </Button>
-                      ) : null}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        disabled={submitting}
-                      >
-                        Mégse
-                      </Button>
-                      <Button type="submit" disabled={submitting}>
-                        {submitting ? 'Mentés...' : 'Mentés'}
-                      </Button>
+                        <Button type="submit" disabled={submitting}>
+                          {submitting ? 'Mentés...' : 'Mentés'}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </form>
-              </Form>
-            )}
+                  </form>
+                </Form>
+              )}
+            </div>
           </div>
-        </div>
-      </aside>
-    </div>
+        </aside>
+      </div>
+    </SidePanelPortal>
   );
 }

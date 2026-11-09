@@ -9,7 +9,7 @@ export function BookingTourCard({ booking }: { booking: TourBookingDetail }) {
   return (
     <FormSection title="Utazás" description="A foglaláshoz tartozó ajánlat és időpont adatai.">
       <div className="grid gap-3 text-sm md:grid-cols-2">
-        <DetailField label="Tour neve" value={tour?.name ?? booking.offerName} />
+        <DetailField label="Út neve" value={tour?.name ?? booking.offerName} />
         <DetailField label="Webcím" value={tour?.seoName ? `/ajanlat/${tour.seoName}` : null} />
         <DetailField
           label="Kategória"

@@ -5,6 +5,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import { SidePanelPortal } from '@/components/admin/side-panel-portal';
 import {
   Form,
   FormControl,
@@ -200,265 +201,267 @@ export function BookingFormTemplateSidePanel({
   }
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button
-        type="button"
-        aria-label="Bezárás"
-        className="absolute inset-0 bg-black/40"
-        onClick={() => onOpenChange(false)}
-      />
+    <SidePanelPortal>
+      <div className="fixed inset-0 z-50">
+        <button
+          type="button"
+          aria-label="Bezárás"
+          className="absolute inset-0 bg-black/40"
+          onClick={() => onOpenChange(false)}
+        />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100vw,900px)] flex-col bg-background shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold">{title}</h2>
-            <p className="text-sm text-muted-foreground">
-              {mode === 'detail'
-                ? 'A sablon teljes előnézete.'
-                : 'Add meg a sablon nevét, majd állítsd be mezőnként, hogy kötelező, opcionális vagy rejtett legyen a foglalási űrlapon.'}
-            </p>
-          </div>
+        <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100vw,900px)] flex-col bg-background shadow-2xl">
+          <div className="shrink-0 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">{title}</h2>
+              <p className="text-sm text-muted-foreground">
+                {mode === 'detail'
+                  ? 'A sablon teljes előnézete.'
+                  : 'Add meg a sablon nevét, majd állítsd be mezőnként, hogy kötelező, opcionális vagy rejtett legyen a foglalási űrlapon.'}
+              </p>
+            </div>
 
-          <div className="flex items-center gap-2">
-            {mode === 'detail' && template && onDelete ? (
-              <Button type="button" variant="destructive" onClick={onDelete}>
-                <Trash2 className="size-4" />
-                Törlés
+            <div className="flex items-center gap-2">
+              {mode === 'detail' && template && onDelete ? (
+                <Button type="button" variant="destructive" onClick={onDelete}>
+                  <Trash2 className="size-4" />
+                  Törlés
+                </Button>
+              ) : null}
+              <Button title="Bezárás" aria-label="Bezárás"
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+              >
+                <X className="size-4" />
               </Button>
-            ) : null}
-            <Button title="Bezárás" aria-label="Bezárás"
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-            >
-              <X className="size-4" />
-            </Button>
+            </div>
           </div>
-        </div>
 
-        <Separator />
+          <Separator />
 
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto px-6 py-5">
-            {mode === 'detail' && template ? (
-              <BookingFormTemplateDetailView template={template} />
-            ) : (
-              <Form {...form}>
-                <form
-                  className="flex min-h-full flex-col gap-5"
-                  onSubmit={form.handleSubmit((values) => onSubmit(values))}
-                >
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Sablon neve</FormLabel>
-                          <FormControl>
-                            <Input placeholder="pl. Buszos út" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="slug"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Webcím</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="buszos-ut (üresen automatikus)"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Leírás</FormLabel>
-                        <FormControl>
-                          <Textarea rows={2} {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="active"
-                      render={({ field }) => (
-                        <FormItem>
-                          <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={field.value}
-                              onChange={(event) =>
-                                field.onChange(event.target.checked)
-                              }
-                            />
-                            Aktív
-                          </label>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="isDefault"
-                      render={({ field }) => (
-                        <FormItem>
-                          <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={field.value}
-                              onChange={(event) =>
-                                field.onChange(event.target.checked)
-                              }
-                            />
-                            Alapértelmezett sablon
-                          </label>
-                          <p className="text-xs text-muted-foreground">
-                            Ezt kapják azok az utazások, amelyekhez nincs sablon
-                            kiválasztva. Egyszerre csak egy lehet.
-                          </p>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <section className="rounded-2xl border bg-card p-4">
-                    <div className="space-y-1">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        Mezők
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Állítsd be mezőnként a láthatóságot, és nyilakkal
-                        rendezd a sorrendet.
-                      </p>
-                    </div>
-
-                    <div className="mt-4 space-y-2">
-                      {fieldRows.map((row, index) => {
-                        const catalogField = fieldCatalogById.get(
-                          String(row.fieldId),
-                        );
-
-                        if (!catalogField) {
-                          return null;
-                        }
-
-                        return (
-                          <div
-                            key={row.id}
-                            className="flex flex-col gap-2 rounded-xl border bg-background px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
-                          >
-                            <div>
-                              <div className="text-sm font-medium">
-                                {catalogField.label}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {
-                                  BOOKING_FORM_INPUT_GROUP_LABELS[
-                                    catalogField.inputGroup
-                                  ]
-                                }{' '}
-                                ·{' '}
-                                {
-                                  BOOKING_FORM_FIELD_TYPE_LABELS[
-                                    catalogField.fieldType
-                                  ]
-                                }
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <FormField
-                                control={form.control}
-                                name={`fields.${index}.visibility` as const}
-                                render={({ field }) => (
-                                  <Select
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                  >
-                                    {Object.entries(
-                                      BOOKING_FORM_VISIBILITY_LABELS,
-                                    ).map(([value, label]) => (
-                                      <option key={value} value={value}>
-                                        {label}
-                                      </option>
-                                    ))}
-                                  </Select>
-                                )}
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto px-6 py-5">
+              {mode === 'detail' && template ? (
+                <BookingFormTemplateDetailView template={template} />
+              ) : (
+                <Form {...form}>
+                  <form
+                    className="flex min-h-full flex-col gap-5"
+                    onSubmit={form.handleSubmit((values) => onSubmit(values))}
+                  >
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Sablon neve</FormLabel>
+                            <FormControl>
+                              <Input placeholder="pl. Buszos út" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="slug"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Webcím</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="buszos-ut (üresen automatikus)"
+                                {...field}
                               />
-                              <Button title="Feljebb" aria-label="Feljebb"
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => moveField(index, -1)}
-                                disabled={index === 0}
-                              >
-                                <ArrowUp className="size-4" />
-                              </Button>
-                              <Button title="Lejjebb" aria-label="Lejjebb"
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => moveField(index, 1)}
-                                disabled={index === fieldRows.length - 1}
-                              >
-                                <ArrowDown className="size-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        );
-                      })}
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
-                  </section>
 
-                  <div className="sticky bottom-0 mt-2 border-t bg-background/95 py-4 backdrop-blur">
-                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                      {mode === 'edit' && onDelete ? (
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Leírás</FormLabel>
+                          <FormControl>
+                            <Textarea rows={2} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="active"
+                        render={({ field }) => (
+                          <FormItem>
+                            <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={field.value}
+                                onChange={(event) =>
+                                  field.onChange(event.target.checked)
+                                }
+                              />
+                              Aktív
+                            </label>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="isDefault"
+                        render={({ field }) => (
+                          <FormItem>
+                            <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={field.value}
+                                onChange={(event) =>
+                                  field.onChange(event.target.checked)
+                                }
+                              />
+                              Alapértelmezett sablon
+                            </label>
+                            <p className="text-xs text-muted-foreground">
+                              Ezt kapják azok az utazások, amelyekhez nincs sablon
+                              kiválasztva. Egyszerre csak egy lehet.
+                            </p>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <section className="rounded-2xl border bg-card p-4">
+                      <div className="space-y-1">
+                        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                          Mezők
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Állítsd be mezőnként a láthatóságot, és nyilakkal
+                          rendezd a sorrendet.
+                        </p>
+                      </div>
+
+                      <div className="mt-4 space-y-2">
+                        {fieldRows.map((row, index) => {
+                          const catalogField = fieldCatalogById.get(
+                            String(row.fieldId),
+                          );
+
+                          if (!catalogField) {
+                            return null;
+                          }
+
+                          return (
+                            <div
+                              key={row.id}
+                              className="flex flex-col gap-2 rounded-xl border bg-background px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                              <div>
+                                <div className="text-sm font-medium">
+                                  {catalogField.label}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {
+                                    BOOKING_FORM_INPUT_GROUP_LABELS[
+                                      catalogField.inputGroup
+                                    ]
+                                  }{' '}
+                                  ·{' '}
+                                  {
+                                    BOOKING_FORM_FIELD_TYPE_LABELS[
+                                      catalogField.fieldType
+                                    ]
+                                  }
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <FormField
+                                  control={form.control}
+                                  name={`fields.${index}.visibility` as const}
+                                  render={({ field }) => (
+                                    <Select
+                                      value={field.value}
+                                      onChange={field.onChange}
+                                    >
+                                      {Object.entries(
+                                        BOOKING_FORM_VISIBILITY_LABELS,
+                                      ).map(([value, label]) => (
+                                        <option key={value} value={value}>
+                                          {label}
+                                        </option>
+                                      ))}
+                                    </Select>
+                                  )}
+                                />
+                                <Button title="Feljebb" aria-label="Feljebb"
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => moveField(index, -1)}
+                                  disabled={index === 0}
+                                >
+                                  <ArrowUp className="size-4" />
+                                </Button>
+                                <Button title="Lejjebb" aria-label="Lejjebb"
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => moveField(index, 1)}
+                                  disabled={index === fieldRows.length - 1}
+                                >
+                                  <ArrowDown className="size-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    <div className="sticky -bottom-5 mt-2 border-t bg-background py-4">
+                      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        {mode === 'edit' && onDelete ? (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={onDelete}
+                            disabled={submitting}
+                          >
+                            <Trash2 className="size-4" />
+                            Törlés
+                          </Button>
+                        ) : null}
                         <Button
                           type="button"
-                          variant="destructive"
-                          onClick={onDelete}
+                          variant="outline"
+                          onClick={() => onOpenChange(false)}
                           disabled={submitting}
                         >
-                          <Trash2 className="size-4" />
-                          Törlés
+                          Mégse
                         </Button>
-                      ) : null}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        disabled={submitting}
-                      >
-                        Mégse
-                      </Button>
-                      <Button type="submit" disabled={submitting}>
-                        Mentés
-                      </Button>
+                        <Button type="submit" disabled={submitting}>
+                          Mentés
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </form>
-              </Form>
-            )}
+                  </form>
+                </Form>
+              )}
+            </div>
           </div>
-        </div>
-      </aside>
-    </div>
+        </aside>
+      </div>
+    </SidePanelPortal>
   );
 }

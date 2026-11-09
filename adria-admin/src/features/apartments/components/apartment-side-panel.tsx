@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import { SidePanelPortal } from '@/components/admin/side-panel-portal';
 import { TechnicalDetails } from '@/components/common/technical-details';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
@@ -419,140 +420,142 @@ export function ApartmentSidePanel({
         : 'Apartman részletei';
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button
-        type="button"
-        aria-label="Bezárás"
-        className="absolute inset-0 bg-black/40"
-        onClick={() => onOpenChange(false)}
-      />
+    <SidePanelPortal>
+      <div className="fixed inset-0 z-50">
+        <button
+          type="button"
+          aria-label="Bezárás"
+          className="absolute inset-0 bg-black/40"
+          onClick={() => onOpenChange(false)}
+        />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100vw,1100px)] flex-col bg-background shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold">{title}</h2>
-            <p className="text-sm text-muted-foreground">
-              {mode === 'detail'
-                ? 'Részletek, szolgáltatások és árak áttekintése.'
-                : 'Az alapadatok, SEO blokkok és ár mátrix kezelése.'}
-            </p>
-          </div>
+        <aside className="absolute right-0 top-0 flex h-full w-full max-w-[min(100vw,1100px)] flex-col bg-background shadow-2xl">
+          <div className="shrink-0 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">{title}</h2>
+              <p className="text-sm text-muted-foreground">
+                {mode === 'detail'
+                  ? 'Részletek, szolgáltatások és árak áttekintése.'
+                  : 'Az alapadatok, SEO blokkok és ár mátrix kezelése.'}
+              </p>
+            </div>
 
-          <div className="flex items-center gap-2">
-            {mode === 'detail' && apartment ? (
-              <>
-                {onToggleActive ? (
-                  <Button type="button" variant="outline" onClick={onToggleActive}>
-                    <Power className="size-4" />
-                    {apartment.isActive ?? apartment.status !== 'archived'
-                      ? 'Inaktiválás'
-                      : 'Aktiválás'}
-                  </Button>
-                ) : null}
-                {onEdit ? (
-                  <Button type="button" variant="outline" onClick={onEdit}>
-                    <Pencil className="size-4" />
-                    Szerkesztés
-                  </Button>
-                ) : null}
-                {onDelete ? (
-                  <Button type="button" variant="destructive" onClick={onDelete}>
-                    <Trash2 className="size-4" />
-                    Törlés
-                  </Button>
-                ) : null}
-              </>
-            ) : null}
-
-            <Button title="Bezárás" aria-label="Bezárás"
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
-        </div>
-
-        <Separator />
-
-        <div className="min-h-0 flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto px-6 py-5">
-            {mode !== 'create' && isLoading ? (
-              <div className="space-y-4">
-                <div className="h-8 w-48 animate-pulse rounded-xl bg-muted" />
-                <div className="h-24 animate-pulse rounded-2xl bg-muted" />
-                <div className="h-64 animate-pulse rounded-2xl bg-muted" />
-              </div>
-            ) : mode !== 'create' && errorMessage ? (
-              <div className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
-                <p>{errorMessage}</p>
-                <div className="flex gap-3">
-                  {onRetry ? (
-                    <Button type="button" variant="outline" onClick={onRetry}>
-                      Újrapróbálás
+            <div className="flex items-center gap-2">
+              {mode === 'detail' && apartment ? (
+                <>
+                  {onToggleActive ? (
+                    <Button type="button" variant="outline" onClick={onToggleActive}>
+                      <Power className="size-4" />
+                      {apartment.isActive ?? apartment.status !== 'archived'
+                        ? 'Inaktiválás'
+                        : 'Aktiválás'}
                     </Button>
                   ) : null}
-                  <Button type="button" onClick={() => onOpenChange(false)}>
-                    Vissza a listához
-                  </Button>
-                </div>
-              </div>
-            ) : mode !== 'create' && !apartment ? (
-              <div className="rounded-2xl border border-dashed bg-muted/30 p-6 text-sm text-muted-foreground">
-                Az apartman nem található vagy még nem töltődött be.
-              </div>
-            ) : mode === 'detail' && apartment ? (
-              <ApartmentDetailView
-                apartment={apartment}
-                regions={regions}
-                locations={locations}
-              />
-            ) : (
-              <Form {...form}>
-                <form
-                  className="flex min-h-full flex-col"
-                  onSubmit={form.handleSubmit((values: ApartmentFormValues) =>
-                    onSubmit({
-                      ...values,
-                      seoName: values.autoGenerateSeoName
-                        ? createSlug(values.name)
-                        : values.seoName,
-                    }),
-                  )}
-                >
-                  <ApartmentForm
-                    form={form}
-                    regions={regions}
-                    locations={locations}
-                    typeLocked={typeLocked}
-                  />
+                  {onEdit ? (
+                    <Button type="button" variant="outline" onClick={onEdit}>
+                      <Pencil className="size-4" />
+                      Szerkesztés
+                    </Button>
+                  ) : null}
+                  {onDelete ? (
+                    <Button type="button" variant="destructive" onClick={onDelete}>
+                      <Trash2 className="size-4" />
+                      Törlés
+                    </Button>
+                  ) : null}
+                </>
+              ) : null}
 
-                  <div className="sticky bottom-0 mt-6 border-t bg-background/95 px-0 py-4 backdrop-blur">
-                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        disabled={submitting}
-                      >
-                        Mégse
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={submitting || (mode === 'create' && !selectedType)}
-                      >
-                        {submitting ? 'Mentés...' : 'Mentés'}
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-              </Form>
-            )}
+              <Button title="Bezárás" aria-label="Bezárás"
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      </aside>
-    </div>
+
+          <Separator />
+
+          <div className="min-h-0 flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto px-6 py-5">
+              {mode !== 'create' && isLoading ? (
+                <div className="space-y-4">
+                  <div className="h-8 w-48 animate-pulse rounded-xl bg-muted" />
+                  <div className="h-24 animate-pulse rounded-2xl bg-muted" />
+                  <div className="h-64 animate-pulse rounded-2xl bg-muted" />
+                </div>
+              ) : mode !== 'create' && errorMessage ? (
+                <div className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+                  <p>{errorMessage}</p>
+                  <div className="flex gap-3">
+                    {onRetry ? (
+                      <Button type="button" variant="outline" onClick={onRetry}>
+                        Újrapróbálás
+                      </Button>
+                    ) : null}
+                    <Button type="button" onClick={() => onOpenChange(false)}>
+                      Vissza a listához
+                    </Button>
+                  </div>
+                </div>
+              ) : mode !== 'create' && !apartment ? (
+                <div className="rounded-2xl border border-dashed bg-muted/30 p-6 text-sm text-muted-foreground">
+                  Az apartman nem található vagy még nem töltődött be.
+                </div>
+              ) : mode === 'detail' && apartment ? (
+                <ApartmentDetailView
+                  apartment={apartment}
+                  regions={regions}
+                  locations={locations}
+                />
+              ) : (
+                <Form {...form}>
+                  <form
+                    className="flex min-h-full flex-col"
+                    onSubmit={form.handleSubmit((values: ApartmentFormValues) =>
+                      onSubmit({
+                        ...values,
+                        seoName: values.autoGenerateSeoName
+                          ? createSlug(values.name)
+                          : values.seoName,
+                      }),
+                    )}
+                  >
+                    <ApartmentForm
+                      form={form}
+                      regions={regions}
+                      locations={locations}
+                      typeLocked={typeLocked}
+                    />
+
+                    <div className="sticky -bottom-5 mt-6 border-t bg-background px-0 py-4">
+                      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => onOpenChange(false)}
+                          disabled={submitting}
+                        >
+                          Mégse
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={submitting || (mode === 'create' && !selectedType)}
+                        >
+                          {submitting ? 'Mentés...' : 'Mentés'}
+                        </Button>
+                      </div>
+                    </div>
+                  </form>
+                </Form>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
+    </SidePanelPortal>
   );
 }

@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { SidePanelPortal } from '@/components/admin/side-panel-portal';
 import { formatDate } from '@/lib/date-format';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -84,170 +85,172 @@ function PartnerOfferPanel({
   }
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col bg-background shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
-          <div>
-            <h2 className="text-lg font-semibold">
-              {mode === 'create'
-                ? 'Partner ajánlat hozzáadása'
-                : mode === 'edit'
-                  ? 'Partner ajánlat szerkesztése'
-                  : 'Partner ajánlat részletei'}
-            </h2>
-          </div>
-          <Button type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-            <Trash2 className="invisible size-4" />
-          </Button>
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-          {mode === 'detail' && offer ? (
-            <div className="space-y-4">
-              <div className="rounded-2xl border bg-card p-4">
-                <div className="text-sm text-muted-foreground">Név</div>
-                <div className="font-medium">{offer.name}</div>
-              </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="rounded-2xl border bg-card p-4">
-                  <div className="text-sm text-muted-foreground">Partner</div>
-                  <div className="font-medium">{offer.partnerName}</div>
-                </div>
-                <div className="rounded-2xl border bg-card p-4">
-                  <div className="text-sm text-muted-foreground">Partner email</div>
-                  <div className="font-medium">{offer.partnerEmail}</div>
-                </div>
-              </div>
+    <SidePanelPortal>
+      <div className="fixed inset-0 z-50">
+        <button className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
+        <aside className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col bg-background shadow-2xl">
+          <div className="shrink-0 flex items-start justify-between gap-4 border-b bg-background px-6 py-5">
+            <div>
+              <h2 className="text-lg font-semibold">
+                {mode === 'create'
+                  ? 'Partner ajánlat hozzáadása'
+                  : mode === 'edit'
+                    ? 'Partner ajánlat szerkesztése'
+                    : 'Partner ajánlat részletei'}
+              </h2>
             </div>
-          ) : (
-            <Form {...form}>
-              <form
-                className="space-y-5"
-                onSubmit={form.handleSubmit((values) => onSubmit(values))}
-              >
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Név</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="partnerName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Partner neve</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="partnerEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Partner email</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="inquiryDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Érdeklődés dátuma</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ajánlat státusz</FormLabel>
-                      <FormControl>
-                        <select
-                          className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
-                          {...field}
-                        >
-                          {TOUR_PARTNER_OFFER_STATUSES.map((status) => (
-                            <option key={status.value} value={status.value}>
-                              {status.label}
-                            </option>
-                          ))}
-                        </select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="note"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Megjegyzés</FormLabel>
-                      <FormControl>
-                        <Textarea className="min-h-28" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="active"
-                  render={({ field }) => (
-                    <FormItem>
-                      <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={field.value}
-                          onChange={(event) => field.onChange(event.target.checked)}
-                        />
-                        Aktív
-                      </label>
-                    </FormItem>
-                  )}
-                />
-                <div className="sticky bottom-0 border-t bg-background/95 py-4">
-                  <div className="flex justify-end gap-2">
-                    {mode === 'edit' && onDelete ? (
-                      <Button type="button" variant="destructive" onClick={onDelete} disabled={submitting}>
-                        Törlés
-                      </Button>
-                    ) : null}
-                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                      Mégse
-                    </Button>
-                    <Button type="submit" disabled={submitting}>
-                      Mentés
-                    </Button>
+            <Button type="button" variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+              <Trash2 className="invisible size-4" />
+            </Button>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+            {mode === 'detail' && offer ? (
+              <div className="space-y-4">
+                <div className="rounded-2xl border bg-card p-4">
+                  <div className="text-sm text-muted-foreground">Név</div>
+                  <div className="font-medium">{offer.name}</div>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="rounded-2xl border bg-card p-4">
+                    <div className="text-sm text-muted-foreground">Partner</div>
+                    <div className="font-medium">{offer.partnerName}</div>
+                  </div>
+                  <div className="rounded-2xl border bg-card p-4">
+                    <div className="text-sm text-muted-foreground">Partner email</div>
+                    <div className="font-medium">{offer.partnerEmail}</div>
                   </div>
                 </div>
-              </form>
-            </Form>
-          )}
-        </div>
-      </aside>
-    </div>
+              </div>
+            ) : (
+              <Form {...form}>
+                <form
+                  className="space-y-5"
+                  onSubmit={form.handleSubmit((values) => onSubmit(values))}
+                >
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Név</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="partnerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Partner neve</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="partnerEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Partner email</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="inquiryDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Érdeklődés dátuma</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ajánlat státusz</FormLabel>
+                        <FormControl>
+                          <select
+                            className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+                            {...field}
+                          >
+                            {TOUR_PARTNER_OFFER_STATUSES.map((status) => (
+                              <option key={status.value} value={status.value}>
+                                {status.label}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="note"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Megjegyzés</FormLabel>
+                        <FormControl>
+                          <Textarea className="min-h-28" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="active"
+                    render={({ field }) => (
+                      <FormItem>
+                        <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={(event) => field.onChange(event.target.checked)}
+                          />
+                          Aktív
+                        </label>
+                      </FormItem>
+                    )}
+                  />
+                  <div className="sticky -bottom-5 border-t bg-background py-4">
+                    <div className="flex justify-end gap-2">
+                      {mode === 'edit' && onDelete ? (
+                        <Button type="button" variant="destructive" onClick={onDelete} disabled={submitting}>
+                          Törlés
+                        </Button>
+                      ) : null}
+                      <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        Mégse
+                      </Button>
+                      <Button type="submit" disabled={submitting}>
+                        Mentés
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              </Form>
+            )}
+          </div>
+        </aside>
+      </div>
+    </SidePanelPortal>
   );
 }
 

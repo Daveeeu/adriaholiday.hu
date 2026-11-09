@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { PageLoader } from '@/components/common/page-loader';
+import { SidePanelPortal } from '@/components/admin/side-panel-portal';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -72,68 +73,70 @@ function DeparturePlacePanel({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-2xl flex-col bg-background shadow-2xl">
-        <div className="sticky top-0 z-10 border-b bg-background px-6 py-5">
-          <h2 className="text-lg font-semibold">
-            {mode === 'create' ? 'Felszállási hely hozzáadása' : mode === 'edit' ? 'Felszállási hely szerkesztése' : 'Felszállási hely részletei'}
-          </h2>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-          {mode === 'detail' && item ? (
-            <div className="space-y-3">
-              <div className="rounded-2xl border bg-card p-4">
-                <div className="text-sm text-muted-foreground">Név</div>
-                <div className="font-medium">{item.name}</div>
-              </div>
-              <div className="rounded-2xl border bg-card p-4">
-                <div className="text-sm text-muted-foreground">Város</div>
-                <div className="font-medium">{item.city}</div>
-              </div>
-            </div>
-          ) : (
-            <Form {...form}>
-              <form className="space-y-4" onSubmit={form.handleSubmit((values) => onSubmit(values))}>
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Név</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="city" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Város</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="fee" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Díj</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="active" render={({ field }) => (
-                  <FormItem>
-                    <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                      <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
-                      Aktív
-                    </label>
-                  </FormItem>
-                )} />
-                <div className="sticky bottom-0 border-t bg-background/95 py-4">
-                  <div className="flex justify-end gap-2">
-                    {mode === 'edit' && onDelete ? <Button type="button" variant="destructive" onClick={onDelete}>Törlés</Button> : null}
-                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Mégse</Button>
-                    <Button type="submit">Mentés</Button>
-                  </div>
+    <SidePanelPortal>
+      <div className="fixed inset-0 z-50">
+        <button className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
+        <aside className="absolute right-0 top-0 flex h-full w-full max-w-2xl flex-col bg-background shadow-2xl">
+          <div className="shrink-0 border-b bg-background px-6 py-5">
+            <h2 className="text-lg font-semibold">
+              {mode === 'create' ? 'Felszállási hely hozzáadása' : mode === 'edit' ? 'Felszállási hely szerkesztése' : 'Felszállási hely részletei'}
+            </h2>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+            {mode === 'detail' && item ? (
+              <div className="space-y-3">
+                <div className="rounded-2xl border bg-card p-4">
+                  <div className="text-sm text-muted-foreground">Név</div>
+                  <div className="font-medium">{item.name}</div>
                 </div>
-              </form>
-            </Form>
-          )}
-        </div>
-      </aside>
-    </div>
+                <div className="rounded-2xl border bg-card p-4">
+                  <div className="text-sm text-muted-foreground">Város</div>
+                  <div className="font-medium">{item.city}</div>
+                </div>
+              </div>
+            ) : (
+              <Form {...form}>
+                <form className="space-y-4" onSubmit={form.handleSubmit((values) => onSubmit(values))}>
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Név</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="city" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Város</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="fee" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Díj</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="active" render={({ field }) => (
+                    <FormItem>
+                      <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                        <input type="checkbox" checked={field.value} onChange={(event) => field.onChange(event.target.checked)} />
+                        Aktív
+                      </label>
+                    </FormItem>
+                  )} />
+                  <div className="sticky -bottom-5 border-t bg-background py-4">
+                    <div className="flex justify-end gap-2">
+                      {mode === 'edit' && onDelete ? <Button type="button" variant="destructive" onClick={onDelete}>Törlés</Button> : null}
+                      <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Mégse</Button>
+                      <Button type="submit">Mentés</Button>
+                    </div>
+                  </div>
+                </form>
+              </Form>
+            )}
+          </div>
+        </aside>
+      </div>
+    </SidePanelPortal>
   );
 }
 
