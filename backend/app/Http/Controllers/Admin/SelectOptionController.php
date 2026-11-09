@@ -77,13 +77,13 @@ class SelectOptionController extends Controller
         return TourRegionGroup::query()
             ->where('active', true)
             ->where('type', 'group')
+            ->whereNotNull('seo_name')
             ->when($search = trim((string) $request->query('search', '')), function ($query) use ($search): void {
                 $query->where(function ($builder) use ($search): void {
                     $builder->where('name', 'like', "%{$search}%")
                         ->orWhere('seo_name', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('sort_order')
             ->orderBy('name')
             ->get(['seo_name', 'name'])
             ->map(fn (TourRegionGroup $group): array => $this->option($group->seo_name, $group->name))
@@ -94,13 +94,13 @@ class SelectOptionController extends Controller
     {
         return TourSeasonalGroup::query()
             ->where('active', true)
+            ->whereNotNull('seo_name')
             ->when($search = trim((string) $request->query('search', '')), function ($query) use ($search): void {
                 $query->where(function ($builder) use ($search): void {
                     $builder->where('name', 'like', "%{$search}%")
                         ->orWhere('seo_name', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('sort_order')
             ->orderBy('name')
             ->get(['seo_name', 'name'])
             ->map(fn (TourSeasonalGroup $group): array => $this->option($group->seo_name, $group->name))

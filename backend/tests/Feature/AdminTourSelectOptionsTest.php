@@ -15,6 +15,7 @@ use App\Models\TourRegionGroup;
 use App\Models\TourSeasonalGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -192,6 +193,36 @@ class AdminTourSelectOptionsTest extends TestCase
         $this->getJson('/api/admin/select-options/blog-categories?search=klasszikus')
             ->assertOk()
             ->assertJsonFragment(['label' => 'Klasszikus körutazás']);
+    }
+
+    public function test_group_options_are_sorted_by_name_and_skip_groups_without_a_seo_name(): void
+    {
+        $this->actingAsAdmin();
+
+        foreach ([['Zadar', 'zadar'], ['Abbazia', 'abbazia'], ['Nincs SEO név', null]] as [$name, $seoName]) {
+            TourRegionGroup::query()->create(['active' => true, 'type' => 'group', 'name' => $name, 'seo_name' => $seoName]);
+            TourSeasonalGroup::query()->create(['active' => true, 'menu_type' => 'intro', 'name' => $name, 'seo_name' => $seoName]);
+        }
+
+        DB::enableQueryLog();
+
+        foreach (['groups', 'offer-groups'] as $endpoint) {
+            $this->getJson("/api/admin/select-options/{$endpoint}")
+                ->assertOk()
+                ->assertJsonCount(2)
+                ->assertJsonPath('0.value', 'abbazia')
+                ->assertJsonPath('1.value', 'zadar');
+        }
+
+        // SQLite reads an unknown quoted column as a string, so only the SQL
+        // itself shows the ORDER BY that MariaDB rejects: these tables have no
+        // sort_order column.
+        $groupQueries = collect(DB::getQueryLog())
+            ->pluck('query')
+            ->filter(fn (string $query): bool => str_contains($query, '_groups'));
+
+        $this->assertCount(2, $groupQueries);
+        $groupQueries->each(fn (string $query) => $this->assertStringNotContainsString('sort_order', $query));
     }
 
     private function actingAsAdmin(): void
