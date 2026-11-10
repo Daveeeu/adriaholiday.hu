@@ -30,6 +30,8 @@ final class AnalyticsEventName
 
     public const PROGRAM_PDF_PRINT = 'program_pdf_print';
 
+    public const SHARE = 'share';
+
     public const PRICEBOX_VIEW = 'pricebox_view';
 
     public const DATE_SELECT = 'date_select';
@@ -92,6 +94,7 @@ final class AnalyticsEventName
             self::PROGRAM_DAY_OPEN,
             self::PROGRAM_PDF_DOWNLOAD,
             self::PROGRAM_PDF_PRINT,
+            self::SHARE,
             self::PRICEBOX_VIEW,
             self::DATE_SELECT,
             self::PARTICIPANTS_CHANGE,

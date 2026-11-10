@@ -109,6 +109,31 @@ class AnalyticsEventIngestionTest extends TestCase
         ];
     }
 
+    public function test_it_accepts_share_events_with_their_method(): void
+    {
+        Queue::fake();
+
+        $response = $this->postJson('/api/analytics/events', [
+            'event_id' => (string) Str::uuid(),
+            'session_id' => 'session_share',
+            'visitor_id' => 'visitor_share',
+            'event_name' => 'share',
+            'entity' => ['type' => 'tour', 'slug' => 'albania-makedoniaval-fuszerezve'],
+            'metadata' => ['method' => 'facebook', 'content_type' => 'tour', 'item_id' => 'albania-makedoniaval-fuszerezve'],
+            'page' => [
+                'url' => 'https://adriaholiday.hu/ajanlat/albania-makedoniaval-fuszerezve',
+                'path' => '/ajanlat/albania-makedoniaval-fuszerezve',
+            ],
+            'consent' => ['necessary' => true, 'analytics' => true, 'marketing' => false],
+        ]);
+
+        $response->assertAccepted();
+        $this->assertDatabaseHas('analytics_events', [
+            'event_name' => 'share',
+            'entity_slug' => 'albania-makedoniaval-fuszerezve',
+        ]);
+    }
+
     public function test_it_skips_persistence_without_analytics_consent(): void
     {
         Queue::fake();

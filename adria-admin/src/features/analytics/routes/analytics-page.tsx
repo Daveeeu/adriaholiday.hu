@@ -46,6 +46,7 @@ const EVENT_OPTIONS = [
   'booking_anchor_click',
   'program_pdf_download',
   'program_pdf_print',
+  'share',
   'lead_submit',
   'booking_start',
   'booking_success',

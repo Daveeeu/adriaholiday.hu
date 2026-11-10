@@ -9,6 +9,7 @@ const EVENT_LABELS: Record<string, string> = {
   booking_anchor_click: 'Ugrás a foglaláshoz',
   program_pdf_download: 'Program PDF letöltése',
   program_pdf_print: 'Program PDF nyomtatása',
+  share: 'Ajánlat megosztása',
   lead_submit: 'Ajánlatkérés elküldése',
   booking_start: 'Foglalás megkezdése',
   booking_success: 'Sikeres foglalás',

@@ -29,6 +29,7 @@ import OfferContentSection from "./OfferContentSection";
 import OfferTeaserCard from "./OfferTeaserCard";
 import TripDatePicker from "./TripDatePicker";
 import OfferPrintableVersion from "./OfferPrintableVersion";
+import OfferShare from "./OfferShare";
 import OfferRouteMap from "./OfferRouteMap";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { type PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
@@ -481,6 +482,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 <OfferTeaserCard content={trip.teaser} className="hidden xl:block mt-6" />
 
                 <OfferPrintableVersion slug={trip.slug} />
+
+                <OfferShare slug={trip.slug} title={trip.title} />
 
                 {trip.routeMap ? <OfferRouteMap url={trip.routeMap.url} alt={trip.routeMap.alt} /> : null}
 

@@ -12,6 +12,7 @@ export const analyticsEventNames = [
   "program_day_open",
   "program_pdf_download",
   "program_pdf_print",
+  "share",
   "pricebox_view",
   "date_select",
   "participants_change",
