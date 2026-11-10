@@ -374,6 +374,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                   <OfferContentSection title="Tudnivalók a programhoz" content={trip.programFooter} />
                 )}
 
+                {trip.routeMap ? <OfferRouteMap url={trip.routeMap.url} alt={trip.routeMap.alt} /> : null}
+
                 <DeparturePlacesSection places={offeredDeparturePlaces} />
 
                 <PriceInformationSection priceInformation={trip.priceInformation} />
@@ -484,9 +486,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 <OfferPrintableVersion slug={trip.slug} />
 
                 <OfferShare slug={trip.slug} title={trip.title} />
-
-                {trip.routeMap ? <OfferRouteMap url={trip.routeMap.url} alt={trip.routeMap.alt} /> : null}
-
               </div>
 
             </aside>
