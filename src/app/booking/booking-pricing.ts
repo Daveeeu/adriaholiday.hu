@@ -1,4 +1,4 @@
-import { formatHuf } from "../lib/price.ts";
+import { formatAmount, formatHuf } from "../lib/price.ts";
 import type {
   PortfolioBookingInsurances,
   PortfolioOfferDateExtra,
@@ -122,7 +122,7 @@ export function extraPriceLabel(extra: BookingExtra): string {
   const unit = isPerPassenger(extra) ? " / fő" : " / foglalás";
 
   return isPaidOnSite(extra)
-    ? `${hufFormatter.format(extra.price)} ${extra.currency}${unit}, helyszínen fizetendő`
+    ? `${formatAmount(extra.price)} ${extra.currency}${unit}, helyszínen fizetendő`
     : `${formatHuf(extra.price)}${unit}`;
 }
 
