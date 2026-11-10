@@ -11,6 +11,7 @@ use App\Support\Booking\BookingInsuranceSettings;
 use App\Support\Booking\TourBookingPassengerOptions;
 use App\Support\Booking\TourBookingSelection;
 use App\Support\DiscountBadge;
+use App\Support\HufPrice;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraCurrency;
 use Illuminate\Support\Collection;
@@ -353,7 +354,7 @@ class TourBookingPriceCalculator
             $insurances[] = [
                 'key' => 'travel_insurance',
                 'name' => $settings->travelInsuranceName,
-                'detail' => sprintf('%d fő × %d nap × %s Ft', count($travelInsured), $days, number_format($settings->travelInsuranceDailyFee, 0, ',', '.')),
+                'detail' => sprintf('%d fő × %d nap × %s', count($travelInsured), $days, HufPrice::format($settings->travelInsuranceDailyFee)),
                 'total' => round($settings->travelInsuranceDailyFee * count($travelInsured) * $days),
                 'passengers' => $travelInsured,
             ];

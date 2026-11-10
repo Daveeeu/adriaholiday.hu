@@ -3,6 +3,7 @@
 namespace App\Support\Booking;
 
 use App\Models\Booking;
+use App\Support\HufPrice;
 use App\Support\Tour\TourExtraChargeRule;
 
 /**
@@ -139,7 +140,7 @@ final class BookingPriceSummary
     {
         $currency = strtoupper((string) ($this->pricing['currency'] ?? 'HUF'));
 
-        return number_format($amount, 0, ',', '.').' '.($currency === 'HUF' ? 'Ft' : $currency);
+        return HufPrice::amount($amount).' '.($currency === 'HUF' ? 'Ft' : $currency);
     }
 
     /**

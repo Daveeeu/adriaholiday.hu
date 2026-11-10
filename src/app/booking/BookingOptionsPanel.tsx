@@ -1,12 +1,12 @@
 import BookingExtraOption from "./BookingExtraOption";
 import { BookingOptionList } from "./BookingOptionRow";
 import {
-  formatHuf,
   isChargedAutomatically,
   isSelectable,
   type BookingDeparturePlace,
   type BookingExtra,
 } from "./booking-pricing";
+import { formatHuf } from "../lib/price";
 
 type BookingOptionsPanelProps = {
   departurePlaces: BookingDeparturePlace[];

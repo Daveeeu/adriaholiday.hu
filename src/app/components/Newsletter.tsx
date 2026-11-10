@@ -19,6 +19,7 @@ import { usePortfolioContent } from "../content/PortfolioContentProvider";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { TRAVEL_CLUB_PATH } from "../newsletter/travel-club";
 import { useNewsletterSubscription } from "../newsletter/useNewsletterSubscription";
+import { formatHuf } from "../lib/price";
 
 const benefitsFallback = [
   {
@@ -132,7 +133,7 @@ export default function Newsletter() {
 
               {couponValue > 0 && (
                 <p className="text-[#60ffd0] text-base font-semibold mb-4">
-                  Iratkozz fel most, és ajándékba kapsz egy {couponValue.toLocaleString("hu-HU")} Ft értékű kedvezménykupont emailben!{" "}
+                  Iratkozz fel most, és ajándékba kapsz egy {formatHuf(couponValue)} értékű kedvezménykupont emailben!{" "}
                   <Link to={TRAVEL_CLUB_PATH} className="text-white/80 underline decoration-white/40 underline-offset-2 hover:text-white">
                     Mire érvényes?
                   </Link>

@@ -254,7 +254,7 @@ class AdminToursTest extends TestCase
         $createResponse->assertJsonPath('data.programTypeLabel', $programType->name);
         $createResponse->assertJsonPath('data.travelModeLabel', $travelMode->name);
         $createResponse->assertJsonPath('data.difficultyLabel', $difficulty->name);
-        $createResponse->assertJsonPath('data.priceBox.displayedPrice', '199 900 Ft-tól');
+        $createResponse->assertJsonPath('data.priceBox.displayedPrice', '199.900 Ft-tól');
         $createResponse->assertJsonPath('data.dates.0.priceBox.availableSeats', 12);
         $createResponse->assertJsonPath('data.countries.0.label', $countryHu->name);
         $createResponse->assertJsonPath('data.tags.0.label', 'Családi');
@@ -458,7 +458,7 @@ class AdminToursTest extends TestCase
         $updateResponse->assertJsonPath('data.programTypeLabel', $programType->name);
         $updateResponse->assertJsonPath('data.travelModeLabel', $travelMode->name);
         $updateResponse->assertJsonPath('data.difficultyLabel', $difficulty->name);
-        $updateResponse->assertJsonPath('data.priceBox.displayedPrice', '229 900 Ft-tól');
+        $updateResponse->assertJsonPath('data.priceBox.displayedPrice', '229.900 Ft-tól');
         $updateResponse->assertJsonPath('data.dates.0.priceBox.availableSeats', 10);
         $updateResponse->assertJsonCount(1, 'data.dates');
         $updateResponse->assertJsonCount(1, 'data.partnerBonuses');

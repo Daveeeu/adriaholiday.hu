@@ -4,13 +4,13 @@ import BookingExtraOption from "./BookingExtraOption";
 import BookingOptionRow, { BookingOptionList } from "./BookingOptionRow";
 import {
   cancellationInsuranceFee,
-  formatHuf,
   isChargedAutomatically,
   travelInsuranceFee,
   type BookingExtra,
   type BookingInsurances,
   type PassengerOptions,
 } from "./booking-pricing";
+import { formatHuf } from "../lib/price";
 
 type PassengerOptionsPanelProps = {
   passengerIndex: number;

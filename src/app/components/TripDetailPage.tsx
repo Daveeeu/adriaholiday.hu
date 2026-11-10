@@ -48,7 +48,7 @@ import { transportLabel } from "../lib/transport";
 import { routeNamedIn, routeStops } from "../lib/tripRoute";
 import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
 import BookingSection from "../booking/BookingSection";
-import { formatHuf } from "../booking/booking-pricing";
+import { formatAmount, formatHuf } from "../lib/price";
 import GroupInquirySection, {
   GROUP_INQUIRY_MIN_PASSENGERS,
   GROUP_INQUIRY_SECTION_ID,
@@ -515,15 +515,13 @@ function formatDiscountedDisplayedPrice(
   displayedPrice?: string | null,
   priceSuffix?: string | null,
 ): string {
-  const formattedAmount = `${new Intl.NumberFormat("hu-HU").format(
-    Math.round(basePrice),
-  )},-`;
+  const formattedAmount = formatAmount(basePrice);
 
   if (displayedPrice) {
     const match = displayedPrice.match(/^([^\d]*)([\d\s.,-]+)(.*)$/);
     if (match) {
       const [, prefix, , suffix] = match;
-      return `${prefix}${formattedAmount}${suffix}`;
+      return `${prefix}${formattedAmount} ${suffix.trim() || "Ft"}`;
     }
   }
 
@@ -788,7 +786,7 @@ function DeparturePlacesSection({ places }: { places: TripDetail["departurePlace
           >
             <MapPin className="h-4 w-4 text-[#00a878]" />
             {place.name}
-            {place.fee > 0 ? <span className="font-normal text-gray-500">+{place.fee.toLocaleString("hu-HU")} Ft/fő</span> : null}
+            {place.fee > 0 ? <span className="font-normal text-gray-500">+{formatHuf(place.fee)}/fő</span> : null}
           </li>
         ))}
       </ul>

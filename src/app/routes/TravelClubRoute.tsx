@@ -8,6 +8,7 @@ import { absoluteUrl } from "../seo/site";
 import { CLUB_TERMS_PATH, TRAVEL_CLUB_PATH } from "../newsletter/travel-club";
 import { useNewsletterSubscription } from "../newsletter/useNewsletterSubscription";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
+import { formatHuf } from "../lib/price";
 
 const TITLE = "Utazási Klub";
 const DESCRIPTION =
@@ -44,7 +45,7 @@ export default function TravelClubRoute() {
   const { settings } = useSiteSettings();
   const { email, setEmail, status, feedback, isSubmitting, handleSubmit } = useNewsletterSubscription("travel_club", "travel_club");
   const couponValue = settings.newsletterCouponValue;
-  const couponLabel = couponValue > 0 ? `${couponValue.toLocaleString("hu-HU")} Ft` : "";
+  const couponLabel = couponValue > 0 ? formatHuf(couponValue) : "";
 
   const steps = [
     "Add meg az email címed, és iratkozz fel a hírlevélre.",

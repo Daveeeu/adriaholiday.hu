@@ -3,6 +3,7 @@
 namespace App\Services\Legacy\AdminExport;
 
 use App\Models\LegacyImportRecord;
+use App\Support\HufPrice;
 use App\Support\Legacy\AdminExport\LegacyAdminExport;
 use App\Support\Legacy\AdminExport\LegacyAdminExportRecord;
 use App\Support\Legacy\Catalog\LegacyCatalog;
@@ -242,7 +243,7 @@ final class LegacyAdminExportCatalogAdapter
             ->filter(fn (int $id): bool => isset($boardingPoints[$id]))
             ->map(fn (int $id): array => [
                 'legacy_id' => $id,
-                'label' => sprintf('%s(+%s Ft/fő)', $boardingPoints[$id]->field('name'), number_format((int) $boardingPoints[$id]->field('price'), 0, ',', ' ')),
+                'label' => sprintf('%s(+%s/fő)', $boardingPoints[$id]->field('name'), HufPrice::format((int) $boardingPoints[$id]->field('price'))),
             ])
             ->values()
             ->all();

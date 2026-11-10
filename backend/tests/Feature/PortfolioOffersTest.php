@@ -33,8 +33,8 @@ class PortfolioOffersTest extends TestCase
         $response->assertJsonCount(4, 'priceInformation.included');
         $response->assertJsonCount(6, 'priceInformation.excluded');
         $response->assertJsonCount(7, 'programDays');
-        $response->assertJsonPath('priceBox.displayedPrice', '269.600,-Ft/fő-től');
-        $response->assertJsonPath('dates.0.priceBox.displayedPrice', '269.600,-Ft/fő-től');
+        $response->assertJsonPath('priceBox.displayedPrice', '269.600 Ft/fő-től');
+        $response->assertJsonPath('dates.0.priceBox.displayedPrice', '269.600 Ft/fő-től');
         $response->assertJsonPath('dates.0.status', 'available');
         $response->assertJsonPath('galleryTitle', 'Galéria');
         $response->assertJsonPath('gallerySubtitle', 'Városnézés, tengerpart és balkáni hangulat egy útban.');
@@ -198,7 +198,7 @@ class PortfolioOffersTest extends TestCase
         $response->assertJsonPath('seoName', 'brugge---london---parizs-2018');
         $response->assertJsonPath('name', 'Brugge - London - Párizs');
         $response->assertJsonPath('active', true);
-        $response->assertJsonPath('priceBox.displayedPrice', '273.600,-Ft/fő-től');
+        $response->assertJsonPath('priceBox.displayedPrice', '273.600 Ft/fő-től');
         $response->assertJsonCount(8, 'programDays');
         $response->assertJsonCount(7, 'gallery');
         $response->assertJsonCount(4, 'priceInformation.included');

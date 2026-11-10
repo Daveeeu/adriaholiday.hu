@@ -1,3 +1,4 @@
+import { formatHuf } from "../lib/price.ts";
 import type {
   PortfolioBookingInsurances,
   PortfolioOfferDateExtra,
@@ -59,12 +60,7 @@ type EstimateInput = {
   endDate: string | null;
 };
 
-const hufFormatter = new Intl.NumberFormat("hu-HU", { maximumFractionDigits: 0 });
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-export function formatHuf(amount: number): string {
-  return `${hufFormatter.format(amount)} Ft`;
-}
 
 /** A fee in another currency than forint (e.g. a city tax in euros): paid on site, never part of the total. */
 export function isPaidOnSite(extra: BookingExtra): boolean {

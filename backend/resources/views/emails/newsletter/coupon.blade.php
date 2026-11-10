@@ -13,7 +13,7 @@
         <p style="{{ EmailStyle::FONT }}margin:0 0 6px;color:#64748b;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">🎁 Kuponkód</p>
         <p style="{{ EmailStyle::FONT }}margin:0 0 16px;color:#0f172a;font-size:28px;font-weight:800;letter-spacing:2px;">{{ $coupon->code }}</p>
         <x-email.rows :rows="array_filter([
-            ['label' => 'Kedvezmény értéke', 'value' => number_format((float) $coupon->value, 0, ',', ' ').' Ft'],
+            ['label' => 'Kedvezmény értéke', 'value' => \App\Support\HufPrice::format((float) $coupon->value)],
             $coupon->expires_at ? ['label' => 'Érvényes', 'value' => $coupon->expires_at->format('Y.m.d.').'-ig'] : null,
         ])" />
     </x-email.card>

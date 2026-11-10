@@ -7,6 +7,7 @@ use App\Models\Region;
 use App\Models\Tour;
 use App\Models\TourReferenceOption;
 use App\Services\Tour\TourContentSyncService;
+use App\Support\HufPrice;
 use App\Support\Legacy\LegacyCountryDictionary;
 use App\Support\Legacy\LegacyOfferData;
 use App\Support\PublicContentCache;
@@ -98,7 +99,7 @@ class LegacyTourImporter
                 'accommodation_info' => $data->accommodationInfo ?? $existing?->accommodation_info,
                 'tag_ids' => $tagIds,
                 'price' => $data->price,
-                'displayed_price' => $data->price !== null ? number_format($data->price, 0, ',', '.').' Ft' : null,
+                'displayed_price' => $data->price !== null ? HufPrice::format($data->price) : null,
             ]);
 
             // Countries come from the crawl context, which an offer missing from

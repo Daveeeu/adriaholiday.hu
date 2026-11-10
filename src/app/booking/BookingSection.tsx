@@ -14,7 +14,6 @@ import {
   chargedPassengerExtras,
   estimateBookingPrice,
   estimateDeposit,
-  formatHuf,
   isCancellationInsuranceAvailable,
   passengerCardExtras,
   travelDays,
@@ -43,6 +42,7 @@ import { BookingTermsConsent, NewsletterConsent, PaymentDataTransferConsent } fr
 import { bringIntoView } from "../lib/bringIntoView";
 import { seatsLeftLabel, seatsOf } from "../lib/seatsLeft";
 import { transportLabel } from "../lib/transport";
+import { formatHuf } from "../lib/price";
 
 type FieldErrorState = {
   form: BookingFieldErrors;

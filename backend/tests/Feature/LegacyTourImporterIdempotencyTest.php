@@ -315,7 +315,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         $this->getJson('/api/portfolio/offers/albania-makedoniaval-fuszerezve')
             ->assertOk()
             ->assertJsonPath('dates.0.priceBox.originalPrice', 289600)
-            ->assertJsonPath('dates.0.priceBox.originalDisplayedPrice', '289 600 Ft')
+            ->assertJsonPath('dates.0.priceBox.originalDisplayedPrice', '289.600 Ft')
             ->assertJsonPath('dates.0.priceBox.label', 'Előfoglalási akció')
             ->assertJsonPath('dates.0.status', 'available')
             ->assertJsonPath('dates.1.status', 'sold_out');

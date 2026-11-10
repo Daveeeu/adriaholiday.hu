@@ -1,5 +1,6 @@
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { INSURANCE_PATH } from "./insurance";
+import { formatHuf } from "../lib/price";
 
 /**
  * The booking forms' required statement: the customer travels with the
@@ -107,7 +108,7 @@ export function NewsletterConsent({ checked, onChange }: { checked: boolean; onC
       <span>
         Szeretnék hírlevélben értesülni további ajánlatokról
         {settings.newsletterCouponValue > 0
-          ? ` – ajándékba kapok egy ${settings.newsletterCouponValue.toLocaleString("hu-HU")} Ft-os kupont a következő utamhoz.`
+          ? ` – ajándékba kapok egy ${formatHuf(settings.newsletterCouponValue)}-os kupont a következő utamhoz.`
           : "."}
       </span>
     </label>

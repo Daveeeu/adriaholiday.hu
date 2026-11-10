@@ -4,6 +4,8 @@
  * public offers API so criteria can be forwarded without renaming.
  */
 
+import { formatHuf } from "../lib/price.ts";
+
 export const OFFER_SEARCH_PATH = "/utazasok";
 
 export type TripDuration = "short" | "medium" | "long";
@@ -144,7 +146,7 @@ function formatDate(value: string) {
 }
 
 function formatPrice(value: string) {
-  return `${new Intl.NumberFormat("hu-HU").format(Number(value))} Ft/fő-ig`;
+  return `${formatHuf(Number(value))}/fő-ig`;
 }
 
 /**

@@ -52,8 +52,10 @@ class PriceBoxData
     private static function build(array $data): ?array
     {
         $price = isset($data['price']) && $data['price'] !== '' ? (float) $data['price'] : null;
-        $displayedPrice = self::normalizeString($data['displayedPrice'] ?? null);
         $currency = self::normalizeString($data['currency'] ?? null);
+        $displayedPrice = self::isForint($currency)
+            ? HufPrice::normalizeLabel($data['displayedPrice'] ?? null)
+            : self::normalizeString($data['displayedPrice'] ?? null);
 
         foreach ([
             'priceSuffix',
@@ -133,12 +135,17 @@ class PriceBoxData
             default => $currency,
         };
 
-        $formatted = number_format($price, 0, ',', ' ');
+        $formatted = HufPrice::amount($price);
         $suffix = self::normalizeString($priceSuffix);
 
         return $suffix !== null
             ? "{$formatted} {$currencyLabel} {$suffix}"
             : "{$formatted} {$currencyLabel}";
+    }
+
+    private static function isForint(?string $currency): bool
+    {
+        return $currency === null || in_array(strtoupper($currency), ['HUF', 'FT'], true);
     }
 
     private static function normalizeString(mixed $value): ?string

@@ -8,6 +8,7 @@ use App\Models\Tour;
 use App\Models\TourReferenceOption;
 use App\Services\Booking\BookingFormValidationService;
 use App\Services\Booking\BookingPaymentService;
+use App\Support\HufPrice;
 use App\Support\Mail\EmailCompany;
 use App\Support\TourMeta;
 use Illuminate\Support\Str;
@@ -76,7 +77,7 @@ final class BookingDocumentData
     private function storedTotal(): ?string
     {
         return $this->booking->total_amount !== null
-            ? number_format((float) $this->booking->total_amount, 0, ',', '.').' Ft'
+            ? HufPrice::format((float) $this->booking->total_amount)
             : null;
     }
 

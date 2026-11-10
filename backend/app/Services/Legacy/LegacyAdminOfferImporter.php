@@ -4,6 +4,7 @@ namespace App\Services\Legacy;
 
 use App\Models\Tour;
 use App\Services\Tour\TourContentSyncService;
+use App\Support\HufPrice;
 use App\Support\PublicContentCache;
 use App\Support\Tour\TourExtraChargeRule;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +64,7 @@ class LegacyAdminOfferImporter
                 'catering_info' => $data['catering_info'],
                 'accommodation' => $data['accommodation'],
                 'accommodation_info' => $data['accommodation_info'],
-                ...($prices !== [] ? ['price' => min($prices), 'displayed_price' => number_format(min($prices), 0, ',', '.').' Ft'] : []),
+                ...($prices !== [] ? ['price' => min($prices), 'displayed_price' => HufPrice::format(min($prices))] : []),
             ])->save();
 
             $this->tourContentSync->syncDates($tour, array_map(fn (array $date): array => [

@@ -86,7 +86,7 @@ class PortfolioFeaturedToursTest extends TestCase
             'name' => 'Bibione családi körutazás - frissítve',
             'short_description' => 'Frissített rövid leírás.',
             'list_description' => 'Frissített rövid leírás.',
-            'displayed_price' => '199.900,-Ft -tól',
+            'displayed_price' => '199.900 Ft -tól',
             'price' => 199900,
         ]);
 
@@ -97,7 +97,7 @@ class PortfolioFeaturedToursTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonPath('items.0.name', 'Bibione családi körutazás - frissítve');
-        $response->assertJsonPath('items.0.displayedPrice', '199.900,-Ft -tól');
+        $response->assertJsonPath('items.0.displayedPrice', '199.900 Ft -tól');
         $response->assertJsonPath('items.0.shortDescription', 'Frissített rövid leírás.');
     }
 

@@ -6,6 +6,7 @@ use App\Services\Legacy\LegacyAdriaOfferCrawler;
 use App\Services\Legacy\LegacyAdriaOfferParser;
 use App\Services\Legacy\LegacyImportOutcome;
 use App\Services\Legacy\LegacyTourImporter;
+use App\Support\HufPrice;
 use App\Support\Legacy\LegacyOfferData;
 use Illuminate\Console\Command;
 use Throwable;
@@ -154,7 +155,7 @@ class AdriaImportOffersCommand extends Command
             count($data->tags),
             $data->categories !== [] ? implode('/', $data->categories) : '-',
             $data->countrySlugs !== [] ? implode('/', $data->countrySlugs) : '-',
-            $data->price !== null ? number_format($data->price, 0, ',', '.').' Ft' : '-',
+            $data->price !== null ? HufPrice::format($data->price) : '-',
         ));
     }
 }

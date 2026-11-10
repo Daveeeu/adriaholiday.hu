@@ -13,7 +13,7 @@ import {
   retryBookingPayment,
   type BookingPaymentResult,
 } from "../booking/bookings-api";
-import { formatHuf } from "../booking/booking-pricing";
+import { formatHuf } from "../lib/price";
 
 /** SimplePay may still be settling the payment when the customer returns. */
 const POLL_INTERVAL_MS = 3000;

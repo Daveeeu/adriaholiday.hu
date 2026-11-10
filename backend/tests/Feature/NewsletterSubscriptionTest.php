@@ -55,7 +55,7 @@ class NewsletterSubscriptionTest extends TestCase
 
         $html = (new NewsletterCouponMail($coupon))->render();
         $this->assertStringContainsString($coupon->code, $html);
-        $this->assertMatchesRegularExpression('#>Kedvezmény értéke</td><td[^>]*>2 500 Ft</td>#', $html);
+        $this->assertMatchesRegularExpression('#>Kedvezmény értéke</td><td[^>]*>2.500 Ft</td>#', $html);
         $this->assertStringContainsString('/utazasok', $html);
     }
 
