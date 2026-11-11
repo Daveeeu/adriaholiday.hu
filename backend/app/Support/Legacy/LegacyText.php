@@ -2,6 +2,8 @@
 
 namespace App\Support\Legacy;
 
+use App\Support\PlainText;
+
 /**
  * Plain text out of the legacy admin's HTML fields.
  */
@@ -12,9 +14,7 @@ final class LegacyText
      */
     public static function line(mixed $value): ?string
     {
-        $text = trim((string) preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) $value), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
-
-        return $text !== '' ? $text : null;
+        return PlainText::line($value);
     }
 
     /**

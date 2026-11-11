@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use App\Support\PlainText;
 use App\Support\TourSearchIndex;
 use Database\Factories\TourFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -144,6 +146,15 @@ class Tour extends Model implements HasMedia
             $tour->search_keywords = TourSearchIndex::cleanKeywords($tour->search_keywords ?? []);
             $tour->search_index = TourSearchIndex::build($tour);
         });
+    }
+
+    /**
+     * The route line under the tour name ("Krakkó-Wieliczka-Zakopane") is
+     * plain text, so HTML pasted or imported into it is dropped on save.
+     */
+    protected function shortDescription(): Attribute
+    {
+        return Attribute::make(set: fn (mixed $value): ?string => PlainText::line($value));
     }
 
     /**
