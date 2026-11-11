@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
 use Database\Factories\CustomerFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -44,6 +45,20 @@ class Customer extends Model
         static::saving(function (Customer $customer): void {
             $customer->email = mb_strtolower(trim($customer->email));
         });
+    }
+
+    /**
+     * Customers whose name, e-mail, phone or referral code contains the text.
+     *
+     * @param  Builder<Customer>  $query
+     */
+    public function scopeSearch(Builder $query, string $search): void
+    {
+        $query->where(fn (Builder $builder) => $builder
+            ->where('name', 'like', "%{$search}%")
+            ->orWhere('email', 'like', "%{$search}%")
+            ->orWhere('phone', 'like', "%{$search}%")
+            ->orWhere('referral_code', 'like', "%{$search}%"));
     }
 
     public function bookings(): HasMany

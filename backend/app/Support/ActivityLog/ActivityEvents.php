@@ -3,8 +3,9 @@
 namespace App\Support\ActivityLog;
 
 /**
- * The activity_log.event values: the model events Spatie records plus the
- * admin sign-in events written by AuthActivityLogger.
+ * The activity_log.event values: the model events Spatie records, the admin
+ * sign-in events written by AuthActivityLogger and the questions AI
+ * assistants asked through the MCP server (McpActivityLogger).
  */
 final class ActivityEvents
 {
@@ -22,7 +23,11 @@ final class ActivityEvents
 
     public const LOGOUT = 'logout';
 
+    public const AI_QUERY = 'ai_query';
+
     public const AUTH_LOG_NAME = 'auth';
+
+    public const MCP_LOG_NAME = 'mcp';
 
     /**
      * @return array<int, string>
@@ -37,6 +42,7 @@ final class ActivityEvents
             self::LOGIN,
             self::LOGIN_FAILED,
             self::LOGOUT,
+            self::AI_QUERY,
         ];
     }
 }

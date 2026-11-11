@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthorizeMcpRequest;
 use App\Http\Middleware\EnsureSalesAssistantEnabled;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\RequireSalesAssistantSession;
@@ -33,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'sales-assistant.enabled' => EnsureSalesAssistantEnabled::class,
             'sales-assistant.session' => RequireSalesAssistantSession::class,
             'retell.signature' => VerifyRetellSignature::class,
+            'mcp.authorize' => AuthorizeMcpRequest::class,
         ]);
 
         // Production traffic reaches PHP-FPM through the edge proxy and the
@@ -45,10 +47,16 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (AuthenticationException $exception, Request $request) {
-            if ($request->is('api/*')) {
+            // The MCP server answers its AI clients with a 401 they can start OAuth from.
+            if ($request->is('api/*') || $request->is('mcp')) {
                 return response()->json([
                     'message' => $exception->getMessage(),
                 ], 401);
+            }
+
+            // The OAuth consent screen of the AI assistants signs in on its own page.
+            if ($request->is('oauth/*')) {
+                return redirect()->guest(route('mcp.login'));
             }
 
             return redirect('/admin/login');

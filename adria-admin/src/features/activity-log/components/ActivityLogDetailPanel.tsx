@@ -18,6 +18,7 @@ import {
   activityFieldLabel,
   describeUserAgent,
   formatChangeValue,
+  describeAiQuery,
   isAuthEntry,
   loginFailureReasonLabel,
 } from '../lib/activity-log.constants';
@@ -56,6 +57,12 @@ export function ActivityLogDetailPanel({
       : null,
     accessChangeLabel(entry.description)
       ? { label: 'Változás', value: accessChangeLabel(entry.description) }
+      : null,
+    entry.context.aiClient
+      ? { label: 'AI asszisztens', value: entry.context.aiClient }
+      : null,
+    describeAiQuery(entry)
+      ? { label: 'Lekérdezés', value: describeAiQuery(entry) }
       : null,
     entry.context.email
       ? { label: 'Megadott e-mail', value: entry.context.email }
@@ -138,7 +145,7 @@ export function ActivityLogDetailPanel({
               </Table>
             </div>
           </div>
-        ) : !isAuthEntry(entry) ? (
+        ) : !isAuthEntry(entry) && entry.event !== 'ai_query' ? (
           <p className="text-sm text-muted-foreground">
             Ehhez a bejegyzéshez nem tartozik mezőszintű változás.
           </p>

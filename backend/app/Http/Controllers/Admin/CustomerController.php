@@ -31,11 +31,7 @@ class CustomerController extends Controller
         $query = Customer::query()->withCount('bookings');
 
         if ($search = trim((string) $request->query('search', ''))) {
-            $query->where(fn ($builder) => $builder
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('phone', 'like', "%{$search}%")
-                ->orWhere('referral_code', 'like', "%{$search}%"));
+            $query->search($search);
         }
 
         $sortBy = Str::snake((string) $request->query('sortBy', 'registered_at'));

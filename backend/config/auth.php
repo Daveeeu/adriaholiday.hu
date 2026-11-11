@@ -47,6 +47,12 @@ return [
             'driver' => 'sanctum',
             'provider' => 'users',
         ],
+
+        // OAuth access tokens of the AI assistants connected to the MCP server (routes/ai.php).
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
     ],
 
     /*

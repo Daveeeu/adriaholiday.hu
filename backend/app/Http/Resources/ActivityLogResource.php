@@ -65,6 +65,9 @@ class ActivityLogResource extends JsonResource
                 'userAgent' => $properties->get('user_agent'),
                 'email' => $properties->get('email'),
                 'reason' => $properties->get('reason'),
+                'aiTool' => $properties->get('tool'),
+                'aiClient' => $properties->get('client'),
+                'aiArguments' => $properties->get('arguments'),
             ],
         ];
     }

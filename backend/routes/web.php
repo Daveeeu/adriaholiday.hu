@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\Mcp\McpLoginController;
 use App\Http\Controllers\PartnerXmlFeedController;
 use App\Http\Controllers\PortfolioSpaController;
 use App\Http\Controllers\ResizedImageController;
@@ -11,6 +12,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class);
+// Session sign-in for the OAuth consent screen of the AI assistants' MCP server (routes/ai.php).
+Route::get('/mcp/login', [McpLoginController::class, 'show'])->name('mcp.login');
+Route::post('/mcp/login', [McpLoginController::class, 'store'])->middleware('throttle:login')->name('mcp.login.store');
 Route::get('/robots.txt', RobotsController::class);
 Route::get('/sitemap.xml', SitemapController::class);
 // The partner XML feeds travel portals read, at the legacy site's addresses.

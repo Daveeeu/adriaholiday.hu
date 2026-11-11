@@ -612,3 +612,26 @@ functions (`/api/sales-assistant/retell/functions/{tool}`). The Retell API key
 stays on the server; browsers receive short-lived web call tokens only.
 
 See `docs/ai-sales-assistant.md`.
+
+# Office AI Assistant (MCP server)
+
+Staff connect Claude, ChatGPT or Gemini to `POST /mcp` (`routes/ai.php`, laravel/mcp)
+to ask about the admin's data. It is read-only by construction: every tool
+in `App\Mcp\Servers\AdriaHolidayServer` extends `App\Mcp\Tools\AdminTool`,
+carries `#[IsReadOnly]` (tested), is offered only to staff holding the admin
+permission of its data (`permission()`), and reads through the same queries
+the admin uses (`BookingSearch`, `BookingStatistics`, `Tour::adminSearch`,
+`Customer::search`, `BookingDocumentData`). Presentation for the model lives
+in `App\Services\Mcp\*Briefing`.
+
+Authentication is OAuth 2.1 through Passport (`api` guard) beside the
+admin's Sanctum tokens on the same `User` model; the consent screen signs in
+on its own session page (`/mcp/login`). `AuthorizeMcpRequest` requires an
+active user with `mcp.access` on every request and logs each tool call
+(`ai_query` in the activity log).
+
+New tools: extend `AdminTool`, add `#[Name]`, `#[Description]`,
+`#[IsReadOnly]`, register in the server, and add the tool to
+`McpServerTest::test_answering_questions_never_writes_to_the_database`.
+
+See `docs/mcp-server.md`.

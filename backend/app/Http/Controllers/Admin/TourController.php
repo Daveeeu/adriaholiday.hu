@@ -56,25 +56,7 @@ class TourController extends Controller
         $query = Tour::query()->with(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']);
 
         if ($search = trim((string) $request->query('search', ''))) {
-            $query->where(function ($builder) use ($search): void {
-                $builder->where('name', 'like', "%{$search}%")
-                    ->orWhere('seo_name', 'like', "%{$search}%")
-                    ->orWhere('action1', 'like', "%{$search}%")
-                    ->orWhere('action2', 'like', "%{$search}%")
-                    ->orWhere('list_description', 'like', "%{$search}%")
-                    ->orWhere('short_description', 'like', "%{$search}%")
-                    ->orWhere('group_id', 'like', "%{$search}%")
-                    ->orWhere('seasonal_group_id', 'like', "%{$search}%")
-                    ->orWhere('fit_id', 'like', "%{$search}%")
-                    ->orWhere('program_type_id', 'like', "%{$search}%")
-                    ->orWhere('travel_mode_id', 'like', "%{$search}%")
-                    ->orWhere('difficulty_id', 'like', "%{$search}%");
-
-                // Keywords, matched like the public search: accents and case aside.
-                if (($normalized = TourSearchIndex::normalize($search)) !== '') {
-                    $builder->orWhere('search_index', 'like', "%{$normalized}%");
-                }
-            });
+            $query->adminSearch($search);
         }
 
         foreach (['region_id' => 'regionId', 'group_id' => 'groupId', 'seasonal_group_id' => 'seasonalGroupId'] as $field => $camelField) {

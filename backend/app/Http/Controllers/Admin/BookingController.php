@@ -15,6 +15,7 @@ use App\Http\Resources\BookingResource;
 use App\Models\AnalyticsEvent;
 use App\Models\Booking;
 use App\Services\Booking\BookingDetailsRequestService;
+use App\Services\Booking\BookingSearch;
 use App\Services\Booking\BookingTravelBook;
 use App\Services\Booking\TourBookingStatusService;
 use Illuminate\Http\Request;
@@ -38,60 +39,20 @@ class BookingController extends Controller
         $this->middleware('permission:bookings.export')->only('export');
     }
 
-    public function index(Request $request)
+    public function index(Request $request, BookingSearch $bookingSearch)
     {
         $bookingType = $this->resolveBookingType($request);
-        $query = Booking::query();
-
-        if ($bookingType) {
-            $query->where('booking_type', $bookingType);
-        }
-
-        if ($search = trim((string) $request->query('search', ''))) {
-            $query->where(function ($builder) use ($search): void {
-                $builder->where('customer_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('country', 'like', "%{$search}%")
-                    ->orWhere('address', 'like', "%{$search}%")
-                    ->orWhere('city', 'like', "%{$search}%")
-                    ->orWhere('property_name_snapshot', 'like', "%{$search}%")
-                    ->orWhere('offer_name_snapshot', 'like', "%{$search}%")
-                    ->orWhere('apartment_name_snapshot', 'like', "%{$search}%")
-                    ->orWhere('partner_name_snapshot', 'like', "%{$search}%")
-                    ->orWhere('offer_code', 'like', "%{$search}%")
-                    ->orWhere('status', 'like', "%{$search}%")
-                    ->orWhere('payment_status', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status = $request->query('status')) {
-            $query->where('status', $status);
-        }
-
-        if (($paymentStatus = $request->query('payment_status', $request->query('paymentStatus'))) !== null) {
-            $query->where('payment_status', $paymentStatus);
-        }
-
-        if (($credited = $request->query('credited')) !== null) {
-            $query->where('credited', filter_var($credited, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
-        }
-
-        if (($cancelled = $request->query('cancelled')) !== null) {
-            $query->where('cancelled', filter_var($cancelled, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
-        }
-
-        if ($tourId = $request->query('tour_id', $request->query('tourId'))) {
-            $query->where('tour_id', $tourId);
-        }
-
-        if ($dateFrom = $request->query('date_from', $request->query('dateFrom'))) {
-            $query->whereDate('departure_date', '>=', $dateFrom);
-        }
-
-        if ($dateTo = $request->query('date_to', $request->query('dateTo'))) {
-            $query->whereDate('departure_date', '<=', $dateTo);
-        }
+        $query = $bookingSearch->query([
+            'bookingType' => $bookingType,
+            'search' => (string) $request->query('search', ''),
+            'status' => $request->query('status') ?: null,
+            'paymentStatus' => $request->query('payment_status', $request->query('paymentStatus')),
+            'credited' => $this->booleanQuery($request, 'credited'),
+            'cancelled' => $this->booleanQuery($request, 'cancelled'),
+            'tourId' => $request->query('tour_id', $request->query('tourId')) ?: null,
+            'departureFrom' => $request->query('date_from', $request->query('dateFrom')) ?: null,
+            'departureTo' => $request->query('date_to', $request->query('dateTo')) ?: null,
+        ]);
 
         $sortBy = Str::snake((string) $request->query('sort_by', $request->query('sortBy', 'created_at')));
         $sortDirection = $request->query('sort_direction', $request->query('sortDirection', 'desc'));
@@ -292,6 +253,16 @@ class BookingController extends Controller
             'tour_inquiry' => ['tour', 'region'],
             default => ['region', 'location', 'apartment', 'tour.bookingFormTemplate.templateFields.field', 'tourDate'],
         };
+    }
+
+    /**
+     * A true/false list filter; any other given value counts as false, a missing one as no filter.
+     */
+    private function booleanQuery(Request $request, string $key): ?bool
+    {
+        $value = $request->query($key);
+
+        return $value !== null ? (filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false) : null;
     }
 
     private function resolveBookingType(Request $request): ?string

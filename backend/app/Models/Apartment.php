@@ -117,6 +117,19 @@ class Apartment extends Model
     }
 
     /**
+     * The admin's apartment search: the text in the name, web address or code.
+     *
+     * @param  Builder<Apartment>  $query
+     */
+    public function scopeAdminSearch(Builder $query, string $search): void
+    {
+        $query->where(fn (Builder $builder) => $builder
+            ->where('name', 'like', "%{$search}%")
+            ->orWhere('slug', 'like', "%{$search}%")
+            ->orWhere('code', 'like', "%{$search}%"));
+    }
+
+    /**
      * Apartments shown on the public site: active and published.
      *
      * @param  Builder<Apartment>  $query

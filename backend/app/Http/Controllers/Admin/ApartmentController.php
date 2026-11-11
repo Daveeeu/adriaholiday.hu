@@ -39,11 +39,7 @@ class ApartmentController extends Controller
         $query = Apartment::query()->with(['region', 'location', 'gallery']);
 
         if ($search = trim((string) $request->query('search', ''))) {
-            $query->where(function ($builder) use ($search): void {
-                $builder->where('name', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%");
-            });
+            $query->adminSearch($search);
         }
 
         if ($regionId = $request->query('region_id', $request->query('regionId'))) {

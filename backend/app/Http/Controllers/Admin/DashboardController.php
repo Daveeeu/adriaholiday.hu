@@ -11,6 +11,7 @@ use App\Models\ContactMessage;
 use App\Models\Coupon;
 use App\Models\HomepageOffer;
 use App\Models\Tour;
+use App\Support\Booking\BookingAdminPath;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
@@ -286,12 +287,7 @@ class DashboardController extends Controller
     private function resolveTargetUrl(Activity $activity, string $subjectType): string
     {
         return match ($subjectType) {
-            'Booking' => match ($activity->subject?->booking_type) {
-                'tour_booking' => '/bookings/tour-bookings',
-                'tour_inquiry' => '/bookings/tour-inquiries',
-                'apartment_booking' => '/bookings/apartment-bookings',
-                default => '/bookings',
-            },
+            'Booking' => BookingAdminPath::for($activity->subject?->booking_type),
             'ContactMessage' => '/bookings/messages',
             'Coupon' => '/bookings/coupons',
             'Tour' => '/tours',

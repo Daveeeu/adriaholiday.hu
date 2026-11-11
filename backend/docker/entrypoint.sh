@@ -9,6 +9,12 @@ rm -f "$READY_FILE"
 cd /var/www/backend
 
 mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs storage/app/public bootstrap/cache
+# The keys that sign the AI assistants' OAuth tokens (docs/mcp-server.md). Storage
+# is a volume, so they are made once and survive releases; new keys would sign
+# every assistant out.
+if [ ! -f storage/oauth-private.key ]; then
+    php artisan passport:keys
+fi
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R ug+rwx storage bootstrap/cache
 

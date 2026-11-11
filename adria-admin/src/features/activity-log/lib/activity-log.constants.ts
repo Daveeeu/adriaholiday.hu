@@ -8,6 +8,7 @@ export const ACTIVITY_EVENT_LABELS: Record<ActivityEvent, string> = {
   login: 'Belépés',
   login_failed: 'Sikertelen belépés',
   logout: 'Kijelentkezés',
+  ai_query: 'AI lekérdezés',
 };
 
 export const ACTIVITY_EVENT_BADGE_CLASSES: Record<ActivityEvent, string> = {
@@ -18,11 +19,13 @@ export const ACTIVITY_EVENT_BADGE_CLASSES: Record<ActivityEvent, string> = {
   login: 'border-slate-200 bg-slate-50 text-slate-700',
   login_failed: 'border-amber-200 bg-amber-50 text-amber-800',
   logout: 'border-slate-200 bg-white text-slate-500',
+  ai_query: 'border-indigo-200 bg-indigo-50 text-indigo-700',
 };
 
 const LOGIN_FAILURE_REASONS: Record<string, string> = {
   invalid_credentials: 'Hibás e-mail cím vagy jelszó',
   inactive: 'A fiók le van tiltva',
+  no_mcp_access: 'Nincs AI asszisztens jogosultság',
 };
 
 /** The access-change entries written by the backend's AccessActivityLogger. */
@@ -65,6 +68,17 @@ export function loginFailureReasonLabel(reason: string | null) {
 
 export function accessChangeLabel(description: string) {
   return ACCESS_DESCRIPTIONS[description] ?? null;
+}
+
+/** "tool · key: value, …" for an AI assistant's MCP tool call. */
+export function describeAiQuery(entry: ActivityLogEntry) {
+  if (entry.event !== 'ai_query' || !entry.context.aiTool) return null;
+
+  const args = Object.entries(entry.context.aiArguments ?? {})
+    .map(([key, value]) => `${key}: ${String(value)}`)
+    .join(', ');
+
+  return args ? `${entry.context.aiTool} · ${args}` : entry.context.aiTool;
 }
 
 export function isAuthEntry(entry: ActivityLogEntry) {

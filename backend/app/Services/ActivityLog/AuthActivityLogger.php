@@ -18,6 +18,9 @@ class AuthActivityLogger
 
     public const REASON_INACTIVE = 'inactive';
 
+    /** Signed in to connect an AI assistant without the mcp.access permission. */
+    public const REASON_NO_MCP_ACCESS = 'no_mcp_access';
+
     public function loginSucceeded(User $user, Request $request): void
     {
         $user->forceFill([

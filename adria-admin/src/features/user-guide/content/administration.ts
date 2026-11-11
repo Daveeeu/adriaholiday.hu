@@ -208,5 +208,79 @@ export const administrationChapter: GuideChapter = {
         ),
       ],
     },
+    {
+      id: 'ai-assistant',
+      title: 'AI asszisztens (Claude, ChatGPT, Gemini)',
+      summary:
+        'A saját Claude-, ChatGPT- vagy Gemini-fiókodból kérdezhetsz az admin adatairól: utakról, időpontokról, szabad helyekről, foglalásokról, ügyfelekről, apartmanokról, bevételről és arról, hogyan kell valamit megcsinálni az adminban. Az asszisztens csak olvas: semmit nem hoz létre, nem módosít, nem töröl és e-mailt sem küld.',
+      menu: 'A Claude, a ChatGPT vagy a Gemini beállításaiban, nem az adminban',
+      access: 'AI asszisztens (Claude, ChatGPT, Gemini) › Csatlakozás',
+      blocks: [
+        list(
+          [
+            '„Hány szabad hely van a júliusi montenegrói úton, és hányan foglaltak rá?”',
+            '„Mutasd Kovács Anna foglalását: mennyit fizetett, mikor esedékes a következő részlet?”',
+            '„Mennyi volt a bevétel októberben, és melyik út fogyott a legjobban?”',
+            '„Mutass képeket a bibionei Dune Villáról.”',
+            '„Hogyan veszek fel új időpontot felárral?” – a kézikönyv lépéseit és képernyőképeit küldi.',
+          ],
+          'Példakérdések',
+        ),
+        p(
+          'A szerver címe mindhárom asszisztensnél: https://adriaholiday.hu/mcp. Csatlakozáskor megnyílik az Adria Holiday belépőoldala: ott az admin e-mail címeddel és jelszavaddal lépj be, majd kattints az „Engedélyezem” gombra.',
+        ),
+        steps(
+          [
+            'Beállítások › Connectors (Csatlakozók) › „Add custom connector”.',
+            'Név: Adria Holiday, URL: https://adriaholiday.hu/mcp, majd „Add”.',
+            '„Connect”: lépj be az admin adataiddal, és kattints az „Engedélyezem” gombra.',
+            'Egy új beszélgetésben a „+” / eszközök menüben kapcsold be az Adria Holiday csatlakozót.',
+          ],
+          'Claude (claude.ai vagy asztali alkalmazás)',
+        ),
+        steps(
+          [
+            'Settings › Apps & Connectors › Advanced settings: kapcsold be a Developer mode-ot. Céges vagy csapat-előfizetésnél ezt a ChatGPT-fiók adminisztrátorának kell engedélyeznie.',
+            '„Create”: név Adria Holiday, MCP server URL: https://adriaholiday.hu/mcp, Authentication: OAuth.',
+            'Lépj be az admin adataiddal, és kattints az „Engedélyezem” gombra.',
+            'Egy új beszélgetésben a „+” menüben válaszd ki az Adria Holiday csatlakozót.',
+          ],
+          'ChatGPT',
+        ),
+        steps(
+          [
+            'Beállítások › Connectors (gemini.google.com/customize/connectors) › „+ Custom”.',
+            'Név: Adria Holiday, szerver URL: https://adriaholiday.hu/mcp.',
+            'Ha a Gemini Client ID-t és Client secretet kér: a „Copy redirect URI” gombbal másold ki a visszairányítási címet, és küldd el a rendszergazdának. Ő ehhez létrehoz egy kliensazonosítót és titkos kulcsot, ezeket írd be a két mezőbe.',
+            'Mentés után lépj be az admin adataiddal, és kattints az „Engedélyezem” gombra.',
+          ],
+          'Gemini',
+        ),
+        warning(
+          'A Gemini egyéni csatlakozói nem minden országban és fióktípusnál érhetők el. Ha a „+ Custom” lehetőség hiányzik, használd a Claude-ot vagy a ChatGPT-t, vagy céges (Gemini Enterprise) fiókot.',
+        ),
+        fields('Jogosultságok', [
+          field(
+            'AI asszisztens › Csatlakozás',
+            'Enélkül nem lehet belépni a csatlakozáskor. Alapból a Főadminisztrátor és az Admin szerepkör kapja meg, másnak a Szerepkörök vagy a Felhasználók oldalon adható meg.',
+            ADMIN_ONLY,
+          ),
+          field(
+            'A többi jogosultság',
+            'Az asszisztens csak azt látja, amit te az adminban: foglalásokat csak „Foglalások” joggal, ügyfeleket csak „Ügyfelek” joggal, a bevételt csak „Vezérlőpult” joggal.',
+            ADMIN_ONLY,
+          ),
+        ]),
+        p(
+          'Minden kérdés bekerül a Naplóba „AI lekérdezés” műveletként: ki kérdezett, melyik asszisztensből, mire és milyen szűrőkkel.',
+        ),
+        warning(
+          'A hozzáférés azonnal megszűnik, ha a felhasználót letiltod, vagy elveszed tőle az „AI asszisztens › Csatlakozás” jogosultságot. A válaszok ügyféladatot tartalmazhatnak, ezért céges vagy csapat-előfizetést használj, ahol a beszélgetésekből nem tanítanak modellt.',
+        ),
+        tip(
+          'Az asszisztens a pillanatnyi adatokból válaszol, és megadja a foglalás vagy az út azonosítóját és linkjét. Ha valamit módosítani kell, megmondja, hol és hogyan teheted meg az adminban.',
+        ),
+      ],
+    },
   ],
 };

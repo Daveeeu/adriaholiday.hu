@@ -5,7 +5,8 @@ export type ActivityEvent =
   | 'restored'
   | 'login'
   | 'login_failed'
-  | 'logout';
+  | 'logout'
+  | 'ai_query';
 
 export type ActivityChange = {
   field: string;
@@ -33,6 +34,10 @@ export type ActivityLogEntry = {
     userAgent: string | null;
     email: string | null;
     reason: string | null;
+    /** The MCP tool an AI assistant called (ai_query entries). */
+    aiTool?: string | null;
+    aiClient?: string | null;
+    aiArguments?: Record<string, unknown> | null;
   };
 };
 

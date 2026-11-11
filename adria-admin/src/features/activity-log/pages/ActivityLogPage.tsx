@@ -28,6 +28,7 @@ import {
   activityEventLabel,
   activityFieldLabel,
   describeUserAgent,
+  describeAiQuery,
   isAuthEntry,
   loginFailureReasonLabel,
 } from '../lib/activity-log.constants';
@@ -49,6 +50,9 @@ function summarize(entry: ActivityLogEntry) {
       .filter(Boolean)
       .join(' · ');
   }
+
+  const aiQuery = describeAiQuery(entry);
+  if (aiQuery) return aiQuery;
 
   const access = accessChangeLabel(entry.description);
   if (access) return access;

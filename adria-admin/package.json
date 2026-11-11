@@ -10,7 +10,8 @@
     "test": "vitest run",
     "format": "prettier --write .",
     "preview": "vite preview",
-    "user-guide:sizes": "node scripts/generate-user-guide-image-sizes.mjs"
+    "user-guide:sizes": "node scripts/generate-user-guide-image-sizes.mjs",
+    "user-guide:export": "node scripts/export-user-guide.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

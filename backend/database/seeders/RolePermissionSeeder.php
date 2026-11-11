@@ -139,6 +139,8 @@ class RolePermissionSeeder extends Seeder
             'roles' => ['roles.viewAny', 'roles.view', 'roles.create', 'roles.update', 'roles.delete'],
             'permissions' => ['permissions.viewAny'],
             'activity' => ['activity.viewAny'],
+            // Connecting Claude, ChatGPT or Gemini to the read-only MCP server (routes/ai.php).
+            'mcp' => ['mcp.access'],
         ];
     }
 

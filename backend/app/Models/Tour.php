@@ -167,6 +167,26 @@ class Tour extends Model implements HasMedia
     }
 
     /**
+     * The admin's tour search: the text in the name, web address, labels or
+     * descriptions, or the search keywords matched like the public search
+     * (accents and case aside).
+     *
+     * @param  Builder<Tour>  $query
+     */
+    public function scopeAdminSearch(Builder $query, string $search): void
+    {
+        $query->where(function (Builder $builder) use ($search): void {
+            foreach (['name', 'seo_name', 'action1', 'action2', 'list_description', 'short_description', 'group_id', 'seasonal_group_id', 'fit_id', 'program_type_id', 'travel_mode_id', 'difficulty_id'] as $column) {
+                $builder->orWhere($column, 'like', "%{$search}%");
+            }
+
+            if (($normalized = TourSearchIndex::normalize($search)) !== '') {
+                $builder->orWhere('search_index', 'like', "%{$normalized}%");
+            }
+        });
+    }
+
+    /**
      * The tour's page on the public site.
      */
     public function publicPath(): string

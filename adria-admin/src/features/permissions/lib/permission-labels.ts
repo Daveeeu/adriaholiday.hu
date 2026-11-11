@@ -16,6 +16,7 @@ const GROUP_LABELS: Record<string, string> = {
   galleries: 'Galériák',
   'homepage-offers': 'Főoldali ajánlatok',
   locations: 'Helyek',
+  mcp: 'AI asszisztens (Claude, ChatGPT, Gemini)',
   media: 'Képek és média',
   messages: 'Üzenetek',
   pages: 'Oldalak',
@@ -51,6 +52,7 @@ const ACTION_LABELS: Record<string, string> = {
   publish: 'Közzététel',
   duplicate: 'Másolás',
   reorder: 'Sorrend módosítása',
+  access: 'Csatlakozás',
 };
 
 export function getPermissionGroupLabel(group: string): string {

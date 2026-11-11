@@ -66,10 +66,13 @@ use App\Policies\TourRegionGroupPolicy;
 use App\Policies\TourSeasonalGroupPolicy;
 use App\Policies\UserPolicy;
 use App\Support\PublicContentCache;
+use Carbon\CarbonInterval;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
@@ -80,7 +83,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // The AI assistants sign in with the authorization code flow only; no device codes.
+        Passport::$deviceCodeGrantEnabled = false;
     }
 
     /**
@@ -88,6 +92,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureMcpOAuth();
+
         Gate::policy(Region::class, RegionPolicy::class);
         Gate::policy(Location::class, LocationPolicy::class);
         Gate::policy(Gallery::class, GalleryPolicy::class);
@@ -200,6 +206,12 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('login', fn ($request) => Limit::perMinute(5)->by($request->ip()));
 
+        // OAuth discovery and client registration of the AI assistants, open to anyone.
+        RateLimiter::for('mcp-oauth', fn ($request) => Limit::perMinute(20)->by($request->ip()));
+
+        // Per staff member: an AI assistant may call several tools for one question.
+        RateLimiter::for('mcp', fn ($request) => Limit::perMinute((int) config('mcp.requests_per_minute'))->by('mcp:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
+
         // Each started conversation costs Retell usage; the service also caps them per day.
         RateLimiter::for('sales-assistant-sessions', fn ($request) => Limit::perHour((int) config('sales_assistant.sessions_per_ip_per_hour'))->by($request->ip()));
 
@@ -207,5 +219,21 @@ class AppServiceProvider extends ServiceProvider
 
         // Every function call comes from Retell's servers, so it is limited per call, not per IP.
         RateLimiter::for('sales-assistant-functions', fn ($request) => Limit::perMinute(30)->by('call:'.(string) $request->input('call.call_id')));
+    }
+
+    /**
+     * Passport issues the OAuth tokens of the AI assistants connected to the
+     * MCP server (routes/ai.php); its consent screen is our own page, under
+     * the site name set in the admin.
+     */
+    private function configureMcpOAuth(): void
+    {
+        Passport::authorizationView(fn (array $parameters) => view('mcp.authorize', $parameters));
+        View::composer('mcp.layout', fn ($view) => $view->with(
+            'siteName',
+            SiteSetting::valuesOf('general', ['site_name'])->get('site_name') ?: config('app.name'),
+        ));
+        Passport::tokensExpireIn(CarbonInterval::minutes((int) config('mcp.access_token_ttl_minutes')));
+        Passport::refreshTokensExpireIn(CarbonInterval::days((int) config('mcp.refresh_token_ttl_days')));
     }
 }
