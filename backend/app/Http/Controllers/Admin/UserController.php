@@ -10,10 +10,13 @@ use App\Http\Requests\Admin\User\UpdateUserStatusRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\ActivityLog\AccessActivityLogger;
+use App\Services\User\UserInvitationService;
 use App\Support\ActivityLog\ActivityEvents;
 use App\Support\UserAccessGuard;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller
@@ -26,7 +29,7 @@ class UserController extends Controller
         $this->middleware('permission:users.viewAny')->only('index');
         $this->middleware('permission:users.view')->only('show');
         $this->middleware('permission:users.create')->only('store');
-        $this->middleware('permission:users.update')->only(['update', 'status']);
+        $this->middleware('permission:users.update')->only(['update', 'status', 'invite']);
         $this->middleware('permission:users.delete')->only('destroy');
     }
 
@@ -64,16 +67,18 @@ class UserController extends Controller
         return $this->paginated(UserResource::class, $paginator);
     }
 
-    public function store(StoreUserRequest $request, AccessActivityLogger $accessLog)
+    public function store(StoreUserRequest $request, AccessActivityLogger $accessLog, UserInvitationService $invitations)
     {
         $validated = $request->validated();
         $actor = $request->user();
+        $invite = empty($validated['password']);
 
-        $user = DB::transaction(function () use ($validated, $actor, $accessLog): User {
+        $user = DB::transaction(function () use ($validated, $actor, $accessLog, $invite): User {
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => $validated['password'],
+                // An invited user's random password is never shown to anyone.
+                'password' => $invite ? Str::random(64) : $validated['password'],
                 'is_active' => $validated['is_active'] ?? true,
             ]);
 
@@ -85,7 +90,23 @@ class UserController extends Controller
             return $user;
         });
 
-        return new UserResource($user->load('roles', 'deniedPermissions'));
+        return (new UserResource($user->load('roles', 'deniedPermissions')))->additional([
+            'meta' => ['invitationSent' => $invite && $invitations->send($user)],
+        ]);
+    }
+
+    /**
+     * Emails the user a new set-password link, e.g. when the first one expired.
+     */
+    public function invite(User $user, UserInvitationService $invitations): JsonResponse
+    {
+        $this->authorize('update', $user);
+
+        if (! $invitations->send($user)) {
+            return response()->json(['message' => 'A meghívó e-mailt nem sikerült elküldeni.'], 502);
+        }
+
+        return response()->json(['message' => 'Meghívó elküldve.']);
     }
 
     public function show(User $user)

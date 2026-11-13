@@ -127,10 +127,15 @@ export function UserSidePanel({
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{mode === 'edit' ? 'Új jelszó (opcionális)' : 'Jelszó'}</FormLabel>
+                  <FormLabel>{mode === 'edit' ? 'Új jelszó (opcionális)' : 'Jelszó (opcionális)'}</FormLabel>
                   <FormControl>
                     <Input type="password" autoComplete="new-password" {...field} />
                   </FormControl>
+                  {mode === 'create' ? (
+                    <p className="text-xs text-muted-foreground">
+                      Üresen hagyva meghívó e-mailt küldünk, amelyben a felhasználó maga állítja be a jelszavát.
+                    </p>
+                  ) : null}
                   <FormMessage />
                 </FormItem>
               )}

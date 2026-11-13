@@ -110,6 +110,15 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        // Links in the invitation email a new admin user sets their first
+        // password with; they stay valid longer than a password reset link.
+        'invitations' => [
+            'provider' => 'users',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60 * 24 * 7,
+            'throttle' => 60,
+        ],
     ],
 
     /*

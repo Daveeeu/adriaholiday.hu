@@ -4,7 +4,7 @@ import {
   Outlet,
   RouterProvider,
 } from 'react-router-dom';
-import { lazy, type ReactNode } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 
 import { RouteErrorFallback } from '@/components/common/route-error-fallback';
 import { RequirePermission } from '@/components/common/require-permission';
@@ -19,6 +19,11 @@ function withPermission(path: string, element: ReactNode) {
   );
 }
 
+const AcceptInvitationPage = lazy(() =>
+  import('@/features/auth/routes/accept-invitation-page').then((module) => ({
+    default: module.AcceptInvitationPage,
+  })),
+);
 const DashboardPage = lazy(() =>
   import('@/features/dashboard/routes/dashboard-page').then((module) => ({
     default: module.DashboardPage,
@@ -301,6 +306,16 @@ const apartmentModuleRoutes = [
 
 const router = createBrowserRouter(
   [
+    {
+      // Opened from the invitation email, before the user has a password.
+      path: '/jelszo-beallitas',
+      element: (
+        <Suspense fallback={null}>
+          <AcceptInvitationPage />
+        </Suspense>
+      ),
+      errorElement: <RouteErrorFallback />,
+    },
     {
       path: '/',
       element: <AppShell />,

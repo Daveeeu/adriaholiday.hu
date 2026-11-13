@@ -11,10 +11,11 @@ use Throwable;
 /**
  * Sends a Mailable and records every send attempt in the email_logs table,
  * so staff can see an entity's email history without checking the mail server.
+ * Returns whether the mail server accepted the message.
  */
 class LoggedMailer
 {
-    public function send(Mailable $mailable, string $to, ?int $bookingId = null): void
+    public function send(Mailable $mailable, string $to, ?int $bookingId = null): bool
     {
         $subject = $mailable->envelope()->subject ?? get_class($mailable);
 
@@ -29,6 +30,8 @@ class LoggedMailer
                 'status' => 'sent',
                 'sent_at' => now(),
             ]);
+
+            return true;
         } catch (Throwable $exception) {
             Log::warning('Failed to send email.', [
                 'mailable' => get_class($mailable),
@@ -44,6 +47,8 @@ class LoggedMailer
                 'status' => 'failed',
                 'error' => $exception->getMessage(),
             ]);
+
+            return false;
         }
     }
 }

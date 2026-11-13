@@ -48,7 +48,7 @@ export const administrationChapter: GuideChapter = {
           ),
           field(
             'Új jelszó / Jelszó megerősítése',
-            'Új felhasználónál kötelező, meglévőnél csak akkor töltsd ki, ha jelszót cserélsz.',
+            'Új felhasználónál hagyd üresen: a munkatárs meghívó e-mailt kap, és maga állítja be a jelszavát. Meglévőnél csak akkor töltsd ki, ha jelszót cserélsz.',
             ADMIN_ONLY,
           ),
           field(
@@ -75,9 +75,10 @@ export const administrationChapter: GuideChapter = {
         steps(
           [
             'Kattints az „Új felhasználó” gombra.',
-            'Add meg a nevet, az e-mail címet és egy ideiglenes jelszót.',
+            'Add meg a nevet és az e-mail címet; a jelszó mezőket hagyd üresen.',
             'Jelöld be a munkakörnek megfelelő szerepkört (pl. Sales, Marketing).',
-            'Ments, majd juttasd el a belépési adatokat biztonságos módon a munkatársnak, és kérd meg, hogy változtassa meg a jelszavát.',
+            'Ments: a munkatárs e-mailben kap egy linket, amellyel 7 napon belül beállítja a jelszavát.',
+            'Ha a link lejárt vagy elveszett, a listában a levél ikonnal küldhetsz újat; a korábbi link ekkor érvénytelen lesz.',
           ],
           'Új munkatárs felvétele',
         ),

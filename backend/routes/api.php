@@ -44,6 +44,7 @@ use App\Http\Controllers\Admin\TourSeasonalGroupController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AnalyticsEventController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\PortfolioApartmentController;
 use App\Http\Controllers\PortfolioBlogController;
 use App\Http\Controllers\PortfolioContentController;
@@ -132,6 +133,7 @@ Route::post('sales-assistant/retell/functions/{tool}', [SalesAssistantController
 
 Route::prefix('auth')->group(function (): void {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
+    Route::post('invitation/accept', [InvitationController::class, 'accept'])->middleware('throttle:login');
 
     Route::middleware(['auth:sanctum', 'active'])->group(function (): void {
         Route::get('me', [AuthController::class, 'me']);
@@ -320,6 +322,7 @@ Route::prefix('admin')
 
         Route::apiResource('users', UserController::class);
         Route::patch('users/{user}/status', [UserController::class, 'status']);
+        Route::post('users/{user}/invitation', [UserController::class, 'invite']);
         Route::apiResource('roles', RoleController::class);
         Route::get('permissions', [PermissionController::class, 'index']);
     });

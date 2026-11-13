@@ -15,6 +15,12 @@ export type AdminUser = {
   updatedAt?: string;
 };
 
+export type CreatedUser = {
+  user: AdminUser;
+  /** Created without a password, so the user was emailed a link to set one. */
+  invitationSent: boolean;
+};
+
 export type UserListQuery = {
   page: number;
   perPage: number;

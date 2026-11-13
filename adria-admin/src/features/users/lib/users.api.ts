@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/api-client';
 
-import type { AdminUser, UserListQuery, UserListResponse, UserUpsertInput } from './users.types';
+import type { AdminUser, CreatedUser, UserListQuery, UserListResponse, UserUpsertInput } from './users.types';
 
 type ResourceEnvelope<T> = {
   data: T;
@@ -31,10 +31,18 @@ export async function getUsers(query: UserListQuery): Promise<UserListResponse> 
   return apiClient.get<UserListResponse>('/api/admin/users', { query });
 }
 
-export function createUser(values: UserUpsertInput) {
-  return apiClient
-    .post<AdminUser | ResourceEnvelope<AdminUser>>('/api/admin/users', toRequestBody(values))
-    .then(unwrapResource);
+export async function createUser(values: UserUpsertInput): Promise<CreatedUser> {
+  const response = await apiClient.post<ResourceEnvelope<AdminUser> & { meta?: { invitationSent?: boolean } }>(
+    '/api/admin/users',
+    toRequestBody(values),
+  );
+
+  return { user: response.data, invitationSent: response.meta?.invitationSent ?? false };
+}
+
+/** Emails the user a new link to set their password. */
+export function sendUserInvitation(id: string | number) {
+  return apiClient.post<{ message: string }>(`/api/admin/users/${id}/invitation`);
 }
 
 export function updateUser(id: string | number, values: UserUpsertInput) {

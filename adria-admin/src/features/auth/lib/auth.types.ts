@@ -19,3 +19,10 @@ export type AuthLoginResponse = {
   tokenType: 'Bearer';
   user: AuthUser;
 };
+
+export type AcceptInvitationInput = {
+  email: string;
+  token: string;
+  password: string;
+  passwordConfirmation: string;
+};

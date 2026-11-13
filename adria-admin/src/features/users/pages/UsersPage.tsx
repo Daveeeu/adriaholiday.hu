@@ -7,7 +7,7 @@ import {
   type PaginationState,
 } from '@tanstack/react-table';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Power } from 'lucide-react';
+import { Mail, Pencil, Power } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
 
 import { UserSidePanel } from '../components/UserSidePanel';
-import { createUser, getUsers, setUserActiveState, updateUser } from '../lib/users.api';
+import { createUser, getUsers, sendUserInvitation, setUserActiveState, updateUser } from '../lib/users.api';
 import type { AdminUser } from '../lib/users.types';
 
 const queryKey = ['users'];
@@ -57,10 +57,25 @@ export function UsersPage() {
 
   const createMutation = useMutation({
     mutationFn: createUser,
-    onSuccess: () => {
+    onSuccess: ({ user, invitationSent }, values) => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success('Felhasználó létrehozva.');
+      if (invitationSent) {
+        toast.success(`Felhasználó létrehozva, meghívó elküldve: ${user.email}`);
+      } else if (!values.password) {
+        toast.warning('Felhasználó létrehozva, de a meghívó e-mailt nem sikerült elküldeni. Próbáld újra a levél ikonnal.');
+      } else {
+        toast.success('Felhasználó létrehozva.');
+      }
       setPanelOpen(false);
+    },
+  });
+  const invitationMutation = useMutation({
+    mutationFn: (user: AdminUser) => sendUserInvitation(user.id),
+    onSuccess: (_response, user) => {
+      toast.success(`Meghívó elküldve: ${user.email}`);
+    },
+    onError: () => {
+      toast.error('A meghívó e-mailt nem sikerült elküldeni.');
     },
   });
   const updateMutation = useMutation({
@@ -144,6 +159,16 @@ export function UsersPage() {
                 }}
               >
                 <Pencil className="size-4" />
+              </Button>
+            ) : null}
+            {canUpdate && !isSelf ? (
+              <Button title="Meghívó küldése (jelszó beállítása)" aria-label="Meghívó küldése"
+                variant="outline"
+                size="icon"
+                disabled={invitationMutation.isPending}
+                onClick={() => invitationMutation.mutate(row.original)}
+              >
+                <Mail className="size-4" />
               </Button>
             ) : null}
             {canUpdate && !isSelf ? (
