@@ -38,6 +38,11 @@ class LegacyFullAdminExportToursAndApartmentsTest extends TestCase
         $this->assertEquals(238400, $date->price_box_price);
         $this->assertSame(['Egyágyas felár'], $date->extras()->pluck('name')->all());
         $this->assertSame(['Budapest BOK Csarnok'], $tour->departurePlaces()->pluck('name')->all());
+        $this->assertSame(
+            ['general' => 1, 'travelgate' => 1, 'cesys' => 1, 'travelmax' => [1, 16]],
+            $tour->partner_xml['travel_types'],
+        );
+        $this->assertSame('Hotel***', $tour->partner_xml['accommodation_name']);
     }
 
     public function test_what_the_admin_form_lacks_is_kept_from_the_catalog_imported_before(): void
@@ -137,6 +142,10 @@ class LegacyFullAdminExportToursAndApartmentsTest extends TestCase
                         'seo_name' => 'svajc-a-hofodte-alpoktol', 'description' => '', 'cities_affected' => '<p>Luzern-Chamonix</p>',
                         'program' => '<p><b>1. nap:</b> indulás</p>', 'tickets' => '<p>Belépők: 40 CHF</p>', 'facultative' => '', 'price_text' => '',
                         'favorable_text' => '', 'slide_text' => '', 'slide_image' => '', 'regions' => ['3' => '1'], 'groups' => ['10' => '1'],
+                        'xml' => [
+                            'accommodation_name' => 'Hotel***', 'city' => 'Svájc', 'insurance_value' => '430', 'accommodation_description_travelmax' => '',
+                            'travel_type' => '1', 'travel_type_travelgate' => '1', 'travel_type_cesys' => '1', 'travel_type_travelmax' => ['1' => '1', '16' => '16'],
+                        ],
                     ],
                     'selected' => [],
                 ]]],

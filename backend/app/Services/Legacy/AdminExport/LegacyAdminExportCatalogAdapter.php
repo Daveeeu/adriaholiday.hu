@@ -123,7 +123,13 @@ final class LegacyAdminExportCatalogAdapter
                 'xml[city]' => $record->field('xml.city'),
                 'xml[accommodation_name]' => $record->field('xml.accommodation_name'),
                 'xml[insurance_value]' => $record->field('xml.insurance_value'),
-            ], fn (?string $value): bool => $value !== null),
+                'xml[accommodation_description_travelmax]' => $record->field('xml.accommodation_description_travelmax'),
+                // Each partner's travel type, the feeds' tour category.
+                'xml[travel_type]' => $record->field('xml.travel_type'),
+                'xml[travel_type_travelgate]' => $record->field('xml.travel_type_travelgate'),
+                'xml[travel_type_cesys]' => $record->field('xml.travel_type_cesys'),
+                'xml[travel_type_travelmax][]' => $record->checkedIds('xml.travel_type_travelmax'),
+            ], fn (string|array|null $value): bool => $value !== null && $value !== []),
             'admin_list_row' => [
                 'region' => $record->listValue('Régió'),
                 'group' => $record->listValue('Csoport'),
