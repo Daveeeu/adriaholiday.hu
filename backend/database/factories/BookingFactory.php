@@ -7,6 +7,8 @@ use App\Models\Booking;
 use App\Models\Location;
 use App\Models\Region;
 use App\Models\Tour;
+use App\Models\TourDate;
+use App\Support\Booking\TourBookingStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -45,7 +47,7 @@ class BookingFactory extends Factory
 
         return [
             'booking_type' => $this->faker->randomElement(['tour_booking', 'tour_inquiry', 'apartment_booking']),
-            'status' => 'pending',
+            'status' => TourBookingStatus::NEW,
             'payment_status' => $this->faker->randomElement(['unpaid', 'partial', 'paid', null]),
             'region_id' => Region::query()->inRandomOrder()->value('id'),
             'location_id' => Location::query()->inRandomOrder()->value('id'),
@@ -88,20 +90,42 @@ class BookingFactory extends Factory
         ];
     }
 
+    /**
+     * A booking from the public form: a real workflow status (new ones the
+     * most common), the cancelled flag agreeing with it, and the trip and
+     * departure taken from an existing tour date when there is one.
+     */
     public function tourBooking(): static
     {
-        return $this->state(fn (): array => [
-            'booking_type' => 'tour_booking',
-            'status' => 'pending',
-            'customer_name' => $this->faker->randomElement(['Kovács Anna', 'Nagy Péter', 'Szabó Zsófia', 'Tóth Gábor']),
-            'partner_name_snapshot' => $this->faker->randomElement(['Horváth Péter', 'Kiss László', 'Németh Éva', 'Varga Tamás']),
-            'offer_name_snapshot' => $this->faker->randomElement(['Bibione családi körutazás', 'Sarti tengerparti utazás', 'Budva városi és tengerparti élmény', 'Napospart all inclusive út']),
-            'departure_date' => $this->faker->dateTimeBetween('+1 month', '+1 year')?->format('Y-m-d'),
-            'passenger_count' => $this->faker->numberBetween(1, 8),
-            'payment_status' => $this->faker->randomElement(['unpaid', 'partial', 'paid']),
-            'appointment_time' => $this->faker->dateTimeBetween('-2 months', '+2 months'),
-            'application_date' => $this->faker->dateTimeBetween('-2 months', 'now'),
-        ]);
+        return $this->state(function (): array {
+            $status = $this->faker->randomElement([
+                TourBookingStatus::NEW,
+                TourBookingStatus::NEW,
+                TourBookingStatus::CONTACTED,
+                TourBookingStatus::CONFIRMED,
+                TourBookingStatus::CANCELLED,
+                TourBookingStatus::EXPIRED,
+            ]);
+            $tourDate = TourDate::query()->with('tour')->inRandomOrder()->first();
+
+            return [
+                'booking_type' => 'tour_booking',
+                'status' => $status,
+                'cancelled' => $status === TourBookingStatus::CANCELLED,
+                'customer_name' => $this->faker->randomElement(['Kovács Anna', 'Nagy Péter', 'Szabó Zsófia', 'Tóth Gábor']),
+                'partner_name_snapshot' => $this->faker->randomElement(['Horváth Péter', 'Kiss László', 'Németh Éva', 'Varga Tamás']),
+                'tour_id' => $tourDate?->tour_id ?? Tour::query()->inRandomOrder()->value('id'),
+                'tour_date_id' => $tourDate?->id,
+                'offer_name_snapshot' => $tourDate?->tour?->name
+                    ?? $this->faker->randomElement(['Bibione családi körutazás', 'Sarti tengerparti utazás', 'Budva városi és tengerparti élmény', 'Napospart all inclusive út']),
+                'departure_date' => $tourDate?->start_date?->format('Y-m-d')
+                    ?? $this->faker->dateTimeBetween('+1 month', '+1 year')->format('Y-m-d'),
+                'passenger_count' => $this->faker->numberBetween(1, 8),
+                'payment_status' => $this->faker->randomElement(['unpaid', 'partial', 'paid']),
+                'appointment_time' => $this->faker->dateTimeBetween('-2 months', '+2 months'),
+                'application_date' => $this->faker->dateTimeBetween('-2 months', 'now'),
+            ];
+        });
     }
 
     public function tourInquiry(): static
