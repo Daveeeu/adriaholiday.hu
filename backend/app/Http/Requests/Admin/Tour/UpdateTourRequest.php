@@ -140,8 +140,9 @@ class UpdateTourRequest extends FormRequest
                     'price_box_original_price' => $date['price_box_original_price'] ?? $priceBox['originalPrice'] ?? null,
                     'price_box_label' => $date['price_box_label'] ?? $priceBox['label'] ?? null,
                     'price_box_min_participants' => $date['price_box_min_participants'] ?? $priceBox['minParticipants'] ?? null,
-                    // The most passengers the date takes; none: no limit.
-                    'capacity' => $date['capacity'] ?? null,
+                    // The most passengers the date takes (empty: no limit); left
+                    // out, as an outdated admin page does, the stored one stays.
+                    ...(array_key_exists('capacity', $date) ? ['capacity' => $date['capacity']] : []),
                     'status' => $date['status'] ?? TourDateStatus::AVAILABLE,
                     // Only some of the tour's departure places (none listed: all of them).
                     ...(array_key_exists('departure_place_ids', $date) || array_key_exists('departurePlaceIds', $date)

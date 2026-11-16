@@ -1040,6 +1040,20 @@ class AdminToursTest extends TestCase
             ->assertJsonPath('data.dates.0.capacity', 8)
             ->assertJsonPath('data.dates.0.seatsHeld', 6)
             ->assertJsonPath('data.dates.0.freeSeats', 2);
+
+        // An admin page from before the per-date capacity sends none: the stored one stays.
+        $outdatedDate = collect(['id' => (string) $tourDate->id, ...$date])->except('capacity')->all();
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload(['seo_name' => 'kapacitas', 'dates' => [$outdatedDate]]))
+            ->assertOk()
+            ->assertJsonPath('data.dates.0.capacity', 8);
+
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload([
+            'seo_name' => 'kapacitas',
+            'dates' => [['id' => (string) $tourDate->id, ...$date, 'capacity' => '']],
+        ]))
+            ->assertOk()
+            ->assertJsonPath('data.dates.0.capacity', null)
+            ->assertJsonPath('data.dates.0.freeSeats', null);
     }
 
     private function actingAsTourAdmin(): void

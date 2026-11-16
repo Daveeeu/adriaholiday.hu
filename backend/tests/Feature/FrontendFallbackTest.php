@@ -22,9 +22,12 @@ class FrontendFallbackTest extends TestCase
 
     public function test_admin_routes_serve_admin_spa_index(): void
     {
-        $this->get('/admin/apartments')
+        $response = $this->get('/admin/apartments')
             ->assertOk()
             ->assertHeader('content-type', 'text/html; charset=UTF-8');
+
+        // Revalidated on every load, so a deploy's new bundle reaches open browsers.
+        $this->assertStringContainsString('no-cache', (string) $response->headers->get('Cache-Control'));
     }
 
     public function test_media_and_gallery_deep_links_serve_admin_spa_index(): void

@@ -12,6 +12,14 @@ describe('mapTourToFormValues', () => {
   it('starts a new tour without departure places', () => {
     expect(mapTourToFormValues().departurePlaceIds).toEqual([]);
   });
+
+  it("keeps a date's maximum passengers through loading and saving", () => {
+    const date = { id: '186', startDate: '2026-12-19', endDate: '2026-12-21', price: '', status: 'available' as const, capacity: 50 };
+    const values = mapTourToFormValues({ dates: [date] });
+
+    expect(values.dates[0].capacity).toBe('50');
+    expect(normalizeTourFormValues(values).dates[0].capacity).toBe('50');
+  });
 });
 
 describe('normalizeTourFormValues', () => {

@@ -48,7 +48,9 @@ Route::get('/korutazasok/{slug}', function (string $slug) {
     return redirect("/ajanlat/{$slug}", 301);
 })->where('slug', '.*');
 
-$serveAdminSpa = fn () => response()->file(public_path('admin/index.html'));
+// The shell names the hashed bundle: revalidated on every load, so a deploy
+// reaches open browsers instead of an old bundle running against the new API.
+$serveAdminSpa = fn () => response()->file(public_path('admin/index.html'), ['Cache-Control' => 'no-cache, private']);
 
 Route::get('/admin/{any?}', function (Request $request) use ($serveAdminSpa) {
     if (
