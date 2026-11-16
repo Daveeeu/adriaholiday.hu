@@ -9,6 +9,7 @@ import { AnalyticsProvider } from "../analytics/analytics-provider";
 import { PortfolioContentProvider } from "../content/PortfolioContentProvider";
 import { SiteSettingsProvider } from "../site-settings/SiteSettingsProvider";
 import LoadingScreen from "../components/LoadingScreen";
+import { SCROLL_POSITIONS_STORAGE_KEY } from "../lib/scrollRestoration";
 
 export default function RootLayout() {
   const location = useLocation();
@@ -16,7 +17,7 @@ export default function RootLayout() {
 
   return (
     <>
-      <ScrollRestoration />
+      <ScrollRestoration storageKey={SCROLL_POSITIONS_STORAGE_KEY} />
       <AnalyticsProvider>
         <SiteSettingsProvider>
           <PortfolioContentProvider>

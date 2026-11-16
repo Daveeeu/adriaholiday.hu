@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { describeClick, reachedScrollThresholds } from "./interaction-events.js";
+import { describeClick, opensAnotherPage, reachedScrollThresholds } from "./interaction-events.js";
 
 const origin = "https://adriaholiday.hu";
 
@@ -34,6 +34,15 @@ test("contact links and unlabeled elements are not reported as ui clicks", () =>
   assert.equal(describeClick({ tagName: "A", text: "Írj nekünk", href: "mailto:info@adriaholiday.hu", origin, section: null }), null);
   assert.equal(describeClick({ tagName: "A", text: "WhatsApp", href: "https://wa.me/36301234567", origin, section: null }), null);
   assert.equal(describeClick({ tagName: "BUTTON", text: "   ", href: null, origin, section: null }), null);
+});
+
+test("only links to another page count as leaving it", () => {
+  const describe = (tagName, href) => describeClick({ tagName, text: "Tovább", href, origin, section: null });
+
+  assert.equal(opensAnotherPage(describe("A", "/utazasok")), true);
+  assert.equal(opensAnotherPage(describe("A", "https://simplepay.hu/")), true);
+  assert.equal(opensAnotherPage(describe("A", "#program")), false);
+  assert.equal(opensAnotherPage(describe("BUTTON", null)), false);
 });
 
 test("scroll milestones follow the share of the page seen", () => {

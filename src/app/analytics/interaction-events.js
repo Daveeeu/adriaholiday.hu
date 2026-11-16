@@ -49,6 +49,14 @@ export function describeClick({ tagName, text, href, origin, section }) {
 }
 
 /**
+ * Whether a described click follows a link to another page (in-site or
+ * outbound), as opposed to a button or an in-page anchor.
+ */
+export function opensAnotherPage(click) {
+  return Boolean(click.link_path || click.link_domain);
+}
+
+/**
  * The scroll milestones reached at a scroll position; pages that hardly need
  * scrolling report none, so short pages do not count as fully read.
  */

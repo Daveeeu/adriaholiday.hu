@@ -22,13 +22,16 @@ export default function MobileNav() {
       setIsVisible(window.scrollY > 100);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  // A link to the page the visitor is already on changes no path, so the menu closes on the tap itself.
+  const closeMenu = () => setIsOpen(false);
 
   return (
     <>
@@ -52,7 +55,7 @@ export default function MobileNav() {
         {isOpen && (
           <>
             <motion.div
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-black/60 z-40 md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -77,7 +80,9 @@ export default function MobileNav() {
                       transition={{ delay: index * 0.1 }}
                       whileHover={{ x: 4 }}
                     >
-                      <Link to={item.to}>{item.label}</Link>
+                      <Link to={item.to} onClick={closeMenu}>
+                        {item.label}
+                      </Link>
                     </motion.div>
                   ))}
                 </nav>
@@ -89,14 +94,15 @@ export default function MobileNav() {
                     {isInternalLink(settings.primaryCtaLink) ? (
                       <Link
                         to={settings.primaryCtaLink}
-                        onClick={() =>
+                        onClick={() => {
+                          closeMenu();
                           trackEvent("cta_click", {
                             metadata: {
                               cta_name: settings.primaryCtaText,
                               placement: "mobile_menu",
                             },
-                          })
-                        }
+                          });
+                        }}
                         className="block w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl shadow-lg text-center font-semibold"
                       >
                         {settings.primaryCtaText}

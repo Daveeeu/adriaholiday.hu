@@ -239,7 +239,7 @@ export default function CinematicHero() {
               </motion.div>
 
               <motion.div
-                className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-32 lg:mb-36"
+                className="grid grid-cols-2 md:grid-cols-4 gap-8 md:mb-32 lg:mb-36"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.1 }}
@@ -385,8 +385,9 @@ export default function CinematicHero() {
         </div>
       </div>
 
+      {/* Below md the form is four rows tall: pinned to the bottom it would cover the buttons above, so it follows them instead. */}
       <motion.div
-        className="absolute bottom-0 left-0 right-0 z-40 pb-10 px-8 md:px-12 lg:px-20"
+        className="relative z-40 pb-10 px-8 md:absolute md:bottom-0 md:left-0 md:right-0 md:px-12 lg:px-20"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.5 }}

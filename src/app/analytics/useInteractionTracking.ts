@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 
 import type { AnalyticsEventName, AnalyticsTrackPayload } from "./event-catalog";
-import { describeClick, reachedScrollThresholds } from "./interaction-events.js";
+import { describeClick, opensAnotherPage, reachedScrollThresholds } from "./interaction-events.js";
+import { afterNextPaint } from "../lib/afterNextPaint";
 
 type Dispatch = (eventName: AnalyticsEventName, payload?: AnalyticsTrackPayload) => void;
 
@@ -28,6 +29,12 @@ function sectionOf(element: Element): string | null {
  * Reports what visitors click (links and buttons, by their visible label and
  * page section) and how far they scroll each page (25/50/75/90%). `pageKey`
  * changes on navigation, which restarts the scroll milestones.
+ *
+ * GTM runs its tags synchronously on each push, so button clicks and scroll
+ * milestones are handed to it only after the next paint and never slow the
+ * page's response. A link to another page is reported at once: GA4 reads the
+ * page from the address bar, which by the next paint already shows the
+ * destination (or the page is unloading).
  */
 export function useInteractionTracking(dispatch: Dispatch, pageKey: string) {
   useEffect(() => {
@@ -46,8 +53,14 @@ export function useInteractionTracking(dispatch: Dispatch, pageKey: string) {
         section: sectionOf(target),
       });
 
-      if (click) {
+      if (!click) {
+        return;
+      }
+
+      if (opensAnotherPage(click)) {
         dispatch("ui_click", { metadata: click });
+      } else {
+        afterNextPaint(() => dispatch("ui_click", { metadata: click }));
       }
     }
 
@@ -67,7 +80,7 @@ export function useInteractionTracking(dispatch: Dispatch, pageKey: string) {
       for (const threshold of reachedScrollThresholds(window.scrollY, window.innerHeight, page.scrollHeight)) {
         if (!reported.has(threshold)) {
           reported.add(threshold);
-          dispatch("scroll_depth", { metadata: { percent_scrolled: threshold } });
+          afterNextPaint(() => dispatch("scroll_depth", { metadata: { percent_scrolled: threshold } }));
         }
       }
     }

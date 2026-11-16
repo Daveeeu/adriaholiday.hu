@@ -10,8 +10,10 @@ import { CLUB_TERMS_PATH, TRAVEL_CLUB_PATH } from "./app/newsletter/travel-club"
 import { INSURANCE_PATH } from "./app/booking/insurance";
 import { SALES_ASSISTANT_PATH } from "./app/sales-assistant/sales-assistant-path";
 import { reloadOnStaleChunk } from "./app/lib/staleChunkReload";
+import { forgetPageLoadScrollPosition } from "./app/lib/scrollRestoration";
 
 reloadOnStaleChunk();
+forgetPageLoadScrollPosition();
 
 const HomeRoute = lazy(() => import("./app/routes/HomeRoute"));
 const StaticPage = lazy(() => import("./app/routes/StaticPage"));
