@@ -103,7 +103,6 @@ type BookingDetailResource = BookingResource & {
   tourDateId: string | null;
   tourDate: TourBookingTourDate | null;
   adminNote: string | null;
-  seatsReserved: boolean;
   formDataFields: BookingDynamicField[];
   pendingDetails?: BookingPendingDetails[];
   passengerFields: BookingDynamicField[][];
@@ -147,7 +146,6 @@ function mapTourBookingDetail(resource: BookingDetailResource): TourBookingDetai
     tourDateId: resource.tourDateId,
     tourDate: resource.tourDate,
     adminNote: resource.adminNote ?? '',
-    seatsReserved: resource.seatsReserved,
     formDataFields: resource.formDataFields ?? [],
     passengerFields: resource.passengerFields ?? [],
     pendingDetails: resource.pendingDetails ?? [],

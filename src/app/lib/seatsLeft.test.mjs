@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { seatsLeftLabel, seatsOf } from "./seatsLeft.ts";
+import { seatsLeftLabel } from "./seatsLeft.ts";
 
 test("seats are shown only when 15 or fewer are left", () => {
   assert.equal(seatsLeftLabel(15), "Már csak 15 hely");
@@ -16,8 +16,3 @@ test("unknown or sold-out seats show nothing", () => {
   assert.equal(seatsLeftLabel(0), null);
 });
 
-test("the price box's seats win over the date's own count", () => {
-  assert.equal(seatsOf({ priceBox: { availableSeats: 4 }, seatsLeft: 20 }), 4);
-  assert.equal(seatsOf({ priceBox: { availableSeats: null }, seatsLeft: 20 }), 20);
-  assert.equal(seatsOf({ priceBox: null }), null);
-});

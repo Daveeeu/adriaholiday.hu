@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\BlogCategory;
 use App\Models\BlogCategoryTranslation;
+use App\Models\Booking;
 use App\Models\Tour;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,9 +96,6 @@ class PortfolioOffersTest extends TestCase
                 'urgencyText',
                 'ratingText',
                 'minParticipants',
-                'maxParticipants',
-                'availableSeats',
-                'capacity',
                 'ctaPrimaryLabel',
                 'ctaSecondaryLabel',
             ],
@@ -130,11 +128,9 @@ class PortfolioOffersTest extends TestCase
                         'displayedPrice',
                         'discountBadge',
                         'minParticipants',
-                        'maxParticipants',
-                        'availableSeats',
-                        'capacity',
                     ],
                     'status',
+                    'freeSeats',
                 ],
             ],
             'departurePlaces',
@@ -240,6 +236,34 @@ class PortfolioOffersTest extends TestCase
         $this->getJson('/api/portfolio/offers/nincs-ilyen')
             ->assertNotFound()
             ->assertJsonPath('message', 'Az ajánlat nem található.');
+    }
+
+    public function test_the_trip_page_shows_each_dates_free_seats_and_a_full_date_as_sold_out(): void
+    {
+        $tour = Tour::factory()->create(['active' => true, 'seo_name' => 'szabad-helyek']);
+        $open = $tour->dates()->create(['start_date' => today()->addMonth(), 'end_date' => today()->addMonth()->addDays(3), 'status' => 'available', 'capacity' => 10]);
+        $full = $tour->dates()->create(['start_date' => today()->addMonths(2), 'end_date' => today()->addMonths(2)->addDays(3), 'status' => 'available', 'capacity' => 4]);
+        $tour->dates()->create(['start_date' => today()->addMonths(3), 'end_date' => today()->addMonths(3)->addDays(3), 'status' => 'available']);
+        foreach ([[$open, 3], [$full, 4]] as [$date, $passengers]) {
+            Booking::factory()->create([
+                'booking_type' => 'tour_booking',
+                'status' => 'confirmed',
+                'cancelled' => false,
+                'tour_id' => $tour->id,
+                'tour_date_id' => $date->id,
+                'passenger_count' => $passengers,
+            ]);
+        }
+
+        $dates = collect($this->getJson('/api/portfolio/offers/szabad-helyek')->assertOk()->json('dates'))->keyBy('id');
+
+        $this->assertSame(7, $dates[$open->id]['freeSeats']);
+        $this->assertSame('available', $dates[$open->id]['status']);
+        $this->assertSame(0, $dates[$full->id]['freeSeats']);
+        $this->assertSame('sold_out', $dates[$full->id]['status']);
+        $this->assertNull($dates->last()['freeSeats']);
+        $this->assertArrayNotHasKey('capacity', $dates[$open->id]);
+        $this->assertArrayNotHasKey('seatsHeld', $dates[$open->id]);
     }
 
     public function test_public_portfolio_offer_list_returns_paginated_envelope(): void

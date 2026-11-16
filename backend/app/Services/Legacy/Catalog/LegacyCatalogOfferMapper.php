@@ -178,6 +178,7 @@ final class LegacyCatalogOfferMapper
     {
         $fields = $departure['fields'];
         $price = LegacyBookingOptionRules::datePrice($this->number($departure['price'] ?? null), $this->number($departure['sale_price'] ?? null));
+        // The legacy seats left; the imported date has no booking yet, so they are its capacity.
         $monitored = (bool) $departure['capacity_monitoring'];
         $seats = $monitored ? max(0, (int) ($departure['capacity'] ?? 0)) : null;
 
@@ -197,7 +198,7 @@ final class LegacyCatalogOfferMapper
             'price_box_displayed_price' => null,
             'price_box_discount_badge' => LegacyBookingOptionRules::discountBadge($this->number($fields['last_minute'] ?? null)),
             'price_box_label' => LegacyText::line($fields['comment'] ?? null),
-            'price_box_available_seats' => $seats,
+            'capacity' => $seats,
             'status' => match (true) {
                 ! $departure['active'] || $departure['status'] !== 'active' => TourDateStatus::CANCELLED,
                 $seats === 0 => TourDateStatus::SOLD_OUT,

@@ -34,7 +34,6 @@ export type PortfolioFeaturedTour = {
   programTypeLabel?: string | null;
   accommodation?: string | null;
   meals?: string | null;
-  seatsLeft?: number | null;
   additionalDates?: boolean;
   country?: string | null;
   categories?: Array<{ id: string; label: string }>;

@@ -75,7 +75,9 @@ class LegacyAdminOfferImporter
                 'price_box_original_price' => $date['original_price'],
                 'price_box_discount_badge' => $date['discount_badge'],
                 'price_box_label' => $date['label'],
-                'price_box_available_seats' => $date['available_seats'],
+                // The legacy admin lists the seats left; with no booking on the
+                // new date yet, they are its capacity.
+                'capacity' => $date['available_seats'],
                 'status' => $date['status'],
                 'departure_place_ids' => $this->dateDeparturePlaceIds($date['departure_places'], $placeIds),
                 'extras' => array_map(fn (array $extra): array => [

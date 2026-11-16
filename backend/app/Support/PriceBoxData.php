@@ -19,9 +19,6 @@ class PriceBoxData
             'urgencyText' => $tour->price_box_urgency_text,
             'ratingText' => $tour->price_box_rating_text,
             'minParticipants' => $tour->price_box_min_participants,
-            'maxParticipants' => $tour->price_box_max_participants,
-            'availableSeats' => $tour->price_box_available_seats,
-            'capacity' => $tour->price_box_capacity,
             'ctaPrimaryLabel' => $tour->price_box_cta_primary_label,
             'ctaSecondaryLabel' => $tour->price_box_cta_secondary_label,
         ]);
@@ -36,9 +33,6 @@ class PriceBoxData
             'discountBadge' => $date->price_box_discount_badge,
             'label' => $date->price_box_label,
             'minParticipants' => $date->price_box_min_participants,
-            'maxParticipants' => $date->price_box_max_participants,
-            'availableSeats' => $date->price_box_available_seats,
-            'capacity' => $date->price_box_capacity,
         ]);
     }
 
@@ -70,14 +64,7 @@ class PriceBoxData
             $data[$field] = self::normalizeString($data[$field] ?? null);
         }
 
-        foreach ([
-            'minParticipants',
-            'maxParticipants',
-            'availableSeats',
-            'capacity',
-        ] as $field) {
-            $data[$field] = self::normalizeInt($data[$field] ?? null);
-        }
+        $data['minParticipants'] = self::normalizeInt($data['minParticipants'] ?? null);
 
         if ($displayedPrice === null && $price !== null) {
             $displayedPrice = self::displayedPrice(

@@ -166,9 +166,6 @@ class AdminToursTest extends TestCase
                 'urgencyText' => '18 fő érdeklődött az elmúlt 72 órában',
                 'ratingText' => '4.9/5 utasértékelés',
                 'minParticipants' => '1',
-                'maxParticipants' => '49',
-                'availableSeats' => '12',
-                'capacity' => '49',
                 'ctaPrimaryLabel' => 'Ajánlatot kérek',
                 'ctaSecondaryLabel' => 'Lefoglalom az utat',
             ],
@@ -210,10 +207,8 @@ class AdminToursTest extends TestCase
                         'displayedPrice' => '199 900 Ft-tól',
                         'discountBadge' => '-15%',
                         'minParticipants' => '1',
-                        'maxParticipants' => '49',
-                        'availableSeats' => '12',
-                        'capacity' => '49',
                     ],
+                    'capacity' => '12',
                     'status' => 'available',
                 ],
                 [
@@ -225,10 +220,8 @@ class AdminToursTest extends TestCase
                         'displayedPrice' => '209 900 Ft-tól',
                         'discountBadge' => '-10%',
                         'minParticipants' => '1',
-                        'maxParticipants' => '49',
-                        'availableSeats' => '8',
-                        'capacity' => '49',
                     ],
+                    'capacity' => '8',
                     'status' => 'available',
                 ],
             ],
@@ -255,7 +248,7 @@ class AdminToursTest extends TestCase
         $createResponse->assertJsonPath('data.travelModeLabel', $travelMode->name);
         $createResponse->assertJsonPath('data.difficultyLabel', $difficulty->name);
         $createResponse->assertJsonPath('data.priceBox.displayedPrice', '199.900 Ft-tól');
-        $createResponse->assertJsonPath('data.dates.0.priceBox.availableSeats', 12);
+        $createResponse->assertJsonPath('data.dates.0.capacity', 12);
         $createResponse->assertJsonPath('data.countries.0.label', $countryHu->name);
         $createResponse->assertJsonPath('data.tags.0.label', 'Családi');
         $createResponse->assertJsonPath('data.categories.0.label', 'Klasszikus körutazás');
@@ -277,14 +270,13 @@ class AdminToursTest extends TestCase
             'end_date' => '2026-05-31 00:00:00',
             'status' => 'available',
             'price_box_displayed_price' => '199 900 Ft-tól',
-            'price_box_available_seats' => 12,
+            'capacity' => 12,
         ]);
         $this->assertDatabaseHas('tours', [
             'id' => $tourId,
             'homepage_offer_id' => $homepageOffer->id,
             'price_box_price' => 199900,
             'price_box_displayed_price' => '199 900 Ft-tól',
-            'price_box_available_seats' => 12,
             'couponable' => 1,
         ]);
         $this->assertDatabaseHas('tour_dates', [
@@ -293,7 +285,7 @@ class AdminToursTest extends TestCase
             'end_date' => '2026-06-15 00:00:00',
             'status' => 'available',
             'price_box_displayed_price' => '209 900 Ft-tól',
-            'price_box_available_seats' => 8,
+            'capacity' => 8,
         ]);
         $this->assertDatabaseHas('tour_partner_bonuses', [
             'tour_id' => $tourId,
@@ -383,9 +375,6 @@ class AdminToursTest extends TestCase
                 'urgencyText' => '14 fő érdeklődött az elmúlt 72 órában',
                 'ratingText' => '4.8/5 utasértékelés',
                 'minParticipants' => '1',
-                'maxParticipants' => '49',
-                'availableSeats' => '10',
-                'capacity' => '49',
                 'ctaPrimaryLabel' => 'Ajánlatot kérek',
                 'ctaSecondaryLabel' => 'Lefoglalom az utat',
             ],
@@ -419,10 +408,8 @@ class AdminToursTest extends TestCase
                         'displayedPrice' => '229 900 Ft-tól',
                         'discountBadge' => '-10%',
                         'minParticipants' => '1',
-                        'maxParticipants' => '49',
-                        'availableSeats' => '10',
-                        'capacity' => '49',
                     ],
+                    'capacity' => '10',
                     'status' => 'sold_out',
                 ],
             ],
@@ -459,7 +446,7 @@ class AdminToursTest extends TestCase
         $updateResponse->assertJsonPath('data.travelModeLabel', $travelMode->name);
         $updateResponse->assertJsonPath('data.difficultyLabel', $difficulty->name);
         $updateResponse->assertJsonPath('data.priceBox.displayedPrice', '229.900 Ft-tól');
-        $updateResponse->assertJsonPath('data.dates.0.priceBox.availableSeats', 10);
+        $updateResponse->assertJsonPath('data.dates.0.capacity', 10);
         $updateResponse->assertJsonCount(1, 'data.dates');
         $updateResponse->assertJsonCount(1, 'data.partnerBonuses');
         $updateResponse->assertJsonCount(2, 'data.priceItems');
@@ -476,14 +463,13 @@ class AdminToursTest extends TestCase
             'end_date' => '2026-07-04 00:00:00',
             'status' => 'sold_out',
             'price_box_displayed_price' => '229 900 Ft-tól',
-            'price_box_available_seats' => 10,
+            'capacity' => 10,
         ]);
         $this->assertDatabaseHas('tours', [
             'id' => $tourId,
             'homepage_offer_id' => null,
             'price_box_price' => 229900,
             'price_box_displayed_price' => '229 900 Ft-tól',
-            'price_box_available_seats' => 10,
             'couponable' => 0,
         ]);
         $this->assertDatabaseHas('tour_partner_bonuses', [
@@ -702,9 +688,6 @@ class AdminToursTest extends TestCase
                 'urgencyText' => '18 fő érdeklődött az elmúlt 72 órában',
                 'ratingText' => '4.9/5 utasértékelés',
                 'minParticipants' => '1',
-                'maxParticipants' => '49',
-                'availableSeats' => '12',
-                'capacity' => '49',
                 'ctaPrimaryLabel' => 'Ajánlatot kérek',
                 'ctaSecondaryLabel' => 'Lefoglalom az utat',
             ],
@@ -1018,6 +1001,45 @@ class AdminToursTest extends TestCase
                 'dates.0.end_date' => ['A(z) időpont vége nem lehet korábbi, mint időpont kezdete.'],
             ])
             ->assertJsonPath('message', 'Az egyik galéria sorhoz nincs kép kiválasztva. Válassz képet, vagy töröld a sort. (és még 1 hiba)');
+    }
+
+    public function test_a_date_capacity_cannot_go_below_its_booked_passengers_and_free_seats_are_shown(): void
+    {
+        $this->actingAsTourAdmin();
+        app()->setLocale('hu');
+        $date = ['startDate' => '2027-06-10', 'endDate' => '2027-06-13', 'price' => 99900, 'status' => 'available', 'capacity' => '10'];
+        $tourId = $this->postJson('/api/admin/tours', $this->payload(['seo_name' => 'kapacitas', 'dates' => [$date]]))
+            ->assertCreated()
+            ->assertJsonPath('data.dates.0.capacity', 10)
+            ->assertJsonPath('data.dates.0.freeSeats', 10)
+            ->json('data.id');
+        $tourDate = TourDate::query()->where('tour_id', $tourId)->sole();
+        Booking::factory()->create([
+            'booking_type' => 'tour_booking',
+            'status' => 'new',
+            'cancelled' => false,
+            'tour_id' => $tourId,
+            'tour_date_id' => $tourDate->id,
+            'passenger_count' => 6,
+        ]);
+
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload([
+            'seo_name' => 'kapacitas',
+            'dates' => [['id' => (string) $tourDate->id, ...$date, 'capacity' => '5']],
+        ]))
+            ->assertUnprocessable()
+            ->assertJsonPath('errors', [
+                'dates.0.capacity' => ['A(z) 2027.06.10. időpontra már 6 utas foglalt, a maximum létszám ennél nem lehet kevesebb.'],
+            ]);
+
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload([
+            'seo_name' => 'kapacitas',
+            'dates' => [['id' => (string) $tourDate->id, ...$date, 'capacity' => '8']],
+        ]))
+            ->assertOk()
+            ->assertJsonPath('data.dates.0.capacity', 8)
+            ->assertJsonPath('data.dates.0.seatsHeld', 6)
+            ->assertJsonPath('data.dates.0.freeSeats', 2);
     }
 
     private function actingAsTourAdmin(): void

@@ -239,6 +239,18 @@ Never duplicate permission checks.
 
 Reuse services.
 
+## Tour seats
+
+A tour date's `capacity` is the only seat figure anyone types: the most passengers
+the date takes (empty: no limit). There is no tour-level capacity. Free seats are
+never stored. `TourDate::freeSeats()` works them out as the capacity minus the
+passengers of the date's live bookings (`Booking::scopeHoldingSeats()`: tour bookings
+that are not cancelled or expired, whether made on the site, by the office or by an
+import). Load `TourDate::scopeWithSeatsHeld()` wherever dates are listed.
+`TourDate::effectiveStatus()` treats a date with no free seat as sold out. The public
+booking checks the free seats under a row lock on the date, in the same transaction
+that creates the booking.
+
 ---
 
 # React Architecture

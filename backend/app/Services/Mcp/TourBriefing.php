@@ -115,7 +115,8 @@ class TourBriefing
                     ...$this->catalog->departureDates($date),
                     'price_per_person' => $this->catalog->pricePerPerson($tour, $date),
                     'availability' => $this->catalog->availability($date),
-                    'capacity' => $date->price_box_capacity,
+                    'capacity' => $date->capacity,
+                    'free_seats' => $date->freeSeats(),
                     'booked_passengers_by_status' => $occupancy !== null ? ($occupancy[$date->id] ?? []) : 'nincs jogosultság a foglalásokhoz',
                     'extras' => $date->extras
                         ->map(fn (TourDateExtra $extra): array => [
@@ -147,7 +148,7 @@ class TourBriefing
     {
         return [
             ...self::summaryRelations(),
-            'dates' => fn ($query) => $query->upcoming()->with('extras'),
+            'dates' => fn ($query) => $query->upcoming()->withSeatsHeld()->with('extras'),
             'programDays',
             'priceItems',
             'departurePlaces',

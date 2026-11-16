@@ -27,7 +27,7 @@ class LegacyBookingImporterTest extends TestCase
         $this->tourDate = TourDate::factory()->for($this->tour)->create([
             'start_date' => '2026-10-24',
             'end_date' => '2026-10-25',
-            'price_box_available_seats' => 40,
+            'capacity' => 40,
         ]);
     }
 
@@ -97,7 +97,6 @@ class LegacyBookingImporterTest extends TestCase
         $this->assertSame($this->tour->id, $booking->tour_id);
         $this->assertSame($this->tourDate->id, $booking->tour_date_id);
         $this->assertSame(TourBookingStatus::CONFIRMED, $booking->status);
-        $this->assertFalse((bool) $booking->seats_reserved);
         $this->assertSame(2, $booking->passenger_count);
         $this->assertSame(170800.0, (float) $booking->total_amount);
         $this->assertSame('2026-10-06 20:39:29', $booking->created_at->format('Y-m-d H:i:s'));
@@ -109,7 +108,8 @@ class LegacyBookingImporterTest extends TestCase
             'passenger_birth_date' => '1982-03-04',
         ], $booking->payload['passengers'][1]);
         $this->assertStringContainsString('Biztosítás: ALFA Compass utasbiztosítás', $booking->admin_note);
-        $this->assertSame(40, $this->tourDate->fresh()->price_box_available_seats);
+        // The imported booking holds its passengers' seats like any other.
+        $this->assertSame(38, $this->tourDate->fresh()->freeSeats());
         Mail::assertNothingSent();
     }
 

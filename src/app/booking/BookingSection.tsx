@@ -40,7 +40,7 @@ import SimplePayLogo from "../components/SimplePayLogo";
 import { INSURANCE_PATH } from "./insurance";
 import { BookingTermsConsent, NewsletterConsent, PaymentDataTransferConsent } from "./BookingConsents";
 import { bringIntoView } from "../lib/bringIntoView";
-import { seatsLeftLabel, seatsOf } from "../lib/seatsLeft";
+import { seatsLeftLabel } from "../lib/seatsLeft";
 import { transportLabel } from "../lib/transport";
 import { formatHuf } from "../lib/price";
 
@@ -1157,7 +1157,7 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
         <SummaryChip label="Státusz" value={selectedDate.status} />
         <SummaryChip
           label="Szabad hely"
-          value={seatsLeftLabel(seatsOf({ priceBox, seatsLeft: selectedDate.seatsLeft }))}
+          value={seatsLeftLabel(selectedDate.seatsLeft)}
         />
         <SummaryChip label="Ellátás" value={trip.meals || null} />
         <SummaryChip label="Szállás" value={trip.hotel || null} />

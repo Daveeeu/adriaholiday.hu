@@ -55,7 +55,7 @@ class TourBookingPaymentTest extends TestCase
             'end_date' => today()->addDays(61),
             'price' => 45950,
             'price_box_price' => 45950,
-            'price_box_available_seats' => null,
+            'capacity' => null,
         ]);
     }
 

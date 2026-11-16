@@ -23,7 +23,6 @@ trait BuildsLegacyBookings
         $booking = new Booking([
             'booking_type' => $type,
             'status' => self::LEGACY_STATUS,
-            'seats_reserved' => false,
             'application_date' => $createdAt,
             'booking_date' => $createdAt,
             'admin_note' => $this->adminNote($record),

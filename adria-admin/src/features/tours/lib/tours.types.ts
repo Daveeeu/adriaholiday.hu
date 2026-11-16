@@ -49,6 +49,12 @@ export type TourDate = {
   displayedPrice?: string | null;
   priceBox?: TourPriceBox | null;
   status: TourDateStatus;
+  /** The most passengers the date takes; null: no limit. */
+  capacity?: number | null;
+  /** Passengers of the date's bookings not cancelled or expired. */
+  seatsHeld?: number;
+  /** Capacity less the seats held; null when the date has no limit. */
+  freeSeats?: number | null;
   departurePlaceIds?: number[];
   /** The date's own stay; empty: the tour's. */
   accommodation?: string | null;
@@ -133,9 +139,6 @@ export type TourPriceBox = {
   urgencyText: string | null;
   ratingText: string | null;
   minParticipants: number | null;
-  maxParticipants: number | null;
-  availableSeats: number | null;
-  capacity: number | null;
   ctaPrimaryLabel: string | null;
   ctaSecondaryLabel: string | null;
   /** Dates only: the pre-promotion price, shown struck through. */
@@ -154,9 +157,6 @@ export type TourPriceBoxFormValue = {
   urgencyText: string;
   ratingText: string;
   minParticipants: string;
-  maxParticipants: string;
-  availableSeats: string;
-  capacity: string;
   ctaPrimaryLabel: string;
   ctaSecondaryLabel: string;
 };
@@ -403,9 +403,6 @@ export const tourFormSchema = z.object({
     urgencyText: z.string(),
     ratingText: z.string(),
     minParticipants: z.string(),
-    maxParticipants: z.string(),
-    availableSeats: z.string(),
-    capacity: z.string(),
     ctaPrimaryLabel: z.string(),
     ctaSecondaryLabel: z.string(),
   }),
@@ -495,10 +492,8 @@ export const tourFormSchema = z.object({
           .regex(/^(\d+(\.\d+)?)?$/, 'Adj meg egy nem negatív árat.'),
         label: z.string().trim().max(64, 'Legfeljebb 64 karakter.'),
         minParticipants: z.string(),
-        maxParticipants: z.string(),
-        availableSeats: z.string(),
-        capacity: z.string(),
       }),
+      capacity: z.string().trim().regex(/^\d*$/, 'Adj meg egy nem negatív egész számot.'),
       extras: z.array(
         z.object({
           clientId: z.string(),
@@ -574,10 +569,8 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       originalPrice: date.priceBox?.originalPrice?.toString() ?? '',
       label: date.priceBox?.label ?? '',
       minParticipants: date.priceBox?.minParticipants?.toString() ?? '',
-      maxParticipants: date.priceBox?.maxParticipants?.toString() ?? '',
-      availableSeats: date.priceBox?.availableSeats?.toString() ?? '',
-      capacity: date.priceBox?.capacity?.toString() ?? '',
     },
+    capacity: date.capacity?.toString() ?? '',
     extras: (date.extras ?? []).map((extra) => ({
       clientId: createClientId(),
       name: extra.name,
@@ -666,9 +659,6 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       urgencyText: tour?.priceBox?.urgencyText ?? '',
       ratingText: tour?.priceBox?.ratingText ?? '',
       minParticipants: tour?.priceBox?.minParticipants?.toString() ?? '',
-      maxParticipants: tour?.priceBox?.maxParticipants?.toString() ?? '',
-      availableSeats: tour?.priceBox?.availableSeats?.toString() ?? '',
-      capacity: tour?.priceBox?.capacity?.toString() ?? '',
       ctaPrimaryLabel: tour?.priceBox?.ctaPrimaryLabel ?? '',
       ctaSecondaryLabel: tour?.priceBox?.ctaSecondaryLabel ?? '',
     },

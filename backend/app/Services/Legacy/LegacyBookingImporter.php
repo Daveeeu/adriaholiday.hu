@@ -117,7 +117,6 @@ class LegacyBookingImporter
                 ...$attributes,
                 'booking_type' => 'tour_booking',
                 'status' => $cancelled ? TourBookingStatus::CANCELLED : TourBookingStatus::CONFIRMED,
-                'seats_reserved' => false,
                 'offer_code' => $code,
                 'booking_date' => $createdAt,
                 'admin_note' => $this->adminNote($record, $legacyId, $tour === null),

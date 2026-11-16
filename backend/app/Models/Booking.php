@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use App\Support\Booking\TourBookingStatus;
 use Database\Factories\BookingFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,7 +29,6 @@ class Booking extends Model
         'tour_id',
         'tour_date_id',
         'admin_note',
-        'seats_reserved',
         'customer_name',
         'email',
         'phone',
@@ -81,9 +82,26 @@ class Booking extends Model
         'paid_amount' => 'decimal:2',
         'credited' => 'boolean',
         'cancelled' => 'boolean',
-        'seats_reserved' => 'boolean',
         'payload' => 'array',
     ];
+
+    /**
+     * Seats a booking holds: its passengers, at least one (a booking saved
+     * without a passenger count still takes a seat).
+     */
+    public const SEATS_HELD = 'CASE WHEN passenger_count IS NULL OR passenger_count = 0 THEN 1 ELSE passenger_count END';
+
+    /**
+     * Tour bookings that keep their seats on the date: every one not
+     * cancelled or expired, whether it came from the site, the office or the
+     * legacy system.
+     */
+    public function scopeHoldingSeats(Builder $query): void
+    {
+        $query->where('booking_type', 'tour_booking')
+            ->where('cancelled', false)
+            ->whereNotIn('status', [TourBookingStatus::CANCELLED, TourBookingStatus::EXPIRED]);
+    }
 
     public function region(): BelongsTo
     {

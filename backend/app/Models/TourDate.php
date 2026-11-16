@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsModelActivity;
+use App\Support\Tour\TourDateStatus;
 use Database\Factories\TourDateFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class TourDate extends Model
 {
@@ -29,9 +31,7 @@ class TourDate extends Model
         'price_box_discount_badge',
         'price_box_label',
         'price_box_min_participants',
-        'price_box_max_participants',
-        'price_box_available_seats',
-        'price_box_capacity',
+        'capacity',
         'status',
         'departure_place_ids',
         'accommodation',
@@ -41,6 +41,8 @@ class TourDate extends Model
         'xml_enabled',
         'partner_xml',
     ];
+
+    private ?int $countedSeatsHeld = null;
 
     protected $casts = [
         'sort_order' => 'integer',
@@ -55,9 +57,7 @@ class TourDate extends Model
         'price_box_price' => 'decimal:2',
         'price_box_original_price' => 'decimal:2',
         'price_box_min_participants' => 'integer',
-        'price_box_max_participants' => 'integer',
-        'price_box_available_seats' => 'integer',
-        'price_box_capacity' => 'integer',
+        'capacity' => 'integer',
     ];
 
     /**
@@ -69,6 +69,46 @@ class TourDate extends Model
         $query->where(fn (Builder $dates) => $dates
             ->whereNull('start_date')
             ->orWhereDate('start_date', '>=', today()));
+    }
+
+    /**
+     * Loads the seats the date's live bookings hold as `seats_held`, so
+     * seatsHeld() and freeSeats() need no query per date.
+     */
+    public function scopeWithSeatsHeld(Builder $query): void
+    {
+        $query->withSum(['bookings as seats_held' => fn (Builder $bookings) => $bookings->holdingSeats()], DB::raw(Booking::SEATS_HELD));
+    }
+
+    /**
+     * Passengers of the date's live bookings (see Booking::scopeHoldingSeats()):
+     * the figure scopeWithSeatsHeld() loaded, else counted once for this instance
+     * (kept off the attributes, so a later save does not try to write it).
+     */
+    public function seatsHeld(): int
+    {
+        if (array_key_exists('seats_held', $this->attributes)) {
+            return (int) $this->attributes['seats_held'];
+        }
+
+        return $this->countedSeatsHeld ??= (int) $this->bookings()->holdingSeats()->sum(DB::raw(Booking::SEATS_HELD));
+    }
+
+    /** Seats still free: the capacity less the seats held; null when the date has no limit. */
+    public function freeSeats(): ?int
+    {
+        return $this->capacity === null ? null : max(0, $this->capacity - $this->seatsHeld());
+    }
+
+    /**
+     * The status the site goes by: a date on sale whose seats are all taken
+     * is sold out, whatever the office last set.
+     */
+    public function effectiveStatus(): ?string
+    {
+        return TourDateStatus::isBookable($this->status) && $this->freeSeats() === 0
+            ? TourDateStatus::SOLD_OUT
+            : $this->status;
     }
 
     public function tour(): BelongsTo

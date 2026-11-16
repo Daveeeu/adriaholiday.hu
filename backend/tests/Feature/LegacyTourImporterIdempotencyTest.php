@@ -224,7 +224,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         $importer->import($this->offerData(), updateExisting: false);
         $tour = Tour::query()->where('seo_name', 'albania-makedoniaval-fuszerezve')->firstOrFail();
         $bookedDate = $tour->dates()->orderBy('start_date')->firstOrFail();
-        $bookedDate->update(['status' => 'available', 'price_box_available_seats' => 12]);
+        $bookedDate->update(['status' => 'available', 'capacity' => 12]);
         $booking = Booking::factory()->create(['tour_id' => $tour->id, 'tour_date_id' => $bookedDate->id]);
 
         $data = $this->offerData();
@@ -237,7 +237,7 @@ class LegacyTourImporterIdempotencyTest extends TestCase
         $this->assertEquals(259600, $bookedDate->price);
         $this->assertEquals(259600, $bookedDate->price_box_price);
         $this->assertSame('available', $bookedDate->status);
-        $this->assertSame(12, $bookedDate->price_box_available_seats);
+        $this->assertSame(12, $bookedDate->capacity);
         $this->assertCount(0, $bookedDate->extras);
     }
 

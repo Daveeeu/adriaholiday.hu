@@ -108,11 +108,11 @@ class LegacyCatalogImportTest extends TestCase
 
         [$departed, $first, $second] = $dates;
         $this->assertSame(TourDateStatus::SOLD_OUT, $departed->status);
-        $this->assertSame(0, $departed->price_box_available_seats);
+        $this->assertSame(0, $departed->capacity);
         $this->assertEquals(229900, $first->price);
         $this->assertEquals(238400, $first->price_box_original_price);
         $this->assertSame('Előfoglalási akció', $first->price_box_label);
-        $this->assertSame(45, $first->price_box_available_seats);
+        $this->assertSame(45, $first->capacity);
         $this->assertNull($first->accommodation);
         $this->assertSame('Hotel****', $second->accommodation);
         $this->assertSame('Medencés', $second->accommodation_info);
@@ -429,7 +429,7 @@ class LegacyCatalogImportTest extends TestCase
         $this->assertSame('Hotel****', $dates['2027-08-20']['accommodation']);
         $this->assertSame('Medencés', $dates['2027-08-20']['accommodationInfo']);
         $this->assertEquals(229900, $dates['2027-07-16']['priceBox']['price']);
-        $this->assertSame(45, $dates['2027-07-16']['priceBox']['availableSeats']);
+        $this->assertSame(45, $dates['2027-07-16']['freeSeats']);
     }
 
     public function test_an_imported_tour_can_be_duplicated_into_a_tour_of_the_site(): void

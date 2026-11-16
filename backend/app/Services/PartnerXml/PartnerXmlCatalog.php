@@ -57,6 +57,7 @@ final class PartnerXmlCatalog
                     ->whereDate('start_date', '>=', today())
                     ->whereNotNull('end_date')
                     ->orderBy('start_date')
+                    ->withSeatsHeld()
                     ->with('extras'),
             ])
             ->get()
@@ -96,7 +97,12 @@ final class PartnerXmlCatalog
                 ->map(fn ($item): array => ['url' => $item->media->getUrl(), 'primary' => $item->media->id === $mainImageId])
                 ->values()
                 ->all(),
-            'dates' => $tour->dates->map(fn (TourDate $date): array => $this->date($tour, $date, $places))->values()->all(),
+            // A date whose seats are all taken is left out, as a sold-out one is.
+            'dates' => $tour->dates
+                ->reject(fn (TourDate $date): bool => $date->freeSeats() === 0)
+                ->map(fn (TourDate $date): array => $this->date($tour, $date, $places))
+                ->values()
+                ->all(),
         ];
     }
 

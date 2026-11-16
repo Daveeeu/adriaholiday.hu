@@ -24,14 +24,14 @@ export function BookingTourCard({ booking }: { booking: TourBookingDetail }) {
         <DetailField label="Indulás dátuma" value={formatDate(booking.tourDate?.startDate ?? booking.departureDate)} />
         <DetailField label="Érkezés dátuma" value={formatDate(booking.tourDate?.endDate ?? null)} />
         <DetailField
-          label="Szabad helyek"
-          value={booking.tourDate?.availableSeats !== null && booking.tourDate?.availableSeats !== undefined
-            ? `${booking.tourDate.availableSeats} fő`
-            : null}
+          label="Maximum létszám"
+          value={booking.tourDate?.capacity != null ? `${booking.tourDate.capacity} fő` : null}
         />
         <DetailField
-          label="Maximum létszám"
-          value={booking.tourDate?.maxParticipants ? `${booking.tourDate.maxParticipants} fő` : null}
+          label="Foglalt / szabad"
+          value={booking.tourDate?.freeSeats != null
+            ? `${booking.tourDate.seatsHeld} fő foglalt, ${booking.tourDate.freeSeats} hely szabad`
+            : null}
         />
       </div>
     </FormSection>

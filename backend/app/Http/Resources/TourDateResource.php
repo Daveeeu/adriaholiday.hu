@@ -23,6 +23,11 @@ class TourDateResource extends JsonResource
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'priceBox' => $priceBox,
             'status' => $this->status,
+            // The most passengers the date takes (null: no limit), the seats its
+            // live bookings hold and those still free.
+            'capacity' => $this->capacity,
+            'seatsHeld' => $this->seatsHeld(),
+            'freeSeats' => $this->freeSeats(),
             'departurePlaceIds' => array_map('intval', $this->departure_place_ids ?? []),
             // The date's own stay; null: the tour's.
             'accommodation' => $this->accommodation,

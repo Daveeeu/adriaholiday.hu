@@ -105,7 +105,7 @@ final class LegacyCatalogVerifier
                 'price' => (float) $date->price !== (float) $legacy['price'],
                 'original price' => $date->price_box_original_price === null ? $legacy['price_box_original_price'] !== null : (float) $date->price_box_original_price !== (float) $legacy['price_box_original_price'],
                 'status' => $date->status !== $legacy['status'],
-                'seats' => $date->price_box_available_seats !== $legacy['price_box_available_seats'],
+                'seats' => $date->capacity !== $legacy['capacity'],
                 'extras' => $date->extras_count !== count($legacy['extras']),
             ]);
 

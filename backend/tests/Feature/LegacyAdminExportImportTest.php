@@ -54,7 +54,7 @@ class LegacyAdminExportImportTest extends TestCase
         $date->refresh();
         $this->assertSame($date->id, $booking->fresh()->tour_date_id);
         $this->assertSame(TourDateStatus::AVAILABLE, $date->status);
-        $this->assertSame(12, (int) $date->price_box_available_seats);
+        $this->assertSame(12, (int) $date->capacity);
         $this->assertEquals(199000, $date->price_box_price);
         $this->assertSame(TourExtraChargeRule::SOLO_TRAVELLER, $date->extras()->sole()->charge_rule);
 

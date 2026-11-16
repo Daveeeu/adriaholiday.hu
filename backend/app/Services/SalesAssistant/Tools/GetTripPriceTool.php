@@ -145,10 +145,10 @@ class GetTripPriceTool implements SalesAssistantTool
 
         $date = $this->catalog->findDeparture($tour, $departureId);
 
-        if (! TourDateStatus::isBookable($date->status)) {
+        if (! TourDateStatus::isBookable($date->effectiveStatus())) {
             throw new SalesAssistantToolException(
                 'departure_not_bookable',
-                "This departure is {$date->status} in the catalog and cannot be booked. Offer another departure.",
+                "This departure is {$date->effectiveStatus()} in the catalog and cannot be booked. Offer another departure.",
             );
         }
 

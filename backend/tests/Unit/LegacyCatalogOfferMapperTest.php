@@ -47,7 +47,7 @@ class LegacyCatalogOfferMapperTest extends TestCase
         $this->assertEquals(229900, $date['price']);
         $this->assertEquals(229900, $date['price_box_price']);
         $this->assertEquals(238400, $date['price_box_original_price']);
-        $this->assertSame(45, $date['price_box_available_seats']);
+        $this->assertSame(45, $date['capacity']);
         $this->assertSame(TourDateStatus::AVAILABLE, $date['status']);
         // The tour's price comes from its upcoming bookable dates.
         $this->assertEquals(229900, $offer->attributes['price']);
@@ -62,7 +62,7 @@ class LegacyCatalogOfferMapperTest extends TestCase
         $inactive = collect($mapper->map($this->offer(30), Carbon::parse('2026-10-15'))->dates)->firstWhere('legacy_id', 14001);
 
         $this->assertSame(TourDateStatus::SOLD_OUT, $full['status']);
-        $this->assertSame(0, $full['price_box_available_seats']);
+        $this->assertSame(0, $full['capacity']);
         $this->assertSame(TourDateStatus::CANCELLED, $inactive['status']);
         $this->assertFalse($inactive['legacy_attributes']['active']);
     }

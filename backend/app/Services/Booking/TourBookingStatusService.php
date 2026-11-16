@@ -4,17 +4,16 @@ namespace App\Services\Booking;
 
 use App\Models\AnalyticsEvent;
 use App\Models\Booking;
-use App\Models\TourDate;
 use App\Support\Analytics\AnalyticsEventName;
 use App\Support\Booking\TourBookingStatus;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Applies a status transition to a tour_booking, reserving or releasing
- * the tour date's seat capacity as the booking moves in and out of the
- * "confirmed" state, and records a booking_status_change analytics event.
+ * Applies a status transition to a tour_booking and records a
+ * booking_status_change analytics event. Seats need no bookkeeping here:
+ * a booking holds its seats until it is cancelled or expires
+ * (Booking::scopeHoldingSeats()), and neither status can be left again.
  */
 class TourBookingStatusService
 {
@@ -28,63 +27,11 @@ class TourBookingStatusService
             ]);
         }
 
-        DB::transaction(function () use ($booking, $nextStatus): void {
-            $seatsReserved = $booking->seats_reserved;
-
-            if ($nextStatus === TourBookingStatus::CONFIRMED && ! $seatsReserved) {
-                $seatsReserved = $this->reserveSeats($booking);
-            }
-
-            if (in_array($nextStatus, [TourBookingStatus::CANCELLED, TourBookingStatus::EXPIRED], true)
-                && $seatsReserved) {
-                $this->releaseSeats($booking);
-                $seatsReserved = false;
-            }
-
-            $booking->update(['status' => $nextStatus, 'seats_reserved' => $seatsReserved]);
-        });
+        $booking->update(['status' => $nextStatus]);
 
         $this->recordStatusChangeEvent($booking, $currentStatus, $nextStatus, $actorId);
 
         return $booking->refresh();
-    }
-
-    private function reserveSeats(Booking $booking): bool
-    {
-        if (! $booking->tour_date_id) {
-            return false;
-        }
-
-        $tourDate = TourDate::query()->whereKey($booking->tour_date_id)->lockForUpdate()->first();
-
-        if (! $tourDate || $tourDate->price_box_available_seats === null) {
-            return false;
-        }
-
-        $requested = $booking->passenger_count ?: 1;
-
-        if ($tourDate->price_box_available_seats < $requested) {
-            throw ValidationException::withMessages([
-                'status' => 'Nincs elég szabad hely a megerősítéshez ezen az időponton.',
-            ]);
-        }
-
-        $tourDate->decrement('price_box_available_seats', $requested);
-
-        return true;
-    }
-
-    private function releaseSeats(Booking $booking): void
-    {
-        if (! $booking->tour_date_id) {
-            return;
-        }
-
-        $tourDate = TourDate::query()->whereKey($booking->tour_date_id)->lockForUpdate()->first();
-
-        if ($tourDate && $tourDate->price_box_available_seats !== null) {
-            $tourDate->increment('price_box_available_seats', $booking->passenger_count ?: 1);
-        }
     }
 
     private function recordStatusChangeEvent(Booking $booking, string $from, string $to, ?int $actorId): void

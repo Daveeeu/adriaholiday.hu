@@ -262,9 +262,6 @@ class BruggeLondonParizsTourSeeder extends Seeder
             'price_box_urgency_text' => null,
             'price_box_rating_text' => null,
             'price_box_min_participants' => null,
-            'price_box_max_participants' => null,
-            'price_box_available_seats' => null,
-            'price_box_capacity' => null,
             'price_box_cta_primary_label' => 'Ajánlatot kérek',
             'price_box_cta_secondary_label' => null,
             'displayed_price' => '273.600,-Ft/fő-től',
@@ -392,9 +389,6 @@ class BruggeLondonParizsTourSeeder extends Seeder
             'price_box_displayed_price' => '273.600,-Ft/fő-től',
             'price_box_discount_badge' => null,
             'price_box_min_participants' => null,
-            'price_box_max_participants' => null,
-            'price_box_available_seats' => null,
-            'price_box_capacity' => null,
             'status' => 'available',
         ]);
     }

@@ -35,7 +35,7 @@ class TripCatalog
     {
         return [
             'region',
-            'dates' => fn ($query) => $query->upcoming(),
+            'dates' => fn ($query) => $query->upcoming()->withSeatsHeld(),
             'media',
             'galleryItems.media',
         ];
@@ -109,7 +109,7 @@ class TripCatalog
     public function bookableDepartures(Tour $tour): Collection
     {
         return $this->scheduledDepartures($tour)
-            ->filter(fn (TourDate $date): bool => TourDateStatus::isBookable($date->status))
+            ->filter(fn (TourDate $date): bool => TourDateStatus::isBookable($date->effectiveStatus()))
             ->values();
     }
 
@@ -153,9 +153,9 @@ class TripCatalog
     public function availability(TourDate $date): array
     {
         return [
-            'status' => (string) ($date->status ?: 'unknown'),
-            'bookable' => TourDateStatus::isBookable($date->status),
-            'seats_left' => $date->price_box_available_seats,
+            'status' => (string) ($date->effectiveStatus() ?: 'unknown'),
+            'bookable' => TourDateStatus::isBookable($date->effectiveStatus()),
+            'seats_left' => $date->freeSeats(),
             'confirmed' => false,
             'source' => self::PRICE_SOURCE,
             ...$this->freshness($date->updated_at),

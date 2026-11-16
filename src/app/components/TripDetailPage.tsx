@@ -43,7 +43,7 @@ import TripSectionNav from "./TripSectionNav";
 import { TRIP_DATES_ID, tripSection } from "../lib/tripSection";
 import InfoPopover from "./InfoPopover";
 import { companyYears } from "../lib/companyYears";
-import { seatsLeftLabel, seatsOf } from "../lib/seatsLeft";
+import { seatsLeftLabel } from "../lib/seatsLeft";
 import { transportLabel } from "../lib/transport";
 import { routeNamedIn, routeStops } from "../lib/tripRoute";
 import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
@@ -149,7 +149,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   }, [hash]);
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
-  const selectedSeats = seatsOf({ priceBox, seatsLeft: selectedDate.seatsLeft });
+  const selectedSeats = selectedDate.seatsLeft ?? null;
   const offeredDeparturePlaces =
     selectedDate.departurePlaceIds.length > 0
       ? trip.departurePlaces.filter((place) => selectedDate.departurePlaceIds.includes(Number(place.id)))

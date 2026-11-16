@@ -181,12 +181,12 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
 
-        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates.extras', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return $this->detail($tour);
     }
 
     public function show(Tour $tour)
     {
-        return new TourDetailResource($tour->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates.extras', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return $this->detail($tour);
     }
 
     public function update(UpdateTourRequest $request, Tour $tour)
@@ -259,7 +259,7 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
 
-        return new TourDetailResource($tour->refresh()->load(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'dates.extras', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return $this->detail($tour->refresh());
     }
 
     public function destroy(Tour $tour)
@@ -315,9 +315,7 @@ class TourController extends Controller
                 'price_box_original_price' => $date->price_box_original_price,
                 'price_box_label' => $date->price_box_label,
                 'price_box_min_participants' => $date->price_box_min_participants,
-                'price_box_max_participants' => $date->price_box_max_participants,
-                'price_box_available_seats' => $date->price_box_available_seats,
-                'price_box_capacity' => $date->price_box_capacity,
+                'capacity' => $date->capacity,
                 'status' => $date->status,
                 'departure_place_ids' => $date->departure_place_ids,
                 'accommodation' => $date->accommodation,
@@ -373,7 +371,7 @@ class TourController extends Controller
             return $copy;
         });
 
-        return new TourDetailResource($duplicate->load(['region', 'dates.extras', 'partnerBonuses', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return $this->detail($duplicate);
     }
 
     public function reorder(ReorderToursRequest $request)
@@ -454,6 +452,25 @@ class TourController extends Controller
         return $content;
     }
 
+    /**
+     * The tour as the admin edits it, each date with the seats its bookings hold.
+     */
+    private function detail(Tour $tour): TourDetailResource
+    {
+        return new TourDetailResource($tour->load([
+            'region',
+            'homepageOffer.translations',
+            'bookingFormTemplate.templateFields.field',
+            'dates' => fn ($dates) => $dates->withSeatsHeld()->with('extras'),
+            'partnerBonuses',
+            'departurePlaces',
+            'media',
+            'priceItems',
+            'programDays',
+            'galleryItems.media',
+        ]));
+    }
+
     private function tourPriceBoxAttributes(array $validated): array
     {
         $price = $validated['price_box_price'] ?? $validated['price'] ?? null;
@@ -471,9 +488,6 @@ class TourController extends Controller
             'price_box_urgency_text' => $validated['price_box_urgency_text'] ?? null,
             'price_box_rating_text' => $validated['price_box_rating_text'] ?? null,
             'price_box_min_participants' => $validated['price_box_min_participants'] ?? null,
-            'price_box_max_participants' => $validated['price_box_max_participants'] ?? null,
-            'price_box_available_seats' => $validated['price_box_available_seats'] ?? null,
-            'price_box_capacity' => $validated['price_box_capacity'] ?? null,
             'price_box_cta_primary_label' => $validated['price_box_cta_primary_label'] ?? null,
             'price_box_cta_secondary_label' => $validated['price_box_cta_secondary_label'] ?? null,
         ];

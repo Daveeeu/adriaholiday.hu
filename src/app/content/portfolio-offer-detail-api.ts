@@ -61,7 +61,10 @@ export type PortfolioOfferDetailDate = {
   price?: number | null;
   displayedPrice?: string | null;
   priceBox?: PortfolioPriceBox | null;
+  /** "sold_out" also when no seat is left. */
   status?: string | null;
+  /** Seats still free on the date; null when it has no limit. */
+  freeSeats?: number | null;
   /** The trip price share of the deposit if booked today (100: paid in full). */
   depositPercent?: number | null;
   /** A booking whose trip price is below this is paid in full. */
@@ -91,9 +94,6 @@ export type PortfolioPriceBox = {
   urgencyText?: string | null;
   ratingText?: string | null;
   minParticipants?: number | null;
-  maxParticipants?: number | null;
-  availableSeats?: number | null;
-  capacity?: number | null;
   ctaPrimaryLabel?: string | null;
   ctaSecondaryLabel?: string | null;
 };
@@ -206,7 +206,6 @@ export type PortfolioOfferDetail = {
   mealsInfo?: string | null;
   country?: string | null;
   duration?: string | null;
-  seatsLeft?: number | null;
   additionalDates?: boolean;
   couponable?: boolean;
   departureDate?: string | null;

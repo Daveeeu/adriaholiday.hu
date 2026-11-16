@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 
 import { TOUR_DATE_STATUSES } from '../lib/tours.constants';
 import type { Tour, TourFormValues } from '../lib/tours.types';
+import { TourDateCapacityField } from './TourDateCapacityField';
 import { TourDateDeparturePlacesEditor } from './TourDateDeparturePlacesEditor';
 import { TourDateExtrasEditor } from './TourDateExtrasEditor';
 import { TourDatePartnerXmlFields } from './TourDatePartnerXmlFields';
@@ -51,10 +52,8 @@ function emptyTourDate(): TourDateFormValue {
       originalPrice: '',
       label: '',
       minParticipants: '',
-      maxParticipants: '',
-      availableSeats: '',
-      capacity: '',
     },
+    capacity: '',
     extras: [],
   };
 }
@@ -223,42 +222,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name={`dates.${index}.priceBox.availableSeats`}
-              render={({ field: dateField }) => (
-                <FormItem>
-                  <FormLabel>Szabad férőhely</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      placeholder="12"
-                      {...dateField}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name={`dates.${index}.priceBox.capacity`}
-              render={({ field: dateField }) => (
-                <FormItem>
-                  <FormLabel>Kapacitás</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      placeholder="49"
-                      {...dateField}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <TourDateCapacityField form={form} index={index} storedDates={tour?.dates} />
             <FormField
               control={form.control}
               name={`dates.${index}.priceBox.minParticipants`}
@@ -270,24 +234,6 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
                       type="number"
                       min={0}
                       placeholder="1"
-                      {...dateField}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name={`dates.${index}.priceBox.maxParticipants`}
-              render={({ field: dateField }) => (
-                <FormItem>
-                  <FormLabel>Maximum fő</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      placeholder="49"
                       {...dateField}
                     />
                   </FormControl>

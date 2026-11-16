@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin\Tour;
 
+use App\Http\Requests\Admin\Tour\Concerns\ValidatesDateCapacity;
 use App\Http\Requests\Admin\Tour\Concerns\ValidatesOptionalTourContent;
 use App\Http\Requests\Admin\Tour\Concerns\ValidatesTourBookingOptions;
 use App\Support\Tour\TourDateStatus;
@@ -11,7 +12,7 @@ use Illuminate\Validation\Rule;
 
 class UpdateTourRequest extends FormRequest
 {
-    use ValidatesOptionalTourContent, ValidatesTourBookingOptions;
+    use ValidatesDateCapacity, ValidatesOptionalTourContent, ValidatesTourBookingOptions;
 
     protected function prepareForValidation(): void
     {
@@ -77,9 +78,6 @@ class UpdateTourRequest extends FormRequest
             'price_box_urgency_text' => $this->input('price_box_urgency_text', $this->input('priceBox.urgencyText')),
             'price_box_rating_text' => $this->input('price_box_rating_text', $this->input('priceBox.ratingText')),
             'price_box_min_participants' => $this->input('price_box_min_participants', $this->input('priceBox.minParticipants')),
-            'price_box_max_participants' => $this->input('price_box_max_participants', $this->input('priceBox.maxParticipants')),
-            'price_box_available_seats' => $this->input('price_box_available_seats', $this->input('priceBox.availableSeats')),
-            'price_box_capacity' => $this->input('price_box_capacity', $this->input('priceBox.capacity')),
             'price_box_cta_primary_label' => $this->input('price_box_cta_primary_label', $this->input('priceBox.ctaPrimaryLabel')),
             'price_box_cta_secondary_label' => $this->input('price_box_cta_secondary_label', $this->input('priceBox.ctaSecondaryLabel')),
             'program_days' => collect($this->input('program_days', $this->input('programDays', [])))->map(function (array $day, int $index): array {
@@ -142,9 +140,8 @@ class UpdateTourRequest extends FormRequest
                     'price_box_original_price' => $date['price_box_original_price'] ?? $priceBox['originalPrice'] ?? null,
                     'price_box_label' => $date['price_box_label'] ?? $priceBox['label'] ?? null,
                     'price_box_min_participants' => $date['price_box_min_participants'] ?? $priceBox['minParticipants'] ?? null,
-                    'price_box_max_participants' => $date['price_box_max_participants'] ?? $priceBox['maxParticipants'] ?? null,
-                    'price_box_available_seats' => $date['price_box_available_seats'] ?? $priceBox['availableSeats'] ?? null,
-                    'price_box_capacity' => $date['price_box_capacity'] ?? $priceBox['capacity'] ?? null,
+                    // The most passengers the date takes; none: no limit.
+                    'capacity' => $date['capacity'] ?? null,
                     'status' => $date['status'] ?? TourDateStatus::AVAILABLE,
                     // Only some of the tour's departure places (none listed: all of them).
                     ...(array_key_exists('departure_place_ids', $date) || array_key_exists('departurePlaceIds', $date)
@@ -227,9 +224,6 @@ class UpdateTourRequest extends FormRequest
             'price_box_urgency_text' => ['nullable', 'string', 'max:255'],
             'price_box_rating_text' => ['nullable', 'string', 'max:255'],
             'price_box_min_participants' => ['nullable', 'integer', 'min:0'],
-            'price_box_max_participants' => ['nullable', 'integer', 'min:0'],
-            'price_box_available_seats' => ['nullable', 'integer', 'min:0'],
-            'price_box_capacity' => ['nullable', 'integer', 'min:0'],
             'price_box_cta_primary_label' => ['nullable', 'string', 'max:255'],
             'price_box_cta_secondary_label' => ['nullable', 'string', 'max:255'],
             'program_days' => ['nullable', 'array'],
@@ -284,9 +278,7 @@ class UpdateTourRequest extends FormRequest
             'dates.*.price_box_original_price' => ['nullable', 'numeric', 'min:0'],
             'dates.*.price_box_label' => ['nullable', 'string', 'max:64'],
             'dates.*.price_box_min_participants' => ['nullable', 'integer', 'min:0'],
-            'dates.*.price_box_max_participants' => ['nullable', 'integer', 'min:0'],
-            'dates.*.price_box_available_seats' => ['nullable', 'integer', 'min:0'],
-            'dates.*.price_box_capacity' => ['nullable', 'integer', 'min:0'],
+            'dates.*.capacity' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'dates.*.status' => ['nullable', 'string', Rule::in(TourDateStatus::all())],
             'dates.*.departure_place_ids' => ['nullable', 'array'],
             'dates.*.departure_place_ids.*' => ['integer', 'exists:tour_departure_places,id'],

@@ -189,7 +189,7 @@ class SalesAssistantToolsTest extends TestCase
     public function test_departures_report_catalog_availability_without_confirming_it(): void
     {
         $tour = $this->tourWithDate('velence', '2026-07-10', '2026-07-12');
-        TourDate::query()->where('tour_id', $tour->id)->update(['price_box_available_seats' => 4]);
+        TourDate::query()->where('tour_id', $tour->id)->update(['capacity' => 4]);
         TourDate::factory()->create(['tour_id' => $tour->id, 'start_date' => '2026-08-10', 'end_date' => '2026-08-12', 'status' => 'sold_out']);
         TourDate::factory()->create(['tour_id' => $tour->id, 'start_date' => '2026-05-10', 'end_date' => '2026-05-12']);
 

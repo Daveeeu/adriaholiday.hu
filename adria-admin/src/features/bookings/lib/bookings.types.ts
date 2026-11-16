@@ -83,9 +83,12 @@ export type TourBookingTourDate = {
   startDate: string | null;
   endDate: string | null;
   status: string | null;
-  availableSeats: number | null;
+  /** The most passengers the date takes; null: no limit. */
   capacity: number | null;
-  maxParticipants: number | null;
+  /** Passengers of the date's bookings not cancelled or expired. */
+  seatsHeld: number;
+  /** Capacity less the seats held; null when the date has no limit. */
+  freeSeats: number | null;
 };
 
 export type TourBookingTourSummary = {
@@ -183,7 +186,6 @@ export type TourBookingDetail = TourBooking & {
   tourDateId: string | null;
   tourDate: TourBookingTourDate | null;
   adminNote: string;
-  seatsReserved: boolean;
   formDataFields: BookingDynamicField[];
   passengerFields: BookingDynamicField[][];
   /** Deferred details the customer has not given yet, by contact and passenger. */

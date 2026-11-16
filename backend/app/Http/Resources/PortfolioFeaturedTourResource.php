@@ -43,7 +43,6 @@ class PortfolioFeaturedTourResource extends JsonResource
             'programTypeLabel' => TourLabelResolver::referenceOptionLabel('program-type', $tour->program_type_id),
             'accommodation' => TourMeta::accommodation($tour),
             'meals' => TourMeta::meals($tour),
-            'seatsLeft' => isset($meta['seatsLeft']) ? (int) $meta['seatsLeft'] : null,
             'additionalDates' => (bool) ($meta['additionalDates'] ?? ($tour->dates->count() > 1)),
             'departureDateCount' => (int) $tour->dates->count(),
             'country' => TourMeta::country($tour),

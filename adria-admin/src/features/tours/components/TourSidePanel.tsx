@@ -250,9 +250,6 @@ function TourDetailView({ tour }: { tour: Tour }) {
           <DetailItem label="Urgency szöveg" value={priceBox?.urgencyText} />
           <DetailItem label="Értékelés szöveg" value={priceBox?.ratingText} />
           <DetailItem label="Minimum fő" value={priceBox?.minParticipants} />
-          <DetailItem label="Maximum fő" value={priceBox?.maxParticipants} />
-          <DetailItem label="Szabad férőhely" value={priceBox?.availableSeats} />
-          <DetailItem label="Kapacitás" value={priceBox?.capacity} />
           <DetailItem label="Elsődleges gomb" value={priceBox?.ctaPrimaryLabel} />
           <DetailItem label="Másodlagos gomb" value={priceBox?.ctaSecondaryLabel} />
         </div>

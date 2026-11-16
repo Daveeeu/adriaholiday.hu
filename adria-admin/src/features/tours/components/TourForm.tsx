@@ -420,45 +420,6 @@ export function TourForm({ form, tour }: TourFormProps) {
           />
           <FormField
             control={form.control}
-            name="priceBox.maxParticipants"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Maximum fő</FormLabel>
-                <FormControl>
-                  <Input type="number" min={0} placeholder="49" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.availableSeats"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Szabad férőhely</FormLabel>
-                <FormControl>
-                  <Input type="number" min={0} placeholder="12" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.capacity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Kapacitás</FormLabel>
-                <FormControl>
-                  <Input type="number" min={0} placeholder="49" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="priceBox.ctaPrimaryLabel"
             render={({ field }) => (
               <FormItem>
