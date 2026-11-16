@@ -256,13 +256,8 @@ export const tourEditorTopics: GuideTopic[] = [
           `${TOUR_PAGE}, az árdobozban.`,
         ),
         field(
-          'Minimum fő / Maximum fő',
-          'A csoport tervezett minimális és maximális létszáma.',
-          ADMIN_ONLY,
-        ),
-        field(
-          'Szabad férőhely / Kapacitás',
-          'Tájékoztató férőhely adatok.',
+          'Minimum fő',
+          'A csoport tervezett minimális létszáma. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.',
           ADMIN_ONLY,
         ),
         field(
@@ -660,7 +655,17 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Státusz',
-          '„Elérhető” vagy „Betelt”. Jelenleg csak az adminban tájékoztat: a weboldal minden jövőbeli időpontot foglalhatóként kínál, a státusztól függetlenül.',
+          '„Elérhető” vagy „Betelt”. A „Betelt” időpont a weboldalon „Betelt” felirattal látszik, nem foglalható, és kimarad a partnerportálok adataiból. Ha az időpont férőhelyei elfogytak, a rendszer magától betöltnek mutatja, akkor is, ha itt „Elérhető” áll.',
+          `${TOUR_PAGE} az időpontválasztóban, valamint a partnerportálok adataiban.`,
+        ),
+        field(
+          'Maximum létszám',
+          'Hány utast visz ez az indulás. Alatta látod, hány fő foglalt már rá és hány hely szabad. A foglalt létszámot a nem lemondott, nem lejárt foglalások utasai adják, a weboldalon, az irodában és importtal rögzítettek egyaránt. A szabad helyet nem kell beírni, a rendszer számolja. A mező nem állítható a már foglalt létszám alá; üresen hagyva nincs létszámkorlát.',
+          `${TOUR_PAGE}: a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt.`,
+        ),
+        field(
+          'Minimum fő',
+          'Az indulás tervezett minimális létszáma, belső tájékoztatásként.',
           ADMIN_ONLY,
         ),
         field(
@@ -727,7 +732,7 @@ export const tourEditorTopics: GuideTopic[] = [
         'A felárak sorrendje a fel/le nyilakkal állítható.',
       ]),
       warning(
-        'A betelt időpontot a „Betelt” státusz nem veszi le a weboldalról. Ha egy indulásra már nem lehet foglalni, töröld az időpontot. A rá érkezett foglalások megmaradnak, de a foglalás adatlapján ezután nem látszik a foglalt időpont – ezért törlés előtt jegyezd fel vagy ellenőrizd őket a Foglalások menüben.',
+        'Ha egy indulásra már nem lehet foglalni, ne töröld az időpontot, hanem állítsd „Betelt” státuszra. A törölt időpont foglalásai megmaradnak, de a foglalás adatlapján ezután nem látszik a foglalt időpont, és a férőhelyek sem számolhatók tovább.',
       ),
     ],
   },
