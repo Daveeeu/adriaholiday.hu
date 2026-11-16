@@ -103,7 +103,8 @@ class PortfolioContentTest extends TestCase
             ->assertOk()
             ->json()['about.team.member.2.image']['value'] ?? null;
 
-        $this->assertSame('kovacs-eszter.jpg', $image['fileName'] ?? null);
+        // Stored as a web-sized WebP; the photo on disk is left alone.
+        $this->assertSame('kovacs-eszter.webp', $image['fileName'] ?? null);
         $this->assertSame('Kovács Eszter', $image['alt'] ?? null);
         $this->assertFileExists($renamed);
     }

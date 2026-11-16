@@ -1000,6 +1000,26 @@ class AdminToursTest extends TestCase
         ]);
     }
 
+    public function test_a_rejected_save_explains_in_hungarian_what_is_missing(): void
+    {
+        $this->actingAsTourAdmin();
+        app()->setLocale('hu');
+
+        $tourId = $this->postJson('/api/admin/tours', $this->payload(['seo_name' => 'gdansk']))->assertCreated()->json('data.id');
+
+        $this->patchJson("/api/admin/tours/{$tourId}", $this->payload([
+            'seo_name' => 'gdansk',
+            'gallery' => [['clientId' => 'new-row', 'mediaId' => '', 'image' => '']],
+            'dates' => [['startDate' => '2027-06-13', 'endDate' => '2027-06-10']],
+        ]))
+            ->assertUnprocessable()
+            ->assertJsonPath('errors', [
+                'gallery.0.media_id' => ['Az egyik galéria sorhoz nincs kép kiválasztva. Válassz képet, vagy töröld a sort.'],
+                'dates.0.end_date' => ['A(z) időpont vége nem lehet korábbi, mint időpont kezdete.'],
+            ])
+            ->assertJsonPath('message', 'Az egyik galéria sorhoz nincs kép kiválasztva. Válassz képet, vagy töröld a sort. (és még 1 hiba)');
+    }
+
     private function actingAsTourAdmin(): void
     {
         $permissions = ['tours.viewAny', 'tours.view', 'tours.create', 'tours.update'];

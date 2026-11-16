@@ -218,6 +218,19 @@ Never block HTTP requests unnecessarily.
 
 Always optimize uploaded images.
 
+Every upload into the media library goes through `WebImageOptimizer`
+(`backend/app/Services/Media`): a JPEG, PNG or WebP is straightened, scaled down to
+2560 px on its long side and stored as WebP (quality 82), so camera originals up to
+40 MB / 8000 px are accepted but stored small. GIF, SVG, PDF, documents and videos are
+stored as they are and must fit `media-library.max_file_size`. Build upload rules with
+`MediaUploadRules::file()`, and pass any new upload path through the optimizer.
+
+The conversion drops the file's metadata, so the optimizer first reads the author,
+copyright and origin a photographer embedded (IPTC, then EXIF, `ImageRightsReader`).
+They are stored in the `media` columns `author`, `copyright`, `origin` and `license`
+(`MediaRights`). The office uses them to show that every photo is cleared for use,
+so keep them when copying or replacing media.
+
 Generate thumbnails when appropriate.
 
 Never send full-resolution images to admin tables.

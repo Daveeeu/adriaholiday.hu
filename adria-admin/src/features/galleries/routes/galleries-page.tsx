@@ -46,9 +46,12 @@ import {
   getMedia,
   listMedia,
   type MediaAsset,
+  type MediaRights,
+  toMediaRights,
   updateMedia,
   uploadMedia,
 } from '@/services/media-service';
+import { MediaRightsFields } from '@/components/media/media-rights-fields';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
 
@@ -327,6 +330,7 @@ function MediaDetailSheet({
   const [draftCategory, setDraftCategory] = useState<MediaCategory>('general');
   const [draftAlt, setDraftAlt] = useState('');
   const [draftTitle, setDraftTitle] = useState('');
+  const [draftRights, setDraftRights] = useState<MediaRights>(() => toMediaRights(media));
   const [copyState, setCopyState] = useState<'idle' | 'done'>('idle');
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
@@ -339,6 +343,7 @@ function MediaDetailSheet({
       setDraftCategory((media.category as MediaCategory) ?? 'general');
       setDraftAlt(media.alt ?? '');
       setDraftTitle(media.title ?? '');
+      setDraftRights(toMediaRights(media));
       setCopyState('idle');
       setConfirmDeleteOpen(false);
     }
@@ -354,6 +359,7 @@ function MediaDetailSheet({
         category: draftCategory,
         alt: draftAlt || undefined,
         title: draftTitle || undefined,
+        ...draftRights,
       });
     },
     onSuccess: async () => {
@@ -531,6 +537,7 @@ function MediaDetailSheet({
                     onChange={(event) => setDraftTitle(event.target.value)}
                   />
                 </label>
+                <MediaRightsFields value={draftRights} onChange={setDraftRights} disabled={!canUpdate} />
                 <div className="grid gap-3 rounded-2xl border bg-muted/20 p-4 text-sm">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-muted-foreground">Feltöltés dátuma</span>

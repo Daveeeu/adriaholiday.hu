@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { getValidationSummary } from '@/lib/api-errors';
 import { createClientId } from '@/lib/client-id';
 import { useAuthStore } from '@/store/auth-store';
 
@@ -255,8 +256,8 @@ export function ToursPage() {
       setPanelOpen(false);
       setSelectedTour(undefined);
     },
-    onError: () => {
-      toast.error('Nem sikerült létrehozni a körutazást.');
+    onError: (error) => {
+      toast.error('Nem sikerült létrehozni a körutazást.', { description: getValidationSummary(error) });
     },
   });
 
@@ -269,8 +270,8 @@ export function ToursPage() {
       setPanelOpen(false);
       setSelectedTour(undefined);
     },
-    onError: () => {
-      toast.error('Nem sikerült módosítani a körutazást.');
+    onError: (error) => {
+      toast.error('Nem sikerült módosítani a körutazást.', { description: getValidationSummary(error) });
     },
   });
 

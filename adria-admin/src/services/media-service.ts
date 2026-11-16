@@ -18,6 +18,11 @@ export type MediaAsset = {
   sourceId?: string | number | null;
   alt?: string | null;
   title?: string | null;
+  /** Who made the file and on what terms the site may use it. */
+  author?: string | null;
+  copyright?: string | null;
+  origin?: string | null;
+  license?: string | null;
   mimeType?: string | null;
   type?: 'image' | 'pdf' | 'document' | 'video' | 'file';
   extension?: string | null;
@@ -57,6 +62,23 @@ export async function getMedia(id: string | number) {
   return apiClient.get<MediaAsset>(`/api/admin/media/${id}`);
 }
 
+export type MediaRights = {
+  author: string;
+  copyright: string;
+  origin: string;
+  license: string;
+};
+
+/** A file's rights as the admin edits them (empty text for a missing one). */
+export function toMediaRights(media: MediaAsset | null | undefined): MediaRights {
+  return {
+    author: media?.author ?? '',
+    copyright: media?.copyright ?? '',
+    origin: media?.origin ?? '',
+    license: media?.license ?? '',
+  };
+}
+
 export async function updateMedia(
   id: string | number,
   metadata: {
@@ -65,7 +87,7 @@ export async function updateMedia(
     sourceId?: string | number;
     alt?: string;
     title?: string;
-  },
+  } & Partial<MediaRights>,
 ) {
   return apiClient.patch<MediaAsset>(`/api/admin/media/${id}`, metadata);
 }

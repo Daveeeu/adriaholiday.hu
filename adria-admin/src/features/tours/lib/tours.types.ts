@@ -716,33 +716,48 @@ export function getTourFormDefaults(tour?: Partial<Tour> | null): TourFormValues
   return mapTourToFormValues(tour);
 }
 
+const isBlank = (value: string | null | undefined) => (value ?? '').trim() === '';
+
+/**
+ * The form as it is saved: rows the user added but left completely empty (a
+ * gallery row without an image, an empty price item, program day or partner
+ * bonus) are dropped instead of failing the save.
+ */
 export function normalizeTourFormValues(values: TourFormValues): TourFormValues {
   return {
     ...values,
-    partnerBonuses: values.partnerBonuses.map((bonus, index) => ({
-      ...bonus,
-      sortOrder: bonus.sortOrder ?? index + 1,
-    })),
-    programDays: values.programDays.map((day, index) => ({
-      ...day,
-      sortOrder: day.sortOrder ?? index + 1,
-      dayNumber: day.dayNumber ?? index + 1,
-      badges: day.badges.map((badge, badgeIndex) => ({
-        ...badge,
-        clientId: badge.clientId ?? `${day.clientId}-${badgeIndex + 1}`,
+    partnerBonuses: values.partnerBonuses
+      .filter((bonus) => !isBlank(bonus.label) || !isBlank(bonus.value))
+      .map((bonus, index) => ({
+        ...bonus,
+        sortOrder: bonus.sortOrder ?? index + 1,
       })),
-    })),
-    gallery: values.gallery.map((item, index) => ({
-      ...item,
-      sortOrder: item.sortOrder ?? index + 1,
-    })),
+    programDays: values.programDays
+      .filter((day) => !isBlank(day.title) || !isBlank(day.description) || !isBlank(day.image))
+      .map((day, index) => ({
+        ...day,
+        sortOrder: day.sortOrder ?? index + 1,
+        dayNumber: day.dayNumber ?? index + 1,
+        badges: day.badges.map((badge, badgeIndex) => ({
+          ...badge,
+          clientId: badge.clientId ?? `${day.clientId}-${badgeIndex + 1}`,
+        })),
+      })),
+    gallery: values.gallery
+      .filter((item) => !isBlank(item.mediaId))
+      .map((item, index) => ({
+        ...item,
+        sortOrder: item.sortOrder ?? index + 1,
+      })),
     priceBox: {
       ...values.priceBox,
     },
-    priceItems: values.priceItems.map((item, index) => ({
-      ...item,
-      sortOrder: item.sortOrder ?? index + 1,
-    })),
+    priceItems: values.priceItems
+      .filter((item) => !isBlank(item.text))
+      .map((item, index) => ({
+        ...item,
+        sortOrder: item.sortOrder ?? index + 1,
+      })),
   };
 }
 

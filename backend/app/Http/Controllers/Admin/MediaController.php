@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MediaResource;
 use App\Models\AdminMediaItem;
+use App\Services\Media\WebImageOptimizer;
 use App\Support\MediaCategory;
+use App\Support\MediaRights;
+use App\Support\MediaUploadRules;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -86,27 +89,24 @@ class MediaController extends Controller
         return response()->json((new MediaResource($media))->resolve($request));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, WebImageOptimizer $optimizer)
     {
         $request->validate([
-            'file' => [
-                'required',
-                'file',
-                'max:20480',
-                'mimetypes:'.implode(',', self::ALLOWED_MIME_TYPES),
-            ],
+            'file' => MediaUploadRules::file(self::ALLOWED_MIME_TYPES, $request->file('file')),
             'category' => ['nullable', 'string', Rule::in(MediaCategory::values())],
             'sourceContext' => ['nullable', 'string', 'max:255'],
             'sourceId' => ['nullable', 'integer', 'min:1'],
             'alt' => ['nullable', 'string', 'max:255'],
             'title' => ['nullable', 'string', 'max:255'],
+            ...MediaRights::rules(),
         ]);
 
-        $item = AdminMediaItem::create();
         $file = $request->file('file');
-        $media = $item->addMedia($file)
+        $image = $optimizer->optimize($file, $file->getClientOriginalName());
+        $item = AdminMediaItem::create();
+        $media = $item->addMedia($image->file)
             ->usingName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
-            ->usingFileName($file->getClientOriginalName())
+            ->usingFileName($image->fileName)
             ->toMediaCollection('library');
 
         $media->forceFill([
@@ -124,6 +124,7 @@ class MediaController extends Controller
             'alt' => $request->input('alt'),
             'title' => $request->input('title'),
         ], static fn ($value) => $value !== null && $value !== '');
+        MediaRights::fillForUpload($media, $image, $request->only(MediaRights::FIELDS));
         $media->save();
 
         return response()->json((new MediaResource($media->fresh()))->resolve($request));
@@ -137,6 +138,7 @@ class MediaController extends Controller
             'sourceId' => ['nullable', 'integer', 'min:1'],
             'alt' => ['nullable', 'string', 'max:255'],
             'title' => ['nullable', 'string', 'max:255'],
+            ...MediaRights::rules(),
         ]);
 
         $media->forceFill([
@@ -154,6 +156,7 @@ class MediaController extends Controller
             'alt' => $media->alt,
             'title' => $media->title,
         ], static fn ($value) => $value !== null && $value !== '');
+        MediaRights::fillForUpdate($media, $validated);
         $media->save();
 
         return response()->json((new MediaResource($media->fresh()))->resolve($request));

@@ -3,11 +3,22 @@
 namespace App\Http\Requests\Admin\PortfolioContent;
 
 use App\Support\MediaCategory;
+use App\Support\MediaUploadRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UploadPortfolioContentBlockMediaRequest extends FormRequest
 {
+    private const ALLOWED_MIME_TYPES = [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+        'video/mp4',
+        'video/webm',
+        'video/quicktime',
+    ];
+
     public function authorize(): bool
     {
         return true;
@@ -16,12 +27,7 @@ class UploadPortfolioContentBlockMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => [
-                'required',
-                'file',
-                'max:20480',
-                'mimetypes:image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime',
-            ],
+            'file' => MediaUploadRules::file(self::ALLOWED_MIME_TYPES, $this->file('file')),
             'alt' => ['nullable', 'string', 'max:255'],
             'title' => ['nullable', 'string', 'max:255'],
             'category' => ['nullable', 'string', Rule::in(MediaCategory::values())],

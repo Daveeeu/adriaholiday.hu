@@ -3,7 +3,9 @@
 namespace App\Services\PortfolioContent;
 
 use App\Models\PortfolioContentBlock;
+use App\Services\Media\WebImageOptimizer;
 use App\Support\MediaCategory;
+use App\Support\MediaRights;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\UploadedFile;
 use InvalidArgumentException;
@@ -15,6 +17,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  */
 class PortfolioContentService
 {
+    public function __construct(private readonly WebImageOptimizer $images) {}
+
     /**
      * Replaces the block's draft media with the given file.
      *
@@ -28,12 +32,15 @@ class PortfolioContentService
             throw new InvalidArgumentException("The [{$block->key}] block does not hold media.");
         }
 
+        $image = $this->images->optimize($file, $fileName);
+
         $block->clearMediaCollection($collectionName);
 
-        $media = $block->addMedia($file)
-            ->preservingOriginal()
+        $media = $block->addMedia($image->file)
+            // The caller's own file stays; a temporary conversion is moved away.
+            ->preservingOriginal(! $image->converted)
             ->usingName(pathinfo($fileName, PATHINFO_FILENAME))
-            ->usingFileName($fileName)
+            ->usingFileName($image->fileName)
             ->toMediaCollection($collectionName);
 
         $properties = [
@@ -49,6 +56,7 @@ class PortfolioContentService
             ...($media->custom_properties ?? []),
             ...$properties,
         ], static fn ($value) => $value !== null && $value !== '');
+        MediaRights::fillForUpload($media, $image);
         $media->save();
 
         $block->updateDraftMediaMetadata([
