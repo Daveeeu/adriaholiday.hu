@@ -3,7 +3,12 @@ import AsyncCreatableSelect from 'react-select/async-creatable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 
 import type { SelectOption } from '../lib/tours.types';
@@ -13,6 +18,7 @@ import {
   type TourQuickCreateKind,
   type TourQuickCreateValues,
 } from './TourQuickCreateDialog';
+import { TourFormLabel } from './TourFieldHelp';
 
 type ReactSelectOption = {
   value: string;
@@ -26,15 +32,24 @@ function toReactSelectOption(option: SelectOption): ReactSelectOption {
   };
 }
 
-function upsertOption(options: SelectOption[], nextOption: SelectOption): SelectOption[] {
+function upsertOption(
+  options: SelectOption[],
+  nextOption: SelectOption,
+): SelectOption[] {
   return [
     ...options.filter((option) => option.value !== nextOption.value),
     nextOption,
   ];
 }
 
-function mergeOptions(current: SelectOption[], next: SelectOption[]): SelectOption[] {
-  return next.reduce((accumulator, option) => upsertOption(accumulator, option), current);
+function mergeOptions(
+  current: SelectOption[],
+  next: SelectOption[],
+): SelectOption[] {
+  return next.reduce(
+    (accumulator, option) => upsertOption(accumulator, option),
+    current,
+  );
 }
 
 type TourCreatableSelectFieldProps<TFieldValues extends FieldValues> = {
@@ -79,9 +94,10 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
   // Locally created options stay listed until the refetched query includes them.
   const options = useMemo(
     () =>
-      mergeOptions(mergeOptions(localOptions, data), fallbackOptions.map(normalizeSelectOption)).map(
-        toReactSelectOption,
-      ),
+      mergeOptions(
+        mergeOptions(localOptions, data),
+        fallbackOptions.map(normalizeSelectOption),
+      ).map(toReactSelectOption),
     [localOptions, data, fallbackOptions],
   );
 
@@ -91,24 +107,30 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
       name={name}
       render={({ field }) => {
         const selectedValue = isMulti
-          ? (Array.isArray(field.value) ? field.value : []).map((value: string | number) =>
-              options.find((option) => option.value === String(value)) ?? {
-                value: String(value),
-                label: fallbackOptions.find((option) => option.value === String(value))?.label ?? String(value),
-              },
+          ? (Array.isArray(field.value) ? field.value : []).map(
+              (value: string | number) =>
+                options.find((option) => option.value === String(value)) ?? {
+                  value: String(value),
+                  label:
+                    fallbackOptions.find(
+                      (option) => option.value === String(value),
+                    )?.label ?? String(value),
+                },
             )
-          : options.find((option) => option.value === String(field.value)) ?? (
-            field.value
+          : (options.find((option) => option.value === String(field.value)) ??
+            (field.value
               ? {
                   value: String(field.value),
-                  label: fallbackOptions.find((option) => option.value === String(field.value))?.label ?? String(field.value),
+                  label:
+                    fallbackOptions.find(
+                      (option) => option.value === String(field.value),
+                    )?.label ?? String(field.value),
                 }
-              : null
-          );
+              : null));
 
         return (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
+            <TourFormLabel>{label}</TourFormLabel>
             <FormControl>
               <AsyncCreatableSelect
                 unstyled
@@ -129,7 +151,9 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                     return [];
                   }
                 }}
-                menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
+                menuPortalTarget={
+                  typeof document !== 'undefined' ? document.body : undefined
+                }
                 menuPosition="fixed"
                 styles={{
                   menuPortal: (base) => ({
@@ -153,7 +177,14 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                     setLocalOptions((current) =>
                       nextOptions.reduce(
                         (accumulator, option) =>
-                          upsertOption(accumulator, normalizeSelectOption({ id: option.value, value: option.value, label: option.label })),
+                          upsertOption(
+                            accumulator,
+                            normalizeSelectOption({
+                              id: option.value,
+                              value: option.value,
+                              label: option.label,
+                            }),
+                          ),
                         current,
                       ),
                     );
@@ -162,15 +193,20 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                     return;
                   }
 
-                  const nextOption = nextValue ? (nextValue as ReactSelectOption) : null;
+                  const nextOption = nextValue
+                    ? (nextValue as ReactSelectOption)
+                    : null;
 
                   if (nextOption) {
                     setLocalOptions((current) =>
-                      upsertOption(current, normalizeSelectOption({
-                        id: nextOption.value,
-                        value: nextOption.value,
-                        label: nextOption.label,
-                      })),
+                      upsertOption(
+                        current,
+                        normalizeSelectOption({
+                          id: nextOption.value,
+                          value: nextOption.value,
+                          label: nextOption.label,
+                        }),
+                      ),
                     );
                   }
 
@@ -184,7 +220,9 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                       }
                     : undefined
                 }
-                formatCreateLabel={(inputValue) => `+ Új "${inputValue}" létrehozása`}
+                formatCreateLabel={(inputValue) =>
+                  `+ Új "${inputValue}" létrehozása`
+                }
                 noOptionsMessage={() => 'Nincs találat'}
                 loadingMessage={() => 'Betöltés...'}
                 classNames={{
@@ -200,7 +238,8 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                   multiValue: () =>
                     'rounded-md border border-border bg-muted px-1.5 py-0.5',
                   multiValueLabel: () => 'text-xs text-foreground',
-                  multiValueRemove: () => 'text-muted-foreground hover:bg-transparent hover:text-foreground',
+                  multiValueRemove: () =>
+                    'text-muted-foreground hover:bg-transparent hover:text-foreground',
                   menu: () =>
                     'mt-1 overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-lg',
                   menuPortal: () => '',
@@ -208,18 +247,24 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                   option: ({ isFocused, isSelected }) =>
                     cn(
                       'cursor-pointer px-3 py-2 text-sm',
-                      isFocused && !isSelected && 'bg-accent text-accent-foreground',
+                      isFocused &&
+                        !isSelected &&
+                        'bg-accent text-accent-foreground',
                       isSelected && 'bg-primary text-primary-foreground',
                     ),
-                  noOptionsMessage: () => 'px-3 py-2 text-sm text-muted-foreground',
-                  loadingMessage: () => 'px-3 py-2 text-sm text-muted-foreground',
+                  noOptionsMessage: () =>
+                    'px-3 py-2 text-sm text-muted-foreground',
+                  loadingMessage: () =>
+                    'px-3 py-2 text-sm text-muted-foreground',
                   indicatorsContainer: () => 'gap-1 px-2',
                   dropdownIndicator: () => 'text-muted-foreground',
                   clearIndicator: () => 'text-muted-foreground',
                 }}
               />
             </FormControl>
-            {description ? <p className="text-xs text-muted-foreground">{description}</p> : null}
+            {description ? (
+              <p className="text-xs text-muted-foreground">{description}</p>
+            ) : null}
             <FormMessage />
 
             {quickCreateKind && createFn ? (
@@ -243,7 +288,9 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                     const currentValues = Array.isArray(field.value)
                       ? field.value
                       : [];
-                    field.onChange(Array.from(new Set([...currentValues, created.value])));
+                    field.onChange(
+                      Array.from(new Set([...currentValues, created.value])),
+                    );
                   } else {
                     field.onChange(created.value);
                   }

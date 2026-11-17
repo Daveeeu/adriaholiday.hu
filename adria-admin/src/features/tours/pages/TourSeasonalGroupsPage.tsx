@@ -274,7 +274,6 @@ export function TourSeasonalGroupsPage() {
         header: 'Ajánlatos utak?',
         cell: ({ row }) => (row.original.hasOffers ? 'Igen' : 'Nem'),
       },
-      { accessorKey: 'relatedToursCount', header: 'Kapcsolódó utak száma' },
       {
         id: 'actions',
         header: 'Műveletek',

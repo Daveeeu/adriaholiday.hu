@@ -3,150 +3,36 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  type ColumnDef,
   type PaginationState,
   type SortingState,
 } from '@tanstack/react-table';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  ArrowUpDown,
-  MoreHorizontal,
-  Copy,
-  FileDown,
-  Eye,
-  Pencil,
-  Power,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-} from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 
 import { PageLoader } from '@/components/common/page-loader';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Select } from '@/components/ui/select';
-import { getValidationSummary } from '@/lib/api-errors';
-import { createClientId } from '@/lib/client-id';
 import { useAuthStore } from '@/store/auth-store';
 
+import { TourDetailPanel } from '../components/TourDetailPanel';
+import { ToursFilters } from '../components/ToursFilters';
 import { ToursTable } from '../components/ToursTable';
-import { TourBooleanBadge } from '../components/tour-boolean-badge';
-import { TourSidePanel } from '../components/TourSidePanel';
 import { ToursToolbar } from '../components/ToursToolbar';
+import { getTourListColumns } from '../lib/tour-list-columns';
 import {
-  TOUR_DEFAULT_SORT_BY,
-} from '../lib/tours.constants';
-import {
-  fromTourSortValue,
-  getTourSortDetail,
-  toTourSortValue,
-  TOUR_SORT_OPTIONS,
-} from '../lib/tour-sort-options';
-import {
-  getGroupOptions,
-  getOfferGroupOptions,
-  getRegionOptions,
-} from '../lib/tour-select-options.api';
-import type { Tour, TourFormValues, TourListQuery } from '../lib/tours.types';
-import {
-  createTour,
-  deleteTour,
-  downloadTourPdf,
-  duplicateTourOffer,
-  getTours,
-  getTourById,
-  moveTourOffer,
-  setTourActive,
-  updateTour,
-} from '../lib/tours.api';
+  DEFAULT_TOUR_LIST_FILTERS,
+  type TourListFilters,
+} from '../lib/tour-list-filters';
+import { TOUR_CREATE_PATH, TOURS_QUERY_KEY } from '../lib/tour-routes';
+import { getRegionOptions } from '../lib/tour-select-options.api';
+import { TOUR_DEFAULT_SORT_BY } from '../lib/tours.constants';
+import { getTours } from '../lib/tours.api';
+import type { TourListQuery } from '../lib/tours.types';
+import { useTourListActions } from '../lib/use-tour-list-actions';
 
-const toursQueryKey = ['tours'];
+const FIRST_PAGE: PaginationState = { pageIndex: 0, pageSize: 10 };
 
-function createTourDefaults(overrides?: Partial<Tour>): Tour {
-  return {
-    id: `tmp_${createClientId()}`,
-    sortOrder: 1,
-    active: true,
-    featured: false,
-    featuredOrder: null,
-    recommended: false,
-    partnerOffer: false,
-    imageOffer: false,
-    xmlEnabled: true,
-    couponable: false,
-    sliderImageEnabled: false,
-    sliderTextEnabled: false,
-    name: '',
-    seoName: '',
-    seoAutoGenerate: true,
-    action1: '',
-    action2: '',
-    listDescription: '',
-    shortDescription: '',
-    programPdf: '',
-    programPdfFile: '',
-    programBefore: '',
-    program: '',
-    inclusions: '',
-    paymentProgram: '',
-    teaser: '',
-    tickets: '',
-    optionalPrograms: '',
-    prices: '',
-    discounts: '',
-    notes: '',
-    programDays: [],
-    priceItems: [],
-    regionId: '',
-    homepageOfferId: '',
-    homepageOfferIds: [],
-    homepageOffers: [],
-    groupId: '',
-    seasonalGroupId: '',
-    departurePlaceIds: [],
-    countryIds: [],
-    tagIds: [],
-    categoryIds: [],
-    fitId: '',
-    programTypeId: '',
-    travelModeId: '',
-    difficultyId: '',
-    catering: '',
-    cateringInfo: '',
-    accommodation: '',
-    accommodationInfo: '',
-    price: '',
-    displayedPrice: '',
-    priceBox: {
-      price: null,
-      displayedPrice: '',
-      currency: 'HUF',
-      priceSuffix: '/ fő',
-      discountBadge: '',
-      discountText: '',
-      urgencyText: '',
-      ratingText: '',
-      minParticipants: null,
-      ctaPrimaryLabel: '',
-      ctaSecondaryLabel: '',
-    },
-    dates: [],
-    partnerBonuses: [],
-    sliderImage: '',
-    sliderText: '',
-    ...overrides,
-  };
-}
+const filterValue = (value: string) => (value === 'all' ? undefined : value);
 
 export function ToursPage() {
-  const queryClient = useQueryClient();
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const canCreate = hasPermission('tours.create');
   const canUpdate = hasPermission('tours.update');
@@ -155,36 +41,29 @@ export function ToursPage() {
   const canDuplicate = hasPermission('tours.duplicate');
   const canDownloadPdf = hasPermission('tours.view');
   const canReorder = hasPermission('tours.reorder');
+
   const [search, setSearch] = useState('');
   const [sorting, setSorting] = useState<SortingState>([
     { id: TOUR_DEFAULT_SORT_BY, desc: false },
   ]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
+  const [pagination, setPagination] = useState<PaginationState>(FIRST_PAGE);
+  const [filters, setFilters] = useState<TourListFilters>(
+    DEFAULT_TOUR_LIST_FILTERS,
+  );
+  const [viewedTourId, setViewedTourId] = useState<string | null>(null);
+
+  // Any new search, order or filter starts again at the first page.
+  const resetPage = () =>
+    setPagination((current) => ({ ...current, pageIndex: 0 }));
+
+  const actions = useTourListActions({
+    onDeleted: (tourId) =>
+      setViewedTourId((current) => (current === tourId ? null : current)),
   });
-  const [regionId, setRegionId] = useState('all');
-  const [groupId, setGroupId] = useState('all');
-  const [seasonalGroupId, setSeasonalGroupId] = useState('all');
-  const [featured, setFeatured] = useState<'all' | 'true' | 'false'>('all');
-  const [active, setActive] = useState<'all' | 'true' | 'false'>('all');
-  const [imageOffer, setImageOffer] = useState<'all' | 'true' | 'false'>('all');
-  const [xmlEnabled, setXmlEnabled] = useState<'all' | 'true' | 'false'>('all');
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [panelMode, setPanelMode] = useState<'create' | 'edit' | 'detail'>('create');
-  const [selectedTour, setSelectedTour] = useState<Tour | undefined>();
 
   const { data: regionOptions = [] } = useQuery({
     queryKey: ['tour-select-options', 'regions'],
     queryFn: () => getRegionOptions(),
-  });
-  const { data: groupOptions = [] } = useQuery({
-    queryKey: ['tour-select-options', 'groups'],
-    queryFn: () => getGroupOptions(),
-  });
-  const { data: seasonalGroupOptions = [] } = useQuery({
-    queryKey: ['tour-select-options', 'offer-groups'],
-    queryFn: () => getOfferGroupOptions(),
   });
 
   const queryParams = useMemo<TourListQuery>(
@@ -194,27 +73,12 @@ export function ToursPage() {
       search,
       sortBy: sorting[0]?.id,
       sortDirection: sorting[0]?.desc ? 'desc' : 'asc',
-      regionId: regionId === 'all' ? undefined : regionId,
-      groupId: groupId === 'all' ? undefined : groupId,
-      seasonalGroupId: seasonalGroupId === 'all' ? undefined : seasonalGroupId,
-      featured,
-      active,
-      imageOffer,
-      xmlEnabled,
+      regionId: filterValue(filters.regionId),
+      featured: filters.featured,
+      active: filters.active,
+      xmlEnabled: filters.xmlEnabled,
     }),
-    [
-      active,
-      featured,
-      groupId,
-      imageOffer,
-      pagination.pageIndex,
-      pagination.pageSize,
-      regionId,
-      search,
-      seasonalGroupId,
-      sorting,
-      xmlEnabled,
-    ],
+    [filters, pagination.pageIndex, pagination.pageSize, search, sorting],
   );
 
   const {
@@ -222,369 +86,48 @@ export function ToursPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: [...toursQueryKey, queryParams],
+    queryKey: [...TOURS_QUERY_KEY, queryParams],
     queryFn: () => getTours(queryParams),
     placeholderData: (previous) => previous,
   });
 
-  const selectedTourId = selectedTour?.id;
-  const {
-    data: selectedTourDetail,
-    isLoading: selectedTourDetailLoading,
-    isError: selectedTourDetailError,
-  } = useQuery({
-    queryKey: [...toursQueryKey, 'detail', selectedTourId],
-    queryFn: () => getTourById(selectedTourId ?? ''),
-    enabled: panelOpen && !!selectedTourId && panelMode !== 'create',
-  });
-
-  useEffect(() => {
-    setPagination((current) => ({
-      ...current,
-      pageIndex: 0,
-    }));
-  }, [search, sorting, regionId, groupId, seasonalGroupId, featured, active, imageOffer, xmlEnabled]);
-
-  const createMutation = useMutation({
-    mutationFn: createTour,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: toursQueryKey });
-      toast.success('Körutazás létrehozva.');
-      setPanelOpen(false);
-      setSelectedTour(undefined);
-    },
-    onError: (error) => {
-      toast.error('Nem sikerült létrehozni a körutazást.', { description: getValidationSummary(error) });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ tourId, values }: { tourId: string; values: TourFormValues }) =>
-      updateTour(tourId, values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: toursQueryKey });
-      toast.success('Körutazás módosítva.');
-      setPanelOpen(false);
-      setSelectedTour(undefined);
-    },
-    onError: (error) => {
-      toast.error('Nem sikerült módosítani a körutazást.', { description: getValidationSummary(error) });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteTour,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: toursQueryKey });
-      toast.success('Körutazás törölve.');
-      setPanelOpen(false);
-      setSelectedTour(undefined);
-    },
-    onError: () => {
-      toast.error('Nem sikerült törölni a körutazást.');
-    },
-  });
-
-  const statusMutation = useMutation({
-    mutationFn: ({
-      tourId,
-      active,
-    }: {
-      tourId: string;
-      active: boolean;
-    }) => setTourActive(tourId, active),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: toursQueryKey });
-    },
-  });
-
-  const pdfMutation = useMutation({
-    mutationFn: downloadTourPdf,
-    onError: () => toast.error('Nem sikerült elkészíteni a PDF-et.'),
-  });
-
-  const duplicateMutation = useMutation({
-    mutationFn: duplicateTourOffer,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: toursQueryKey });
-      toast.success('Körutazás másolva.');
-    },
-  });
-
-  const moveMutation = useMutation({
-    mutationFn: ({
-      tourId,
-      direction,
-    }: {
-      tourId: string;
-      direction: 'up' | 'down';
-    }) => moveTourOffer(tourId, direction),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: toursQueryKey });
-    },
-  });
-
-  const tours = toursResponse?.items ?? [];
-  const totalCount = toursResponse?.totalCount ?? 0;
-  const panelTour = panelMode === 'create'
-    ? selectedTour
-    : selectedTourDetail;
-  const panelLoading =
-    panelMode !== 'create' && !!selectedTourId && selectedTourDetailLoading;
-  const panelError =
-    panelMode !== 'create' && selectedTourDetailError && !selectedTourDetail
-      ? 'Nem sikerült betölteni a körutazás adatait.'
-      : null;
-
-  const columns = useMemo<ColumnDef<Tour>[]>(
-    () => [
-      {
-        accessorKey: 'name',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Név / Akció 1 / Akció 2 <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        cell: ({ row, table }) => (
-          <div className="space-y-1">
-            <div className="font-medium text-foreground">{row.original.name}</div>
-            {getTourSortDetail(row.original, table.getState().sorting[0]?.id) ? (
-              <div className="text-xs font-medium text-primary">
-                {getTourSortDetail(row.original, table.getState().sorting[0]?.id)}
-              </div>
-            ) : null}
-            <div className="text-xs text-muted-foreground">
-              {[row.original.action1, row.original.action2].filter(Boolean).join(' • ') || '—'}
-            </div>
-            {row.original.active && (row.original.searchKeywords ?? []).length === 0 ? (
-              <div className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
-                Nincs keresési kulcsszó
-              </div>
-            ) : null}
-          </div>
-        ),
-      },
-      {
-        accessorKey: 'regionId',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Régió <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.original.regionLabel ?? '—'}
-          </span>
-        ),
-      },
-      {
-        accessorKey: 'groupId',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Csoport <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.original.groupLabel ?? '—'}
-          </span>
-        ),
-      },
-      {
-        accessorKey: 'featured',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Kiemelt <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        cell: ({ row }) => <TourBooleanBadge value={row.original.featured} />,
-      },
-      {
-        accessorKey: 'active',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Aktív <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        cell: ({ row }) => <TourBooleanBadge value={row.original.active} />,
-      },
-      {
-        accessorKey: 'imageOffer',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Képes ajánlat <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        cell: ({ row }) => <TourBooleanBadge value={row.original.imageOffer} />,
-      },
-      {
-        accessorKey: 'xmlEnabled',
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            className="-ml-3"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Partnerportálon megjelenik <ArrowUpDown className="size-4" />
-          </Button>
-        ),
-        cell: ({ row }) => <TourBooleanBadge value={row.original.xmlEnabled} />,
-      },
-      {
-        id: 'actions',
-        header: 'Műveletek',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              title="Megtekintés"
-              aria-label="Megtekintés"
-              onClick={() => {
-                setSelectedTour(row.original);
-                setPanelMode('detail');
-                setPanelOpen(true);
-              }}
-            >
-              <Eye className="size-4" />
-            </Button>
-            {canUpdate ? (
-              <Button
-                variant="outline"
-                size="icon"
-                title="Szerkesztés"
-                aria-label="Szerkesztés"
-                onClick={() => {
-                  setSelectedTour(row.original);
-                  setPanelMode('edit');
-                  setPanelOpen(true);
-                }}
-              >
-                <Pencil className="size-4" />
-              </Button>
-            ) : null}
-            {canUpdateStatus || canDownloadPdf || canDuplicate || canReorder || canDelete ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" title="További műveletek" aria-label="További műveletek">
-                    <MoreHorizontal className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {canUpdateStatus ? (
-                    <DropdownMenuItem
-                      onSelect={() =>
-                        statusMutation.mutate({
-                          tourId: row.original.id,
-                          active: !row.original.active,
-                        })
-                      }
-                    >
-                      <Power className="size-4" />
-                      {row.original.active ? 'Inaktiválás' : 'Aktiválás'}
-                    </DropdownMenuItem>
-                  ) : null}
-                  {canDownloadPdf ? (
-                    <DropdownMenuItem
-                      disabled={pdfMutation.isPending && pdfMutation.variables?.id === row.original.id}
-                      onSelect={() => pdfMutation.mutate(row.original)}
-                    >
-                      <FileDown className="size-4" />
-                      Program PDF letöltése
-                    </DropdownMenuItem>
-                  ) : null}
-                  {canDuplicate ? (
-                    <DropdownMenuItem onSelect={() => duplicateMutation.mutate(row.original.id)}>
-                      <Copy className="size-4" />
-                      Másolás új útként
-                    </DropdownMenuItem>
-                  ) : null}
-                  {canReorder ? (
-                    <DropdownMenuItem
-                      onSelect={() => moveMutation.mutate({ tourId: row.original.id, direction: 'up' })}
-                    >
-                      <ArrowUp className="size-4" />
-                      Feljebb az alapsorrendben
-                    </DropdownMenuItem>
-                  ) : null}
-                  {canReorder ? (
-                    <DropdownMenuItem
-                      onSelect={() => moveMutation.mutate({ tourId: row.original.id, direction: 'down' })}
-                    >
-                      <ArrowDown className="size-4" />
-                      Lejjebb az alapsorrendben
-                    </DropdownMenuItem>
-                  ) : null}
-                  {canDelete ? (
-                    <DropdownMenuItem
-                      className="text-destructive focus:text-destructive"
-                      onSelect={() => {
-                        if (window.confirm(`Biztosan törlöd ezt a körutazást? (${row.original.name})`)) {
-                          deleteMutation.mutate(row.original.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="size-4" />
-                      Törlés
-                    </DropdownMenuItem>
-                  ) : null}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
-          </div>
-        ),
-      },
-    ],
+  const columns = useMemo(
+    () =>
+      getTourListColumns({
+        permissions: {
+          canUpdate,
+          canUpdateStatus,
+          canDownloadPdf,
+          canDuplicate,
+          canReorder,
+          canDelete,
+        },
+        actions,
+        onView: setViewedTourId,
+      }),
     [
+      actions,
       canDelete,
       canDownloadPdf,
       canDuplicate,
       canReorder,
       canUpdate,
       canUpdateStatus,
-      deleteMutation,
-      duplicateMutation,
-      moveMutation,
-      pdfMutation,
-      statusMutation,
     ],
   );
 
+  const totalCount = toursResponse?.totalCount ?? 0;
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: tours,
+    data: toursResponse?.items ?? [],
     columns,
-    state: {
-      sorting,
-      pagination,
-    },
+    state: { sorting, pagination },
     pageCount: Math.max(1, Math.ceil(totalCount / pagination.pageSize)),
-    onSortingChange: setSorting,
+    onSortingChange: (updater) => {
+      setSorting(updater);
+      resetPage();
+    },
     onPaginationChange: setPagination,
     manualSorting: true,
     manualPagination: true,
@@ -605,14 +148,6 @@ export function ToursPage() {
     );
   }
 
-  const submitting =
-    createMutation.isPending ||
-    updateMutation.isPending ||
-    deleteMutation.isPending ||
-    statusMutation.isPending ||
-    duplicateMutation.isPending ||
-    moveMutation.isPending;
-
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -625,162 +160,43 @@ export function ToursPage() {
 
       <ToursToolbar
         search={search}
-        onSearchChange={setSearch}
-        onCreateClick={
-          canCreate
-            ? () => {
-                setSelectedTour(createTourDefaults());
-                setPanelMode('create');
-                setPanelOpen(true);
-              }
-            : undefined
-        }
+        onSearchChange={(value) => {
+          setSearch(value);
+          resetPage();
+        }}
+        createPath={canCreate ? TOUR_CREATE_PATH : undefined}
       />
 
-      <div className="grid gap-3 rounded-2xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Select
-          aria-label="Rendezés"
-          value={toTourSortValue(sorting[0])}
-          onChange={(event) => setSorting([fromTourSortValue(event.target.value)])}
-        >
-          <option value="" hidden>
-            Rendezés: oszlop szerint
-          </option>
-          {TOUR_SORT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              Rendezés: {option.label}
-            </option>
-          ))}
-        </Select>
-
-        <Select value={regionId} onChange={(event) => setRegionId(event.target.value)}>
-          <option value="all">Összes régió</option>
-          {regionOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </Select>
-
-        <Select value={groupId} onChange={(event) => setGroupId(event.target.value)}>
-          <option value="all">Összes csoport</option>
-          {groupOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </Select>
-
-        <Select
-          value={seasonalGroupId}
-          onChange={(event) => setSeasonalGroupId(event.target.value)}
-        >
-          <option value="all">Összes szezonális csoport</option>
-          {seasonalGroupOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </Select>
-
-        <div className="grid grid-cols-2 gap-2 sm:col-span-2 md:grid-cols-4 lg:col-span-4">
-          <Select value={active} onChange={(event) => setActive(event.target.value as typeof active)}>
-            <option value="all">Aktív állapot</option>
-            <option value="true">Aktív</option>
-            <option value="false">Inaktív</option>
-          </Select>
-          <Select value={featured} onChange={(event) => setFeatured(event.target.value as typeof featured)}>
-            <option value="all">Kiemelt állapot</option>
-            <option value="true">Kiemelt</option>
-            <option value="false">Nem kiemelt</option>
-          </Select>
-          <Select
-            value={xmlEnabled}
-            onChange={(event) => setXmlEnabled(event.target.value as typeof xmlEnabled)}
-          >
-            <option value="all">Partnerportál</option>
-            <option value="true">Partnerportálon megjelenik</option>
-            <option value="false">Nem szerepel</option>
-          </Select>
-
-          <Select
-            value={imageOffer}
-            onChange={(event) => setImageOffer(event.target.value as typeof imageOffer)}
-          >
-            <option value="all">Képes ajánlat állapot</option>
-            <option value="true">Képes ajánlat</option>
-            <option value="false">Nem képes ajánlat</option>
-          </Select>
-        </div>
-      </div>
+      <ToursFilters
+        sorting={sorting}
+        onSortingChange={(value) => {
+          setSorting(value);
+          resetPage();
+        }}
+        filters={filters}
+        onFiltersChange={(value) => {
+          setFilters(value);
+          resetPage();
+        }}
+        regionOptions={regionOptions}
+      />
 
       <ToursTable
         table={table}
         pagination={pagination}
         totalCount={totalCount}
         onPageSizeChange={(pageSize) =>
-          setPagination((current) => ({
-            ...current,
-            pageIndex: 0,
-            pageSize,
-          }))
+          setPagination({ pageIndex: 0, pageSize })
         }
       />
 
-      <TourSidePanel
-        open={panelOpen}
-        mode={panelMode}
-        tour={panelTour}
-        loading={panelLoading}
-        error={panelError}
-        submitting={submitting}
-        onOpenChange={(open) => {
-          setPanelOpen(open);
-          if (!open) {
-            setSelectedTour(undefined);
-          }
-        }}
-        onSubmit={(values) => {
-          if (panelMode === 'edit' && selectedTour) {
-            updateMutation.mutate({
-              tourId: selectedTour.id,
-              values,
-            });
-            return;
-          }
-
-          createMutation.mutate(values);
-        }}
-        onEdit={
-          selectedTour && canUpdate
-            ? () => {
-                setPanelMode('edit');
-              }
-            : undefined
-        }
-        onDelete={
-          selectedTour && canDelete
-            ? () => {
-                if (window.confirm(`Biztosan törlöd ezt a körutazást? (${selectedTour.name})`)) {
-                  deleteMutation.mutate(selectedTour.id);
-                }
-              }
-            : undefined
-        }
-        onToggleActive={
-          selectedTour && canUpdateStatus
-            ? () =>
-                statusMutation.mutate({
-                  tourId: selectedTour.id,
-                  active: !selectedTour.active,
-                })
-            : undefined
-        }
-        onDuplicate={
-          selectedTour && canDuplicate
-            ? () => duplicateMutation.mutate(selectedTour.id)
-            : undefined
-        }
+      <TourDetailPanel
+        tourId={viewedTourId}
+        canEdit={canUpdate}
+        onClose={() => setViewedTourId(null)}
+        onToggleActive={canUpdateStatus ? actions.setActive : undefined}
+        onDuplicate={canDuplicate ? actions.duplicate : undefined}
+        onDelete={canDelete ? actions.remove : undefined}
       />
     </div>
   );

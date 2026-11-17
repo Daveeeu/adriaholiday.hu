@@ -5,13 +5,13 @@ import {
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 import type { TourFormValues } from '../lib/tours.types';
+import { TourFormLabel } from './TourFieldHelp';
 
 const FIELDS = [
   {
@@ -66,9 +66,9 @@ export function TourStaySection({ form, dateIndex }: TourStaySectionProps) {
             name={fieldName(item.name)}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
+                <TourFormLabel>
                   {forDate ? `${item.label} ennél az időpontnál` : item.label}
-                </FormLabel>
+                </TourFormLabel>
                 <FormControl>
                   <Input
                     placeholder={
@@ -94,7 +94,7 @@ export function TourStaySection({ form, dateIndex }: TourStaySectionProps) {
             name={fieldName(item.infoName)}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{item.label} – információ</FormLabel>
+                <TourFormLabel>{item.label} – információ</TourFormLabel>
                 <FormControl>
                   <Textarea
                     rows={forDate ? 2 : 3}

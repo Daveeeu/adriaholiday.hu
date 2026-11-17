@@ -55,12 +55,6 @@ export const TOUR_TRAVEL_MODE_OPTIONS = [
   { value: 'train', label: 'Vonat' },
 ] as const;
 
-export const TOUR_DIFFICULTY_OPTIONS = [
-  { value: 'easy', label: 'Könnyű' },
-  { value: 'medium', label: 'Közepes' },
-  { value: 'hard', label: 'Nehéz' },
-] as const;
-
 export const TOUR_PARTNER_OFFER_STATUSES = [
   { value: 'new', label: 'Új' },
   { value: 'contacted', label: 'Felvett kapcsolat' },

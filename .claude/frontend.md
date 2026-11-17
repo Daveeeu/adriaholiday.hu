@@ -292,6 +292,36 @@ Refresh
 
 Avoid nested modals.
 
+## Full-page editors
+
+An entity too large for a panel (the tour offer editor) gets its own routes
+instead: `/<entity>/new` and `/<entity>/:id/edit`, guarded with
+`RequirePermission` for the create and update permissions. The list keeps a
+read-only side panel for viewing and links to the editor page.
+
+A full-page editor
+
+- validates with the form's zod schema (`zodResolver`) and shows the server's
+  422 messages at their fields too, opening the collapsed section that holds an
+  error
+- keeps its save actions in a sticky header
+- asks before leaving with unsaved changes: `useUnsavedChangesGuard(form.formState.isDirty)`
+  from `src/lib/use-unsaved-changes-guard.ts` (router navigation and the
+  browser's reload/close warning); call the function it returns before
+  navigating away right after a save or delete
+- stays on the page after saving an existing record and moves a new one to its
+  edit route
+
+## Field help icons
+
+Field help comes from the user guide, never from separate copy. A guide
+`field()` entry names the form fields it documents (`forms('priceBox.price')`,
+paths without row indices) or, when its value shows up somewhere, a picture of
+that place too (`shown('field-price-box', alt, 'priceBox.price')`, a WebP in
+`public/guide-images`). The tour editor's `TourFormLabel` finds the entry by
+its field name and renders `FieldHelp` (`src/components/common/field-help.tsx`);
+checkbox labels and section headings add `TourFieldHelp` with the field path.
+
 ---
 
 # Loading States

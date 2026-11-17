@@ -344,7 +344,6 @@ export function TourRegionGroupsPage() {
         accessorKey: 'name',
         header: ({ column }) => <Button variant="ghost" className="-ml-3" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>Név <ArrowUpDown className="size-4" /></Button>,
       },
-      { accessorKey: 'relatedToursCount', header: 'Kapcsolódó utak száma' },
       {
         accessorKey: 'featuredOnHomepage',
         header: 'Főoldalra kiemelt?',

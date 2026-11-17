@@ -4,7 +4,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -29,21 +28,38 @@ import { normalizeSelectOption } from '../lib/tour-select-options.api';
 import type { SelectOption, Tour, TourFormValues } from '../lib/tours.types';
 import { TourCreatableSelectField } from './TourCreatableSelectField';
 import { TourDeparturePlaceFeesEditor } from './TourDeparturePlaceFeesEditor';
+import { TourFieldHelp, TourFormLabel } from './TourFieldHelp';
 
 type TourFilterSectionsProps = {
   form: UseFormReturn<TourFormValues>;
   tour?: Partial<Tour>;
 };
 
-function buildOption(id: string | number | null | undefined, label?: string | null): SelectOption[] {
-  if (id === null || id === undefined || String(id).trim() === '' || !label || label.trim() === '') {
+function buildOption(
+  id: string | number | null | undefined,
+  label?: string | null,
+): SelectOption[] {
+  if (
+    id === null ||
+    id === undefined ||
+    String(id).trim() === '' ||
+    !label ||
+    label.trim() === ''
+  ) {
     return [];
   }
 
   return [normalizeSelectOption({ id: String(id), value: String(id), label })];
 }
 
-function buildOptions(items?: Array<{ id: string | number; label?: string | null; name?: string | null; title?: string | null }>): SelectOption[] {
+function buildOptions(
+  items?: Array<{
+    id: string | number;
+    label?: string | null;
+    name?: string | null;
+    title?: string | null;
+  }>,
+): SelectOption[] {
   return (items ?? [])
     .map((item) =>
       normalizeSelectOption({
@@ -57,9 +73,17 @@ function buildOptions(items?: Array<{ id: string | number; label?: string | null
 
 export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
   const regionFallbackOptions = buildOption(tour?.regionId, tour?.regionLabel);
-  const programTypeFallbackOptions = buildOption(tour?.programTypeId, tour?.programTypeLabel);
-  const travelModeFallbackOptions = buildOption(tour?.travelModeId, tour?.travelModeLabel);
-  const departurePlaceFallbackOptions = buildOptions(tour?.departurePlaces?.map((place) => ({ id: place.id, name: place.name })));
+  const programTypeFallbackOptions = buildOption(
+    tour?.programTypeId,
+    tour?.programTypeLabel,
+  );
+  const travelModeFallbackOptions = buildOption(
+    tour?.travelModeId,
+    tour?.travelModeLabel,
+  );
+  const departurePlaceFallbackOptions = buildOptions(
+    tour?.departurePlaces?.map((place) => ({ id: place.id, name: place.name })),
+  );
   const countryFallbackOptions = buildOptions(tour?.countries);
   const tagFallbackOptions = buildOptions(tour?.tags);
   const categoryFallbackOptions = buildOptions(tour?.categories);
@@ -69,7 +93,7 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
       <div>
         <h3 className="font-semibold">Szűrők / kapcsolatok</h3>
         <p className="text-sm text-muted-foreground">
-          Kapcsolódó régiók, csoportok, címkék és program besorolások.
+          Kapcsolódó régió, címkék, országok és program besorolások.
         </p>
       </div>
 
@@ -169,6 +193,7 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
                   onChange={(event) => field.onChange(event.target.checked)}
                 />
                 Kiemelt?
+                <TourFieldHelp name={field.name} />
               </label>
             </FormItem>
           )}
@@ -178,12 +203,19 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
           name="featuredOrder"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kiemelt sorrend</FormLabel>
+              <TourFormLabel>Kiemelt sorrend</TourFormLabel>
               <FormControl>
-                <Input type="number" min={0} max={999} placeholder="1" {...field} />
+                <Input
+                  type="number"
+                  min={0}
+                  max={999}
+                  placeholder="1"
+                  {...field}
+                />
               </FormControl>
               <p className="text-xs text-muted-foreground">
-                A főoldali kiemelt ajánlatok sorrendje; üresen a végére kerül. Kényelmesebben a Sorrend listánként oldalon állítható.
+                A főoldali kiemelt ajánlatok sorrendje; üresen a végére kerül.
+                Kényelmesebben a Sorrend listánként oldalon állítható.
               </p>
               <FormMessage />
             </FormItem>
@@ -201,6 +233,7 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
                   onChange={(event) => field.onChange(event.target.checked)}
                 />
                 Kiemelés a pozitív kiemelt ajánlatok között
+                <TourFieldHelp name={field.name} />
               </label>
             </FormItem>
           )}

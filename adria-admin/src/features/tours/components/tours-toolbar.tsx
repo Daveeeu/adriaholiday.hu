@@ -1,2 +1,0 @@
-export { ToursToolbar } from './ToursToolbar';
-

@@ -37,31 +37,28 @@ export const toursChapter: GuideChapter = {
         img(
           'tours-list',
           'A körutazások listája',
-          'Az ajánlatok listája: felül a kereső és az „Új körutazás” gomb, alatta a szűrők, a táblázatban pedig utanként a fő jelölők (Kiemelt, Aktív, Képes ajánlat, Partnerportálokon megjelenik).',
+          'Az ajánlatok listája: felül a kereső és az „Új körutazás” gomb, alatta a szűrők, a táblázatban pedig utanként a fő jelölők (Kiemelt, Aktív, Partnerportálokon megjelenik).',
         ),
         fields('Szűrők és oszlopok', [
           field(
             'Kereső',
-            'Az út nevében, SEO nevében és az akció szövegekben keres.',
+            'Az út nevében, webcímében, leírásaiban és keresési kulcsszavaiban keres.',
           ),
+          field('Összes régió', 'Csak az adott régióba sorolt utakat mutatja.'),
           field(
-            'Összes régió / csoport / szezonális csoport',
-            'Csak az adott régióba vagy csoportba sorolt utakat mutatja.',
-          ),
-          field(
-            'Aktív / Kiemelt / XML / Képes ajánlat állapot',
+            'Aktív / Kiemelt / Partnerportál állapot',
             'A megfelelő jelölő szerint szűr (pl. csak az inaktív utak).',
           ),
           field(
-            'Név / Akció 1 / Akció 2',
-            'Az út neve, alatta a belső akciócímkék és a keresési kulcsszavak. Ha egy aktív útnak nincs kulcsszava, a lista jelzi.',
+            'Név',
+            'Az út neve, alatta az alcíme. Ha egy aktív útnak nincs keresési kulcsszava, a lista jelzi.',
           ),
           field(
-            'Régió, Csoport',
-            'Az út besorolása (a szerkesztő „Szűrők és kapcsolatok” részében állítható).',
+            'Régió',
+            'Az út régiója (a szerkesztő „Szűrők és kapcsolatok” részében állítható).',
           ),
           field(
-            'Kiemelt, Aktív, Képes ajánlat, Partnerportálokon megjelenik',
+            'Kiemelt, Aktív, Partnerportálokon megjelenik',
             'Igen / Nem jelzés a szerkesztő azonos nevű kapcsolói alapján.',
           ),
         ]),
@@ -78,7 +75,7 @@ export const toursChapter: GuideChapter = {
           ),
           field(
             'Ceruza',
-            'Szerkesztés: megnyitja a teljes körutazás szerkesztőt.',
+            'Szerkesztés: külön oldalon megnyitja a teljes körutazás szerkesztőt. A böngésző vissza gombjával vagy a „Mégse” gombbal térsz vissza a listához.',
           ),
           field(
             '„…” menü: Aktiválás / Inaktiválás',
@@ -106,15 +103,15 @@ export const toursChapter: GuideChapter = {
         img(
           'tour-detail',
           'Egy körutazás megtekintése',
-          'A szem ikonnal megnyitott nézet: az út minden adata csoportosítva, szerkesztés nélkül. A panel aljáról is indítható a szerkesztés, a másolás vagy a törlés.',
+          'A szem ikonnal megnyitott nézet: az út minden adata csoportosítva, szerkesztés nélkül. A panel tetejéről indítható az aktiválás, a másolás, a szerkesztés (külön oldalon) vagy a törlés.',
         ),
         steps(
           [
-            'Kattints az „Új körutazás” gombra, vagy egy hasonló út sorában a másolás ikonra.',
+            'Kattints az „Új körutazás” gombra (külön oldalon nyílik a szerkesztő), vagy egy hasonló út sorában a „…” menüben a „Másolás új útként” pontra.',
             'Töltsd ki legalább a nevet (Név és webcím), az árat (Árdoboz) és a régiót (Szűrők és kapcsolatok).',
             'Add meg az indulási időpontokat az „Időpontok” részben, szükség esetén a felárakkal.',
             'Írd meg a leírásokat és a programot, tölts fel képeket.',
-            'Pipáld be az „Aktív?” és a „Megjelenik az ajánlatlistákban?” jelölőt, majd ments.',
+            'Pipáld be az „Aktív?” és a „Megjelenik az ajánlatlistákban?” jelölőt, majd kattints a „Mentés” gombra. Az első mentés után a szerkesztő az új út szerkesztő oldalán marad.',
             'Nyisd meg az utat a weboldalon (/ajanlat/<Webcím>), és ellenőrizd a megjelenést.',
           ],
           'Új út felvitele lépésről lépésre',
@@ -170,7 +167,7 @@ export const toursChapter: GuideChapter = {
       id: 'tour-region-groups',
       title: 'Régiók és csoportok (körutazás)',
       summary:
-        'A körutazások besorolására szolgáló régiók (pl. Erdély, Balkán) és csoportok (pl. Klasszikus körutak). Az út szerkesztőjében a „Régiók” mezőben választható ki a régió; a csoportokat az új weboldal nem használja.',
+        'A régi weboldalról átvett régiók (pl. Erdély, Balkán) és csoportok (pl. Klasszikus körutak). Az utak nem sorolhatók ezekbe, és a weboldal sem használja őket; az út régióját a szerkesztő „Régiók” mezője adja (Apartmanok › Régiók).',
       path: '/tours/region-groups',
       menu: 'Körutazások › Régiók és csoportok',
       access: TOURS_ACCESS,
@@ -189,7 +186,7 @@ export const toursChapter: GuideChapter = {
           field(
             'Név',
             'A régió vagy csoport megnevezése.',
-            'Az utak besorolásánál, a szerkesztő választólistáiban és az utak címkéiben.',
+            ADMIN_ONLY,
           ),
           field(
             'Típus',
@@ -227,7 +224,7 @@ export const toursChapter: GuideChapter = {
       id: 'tour-seasonal-groups',
       title: 'Szezonális ajánlat csoportok',
       summary:
-        'Időszakhoz vagy témához kötött ajánlatcsoportok (pl. bevezető utak, ajánlatkérő utak). Egy út a szerkesztőben egy szezonális csoportba sorolható.',
+        'A régi weboldalról átvett, időszakhoz vagy témához kötött ajánlatcsoportok (pl. bevezető utak, ajánlatkérő utak). Az utak nem sorolhatók ezekbe, és a weboldal sem használja őket.',
       path: '/tours/seasonal-groups',
       menu: 'Körutazások › Szezonális ajánlat csoportok',
       access: TOURS_ACCESS,

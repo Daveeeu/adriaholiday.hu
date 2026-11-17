@@ -7,7 +7,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -20,6 +19,7 @@ import {
   TOUR_EXTRA_PRICE_UNITS,
 } from '../lib/tours.constants';
 import type { TourFormValues } from '../lib/tours.types';
+import { TourFormLabel } from './TourFieldHelp';
 
 type TourDateExtrasEditorProps = {
   form: UseFormReturn<TourFormValues>;
@@ -77,8 +77,8 @@ export function TourDateExtrasEditor({
           <h4 className="text-sm font-semibold">Felárak</h4>
           <p className="text-xs text-muted-foreground">
             A foglaláskor választható vagy kötelezően felszámított tételek ennél
-            az időpontnál. A foglalásnál ebben a sorrendben, soronként kettesével
-            jelennek meg.
+            az időpontnál. A foglalásnál ebben a sorrendben, soronként
+            kettesével jelennek meg.
           </p>
         </div>
 
@@ -105,7 +105,7 @@ export function TourDateExtrasEditor({
             name={`dates.${dateIndex}.extras.${extraIndex}.name`}
             render={({ field: extraField }) => (
               <FormItem>
-                <FormLabel>Megnevezés</FormLabel>
+                <TourFormLabel>Megnevezés</TourFormLabel>
                 <FormControl>
                   <Input placeholder="Vacsora" {...extraField} />
                 </FormControl>
@@ -118,7 +118,7 @@ export function TourDateExtrasEditor({
             name={`dates.${dateIndex}.extras.${extraIndex}.price`}
             render={({ field: extraField }) => (
               <FormItem>
-                <FormLabel>Ár</FormLabel>
+                <TourFormLabel>Ár</TourFormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -136,7 +136,7 @@ export function TourDateExtrasEditor({
             name={`dates.${dateIndex}.extras.${extraIndex}.currency`}
             render={({ field: extraField }) => (
               <FormItem>
-                <FormLabel>Pénznem</FormLabel>
+                <TourFormLabel>Pénznem</TourFormLabel>
                 <FormControl>
                   <select
                     className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
@@ -158,7 +158,7 @@ export function TourDateExtrasEditor({
             name={`dates.${dateIndex}.extras.${extraIndex}.priceUnit`}
             render={({ field: extraField }) => (
               <FormItem>
-                <FormLabel>Felszámítás</FormLabel>
+                <TourFormLabel>Felszámítás</TourFormLabel>
                 <FormControl>
                   <select
                     className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
@@ -180,7 +180,7 @@ export function TourDateExtrasEditor({
             name={`dates.${dateIndex}.extras.${extraIndex}.chargeRule`}
             render={({ field: extraField }) => (
               <FormItem>
-                <FormLabel>Mikor kell fizetni?</FormLabel>
+                <TourFormLabel>Mikor kell fizetni?</TourFormLabel>
                 <FormControl>
                   <select
                     className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
@@ -233,9 +233,9 @@ export function TourDateExtrasEditor({
             name={`dates.${dateIndex}.extras.${extraIndex}.choices`}
             render={({ field: extraField }) => (
               <FormItem className="md:col-span-5">
-                <FormLabel>
+                <TourFormLabel>
                   Választási lehetőségek (opcionális, soronként egy)
-                </FormLabel>
+                </TourFormLabel>
                 <FormControl>
                   <Textarea
                     rows={2}

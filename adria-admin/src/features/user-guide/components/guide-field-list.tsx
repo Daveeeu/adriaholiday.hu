@@ -1,5 +1,6 @@
 import { MapPin } from 'lucide-react';
 
+import { guideImageUrl } from '../lib/guide-image-url';
 import type { GuideField } from '../lib/user-guide.types';
 
 type GuideFieldListProps = {
@@ -43,6 +44,14 @@ export function GuideFieldList({
                     {field.appearsAt}
                   </span>
                 </p>
+              ) : null}
+              {field.preview ? (
+                <img
+                  src={guideImageUrl(field.preview.file)}
+                  alt={field.preview.alt}
+                  loading="lazy"
+                  className="mt-2 max-h-56 w-auto max-w-full rounded-lg border bg-muted"
+                />
               ) : null}
             </dd>
           </div>

@@ -28,6 +28,8 @@ export const hu = {
   'nav.blog.tags': 'Címkék',
   'nav.tours': 'Körutazások',
   'nav.tours.offers': 'Ajánlatok',
+  'nav.tours.create': 'Új körutazás',
+  'nav.tours.edit': 'Körutazás szerkesztése',
   'nav.tours.partnerOffers': 'Szervezés alatt partner ajánlatok',
   'nav.tours.regionGroups': 'Régiók és csoportok',
   'nav.tours.seasonalGroups': 'Szezonális ajánlat csoportok',

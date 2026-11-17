@@ -23,7 +23,12 @@ const { module } = await runnerImport(source, {
 const chapters = module.USER_GUIDE_CHAPTERS.map(
   ({ id, title, description, topics }) => ({ id, title, description, topics }),
 );
-const json = `${JSON.stringify({ chapters }, null, 2)}\n`;
+// The help icons' form field keys and pictures mean nothing to the MCP reader.
+const json = `${JSON.stringify(
+  { chapters },
+  (key, value) => (key === 'formFields' || key === 'preview' ? undefined : value),
+  2,
+)}\n`;
 
 if (process.argv.includes('--check')) {
   let current = '';

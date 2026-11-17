@@ -7,13 +7,13 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 import type { TourFormValues, TourPriceItemType } from '../lib/tours.types';
 import { createClientId } from '@/lib/client-id';
+import { TourFieldHelp, TourFormLabel } from './TourFieldHelp';
 
 type TourPriceItemsSectionProps = {
   form: UseFormReturn<TourFormValues>;
@@ -40,10 +40,11 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
     control: form.control,
     name: 'priceItems',
   });
-  const watchedItems = useWatch({
-    control: form.control,
-    name: 'priceItems',
-  }) ?? [];
+  const watchedItems =
+    useWatch({
+      control: form.control,
+      name: 'priceItems',
+    }) ?? [];
   const [draggingId, setDraggingId] = useState<string | null>(null);
 
   const rows: PriceItemRow[] = fields.map((field, index) => {
@@ -101,18 +102,29 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
     remove(index);
   };
 
-  const renderList = (type: TourPriceItemType, title: string, description: string) => {
+  const renderList = (
+    type: TourPriceItemType,
+    title: string,
+    description: string,
+  ) => {
     const items = sortPriceRows(rows.filter((row) => row.type === type));
 
     return (
       <section className="space-y-4 rounded-2xl border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-base font-semibold">{title}</h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-base font-semibold">{title}</h3>
+              <TourFieldHelp name={`priceItems.${type}`} />
+            </div>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
 
-          <Button type="button" variant="outline" onClick={() => appendItem(type)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => appendItem(type)}
+          >
             <Plus className="size-4" />
             Új elem
           </Button>
@@ -165,7 +177,7 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
                       name={`priceItems.${item.index}.text`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Szöveg</FormLabel>
+                          <TourFormLabel>Szöveg</TourFormLabel>
                           <FormControl>
                             <Input placeholder="Elem szövege" {...field} />
                           </FormControl>
@@ -179,12 +191,14 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
                       name={`priceItems.${item.index}.active`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Aktív</FormLabel>
+                          <TourFormLabel>Aktív</TourFormLabel>
                           <label className="flex h-10 items-center gap-2 rounded-xl border bg-background px-3 text-sm">
                             <input
                               type="checkbox"
                               checked={field.value}
-                              onChange={(event) => field.onChange(event.target.checked)}
+                              onChange={(event) =>
+                                field.onChange(event.target.checked)
+                              }
                             />
                             Megjelenik
                           </label>
@@ -194,7 +208,9 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
                   </div>
 
                   <div className="flex items-end justify-end">
-                    <Button title="Törlés" aria-label="Törlés"
+                    <Button
+                      title="Törlés"
+                      aria-label="Törlés"
                       type="button"
                       variant="outline"
                       size="icon"
@@ -217,7 +233,8 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
       <div>
         <h3 className="font-semibold">Ár tartalma</h3>
         <p className="text-sm text-muted-foreground">
-          Az árban szereplő és az árban nem szereplő tételek külön, rendezhető listákban.
+          Az árban szereplő és az árban nem szereplő tételek külön, rendezhető
+          listákban.
         </p>
       </div>
 

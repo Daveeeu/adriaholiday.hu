@@ -1,118 +1,42 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { Minus, Plus } from 'lucide-react';
 import { useWatch, type UseFormReturn } from 'react-hook-form';
-import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight, Minus, Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+
 import {
-  getAllBookingFormTemplates,
-  getBookingFormTemplateOptions,
-} from '@/features/booking-form-templates/lib/booking-form-templates.api';
-import {
-  BOOKING_FORM_INPUT_GROUP_LABELS,
-  BOOKING_FORM_VISIBILITY_LABELS,
-} from '@/features/booking-form-templates/lib/booking-form.constants';
+  allTourFormSections,
+  type TourFormSectionKey,
+  type TourFormSectionState,
+} from '../lib/tour-form-sections';
 import type { Tour, TourFormValues } from '../lib/tours.types';
+import { TourBookingFormSection } from './TourBookingFormSection';
 import { TourContentSections } from './TourContentSections';
-import { TourCreatableSelectField } from './TourCreatableSelectField';
-import { TourFilterSections } from './TourFilterSections';
-import { TourGallerySection } from './TourGallerySection';
-import { TourProgramDaysSection } from './TourProgramDaysSection';
 import { TourDatesSection } from './TourDatesSection';
-import { TourPriceItemsSection } from './TourPriceItemsSection';
-import { TourRouteMapSection } from './TourRouteMapSection';
+import { TourFilterSections } from './TourFilterSections';
+import { TourFormSection } from './TourFormSection';
+import { TourGallerySection } from './TourGallerySection';
 import { TourPartnerXmlSection } from './TourPartnerXmlSection';
+import { TourPriceBoxSection } from './TourPriceBoxSection';
+import { TourPriceItemsSection } from './TourPriceItemsSection';
+import { TourProgramDaysSection } from './TourProgramDaysSection';
+import { TourRouteMapSection } from './TourRouteMapSection';
 import { TourSeoSection } from './TourSeoSection';
 import { TourStaySection } from './TourStaySection';
+import { TourFieldHelp, TourFormLabel } from './TourFieldHelp';
 
 type TourFormProps = {
   form: UseFormReturn<TourFormValues>;
   tour?: Partial<Tour>;
+  openSections: TourFormSectionState;
+  onOpenSectionsChange: (sections: TourFormSectionState) => void;
 };
-
-type TourPanelSectionKey =
-  | 'basic'
-  | 'seo'
-  | 'gallery'
-  | 'priceBox'
-  | 'content'
-  | 'programDays'
-  | 'routeMap'
-  | 'priceItems'
-  | 'filters'
-  | 'dates'
-  | 'stay'
-  | 'partnerXml'
-  | 'bookingForm';
-
-const DEFAULT_OPEN_SECTIONS: Record<TourPanelSectionKey, boolean> = {
-  basic: true,
-  seo: true,
-  gallery: false,
-  priceBox: true,
-  content: false,
-  programDays: false,
-  routeMap: false,
-  priceItems: false,
-  filters: true,
-  dates: true,
-  stay: true,
-  partnerXml: false,
-  bookingForm: false,
-};
-
-function TourPanelSection({
-  title,
-  description,
-  countLabel,
-  open,
-  onToggle,
-  children,
-}: {
-  title: string;
-  description: string;
-  countLabel?: string;
-  open: boolean;
-  onToggle: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <section className="overflow-hidden rounded-[22px] border bg-card shadow-sm">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-muted/20"
-      >
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-semibold text-foreground">{title}</h3>
-            {countLabel ? (
-              <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                {countLabel}
-              </span>
-            ) : null}
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        </div>
-
-        <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground">
-          {open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
-        </span>
-      </button>
-
-      {open ? <div className="border-t px-4 py-4">{children}</div> : null}
-    </section>
-  );
-}
 
 function BooleanField({
   form,
@@ -136,6 +60,7 @@ function BooleanField({
               onChange={(event) => field.onChange(event.target.checked)}
             />
             {label}
+            <TourFieldHelp name={name} />
           </label>
         </FormItem>
       )}
@@ -143,91 +68,72 @@ function BooleanField({
   );
 }
 
-export function TourForm({ form, tour }: TourFormProps) {
-  const dates = useWatch({ control: form.control, name: 'dates' }) ?? [];
-  const gallery = useWatch({ control: form.control, name: 'gallery' }) ?? [];
-  const programDays = useWatch({ control: form.control, name: 'programDays' }) ?? [];
-  const priceItems = useWatch({ control: form.control, name: 'priceItems' }) ?? [];
-  const routeStopCount = (useWatch({ control: form.control, name: 'routeStops' }) ?? []).length;
-  const [openSections, setOpenSections] = useState(DEFAULT_OPEN_SECTIONS);
+/** Every section of a tour, each collapsible; the editor page holds which are open. */
+export function TourForm({
+  form,
+  tour,
+  openSections,
+  onOpenSectionsChange,
+}: TourFormProps) {
+  const dateCount = (useWatch({ control: form.control, name: 'dates' }) ?? [])
+    .length;
+  const galleryCount = (
+    useWatch({ control: form.control, name: 'gallery' }) ?? []
+  ).length;
+  const programDayCount = (
+    useWatch({ control: form.control, name: 'programDays' }) ?? []
+  ).length;
+  const priceItemCount = (
+    useWatch({ control: form.control, name: 'priceItems' }) ?? []
+  ).length;
+  const routeStopCount = (
+    useWatch({ control: form.control, name: 'routeStops' }) ?? []
+  ).length;
 
-  const sectionCounts = useMemo(
-    () => ({
-      gallery: gallery.length,
-      programDays: programDays.length,
-      priceItems: priceItems.length,
-      dates: dates.length,
-    }),
-    [dates.length, gallery.length, priceItems.length, programDays.length],
-  );
-
-  const toggleSection = (key: TourPanelSectionKey) => {
-    setOpenSections((current) => ({
-      ...current,
-      [key]: !current[key],
-    }));
-  };
-
-  const setAllSections = (open: boolean) => {
-    setOpenSections({
-      basic: open,
-      seo: open,
-      gallery: open,
-      priceBox: open,
-      content: open,
-      programDays: open,
-      routeMap: open,
-      priceItems: open,
-      filters: open,
-      dates: open,
-      stay: open,
-      partnerXml: open,
-      bookingForm: open,
-    });
-  };
-
-  const bookingFormTemplateId = useWatch({ control: form.control, name: 'bookingFormTemplateId' });
-
-  const { data: bookingFormTemplates = [] } = useQuery({
-    queryKey: ['tour-select-options', 'booking-form-templates-detail'],
-    queryFn: getAllBookingFormTemplates,
+  const sectionProps = (key: TourFormSectionKey) => ({
+    open: openSections[key],
+    onToggle: () =>
+      onOpenSectionsChange({ ...openSections, [key]: !openSections[key] }),
   });
-
-  const selectedBookingFormTemplate = bookingFormTemplates.find(
-    (template) => String(template.id) === bookingFormTemplateId,
-  );
-  const defaultBookingFormTemplate = bookingFormTemplates.find(
-    (template) => template.isDefault && template.active,
-  );
-  const previewBookingFormTemplate = selectedBookingFormTemplate ?? defaultBookingFormTemplate;
 
   return (
     <div className="space-y-5">
-      <div className="sticky -top-5 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-background px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-background px-4 py-3">
         <div>
-          <div className="text-sm font-semibold text-foreground">Körutazás szekciók</div>
+          <div className="text-sm font-semibold text-foreground">
+            Körutazás szekciók
+          </div>
           <div className="text-xs text-muted-foreground">
             Nyisd le csak azt, amin dolgozol.
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={() => setAllSections(true)}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenSectionsChange(allTourFormSections(true))}
+          >
             <Plus className="size-4" />
             Összes lenyitása
           </Button>
-          <Button type="button" variant="outline" size="sm" onClick={() => setAllSections(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenSectionsChange(allTourFormSections(false))}
+          >
             <Minus className="size-4" />
             Összes csukása
           </Button>
         </div>
       </div>
 
-      <TourPanelSection
+      <TourFormSection
         title="Alapadatok"
         description="Aktív-e az út, és hol jelenjen meg."
-        open={openSections.basic}
-        onToggle={() => toggleSection('basic')}
+        {...sectionProps('basic')}
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <FormField
@@ -235,13 +141,15 @@ export function TourForm({ form, tour }: TourFormProps) {
             name="sortOrder"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Sorrend</FormLabel>
+                <TourFormLabel>Sorrend</TourFormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     min={0}
                     {...field}
-                    onChange={(event) => field.onChange(Number(event.target.value))}
+                    onChange={(event) =>
+                      field.onChange(Number(event.target.value))
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -250,293 +158,117 @@ export function TourForm({ form, tour }: TourFormProps) {
           />
 
           <BooleanField form={form} name="active" label="Aktív?" />
-          <BooleanField form={form} name="listed" label="Megjelenik az ajánlatlistákban?" />
-          <BooleanField form={form} name="xmlEnabled" label="Partnerportálokon megjelenik?" />
+          <BooleanField
+            form={form}
+            name="listed"
+            label="Megjelenik az ajánlatlistákban?"
+          />
+          <BooleanField
+            form={form}
+            name="xmlEnabled"
+            label="Partnerportálokon megjelenik?"
+          />
           <BooleanField form={form} name="couponable" label="Kuponozható?" />
         </div>
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Név és webcím"
         description="Név, alcím, webcím és keresőbeállítások."
-        open={openSections.seo}
-        onToggle={() => toggleSection('seo')}
+        {...sectionProps('seo')}
       >
         <TourSeoSection form={form} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Galéria és média"
         description="Az utazás fő képe és galériája."
-        countLabel={`${sectionCounts.gallery} elem`}
-        open={openSections.gallery}
-        onToggle={() => toggleSection('gallery')}
+        countLabel={`${galleryCount} elem`}
+        {...sectionProps('gallery')}
       >
         <TourGallerySection form={form} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Árdoboz"
-        description="Az ajánlatkártyán és az utazás oldalán látszó ár, gombok és férőhelyek."
-        open={openSections.priceBox}
-        onToggle={() => toggleSection('priceBox')}
+        description="Az ajánlatkártyán és az utazás oldalán látszó ár és a hozzá tartozó szövegek."
+        {...sectionProps('priceBox')}
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <FormField
-            control={form.control}
-            name="priceBox.price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Alapár</FormLabel>
-                <FormControl>
-                  <Input type="number" min={0} placeholder="199000" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.displayedPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Megjelenített ár szöveg</FormLabel>
-                <FormControl>
-                  <Input placeholder="199 000 Ft-tól" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.currency"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Pénznem</FormLabel>
-                <FormControl>
-                  <Input placeholder="HUF" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.priceSuffix"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ár utótag</FormLabel>
-                <FormControl>
-                  <Input placeholder="/ fő" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.discountBadge"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Kedvezmény címke</FormLabel>
-                <FormControl>
-                  <Input placeholder="-15%" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.discountText"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ár alatti szöveg</FormLabel>
-                <FormControl>
-                  <Input placeholder="Előfoglalási kedvezmény" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.urgencyText"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sürgető felirat</FormLabel>
-                <FormControl>
-                  <Input placeholder="18 fő érdeklődött az elmúlt 72 órában" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.ratingText"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Értékelés szöveg</FormLabel>
-                <FormControl>
-                  <Input placeholder="4.9/5 utasértékelés" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      </TourPanelSection>
+        <TourPriceBoxSection form={form} />
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Tartalmi blokkok"
-        description="Leírások, szolgáltatási információk és a program PDF."
-        open={openSections.content}
-        onToggle={() => toggleSection('content')}
+        description="Leírások, keresési kulcsszavak és szolgáltatási információk."
+        {...sectionProps('content')}
       >
         <TourContentSections form={form} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Program napok"
         description="Napi bontás, ikonok, képek és címkék."
-        countLabel={`${sectionCounts.programDays} nap`}
-        open={openSections.programDays}
-        onToggle={() => toggleSection('programDays')}
+        countLabel={`${programDayCount} nap`}
+        {...sectionProps('programDays')}
       >
         <TourProgramDaysSection form={form} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Útvonal térkép"
         description="A megállók, amelyekből a rendszer térképet rajzol az utazás oldalára és a PDF-ekbe."
         countLabel={`${routeStopCount} megálló`}
-        open={openSections.routeMap}
-        onToggle={() => toggleSection('routeMap')}
+        {...sectionProps('routeMap')}
       >
-        <TourRouteMapSection form={form} tourId={tour?.id ? String(tour.id) : undefined} />
-      </TourPanelSection>
+        <TourRouteMapSection
+          form={form}
+          tourId={tour?.id ? String(tour.id) : undefined}
+        />
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Szállás és ellátás"
         description="Az utazás oldalán a felső kártyákon látszik, kiegészítő információval."
-        open={openSections.stay}
-        onToggle={() => toggleSection('stay')}
+        {...sectionProps('stay')}
       >
         <TourStaySection form={form} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Ár tartalma"
         description="Mit tartalmaz és mit nem tartalmaz az ár."
-        countLabel={`${sectionCounts.priceItems} tétel`}
-        open={openSections.priceItems}
-        onToggle={() => toggleSection('priceItems')}
+        countLabel={`${priceItemCount} tétel`}
+        {...sectionProps('priceItems')}
       >
         <TourPriceItemsSection form={form} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Szűrők és kapcsolatok"
-        description="Régiók, kategóriák, címkék, országok és ajánlati csoportok."
-        open={openSections.filters}
-        onToggle={() => toggleSection('filters')}
+        description="Régió, kategóriák, címkék, országok, felszállási helyek és kiemelés."
+        {...sectionProps('filters')}
       >
         <TourFilterSections form={form} tour={tour} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Időpontok"
         description="Indulási dátumok, állapotok és az időpontokhoz tartozó árak."
-        countLabel={`${sectionCounts.dates} időpont`}
-        open={openSections.dates}
-        onToggle={() => toggleSection('dates')}
+        countLabel={`${dateCount} időpont`}
+        {...sectionProps('dates')}
       >
         <TourDatesSection form={form} tour={tour} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
+      <TourFormSection
         title="Partnerportálok (Travelgate, Travelmax, Cesys)"
         description="Amit az út a partnerportálokon mutat: régió, utazástípusok, szállás, biztosítás."
-        open={openSections.partnerXml}
-        onToggle={() => toggleSection('partnerXml')}
+        {...sectionProps('partnerXml')}
       >
         <TourPartnerXmlSection form={form} />
-      </TourPanelSection>
+      </TourFormSection>
 
-      <TourPanelSection
-        title="Foglalási űrlap beállításai"
-        description="Válaszd ki, milyen sablon alapján kérje be a publikus foglalási űrlap az adatokat."
-        countLabel={
-          previewBookingFormTemplate
-            ? `${previewBookingFormTemplate.fields.filter((field) => field.visibility !== 'hidden').length} látható mező`
-            : undefined
-        }
-        open={openSections.bookingForm}
-        onToggle={() => toggleSection('bookingForm')}
-      >
-        <div className="space-y-4">
-          <TourCreatableSelectField
-            control={form.control}
-            name="bookingFormTemplateId"
-            label="Foglalási űrlap sablon"
-            placeholder="Buszos út, Repülős út vagy egyedi sablon..."
-            queryKey={['tour-select-options', 'booking-form-templates']}
-            queryFn={getBookingFormTemplateOptions}
-            fallbackOptions={bookingFormTemplates.map((template) => ({
-              id: String(template.id),
-              value: String(template.id),
-              label: template.active ? template.name : `${template.name} (inaktív)`,
-            }))}
-            description="A sablonokat a Foglalások / Foglalási űrlap sablonok oldalon lehet létrehozni és szerkeszteni. A listában csak az aktív sablonok választhatók."
-          />
-
-          {!selectedBookingFormTemplate ? (
-            <p className="text-sm text-muted-foreground">
-              {defaultBookingFormTemplate
-                ? `Nincs sablon kiválasztva – az alapértelmezett sablon (${defaultBookingFormTemplate.name}) mezői jelennek meg.`
-                : 'Nincs sablon kiválasztva, és alapértelmezett sablon sincs beállítva – a beépített alap mezők jelennek meg.'}
-            </p>
-          ) : null}
-
-          {previewBookingFormTemplate ? (
-            <div className="rounded-xl border bg-background p-3">
-              <div className="text-sm font-medium text-foreground">
-                Mezők előnézete – {previewBookingFormTemplate.name}
-              </div>
-              <div className="mt-3 space-y-2">
-                {previewBookingFormTemplate.fields
-                  .slice()
-                  .sort((a, b) => a.sortOrder - b.sortOrder)
-                  .map((field) => (
-                    <div
-                      key={field.id}
-                      className="flex items-center justify-between rounded-lg border bg-card px-3 py-2"
-                    >
-                      <div>
-                        <div className="text-sm font-medium">{field.label}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {BOOKING_FORM_INPUT_GROUP_LABELS[field.inputGroup]}
-                        </div>
-                      </div>
-                      <span
-                        className={cn(
-                          'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
-                          field.visibility === 'required' && 'bg-emerald-100 text-emerald-700',
-                          field.visibility === 'optional' && 'bg-sky-100 text-sky-700',
-                          field.visibility === 'hidden' && 'bg-slate-100 text-slate-500',
-                        )}
-                      >
-                        {BOOKING_FORM_VISIBILITY_LABELS[field.visibility]}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </TourPanelSection>
+      <TourBookingFormSection form={form} {...sectionProps('bookingForm')} />
     </div>
   );
 }

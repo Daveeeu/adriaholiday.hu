@@ -4,7 +4,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -12,6 +11,7 @@ import type { GalleryItemsFormValues } from '@/components/media/gallery-items';
 import { GalleryItemsEditor } from '@/components/media/gallery-items-editor';
 
 import type { TourFormValues } from '../lib/tours.types';
+import { TourFieldHelp, TourFormLabel } from './TourFieldHelp';
 
 type TourGallerySectionProps = {
   form: UseFormReturn<TourFormValues>;
@@ -21,7 +21,10 @@ export function TourGallerySection({ form }: TourGallerySectionProps) {
   return (
     <section className="space-y-4 rounded-2xl border bg-card p-4">
       <div>
-        <h3 className="font-semibold">Galéria</h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="font-semibold">Galéria</h3>
+          <TourFieldHelp name="gallery" />
+        </div>
         <p className="text-sm text-muted-foreground">
           Az út képei a publikus oldalon ebben a sorrendben jelennek meg; az
           első aktív kép a borítókép. A sorrendet a fogantyúval húzva vagy a
@@ -35,7 +38,7 @@ export function TourGallerySection({ form }: TourGallerySectionProps) {
           name="galleryTitle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Galéria cím</FormLabel>
+              <TourFormLabel>Galéria cím</TourFormLabel>
               <FormControl>
                 <Input placeholder="Képek az utazás hangulatából" {...field} />
               </FormControl>
@@ -49,7 +52,7 @@ export function TourGallerySection({ form }: TourGallerySectionProps) {
           name="gallerySubtitle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Galéria alcím</FormLabel>
+              <TourFormLabel>Galéria alcím</TourFormLabel>
               <FormControl>
                 <Input
                   placeholder="Tengerpart, városnézés és élmények egy helyen."

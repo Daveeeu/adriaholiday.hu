@@ -1,4 +1,5 @@
 import { Plus, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,13 +7,14 @@ import { Input } from '@/components/ui/input';
 type ToursToolbarProps = {
   search: string;
   onSearchChange: (value: string) => void;
-  onCreateClick?: () => void;
+  /** The new tour editor; none: the user may not create tours. */
+  createPath?: string;
 };
 
 export function ToursToolbar({
   search,
   onSearchChange,
-  onCreateClick,
+  createPath,
 }: ToursToolbarProps) {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border bg-card p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
@@ -22,19 +24,20 @@ export function ToursToolbar({
           <Input
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Keresés név, webcím vagy akció alapján..."
+            placeholder="Keresés név, webcím vagy kulcsszó alapján..."
             className="pl-9"
           />
         </div>
       </div>
 
-      {onCreateClick ? (
-        <Button onClick={onCreateClick}>
-          <Plus className="size-4" />
-          Új körutazás
+      {createPath ? (
+        <Button asChild>
+          <Link to={createPath}>
+            <Plus className="size-4" />
+            Új körutazás
+          </Link>
         </Button>
       ) : null}
     </div>
   );
 }
-

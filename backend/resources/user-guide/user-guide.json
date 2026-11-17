@@ -427,7 +427,7 @@
               "image": {
                 "file": "tours-list",
                 "alt": "A körutazások listája",
-                "caption": "Az ajánlatok listája: felül a kereső és az „Új körutazás” gomb, alatta a szűrők, a táblázatban pedig utanként a fő jelölők (Kiemelt, Aktív, Képes ajánlat, Partnerportálokon megjelenik)."
+                "caption": "Az ajánlatok listája: felül a kereső és az „Új körutazás” gomb, alatta a szűrők, a táblázatban pedig utanként a fő jelölők (Kiemelt, Aktív, Partnerportálokon megjelenik)."
               }
             },
             {
@@ -436,26 +436,26 @@
               "fields": [
                 {
                   "name": "Kereső",
-                  "description": "Az út nevében, SEO nevében és az akció szövegekben keres."
+                  "description": "Az út nevében, webcímében, leírásaiban és keresési kulcsszavaiban keres."
                 },
                 {
-                  "name": "Összes régió / csoport / szezonális csoport",
-                  "description": "Csak az adott régióba vagy csoportba sorolt utakat mutatja."
+                  "name": "Összes régió",
+                  "description": "Csak az adott régióba sorolt utakat mutatja."
                 },
                 {
-                  "name": "Aktív / Kiemelt / XML / Képes ajánlat állapot",
+                  "name": "Aktív / Kiemelt / Partnerportál állapot",
                   "description": "A megfelelő jelölő szerint szűr (pl. csak az inaktív utak)."
                 },
                 {
-                  "name": "Név / Akció 1 / Akció 2",
-                  "description": "Az út neve, alatta a belső akciócímkék és a keresési kulcsszavak. Ha egy aktív útnak nincs kulcsszava, a lista jelzi."
+                  "name": "Név",
+                  "description": "Az út neve, alatta az alcíme. Ha egy aktív útnak nincs keresési kulcsszava, a lista jelzi."
                 },
                 {
-                  "name": "Régió, Csoport",
-                  "description": "Az út besorolása (a szerkesztő „Szűrők és kapcsolatok” részében állítható)."
+                  "name": "Régió",
+                  "description": "Az út régiója (a szerkesztő „Szűrők és kapcsolatok” részében állítható)."
                 },
                 {
-                  "name": "Kiemelt, Aktív, Képes ajánlat, Partnerportálokon megjelenik",
+                  "name": "Kiemelt, Aktív, Partnerportálokon megjelenik",
                   "description": "Igen / Nem jelzés a szerkesztő azonos nevű kapcsolói alapján."
                 }
               ]
@@ -480,7 +480,7 @@
                 },
                 {
                   "name": "Ceruza",
-                  "description": "Szerkesztés: megnyitja a teljes körutazás szerkesztőt."
+                  "description": "Szerkesztés: külön oldalon megnyitja a teljes körutazás szerkesztőt. A böngésző vissza gombjával vagy a „Mégse” gombbal térsz vissza a listához."
                 },
                 {
                   "name": "„…” menü: Aktiválás / Inaktiválás",
@@ -511,17 +511,17 @@
               "image": {
                 "file": "tour-detail",
                 "alt": "Egy körutazás megtekintése",
-                "caption": "A szem ikonnal megnyitott nézet: az út minden adata csoportosítva, szerkesztés nélkül. A panel aljáról is indítható a szerkesztés, a másolás vagy a törlés."
+                "caption": "A szem ikonnal megnyitott nézet: az út minden adata csoportosítva, szerkesztés nélkül. A panel tetejéről indítható az aktiválás, a másolás, a szerkesztés (külön oldalon) vagy a törlés."
               }
             },
             {
               "type": "steps",
               "items": [
-                "Kattints az „Új körutazás” gombra, vagy egy hasonló út sorában a másolás ikonra.",
+                "Kattints az „Új körutazás” gombra (külön oldalon nyílik a szerkesztő), vagy egy hasonló út sorában a „…” menüben a „Másolás új útként” pontra.",
                 "Töltsd ki legalább a nevet (Név és webcím), az árat (Árdoboz) és a régiót (Szűrők és kapcsolatok).",
                 "Add meg az indulási időpontokat az „Időpontok” részben, szükség esetén a felárakkal.",
                 "Írd meg a leírásokat és a programot, tölts fel képeket.",
-                "Pipáld be az „Aktív?” és a „Megjelenik az ajánlatlistákban?” jelölőt, majd ments.",
+                "Pipáld be az „Aktív?” és a „Megjelenik az ajánlatlistákban?” jelölőt, majd kattints a „Mentés” gombra. Az első mentés után a szerkesztő az új út szerkesztő oldalán marad.",
                 "Nyisd meg az utat a weboldalon (/ajanlat/<Webcím>), és ellenőrizd a megjelenést."
               ],
               "title": "Új út felvitele lépésről lépésre"
@@ -531,7 +531,7 @@
         {
           "id": "tour-editor",
           "title": "A körutazás szerkesztő felépítése",
-          "summary": "A szerkesztő jobbról becsúszó panel, amely lenyitható szekciókra tagolódik. Mindig csak azt nyisd le, amin dolgozol; az „Összes lenyitása” / „Összes csukása” gombokkal egyszerre is nyithatod-zárhatod őket.",
+          "summary": "A szerkesztő külön oldalon nyílik (új útnál az „Új körutazás” gombbal, meglévőnél a ceruza ikonnal), és lenyitható szekciókra tagolódik. Mindig csak azt nyisd le, amin dolgozol; az „Összes lenyitása” / „Összes csukása” gombokkal egyszerre is nyithatod-zárhatod őket.",
           "path": "/tours",
           "menu": "Körutazások › Ajánlatok › ceruza ikon",
           "access": "Körutazások szerkesztése",
@@ -541,7 +541,7 @@
               "image": {
                 "file": "tour-form-overview",
                 "alt": "A körutazás szerkesztő",
-                "caption": "A szerkesztő teteje: a szekciók listája, alul a Törlés, Mégse és Mentés gombok. A szekciók fejlécében lévő szám (pl. „10 elem”) a már felvitt elemek számát mutatja."
+                "caption": "A szerkesztő teteje: a vissza nyíl, az út neve és állapota, a Törlés, Mégse és Mentés gombok, alattuk a szekciók. A szekciók fejlécében lévő szám (pl. „10 elem”) a már felvitt elemek számát mutatja."
               }
             },
             {
@@ -565,7 +565,15 @@
             },
             {
               "type": "tip",
-              "text": "A „Mentés” gomb a panel alján mindig látszik. Egyszerre több szekciót is módosíthatsz, a mentés mindet rögzíti."
+              "text": "A „Mentés” gomb az oldal tetején görgetés közben is látszik. Egyszerre több szekciót is módosíthatsz, a mentés mindet rögzíti; mentés után a szerkesztő nyitva marad, a „Mégse” vagy a vissza nyíl visz vissza a listához."
+            },
+            {
+              "type": "tip",
+              "text": "Amíg van nem mentett módosítás, a fejlécben „Nem mentett módosítások” áll, és ha elhagynád az oldalt (másik menüpont, vissza gomb, a lap bezárása vagy újratöltése), a rendszer előbb rákérdez."
+            },
+            {
+              "type": "tip",
+              "text": "Ha egy mező hibás (pl. hiányzik a név), a mentés nem történik meg: a szerkesztő lenyitja az érintett szekciót, a mező alatt pirossal kiírja a hibát, és felugró üzenetben is összefoglalja."
             }
           ]
         },
@@ -1092,7 +1100,7 @@
               "image": {
                 "file": "tour-form-filters",
                 "alt": "Szűrők és kapcsolatok szekció",
-                "caption": "Régiók, csoportok, főoldali ajánlat, kiemelés, kategóriák, országok, címkék és a felszállási helyek felára."
+                "caption": "Régió, kiemelés, kategóriák, program típus, közlekedés, országok, címkék és a felszállási helyek felára."
               }
             },
             {
@@ -1101,7 +1109,7 @@
               "fields": [
                 {
                   "name": "Régiók",
-                  "description": "A körutazás régiója (Körutazások › Régiók és csoportok).",
+                  "description": "A körutazás régiója (Apartmanok › Régiók).",
                   "appearsAt": "A listák szűrőiben, az út adatai között és a partnerportálok adataiban."
                 },
                 {
@@ -1348,8 +1356,8 @@
         },
         {
           "id": "tour-booking-form",
-          "title": "Foglalási űrlap beállításai és partner bónuszok",
-          "summary": "Melyik foglalási űrlap sablon alapján kérje be a weboldal az adatokat ennél az útnál, és a partner bónuszok.",
+          "title": "Foglalási űrlap beállításai",
+          "summary": "Melyik foglalási űrlap sablon alapján kérje be a weboldal az adatokat ennél az útnál.",
           "menu": "Körutazások › Ajánlatok › ceruza ikon",
           "access": "Körutazások szerkesztése",
           "blocks": [
@@ -1431,7 +1439,7 @@
         {
           "id": "tour-region-groups",
           "title": "Régiók és csoportok (körutazás)",
-          "summary": "A körutazások besorolására szolgáló régiók (pl. Erdély, Balkán) és csoportok (pl. Klasszikus körutak). Az út szerkesztőjében a „Régiók” mezőben választható ki a régió; a csoportokat az új weboldal nem használja.",
+          "summary": "A régi weboldalról átvett régiók (pl. Erdély, Balkán) és csoportok (pl. Klasszikus körutak). Az utak nem sorolhatók ezekbe, és a weboldal sem használja őket; az út régióját a szerkesztő „Régiók” mezője adja (Apartmanok › Régiók).",
           "path": "/tours/region-groups",
           "menu": "Körutazások › Régiók és csoportok",
           "access": "Körutazások megtekintése (a módosításhoz szerkesztési jog is kell)",
@@ -1459,7 +1467,7 @@
                 {
                   "name": "Név",
                   "description": "A régió vagy csoport megnevezése.",
-                  "appearsAt": "Az utak besorolásánál, a szerkesztő választólistáiban és az utak címkéiben."
+                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 },
                 {
                   "name": "Típus",
@@ -1504,7 +1512,7 @@
         {
           "id": "tour-seasonal-groups",
           "title": "Szezonális ajánlat csoportok",
-          "summary": "Időszakhoz vagy témához kötött ajánlatcsoportok (pl. bevezető utak, ajánlatkérő utak). Egy út a szerkesztőben egy szezonális csoportba sorolható.",
+          "summary": "A régi weboldalról átvett, időszakhoz vagy témához kötött ajánlatcsoportok (pl. bevezető utak, ajánlatkérő utak). Az utak nem sorolhatók ezekbe, és a weboldal sem használja őket.",
           "path": "/tours/seasonal-groups",
           "menu": "Körutazások › Szezonális ajánlat csoportok",
           "access": "Körutazások megtekintése (a módosításhoz szerkesztési jog is kell)",

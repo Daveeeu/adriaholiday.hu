@@ -2,17 +2,25 @@ import { useQuery } from '@tanstack/react-query';
 import type { UseFormReturn } from 'react-hook-form';
 
 import { RichTextEditor } from '@/components/editor/rich-text-editor';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 import { getPartnerXmlOptions } from '../lib/tour-select-options.api';
 import type { TourFormValues } from '../lib/tours.types';
+import { TourFormLabel } from './TourFieldHelp';
 
 type TourPartnerXmlSectionProps = {
   form: UseFormReturn<TourFormValues>;
 };
 
-const SELECT_CLASS = 'flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm';
+const SELECT_CLASS =
+  'flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm';
 
 const TRAVEL_TYPE_FIELDS = [
   { partner: 'travelgate', label: 'Utazás típusa – Travelgate (/xmltravel)' },
@@ -36,8 +44,10 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
   return (
     <div className="space-y-5">
       <p className="text-sm text-muted-foreground">
-        Az út a partnerportálok feedjeiben akkor szerepel, ha aktív és be van kapcsolva az „XML-ben szerepel?” jelölés; az
-        időpontok közül azok, amelyeknél az időpont saját „XML-ben szerepel” jelölése is be van kapcsolva.
+        Az út a partnerportálok feedjeiben akkor szerepel, ha aktív és be van
+        kapcsolva az „XML-ben szerepel?” jelölés; az időpontok közül azok,
+        amelyeknél az időpont saját „XML-ben szerepel” jelölése is be van
+        kapcsolva.
       </p>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -46,15 +56,21 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
           name="partnerXml.country_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Régió a partnereknél</FormLabel>
+              <TourFormLabel>Régió a partnereknél</TourFormLabel>
               <FormControl>
                 <select
                   className={SELECT_CLASS}
                   value={field.value}
                   onChange={(event) => {
-                    const region = options?.regions.find((option) => option.value === event.target.value);
+                    const region = options?.regions.find(
+                      (option) => option.value === event.target.value,
+                    );
                     field.onChange(event.target.value);
-                    form.setValue('partnerXml.country_name', region?.label ?? '', { shouldDirty: true });
+                    form.setValue(
+                      'partnerXml.country_name',
+                      region?.label ?? '',
+                      { shouldDirty: true },
+                    );
                   }}
                 >
                   <option value="">– az út régiója –</option>
@@ -65,7 +81,9 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
                   ))}
                 </select>
               </FormControl>
-              <FormDescription>Ez alapján sorolják be a portálok az utat.</FormDescription>
+              <FormDescription>
+                Ez alapján sorolják be a portálok az utat.
+              </FormDescription>
             </FormItem>
           )}
         />
@@ -77,15 +95,21 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
             name={`partnerXml.travel_types.${item.partner}`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{item.label}</FormLabel>
+                <TourFormLabel>{item.label}</TourFormLabel>
                 <FormControl>
-                  <select className={SELECT_CLASS} value={field.value} onChange={(event) => field.onChange(event.target.value)}>
+                  <select
+                    className={SELECT_CLASS}
+                    value={field.value}
+                    onChange={(event) => field.onChange(event.target.value)}
+                  >
                     <option value="">– nincs –</option>
-                    {(options?.travelTypes[item.partner] ?? []).map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
+                    {(options?.travelTypes[item.partner] ?? []).map(
+                      (option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ),
+                    )}
                   </select>
                 </FormControl>
                 <FormMessage />
@@ -100,18 +124,29 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
         name="partnerXml.travel_types.travelmax"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Utazás típusa – Travelmax (/xmltravelmax)</FormLabel>
+            <TourFormLabel>
+              Utazás típusa – Travelmax (/xmltravelmax)
+            </TourFormLabel>
             <div className="flex flex-wrap gap-2">
               {(options?.travelTypes.travelmax ?? []).map((option) => {
                 const checked = field.value.includes(option.value);
 
                 return (
-                  <label key={option.value} className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                  <label
+                    key={option.value}
+                    className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm"
+                  >
                     <input
                       type="checkbox"
                       checked={checked}
                       onChange={() =>
-                        field.onChange(checked ? field.value.filter((value) => value !== option.value) : [...field.value, option.value])
+                        field.onChange(
+                          checked
+                            ? field.value.filter(
+                                (value) => value !== option.value,
+                              )
+                            : [...field.value, option.value],
+                        )
                       }
                     />
                     {option.label}
@@ -129,9 +164,12 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
           name="partnerXml.accommodation_name"
           render={({ field }) => (
             <FormItem className="md:col-span-2">
-              <FormLabel>Szállás megnevezése a portálokon</FormLabel>
+              <TourFormLabel>Szállás megnevezése a portálokon</TourFormLabel>
               <FormControl>
-                <Input placeholder="Dél-Erdélyi kirándulás a Vaskapu-szorossal" {...field} />
+                <Input
+                  placeholder="Dél-Erdélyi kirándulás a Vaskapu-szorossal"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -142,7 +180,7 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
           name="partnerXml.city"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Város</FormLabel>
+              <TourFormLabel>Város</TourFormLabel>
               <FormControl>
                 <Input placeholder="Erdély" {...field} />
               </FormControl>
@@ -155,11 +193,13 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
           name="partnerXml.insurance_value"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Biztosítás díja (Ft/fő/nap)</FormLabel>
+              <TourFormLabel>Biztosítás díja (Ft/fő/nap)</TourFormLabel>
               <FormControl>
                 <Input inputMode="numeric" placeholder="430" {...field} />
               </FormControl>
-              <FormDescription>Az általános feedben (/xml) jelenik meg.</FormDescription>
+              <FormDescription>
+                Az általános feedben (/xml) jelenik meg.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -171,9 +211,13 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
         name="partnerXml.accommodation_description_travelmax"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Szállás leírása – Travelmax</FormLabel>
+            <TourFormLabel>Szállás leírása – Travelmax</TourFormLabel>
             <FormControl>
-              <RichTextEditor value={field.value} onChange={field.onChange} minHeight={140} />
+              <RichTextEditor
+                value={field.value}
+                onChange={field.onChange}
+                minHeight={140}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

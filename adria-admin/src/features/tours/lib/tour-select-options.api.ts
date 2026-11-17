@@ -83,57 +83,6 @@ export async function createRegionOption(values: {
   return normalizeSelectOption({ id: String(region.id), value: String(region.id), label: region.name });
 }
 
-export async function getGroupOptions(search?: string) {
-  return getSelectOptions('/api/admin/select-options/groups', search);
-}
-
-export async function createGroupOption(values: {
-  name: string;
-  code?: string;
-  isActive?: boolean;
-}) {
-  const response = await apiClient.post<SelectOption>('/api/admin/tour-region-groups', {
-    active: values.isActive ?? true,
-    featured_on_homepage: false,
-    type: 'group',
-    name: values.name,
-    seo_name: values.code || slugifyTourText(values.name),
-    seo_auto_generate: true,
-    gallery_id: null,
-    description: null,
-    list_below_text: null,
-    travel_conditions_link: null,
-  });
-
-  return normalizeSelectOption(response);
-}
-
-export async function getOfferGroupOptions(search?: string) {
-  return getSelectOptions('/api/admin/select-options/offer-groups', search);
-}
-
-export async function getHomepageOfferOptions(search?: string) {
-  return getSelectOptions('/api/admin/select-options/homepage-offers', search);
-}
-
-export async function createOfferGroupOption(values: {
-  name: string;
-  code?: string;
-  isActive?: boolean;
-}) {
-  const response = await apiClient.post<SelectOption>('/api/admin/tour-seasonal-groups', {
-    active: values.isActive ?? true,
-    menu_type: 'intro',
-    name: values.name,
-    seo_name: values.code || slugifyTourText(values.name),
-    seo_auto_generate: true,
-    box_text: null,
-    has_offers: false,
-  });
-
-  return normalizeSelectOption(response);
-}
-
 export async function getDeparturePlaceOptions(search?: string) {
   return getSelectOptions('/api/admin/select-options/departure-places', search);
 }
@@ -172,24 +121,6 @@ export async function createCountryOption(values: {
   return normalizeSelectOption(response);
 }
 
-export async function getFitOptions(search?: string) {
-  return getSelectOptions('/api/admin/select-options/fits', search);
-}
-
-export async function createFitOption(values: {
-  name: string;
-  code?: string;
-  isActive?: boolean;
-}) {
-  const response = await apiClient.post<SelectOption>('/api/admin/fits', {
-    name: values.name,
-    code: values.code || slugifyTourText(values.name),
-    active: values.isActive ?? true,
-  });
-
-  return normalizeSelectOption(response);
-}
-
 export async function getProgramTypeOptions(search?: string) {
   return getSelectOptions('/api/admin/select-options/program-types', search);
 }
@@ -218,24 +149,6 @@ export async function createTravelModeOption(values: {
   isActive?: boolean;
 }) {
   const response = await apiClient.post<SelectOption>('/api/admin/travel-modes', {
-    name: values.name,
-    code: values.code || slugifyTourText(values.name),
-    active: values.isActive ?? true,
-  });
-
-  return normalizeSelectOption(response);
-}
-
-export async function getDifficultyOptions(search?: string) {
-  return getSelectOptions('/api/admin/select-options/difficulties', search);
-}
-
-export async function createDifficultyOption(values: {
-  name: string;
-  code?: string;
-  isActive?: boolean;
-}) {
-  const response = await apiClient.post<SelectOption>('/api/admin/difficulties', {
     name: values.name,
     code: values.code || slugifyTourText(values.name),
     active: values.isActive ?? true,

@@ -8,4 +8,3 @@ export type ToursMainTab =
 export function ToursTabs() {
   return null;
 }
-

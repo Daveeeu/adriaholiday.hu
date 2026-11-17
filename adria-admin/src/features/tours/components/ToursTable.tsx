@@ -35,7 +35,8 @@ export function ToursTable({
   onPageSizeChange,
 }: ToursTableProps) {
   const rows = table.getRowModel().rows;
-  const pageFrom = rows.length === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1;
+  const pageFrom =
+    rows.length === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1;
   const pageTo = pagination.pageIndex * pagination.pageSize + rows.length;
 
   return (
@@ -48,7 +49,9 @@ export function ToursTable({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={cn(header.column.id === 'actions' && STICKY_ACTIONS_CLASS)}
+                    className={cn(
+                      header.column.id === 'actions' && STICKY_ACTIONS_CLASS,
+                    )}
                   >
                     {header.isPlaceholder
                       ? null
@@ -69,9 +72,14 @@ export function ToursTable({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className={cn(cell.column.id === 'actions' && STICKY_ACTIONS_CLASS)}
+                      className={cn(
+                        cell.column.id === 'actions' && STICKY_ACTIONS_CLASS,
+                      )}
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -92,7 +100,8 @@ export function ToursTable({
 
       <div className="flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm text-muted-foreground">
-          Találatok: <span className="font-medium text-foreground">{pageFrom}</span>-
+          Találatok:{' '}
+          <span className="font-medium text-foreground">{pageFrom}</span>-
           <span className="font-medium text-foreground">{pageTo}</span> /{' '}
           <span className="font-medium text-foreground">{totalCount}</span>{' '}
           összesen
@@ -118,7 +127,9 @@ export function ToursTable({
             <span className="text-sm text-muted-foreground">
               {pagination.pageIndex + 1} / {table.getPageCount() || 1}
             </span>
-            <Button title="Előző" aria-label="Előző"
+            <Button
+              title="Előző"
+              aria-label="Előző"
               variant="outline"
               size="icon"
               onClick={() => table.previousPage()}
@@ -126,7 +137,9 @@ export function ToursTable({
             >
               <ChevronLeft className="size-4" />
             </Button>
-            <Button title="Következő" aria-label="Következő"
+            <Button
+              title="Következő"
+              aria-label="Következő"
               variant="outline"
               size="icon"
               onClick={() => table.nextPage()}
@@ -140,4 +153,3 @@ export function ToursTable({
     </div>
   );
 }
-

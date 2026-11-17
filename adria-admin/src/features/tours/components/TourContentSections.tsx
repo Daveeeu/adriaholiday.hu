@@ -4,13 +4,16 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { FIXED_FORMAT_CONTROLS, RichTextEditor } from '@/components/editor/rich-text-editor';
+import {
+  FIXED_FORMAT_CONTROLS,
+  RichTextEditor,
+} from '@/components/editor/rich-text-editor';
 
 import type { TourFormValues } from '../lib/tours.types';
 import { TourSearchKeywordsField } from './TourSearchKeywordsField';
+import { TourFormLabel } from './TourFieldHelp';
 
 type TourContentSectionsProps = {
   form: UseFormReturn<TourFormValues>;
@@ -35,7 +38,7 @@ function TextareaField({
       name={name}
       render={({ field }) => (
         <FormItem className="space-y-2">
-          <FormLabel>{label}</FormLabel>
+          <TourFormLabel>{label}</TourFormLabel>
           <FormControl>
             <RichTextEditor
               value={typeof field.value === 'string' ? field.value : ''}

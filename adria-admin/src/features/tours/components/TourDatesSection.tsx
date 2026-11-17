@@ -7,7 +7,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -22,6 +21,7 @@ import { TourDateDeparturePlacesEditor } from './TourDateDeparturePlacesEditor';
 import { TourDateExtrasEditor } from './TourDateExtrasEditor';
 import { TourDatePartnerXmlFields } from './TourDatePartnerXmlFields';
 import { TourStaySection } from './TourStaySection';
+import { TourFormLabel } from './TourFieldHelp';
 
 type TourDateFormValue = TourFormValues['dates'][number];
 
@@ -51,7 +51,6 @@ function emptyTourDate(): TourDateFormValue {
       discountBadge: '',
       originalPrice: '',
       label: '',
-      minParticipants: '',
     },
     capacity: '',
     extras: [],
@@ -122,7 +121,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.startDate`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Indulás</FormLabel>
+                  <TourFormLabel>Indulás</TourFormLabel>
                   <FormControl>
                     <Input type="date" {...dateField} />
                   </FormControl>
@@ -135,7 +134,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.endDate`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Érkezés</FormLabel>
+                  <TourFormLabel>Érkezés</TourFormLabel>
                   <FormControl>
                     <Input type="date" {...dateField} />
                   </FormControl>
@@ -148,7 +147,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.price`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Ár</FormLabel>
+                  <TourFormLabel>Ár</TourFormLabel>
                   <FormControl>
                     <Input placeholder="1200" {...dateField} />
                   </FormControl>
@@ -161,7 +160,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.status`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Státusz</FormLabel>
+                  <TourFormLabel>Státusz</TourFormLabel>
                   <FormControl>
                     <select
                       className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
@@ -179,7 +178,9 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               )}
             />
             <div className="flex items-end">
-              <Button title="Törlés" aria-label="Törlés"
+              <Button
+                title="Törlés"
+                aria-label="Törlés"
                 type="button"
                 variant="outline"
                 size="icon"
@@ -196,7 +197,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.priceBox.price`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Ár</FormLabel>
+                  <TourFormLabel>Ár</TourFormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -214,7 +215,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.priceBox.displayedPrice`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Megjelenített ár</FormLabel>
+                  <TourFormLabel>Megjelenített ár</TourFormLabel>
                   <FormControl>
                     <Input placeholder="199 000 Ft-tól" {...dateField} />
                   </FormControl>
@@ -222,13 +223,17 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
                 </FormItem>
               )}
             />
-            <TourDateCapacityField form={form} index={index} storedDates={tour?.dates} />
+            <TourDateCapacityField
+              form={form}
+              index={index}
+              storedDates={tour?.dates}
+            />
             <FormField
               control={form.control}
               name={`dates.${index}.priceBox.discountBadge`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Kedvezmény címke</FormLabel>
+                  <TourFormLabel>Kedvezmény címke</TourFormLabel>
                   <FormControl>
                     <Input placeholder="-15%" {...dateField} />
                   </FormControl>
@@ -241,7 +246,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.priceBox.originalPrice`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Eredeti ár (áthúzva)</FormLabel>
+                  <TourFormLabel>Eredeti ár (áthúzva)</TourFormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -263,7 +268,7 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
               name={`dates.${index}.priceBox.label`}
               render={({ field: dateField }) => (
                 <FormItem>
-                  <FormLabel>Címke az ár mellett</FormLabel>
+                  <TourFormLabel>Címke az ár mellett</TourFormLabel>
                   <FormControl>
                     <Input placeholder="Előfoglalási akció" {...dateField} />
                   </FormControl>

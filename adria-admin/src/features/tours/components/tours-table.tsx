@@ -1,2 +1,0 @@
-export { ToursTable } from './ToursTable';
-

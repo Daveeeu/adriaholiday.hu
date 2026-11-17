@@ -4,16 +4,12 @@ import { Loader2, Sparkles, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '@/components/ui/form';
+import { FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 import { suggestTourSearchKeywords } from '../lib/tours.api';
 import type { TourFormValues } from '../lib/tours.types';
+import { TourFormLabel } from './TourFieldHelp';
 
 type TourSearchKeywordsFieldProps = {
   form: UseFormReturn<TourFormValues>;
@@ -114,7 +110,7 @@ function KeywordsEditor({ form, keywords, onChange }: KeywordsEditorProps) {
   return (
     <FormItem className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <FormLabel>Keresési kulcsszavak</FormLabel>
+        <TourFormLabel>Keresési kulcsszavak</TourFormLabel>
         <Button
           type="button"
           variant="outline"

@@ -146,4 +146,7 @@ export {
   FormItem,
   FormLabel,
   FormMessage,
+  // The field's name and state, for labels built on top of FormLabel.
+  // eslint-disable-next-line react-refresh/only-export-components
+  useFormField,
 };

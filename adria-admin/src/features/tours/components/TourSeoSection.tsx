@@ -8,7 +8,6 @@ import {
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -19,6 +18,7 @@ import {
   TOUR_SEO_ROBOTS_OPTIONS,
 } from '../lib/tours.constants';
 import type { TourFormValues } from '../lib/tours.types';
+import { TourFieldHelp, TourFormLabel } from './TourFieldHelp';
 
 type TourSeoSectionProps = {
   form: UseFormReturn<TourFormValues>;
@@ -72,7 +72,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Név</FormLabel>
+              <TourFormLabel>Név</TourFormLabel>
               <FormControl>
                 <Input placeholder="Körutazás neve" {...field} />
               </FormControl>
@@ -86,7 +86,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="subtitle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Alcím</FormLabel>
+              <TourFormLabel>Alcím</TourFormLabel>
               <FormControl>
                 <Input placeholder="Opcionális alcím" {...field} />
               </FormControl>
@@ -100,7 +100,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="seoName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Webcím</FormLabel>
+              <TourFormLabel>Webcím</TourFormLabel>
               <FormControl>
                 <Input
                   placeholder="korutazasok"
@@ -120,7 +120,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="seoTitle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Keresőben megjelenő cím</FormLabel>
+              <TourFormLabel>Keresőben megjelenő cím</TourFormLabel>
               <FormControl>
                 <Input placeholder="Üresen az utazás neve" {...field} />
               </FormControl>
@@ -137,7 +137,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="seoRobots"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Megjelenjen a keresőkben?</FormLabel>
+              <TourFormLabel>Megjelenjen a keresőkben?</TourFormLabel>
               <FormControl>
                 <select
                   className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
@@ -160,7 +160,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           name="seoDescription"
           render={({ field }) => (
             <FormItem className="md:col-span-2">
-              <FormLabel>Keresőben megjelenő leírás</FormLabel>
+              <TourFormLabel>Keresőben megjelenő leírás</TourFormLabel>
               <FormControl>
                 <Textarea
                   rows={3}
@@ -189,6 +189,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
                 onChange={(event) => field.onChange(event.target.checked)}
               />
               Automatikus generálás
+              <TourFieldHelp name={field.name} />
             </label>
           </FormItem>
         )}

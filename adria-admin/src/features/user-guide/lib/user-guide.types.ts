@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 
 export type GuideImage = {
-  /** File name inside public/user-guide, without the extension. */
+  /** File name inside public/guide-images, without the extension. */
   file: string;
   alt: string;
   caption: string;
@@ -14,6 +14,19 @@ export type GuideField = {
   description: string;
   /** Where the value shows up (public site, e-mail, partner feed, admin only). */
   appearsAt?: string;
+  /**
+   * The form fields the entry documents, as paths without row indices
+   * (`priceBox.discountText`, `dates.startDate`): their help icon shows it.
+   */
+  formFields?: string[];
+  /** A picture of where the value shows up. */
+  preview?: GuideFieldPreview;
+};
+
+export type GuideFieldPreview = {
+  /** File name inside public/guide-images, without the extension. */
+  file: string;
+  alt: string;
 };
 
 export type GuideBlock =

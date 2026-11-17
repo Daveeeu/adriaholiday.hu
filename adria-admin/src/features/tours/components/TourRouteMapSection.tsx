@@ -34,6 +34,7 @@ import type {
   TourFormValues,
   TourRouteStop,
 } from '../lib/tours.types';
+import { TourFieldHelp } from './TourFieldHelp';
 
 type TourRouteMapSectionProps = {
   form: UseFormReturn<TourFormValues>;
@@ -164,6 +165,11 @@ export function TourRouteMapSection({
               <span className="mt-2 w-6 text-center text-sm font-semibold text-muted-foreground">
                 {index + 1}.
               </span>
+              {index === 0 ? (
+                <span className="mt-2">
+                  <TourFieldHelp name="routeStops.name" />
+                </span>
+              ) : null}
               <FormField
                 control={form.control}
                 name={`routeStops.${index}.name`}
@@ -199,6 +205,7 @@ export function TourRouteMapSection({
                     />
                     <BedDouble className="size-4" />
                     Szállás
+                    <TourFieldHelp name={accommodationField.name} />
                   </label>
                 )}
               />

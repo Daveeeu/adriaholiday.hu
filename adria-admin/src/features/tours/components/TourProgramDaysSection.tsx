@@ -7,16 +7,22 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MediaPicker } from '@/components/media/media-picker';
-import { FIXED_FORMAT_CONTROLS, RichTextEditor } from '@/components/editor/rich-text-editor';
+import {
+  FIXED_FORMAT_CONTROLS,
+  RichTextEditor,
+} from '@/components/editor/rich-text-editor';
 
 import { renderProgramDayIcon } from '../lib/program-day-icon-map';
-import type { TourFormValues, TourProgramDayFormValue } from '../lib/tours.types';
+import type {
+  TourFormValues,
+  TourProgramDayFormValue,
+} from '../lib/tours.types';
 import { createClientId } from '@/lib/client-id';
+import { TourFieldHelp, TourFormLabel } from './TourFieldHelp';
 
 type TourProgramDaysSectionProps = {
   form: UseFormReturn<TourFormValues>;
@@ -38,7 +44,9 @@ type ProgramDayRow = {
 };
 
 function sortRows(rows: ProgramDayRow[]) {
-  return [...rows].sort((a, b) => a.sortOrder - b.sortOrder || a.index - b.index);
+  return [...rows].sort(
+    (a, b) => a.sortOrder - b.sortOrder || a.index - b.index,
+  );
 }
 
 function ProgramDayBadgesField({
@@ -57,8 +65,13 @@ function ProgramDayBadgesField({
     <div className="space-y-3 rounded-2xl border bg-muted/20 p-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <div className="text-sm font-semibold">Badge-ek</div>
-          <div className="text-xs text-muted-foreground">Városnézés, fotómegálló stb.</div>
+          <div className="flex items-center gap-1.5 text-sm font-semibold">
+            Badge-ek
+            <TourFieldHelp name="programDays.badges" />
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Városnézés, fotómegálló stb.
+          </div>
         </div>
         <Button
           type="button"
@@ -78,16 +91,20 @@ function ProgramDayBadgesField({
 
       <div className="space-y-2">
         {fields.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nincs még címke megadva.</p>
+          <p className="text-sm text-muted-foreground">
+            Nincs még címke megadva.
+          </p>
         ) : (
           fields.map((field, badgeIndex) => (
             <div key={field.id} className="grid gap-2 md:grid-cols-[1fr_auto]">
               <FormField
                 control={form.control}
-                name={`programDays.${dayIndex}.badges.${badgeIndex}.text` as const}
+                name={
+                  `programDays.${dayIndex}.badges.${badgeIndex}.text` as const
+                }
                 render={({ field: badgeField }) => (
                   <FormItem>
-                    <FormLabel>Badge szöveg</FormLabel>
+                    <TourFormLabel>Badge szöveg</TourFormLabel>
                     <FormControl>
                       <Input placeholder="Városnézés" {...badgeField} />
                     </FormControl>
@@ -97,7 +114,9 @@ function ProgramDayBadgesField({
               />
 
               <div className="flex items-end">
-                <Button title="Törlés" aria-label="Törlés"
+                <Button
+                  title="Törlés"
+                  aria-label="Törlés"
                   type="button"
                   variant="outline"
                   size="icon"
@@ -154,13 +173,15 @@ function ProgramDayCard({
             name={`programDays.${row.index}.dayNumber`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nap száma</FormLabel>
+                <TourFormLabel>Nap száma</TourFormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     min={1}
                     {...field}
-                    onChange={(event) => field.onChange(Number(event.target.value))}
+                    onChange={(event) =>
+                      field.onChange(Number(event.target.value))
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -173,7 +194,7 @@ function ProgramDayCard({
             name={`programDays.${row.index}.experienceType`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Élmény típusa</FormLabel>
+                <TourFormLabel>Élmény típusa</TourFormLabel>
                 <FormControl>
                   <Input placeholder="Utazás, Kultúra..." {...field} />
                 </FormControl>
@@ -187,7 +208,7 @@ function ProgramDayCard({
             name={`programDays.${row.index}.icon`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ikon kulcs</FormLabel>
+                <TourFormLabel>Ikon kulcs</TourFormLabel>
                 <FormControl>
                   <div className="flex items-center gap-3">
                     <Input placeholder="bus, beach, camera..." {...field} />
@@ -206,7 +227,7 @@ function ProgramDayCard({
             name={`programDays.${row.index}.active`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Aktív</FormLabel>
+                <TourFormLabel>Aktív</TourFormLabel>
                 <label className="flex h-10 items-center gap-2 rounded-xl border bg-background px-3 text-sm">
                   <input
                     type="checkbox"
@@ -225,7 +246,7 @@ function ProgramDayCard({
           name={`programDays.${row.index}.title`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Cím</FormLabel>
+              <TourFormLabel>Cím</TourFormLabel>
               <FormControl>
                 <Input placeholder="Nap címe" {...field} />
               </FormControl>
@@ -239,7 +260,7 @@ function ProgramDayCard({
           name={`programDays.${row.index}.description`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Leírás</FormLabel>
+              <TourFormLabel>Leírás</TourFormLabel>
               <FormControl>
                 <RichTextEditor
                   value={typeof field.value === 'string' ? field.value : ''}
@@ -282,10 +303,24 @@ function ProgramDayCard({
       </div>
 
       <div className="flex items-start justify-end gap-2">
-        <Button title="Másolás" aria-label="Másolás" type="button" variant="outline" size="icon" onClick={onCopy}>
+        <Button
+          title="Másolás"
+          aria-label="Másolás"
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={onCopy}
+        >
           <Copy className="size-4" />
         </Button>
-        <Button title="Törlés" aria-label="Törlés" type="button" variant="outline" size="icon" onClick={onDelete}>
+        <Button
+          title="Törlés"
+          aria-label="Törlés"
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={onDelete}
+        >
           <Trash2 className="size-4" />
         </Button>
       </div>
@@ -298,10 +333,11 @@ export function TourProgramDaysSection({ form }: TourProgramDaysSectionProps) {
     control: form.control,
     name: 'programDays',
   });
-  const watchedItems = useWatch({
-    control: form.control,
-    name: 'programDays',
-  }) ?? [];
+  const watchedItems =
+    useWatch({
+      control: form.control,
+      name: 'programDays',
+    }) ?? [];
   const [draggingId, setDraggingId] = useState<string | null>(null);
 
   const rows: ProgramDayRow[] = fields.map((field, index) => {
@@ -384,7 +420,8 @@ export function TourProgramDaysSection({ form }: TourProgramDaysSectionProps) {
       <div>
         <h3 className="font-semibold">Program napok</h3>
         <p className="text-sm text-muted-foreground">
-          Napokra bontott timeline, amely a publikus oldal részletes programját adja.
+          Napokra bontott timeline, amely a publikus oldal részletes programját
+          adja.
         </p>
       </div>
 

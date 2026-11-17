@@ -6,7 +6,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -15,6 +14,7 @@ import { cn } from '@/lib/utils';
 
 import { getDeparturePlaceOptions } from '../lib/tour-select-options.api';
 import type { Tour, TourFormValues } from '../lib/tours.types';
+import { TourFormLabel } from './TourFieldHelp';
 
 type TourDeparturePlaceFeesEditorProps = {
   form: UseFormReturn<TourFormValues>;
@@ -111,7 +111,7 @@ export function TourDeparturePlaceFeesEditor({
                 name={`departurePlaceFees.${id}`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{labelOf(id)} felára</FormLabel>
+                    <TourFormLabel>{labelOf(id)} felára</TourFormLabel>
                     <FormControl>
                       <Input
                         type="number"

@@ -47,10 +47,21 @@ export const field = (
   name: string,
   description: string,
   appearsAt?: string,
+  help?: Pick<GuideField, 'formFields' | 'preview'>,
 ): GuideField => ({
   name,
   description,
   appearsAt,
+  ...help,
+});
+
+/** The form fields an entry documents, for their help icons. */
+export const forms = (...formFields: string[]) => ({ formFields });
+
+/** The form fields an entry documents and a picture of where they show up. */
+export const shown = (file: string, alt: string, ...formFields: string[]) => ({
+  formFields,
+  preview: { file, alt },
 });
 
 /** Recurring "where it shows up" phrases, so the wording stays the same everywhere. */

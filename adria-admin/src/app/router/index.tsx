@@ -54,6 +54,11 @@ const ToursPage = lazy(() =>
     default: module.ToursPage,
   })),
 );
+const TourEditorPage = lazy(() =>
+  import('@/features/tours/pages/TourEditorPage').then((module) => ({
+    default: module.TourEditorPage,
+  })),
+);
 const ApartmentsPage = lazy(() =>
   import('@/features/apartments/routes/apartments-page').then((module) => ({
     default: module.ApartmentsPage,
@@ -451,6 +456,24 @@ const router = createBrowserRouter(
               index: true,
               element: <ToursPage />,
               handle: { crumbKey: 'nav.tours.offers' },
+            },
+            {
+              path: 'new',
+              element: (
+                <RequirePermission permission="tours.create">
+                  <TourEditorPage />
+                </RequirePermission>
+              ),
+              handle: { crumbKey: 'nav.tours.create' },
+            },
+            {
+              path: ':tourId/edit',
+              element: (
+                <RequirePermission permission="tours.update">
+                  <TourEditorPage />
+                </RequirePermission>
+              ),
+              handle: { crumbKey: 'nav.tours.edit' },
             },
             {
               path: 'partner-offers',

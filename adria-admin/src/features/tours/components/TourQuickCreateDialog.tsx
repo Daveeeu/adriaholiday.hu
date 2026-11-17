@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
 import { slugifyTourText } from '../lib/tours.constants';
@@ -9,12 +16,8 @@ import type { SelectOption } from '../lib/tours.types';
 
 export type TourQuickCreateKind =
   | 'region'
-  | 'group'
-  | 'offer-group'
-  | 'fit'
   | 'program-type'
   | 'travel-mode'
-  | 'difficulty'
   | 'departure-place'
   | 'country'
   | 'tag'
@@ -40,12 +43,8 @@ type TourQuickCreateDialogProps = {
 
 const KIND_LABELS: Record<TourQuickCreateKind, string> = {
   region: 'Régió',
-  group: 'Csoport',
-  'offer-group': 'Ajánlat csoport',
-  fit: 'FIT',
   'program-type': 'Program típus',
   'travel-mode': 'Közlekedés',
-  difficulty: 'Nehézségi szint',
   'departure-place': 'Felszállási hely',
   country: 'Ország',
   tag: 'Címke',
@@ -56,12 +55,8 @@ function codeLabelForKind(kind: TourQuickCreateKind) {
   switch (kind) {
     case 'region':
       return 'Webcím';
-    case 'group':
-    case 'offer-group':
-    case 'fit':
     case 'program-type':
     case 'travel-mode':
-    case 'difficulty':
     case 'country':
       return 'Kód';
     case 'tag':
@@ -123,7 +118,8 @@ export function TourQuickCreateDialog({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            {kindLabel} létrehozása. Az új elem a mentés után automatikusan kiválasztódik.
+            {kindLabel} létrehozása. Az új elem a mentés után automatikusan
+            kiválasztódik.
           </DialogDescription>
         </DialogHeader>
 
@@ -145,7 +141,9 @@ export function TourQuickCreateDialog({
 
           {supportsCode ? (
             <div className="space-y-2">
-              <label className="text-sm font-medium">{codeLabelForKind(kind!)}</label>
+              <label className="text-sm font-medium">
+                {codeLabelForKind(kind!)}
+              </label>
               <Input
                 value={code}
                 onChange={(event) => {
@@ -207,7 +205,12 @@ export function TourQuickCreateDialog({
         </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={submitting}
+          >
             Mégse
           </Button>
           <Button

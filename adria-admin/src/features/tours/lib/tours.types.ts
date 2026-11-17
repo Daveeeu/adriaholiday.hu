@@ -84,13 +84,6 @@ export type TourPartnerXml = {
   };
 };
 
-export type TourPartnerBonus = {
-  id: string;
-  sortOrder: number;
-  label: string;
-  value: string;
-};
-
 /** A place on the tour's route map, in travel order; accommodations are drawn in red. */
 export type TourRouteStop = {
   name: string;
@@ -138,9 +131,6 @@ export type TourPriceBox = {
   discountText: string | null;
   urgencyText: string | null;
   ratingText: string | null;
-  minParticipants: number | null;
-  ctaPrimaryLabel: string | null;
-  ctaSecondaryLabel: string | null;
   /** Dates only: the pre-promotion price, shown struck through. */
   originalPrice?: number | null;
   /** Dates only: a short note shown with the price ("Előfoglalási akció"). */
@@ -156,9 +146,6 @@ export type TourPriceBoxFormValue = {
   discountText: string;
   urgencyText: string;
   ratingText: string;
-  minParticipants: string;
-  ctaPrimaryLabel: string;
-  ctaSecondaryLabel: string;
 };
 
 export type TourProgramDayBadge = {
@@ -227,12 +214,6 @@ export type SelectOption = {
   label: string;
 };
 
-export type TourHomepageOfferSummary = {
-  id: string | number;
-  title: string;
-  slug?: string | null;
-};
-
 export type Tour = {
   id: string;
   sortOrder: number;
@@ -243,13 +224,9 @@ export type Tour = {
   /** Position among the homepage's featured offers. */
   featuredOrder: number | null;
   recommended: boolean;
-  partnerOffer: boolean;
-  imageOffer: boolean;
   xmlEnabled: boolean;
   partnerXml?: TourPartnerXml | null;
   couponable: boolean;
-  sliderImageEnabled: boolean;
-  sliderTextEnabled: boolean;
   name: string;
   subtitle?: string | null;
   seoName: string;
@@ -257,13 +234,9 @@ export type Tour = {
   seoTitle?: string | null;
   seoDescription?: string | null;
   seoRobots?: string | null;
-  action1: string;
-  action2: string;
   listDescription: string;
   shortDescription: string;
   searchKeywords?: string[];
-  programPdf: string;
-  programPdfFile: string;
   programBefore: string;
   program: string;
   programFooter?: string | null;
@@ -283,14 +256,6 @@ export type Tour = {
   priceItems: TourPriceItem[];
   regionId: string;
   regionLabel?: string | null;
-  homepageOfferId?: string | number | null;
-  homepageOfferIds?: Array<string | number>;
-  homepageOfferLabel?: string | null;
-  homepageOffers?: TourHomepageOfferSummary[];
-  groupId: string;
-  groupLabel?: string | null;
-  seasonalGroupId: string;
-  seasonalGroupLabel?: string | null;
   departurePlaceIds: number[];
   createdAt?: string | null;
   updatedAt?: string | null;
@@ -304,8 +269,6 @@ export type Tour = {
   tags?: SelectOption[];
   categoryIds: string[];
   categories?: SelectOption[];
-  fitId: string;
-  fitLabel?: string | null;
   programTypeId: string;
   programTypeLabel?: string | null;
   travelModeId: string;
@@ -314,16 +277,12 @@ export type Tour = {
   cateringInfo?: string | null;
   accommodation?: string | null;
   accommodationInfo?: string | null;
-  difficultyId: string;
-  difficultyLabel?: string | null;
   bookingFormTemplateId?: string | number | null;
   bookingFormTemplate?: { id: string | number; name: string; slug: string } | null;
   price: string;
   displayedPrice: string;
   priceBox: TourPriceBox;
   dates: TourDate[];
-  partnerBonuses: TourPartnerBonus[];
-  sliderImage: string;
   sliderText: string;
 };
 
@@ -336,8 +295,6 @@ export const tourFormSchema = z.object({
   featured: z.boolean(),
   featuredOrder: z.string().trim().regex(/^\d{0,3}$/, 'Adj meg egy 0 és 999 közötti számot.'),
   recommended: z.boolean(),
-  partnerOffer: z.boolean(),
-  imageOffer: z.boolean(),
   xmlEnabled: z.boolean(),
   partnerXml: z.object({
     country_id: z.string(),
@@ -354,22 +311,16 @@ export const tourFormSchema = z.object({
     }),
   }),
   couponable: z.boolean(),
-  sliderImageEnabled: z.boolean(),
-  sliderTextEnabled: z.boolean(),
-  name: z.string().min(2, 'A név megadása kötelező.'),
+  name: z.string().min(2, 'A név megadása kötelező.').max(255, 'Legfeljebb 255 karakter.'),
   subtitle: z.string(),
   seoName: z.string(),
   seoAutoGenerate: z.boolean(),
   seoTitle: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
   seoDescription: z.string().trim().max(1000, 'Legfeljebb 1000 karakter.'),
   seoRobots: z.string(),
-  action1: z.string(),
-  action2: z.string(),
   listDescription: z.string(),
   shortDescription: z.string(),
   searchKeywords: z.array(z.string()),
-  programPdf: z.string(),
-  programPdfFile: z.string(),
   programBefore: z.string(),
   program: z.string(),
   programFooter: z.string(),
@@ -402,9 +353,6 @@ export const tourFormSchema = z.object({
     discountText: z.string(),
     urgencyText: z.string(),
     ratingText: z.string(),
-    minParticipants: z.string(),
-    ctaPrimaryLabel: z.string(),
-    ctaSecondaryLabel: z.string(),
   }),
   programDays: z.array(
     z.object({
@@ -436,9 +384,6 @@ export const tourFormSchema = z.object({
     }),
   ),
   regionId: z.string(),
-  homepageOfferId: z.string(),
-  groupId: z.string(),
-  seasonalGroupId: z.string(),
   departurePlaceIds: z.array(z.string()),
   /** Per-tour fee by departure place id; empty uses the place's general fee. */
   departurePlaceFees: z.record(
@@ -451,10 +396,8 @@ export const tourFormSchema = z.object({
   countryIds: z.array(z.string()),
   tagIds: z.array(z.string()),
   categoryIds: z.array(z.string()),
-  fitId: z.string(),
   programTypeId: z.string(),
   travelModeId: z.string(),
-  difficultyId: z.string(),
   catering: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
   cateringInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
   accommodation: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
@@ -462,7 +405,6 @@ export const tourFormSchema = z.object({
   bookingFormTemplateId: z.string(),
   price: z.string(),
   displayedPrice: z.string(),
-  sliderImage: z.string(),
   sliderText: z.string(),
   dates: z.array(
     z.object({
@@ -471,7 +413,7 @@ export const tourFormSchema = z.object({
       endDate: z.string(),
       price: z.string(),
       displayedPrice: z.string(),
-      status: z.enum(['available', 'sold_out']),
+      status: z.enum(['available', 'sold_out', 'cancelled']),
       departurePlaceIds: z.array(z.string()),
       accommodation: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
       accommodationInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
@@ -491,7 +433,6 @@ export const tourFormSchema = z.object({
           .trim()
           .regex(/^(\d+(\.\d+)?)?$/, 'Adj meg egy nem negatív árat.'),
         label: z.string().trim().max(64, 'Legfeljebb 64 karakter.'),
-        minParticipants: z.string(),
       }),
       capacity: z.string().trim().regex(/^\d*$/, 'Adj meg egy nem negatív egész számot.'),
       extras: z.array(
@@ -509,14 +450,6 @@ export const tourFormSchema = z.object({
           choices: z.string(),
         }),
       ),
-    }),
-  ),
-  partnerBonuses: z.array(
-    z.object({
-      id: z.string(),
-      sortOrder: z.coerce.number().int().min(0),
-      label: z.string(),
-      value: z.string(),
     }),
   ),
 });
@@ -568,7 +501,6 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       discountBadge: date.priceBox?.discountBadge ?? '',
       originalPrice: date.priceBox?.originalPrice?.toString() ?? '',
       label: date.priceBox?.label ?? '',
-      minParticipants: date.priceBox?.minParticipants?.toString() ?? '',
     },
     capacity: date.capacity?.toString() ?? '',
     extras: (date.extras ?? []).map((extra) => ({
@@ -580,13 +512,6 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       chargeRule: extra.chargeRule,
       choices: extra.choices.join('\n'),
     })),
-  }));
-
-  const partnerBonuses = (tour?.partnerBonuses ?? []).map((bonus, index) => ({
-    id: bonus.id ?? createClientId(),
-    sortOrder: bonus.sortOrder ?? index + 1,
-    label: bonus.label ?? '',
-    value: bonus.value ?? '',
   }));
 
   const programDays = (tour?.programDays ?? []).map((day, index) => ({
@@ -613,13 +538,9 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     featured: tour?.featured ?? false,
     featuredOrder: tour?.featuredOrder?.toString() ?? '',
     recommended: tour?.recommended ?? false,
-    partnerOffer: tour?.partnerOffer ?? false,
-    imageOffer: tour?.imageOffer ?? false,
     xmlEnabled: tour?.xmlEnabled ?? true,
     partnerXml: partnerXmlFormValues(tour?.partnerXml),
     couponable: tour?.couponable ?? false,
-    sliderImageEnabled: tour?.sliderImageEnabled ?? false,
-    sliderTextEnabled: tour?.sliderTextEnabled ?? false,
     name: tour?.name ?? '',
     subtitle: tour?.subtitle ?? '',
     seoName: tour?.seoName ?? slugifyTourText(tour?.name ?? ''),
@@ -627,13 +548,9 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     seoTitle: tour?.seoTitle ?? '',
     seoDescription: tour?.seoDescription ?? '',
     seoRobots: tour?.seoRobots ?? '',
-    action1: tour?.action1 ?? '',
-    action2: tour?.action2 ?? '',
     listDescription: tour?.listDescription ?? '',
     shortDescription: tour?.shortDescription ?? '',
     searchKeywords: tour?.searchKeywords ?? [],
-    programPdf: tour?.programPdf ?? '',
-    programPdfFile: tour?.programPdfFile ?? '',
     programBefore: tour?.programBefore ?? '',
     program: tour?.program ?? '',
     programFooter: tour?.programFooter ?? '',
@@ -658,9 +575,6 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       discountText: tour?.priceBox?.discountText ?? '',
       urgencyText: tour?.priceBox?.urgencyText ?? '',
       ratingText: tour?.priceBox?.ratingText ?? '',
-      minParticipants: tour?.priceBox?.minParticipants?.toString() ?? '',
-      ctaPrimaryLabel: tour?.priceBox?.ctaPrimaryLabel ?? '',
-      ctaSecondaryLabel: tour?.priceBox?.ctaSecondaryLabel ?? '',
     },
     programDays,
     priceItems: (tour?.priceItems ?? []).map((item) => ({
@@ -671,9 +585,6 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
       active: item.active ?? true,
     })),
     regionId: tour?.regionId ?? '',
-    homepageOfferId: tour?.homepageOfferId ? String(tour.homepageOfferId) : '',
-    groupId: tour?.groupId ?? '',
-    seasonalGroupId: tour?.seasonalGroupId ?? '',
     departurePlaceIds: (tour?.departurePlaceIds ?? []).map(String),
     departurePlaceFees: Object.fromEntries(
       (tour?.departurePlaces ?? []).map((place) => [
@@ -684,10 +595,8 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     countryIds: tour?.countryIds ?? [],
     tagIds: tour?.tagIds ?? [],
     categoryIds: tour?.categoryIds ?? [],
-    fitId: tour?.fitId ?? '',
     programTypeId: tour?.programTypeId ?? '',
     travelModeId: tour?.travelModeId ?? '',
-    difficultyId: tour?.difficultyId ?? '',
     catering: tour?.catering ?? '',
     cateringInfo: tour?.cateringInfo ?? '',
     accommodation: tour?.accommodation ?? '',
@@ -695,10 +604,8 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     bookingFormTemplateId: tour?.bookingFormTemplateId ? String(tour.bookingFormTemplateId) : '',
     price: tour?.price ?? '',
     displayedPrice: tour?.displayedPrice ?? '',
-    sliderImage: tour?.sliderImage ?? '',
     sliderText: tour?.sliderText ?? '',
     dates,
-    partnerBonuses,
   };
 }
 
@@ -710,18 +617,12 @@ const isBlank = (value: string | null | undefined) => (value ?? '').trim() === '
 
 /**
  * The form as it is saved: rows the user added but left completely empty (a
- * gallery row without an image, an empty price item, program day or partner
- * bonus) are dropped instead of failing the save.
+ * gallery row without an image, an empty price item or program day) are
+ * dropped instead of failing the save.
  */
 export function normalizeTourFormValues(values: TourFormValues): TourFormValues {
   return {
     ...values,
-    partnerBonuses: values.partnerBonuses
-      .filter((bonus) => !isBlank(bonus.label) || !isBlank(bonus.value))
-      .map((bonus, index) => ({
-        ...bonus,
-        sortOrder: bonus.sortOrder ?? index + 1,
-      })),
     programDays: values.programDays
       .filter((day) => !isBlank(day.title) || !isBlank(day.description) || !isBlank(day.image))
       .map((day, index) => ({
@@ -758,11 +659,8 @@ export type TourListQuery = {
   sortBy?: string;
   sortDirection?: 'asc' | 'desc';
   regionId?: string;
-  groupId?: string;
-  seasonalGroupId?: string;
   featured?: 'all' | 'true' | 'false';
   active?: 'all' | 'true' | 'false';
-  imageOffer?: 'all' | 'true' | 'false';
   xmlEnabled?: 'all' | 'true' | 'false';
 };
 
@@ -813,13 +711,9 @@ export type TourRegionGroup = {
   description: string;
   listBelowText: string;
   travelConditionsLink: string;
-  relatedToursCount: number;
 };
 
-export type TourRegionGroupFormValues = Omit<
-  TourRegionGroup,
-  'id' | 'relatedToursCount'
->;
+export type TourRegionGroupFormValues = Omit<TourRegionGroup, 'id'>;
 
 export type TourRegionGroupListQuery = {
   page: number;
@@ -845,13 +739,9 @@ export type TourSeasonalGroup = {
   seoAutoGenerate: boolean;
   boxText: string;
   hasOffers: boolean;
-  relatedToursCount: number;
 };
 
-export type TourSeasonalGroupFormValues = Omit<
-  TourSeasonalGroup,
-  'id' | 'relatedToursCount'
->;
+export type TourSeasonalGroupFormValues = Omit<TourSeasonalGroup, 'id'>;
 
 export type TourSeasonalGroupListQuery = {
   page: number;
