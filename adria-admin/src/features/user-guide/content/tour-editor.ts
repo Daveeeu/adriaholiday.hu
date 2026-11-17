@@ -241,8 +241,8 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Minimum fő',
-          'A csoport tervezett minimális létszáma. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.',
-          ADMIN_ONLY,
+          'A csoport tervezett minimális létszáma, ha az időpont nem ad meg sajátot. 2 főtől látszik a weboldalon. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.',
+          `${TOUR_PAGE}, „Minimum létszám” kártyaként az utazás adatai között.`,
         ),
       ]),
       tip(
@@ -619,8 +619,8 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Minimum fő',
-          'Az indulás tervezett minimális létszáma, belső tájékoztatásként.',
-          ADMIN_ONLY,
+          'Az indulás minimális létszáma; üresen az árdobozban megadott érték érvényes. 2 főtől látszik a weboldalon.',
+          `${TOUR_PAGE}, „Minimum létszám” kártyaként, amikor ez az időpont van kiválasztva.`,
         ),
         field(
           'Megjelenített ár',

@@ -784,8 +784,8 @@
                 },
                 {
                   "name": "Minimum fő",
-                  "description": "A csoport tervezett minimális létszáma. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
+                  "description": "A csoport tervezett minimális létszáma, ha az időpont nem ad meg sajátot. 2 főtől látszik a weboldalon. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.",
+                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), „Minimum létszám” kártyaként az utazás adatai között."
                 }
               ]
             },
@@ -1228,8 +1228,8 @@
                 },
                 {
                   "name": "Minimum fő",
-                  "description": "Az indulás tervezett minimális létszáma, belső tájékoztatásként.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
+                  "description": "Az indulás minimális létszáma; üresen az árdobozban megadott érték érvényes. 2 főtől látszik a weboldalon.",
+                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), „Minimum létszám” kártyaként, amikor ez az időpont van kiválasztva."
                 },
                 {
                   "name": "Megjelenített ár",

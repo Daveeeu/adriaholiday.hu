@@ -151,6 +151,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
   const selectedSeats = selectedDate.seatsLeft ?? null;
+  // The selected departure's minimum, else the trip's; "1 fő" says nothing.
+  const minParticipants = (priceBox?.minParticipants ?? 0) > 1 ? priceBox?.minParticipants : null;
   const offeredDeparturePlaces =
     selectedDate.departurePlaceIds.length > 0
       ? trip.departurePlaces.filter((place) => selectedDate.departurePlaceIds.includes(Number(place.id)))
@@ -254,7 +256,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
             </p>
           ) : null}
 
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-10 max-w-6xl">
+          <div className={`grid grid-cols-2 md:grid-cols-3 ${minParticipants ? "xl:grid-cols-6" : "xl:grid-cols-5"} gap-4 mt-10 max-w-6xl`}>
             <HeroInfoCard
               icon={<Calendar />}
               label="Indulás"
@@ -292,6 +294,9 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               value={selectedDate.stay?.hotel?.value ?? trip.hotel}
               info={selectedDate.stay?.hotel ? selectedDate.stay.hotel.info : trip.hotelInfo}
             />
+            {minParticipants ? (
+              <HeroInfoCard icon={<Users />} label="Minimum létszám" value={`${minParticipants} fő`} />
+            ) : null}
           </div>
         </div>
       </section>
