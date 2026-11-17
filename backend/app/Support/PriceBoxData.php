@@ -7,13 +7,17 @@ use App\Models\TourDate;
 
 class PriceBoxData
 {
-    public static function fromTour(Tour $tour): ?array
+    /**
+     * The tour's price box. Without the suffix, its price reads "276.900 Ft"
+     * instead of "276.900 Ft / fő", for an offer card that says "-tól/fő" itself.
+     */
+    public static function fromTour(Tour $tour, bool $withSuffix = true): ?array
     {
         return self::build([
             'price' => $tour->price_box_price ?? $tour->price,
             'displayedPrice' => $tour->price_box_displayed_price ?? $tour->displayed_price,
             'currency' => $tour->price_box_currency,
-            'priceSuffix' => $tour->price_box_price_suffix,
+            'priceSuffix' => $withSuffix ? $tour->price_box_price_suffix : null,
             'discountBadge' => $tour->price_box_discount_badge,
             'discountText' => $tour->price_box_discount_text,
             'urgencyText' => $tour->price_box_urgency_text,

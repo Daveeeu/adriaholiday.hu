@@ -16,7 +16,8 @@ class PortfolioFeaturedTourResource extends JsonResource
     {
         $tour = $this->resource;
         $meta = TourMeta::extract($tour);
-        $priceBox = PriceBoxData::fromTour($tour);
+        // The card adds "-tól/fő" after the price itself.
+        $priceBox = PriceBoxData::fromTour($tour, withSuffix: false);
         $firstDate = $tour->dates->sortBy('start_date')->first();
         $media = $tour->mainImage();
         $departureDate = $firstDate?->start_date?->toDateString();
