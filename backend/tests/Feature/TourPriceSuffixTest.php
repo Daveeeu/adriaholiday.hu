@@ -15,7 +15,7 @@ class TourPriceSuffixTest extends TestCase
 
     public function test_a_tour_saved_without_a_price_suffix_is_priced_per_person(): void
     {
-        $tour = Tour::factory()->create(['price_box_price' => 276900, 'displayed_price' => null]);
+        $tour = Tour::factory()->create(['price_box_price' => 276900]);
 
         $this->assertSame('/ fő', $tour->refresh()->price_box_price_suffix);
         $this->assertSame('276.900 Ft / fő', PriceBoxData::fromTour($tour)['displayedPrice']);
@@ -23,18 +23,21 @@ class TourPriceSuffixTest extends TestCase
 
     public function test_the_offer_card_shows_the_price_without_the_suffix_it_adds_itself(): void
     {
-        $tour = Tour::factory()->create(['price_box_price' => 276900, 'displayed_price' => null, 'price_box_price_suffix' => '/ fő']);
+        $tour = Tour::factory()->create(['price_box_price' => 276900, 'price_box_price_suffix' => '/ fő']);
 
         $card = (new PortfolioFeaturedTourResource($tour->load('dates')))->toArray(new Request);
 
         $this->assertSame('276.900 Ft', $card['displayedPrice']);
     }
 
-    public function test_a_written_price_text_is_kept_as_it_is(): void
+    public function test_a_date_shows_its_own_price_and_its_struck_through_original_one(): void
     {
-        $tour = Tour::factory()->create(['price_box_price' => 276900, 'price_box_displayed_price' => '276 900 Ft/fő-től']);
+        $tour = Tour::factory()->create();
+        $date = $tour->dates()->create(['start_date' => '2027-07-04', 'end_date' => '2027-07-11', 'price' => 289900, 'price_box_price' => 289900, 'price_box_original_price' => 338600]);
 
-        $this->assertSame('276.900 Ft/fő-től', PriceBoxData::fromTour($tour)['displayedPrice']);
-        $this->assertSame('276.900 Ft/fő-től', PriceBoxData::fromTour($tour, withSuffix: false)['displayedPrice']);
+        $priceBox = PriceBoxData::fromDate($date);
+
+        $this->assertSame('289.900 Ft', $priceBox['displayedPrice']);
+        $this->assertSame('338.600 Ft', $priceBox['originalDisplayedPrice']);
     }
 }

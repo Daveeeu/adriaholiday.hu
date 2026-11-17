@@ -8,20 +8,18 @@ use App\Models\TourDate;
 class PriceBoxData
 {
     /**
-     * The tour's price box. Without the suffix, its price reads "276.900 Ft"
-     * instead of "276.900 Ft / fő", for an offer card that says "-tól/fő" itself.
+     * The tour's price box. Its displayed price is always written from the
+     * price: "276.900 Ft / fő", or without the suffix "276.900 Ft", for an
+     * offer card that says "-tól/fő" itself.
      */
     public static function fromTour(Tour $tour, bool $withSuffix = true): ?array
     {
         return self::build([
             'price' => $tour->price_box_price ?? $tour->price,
-            'displayedPrice' => $tour->price_box_displayed_price ?? $tour->displayed_price,
             'currency' => $tour->price_box_currency,
             'priceSuffix' => $withSuffix ? $tour->price_box_price_suffix : null,
             'discountBadge' => $tour->price_box_discount_badge,
             'discountText' => $tour->price_box_discount_text,
-            'urgencyText' => $tour->price_box_urgency_text,
-            'ratingText' => $tour->price_box_rating_text,
         ]);
     }
 
@@ -30,7 +28,6 @@ class PriceBoxData
         return self::build([
             'price' => $date->price_box_price ?? $date->price,
             'originalPrice' => $date->price_box_original_price,
-            'displayedPrice' => $date->price_box_displayed_price,
             'discountBadge' => $date->price_box_discount_badge,
             'label' => $date->price_box_label,
         ]);
@@ -47,36 +44,22 @@ class PriceBoxData
     {
         $price = isset($data['price']) && $data['price'] !== '' ? (float) $data['price'] : null;
         $currency = self::normalizeString($data['currency'] ?? null);
-        $displayedPrice = self::isForint($currency)
-            ? HufPrice::normalizeLabel($data['displayedPrice'] ?? null)
-            : self::normalizeString($data['displayedPrice'] ?? null);
 
         foreach ([
             'priceSuffix',
             'label',
             'discountBadge',
             'discountText',
-            'urgencyText',
-            'ratingText',
         ] as $field) {
             $data[$field] = self::normalizeString($data[$field] ?? null);
         }
 
-        if ($displayedPrice === null && $price !== null) {
-            $displayedPrice = self::displayedPrice(
-                $price,
-                null,
-                $currency,
-                $data['priceSuffix'] ?? null,
-            );
-        }
-
-        if ($currency === null && ($price !== null || $displayedPrice !== null)) {
+        if ($currency === null && $price !== null) {
             $currency = 'HUF';
         }
 
         $data['price'] = $price;
-        $data['displayedPrice'] = $displayedPrice;
+        $data['displayedPrice'] = $price !== null ? self::displayedPrice($price, $currency, $data['priceSuffix'] ?? null) : null;
         $data['currency'] = $currency;
 
         // The pre-promotion price, struck through next to the price; only
@@ -84,7 +67,7 @@ class PriceBoxData
         $originalPrice = is_numeric($data['originalPrice'] ?? null) ? (float) $data['originalPrice'] : null;
         $data['originalPrice'] = $originalPrice !== null && $price !== null && $originalPrice > $price ? $originalPrice : null;
         $data['originalDisplayedPrice'] = $data['originalPrice'] !== null
-            ? self::displayedPrice($data['originalPrice'], null, $currency, $data['priceSuffix'] ?? null)
+            ? self::displayedPrice($data['originalPrice'], $currency, $data['priceSuffix'] ?? null)
             : null;
 
         if (! self::hasAnyValue($data)) {
@@ -94,22 +77,8 @@ class PriceBoxData
         return $data;
     }
 
-    private static function displayedPrice(
-        ?float $price,
-        ?string $displayedPrice,
-        ?string $currency,
-        ?string $priceSuffix,
-    ): ?string {
-        $displayedPrice = self::normalizeString($displayedPrice);
-
-        if ($displayedPrice !== null) {
-            return $displayedPrice;
-        }
-
-        if ($price === null) {
-            return null;
-        }
-
+    private static function displayedPrice(float $price, ?string $currency, ?string $priceSuffix): string
+    {
         $currency = strtoupper(trim((string) ($currency ?: 'HUF')));
         $currencyLabel = match ($currency) {
             'HUF', 'FT' => 'Ft',
@@ -124,11 +93,6 @@ class PriceBoxData
         return $suffix !== null
             ? "{$formatted} {$currencyLabel} {$suffix}"
             : "{$formatted} {$currencyLabel}";
-    }
-
-    private static function isForint(?string $currency): bool
-    {
-        return $currency === null || in_array(strtoupper($currency), ['HUF', 'FT'], true);
     }
 
     private static function normalizeString(mixed $value): ?string

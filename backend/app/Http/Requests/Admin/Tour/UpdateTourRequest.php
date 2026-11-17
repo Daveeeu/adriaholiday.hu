@@ -56,13 +56,10 @@ class UpdateTourRequest extends FormRequest
                 ];
             })->all(),
             'price_box_price' => $this->input('price_box_price', $this->input('priceBox.price')),
-            'price_box_displayed_price' => $this->input('price_box_displayed_price', $this->input('priceBox.displayedPrice')),
             'price_box_currency' => $this->input('price_box_currency', $this->input('priceBox.currency')),
             'price_box_price_suffix' => $this->input('price_box_price_suffix', $this->input('priceBox.priceSuffix')),
             'price_box_discount_badge' => $this->input('price_box_discount_badge', $this->input('priceBox.discountBadge')),
             'price_box_discount_text' => $this->input('price_box_discount_text', $this->input('priceBox.discountText')),
-            'price_box_urgency_text' => $this->input('price_box_urgency_text', $this->input('priceBox.urgencyText')),
-            'price_box_rating_text' => $this->input('price_box_rating_text', $this->input('priceBox.ratingText')),
             'program_days' => collect($this->input('program_days', $this->input('programDays', [])))->map(function (array $day, int $index): array {
                 $badges = collect($day['badges'] ?? [])
                     ->map(function ($badge): string {
@@ -90,7 +87,6 @@ class UpdateTourRequest extends FormRequest
                 ];
             })->all(),
             'price' => $this->input('price'),
-            'displayed_price' => $this->input('displayed_price', $this->input('displayedPrice')),
             'slider_text' => $this->input('slider_text', $this->input('sliderText')),
             'price_items' => collect($this->input('price_items', $this->input('priceItems', [])))->map(function (array $item, int $index): array {
                 return [
@@ -118,7 +114,6 @@ class UpdateTourRequest extends FormRequest
                     'end_date' => $date['end_date'] ?? $date['endDate'] ?? null,
                     'price' => $date['price'] ?? $priceBox['price'] ?? null,
                     'price_box_price' => $date['price_box_price'] ?? $priceBox['price'] ?? null,
-                    'price_box_displayed_price' => $date['price_box_displayed_price'] ?? $priceBox['displayedPrice'] ?? null,
                     'price_box_discount_badge' => $date['price_box_discount_badge'] ?? $priceBox['discountBadge'] ?? null,
                     'price_box_original_price' => $date['price_box_original_price'] ?? $priceBox['originalPrice'] ?? null,
                     'price_box_label' => $date['price_box_label'] ?? $priceBox['label'] ?? null,
@@ -183,13 +178,10 @@ class UpdateTourRequest extends FormRequest
             'gallery.*.sort_order' => ['nullable', 'integer', 'min:0'],
             'gallery.*.active' => ['nullable', 'boolean'],
             'price_box_price' => ['nullable', 'numeric'],
-            'price_box_displayed_price' => ['nullable', 'string', 'max:255'],
             'price_box_currency' => ['nullable', 'string', 'max:8'],
             'price_box_price_suffix' => ['nullable', 'string', 'max:32'],
             'price_box_discount_badge' => ['nullable', 'string', 'max:32'],
             'price_box_discount_text' => ['nullable', 'string', 'max:255'],
-            'price_box_urgency_text' => ['nullable', 'string', 'max:255'],
-            'price_box_rating_text' => ['nullable', 'string', 'max:255'],
             'program_days' => ['nullable', 'array'],
             'program_days.*.id' => ['nullable'],
             'program_days.*.sort_order' => ['nullable', 'integer', 'min:0'],
@@ -213,7 +205,6 @@ class UpdateTourRequest extends FormRequest
             'travel_mode_id' => ['nullable', 'string', 'max:255'],
             'booking_form_template_id' => ['nullable', 'integer', 'exists:booking_form_templates,id'],
             'price' => ['nullable', 'numeric'],
-            'displayed_price' => ['nullable', 'string', 'max:255'],
             'slider_text' => ['nullable', 'string'],
             'departure_place_ids' => ['nullable', 'array'],
             'departure_place_ids.*' => ['integer', 'exists:tour_departure_places,id'],
@@ -232,7 +223,6 @@ class UpdateTourRequest extends FormRequest
             'dates.*.end_date' => ['nullable', 'date', 'after_or_equal:dates.*.start_date'],
             'dates.*.price' => ['nullable', 'numeric'],
             'dates.*.price_box_price' => ['nullable', 'numeric'],
-            'dates.*.price_box_displayed_price' => ['nullable', 'string', 'max:255'],
             'dates.*.price_box_discount_badge' => ['nullable', 'string', 'max:32'],
             'dates.*.price_box_original_price' => ['nullable', 'numeric', 'min:0'],
             'dates.*.price_box_label' => ['nullable', 'string', 'max:64'],

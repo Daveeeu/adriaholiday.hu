@@ -51,15 +51,14 @@ export const publicSiteChapter: GuideChapter = {
           'Az oldal címe és webcíme: Blog › Kategóriák (név, Webcím).',
           'A szűrő gombok (pl. „Autóbuszos utak”, „Kedvező ár”): Szűrőgombok a honlapon.',
           'Az utak listája: a kategóriába sorolt, aktív és listában megjelenő körutazások, a körutazás „Sorrend” mezője szerint.',
-          'Az ajánlatkártyák képe, neve, ára és rövid leírása: a körutazás borítóképe, neve, „Megjelenített ár szöveg” és „Lista rövid leírása” mezője.',
+          'Az ajánlatkártyák képe, neve, ára és rövid leírása: a körutazás borítóképe, neve, az árból írt ár és a „Lista rövid leírása” mező.',
         ]),
       ],
     },
     {
       id: 'public-offer',
       title: 'Egy utazás oldala',
-      summary:
-        'Egy körutazás saját oldala (adriaholiday.hu/ajanlat/<Webcím>).',
+      summary: 'Egy körutazás saját oldala (adriaholiday.hu/ajanlat/<Webcím>).',
       blocks: [
         img(
           'public-offer',

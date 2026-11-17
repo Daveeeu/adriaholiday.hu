@@ -51,7 +51,6 @@ class LegacyCatalogOfferMapperTest extends TestCase
         $this->assertSame(TourDateStatus::AVAILABLE, $date['status']);
         // The tour's price comes from its upcoming bookable dates.
         $this->assertEquals(229900, $offer->attributes['price']);
-        $this->assertSame('229.900 Ft', $offer->attributes['displayed_price']);
     }
 
     public function test_a_watched_date_without_seats_is_sold_out_and_an_inactive_one_cancelled(): void

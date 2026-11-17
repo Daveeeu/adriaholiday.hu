@@ -1,7 +1,10 @@
 import { z } from 'zod';
 
 import { createClientId } from '@/lib/client-id';
-import { galleryItemFormSchema, toGalleryItemFormValue } from '@/components/media/gallery-items';
+import {
+  galleryItemFormSchema,
+  toGalleryItemFormValue,
+} from '@/components/media/gallery-items';
 import type { MediaAsset } from '@/services/media-service';
 
 import type {
@@ -15,8 +18,10 @@ import { slugifyTourText } from './tours.constants';
 export type TourDateStatus = (typeof TOUR_DATE_STATUSES)[number]['value'];
 export type TourPartnerOfferStatus =
   (typeof TOUR_PARTNER_OFFER_STATUSES)[number]['value'];
-export type TourRegionGroupType = (typeof TOUR_REGION_GROUP_TYPES)[number]['value'];
-export type TourSeasonalMenuType = (typeof TOUR_SEASONAL_MENU_TYPES)[number]['value'];
+export type TourRegionGroupType =
+  (typeof TOUR_REGION_GROUP_TYPES)[number]['value'];
+export type TourSeasonalMenuType =
+  (typeof TOUR_SEASONAL_MENU_TYPES)[number]['value'];
 
 export type TourExtraPriceUnit = 'per_person' | 'per_booking';
 
@@ -64,7 +69,10 @@ export type TourDate = {
   /** Listed in the partner XML feeds. */
   xmlEnabled?: boolean;
   /** The date's accommodation and room in the Cesys feed. */
-  partnerXml?: { cesysAccommodation?: string | null; cesysRoom?: string | null } | null;
+  partnerXml?: {
+    cesysAccommodation?: string | null;
+    cesysRoom?: string | null;
+  } | null;
   extras?: TourDateExtra[];
 };
 
@@ -124,13 +132,12 @@ export type TourPriceItemFormValue = {
 
 export type TourPriceBox = {
   price: number | null;
+  /** Written by the site from the price, e.g. "276.900 Ft / fő". */
   displayedPrice: string | null;
   currency: string | null;
   priceSuffix: string | null;
   discountBadge: string | null;
   discountText: string | null;
-  urgencyText: string | null;
-  ratingText: string | null;
   /** Dates only: the pre-promotion price, shown struck through. */
   originalPrice?: number | null;
   /** Dates only: a short note shown with the price ("Előfoglalási akció"). */
@@ -139,13 +146,10 @@ export type TourPriceBox = {
 
 export type TourPriceBoxFormValue = {
   price: string;
-  displayedPrice: string;
   currency: string;
   priceSuffix: string;
   discountBadge: string;
   discountText: string;
-  urgencyText: string;
-  ratingText: string;
 };
 
 export type TourProgramDayBadge = {
@@ -278,7 +282,11 @@ export type Tour = {
   accommodation?: string | null;
   accommodationInfo?: string | null;
   bookingFormTemplateId?: string | number | null;
-  bookingFormTemplate?: { id: string | number; name: string; slug: string } | null;
+  bookingFormTemplate?: {
+    id: string | number;
+    name: string;
+    slug: string;
+  } | null;
   price: string;
   displayedPrice: string;
   priceBox: TourPriceBox;
@@ -293,7 +301,10 @@ export const tourFormSchema = z.object({
   active: z.boolean(),
   listed: z.boolean(),
   featured: z.boolean(),
-  featuredOrder: z.string().trim().regex(/^\d{0,3}$/, 'Adj meg egy 0 és 999 közötti számot.'),
+  featuredOrder: z
+    .string()
+    .trim()
+    .regex(/^\d{0,3}$/, 'Adj meg egy 0 és 999 közötti számot.'),
   recommended: z.boolean(),
   xmlEnabled: z.boolean(),
   partnerXml: z.object({
@@ -301,7 +312,10 @@ export const tourFormSchema = z.object({
     country_name: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
     accommodation_name: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
     city: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
-    insurance_value: z.string().trim().regex(/^\d*$/, 'Egész számot adj meg (Ft/fő/nap).'),
+    insurance_value: z
+      .string()
+      .trim()
+      .regex(/^\d*$/, 'Egész számot adj meg (Ft/fő/nap).'),
     accommodation_description_travelmax: z.string(),
     travel_types: z.object({
       general: z.string(),
@@ -311,7 +325,10 @@ export const tourFormSchema = z.object({
     }),
   }),
   couponable: z.boolean(),
-  name: z.string().min(2, 'A név megadása kötelező.').max(255, 'Legfeljebb 255 karakter.'),
+  name: z
+    .string()
+    .min(2, 'A név megadása kötelező.')
+    .max(255, 'Legfeljebb 255 karakter.'),
   subtitle: z.string(),
   seoName: z.string(),
   seoAutoGenerate: z.boolean(),
@@ -327,7 +344,11 @@ export const tourFormSchema = z.object({
   routeStops: z.array(
     z.object({
       clientId: z.string(),
-      name: z.string().trim().min(1, 'Add meg a megálló nevét.').max(60, 'Legfeljebb 60 karakter.'),
+      name: z
+        .string()
+        .trim()
+        .min(1, 'Add meg a megálló nevét.')
+        .max(60, 'Legfeljebb 60 karakter.'),
       latitude: z.number(),
       longitude: z.number(),
       accommodation: z.boolean(),
@@ -346,13 +367,10 @@ export const tourFormSchema = z.object({
   gallery: z.array(galleryItemFormSchema),
   priceBox: z.object({
     price: z.string(),
-    displayedPrice: z.string(),
     currency: z.string(),
     priceSuffix: z.string(),
     discountBadge: z.string(),
     discountText: z.string(),
-    urgencyText: z.string(),
-    ratingText: z.string(),
   }),
   programDays: z.array(
     z.object({
@@ -404,7 +422,6 @@ export const tourFormSchema = z.object({
   accommodationInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
   bookingFormTemplateId: z.string(),
   price: z.string(),
-  displayedPrice: z.string(),
   sliderText: z.string(),
   dates: z.array(
     z.object({
@@ -412,21 +429,25 @@ export const tourFormSchema = z.object({
       startDate: z.string(),
       endDate: z.string(),
       price: z.string(),
-      displayedPrice: z.string(),
       status: z.enum(['available', 'sold_out', 'cancelled']),
       departurePlaceIds: z.array(z.string()),
       accommodation: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
-      accommodationInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
+      accommodationInfo: z
+        .string()
+        .trim()
+        .max(2000, 'Legfeljebb 2000 karakter.'),
       catering: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
       cateringInfo: z.string().trim().max(2000, 'Legfeljebb 2000 karakter.'),
       xmlEnabled: z.boolean(),
       partnerXml: z.object({
-        cesysAccommodation: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
+        cesysAccommodation: z
+          .string()
+          .trim()
+          .max(255, 'Legfeljebb 255 karakter.'),
         cesysRoom: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
       }),
       priceBox: z.object({
         price: z.string(),
-        displayedPrice: z.string(),
         discountBadge: z.string(),
         originalPrice: z
           .string()
@@ -434,7 +455,10 @@ export const tourFormSchema = z.object({
           .regex(/^(\d+(\.\d+)?)?$/, 'Adj meg egy nem negatív árat.'),
         label: z.string().trim().max(64, 'Legfeljebb 64 karakter.'),
       }),
-      capacity: z.string().trim().regex(/^\d*$/, 'Adj meg egy nem negatív egész számot.'),
+      capacity: z
+        .string()
+        .trim()
+        .regex(/^\d*$/, 'Adj meg egy nem negatív egész számot.'),
       extras: z.array(
         z.object({
           clientId: z.string(),
@@ -460,14 +484,17 @@ function optionalNumber(value: number | null | undefined): string {
   return value != null ? String(value) : '';
 }
 
-function partnerXmlFormValues(settings?: TourPartnerXml | null): TourFormValues['partnerXml'] {
+function partnerXmlFormValues(
+  settings?: TourPartnerXml | null,
+): TourFormValues['partnerXml'] {
   return {
     country_id: optionalNumber(settings?.country_id),
     country_name: settings?.country_name ?? '',
     accommodation_name: settings?.accommodation_name ?? '',
     city: settings?.city ?? '',
     insurance_value: optionalNumber(settings?.insurance_value),
-    accommodation_description_travelmax: settings?.accommodation_description_travelmax ?? '',
+    accommodation_description_travelmax:
+      settings?.accommodation_description_travelmax ?? '',
     travel_types: {
       general: optionalNumber(settings?.travel_types.general),
       travelgate: optionalNumber(settings?.travel_types.travelgate),
@@ -477,13 +504,14 @@ function partnerXmlFormValues(settings?: TourPartnerXml | null): TourFormValues[
   };
 }
 
-export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues {
+export function mapTourToFormValues(
+  tour?: Partial<Tour> | null,
+): TourFormValues {
   const dates = (tour?.dates ?? []).map((date) => ({
     id: date.id ?? createClientId(),
     startDate: date.startDate ?? '',
     endDate: date.endDate ?? '',
     price: date.price ?? '',
-    displayedPrice: date.displayedPrice ?? '',
     status: date.status ?? 'available',
     departurePlaceIds: (date.departurePlaceIds ?? []).map(String),
     accommodation: date.accommodation ?? '',
@@ -497,7 +525,6 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     },
     priceBox: {
       price: date.priceBox?.price?.toString() ?? '',
-      displayedPrice: date.priceBox?.displayedPrice ?? '',
       discountBadge: date.priceBox?.discountBadge ?? '',
       originalPrice: date.priceBox?.originalPrice?.toString() ?? '',
       label: date.priceBox?.label ?? '',
@@ -554,7 +581,10 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     programBefore: tour?.programBefore ?? '',
     program: tour?.program ?? '',
     programFooter: tour?.programFooter ?? '',
-    routeStops: (tour?.routeStops ?? []).map((stop) => ({ ...stop, clientId: createClientId() })),
+    routeStops: (tour?.routeStops ?? []).map((stop) => ({
+      ...stop,
+      clientId: createClientId(),
+    })),
     inclusions: tour?.inclusions ?? '',
     paymentProgram: tour?.paymentProgram ?? '',
     teaser: tour?.teaser ?? '',
@@ -568,13 +598,10 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     gallery: (tour?.gallery ?? []).map(toGalleryItemFormValue),
     priceBox: {
       price: tour?.priceBox?.price?.toString() ?? '',
-      displayedPrice: tour?.priceBox?.displayedPrice ?? '',
       currency: tour?.priceBox?.currency ?? 'HUF',
       priceSuffix: tour?.priceBox?.priceSuffix ?? '',
       discountBadge: tour?.priceBox?.discountBadge ?? '',
       discountText: tour?.priceBox?.discountText ?? '',
-      urgencyText: tour?.priceBox?.urgencyText ?? '',
-      ratingText: tour?.priceBox?.ratingText ?? '',
     },
     programDays,
     priceItems: (tour?.priceItems ?? []).map((item) => ({
@@ -589,7 +616,9 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     departurePlaceFees: Object.fromEntries(
       (tour?.departurePlaces ?? []).map((place) => [
         String(place.id),
-        place.tourFee !== null && place.tourFee !== undefined ? String(place.tourFee) : '',
+        place.tourFee !== null && place.tourFee !== undefined
+          ? String(place.tourFee)
+          : '',
       ]),
     ),
     countryIds: tour?.countryIds ?? [],
@@ -601,30 +630,41 @@ export function mapTourToFormValues(tour?: Partial<Tour> | null): TourFormValues
     cateringInfo: tour?.cateringInfo ?? '',
     accommodation: tour?.accommodation ?? '',
     accommodationInfo: tour?.accommodationInfo ?? '',
-    bookingFormTemplateId: tour?.bookingFormTemplateId ? String(tour.bookingFormTemplateId) : '',
+    bookingFormTemplateId: tour?.bookingFormTemplateId
+      ? String(tour.bookingFormTemplateId)
+      : '',
     price: tour?.price ?? '',
-    displayedPrice: tour?.displayedPrice ?? '',
     sliderText: tour?.sliderText ?? '',
     dates,
   };
 }
 
-export function getTourFormDefaults(tour?: Partial<Tour> | null): TourFormValues {
+export function getTourFormDefaults(
+  tour?: Partial<Tour> | null,
+): TourFormValues {
   return mapTourToFormValues(tour);
 }
 
-const isBlank = (value: string | null | undefined) => (value ?? '').trim() === '';
+const isBlank = (value: string | null | undefined) =>
+  (value ?? '').trim() === '';
 
 /**
  * The form as it is saved: rows the user added but left completely empty (a
  * gallery row without an image, an empty price item or program day) are
  * dropped instead of failing the save.
  */
-export function normalizeTourFormValues(values: TourFormValues): TourFormValues {
+export function normalizeTourFormValues(
+  values: TourFormValues,
+): TourFormValues {
   return {
     ...values,
     programDays: values.programDays
-      .filter((day) => !isBlank(day.title) || !isBlank(day.description) || !isBlank(day.image))
+      .filter(
+        (day) =>
+          !isBlank(day.title) ||
+          !isBlank(day.description) ||
+          !isBlank(day.image),
+      )
       .map((day, index) => ({
         ...day,
         sortOrder: day.sortOrder ?? index + 1,
@@ -769,7 +809,10 @@ export type TourDeparturePlace = {
   travelCount: number;
 };
 
-export type TourDeparturePlaceFormValues = Omit<TourDeparturePlace, 'id' | 'travelCount' | 'tourFee'>;
+export type TourDeparturePlaceFormValues = Omit<
+  TourDeparturePlace,
+  'id' | 'travelCount' | 'tourFee'
+>;
 
 export type TourDeparturePlaceListQuery = {
   page: number;

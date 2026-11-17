@@ -258,14 +258,10 @@ class MontenegroMediterraneanTourSeeder extends Seeder
             'category_ids' => $categoryIds,
             'price' => 259900,
             'price_box_price' => 259900,
-            'price_box_displayed_price' => '259.900 Ft/fő-től',
             'price_box_currency' => 'HUF',
             'price_box_price_suffix' => '/fő-től',
             'price_box_discount_badge' => null,
             'price_box_discount_text' => null,
-            'price_box_urgency_text' => null,
-            'price_box_rating_text' => null,
-            'displayed_price' => '259.900 Ft/fő-től',
             'slider_text' => null,
         ];
 
@@ -395,7 +391,6 @@ class MontenegroMediterraneanTourSeeder extends Seeder
                 'end_date' => $date['end_date'],
                 'price' => $date['price'],
                 'price_box_price' => $date['price'],
-                'price_box_displayed_price' => number_format($date['price'], 0, ',', '.').' Ft/fő-től',
                 'price_box_discount_badge' => null,
                 'status' => 'available',
             ]);

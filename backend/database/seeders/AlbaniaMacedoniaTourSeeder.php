@@ -235,14 +235,10 @@ class AlbaniaMacedoniaTourSeeder extends Seeder
             'category_ids' => $categoryIds,
             'price' => 269600,
             'price_box_price' => 269600,
-            'price_box_displayed_price' => '269.600,-Ft/fő-től',
             'price_box_currency' => 'HUF',
             'price_box_price_suffix' => null,
             'price_box_discount_badge' => null,
             'price_box_discount_text' => null,
-            'price_box_urgency_text' => null,
-            'price_box_rating_text' => null,
-            'displayed_price' => '269.600,-Ft/fő-től',
             'slider_text' => null,
         ];
 
@@ -368,7 +364,6 @@ class AlbaniaMacedoniaTourSeeder extends Seeder
             'end_date' => '2026-10-01',
             'price' => 269600,
             'price_box_price' => 269600,
-            'price_box_displayed_price' => '269.600,-Ft/fő-től',
             'price_box_discount_badge' => null,
             'status' => 'available',
         ]);

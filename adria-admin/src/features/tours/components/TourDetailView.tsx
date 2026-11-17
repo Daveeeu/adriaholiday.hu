@@ -251,8 +251,6 @@ export function TourDetailView({ tour }: { tour: Tour }) {
             value={priceBox?.discountBadge}
           />
           <DetailItem label="Ár alatti szöveg" value={priceBox?.discountText} />
-          <DetailItem label="Sürgető felirat" value={priceBox?.urgencyText} />
-          <DetailItem label="Értékelés szöveg" value={priceBox?.ratingText} />
         </div>
       </section>
 

@@ -39,7 +39,6 @@ class TourFactory extends Factory
             'tag_ids' => ['family'],
             'category_ids' => ['classic'],
             'price' => fake()->randomFloat(2, 100, 2000),
-            'displayed_price' => fake()->numberBetween(100, 2000).' EUR',
             'slider_text' => fake()->sentence(),
         ];
     }

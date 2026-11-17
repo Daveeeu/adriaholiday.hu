@@ -93,8 +93,6 @@ export type PortfolioPriceBox = {
   originalDisplayedPrice?: string | null;
   /** A short note shown with a date's price ("Előfoglalási akció"). */
   label?: string | null;
-  urgencyText?: string | null;
-  ratingText?: string | null;
 };
 
 export type PortfolioOfferProgramDay = {

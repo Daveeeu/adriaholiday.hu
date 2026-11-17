@@ -34,7 +34,7 @@ use Illuminate\Support\Str;
 
 class TourController extends Controller
 {
-    private const LIST_SORT_COLUMNS = ['id', 'sort_order', 'name', 'region_id', 'displayed_price', 'active', 'featured', 'xml_enabled', 'created_at', 'updated_at'];
+    private const LIST_SORT_COLUMNS = ['id', 'sort_order', 'name', 'region_id', 'active', 'featured', 'xml_enabled', 'created_at', 'updated_at'];
 
     use RespondsWithPagination;
 
@@ -149,7 +149,6 @@ class TourController extends Controller
                 'search_keywords' => $validated['search_keywords'] ?? [],
                 'category_ids' => $validated['category_ids'] ?? [],
                 'price' => $priceBox['price'],
-                'displayed_price' => $priceBox['displayed_price'],
                 'slider_text' => $validated['slider_text'] ?? null,
             ], $priceBox));
 
@@ -214,7 +213,6 @@ class TourController extends Controller
                 'search_keywords' => $validated['search_keywords'] ?? [],
                 'category_ids' => $validated['category_ids'] ?? [],
                 'price' => $priceBox['price'],
-                'displayed_price' => $priceBox['displayed_price'],
                 'slider_text' => $validated['slider_text'] ?? null,
             ], $priceBox));
 
@@ -278,7 +276,6 @@ class TourController extends Controller
                 'end_date' => $date->end_date?->toDateString(),
                 'price' => $date->price,
                 'price_box_price' => $date->price_box_price,
-                'price_box_displayed_price' => $date->price_box_displayed_price,
                 'price_box_discount_badge' => $date->price_box_discount_badge,
                 'price_box_original_price' => $date->price_box_original_price,
                 'price_box_label' => $date->price_box_label,
@@ -434,19 +431,14 @@ class TourController extends Controller
     private function tourPriceBoxAttributes(array $validated): array
     {
         $price = $validated['price_box_price'] ?? $validated['price'] ?? null;
-        $displayedPrice = $validated['price_box_displayed_price'] ?? $validated['displayed_price'] ?? null;
 
         return [
             'price' => $price,
-            'displayed_price' => $displayedPrice,
             'price_box_price' => $price,
-            'price_box_displayed_price' => $displayedPrice,
             'price_box_currency' => $validated['price_box_currency'] ?? null,
             'price_box_price_suffix' => $validated['price_box_price_suffix'] ?? null,
             'price_box_discount_badge' => $validated['price_box_discount_badge'] ?? null,
             'price_box_discount_text' => $validated['price_box_discount_text'] ?? null,
-            'price_box_urgency_text' => $validated['price_box_urgency_text'] ?? null,
-            'price_box_rating_text' => $validated['price_box_rating_text'] ?? null,
         ];
     }
 }

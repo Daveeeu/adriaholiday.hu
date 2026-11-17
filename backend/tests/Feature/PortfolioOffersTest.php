@@ -34,8 +34,8 @@ class PortfolioOffersTest extends TestCase
         $response->assertJsonCount(4, 'priceInformation.included');
         $response->assertJsonCount(6, 'priceInformation.excluded');
         $response->assertJsonCount(7, 'programDays');
-        $response->assertJsonPath('priceBox.displayedPrice', '269.600 Ft/fő-től');
-        $response->assertJsonPath('dates.0.priceBox.displayedPrice', '269.600 Ft/fő-től');
+        $response->assertJsonPath('priceBox.displayedPrice', '269.600 Ft');
+        $response->assertJsonPath('dates.0.priceBox.displayedPrice', '269.600 Ft');
         $response->assertJsonPath('dates.0.status', 'available');
         $response->assertJsonPath('galleryTitle', 'Galéria');
         $response->assertJsonPath('gallerySubtitle', 'Városnézés, tengerpart és balkáni hangulat egy útban.');
@@ -93,8 +93,6 @@ class PortfolioOffersTest extends TestCase
                 'priceSuffix',
                 'discountBadge',
                 'discountText',
-                'urgencyText',
-                'ratingText',
             ],
             'priceInformation' => [
                 'included' => [
@@ -176,7 +174,7 @@ class PortfolioOffersTest extends TestCase
         $response->assertJsonPath('seoName', 'montenegro-albania-kincseivel-fuszerezve');
         $response->assertJsonPath('name', 'Montenegrói üdülés, Albánia kincseivel fűszerezve');
         $response->assertJsonPath('active', true);
-        $response->assertJsonPath('priceBox.displayedPrice', '189.900 Ft/fő-től');
+        $response->assertJsonPath('priceBox.displayedPrice', '189.900 Ft /fő-től');
         $response->assertJsonCount(7, 'programDays');
         $response->assertJsonCount(10, 'gallery');
         $response->assertJsonCount(4, 'priceInformation.included');
@@ -193,7 +191,7 @@ class PortfolioOffersTest extends TestCase
         $response->assertJsonPath('seoName', 'brugge---london---parizs-2018');
         $response->assertJsonPath('name', 'Brugge - London - Párizs');
         $response->assertJsonPath('active', true);
-        $response->assertJsonPath('priceBox.displayedPrice', '273.600 Ft/fő-től');
+        $response->assertJsonPath('priceBox.displayedPrice', '273.600 Ft /fő-től');
         $response->assertJsonCount(8, 'programDays');
         $response->assertJsonCount(7, 'gallery');
         $response->assertJsonCount(4, 'priceInformation.included');
@@ -210,7 +208,7 @@ class PortfolioOffersTest extends TestCase
         $response->assertJsonPath('seoName', 'montenegro-a-mediterran-csoda-felpanzioval');
         $response->assertJsonPath('name', 'Montenegró, a mediterrán csoda félpanzióval');
         $response->assertJsonPath('active', true);
-        $response->assertJsonPath('priceBox.displayedPrice', '259.900 Ft/fő-től');
+        $response->assertJsonPath('priceBox.displayedPrice', '259.900 Ft /fő-től');
         $response->assertJsonCount(8, 'programDays');
         $response->assertJsonCount(12, 'gallery');
         $response->assertJsonCount(4, 'priceInformation.included');

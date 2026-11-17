@@ -12,7 +12,7 @@ use App\Support\Legacy\LegacyHtmlContent;
  *
  * @phpstan-type CatalogExtra array{legacy_id: int|null, name: string, price: float, currency: string, price_unit: string, charge_rule: string, sort_order: int}
  * @phpstan-type CatalogPlace array{legacy_id: int, name: string, fee: float}
- * @phpstan-type CatalogDate array{legacy_id: int, start_date: string, end_date: string, price: float|null, price_box_price: float|null, price_box_original_price: float|null, price_box_displayed_price: null, price_box_discount_badge: string|null, price_box_label: string|null, capacity: int|null, status: string, accommodation: string|null, accommodation_info: string|null, catering: string|null, catering_info: string|null, legacy_attributes: array<string, mixed>, extras: array<int, CatalogExtra>, departure_places: array<int, CatalogPlace>}
+ * @phpstan-type CatalogDate array{legacy_id: int, start_date: string, end_date: string, price: float|null, price_box_price: float|null, price_box_original_price: float|null, price_box_discount_badge: string|null, price_box_label: string|null, capacity: int|null, status: string, accommodation: string|null, accommodation_info: string|null, catering: string|null, catering_info: string|null, legacy_attributes: array<string, mixed>, extras: array<int, CatalogExtra>, departure_places: array<int, CatalogPlace>}
  * @phpstan-type CatalogImage array{legacy_image_id: int, url: string, sort_order: int, title: string|null}
  */
 final readonly class LegacyCatalogOffer

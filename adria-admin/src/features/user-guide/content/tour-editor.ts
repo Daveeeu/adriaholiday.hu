@@ -229,34 +229,24 @@ export const tourEditorTopics: GuideTopic[] = [
     id: 'tour-pricebox',
     title: 'Árdoboz',
     summary:
-      'Az út árdoboza: az alapár, a megjelenített ár szövege és a kedvezmények. Az időpontoknál időpontonként eltérő ár is megadható, az felülírja az itteni alapárat.',
+      'Az út árdoboza: az alapár és a kedvezmények. A megjelenített árat (pl. „269.600 Ft / fő”) a rendszer írja az árból és az ár utótagból. Az időpontoknál időpontonként eltérő ár is megadható, az felülírja az itteni alapárat.',
     menu: EDITOR_MENU,
     access: EDITOR_ACCESS,
     blocks: [
       img(
         'tour-form-pricebox',
         'Árdoboz szekció',
-        'Az árdoboz mezői: alapár, megjelenített ár, pénznem, utótag, kedvezmény és létszámadatok.',
+        'Az árdoboz mezői: alapár, pénznem, utótag és kedvezmény.',
       ),
       fields('Mezők', [
         field(
           'Alapár',
           'Az út ára forintban, fejenként, csak számmal (pl. 269600). Ebből számol a foglalás.',
-          'A foglalási űrlap árösszesítőjében; ha nincs megjelenített ár szöveg, az árdobozban is.',
+          `${TOUR_PAGE} az árdobozban, az ajánlatkártyákon és a foglalási űrlap árösszesítőjében, a rendszer formázásában (pl. „269.600 Ft”).`,
           shown(
             'field-price-box',
             'Az árdoboz az utazás oldalán, kedvezménnyel',
             'priceBox.price',
-          ),
-        ),
-        field(
-          'Megjelenített ár szöveg',
-          'Az ár, ahogy a látogató látja (pl. „269.600 Ft” vagy „199 000 Ft-tól”).',
-          `${TOUR_PAGE} az árdobozban, valamint az ajánlatkártyákon.`,
-          shown(
-            'field-price-box',
-            'Az árdoboz az utazás oldalán, kedvezménnyel',
-            'priceBox.displayedPrice',
           ),
         ),
         field(
@@ -267,7 +257,7 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Ár utótag',
-          'Az ár után írt szöveg (pl. „/ fő”).',
+          'Az ár után írt szöveg (pl. „/ fő”), a rendszer az ár mögé írja.',
           `${TOUR_PAGE}, az árdobozban az ár mellett.`,
           shown(
             'field-price-box',
@@ -293,26 +283,6 @@ export const tourEditorTopics: GuideTopic[] = [
             'field-price-box',
             'Az árdoboz az utazás oldalán, kedvezménnyel',
             'priceBox.discountText',
-          ),
-        ),
-        field(
-          'Sürgető felirat',
-          'Sürgető, figyelemfelkeltő rövid szöveg (pl. „18 fő érdeklődött az elmúlt 72 órában”). Csak valós adatot írj! Ha a kiválasztott időpontra már csak a férőhelyek legfeljebb 35%-a szabad, a felugró üzenet helyette magától azt írja ki, hány hely maradt.',
-          `${TOUR_PAGE}, kis felugró üzenetként a képernyő bal alsó sarkában, pár másodperccel az oldal megnyitása után.`,
-          shown(
-            'field-urgency',
-            'A sürgető felugró üzenet az utazás oldalán',
-            'priceBox.urgencyText',
-          ),
-        ),
-        field(
-          'Értékelés szöveg',
-          'Rövid értékelés (pl. „4.9/5 utasértékelés”).',
-          `${TOUR_PAGE}, az árdobozban.`,
-          shown(
-            'field-trip-hero-pills',
-            'Az utazás oldalának fejléce: ismertető szöveg és értékelés a cím felett',
-            'priceBox.ratingText',
           ),
         ),
       ]),
@@ -351,7 +321,7 @@ export const tourEditorTopics: GuideTopic[] = [
           `${TOUR_PAGE}, a cím alatti bevezetőben.`,
           shown(
             'field-trip-hero-pills',
-            'Az utazás oldalának fejléce: ismertető szöveg és értékelés a cím felett',
+            'Az utazás oldalának fejléce: az ismertető szöveg a cím felett',
             'shortDescription',
           ),
         ),
@@ -870,21 +840,11 @@ export const tourEditorTopics: GuideTopic[] = [
         field(
           'Maximum létszám',
           'Hány utast visz ez az indulás. Alatta látod, hány fő foglalt már rá és hány hely szabad. A foglalt létszámot a nem lemondott, nem lejárt foglalások utasai adják, a weboldalon, az irodában és importtal rögzítettek egyaránt. A szabad helyet nem kell beírni, a rendszer számolja. A mező nem állítható a már foglalt létszám alá; üresen hagyva nincs létszámkorlát.',
-          `${TOUR_PAGE}: a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt.`,
+          `${TOUR_PAGE}: a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt. Ha már csak a helyek legfeljebb 35%-a szabad, pár másodperccel az oldal megnyitása után felugró üzenet jelzi, hány hely maradt.`,
           shown(
-            'field-urgency',
-            'A sürgető felugró üzenet az utazás oldalán',
+            'field-seats-running-low',
+            'A „Fogynak a helyek!” felugró üzenet az utazás oldalán',
             'dates.capacity',
-          ),
-        ),
-        field(
-          'Megjelenített ár',
-          'Az időpont ára szövegesen (pl. „189.900 Ft”). Üresen az árból készül.',
-          'Az időpontválasztóban.',
-          shown(
-            'field-dates',
-            'Az időpontválasztó az utazás oldalán',
-            'dates.priceBox.displayedPrice',
           ),
         ),
         field(

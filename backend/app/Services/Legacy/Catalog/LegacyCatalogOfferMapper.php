@@ -3,7 +3,6 @@
 namespace App\Services\Legacy\Catalog;
 
 use App\Models\TourGalleryItem;
-use App\Support\HufPrice;
 use App\Support\Legacy\Catalog\LegacyCatalogOffer;
 use App\Support\Legacy\LegacyBookingOptionRules;
 use App\Support\Legacy\LegacyText;
@@ -98,7 +97,6 @@ final class LegacyCatalogOfferMapper
                 'seo_robots' => LegacyText::line($extraFields['seo[robots]'] ?? null),
                 ...$stay,
                 'price' => $price,
-                'displayed_price' => $price !== null ? HufPrice::format($price) : null,
                 // The legacy texts replace whatever the earlier imports split
                 // out of the pages; the program is one block again.
                 'program_before' => null,
@@ -182,7 +180,6 @@ final class LegacyCatalogOfferMapper
             'price' => $price['price'],
             'price_box_price' => $price['price'],
             'price_box_original_price' => $price['original_price'],
-            'price_box_displayed_price' => null,
             'price_box_discount_badge' => LegacyBookingOptionRules::discountBadge($this->number($fields['last_minute'] ?? null)),
             'price_box_label' => LegacyText::line($fields['comment'] ?? null),
             'capacity' => $seats,

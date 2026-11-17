@@ -111,7 +111,6 @@ class AdminTourLabelsTest extends TestCase
             'tag_ids' => [(string) $tag->id],
             'category_ids' => [(string) $category->id],
             'price' => 199900,
-            'displayed_price' => '199.900,-Ft -tól',
             'slider_text' => null,
         ]);
 

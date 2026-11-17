@@ -36,7 +36,6 @@ function emptyTourDate(): TourDateFormValue {
     startDate: '',
     endDate: '',
     price: '',
-    displayedPrice: '',
     status: 'available',
     departurePlaceIds: [],
     accommodation: '',
@@ -47,7 +46,6 @@ function emptyTourDate(): TourDateFormValue {
     partnerXml: { cesysAccommodation: '', cesysRoom: '' },
     priceBox: {
       price: '',
-      displayedPrice: '',
       discountBadge: '',
       originalPrice: '',
       label: '',
@@ -205,19 +203,6 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
                       placeholder="199000"
                       {...dateField}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name={`dates.${index}.priceBox.displayedPrice`}
-              render={({ field: dateField }) => (
-                <FormItem>
-                  <TourFormLabel>Megjelenített ár</TourFormLabel>
-                  <FormControl>
-                    <Input placeholder="199 000 Ft-tól" {...dateField} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

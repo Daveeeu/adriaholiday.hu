@@ -9,7 +9,6 @@ import {
   Bus,
   Hotel,
   Utensils,
-  Star,
   Check,
   X,
   ShieldCheck,
@@ -179,7 +178,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
         message={urgencyMessage({
           seatsRunningLow: selectedDate.seatsRunningLow,
           seatsLeft: selectedSeats,
-          urgencyText: priceBox?.urgencyText,
         })}
       />
       <section className="relative overflow-hidden">
@@ -228,12 +226,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               </Pill>
             ) : null}
             {trip.badge && <Pill active>{trip.badge}</Pill>}
-            {priceBox?.ratingText ? (
-              <Pill>
-                <Star className="w-4 h-4 text-[#00c389]" />
-                {priceBox.ratingText}
-              </Pill>
-            ) : null}
           </div>
 
           <h1

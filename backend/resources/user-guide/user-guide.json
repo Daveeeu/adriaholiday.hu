@@ -735,7 +735,7 @@
         {
           "id": "tour-pricebox",
           "title": "Árdoboz",
-          "summary": "Az út árdoboza: az alapár, a megjelenített ár szövege és a kedvezmények. Az időpontoknál időpontonként eltérő ár is megadható, az felülírja az itteni alapárat.",
+          "summary": "Az út árdoboza: az alapár és a kedvezmények. A megjelenített árat (pl. „269.600 Ft / fő”) a rendszer írja az árból és az ár utótagból. Az időpontoknál időpontonként eltérő ár is megadható, az felülírja az itteni alapárat.",
           "menu": "Körutazások › Ajánlatok › ceruza ikon",
           "access": "Körutazások szerkesztése",
           "blocks": [
@@ -744,7 +744,7 @@
               "image": {
                 "file": "tour-form-pricebox",
                 "alt": "Árdoboz szekció",
-                "caption": "Az árdoboz mezői: alapár, megjelenített ár, pénznem, utótag, kedvezmény és létszámadatok."
+                "caption": "Az árdoboz mezői: alapár, pénznem, utótag és kedvezmény."
               }
             },
             {
@@ -754,12 +754,7 @@
                 {
                   "name": "Alapár",
                   "description": "Az út ára forintban, fejenként, csak számmal (pl. 269600). Ebből számol a foglalás.",
-                  "appearsAt": "A foglalási űrlap árösszesítőjében; ha nincs megjelenített ár szöveg, az árdobozban is."
-                },
-                {
-                  "name": "Megjelenített ár szöveg",
-                  "description": "Az ár, ahogy a látogató látja (pl. „269.600 Ft” vagy „199 000 Ft-tól”).",
-                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>) az árdobozban, valamint az ajánlatkártyákon."
+                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>) az árdobozban, az ajánlatkártyákon és a foglalási űrlap árösszesítőjében, a rendszer formázásában (pl. „269.600 Ft”)."
                 },
                 {
                   "name": "Pénznem",
@@ -767,7 +762,7 @@
                 },
                 {
                   "name": "Ár utótag",
-                  "description": "Az ár után írt szöveg (pl. „/ fő”).",
+                  "description": "Az ár után írt szöveg (pl. „/ fő”), a rendszer az ár mögé írja.",
                   "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), az árdobozban az ár mellett."
                 },
                 {
@@ -779,16 +774,6 @@
                   "name": "Ár alatti szöveg",
                   "description": "Rövid szöveg közvetlenül az ár alatt (pl. „Előfoglalási kedvezmény”); ha ki van töltve, mindig megjelenik. Ha a kedvezmény címke százalékot ad, ezzel a névvel jelenik meg a kedvezmény a foglalás árösszesítőjében.",
                   "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), az árdobozban az ár alatt, és a foglalás árösszesítőjében."
-                },
-                {
-                  "name": "Sürgető felirat",
-                  "description": "Sürgető, figyelemfelkeltő rövid szöveg (pl. „18 fő érdeklődött az elmúlt 72 órában”). Csak valós adatot írj! Ha a kiválasztott időpontra már csak a férőhelyek legfeljebb 35%-a szabad, a felugró üzenet helyette magától azt írja ki, hány hely maradt.",
-                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), kis felugró üzenetként a képernyő bal alsó sarkában, pár másodperccel az oldal megnyitása után."
-                },
-                {
-                  "name": "Értékelés szöveg",
-                  "description": "Rövid értékelés (pl. „4.9/5 utasértékelés”).",
-                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), az árdobozban."
                 }
               ]
             },
@@ -1227,12 +1212,7 @@
                 {
                   "name": "Maximum létszám",
                   "description": "Hány utast visz ez az indulás. Alatta látod, hány fő foglalt már rá és hány hely szabad. A foglalt létszámot a nem lemondott, nem lejárt foglalások utasai adják, a weboldalon, az irodában és importtal rögzítettek egyaránt. A szabad helyet nem kell beírni, a rendszer számolja. A mező nem állítható a már foglalt létszám alá; üresen hagyva nincs létszámkorlát.",
-                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>): a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt."
-                },
-                {
-                  "name": "Megjelenített ár",
-                  "description": "Az időpont ára szövegesen (pl. „189.900 Ft”). Üresen az árból készül.",
-                  "appearsAt": "Az időpontválasztóban."
+                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>): a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt. Ha már csak a helyek legfeljebb 35%-a szabad, pár másodperccel az oldal megnyitása után felugró üzenet jelzi, hány hely maradt."
                 },
                 {
                   "name": "Eredeti ár (áthúzva)",
@@ -4666,7 +4646,7 @@
                 "Az oldal címe és webcíme: Blog › Kategóriák (név, Webcím).",
                 "A szűrő gombok (pl. „Autóbuszos utak”, „Kedvező ár”): Szűrőgombok a honlapon.",
                 "Az utak listája: a kategóriába sorolt, aktív és listában megjelenő körutazások, a körutazás „Sorrend” mezője szerint.",
-                "Az ajánlatkártyák képe, neve, ára és rövid leírása: a körutazás borítóképe, neve, „Megjelenített ár szöveg” és „Lista rövid leírása” mezője."
+                "Az ajánlatkártyák képe, neve, ára és rövid leírása: a körutazás borítóképe, neve, az árból írt ár és a „Lista rövid leírása” mező."
               ]
             }
           ]

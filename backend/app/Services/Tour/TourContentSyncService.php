@@ -28,7 +28,6 @@ class TourContentSyncService
         'start_date',
         'end_date',
         'price_box_original_price',
-        'price_box_displayed_price',
         'price_box_discount_badge',
         'price_box_label',
         'capacity',

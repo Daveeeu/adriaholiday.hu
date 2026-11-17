@@ -73,7 +73,7 @@ class TourResource extends JsonResource
             'bookingsCount' => $this->whenHas('bookings_count', fn ($value) => (int) $value),
             'nextDepartureDate' => $this->whenHas('next_departure_date', fn ($value) => $value ? Carbon::parse($value)->toDateString() : null),
             'price' => $priceBox['price'] ?? ($this->price !== null ? (float) $this->price : null),
-            'displayedPrice' => $priceBox['displayedPrice'] ?? $this->displayed_price,
+            'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'sliderText' => $this->slider_text,
             'sliderImageMedia' => $this->getFirstMedia('slider') ? new MediaResource($this->getFirstMedia('slider')) : null,
             'programPdfMedia' => $this->getFirstMedia('pdf') ? new MediaResource($this->getFirstMedia('pdf')) : null,

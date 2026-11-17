@@ -20,11 +20,6 @@ const PRICE_BOX_FIELDS: Array<{
   type?: 'number';
 }> = [
   { name: 'price', label: 'Alapár', placeholder: '199000', type: 'number' },
-  {
-    name: 'displayedPrice',
-    label: 'Megjelenített ár szöveg',
-    placeholder: '199 000 Ft-tól',
-  },
   { name: 'currency', label: 'Pénznem', placeholder: 'HUF' },
   { name: 'priceSuffix', label: 'Ár utótag', placeholder: '/ fő' },
   { name: 'discountBadge', label: 'Kedvezmény címke', placeholder: '-15%' },
@@ -32,16 +27,6 @@ const PRICE_BOX_FIELDS: Array<{
     name: 'discountText',
     label: 'Ár alatti szöveg',
     placeholder: 'Előfoglalási kedvezmény',
-  },
-  {
-    name: 'urgencyText',
-    label: 'Sürgető felirat',
-    placeholder: '18 fő érdeklődött az elmúlt 72 órában',
-  },
-  {
-    name: 'ratingText',
-    label: 'Értékelés szöveg',
-    placeholder: '4.9/5 utasértékelés',
   },
 ];
 
