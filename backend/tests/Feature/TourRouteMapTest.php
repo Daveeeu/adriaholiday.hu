@@ -57,6 +57,35 @@ class TourRouteMapTest extends TestCase
         $this->assertSame(640, imagesy($image));
     }
 
+    public function test_crowded_stops_are_zoomed_in_on_until_their_names_fit(): void
+    {
+        $stop = fn (string $name, float $latitude, float $longitude): array => ['name' => $name, 'latitude' => $latitude, 'longitude' => $longitude, 'accommodation' => false];
+        $area = app(RouteMapRenderer::class)->area([
+            $stop('Zell am See', 47.325, 12.796), $stop('Kitzsteinhorn', 47.188, 12.687), $stop('Dornbirn', 47.413, 9.744),
+            $stop('Sankt Gallen', 47.424, 9.377), $stop('Schaffhausen', 47.696, 8.635), $stop('Mainau', 47.705, 9.195),
+            $stop('Luzern', 47.050, 8.309), $stop('Brienz (BE)', 46.754, 8.038), $stop('Rothorn', 46.787, 8.047),
+            $stop('St. Bartholomä', 47.548, 12.969),
+        ]);
+
+        // Not the whole of Germany, which reaches the Baltic at 55°.
+        $this->assertLessThan(51.0, $area[3]);
+        $this->assertLessThanOrEqual(8.038, $area[0]);
+        $this->assertGreaterThanOrEqual(12.969, $area[2]);
+    }
+
+    public function test_a_route_whose_names_fit_shows_its_countries_whole(): void
+    {
+        $area = app(RouteMapRenderer::class)->area(self::STOPS);
+        $split = app(RouteMapRenderer::class)->area([['name' => 'Split', 'latitude' => 43.508, 'longitude' => 16.44, 'accommodation' => true]]);
+
+        // Serbia reaches north to 46.2°, Albania south to 39.6°.
+        $this->assertGreaterThan(46.0, $area[3]);
+        $this->assertLessThan(40.0, $area[1]);
+        // All of Croatia, from Istria to Dubrovnik.
+        $this->assertLessThan(13.7, $split[0]);
+        $this->assertGreaterThan(19.0, $split[2]);
+    }
+
     public function test_the_trip_page_shows_the_map_drawn_once_for_the_stops(): void
     {
         $tour = Tour::factory()->create(['active' => true, 'seo_name' => 'albania', 'route_stops' => self::STOPS]);

@@ -9,9 +9,10 @@ use GdImage;
  * sea, the stops in order joined by dotted arcs, each stop with a dot and its
  * name — accommodations in red, other stops in black. Countries lying inside
  * the visited ones (e.g. Kosovo) are filled in a pale green, so no sea shows
- * through. Sizes below are in layout pixels of a 480×320 map, about the size
- * it is shown at; the image has twice as many pixels, and is drawn at twice
- * that and scaled down, as GD does not antialias filled shapes.
+ * through. Where the names would cover one another, the map zooms in on the
+ * stops until they fit. Sizes below are in layout pixels of a 480×320 map,
+ * about the size it is shown at; the image has twice as many pixels, and is
+ * drawn at twice that and scaled down, as GD does not antialias filled shapes.
  */
 class RouteMapRenderer
 {
@@ -23,7 +24,7 @@ class RouteMapRenderer
     private const OUTPUT_SCALE = 2;
 
     /** Bump when the drawing changes, so every stored map is drawn again. */
-    public const VERSION = 1;
+    public const VERSION = 2;
 
     private const SUPERSAMPLE = 2;
 
@@ -53,6 +54,15 @@ class RouteMapRenderer
     /** In points, as GD takes it. */
     private const FONT_SIZE = 9.5;
 
+    /** Space kept free around each name, in layout pixels, so names do not run into one another. */
+    private const LABEL_CLEARANCE = 5.0;
+
+    /**
+     * When the names do not fit, the land shown beyond the stops on each side
+     * is cut to these shares of the stops' extent, one step after another.
+     */
+    private const SURROUNDING_STEPS = [2.0, 1.4, 1.0, 0.7, 0.45, 0.25, 0.1];
+
     public function __construct(private readonly CountryShapes $shapes) {}
 
     /**
@@ -61,27 +71,49 @@ class RouteMapRenderer
     public function render(array $stops): string
     {
         $scale = self::OUTPUT_SCALE * self::SUPERSAMPLE;
-        $width = self::WIDTH * $scale;
-        $height = self::HEIGHT * $scale;
-        $image = imagecreatetruecolor($width, $height);
+        $image = imagecreatetruecolor(self::WIDTH * $scale, self::HEIGHT * $scale);
         imagefill($image, 0, 0, $this->color($image, self::SEA));
 
-        $countries = $this->countriesOf($stops);
-        $frame = $this->frame($stops, $countries);
-        $project = $this->projection($frame, $width, $height);
+        ['countries' => $countries, 'markers' => $markers, 'frame' => $frame, 'project' => $project, 'labels' => $labels] = $this->layout($stops);
 
         $this->drawCountries($image, $this->enclosedCountries($countries), $frame, $project, $scale, self::ENCLOSED_LAND);
         $this->drawCountries($image, $countries, $frame, $project, $scale);
         $this->drawRoute($image, $stops, $project, $scale);
-        $this->drawStops($image, $this->markers($stops), $project, $scale, $width, $height);
+        $this->drawStops($image, $markers, $labels, $project, $scale);
 
         $output = imagecreatetruecolor(self::WIDTH * self::OUTPUT_SCALE, self::HEIGHT * self::OUTPUT_SCALE);
-        imagecopyresampled($output, $image, 0, 0, 0, 0, self::WIDTH * self::OUTPUT_SCALE, self::HEIGHT * self::OUTPUT_SCALE, $width, $height);
+        imagecopyresampled($output, $image, 0, 0, 0, 0, self::WIDTH * self::OUTPUT_SCALE, self::HEIGHT * self::OUTPUT_SCALE, imagesx($image), imagesy($image));
 
         ob_start();
         imagepng($output, null, 9);
 
         return (string) ob_get_clean();
+    }
+
+    /**
+     * The area the map shows, in degrees: min longitude, min latitude, max
+     * longitude, max latitude, before it is fitted to the image's shape.
+     *
+     * @param  array<int, array{name: string, latitude: float, longitude: float, accommodation: bool}>  $stops
+     * @return array{0: float, 1: float, 2: float, 3: float}
+     */
+    public function area(array $stops): array
+    {
+        return $this->layout($stops)['frame'];
+    }
+
+    /**
+     * @param  array<int, array{name: string, latitude: float, longitude: float, accommodation: bool}>  $stops
+     * @return array{countries: array<int, array{code: string, polygons: array<int, array{points: array<int, array{0: float, 1: float}>, bbox: array{0: float, 1: float, 2: float, 3: float}}>}>, markers: array<int, array{name: string, latitude: float, longitude: float, accommodation: bool}>, frame: array{0: float, 1: float, 2: float, 3: float}, project: callable(float, float): array{0: float, 1: float}, labels: array<int, array{0: float, 1: float, 2: float, 3: float}>}
+     */
+    private function layout(array $stops): array
+    {
+        $scale = self::OUTPUT_SCALE * self::SUPERSAMPLE;
+        $countries = $this->countriesOf($stops);
+        $markers = $this->markers($stops);
+        [$frame, $project, $labels] = $this->fit($stops, $markers, $this->frame($stops, $countries), $scale, self::WIDTH * $scale, self::HEIGHT * $scale);
+
+        return ['countries' => $countries, 'markers' => $markers, 'frame' => $frame, 'project' => $project, 'labels' => $labels];
     }
 
     /**
@@ -171,6 +203,44 @@ class RouteMapRenderer
         }
 
         return $frame;
+    }
+
+    /**
+     * The widest view in which no stop's name covers another name or stop:
+     * the countries' frame, else that frame cut ever closer around the stops;
+     * failing all, the one where the names cover the least.
+     *
+     * @param  array<int, array{latitude: float, longitude: float}>  $stops
+     * @param  array<int, array{name: string, latitude: float, longitude: float}>  $markers
+     * @param  array{0: float, 1: float, 2: float, 3: float}  $countriesFrame
+     * @return array{0: array{0: float, 1: float, 2: float, 3: float}, 1: callable(float, float): array{0: float, 1: float}, 2: array<int, array{0: float, 1: float, 2: float, 3: float}>}
+     */
+    private function fit(array $stops, array $markers, array $countriesFrame, int $scale, int $width, int $height): array
+    {
+        $stopsFrame = CountryShapes::bbox(array_map(fn (array $stop): array => [$stop['longitude'], $stop['latitude']], $stops));
+        $extent = max(1.0, $stopsFrame[2] - $stopsFrame[0], $stopsFrame[3] - $stopsFrame[1]);
+        $frames = [$countriesFrame, ...array_map(fn (float $share): array => [
+            max($countriesFrame[0], $stopsFrame[0] - $share * $extent),
+            max($countriesFrame[1], $stopsFrame[1] - $share * $extent),
+            min($countriesFrame[2], $stopsFrame[2] + $share * $extent),
+            min($countriesFrame[3], $stopsFrame[3] + $share * $extent),
+        ], self::SURROUNDING_STEPS)];
+        $best = null;
+
+        foreach ($frames as $frame) {
+            $project = $this->projection($frame, $width, $height);
+            [$labels, $covered] = $this->layOutLabels($markers, $project, $scale, $width, $height);
+
+            if ($best === null || $covered < $best[3]) {
+                $best = [$frame, $project, $labels, $covered];
+            }
+
+            if ($covered <= 0.0) {
+                break;
+            }
+        }
+
+        return [$best[0], $best[1], $best[2]];
     }
 
     /**
@@ -292,43 +362,73 @@ class RouteMapRenderer
     }
 
     /**
-     * @param  array<int, array{name: string, latitude: float, longitude: float, accommodation: bool}>  $markers
+     * Each marker's name box beside its dot, and how much the boxes, with
+     * their clearance, cover of the other dots and names.
+     *
+     * @param  array<int, array{name: string, latitude: float, longitude: float}>  $markers
+     * @return array{0: array<int, array{0: float, 1: float, 2: float, 3: float}>, 1: float}
      */
-    private function drawStops(GdImage $image, array $markers, callable $project, int $scale, int $width, int $height): void
+    private function layOutLabels(array $markers, callable $project, int $scale, int $width, int $height): array
     {
-        $font = resource_path('fonts/OpenSans-Bold.ttf');
-        $size = self::FONT_SIZE * $scale;
-        $radius = (int) round(2.6 * $scale);
+        $radius = self::stopRadius($scale);
         $positions = array_map(fn (array $marker): array => $project($marker['longitude'], $marker['latitude']), $markers);
         $taken = array_map(fn (array $position): array => [
             $position[0] - $radius, $position[1] - $radius, $position[0] + $radius, $position[1] + $radius,
         ], $positions);
+        $labels = [];
+        $covered = 0.0;
 
         foreach ($markers as $index => $marker) {
             [$x, $y] = $positions[$index];
+            $box = imagettfbbox(self::FONT_SIZE * $scale, 0, self::font(), $marker['name']);
+            [$label, $labelCovers] = $this->labelPosition($x, $y, $box[2] - $box[0], $box[1] - $box[7], $radius + 2 * $scale, self::LABEL_CLEARANCE * $scale, $taken, $width, $height);
+            $covered += $labelCovers;
+            $taken[] = $label;
+            $labels[] = $label;
+        }
+
+        return [$labels, $covered];
+    }
+
+    /**
+     * @param  array<int, array{name: string, latitude: float, longitude: float, accommodation: bool}>  $markers
+     * @param  array<int, array{0: float, 1: float, 2: float, 3: float}>  $labels  each marker's name box
+     */
+    private function drawStops(GdImage $image, array $markers, array $labels, callable $project, int $scale): void
+    {
+        $size = self::FONT_SIZE * $scale;
+        $radius = self::stopRadius($scale);
+
+        foreach ($markers as $index => $marker) {
+            [$x, $y] = $project($marker['longitude'], $marker['latitude']);
             $color = $this->color($image, $marker['accommodation'] ? self::ACCOMMODATION : self::STOP);
             imagefilledellipse($image, (int) round($x), (int) round($y), 2 * $radius, 2 * $radius, $color);
 
-            $box = imagettfbbox($size, 0, $font, $marker['name']);
-            $textWidth = $box[2] - $box[0];
-            $textHeight = $box[1] - $box[7];
-            $label = $this->labelPosition($x, $y, $textWidth, $textHeight, $radius + 2 * $scale, $taken, $width, $height);
-            $taken[] = $label;
-
-            imagettftext($image, $size, 0, (int) round($label[0] - $box[0]), (int) round($label[3] - $box[1]), $color, $font, $marker['name']);
+            $box = imagettfbbox($size, 0, self::font(), $marker['name']);
+            imagettftext($image, $size, 0, (int) round($labels[$index][0] - $box[0]), (int) round($labels[$index][3] - $box[1]), $color, self::font(), $marker['name']);
         }
+    }
+
+    private static function stopRadius(int $scale): int
+    {
+        return (int) round(2.6 * $scale);
+    }
+
+    private static function font(): string
+    {
+        return resource_path('fonts/OpenSans-Bold.ttf');
     }
 
     /**
      * The first place beside the dot (right, left, above, below, then the
      * corners; then the same further out) where the label stays inside the
-     * image and clear of the other dots and labels; failing that, the place
-     * inside the image that covers the least of them.
+     * image and, with its clearance, clear of the other dots and labels;
+     * failing that, the place inside the image that covers the least of them.
      *
      * @param  array<int, array{0: float, 1: float, 2: float, 3: float}>  $taken
-     * @return array{0: float, 1: float, 2: float, 3: float} left, top, right, bottom
+     * @return array{0: array{0: float, 1: float, 2: float, 3: float}, 1: float} the box (left, top, right, bottom) and how much it covers
      */
-    private function labelPosition(float $x, float $y, float $textWidth, float $textHeight, float $gap, array $taken, int $width, int $height): array
+    private function labelPosition(float $x, float $y, float $textWidth, float $textHeight, float $gap, float $clearance, array $taken, int $width, int $height): array
     {
         $boxes = [];
 
@@ -349,13 +449,14 @@ class RouteMapRenderer
 
         $inside = array_values(array_filter($boxes, fn (array $box): bool => $box[0] >= 0 && $box[1] >= 0 && $box[2] <= $width && $box[3] <= $height));
 
-        if ($inside === []) {
-            return $boxes[0];
-        }
+        $candidates = $inside !== [] ? $inside : [$boxes[0]];
+        $covered = array_map(fn (array $box): float => array_sum(array_map(
+            fn (array $other): float => self::overlap([$box[0] - $clearance, $box[1] - $clearance, $box[2] + $clearance, $box[3] + $clearance], $other),
+            $taken,
+        )), $candidates);
+        $best = array_search(min($covered), $covered, true);
 
-        $covered = array_map(fn (array $box): float => array_sum(array_map(fn (array $other): float => self::overlap($box, $other), $taken)), $inside);
-
-        return $inside[array_search(min($covered), $covered, true)];
+        return [$candidates[$best], $covered[$best]];
     }
 
     /**
