@@ -20,6 +20,8 @@
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-placeholder: var(--placeholder);
+  --color-empty-field: var(--empty-field);
   --color-ring: var(--ring);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -48,6 +50,8 @@
   --destructive: oklch(0.627 0.214 28.84);
   --border: oklch(0.908 0.009 264.53);
   --input: oklch(0.908 0.009 264.53);
+  --placeholder: oklch(0.555 0.163 48.998);
+  --empty-field: oklch(0.987 0.022 95.277);
   --ring: oklch(0.592 0.144 244.65);
   --sidebar: oklch(0.247 0.023 264.36);
   --sidebar-foreground: oklch(0.971 0.006 256.79);
@@ -76,6 +80,8 @@
   --destructive: oklch(0.637 0.237 25.33);
   --border: oklch(0.305 0.02 262.34);
   --input: oklch(0.305 0.02 262.34);
+  --placeholder: oklch(0.828 0.189 84.429);
+  --empty-field: oklch(0.279 0.077 45.635 / 0.35);
   --ring: oklch(0.69 0.134 240.1);
   --sidebar: oklch(0.146 0.011 260.15);
   --sidebar-foreground: oklch(0.971 0.006 256.79);
@@ -106,9 +112,24 @@
   }
 }
 
+/*
+ * Placeholders are amber and italic, and an empty form field is tinted with
+ * a dashed border, so the office can tell at a glance that a field is not
+ * filled in: grey example text read as a value. Search boxes and the login's
+ * e-mail and password fields keep their own look.
+ */
+@layer utilities {
+  :where(form) :is(input:not([type='search'], [type='email'], [type='password'], [type='checkbox'], [type='radio']), textarea):placeholder-shown {
+    background-color: var(--empty-field);
+    border-style: dashed;
+    border-color: color-mix(in oklch, var(--placeholder) 55%, transparent);
+  }
+}
+
 @layer components {
   .tiptap p.is-editor-empty:first-child::before {
-    color: var(--muted-foreground);
+    color: var(--placeholder);
+    font-style: italic;
     content: attr(data-placeholder);
     float: left;
     height: 0;

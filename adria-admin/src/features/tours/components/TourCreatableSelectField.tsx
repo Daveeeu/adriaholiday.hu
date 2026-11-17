@@ -195,7 +195,7 @@ export function TourCreatableSelectField<TFieldValues extends FieldValues>({
                     ),
                   valueContainer: () => 'gap-1 px-3 py-1.5',
                   input: () => 'text-sm text-foreground',
-                  placeholder: () => 'text-muted-foreground',
+                  placeholder: () => 'text-placeholder italic',
                   singleValue: () => 'text-foreground',
                   multiValue: () =>
                     'rounded-md border border-border bg-muted px-1.5 py-0.5',
