@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   TrendingUp,
   Users,
-  Flame,
   Plane,
   ChevronRight,
   MapPin,
@@ -224,12 +223,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               <Pill>
                 <Star className="w-4 h-4 text-[#00c389]" />
                 {priceBox.ratingText}
-              </Pill>
-            ) : null}
-            {priceBox?.discountText ? (
-              <Pill>
-                <Flame className="w-4 h-4 text-[#00c389]" />
-                {priceBox.discountText}
               </Pill>
             ) : null}
             {priceBox?.urgencyText ? (
@@ -592,6 +585,10 @@ function PriceBox({
       <div className="text-5xl font-bold tracking-tight">
         {discountedDisplayedPrice ?? priceBox.displayedPrice}
       </div>
+
+      {priceBox.discountText ? (
+        <p className="mt-3 text-base font-semibold text-[#00c389]">{priceBox.discountText}</p>
+      ) : null}
 
       <a
         href="#foglalas"

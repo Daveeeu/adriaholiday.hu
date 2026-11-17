@@ -352,7 +352,7 @@ export function TourForm({ form, tour }: TourFormProps) {
             name="priceBox.discountText"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kedvezmény szöveg</FormLabel>
+                <FormLabel>Ár alatti szöveg</FormLabel>
                 <FormControl>
                   <Input placeholder="Előfoglalási kedvezmény" {...field} />
                 </FormControl>

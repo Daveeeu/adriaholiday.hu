@@ -237,7 +237,7 @@ function TourDetailView({ tour }: { tour: Tour }) {
           <DetailItem label="Pénznem" value={priceBox?.currency} />
           <DetailItem label="Ár utótag" value={priceBox?.priceSuffix} />
           <DetailItem label="Kedvezmény címke" value={priceBox?.discountBadge} />
-          <DetailItem label="Kedvezmény szöveg" value={priceBox?.discountText} />
+          <DetailItem label="Ár alatti szöveg" value={priceBox?.discountText} />
           <DetailItem label="Urgency szöveg" value={priceBox?.urgencyText} />
           <DetailItem label="Értékelés szöveg" value={priceBox?.ratingText} />
           <DetailItem label="Minimum fő" value={priceBox?.minParticipants} />

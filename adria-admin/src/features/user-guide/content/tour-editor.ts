@@ -225,9 +225,9 @@ export const tourEditorTopics: GuideTopic[] = [
           `${TOUR_PAGE} az árdobozban és a foglalás árösszesítőjében.`,
         ),
         field(
-          'Kedvezmény szöveg',
-          'A kedvezmény neve (pl. „Előfoglalási kedvezmény”). Ezzel a névvel jelenik meg a foglalás árösszesítőjében.',
-          `${TOUR_PAGE}, az árdobozban és a foglalás árösszesítőjében.`,
+          'Ár alatti szöveg',
+          'Rövid szöveg közvetlenül az ár alatt (pl. „Előfoglalási kedvezmény”); ha ki van töltve, mindig megjelenik. Ha a kedvezmény címke százalékot ad, ezzel a névvel jelenik meg a kedvezmény a foglalás árösszesítőjében.',
+          `${TOUR_PAGE}, az árdobozban az ár alatt, és a foglalás árösszesítőjében.`,
         ),
         field(
           'Sürgető felirat',
