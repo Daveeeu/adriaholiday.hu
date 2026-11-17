@@ -4,7 +4,7 @@
 
 Felvéve: 2026-11-17. A kód 2026-11-17-én elkészült (admin, backend, legacy importerek, publikus típus, útmutató),
 a `2026_11_17_180000_drop_unused_tour_fields` migráció törli az oszlopokat és a `tour_partner_bonuses` táblát.
-Még nincs élesítve.
+Élesítve 2026-11-17-én.
 
 Ellenőrizve törlés előtt: sem a publikus oldal, sem a PDF, sem a partner XML feedek, sem az MCP, sem a sales asszisztens nem olvasta őket.
 
@@ -27,9 +27,11 @@ Ellenőrizve törlés előtt: sem a publikus oldal, sem a PDF, sem a partner XML
 
 Megmaradt: a `recommended` jelölő (a kiemelt ajánlatok sorrendjét adja) és a `slider_text` oszlop.
 
-Élesítéskor:
-- [ ] Prod adatbázis mentése a migráció előtt, és a kitöltött értékek számának feljegyzése mezőnként (a migráció után nem visszaállíthatók).
-- [ ] Deploy után: egy út szerkesztése és mentése az adminban, egy ajánlatoldal és a partner XML feedek ellenőrzése.
+Élesítés:
+- [x] Prod adatbázis mentése: `~/backups/adriaholiday-db-20261117-153619-before-tour-field-drop.sql.gz` a szerveren.
+  Kitöltött értékek a törlés előtt (365 út): Képes ajánlat 49, slider kép 153, program PDF útvonal 5, nehézségi szint 1,
+  csempéző ajánlat 23, partner bónusz 204 sor, időpont minimum fő 1; a többi mező üres volt.
+- [x] Deploy után ellenőrizve: a migráció lefutott (MariaDB), az oszlopok és a tábla eltűntek, az ajánlatoldal, az ajánlat API és a négy partner XML feed 200-at ad, az admin új szerkesztője és a súgóképek kint vannak.
 
 Nyitott:
 - [ ] A „Régiók és csoportok” és a „Szezonális ajánlat csoportok” admin oldalak (táblák, API-k, jogosultságok) már egyetlen úthoz sem kötődnek; dönteni kell, törölhetők-e.
