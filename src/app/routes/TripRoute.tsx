@@ -20,32 +20,7 @@ import { INQUIRE_LABEL } from "../content/portfolio-offer-card-model";
 import { tourItem } from "../analytics/analytics-items";
 import { useAnalytics } from "../analytics/useAnalytics";
 import { absoluteUrl } from "../seo/site";
-
-function formatCalendarDate(value?: string | null) {
-  if (!value) {
-    return INQUIRE_LABEL;
-  }
-
-  const [year, month, day] = value.split("-");
-
-  if (!year || !month || !day) {
-    return value;
-  }
-
-  return `${year}.${month}.${day}.`;
-}
-
-function formatDateLabel(date: PortfolioOfferDetailDate) {
-  if (!date.startDate) {
-    return INQUIRE_LABEL;
-  }
-
-  if (!date.endDate) {
-    return formatCalendarDate(date.startDate);
-  }
-
-  return `${formatCalendarDate(date.startDate)} - ${formatCalendarDate(date.endDate).slice(5)}`;
-}
+import { tripDateLabel } from "../lib/tripDateLabel";
 
 export type TripDetail = ReturnType<typeof mapOfferToTrip>;
 
@@ -72,9 +47,9 @@ function mapOfferToTrip(offer: PortfolioOfferDetail) {
     ? offer.dates.map((date, index) => ({
         id: String(date.id ?? `${offer.seoName}-date-${index + 1}`),
         label:
-          date.startDate && date.endDate
-            ? formatDateLabel(date)
-            : offer.departureDateLabel || INQUIRE_LABEL,
+          (date.endDate && tripDateLabel(date.startDate, date.endDate)) ||
+          offer.departureDateLabel ||
+          INQUIRE_LABEL,
         status: date.status === "sold_out" ? "Betelt" : date.status === "cancelled" ? "Törölve" : "Elérhető",
         bookable: isBookableDateStatus(date.status),
         seatsLeft: date.freeSeats ?? null,

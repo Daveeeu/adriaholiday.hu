@@ -122,7 +122,7 @@ class TourMeta
     }
 
     /**
-     * "2026.07.12. - 19.", from the tour's earliest date unless the legacy meta names it.
+     * The tour's earliest date as dateRangeLabel() shows it, unless the legacy meta names it.
      */
     public static function departureLabel(Tour $tour): string
     {
@@ -135,12 +135,13 @@ class TourMeta
         $firstDate = $tour->dates->sortBy('start_date')->first();
 
         return $firstDate?->start_date && $firstDate->end_date
-            ? $firstDate->start_date->format('Y.m.d.').' - '.$firstDate->end_date->format('d.')
+            ? self::dateRangeLabel($firstDate)
             : self::INQUIRE_LABEL;
     }
 
     /**
-     * A date's span as the site shows it: "2027.04.04. - 04.10.".
+     * A date's span as the site shows it: "2027.04.04. - 04.10.", or the
+     * single day "2027.04.04." for a one-day trip.
      */
     public static function dateRangeLabel(TourDate $date): string
     {
@@ -148,7 +149,7 @@ class TourMeta
             return self::INQUIRE_LABEL;
         }
 
-        return $date->end_date === null
+        return $date->end_date === null || $date->end_date->isSameDay($date->start_date)
             ? $date->start_date->format('Y.m.d.')
             : $date->start_date->format('Y.m.d.').' - '.$date->end_date->format('m.d.');
     }
