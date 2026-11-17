@@ -374,7 +374,7 @@ export const toursChapter: GuideChapter = {
           'Ha egy elmentett sorrendű listára új út kerül (pl. új utat sorolsz a kategóriába), az a lista végén jelenik meg „Új a listán” jelöléssel, amíg el nem helyezed és nem mented. A látogató saját rendezése (Legolcsóbb, Legmelegebb) mindig felülírja a kézi sorrendet.',
         ),
         tip(
-          'A főoldali „Kiemelt utak” blokk sorrendje a Sorrend listánként oldalon (vagy utanként a „Kiemelt sorrend” mezőben) állítható. A blokk egyszerre legfeljebb 4 utat mutat, és naponta ebben a sorrendben a következő négyre vált. A csempék egymás közti sorrendje a Főoldali ajánlatok oldalon.',
+          'A főoldali „Kiemelt utak” blokk sorrendje a Sorrend listánként oldalon (vagy utanként a „Kiemelt sorrend” mezőben) állítható. A blokk egyszerre legfeljebb 5 utat mutat, és naponta ebben a sorrendben a következő ötre vált. A csempék egymás közti sorrendje a Főoldali ajánlatok oldalon.',
         ),
       ],
     },

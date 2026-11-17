@@ -1,5 +1,5 @@
 /** How many featured offers the homepage shows at once. */
-export const FEATURED_OFFERS_SHOWN = 4;
+export const FEATURED_OFFERS_SHOWN = 5;
 
 /** How often the shown featured offers move on to the next ones, in days. */
 export const FEATURED_ROTATION_DAYS = 1;

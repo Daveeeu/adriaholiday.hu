@@ -692,7 +692,7 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Kiemelt?',
-          'Bekapcsolva az út a főoldal kiemelt ajánlatai között szerepel. A főoldal egyszerre legfeljebb 4 kiemelt utat mutat, és naponta a következő négyre vált, így minden kiemelt út sorra kerül.',
+          'Bekapcsolva az út a főoldal kiemelt ajánlatai között szerepel. A főoldal egyszerre legfeljebb 5 kiemelt utat mutat, és naponta a következő ötre vált, így minden kiemelt út sorra kerül.',
           'A főoldal kiemelt ajánlatok blokkjában.',
           shown(
             'field-home-featured',

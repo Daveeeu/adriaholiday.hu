@@ -30,7 +30,7 @@ export const publicSiteChapter: GuideChapter = {
             '„Ajánlatot kérek” gomb: Beállítások › Fő gomb › Gomb felirata / linkje.',
             'Főcím, alcím, gombok, statisztikák (pl. „10 000+ elégedett utas”), háttérkép/videó: Főoldal szerkesztése › Főoldali nyitókép.',
             'Promóciós felugró értesítés a bal alsó sarokban: Foglalások › Promóció.',
-            'Lejjebb a főoldalon: ajánlatcsempék (Főoldali ajánlatok), kiemelt utak (körutazás „Kiemelt?” és „Kiemelt sorrend”; egyszerre legfeljebb 4, naponta váltva), régiókártyák (Apartmanok › Régiók › Kiemelt a honlapon), kiemelt apartmanok, utasaink levelei (Rólunk írták) és blogcikkek (Blog › „Kiemelt a honlap főoldalán?”).',
+            'Lejjebb a főoldalon: ajánlatcsempék (Főoldali ajánlatok), kiemelt utak (körutazás „Kiemelt?” és „Kiemelt sorrend”; egyszerre legfeljebb 5, naponta váltva), régiókártyák (Apartmanok › Régiók › Kiemelt a honlapon), kiemelt apartmanok, utasaink levelei (Rólunk írták) és blogcikkek (Blog › „Kiemelt a honlap főoldalán?”).',
           ],
           'Mi honnan jön?',
         ),
