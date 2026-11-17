@@ -48,7 +48,7 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
         <div>
           <h3 className="font-semibold">Név és keresők</h3>
           <p className="text-sm text-muted-foreground">
-            Név, akciók, webcím, valamint a keresőben megjelenő cím és leírás.
+            Név, alcím, webcím, valamint a keresőben megjelenő cím és leírás.
           </p>
         </div>
         <Button
@@ -89,34 +89,6 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
               <FormLabel>Alcím</FormLabel>
               <FormControl>
                 <Input placeholder="Opcionális alcím" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="action1"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Akció 1</FormLabel>
-              <FormControl>
-                <Input placeholder="Akció 1" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="action2"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Akció 2</FormLabel>
-              <FormControl>
-                <Input placeholder="Akció 2" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

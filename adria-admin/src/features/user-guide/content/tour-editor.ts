@@ -38,7 +38,7 @@ export const tourEditorTopics: GuideTopic[] = [
           'Név és webcím – név, alcím, webcím, keresőben megjelenő szöveg',
           'Galéria és média – képek',
           'Árdoboz – az árdoboz tartalma',
-          'Tartalmi blokkok – leírások, program, keresési kulcsszavak, PDF',
+          'Tartalmi blokkok – leírások, program, keresési kulcsszavak',
           'Program napok – napokra bontott program',
           'Útvonal térkép – a megállókból rajzolt térkép',
           'Szállás és ellátás',
@@ -47,7 +47,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'Időpontok – indulások, időpontonkénti ár, felárak',
           'Partnerportálok – partnerportálok feedjei',
           'Foglalási űrlap beállításai – melyik űrlapsablont használja a foglalás',
-          'Partner bónuszok',
         ],
         'A szekciók sorrendben',
       ),
@@ -95,16 +94,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'Bekapcsolva a foglaláskor beváltható kuponkód (pl. a hírlevél-feliratkozás kuponja) erre az útra. Kikapcsolva a kupon nem csökkenti az árat.',
           'A foglalási űrlap kupon mezőjénél és az árösszesítőben.',
         ),
-        field(
-          'Képes ajánlat?',
-          'A régi rendszerből átvett jelölő; a listában szűrni lehet rá.',
-          ADMIN_ONLY,
-        ),
-        field(
-          'Slider kép / Slider szöveg',
-          'A régi rendszer sliderjéhez tartozó jelölők; az új weboldal nem használja őket.',
-          ADMIN_ONLY,
-        ),
       ]),
     ],
   },
@@ -118,7 +107,7 @@ export const tourEditorTopics: GuideTopic[] = [
       img(
         'tour-form-seo',
         'Név és webcím szekció',
-        'A név, alcím, akciók, Webcím, Keresőben megjelenő cím, robots és Keresőben megjelenő leírás mezői.',
+        'A név, alcím, Webcím, Keresőben megjelenő cím, robots és Keresőben megjelenő leírás mezői.',
       ),
       fields('Mezők', [
         field(
@@ -130,11 +119,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'Alcím',
           'Opcionális kiegészítő cím a név alatt.',
           `${TOUR_PAGE}, a név alatt.`,
-        ),
-        field(
-          'Akció 1 / Akció 2',
-          'Belső akciócímkék (pl. „Előfoglalás”). Az admin listában és keresőjében látszanak.',
-          ADMIN_ONLY,
         ),
         field(
           'Webcím',
@@ -260,11 +244,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'A csoport tervezett minimális létszáma. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.',
           ADMIN_ONLY,
         ),
-        field(
-          'Elsődleges / Másodlagos gomb felirata',
-          'A régi árdoboz gombfeliratai. A weboldal gombjainak szövegét az oldal maga határozza meg.',
-          ADMIN_ONLY,
-        ),
       ]),
       tip(
         'Akciónál (pl. előfoglalási árnál) egyszerűbb időpontonként megadni az „Eredeti ár (áthúzva)” értéket az Időpontok szekcióban: így csak az adott indulásnál látszik áthúzott ár.',
@@ -282,7 +261,7 @@ export const tourEditorTopics: GuideTopic[] = [
       img(
         'tour-form-content',
         'Tartalmi blokkok szekció',
-        'A leírások, a keresési kulcsszavak és a program PDF mezői.',
+        'A leírások és a keresési kulcsszavak mezői.',
       ),
       fields('Mezők', [
         field(
@@ -299,16 +278,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'Keresési kulcsszavak',
           'Azok a szavak, amelyekre a weboldal keresője megtalálja az utat (pl. „Róma, Vatikán, Firenze”). Enterrel vagy vesszővel adhatsz hozzá újat, az X-szel törölhetsz. A „Javaslat az ismertető szövegből” gomb kigyűjti a szövegben szereplő helyszíneket. Az út neve, országai és régiója magától is kereshető.',
           'A weboldal keresőjében (fejléc kereső és ajánlatkereső). Egész szavakra keres: a „Róma” megtalálja az utat, a „Románia” nem.',
-        ),
-        field(
-          'Program PDF / Program PDF fájlnév',
-          'A régi rendszerből átvett PDF program adatai. A weboldal letölthető programját a rendszer mindig a fenti szövegekből és a programból generálja, ezt a mezőt nem használja.',
-          ADMIN_ONLY,
-        ),
-        field(
-          'Slider kép',
-          'A régi slider nézet képe; ha nincs borítókép, ez lesz az út fő képe.',
-          `${TOUR_PAGE}, tartalék főképként.`,
         ),
         field(
           'Program előtti szöveg',
@@ -544,21 +513,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'A listák szűrőiben, az út adatai között és a partnerportálok adataiban.',
         ),
         field(
-          'Csoportok',
-          'Tematikus csoport (Körutazások › Régiók és csoportok).',
-          'Az admin szűrőiben és az út besorolásában.',
-        ),
-        field(
-          'Ajánlat csoportok',
-          'Szezonális ajánlat csoport (Körutazások › Szezonális ajánlat csoportok).',
-          'Az admin szűrőiben.',
-        ),
-        field(
-          'Főoldali ajánlat',
-          'Az a főoldali ajánlatblokk (Tartalom › Főoldali ajánlatok), amelyhez az út tartozik.',
-          'A publikus listában az itt kiválasztott főoldali blokk alatt.',
-        ),
-        field(
           'Kiemelt?',
           'Bekapcsolva az út a főoldal kiemelt ajánlatai között szerepel.',
           'A főoldal kiemelt ajánlatok blokkjában.',
@@ -569,9 +523,9 @@ export const tourEditorTopics: GuideTopic[] = [
           'A főoldal kiemelt ajánlatok blokkjában.',
         ),
         field(
-          'Kiemelés a pozitív kiemelt ajánlatok között / Kiemelés csempéző ajánlat',
-          'A régi rendszer kiemelési jelölői.',
-          ADMIN_ONLY,
+          'Kiemelés a pozitív kiemelt ajánlatok között',
+          'Bekapcsolva az út előrébb kerül a kiemelt ajánlatok között (a „Kiemelt?” utak után).',
+          'Az ajánlatlista és a kategóriaoldalak tetején kiemelt három ajánlat kiválasztásában.',
         ),
         field(
           'Kategóriák',
@@ -579,9 +533,9 @@ export const tourEditorTopics: GuideTopic[] = [
           'A kategóriaoldalakon (adriaholiday.hu/kategoriak/<kategória>), az ajánlatkártyák címkéiben és az „Ezek is érdekelhetnek” ajánlóban.',
         ),
         field(
-          'FIT / Program típus / Nehézségi szint',
+          'Program típus',
           'Az út jellegének besorolása.',
-          'Az ajánlatkártyákon és a szűrőkben, ahol a weboldal használja.',
+          'Az ajánlatkártyákon.',
         ),
         field(
           'Közlekedés',
@@ -796,11 +750,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'Foglalási űrlap sablon',
           'Pl. „Buszos út”, „Repülős út” vagy egyedi sablon. Csak aktív sablon választható. Üresen az alapértelmezett sablon érvényes. A sablonokat a Foglalások › Foglalási űrlap sablonok oldalon lehet szerkeszteni.',
           'A weboldal foglalási űrlapján: mely adatokat kell megadni (pl. útlevélszám, születési dátum).',
-        ),
-        field(
-          'Partner bónuszok (Bónusz neve, Érték)',
-          'A partnereknek járó bónuszok listája és értéke.',
-          ADMIN_ONLY,
         ),
       ]),
     ],

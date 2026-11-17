@@ -13,11 +13,6 @@ import {
   createCategoryOption,
   createCountryOption,
   createDeparturePlaceOption,
-  createDifficultyOption,
-  createFitOption,
-  createGroupOption,
-  getHomepageOfferOptions,
-  createOfferGroupOption,
   createProgramTypeOption,
   createRegionOption,
   createTagOption,
@@ -25,10 +20,6 @@ import {
   getCategoryOptions,
   getCountryOptions,
   getDeparturePlaceOptions,
-  getDifficultyOptions,
-  getFitOptions,
-  getGroupOptions,
-  getOfferGroupOptions,
   getProgramTypeOptions,
   getRegionOptions,
   getTagOptions,
@@ -66,25 +57,8 @@ function buildOptions(items?: Array<{ id: string | number; label?: string | null
 
 export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
   const regionFallbackOptions = buildOption(tour?.regionId, tour?.regionLabel);
-  const homepageOfferFallbackOptions = buildOptions(
-    tour?.homepageOffers?.map((offer) => ({
-      id: offer.id,
-      title: offer.title,
-    })),
-  ).length > 0
-    ? buildOptions(
-        tour?.homepageOffers?.map((offer) => ({
-          id: offer.id,
-          title: offer.title,
-        })),
-      )
-    : buildOption(tour?.homepageOfferId, tour?.homepageOfferLabel);
-  const groupFallbackOptions = buildOption(tour?.groupId, tour?.groupLabel);
-  const seasonalGroupFallbackOptions = buildOption(tour?.seasonalGroupId, tour?.seasonalGroupLabel);
-  const fitFallbackOptions = buildOption(tour?.fitId, tour?.fitLabel);
   const programTypeFallbackOptions = buildOption(tour?.programTypeId, tour?.programTypeLabel);
   const travelModeFallbackOptions = buildOption(tour?.travelModeId, tour?.travelModeLabel);
-  const difficultyFallbackOptions = buildOption(tour?.difficultyId, tour?.difficultyLabel);
   const departurePlaceFallbackOptions = buildOptions(tour?.departurePlaces?.map((place) => ({ id: place.id, name: place.name })));
   const countryFallbackOptions = buildOptions(tour?.countries);
   const tagFallbackOptions = buildOptions(tour?.tags);
@@ -112,45 +86,6 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
         />
         <TourCreatableSelectField
           control={form.control}
-          name="groupId"
-          label="Csoportok"
-          queryKey={['tour-select-options', 'groups']}
-          queryFn={getGroupOptions}
-          quickCreateKind="group"
-          createFn={createGroupOption}
-          fallbackOptions={groupFallbackOptions}
-        />
-        <TourCreatableSelectField
-          control={form.control}
-          name="seasonalGroupId"
-          label="Ajánlat csoportok"
-          queryKey={['tour-select-options', 'offer-groups']}
-          queryFn={getOfferGroupOptions}
-          quickCreateKind="offer-group"
-          createFn={createOfferGroupOption}
-          fallbackOptions={seasonalGroupFallbackOptions}
-        />
-        <TourCreatableSelectField
-          control={form.control}
-          name="homepageOfferId"
-          label="Főoldali ajánlat"
-          queryKey={['tour-select-options', 'homepage-offers']}
-          queryFn={getHomepageOfferOptions}
-          description="Az itt kiválasztott főoldali blokk alá fog megjelenni a körutazás a publikus listában."
-          fallbackOptions={homepageOfferFallbackOptions}
-        />
-        <TourCreatableSelectField
-          control={form.control}
-          name="fitId"
-          label="FIT"
-          queryKey={['tour-select-options', 'fits']}
-          queryFn={getFitOptions}
-          quickCreateKind="fit"
-          createFn={createFitOption}
-          fallbackOptions={fitFallbackOptions}
-        />
-        <TourCreatableSelectField
-          control={form.control}
           name="programTypeId"
           label="Program típus"
           queryKey={['tour-select-options', 'program-types']}
@@ -168,16 +103,6 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
           quickCreateKind="travel-mode"
           createFn={createTravelModeOption}
           fallbackOptions={travelModeFallbackOptions}
-        />
-        <TourCreatableSelectField
-          control={form.control}
-          name="difficultyId"
-          label="Nehézségi szint"
-          queryKey={['tour-select-options', 'difficulties']}
-          queryFn={getDifficultyOptions}
-          quickCreateKind="difficulty"
-          createFn={createDifficultyOption}
-          fallbackOptions={difficultyFallbackOptions}
         />
       </div>
 
@@ -276,22 +201,6 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
                   onChange={(event) => field.onChange(event.target.checked)}
                 />
                 Kiemelés a pozitív kiemelt ajánlatok között
-              </label>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="partnerOffer"
-          render={({ field }) => (
-            <FormItem>
-              <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={field.value}
-                  onChange={(event) => field.onChange(event.target.checked)}
-                />
-                Kiemelés csempéző ajánlat
               </label>
             </FormItem>
           )}

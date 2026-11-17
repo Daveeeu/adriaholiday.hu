@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { useFieldArray, useWatch, type UseFormReturn } from 'react-hook-form';
+import { useWatch, type UseFormReturn } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight, Minus, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Minus, Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -12,7 +12,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { createClientId } from '@/lib/client-id';
 import { cn } from '@/lib/utils';
 import {
   getAllBookingFormTemplates,
@@ -121,17 +120,7 @@ function BooleanField({
   label,
 }: {
   form: UseFormReturn<TourFormValues>;
-  name:
-    | 'active'
-    | 'listed'
-    | 'xmlEnabled'
-    | 'couponable'
-    | 'featured'
-    | 'recommended'
-    | 'partnerOffer'
-    | 'imageOffer'
-    | 'sliderImageEnabled'
-    | 'sliderTextEnabled';
+  name: 'active' | 'listed' | 'xmlEnabled' | 'couponable';
   label: string;
 }) {
   return (
@@ -155,11 +144,6 @@ function BooleanField({
 }
 
 export function TourForm({ form, tour }: TourFormProps) {
-  const bonuses = useFieldArray({
-    control: form.control,
-    name: 'partnerBonuses',
-  });
-
   const dates = useWatch({ control: form.control, name: 'dates' }) ?? [];
   const gallery = useWatch({ control: form.control, name: 'gallery' }) ?? [];
   const programDays = useWatch({ control: form.control, name: 'programDays' }) ?? [];
@@ -269,15 +253,12 @@ export function TourForm({ form, tour }: TourFormProps) {
           <BooleanField form={form} name="listed" label="Megjelenik az ajánlatlistákban?" />
           <BooleanField form={form} name="xmlEnabled" label="Partnerportálokon megjelenik?" />
           <BooleanField form={form} name="couponable" label="Kuponozható?" />
-          <BooleanField form={form} name="imageOffer" label="Képes ajánlat?" />
-          <BooleanField form={form} name="sliderImageEnabled" label="Slider kép" />
-          <BooleanField form={form} name="sliderTextEnabled" label="Slider szöveg" />
         </div>
       </TourPanelSection>
 
       <TourPanelSection
         title="Név és webcím"
-        description="Név, webcím, akciós feliratok és keresőbeállítások."
+        description="Név, alcím, webcím és keresőbeállítások."
         open={openSections.seo}
         onToggle={() => toggleSection('seo')}
       >
@@ -413,32 +394,6 @@ export function TourForm({ form, tour }: TourFormProps) {
                 <FormLabel>Minimum fő</FormLabel>
                 <FormControl>
                   <Input type="number" min={0} placeholder="1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.ctaPrimaryLabel"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Elsődleges gomb felirata</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ajánlatot kérek" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="priceBox.ctaSecondaryLabel"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Másodlagos gomb felirata</FormLabel>
-                <FormControl>
-                  <Input placeholder="Lefoglalom az utat" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -595,77 +550,6 @@ export function TourForm({ form, tour }: TourFormProps) {
           ) : null}
         </div>
       </TourPanelSection>
-
-      <section className="space-y-4 rounded-2xl border bg-card p-4">
-        <div>
-          <h3 className="font-semibold">Partner bónuszok</h3>
-          <p className="text-sm text-muted-foreground">
-            Partner bónuszok listája és értékei.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {bonuses.fields.map((field, index) => (
-            <div
-              key={field.id}
-              className="grid gap-3 rounded-xl border bg-background p-3 md:grid-cols-[1fr_1fr_auto]"
-            >
-              <FormField
-                control={form.control}
-                name={`partnerBonuses.${index}.label`}
-                render={({ field: bonusField }) => (
-                  <FormItem>
-                    <FormLabel>Név</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Bónusz neve" {...bonusField} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`partnerBonuses.${index}.value`}
-                render={({ field: bonusField }) => (
-                  <FormItem>
-                    <FormLabel>Érték</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Érték" {...bonusField} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex items-end">
-                <Button title="Törlés" aria-label="Törlés"
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => bonuses.remove(index)}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() =>
-              bonuses.append({
-                id: createClientId(),
-                sortOrder: bonuses.fields.length + 1,
-                label: '',
-                value: '',
-              })
-            }
-          >
-            <Plus className="size-4" />
-            Bónusz hozzáadása
-          </Button>
-        </div>
-      </section>
     </div>
   );
 }

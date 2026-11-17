@@ -212,13 +212,8 @@ function TourDetailView({ tour }: { tour: Tour }) {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <DetailItem label="Sorrend" value={tour.sortOrder} />
           <DetailItem label="Régió" value={tour.regionLabel} />
-          <DetailItem label="Főoldali ajánlat" value={tour.homepageOfferLabel} />
-          <DetailItem label="Csoport" value={tour.groupLabel} />
-          <DetailItem label="Ajánlat csoport" value={tour.seasonalGroupLabel} />
-          <DetailItem label="FIT" value={tour.fitLabel} />
           <DetailItem label="Program típus" value={tour.programTypeLabel} />
           <DetailItem label="Közlekedés" value={tour.travelModeLabel} />
-          <DetailItem label="Nehézségi szint" value={tour.difficultyLabel} />
         </div>
       </section>
 
@@ -227,11 +222,7 @@ function TourDetailView({ tour }: { tour: Tour }) {
         <div className="grid gap-3 md:grid-cols-2">
           <DetailItem label="Kiemelt" value={tour.featured} />
           <DetailItem label="Ajánlott" value={tour.recommended} />
-          <DetailItem label="Partner ajánlat" value={tour.partnerOffer} />
-          <DetailItem label="Képes ajánlat" value={tour.imageOffer} />
           <DetailItem label="Partnerportálokon" value={tour.xmlEnabled} />
-          <DetailItem label="Slider kép" value={tour.sliderImageEnabled} />
-          <DetailItem label="Slider szöveg" value={tour.sliderTextEnabled} />
           <DetailItem
             label="Megjelenített ár"
             value={priceBox?.displayedPrice ?? tour.displayedPrice}
@@ -250,8 +241,6 @@ function TourDetailView({ tour }: { tour: Tour }) {
           <DetailItem label="Urgency szöveg" value={priceBox?.urgencyText} />
           <DetailItem label="Értékelés szöveg" value={priceBox?.ratingText} />
           <DetailItem label="Minimum fő" value={priceBox?.minParticipants} />
-          <DetailItem label="Elsődleges gomb" value={priceBox?.ctaPrimaryLabel} />
-          <DetailItem label="Másodlagos gomb" value={priceBox?.ctaSecondaryLabel} />
         </div>
       </section>
 

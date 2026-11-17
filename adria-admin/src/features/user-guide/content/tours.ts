@@ -170,7 +170,7 @@ export const toursChapter: GuideChapter = {
       id: 'tour-region-groups',
       title: 'Régiók és csoportok (körutazás)',
       summary:
-        'A körutazások besorolására szolgáló régiók (pl. Erdély, Balkán) és csoportok (pl. Klasszikus körutak). Az út szerkesztőjében a „Régiók” és „Csoportok” mezőben választhatók ki.',
+        'A körutazások besorolására szolgáló régiók (pl. Erdély, Balkán) és csoportok (pl. Klasszikus körutak). Az út szerkesztőjében a „Régiók” mezőben választható ki a régió; a csoportokat az új weboldal nem használja.',
       path: '/tours/region-groups',
       menu: 'Körutazások › Régiók és csoportok',
       access: TOURS_ACCESS,

@@ -1,4 +1,4 @@
-import { useWatch, type UseFormReturn } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 
 import {
   FormControl,
@@ -7,8 +7,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { MediaPicker } from '@/components/media/media-picker';
 import { FIXED_FORMAT_CONTROLS, RichTextEditor } from '@/components/editor/rich-text-editor';
 
 import type { TourFormValues } from '../lib/tours.types';
@@ -56,11 +54,6 @@ function TextareaField({
 }
 
 export function TourContentSections({ form }: TourContentSectionsProps) {
-  const tourName = useWatch({
-    control: form.control,
-    name: 'name',
-  });
-
   return (
     <section className="space-y-4 rounded-2xl border bg-card p-4">
       <div>
@@ -87,69 +80,6 @@ export function TourContentSections({ form }: TourContentSectionsProps) {
         />
 
         <TourSearchKeywordsField form={form} />
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="programPdf"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormControl>
-                  <MediaPicker
-                    label="Program PDF"
-                    value={field.value || null}
-                    onChange={(value, media) => {
-                      field.onChange(value ?? '');
-                      form.setValue('programPdfFile', media?.fileName || media?.name || '');
-                    }}
-                    description="A túra program PDF fájlja."
-                    defaultCategory="tours"
-                    allowedTypes={['pdf']}
-                    sourceContext="tour_program_pdf"
-                    uploadAlt={tourName || undefined}
-                    uploadTitle={tourName || undefined}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="programPdfFile"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Program PDF fájlnév</FormLabel>
-                <FormControl>
-                  <Input placeholder="korutazasok.pdf" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="sliderImage"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <MediaPicker
-                  label="Slider kép"
-                  value={field.value || null}
-                  onChange={(value) => field.onChange(value ?? '')}
-                  description="A körutazás slider nézetében megjelenő kép."
-                  defaultCategory="tours"
-                  sourceContext="tour"
-                  uploadAlt={tourName || undefined}
-                  uploadTitle={tourName || undefined}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <TextareaField
           form={form}

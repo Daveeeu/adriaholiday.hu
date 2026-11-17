@@ -73,9 +73,6 @@ export const websiteContentChapter: GuideChapter = {
             ADMIN_ONLY,
           ),
         ]),
-        p(
-          'A körutazás szerkesztőben a „Főoldali ajánlat” mezőben választható ki, melyik csempéhez tartozik egy út.',
-        ),
       ],
     },
     {
