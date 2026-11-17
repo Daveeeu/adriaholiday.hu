@@ -4,9 +4,11 @@ namespace App\Services\Tour;
 
 use App\Models\Tour;
 use App\Models\TourDate;
+use App\Models\TourDeparturePlace;
 use App\Models\TourProgramDay;
 use App\Services\Tour\RouteMap\TourRouteMapService;
 use App\Support\DocumentBranding;
+use App\Support\HufPrice;
 use App\Support\PriceBoxData;
 use App\Support\RichTextSanitizer;
 use App\Support\Tour\TourDateStatus;
@@ -16,9 +18,11 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
 /**
- * The branded program PDF of a tour (route map, program days, what the price
- * includes and excludes, dates, transport, price), served to visitors from the offer page and
- * to admins from the tour list.
+ * The branded program PDF of a tour, with everything the offer page shows
+ * apart from the gallery and the booking form (route map, program days,
+ * departure places, what the price includes and excludes, the tour's texts,
+ * dates, transport, meals, accommodation, price), served to visitors from the
+ * offer page and to admins from the tour list.
  */
 class TourPdfService
 {
@@ -38,6 +42,7 @@ class TourPdfService
             'programDays' => fn ($query) => $query->where('active', true)->orderBy('sort_order'),
             'priceItems' => fn ($query) => $query->where('active', true)->orderBy('sort_order'),
             'dates' => fn ($query) => $query->upcoming(),
+            'departurePlaces' => fn ($query) => $query->where('active', true),
         ]);
 
         $priceBox = PriceBoxData::fromTour($tour);
@@ -55,6 +60,11 @@ class TourPdfService
             'duration' => TourMeta::duration($tour) ?? 'Többnapos út',
             'departureLabel' => TourMeta::departureLabel($tour),
             'transportLabel' => TourMeta::transportLabel($tour) ?? TourMeta::INQUIRE_LABEL,
+            'meals' => TourMeta::meals($tour),
+            'mealsInfo' => TourMeta::mealsInfo($tour),
+            'accommodation' => TourMeta::accommodation($tour),
+            'accommodationInfo' => TourMeta::accommodationInfo($tour),
+            'departurePlaces' => $this->departurePlaces($tour),
             'displayedPrice' => $priceBox['displayedPrice'] ?? null,
             'generatedAt' => now()->format('Y.m.d. H:i'),
             'branding' => DocumentBranding::resolve(),
@@ -72,15 +82,44 @@ class TourPdfService
     {
         $fields = [
             'shortDescription' => $tour->short_description,
+            'teaser' => $tour->teaser,
             'programBefore' => $tour->program_before,
             'program' => $tour->program,
             'programFooter' => $tour->program_footer,
+            'tickets' => $tour->tickets,
+            // The legacy import keeps its meta as JSON here; that is no note.
+            'notes' => is_array(json_decode(trim((string) $tour->notes), true)) ? null : $tour->notes,
+            'optionalPrograms' => $tour->optional_programs,
             'paymentProgram' => $tour->payment_program,
+            'inclusions' => $tour->inclusions,
             'prices' => $tour->prices,
             'discounts' => $tour->discounts,
         ];
 
         return array_map(fn (?string $html): ?string => RichTextSanitizer::sanitizeUniform($html) ?: null, $fields);
+    }
+
+    /**
+     * The tour's active departure places in the bus's order, each with its
+     * fee per person ("+4.700 Ft/fő") when it has one.
+     *
+     * @return list<array{name: string, fee: ?string}>
+     */
+    private function departurePlaces(Tour $tour): array
+    {
+        $currency = $tour->price_box_currency ?: 'HUF';
+
+        return $tour->departurePlaces
+            ->map(function (TourDeparturePlace $place) use ($currency): array {
+                $fee = $place->tourFee();
+
+                return [
+                    'name' => (string) $place->name,
+                    'fee' => $fee > 0 ? '+'.($currency === 'EUR' ? HufPrice::amount($fee).' EUR' : HufPrice::format($fee)).'/fő' : null,
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     /**

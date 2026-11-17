@@ -224,6 +224,28 @@
             letter-spacing: 0;
         }
 
+        .meta-table.stay td {
+            width: 50%;
+        }
+
+        .meta-info {
+            display: block;
+            margin-top: 3px;
+            color: #475569;
+            font-size: 9.5px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .departure-places {
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .departure-places .fee {
+            color: #64748b;
+        }
+
         .lead {
             margin-top: 12px;
             padding: 10px 14px;
@@ -441,8 +463,34 @@
             </tr>
         </table>
 
+        @if ($meals || $accommodation)
+            <table class="meta-table stay">
+                <tr>
+                    <td>
+                        Ellátás
+                        <strong>{{ $meals ?? \App\Support\TourMeta::INQUIRE_LABEL }}</strong>
+                        @if ($mealsInfo)
+                            <span class="meta-info">{{ $mealsInfo }}</span>
+                        @endif
+                    </td>
+                    <td>
+                        Szállás
+                        <strong>{{ $accommodation ?? \App\Support\TourMeta::INQUIRE_LABEL }}</strong>
+                        @if ($accommodationInfo)
+                            <span class="meta-info">{{ $accommodationInfo }}</span>
+                        @endif
+                    </td>
+                </tr>
+            </table>
+        @endif
+
         @if ($content['shortDescription'])
             <div class="lead">{!! $content['shortDescription'] !!}</div>
+        @endif
+
+        @if ($content['teaser'])
+            <h2>Kedvcsináló</h2>
+            <div>{!! $content['teaser'] !!}</div>
         @endif
 
         @if (count($dates) > 1)
@@ -501,6 +549,17 @@
             <div class="day-body">{!! $content['programFooter'] !!}</div>
         @endif
 
+        @if ($departurePlaces !== [])
+            <div class="keep-together">
+                <h2>Felszállási lehetőségek</h2>
+                <ul class="departure-places">
+                    @foreach ($departurePlaces as $place)
+                        <li>{{ $place['name'] }}@if ($place['fee']) <span class="fee">({{ $place['fee'] }})</span>@endif</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @if ($includedItems->isNotEmpty() || $excludedItems->isNotEmpty())
             <div class="keep-together">
             <h2>Ár tartalma</h2>
@@ -527,9 +586,29 @@
             </div>
         @endif
 
+        @if ($content['tickets'])
+            <h2>Belépőjegyek</h2>
+            <div>{!! $content['tickets'] !!}</div>
+        @endif
+
+        @if ($content['notes'])
+            <h2>Jegyzet / egyéb</h2>
+            <div>{!! $content['notes'] !!}</div>
+        @endif
+
+        @if ($content['optionalPrograms'])
+            <h2>Fakultatív programok</h2>
+            <div>{!! $content['optionalPrograms'] !!}</div>
+        @endif
+
         @if ($content['paymentProgram'])
             <h2>Kiegészítő / fizető programok</h2>
             <div>{!! $content['paymentProgram'] !!}</div>
+        @endif
+
+        @if ($content['inclusions'])
+            <h2>További szolgáltatási információk</h2>
+            <div>{!! $content['inclusions'] !!}</div>
         @endif
 
         @if ($content['prices'])

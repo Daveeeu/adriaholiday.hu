@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Tour;
 use App\Models\TourDate;
+use App\Models\TourDeparturePlace;
 use App\Models\User;
 use App\Services\Tour\TourPdfService;
 use App\Support\Tour\TourDateStatus;
@@ -51,6 +52,37 @@ class AdminTourPdfTest extends TestCase
         $this->assertStringNotContainsString('font-family: Arial', $html);
         $this->assertStringNotContainsString('Times New Roman', $html);
         $this->assertStringNotContainsString('#009900', $html);
+    }
+
+    public function test_the_program_carries_everything_the_offer_page_shows(): void
+    {
+        $tour = Tour::factory()->create([
+            'teaser' => '<p>Kedvcsináló szöveg</p>',
+            'tickets' => '<p>Belépők ára</p>',
+            'notes' => '<p>Egyéb tudnivaló</p>',
+            'optional_programs' => '<p>Fakultatív hajókirándulás</p>',
+            'inclusions' => '<p>Útiokmány: személyi igazolvány</p>',
+            'catering' => 'reggeli',
+            'accommodation' => 'Hotel***',
+        ]);
+        $budapest = TourDeparturePlace::factory()->create(['name' => 'Budapest', 'active' => true, 'fee' => 0]);
+        $szeged = TourDeparturePlace::factory()->create(['name' => 'Szeged', 'active' => true, 'fee' => 3000]);
+        $closed = TourDeparturePlace::factory()->create(['name' => 'Bezárt hely', 'active' => false]);
+        $tour->departurePlaces()->attach([$budapest->id => ['fee' => null], $szeged->id => ['fee' => null], $closed->id => ['fee' => null]]);
+
+        $html = app(TourPdfService::class)->html($tour);
+
+        foreach (['Kedvcsináló szöveg', 'Belépők ára', 'Egyéb tudnivaló', 'Fakultatív hajókirándulás', 'Útiokmány: személyi igazolvány', 'Reggeli', 'Hotel***', 'Felszállási lehetőségek', 'Budapest', 'Szeged <span class="fee">(+3.000 Ft/fő)</span>'] as $text) {
+            $this->assertStringContainsString($text, $html);
+        }
+        $this->assertStringNotContainsString('Bezárt hely', $html);
+    }
+
+    public function test_the_legacy_meta_kept_in_the_notes_is_no_note(): void
+    {
+        $tour = Tour::factory()->create(['notes' => '{"transport":"bus"}']);
+
+        $this->assertStringNotContainsString('Jegyzet / egyéb', app(TourPdfService::class)->html($tour));
     }
 
     public function test_the_pdf_needs_the_tour_view_permission(): void
