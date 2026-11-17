@@ -7,7 +7,6 @@ use Database\Factories\TourRegionGroupFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TourRegionGroup extends Model
@@ -37,10 +36,5 @@ class TourRegionGroup extends Model
     public function gallery(): BelongsTo
     {
         return $this->belongsTo(Gallery::class);
-    }
-
-    public function tours(): HasMany
-    {
-        return $this->hasMany(Tour::class, 'group_id', 'seo_name');
     }
 }

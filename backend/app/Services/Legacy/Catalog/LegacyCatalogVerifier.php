@@ -170,7 +170,6 @@ final class LegacyCatalogVerifier
      */
     private function legacyReferences(Tour $tour): array
     {
-        $host = (string) parse_url((string) config('services.legacy_adria.base_url'), PHP_URL_HOST);
         $problems = [];
 
         foreach (self::HTML_COLUMNS as $column) {
@@ -182,14 +181,6 @@ final class LegacyCatalogVerifier
                         $problems[] = "Tour #{$tour->id} {$column}: image loaded from {$source}.";
                     }
                 }
-            }
-        }
-
-        foreach (['slider_image', 'program_pdf_path'] as $column) {
-            $value = (string) $tour->getAttribute($column);
-
-            if ($value !== '' && ($host !== '' && str_contains($value, $host) || preg_match('~^https?://~i', $value))) {
-                $problems[] = "Tour #{$tour->id} {$column} points to {$value}.";
             }
         }
 

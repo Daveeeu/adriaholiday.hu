@@ -33,7 +33,6 @@ class TourDate extends Model
         'price_box_displayed_price',
         'price_box_discount_badge',
         'price_box_label',
-        'price_box_min_participants',
         'capacity',
         'status',
         'departure_place_ids',
@@ -59,7 +58,6 @@ class TourDate extends Model
         'price' => 'decimal:2',
         'price_box_price' => 'decimal:2',
         'price_box_original_price' => 'decimal:2',
-        'price_box_min_participants' => 'integer',
         'capacity' => 'integer',
     ];
 

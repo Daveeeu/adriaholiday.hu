@@ -140,7 +140,6 @@ final class LegacyCatalogImportService
                 'gallery_images' => collect($offer->galleries)->map(fn (array $images): int => count($images))->all(),
                 'media_files' => count($mediaUrls),
                 'media_mirrored' => $mirrored,
-                'partner_bonuses' => count($offer->partnerBonuses),
                 'html_fields' => array_keys(array_filter($offer->html)),
                 'categories' => $taxonomy['categories'],
                 'countries' => array_column($taxonomy['countries'], 'name'),

@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\HomepageOffer;
 use App\Support\PriceBoxData;
 use App\Support\RichTextSanitizer;
 use App\Support\Tour\TourRouteStops;
@@ -13,40 +12,6 @@ use Illuminate\Support\Carbon;
 
 class TourResource extends JsonResource
 {
-    private function homepageOfferSummary(): ?array
-    {
-        /** @var HomepageOffer|null $homepageOffer */
-        $homepageOffer = $this->homepageOffer;
-
-        if (! $homepageOffer) {
-            return null;
-        }
-
-        $translation = $homepageOffer->translations->firstWhere('locale', 'hu')
-            ?? $homepageOffer->translations->first();
-
-        return [
-            'id' => $homepageOffer->id,
-            'title' => $translation?->name ?? $homepageOffer->image_title,
-            'slug' => $translation?->seo_name,
-        ];
-    }
-
-    private function homepageOfferLabel(): ?string
-    {
-        /** @var HomepageOffer|null $homepageOffer */
-        $homepageOffer = $this->homepageOffer;
-
-        if (! $homepageOffer) {
-            return null;
-        }
-
-        $translation = $homepageOffer->translations->firstWhere('locale', 'hu')
-            ?? $homepageOffer->translations->first();
-
-        return $translation?->name;
-    }
-
     public function toArray(Request $request): array
     {
         $priceBox = PriceBoxData::fromTour($this->resource);
@@ -58,13 +23,9 @@ class TourResource extends JsonResource
             'featured' => (bool) $this->featured,
             'featuredOrder' => $this->featured_order,
             'recommended' => (bool) $this->recommended,
-            'partnerOffer' => (bool) $this->partner_offer,
             'listed' => $this->listed ?? true,
-            'imageOffer' => (bool) $this->image_offer,
             'xmlEnabled' => (bool) $this->xml_enabled,
             'couponable' => (bool) $this->couponable,
-            'sliderImageEnabled' => (bool) $this->slider_image_enabled,
-            'sliderTextEnabled' => (bool) $this->slider_text_enabled,
             'name' => $this->name,
             'subtitle' => $this->subtitle,
             'seoName' => $this->seo_name,
@@ -72,14 +33,8 @@ class TourResource extends JsonResource
             'seoTitle' => $this->seo_title,
             'seoDescription' => $this->seo_description,
             'seoRobots' => $this->seo_robots,
-            'action1' => $this->action1,
-            'action2' => $this->action2,
             'listDescription' => RichTextSanitizer::sanitize($this->list_description),
             'shortDescription' => RichTextSanitizer::sanitize($this->short_description),
-            'programPdfPath' => $this->program_pdf_path,
-            'programPdf' => $this->program_pdf_path,
-            'programPdfFile' => $this->program_pdf_file,
-            'sliderImage' => $this->slider_image,
             'programBefore' => RichTextSanitizer::sanitize($this->program_before),
             'program' => RichTextSanitizer::sanitize($this->program),
             'programFooter' => RichTextSanitizer::sanitize($this->program_footer),
@@ -97,18 +52,6 @@ class TourResource extends JsonResource
             'priceBox' => $priceBox,
             'regionId' => $this->region_id,
             'regionLabel' => TourLabelResolver::regionLabel($this->region ?? null, $this->region_id),
-            'homepageOfferId' => $this->homepage_offer_id,
-            'homepageOfferIds' => $this->homepage_offer_id ? [$this->homepage_offer_id] : [],
-            'homepageOfferLabel' => $this->relationLoaded('homepageOffer') ? $this->homepageOfferLabel() : null,
-            'homepageOffers' => $this->relationLoaded('homepageOffer')
-                ? array_values(array_filter([$this->homepageOfferSummary()]))
-                : [],
-            'groupId' => $this->group_id,
-            'groupLabel' => TourLabelResolver::regionGroupLabel($this->group_id),
-            'seasonalGroupId' => $this->seasonal_group_id,
-            'seasonalGroupLabel' => TourLabelResolver::seasonalGroupLabel($this->seasonal_group_id),
-            'fitId' => $this->fit_id,
-            'fitLabel' => TourLabelResolver::referenceOptionLabel('fit', $this->fit_id),
             'programTypeId' => $this->program_type_id,
             'programTypeLabel' => TourLabelResolver::referenceOptionLabel('program-type', $this->program_type_id),
             'travelModeId' => $this->travel_mode_id,
@@ -117,8 +60,6 @@ class TourResource extends JsonResource
             'accommodation' => $this->accommodation,
             'accommodationInfo' => $this->accommodation_info,
             'travelModeLabel' => TourLabelResolver::referenceOptionLabel('travel-mode', $this->travel_mode_id),
-            'difficultyId' => $this->difficulty_id,
-            'difficultyLabel' => TourLabelResolver::referenceOptionLabel('difficulty', $this->difficulty_id),
             'bookingFormTemplateId' => $this->booking_form_template_id,
             'bookingFormTemplate' => $this->whenLoaded('bookingFormTemplate', fn () => $this->bookingFormTemplate ? new BookingFormTemplateResource($this->bookingFormTemplate) : null),
             'countryIds' => $this->country_ids ?? [],

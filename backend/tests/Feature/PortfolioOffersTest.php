@@ -95,9 +95,6 @@ class PortfolioOffersTest extends TestCase
                 'discountText',
                 'urgencyText',
                 'ratingText',
-                'minParticipants',
-                'ctaPrimaryLabel',
-                'ctaSecondaryLabel',
             ],
             'priceInformation' => [
                 'included' => [
@@ -127,17 +124,19 @@ class PortfolioOffersTest extends TestCase
                         'price',
                         'displayedPrice',
                         'discountBadge',
-                        'minParticipants',
                     ],
                     'status',
                     'freeSeats',
                 ],
             ],
             'departurePlaces',
-            'partnerBonuses',
             'tags',
             'categories',
         ]);
+
+        foreach (['partnerBonuses', 'action1', 'groupId', 'priceBox.minParticipants', 'priceBox.ctaPrimaryLabel'] as $removed) {
+            $response->assertJsonMissingPath($removed);
+        }
 
         $data = $response->json();
 

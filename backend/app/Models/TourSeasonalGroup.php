@@ -6,7 +6,6 @@ use App\Models\Concerns\LogsModelActivity;
 use Database\Factories\TourSeasonalGroupFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TourSeasonalGroup extends Model
@@ -29,9 +28,4 @@ class TourSeasonalGroup extends Model
         'seo_auto_generate' => 'boolean',
         'has_offers' => 'boolean',
     ];
-
-    public function tours(): HasMany
-    {
-        return $this->hasMany(Tour::class, 'seasonal_group_id', 'seo_name');
-    }
 }

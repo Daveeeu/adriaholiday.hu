@@ -31,7 +31,7 @@ class TourSeasonalGroupController extends Controller
 
     public function index(Request $request)
     {
-        $query = TourSeasonalGroup::query()->withCount('tours');
+        $query = TourSeasonalGroup::query();
 
         if ($search = trim((string) $request->query('search', ''))) {
             $query->where(function ($builder) use ($search): void {
@@ -49,7 +49,7 @@ class TourSeasonalGroupController extends Controller
         $sortBy = Str::snake((string) $request->query('sort_by', $request->query('sortBy', 'name')));
         $perPage = (int) $request->query('per_page', $request->query('perPage', 25));
         $sortDirection = $request->query('sort_direction', $request->query('sortDirection', 'asc'));
-        $allowedSorts = ['id', 'name', 'menu_type', 'active', 'has_offers', 'seo_name', 'seo_auto_generate', 'related_tours_count', 'created_at'];
+        $allowedSorts = ['id', 'name', 'menu_type', 'active', 'has_offers', 'seo_name', 'seo_auto_generate', 'created_at'];
         if (! in_array($sortBy, $allowedSorts, true)) {
             $sortBy = 'name';
         }

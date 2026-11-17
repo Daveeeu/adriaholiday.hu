@@ -7,16 +7,12 @@ use App\Models\BlogCategoryTranslation;
 use App\Models\BlogTag;
 use App\Models\BlogTagTranslation;
 use App\Models\Booking;
-use App\Models\HomepageOffer;
-use App\Models\HomepageOfferTranslation;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourDeparturePlace;
 use App\Models\TourProgramDay;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -59,44 +55,6 @@ class AdminToursTest extends TestCase
             'portfolio_short_description' => null,
         ]);
 
-        $regionGroup = TourRegionGroup::query()->create([
-            'active' => true,
-            'featured_on_homepage' => false,
-            'type' => 'group',
-            'name' => 'Teszt csoport',
-            'seo_name' => 'teszt-csoport',
-            'seo_auto_generate' => false,
-            'gallery_id' => null,
-            'description' => null,
-            'list_below_text' => null,
-            'travel_conditions_link' => null,
-        ]);
-
-        $seasonalGroup = TourSeasonalGroup::query()->create([
-            'active' => true,
-            'menu_type' => 'intro',
-            'name' => 'Teszt szezon',
-            'seo_name' => 'teszt-szezon',
-            'seo_auto_generate' => false,
-            'box_text' => null,
-            'has_offers' => true,
-        ]);
-
-        $homepageOffer = HomepageOffer::query()->create([
-            'active' => true,
-            'sort_order' => 1,
-            'image' => null,
-            'image_title' => 'Balkán körutazások',
-            'link' => '/kategoriak/balkan-korutazasok',
-        ]);
-        HomepageOfferTranslation::query()->create([
-            'homepage_offer_id' => $homepageOffer->id,
-            'locale' => 'hu',
-            'name' => 'Balkán körutazások',
-            'seo_name' => 'balkan-korutazasok',
-            'short_description' => 'Teszt leírás',
-        ]);
-
         $departurePlace = TourDeparturePlace::query()->create([
             'active' => true,
             'name' => 'Budapest',
@@ -104,10 +62,8 @@ class AdminToursTest extends TestCase
             'fee' => null,
         ]);
 
-        $fit = $this->createReferenceOption('fit', 'teszt-fit', 'Teszt FIT');
         $programType = $this->createReferenceOption('program-type', 'teszt-program', 'Teszt program típus');
         $travelMode = $this->createReferenceOption('travel-mode', 'teszt-busz', 'Buszos utazás');
-        $difficulty = $this->createReferenceOption('difficulty', 'teszt-konnyu', 'Könnyű');
         $countryHu = $this->createReferenceOption('country', 'hu', 'Magyarország');
         $countryHr = $this->createReferenceOption('country', 'hr', 'Horvátország');
 
@@ -145,17 +101,12 @@ class AdminToursTest extends TestCase
             'name' => 'Teszt körutazás',
             'seo_name' => 'teszt-korutazas',
             'region_id' => $region->id,
-            'homepage_offer_id' => $homepageOffer->id,
-            'group_id' => $regionGroup->seo_name,
-            'seasonal_group_id' => $seasonalGroup->seo_name,
             'departure_place_ids' => [$departurePlace->id],
             'country_ids' => [$countryHu->code, $countryHr->code],
             'tag_ids' => [(string) $tag->id],
             'category_ids' => [(string) $category->id],
-            'fit_id' => $fit->code,
             'program_type_id' => $programType->code,
             'travel_mode_id' => $travelMode->code,
-            'difficulty_id' => $difficulty->code,
             'priceBox' => [
                 'price' => '199900',
                 'displayedPrice' => '199 900 Ft-tól',
@@ -165,9 +116,6 @@ class AdminToursTest extends TestCase
                 'discountText' => 'Előfoglalási kedvezmény',
                 'urgencyText' => '18 fő érdeklődött az elmúlt 72 órában',
                 'ratingText' => '4.9/5 utasértékelés',
-                'minParticipants' => '1',
-                'ctaPrimaryLabel' => 'Ajánlatot kérek',
-                'ctaSecondaryLabel' => 'Lefoglalom az utat',
             ],
             'galleryTitle' => 'Galéria cím',
             'gallerySubtitle' => 'Galéria alcím',
@@ -206,7 +154,6 @@ class AdminToursTest extends TestCase
                         'price' => '199900',
                         'displayedPrice' => '199 900 Ft-tól',
                         'discountBadge' => '-15%',
-                        'minParticipants' => '1',
                     ],
                     'capacity' => '12',
                     'status' => 'available',
@@ -219,34 +166,21 @@ class AdminToursTest extends TestCase
                         'price' => '209900',
                         'displayedPrice' => '209 900 Ft-tól',
                         'discountBadge' => '-10%',
-                        'minParticipants' => '1',
                     ],
                     'capacity' => '8',
                     'status' => 'available',
                 ],
             ],
-            'partner_bonuses' => [
-                [
-                    'sort_order' => 1,
-                    'label' => 'Extra ajándék',
-                    'value' => 'Igen',
-                ],
-            ],
         ]));
 
         $createResponse->assertCreated();
+
+        foreach (['imageOffer', 'action1', 'groupId', 'homepageOfferId', 'partnerBonuses', 'priceBox.minParticipants', 'priceBox.ctaPrimaryLabel'] as $removed) {
+            $createResponse->assertJsonMissingPath("data.{$removed}");
+        }
         $createResponse->assertJsonPath('data.regionLabel', $region->name);
-        $createResponse->assertJsonPath('data.homepageOfferId', $homepageOffer->id);
-        $createResponse->assertJsonPath('data.homepageOfferIds.0', $homepageOffer->id);
-        $createResponse->assertJsonPath('data.homepageOfferLabel', 'Balkán körutazások');
-        $createResponse->assertJsonPath('data.homepageOffers.0.id', $homepageOffer->id);
-        $createResponse->assertJsonPath('data.homepageOffers.0.title', 'Balkán körutazások');
-        $createResponse->assertJsonPath('data.groupLabel', $regionGroup->name);
-        $createResponse->assertJsonPath('data.seasonalGroupLabel', $seasonalGroup->name);
-        $createResponse->assertJsonPath('data.fitLabel', $fit->name);
         $createResponse->assertJsonPath('data.programTypeLabel', $programType->name);
         $createResponse->assertJsonPath('data.travelModeLabel', $travelMode->name);
-        $createResponse->assertJsonPath('data.difficultyLabel', $difficulty->name);
         $createResponse->assertJsonPath('data.priceBox.displayedPrice', '199.900 Ft-tól');
         $createResponse->assertJsonPath('data.dates.0.capacity', 12);
         $createResponse->assertJsonPath('data.countries.0.label', $countryHu->name);
@@ -259,7 +193,6 @@ class AdminToursTest extends TestCase
         $createResponse->assertJsonPath('data.gallery.0.title', 'Első kép');
         $createResponse->assertJsonPath('data.gallery.0.image.url', $galleryMedia[0]->getUrl());
         $createResponse->assertJsonCount(2, 'data.dates');
-        $createResponse->assertJsonCount(1, 'data.partnerBonuses');
         $createResponse->assertJsonCount(2, 'data.priceItems');
 
         $tourId = (string) $createResponse->json('data.id');
@@ -274,7 +207,6 @@ class AdminToursTest extends TestCase
         ]);
         $this->assertDatabaseHas('tours', [
             'id' => $tourId,
-            'homepage_offer_id' => $homepageOffer->id,
             'price_box_price' => 199900,
             'price_box_displayed_price' => '199 900 Ft-tól',
             'couponable' => 1,
@@ -286,12 +218,6 @@ class AdminToursTest extends TestCase
             'status' => 'available',
             'price_box_displayed_price' => '209 900 Ft-tól',
             'capacity' => 8,
-        ]);
-        $this->assertDatabaseHas('tour_partner_bonuses', [
-            'tour_id' => $tourId,
-            'sort_order' => 1,
-            'label' => 'Extra ajándék',
-            'value' => 'Igen',
         ]);
         $this->assertDatabaseHas('tour_price_items', [
             'tour_id' => $tourId,
@@ -332,20 +258,12 @@ class AdminToursTest extends TestCase
         $showResponse = $this->getJson("/api/admin/tours/{$tourId}");
         $showResponse->assertOk();
         $showResponse->assertJsonPath('data.regionLabel', $region->name);
-        $showResponse->assertJsonPath('data.homepageOfferIds.0', $homepageOffer->id);
-        $showResponse->assertJsonPath('data.homepageOfferLabel', 'Balkán körutazások');
-        $showResponse->assertJsonPath('data.homepageOffers.0.title', 'Balkán körutazások');
-        $showResponse->assertJsonPath('data.groupLabel', $regionGroup->name);
-        $showResponse->assertJsonPath('data.seasonalGroupLabel', $seasonalGroup->name);
-        $showResponse->assertJsonPath('data.fitLabel', $fit->name);
         $showResponse->assertJsonPath('data.programTypeLabel', $programType->name);
         $showResponse->assertJsonPath('data.travelModeLabel', $travelMode->name);
-        $showResponse->assertJsonPath('data.difficultyLabel', $difficulty->name);
         $showResponse->assertJsonPath('data.countries.0.label', $countryHu->name);
         $showResponse->assertJsonPath('data.tags.0.label', 'Családi');
         $showResponse->assertJsonPath('data.categories.0.label', 'Klasszikus körutazás');
         $showResponse->assertJsonPath('data.departurePlaces.0.name', 'Budapest');
-        $showResponse->assertJsonCount(1, 'data.partnerBonuses');
         $showResponse->assertJsonCount(2, 'data.priceItems');
         $showResponse->assertJsonCount(3, 'data.gallery');
 
@@ -354,17 +272,12 @@ class AdminToursTest extends TestCase
             'seo_name' => 'teszt-korutazas-modositva',
             'couponable' => false,
             'region_id' => $region->id,
-            'homepage_offer_id' => null,
-            'group_id' => $regionGroup->seo_name,
-            'seasonal_group_id' => $seasonalGroup->seo_name,
             'departure_place_ids' => [$departurePlace->id],
             'country_ids' => [$countryHu->code, $countryHr->code],
             'tag_ids' => [(string) $tag->id],
             'category_ids' => [(string) $category->id],
-            'fit_id' => $fit->code,
             'program_type_id' => $programType->code,
             'travel_mode_id' => $travelMode->code,
-            'difficulty_id' => $difficulty->code,
             'priceBox' => [
                 'price' => '229900',
                 'displayedPrice' => '229 900 Ft-tól',
@@ -374,9 +287,6 @@ class AdminToursTest extends TestCase
                 'discountText' => 'Előfoglalási kedvezmény',
                 'urgencyText' => '14 fő érdeklődött az elmúlt 72 órában',
                 'ratingText' => '4.8/5 utasértékelés',
-                'minParticipants' => '1',
-                'ctaPrimaryLabel' => 'Ajánlatot kérek',
-                'ctaSecondaryLabel' => 'Lefoglalom az utat',
             ],
             'galleryTitle' => 'Galéria cím módosítva',
             'gallerySubtitle' => 'Galéria alcím módosítva',
@@ -407,17 +317,9 @@ class AdminToursTest extends TestCase
                         'price' => '229900',
                         'displayedPrice' => '229 900 Ft-tól',
                         'discountBadge' => '-10%',
-                        'minParticipants' => '1',
                     ],
                     'capacity' => '10',
                     'status' => 'sold_out',
-                ],
-            ],
-            'partner_bonuses' => [
-                [
-                    'sort_order' => 2,
-                    'label' => 'Új bónusz',
-                    'value' => 'Ajándék csomag',
                 ],
             ],
             'price_items' => [
@@ -437,18 +339,11 @@ class AdminToursTest extends TestCase
         ]));
 
         $updateResponse->assertOk();
-        $updateResponse->assertJsonPath('data.homepageOfferId', null);
-        $updateResponse->assertJsonPath('data.homepageOfferIds', []);
-        $updateResponse->assertJsonPath('data.homepageOfferLabel', null);
-        $updateResponse->assertJsonPath('data.homepageOffers', []);
-        $updateResponse->assertJsonPath('data.fitLabel', $fit->name);
         $updateResponse->assertJsonPath('data.programTypeLabel', $programType->name);
         $updateResponse->assertJsonPath('data.travelModeLabel', $travelMode->name);
-        $updateResponse->assertJsonPath('data.difficultyLabel', $difficulty->name);
         $updateResponse->assertJsonPath('data.priceBox.displayedPrice', '229.900 Ft-tól');
         $updateResponse->assertJsonPath('data.dates.0.capacity', 10);
         $updateResponse->assertJsonCount(1, 'data.dates');
-        $updateResponse->assertJsonCount(1, 'data.partnerBonuses');
         $updateResponse->assertJsonCount(2, 'data.priceItems');
         $updateResponse->assertJsonPath('data.galleryTitle', 'Galéria cím módosítva');
         $updateResponse->assertJsonPath('data.gallerySubtitle', 'Galéria alcím módosítva');
@@ -467,16 +362,9 @@ class AdminToursTest extends TestCase
         ]);
         $this->assertDatabaseHas('tours', [
             'id' => $tourId,
-            'homepage_offer_id' => null,
             'price_box_price' => 229900,
             'price_box_displayed_price' => '229 900 Ft-tól',
             'couponable' => 0,
-        ]);
-        $this->assertDatabaseHas('tour_partner_bonuses', [
-            'tour_id' => $tourId,
-            'sort_order' => 2,
-            'label' => 'Új bónusz',
-            'value' => 'Ajándék csomag',
         ]);
         $this->assertDatabaseHas('tour_price_items', [
             'tour_id' => $tourId,
@@ -519,18 +407,12 @@ class AdminToursTest extends TestCase
         $updatedShowResponse = $this->getJson("/api/admin/tours/{$tourId}");
         $updatedShowResponse->assertOk();
         $updatedShowResponse->assertJsonPath('data.regionLabel', $region->name);
-        $updatedShowResponse->assertJsonPath('data.homepageOfferLabel', null);
-        $updatedShowResponse->assertJsonPath('data.groupLabel', $regionGroup->name);
-        $updatedShowResponse->assertJsonPath('data.seasonalGroupLabel', $seasonalGroup->name);
-        $updatedShowResponse->assertJsonPath('data.fitLabel', $fit->name);
         $updatedShowResponse->assertJsonPath('data.programTypeLabel', $programType->name);
         $updatedShowResponse->assertJsonPath('data.travelModeLabel', $travelMode->name);
-        $updatedShowResponse->assertJsonPath('data.difficultyLabel', $difficulty->name);
         $updatedShowResponse->assertJsonPath('data.countries.0.label', $countryHu->name);
         $updatedShowResponse->assertJsonPath('data.tags.0.label', 'Családi');
         $updatedShowResponse->assertJsonPath('data.categories.0.label', 'Klasszikus körutazás');
         $updatedShowResponse->assertJsonPath('data.departurePlaces.0.name', 'Budapest');
-        $updatedShowResponse->assertJsonCount(1, 'data.partnerBonuses');
     }
 
     public function test_tour_update_accepts_numeric_program_day_ids_and_syncs_program_days(): void
@@ -542,11 +424,7 @@ class AdminToursTest extends TestCase
             'active' => true,
             'featured' => true,
             'recommended' => false,
-            'partner_offer' => false,
-            'image_offer' => false,
             'xml_enabled' => true,
-            'slider_image_enabled' => false,
-            'slider_text_enabled' => false,
             'name' => 'Albánia teszt körút',
             'seo_name' => 'albania-teszt-korut',
             'seo_auto_generate' => false,
@@ -655,22 +533,13 @@ class AdminToursTest extends TestCase
             'active' => true,
             'featured' => true,
             'recommended' => false,
-            'partner_offer' => false,
-            'image_offer' => true,
             'xml_enabled' => true,
             'couponable' => true,
-            'slider_image_enabled' => false,
-            'slider_text_enabled' => false,
             'name' => 'Teszt körutazás',
             'seo_name' => 'teszt-korutazas',
             'seo_auto_generate' => false,
-            'action1' => null,
-            'action2' => null,
             'list_description' => 'Teszt list leírás',
             'short_description' => 'Teszt rövid leírás',
-            'program_pdf_path' => null,
-            'program_pdf_file' => null,
-            'slider_image' => null,
             'program_before' => null,
             'program' => null,
             'inclusions' => null,
@@ -687,9 +556,6 @@ class AdminToursTest extends TestCase
                 'discountText' => 'Előfoglalási kedvezmény',
                 'urgencyText' => '18 fő érdeklődött az elmúlt 72 órában',
                 'ratingText' => '4.9/5 utasértékelés',
-                'minParticipants' => '1',
-                'ctaPrimaryLabel' => 'Ajánlatot kérek',
-                'ctaSecondaryLabel' => 'Lefoglalom az utat',
             ],
             'price_items' => [
                 [
@@ -706,12 +572,8 @@ class AdminToursTest extends TestCase
                 ],
             ],
             'region_id' => null,
-            'group_id' => null,
-            'seasonal_group_id' => null,
-            'fit_id' => null,
             'program_type_id' => null,
             'travel_mode_id' => null,
-            'difficulty_id' => null,
             'country_ids' => [],
             'tag_ids' => [],
             'category_ids' => [],
@@ -720,7 +582,6 @@ class AdminToursTest extends TestCase
             'slider_text' => 'Teszt slider szöveg',
             'departure_place_ids' => [],
             'dates' => [],
-            'partner_bonuses' => [],
             'gallery' => [],
         ], $overrides);
     }
@@ -732,17 +593,12 @@ class AdminToursTest extends TestCase
             'active' => false,
             'featured' => false,
             'recommended' => false,
-            'partner_offer' => false,
-            'image_offer' => false,
             'xml_enabled' => false,
-            'slider_image_enabled' => false,
-            'slider_text_enabled' => false,
             'name' => $name,
             'seo_name' => Str::slug($name).'-'.Str::random(8),
             'seo_auto_generate' => false,
             'list_description' => null,
             'short_description' => null,
-            'slider_image' => null,
             'price' => null,
             'displayed_price' => null,
         ]);

@@ -6,13 +6,10 @@ use App\Models\BlogCategory;
 use App\Models\BlogCategoryTranslation;
 use App\Models\BlogTag;
 use App\Models\BlogTagTranslation;
-use App\Models\Gallery;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use App\Support\MediaCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -31,20 +28,6 @@ class MontenegroAlbaniaTourSeeder extends Seeder
         $this->ensureReferenceOption('country', 'me', 'Montenegró', 9);
         $this->ensureReferenceOption('travel-mode', 'bus', 'Busz', 1);
         $this->ensureReferenceOption('program-type', 'classic-tour', 'Klasszikus körút', 1);
-        $this->ensureReferenceOption('difficulty', 'easy', 'Könnyű', 1);
-
-        $group = $this->ensureRegionGroup();
-        $seasonalGroup = TourSeasonalGroup::query()->updateOrCreate(
-            ['seo_name' => 'oszi-utazasok'],
-            [
-                'active' => true,
-                'menu_type' => 'travel',
-                'name' => 'Őszi utazások',
-                'seo_auto_generate' => true,
-                'box_text' => 'Őszi körutazások és balkáni ajánlatok.',
-                'has_offers' => true,
-            ],
-        );
 
         $categoryIds = array_values(array_filter([
             $this->ensureCategory('Körutazások', 'korutazasok'),
@@ -219,21 +202,12 @@ class MontenegroAlbaniaTourSeeder extends Seeder
             'active' => true,
             'featured' => true,
             'recommended' => false,
-            'partner_offer' => false,
-            'image_offer' => true,
             'xml_enabled' => false,
-            'slider_image_enabled' => true,
-            'slider_text_enabled' => false,
             'name' => 'Montenegrói üdülés, Albánia kincseivel fűszerezve',
             'seo_name' => 'montenegro-albania-kincseivel-fuszerezve',
             'seo_auto_generate' => false,
-            'action1' => 'Kotor-Budva-Bar-Petrovac-Kruja-Rozafa',
-            'action2' => 'Autóbuszos körutazás Montenegró és Albánia érintésével',
             'list_description' => 'Montenegrói tengerparti üdülés Ulcinj környékén, fakultatív kirándulásokkal Shkodërbe, Tiranába, Krujába, Barba, Petrovacba, Kotorba és Budvába.',
             'short_description' => 'Montenegrói tengerpart, albán és montenegrói városnézések, reggelis hotel elhelyezés és buszos utazás egy 7 napos balkáni körúton.',
-            'program_pdf_path' => null,
-            'program_pdf_file' => null,
-            'slider_image' => null,
             'program_before' => '<p>Montenegrói üdülés Ulcinj környékén, amelyet fakultatív albán és montenegrói kirándulások fűszereznek: Shkodër, Tirana, Kruja, Bar, Petrovac, Kotor és Budva is szerepel a kínálatban.</p>',
             'program' => '<p><strong>Útvonal:</strong> Kotor - Budva - Bar - Petrovac - Kruja - Rozafa.</p>',
             'inclusions' => '<p><strong>Csatlakozási lehetőségek:</strong> Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Kecskemét, Kiskunfélegyháza, Szeged.</p><p><strong>Útiokmány:</strong> Albánia és Montenegró utazáshoz kártyás személyi igazolvány szükséges.</p><p><a href="https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/albania">Konzuli tájékoztató: Albánia</a><br /><a href="https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/montenegro">Konzuli tájékoztató: Montenegró</a><br /><a href="https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/szerbia">Konzuli tájékoztató: Szerbia</a></p>',
@@ -254,12 +228,8 @@ class MontenegroAlbaniaTourSeeder extends Seeder
             'gallery_title' => 'Galéria',
             'gallery_subtitle' => 'Montenegrói öblök, óvárosok és albán kirándulások képekben.',
             'region_id' => $region->id,
-            'group_id' => $group->seo_name,
-            'seasonal_group_id' => $seasonalGroup->seo_name,
-            'fit_id' => null,
             'program_type_id' => 'classic-tour',
             'travel_mode_id' => 'bus',
-            'difficulty_id' => 'easy',
             'country_ids' => ['me', 'al'],
             'tag_ids' => $tagIds,
             'category_ids' => $categoryIds,
@@ -272,9 +242,6 @@ class MontenegroAlbaniaTourSeeder extends Seeder
             'price_box_discount_text' => null,
             'price_box_urgency_text' => null,
             'price_box_rating_text' => null,
-            'price_box_min_participants' => null,
-            'price_box_cta_primary_label' => 'Ajánlatot kérek',
-            'price_box_cta_secondary_label' => null,
             'displayed_price' => '189.900 Ft/fő-től',
             'slider_text' => null,
         ];
@@ -402,7 +369,6 @@ class MontenegroAlbaniaTourSeeder extends Seeder
             'price_box_price' => 189900,
             'price_box_displayed_price' => '189.900 Ft/fő-től',
             'price_box_discount_badge' => null,
-            'price_box_min_participants' => null,
             'status' => 'available',
         ]);
     }
@@ -415,24 +381,6 @@ class MontenegroAlbaniaTourSeeder extends Seeder
                 'name' => $name,
                 'active' => true,
                 'sort_order' => $sortOrder,
-            ],
-        );
-    }
-
-    private function ensureRegionGroup(): TourRegionGroup
-    {
-        return TourRegionGroup::query()->updateOrCreate(
-            ['seo_name' => 'balkan-korutak'],
-            [
-                'active' => true,
-                'featured_on_homepage' => false,
-                'type' => 'group',
-                'name' => 'Balkáni körutak',
-                'seo_auto_generate' => true,
-                'gallery_id' => Gallery::query()->value('id'),
-                'description' => 'Balkáni körutazások Montenegrótól Albániáig.',
-                'list_below_text' => 'Tengerparti pihenéssel és városnézéssel fűszerezett balkáni körutak.',
-                'travel_conditions_link' => '/utazas-feltetelek/balkan-korutak',
             ],
         );
     }

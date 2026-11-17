@@ -6,16 +6,11 @@ use App\Models\BlogCategory;
 use App\Models\BlogCategoryTranslation;
 use App\Models\BlogTag;
 use App\Models\BlogTagTranslation;
-use App\Models\HomepageOffer;
-use App\Models\HomepageOfferTranslation;
 use App\Models\Region;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -43,23 +38,6 @@ class AdminTourSelectOptionsTest extends TestCase
             ->assertJsonCount(1)
             ->assertJsonPath('0.label', 'Olaszország');
 
-        $this->getJson('/api/admin/select-options/groups')
-            ->assertOk()
-            ->assertJsonCount(1)
-            ->assertJsonPath('0.label', 'Teszt csoport');
-
-        $this->getJson('/api/admin/select-options/offer-groups')
-            ->assertOk()
-            ->assertJsonCount(1)
-            ->assertJsonPath('0.label', 'Teszt szezon');
-
-        $this->getJson('/api/admin/select-options/homepage-offers')
-            ->assertOk()
-            ->assertJsonCount(1)
-            ->assertJsonPath('0.id', 1)
-            ->assertJsonPath('0.value', 1)
-            ->assertJsonPath('0.label', 'Balkán körutazások');
-
         $this->getJson('/api/admin/select-options/departure-places')
             ->assertOk()
             ->assertJsonCount(1)
@@ -70,11 +48,6 @@ class AdminTourSelectOptionsTest extends TestCase
             ->assertJsonCount(1)
             ->assertJsonPath('0.label', 'Horvátország');
 
-        $this->getJson('/api/admin/select-options/fits')
-            ->assertOk()
-            ->assertJsonCount(1)
-            ->assertJsonPath('0.label', 'Kényelmes tempó');
-
         $this->getJson('/api/admin/select-options/program-types')
             ->assertOk()
             ->assertJsonCount(1)
@@ -84,11 +57,6 @@ class AdminTourSelectOptionsTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1)
             ->assertJsonPath('0.label', 'Buszos utazás');
-
-        $this->getJson('/api/admin/select-options/difficulties')
-            ->assertOk()
-            ->assertJsonCount(1)
-            ->assertJsonPath('0.label', 'Könnyű');
 
         $this->getJson('/api/admin/select-options/blog-tags')
             ->assertOk()
@@ -125,14 +93,6 @@ class AdminTourSelectOptionsTest extends TestCase
             ->assertJsonPath('id', 'rs')
             ->assertJsonPath('label', 'Szerbia');
 
-        $this->postJson('/api/admin/fits', [
-            'name' => 'Aktív tempó',
-            'code' => 'aktiv-temp',
-        ])
-            ->assertOk()
-            ->assertJsonPath('id', 'aktiv-temp')
-            ->assertJsonPath('label', 'Aktív tempó');
-
         $this->postJson('/api/admin/program-types', [
             'name' => 'Körutazás',
             'code' => 'korutazas',
@@ -148,14 +108,6 @@ class AdminTourSelectOptionsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('id', 'repulos-utazas')
             ->assertJsonPath('label', 'Repülős utazás');
-
-        $this->postJson('/api/admin/difficulties', [
-            'name' => 'Közepes',
-            'code' => 'kozepes',
-        ])
-            ->assertOk()
-            ->assertJsonPath('id', 'kozepes')
-            ->assertJsonPath('label', 'Közepes');
 
         $this->postJson('/api/admin/blog/tags', [
             'active' => true,
@@ -195,34 +147,18 @@ class AdminTourSelectOptionsTest extends TestCase
             ->assertJsonFragment(['label' => 'Klasszikus körutazás']);
     }
 
-    public function test_group_options_are_sorted_by_name_and_skip_groups_without_a_seo_name(): void
+    public function test_the_select_options_of_the_deleted_tour_fields_are_gone(): void
     {
         $this->actingAsAdmin();
 
-        foreach ([['Zadar', 'zadar'], ['Abbazia', 'abbazia'], ['Nincs SEO név', null]] as [$name, $seoName]) {
-            TourRegionGroup::query()->create(['active' => true, 'type' => 'group', 'name' => $name, 'seo_name' => $seoName]);
-            TourSeasonalGroup::query()->create(['active' => true, 'menu_type' => 'intro', 'name' => $name, 'seo_name' => $seoName]);
+        foreach (['groups', 'offer-groups', 'homepage-offers', 'fits', 'difficulties'] as $endpoint) {
+            $this->getJson("/api/admin/select-options/{$endpoint}")->assertNotFound();
         }
 
-        DB::enableQueryLog();
-
-        foreach (['groups', 'offer-groups'] as $endpoint) {
-            $this->getJson("/api/admin/select-options/{$endpoint}")
-                ->assertOk()
-                ->assertJsonCount(2)
-                ->assertJsonPath('0.value', 'abbazia')
-                ->assertJsonPath('1.value', 'zadar');
+        // No such endpoint: either no route at all or none for POST.
+        foreach (['fits', 'difficulties'] as $endpoint) {
+            $this->assertContains($this->postJson("/api/admin/{$endpoint}", ['name' => 'Teszt', 'code' => 'teszt'])->status(), [404, 405]);
         }
-
-        // SQLite reads an unknown quoted column as a string, so only the SQL
-        // itself shows the ORDER BY that MariaDB rejects: these tables have no
-        // sort_order column.
-        $groupQueries = collect(DB::getQueryLog())
-            ->pluck('query')
-            ->filter(fn (string $query): bool => str_contains($query, '_groups'));
-
-        $this->assertCount(2, $groupQueries);
-        $groupQueries->each(fn (string $query) => $this->assertStringNotContainsString('sort_order', $query));
     }
 
     private function actingAsAdmin(): void
@@ -272,45 +208,6 @@ class AdminTourSelectOptionsTest extends TestCase
             'portfolio_short_description' => null,
         ]);
 
-        TourRegionGroup::query()->create([
-            'active' => true,
-            'featured_on_homepage' => false,
-            'type' => 'group',
-            'name' => 'Teszt csoport',
-            'seo_name' => 'teszt-csoport',
-            'seo_auto_generate' => false,
-            'gallery_id' => null,
-            'description' => null,
-            'list_below_text' => null,
-            'travel_conditions_link' => null,
-        ]);
-
-        TourSeasonalGroup::query()->create([
-            'active' => true,
-            'menu_type' => 'intro',
-            'name' => 'Teszt szezon',
-            'seo_name' => 'teszt-szezon',
-            'seo_auto_generate' => false,
-            'box_text' => null,
-            'has_offers' => true,
-        ]);
-
-        $homepageOffer = HomepageOffer::query()->create([
-            'active' => true,
-            'sort_order' => 1,
-            'image' => null,
-            'image_title' => 'Balkán körutazások',
-            'link' => '/kategoriak/balkan-korutazasok',
-        ]);
-
-        HomepageOfferTranslation::query()->create([
-            'homepage_offer_id' => $homepageOffer->id,
-            'locale' => 'hu',
-            'name' => 'Balkán körutazások',
-            'seo_name' => 'balkan-korutazasok',
-            'short_description' => 'Teszt leírás',
-        ]);
-
         TourDeparturePlace::query()->create([
             'active' => true,
             'name' => 'Budapest',
@@ -319,10 +216,8 @@ class AdminTourSelectOptionsTest extends TestCase
         ]);
 
         $this->createReferenceOption('country', 'hr', 'Horvátország');
-        $this->createReferenceOption('fit', 'fit-2', 'Kényelmes tempó');
         $this->createReferenceOption('program-type', 'program-type-2', 'Tengerparti program');
         $this->createReferenceOption('travel-mode', 'travel-mode-2', 'Buszos utazás');
-        $this->createReferenceOption('difficulty', 'difficulty-2', 'Könnyű');
 
         $tag = BlogTag::query()->create([
             'active' => true,

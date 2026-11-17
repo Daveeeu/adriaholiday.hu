@@ -6,13 +6,10 @@ use App\Models\BlogCategory;
 use App\Models\BlogCategoryTranslation;
 use App\Models\BlogTag;
 use App\Models\BlogTagTranslation;
-use App\Models\Gallery;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use App\Support\MediaCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -30,20 +27,6 @@ class MontenegroMediterraneanTourSeeder extends Seeder
 
         $this->ensureReferenceOption('travel-mode', 'bus', 'Busz', 1);
         $this->ensureReferenceOption('program-type', 'classic-tour', 'Klasszikus körút', 1);
-        $this->ensureReferenceOption('difficulty', 'easy', 'Könnyű', 1);
-
-        $group = $this->ensureRegionGroup();
-        $seasonalGroup = TourSeasonalGroup::query()->updateOrCreate(
-            ['seo_name' => 'nyari-ajanlatok'],
-            [
-                'active' => true,
-                'menu_type' => 'featured',
-                'name' => 'Nyári ajánlatok',
-                'seo_auto_generate' => true,
-                'box_text' => 'Nyári tengerparti és körutas ajánlatok.',
-                'has_offers' => true,
-            ],
-        );
 
         $categoryIds = array_values(array_filter([
             $this->ensureCategory('Körutazások', 'korutazasok'),
@@ -242,21 +225,12 @@ class MontenegroMediterraneanTourSeeder extends Seeder
             'active' => true,
             'featured' => true,
             'recommended' => false,
-            'partner_offer' => false,
-            'image_offer' => true,
             'xml_enabled' => false,
-            'slider_image_enabled' => true,
-            'slider_text_enabled' => false,
             'name' => 'Montenegró, a mediterrán csoda félpanzióval',
             'seo_name' => 'montenegro-a-mediterran-csoda-felpanzioval',
             'seo_auto_generate' => false,
-            'action1' => 'Budva - Kotor - Tivat - Perast - Dubrovnik',
-            'action2' => 'Autóbuszos montenegrói körutazás félpanzióval',
             'list_description' => 'Montenegrói tengerparti körút a Kotori-öbölben, Dubrovnikkal, Budvával, Perasttal és fakultatív hajókirándulásokkal.',
             'short_description' => 'Kotori-öböl, Budva, Kotor, Perast és Dubrovnik látnivalói, 7 éj hotel***, félpanzió és autóbuszos utazás egy montenegrói körúton.',
-            'program_pdf_path' => null,
-            'program_pdf_file' => null,
-            'slider_image' => null,
             'program_before' => '<p>Montenegrói tengerparti körutazás a Kotori-öböl térségében, félpanzióval, városnézésekkel és fakultatív hajókirándulásokkal.</p>',
             'program' => '<p><strong>Útvonal:</strong> Budva - Kotor - Tivat - Perast - Dubrovnik.</p>',
             'inclusions' => '<p><strong>Csatlakozási lehetőségek:</strong> Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Dunaújváros, Paks, Szekszárd, Mohács.</p><p><strong>Beutazási feltételek:</strong> <a href="https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/montenegro">Montenegró konzuli tájékoztató</a>.</p>',
@@ -277,12 +251,8 @@ class MontenegroMediterraneanTourSeeder extends Seeder
             'gallery_title' => 'Galéria',
             'gallery_subtitle' => 'Kotori-öböl, tengerparti panorámák és mediterrán városok képekben.',
             'region_id' => $region->id,
-            'group_id' => $group->seo_name,
-            'seasonal_group_id' => $seasonalGroup->seo_name,
-            'fit_id' => null,
             'program_type_id' => 'classic-tour',
             'travel_mode_id' => 'bus',
-            'difficulty_id' => 'easy',
             'country_ids' => ['me', 'hr'],
             'tag_ids' => $tagIds,
             'category_ids' => $categoryIds,
@@ -295,9 +265,6 @@ class MontenegroMediterraneanTourSeeder extends Seeder
             'price_box_discount_text' => null,
             'price_box_urgency_text' => null,
             'price_box_rating_text' => null,
-            'price_box_min_participants' => null,
-            'price_box_cta_primary_label' => 'Ajánlatot kérek',
-            'price_box_cta_secondary_label' => null,
             'displayed_price' => '259.900 Ft/fő-től',
             'slider_text' => null,
         ];
@@ -430,7 +397,6 @@ class MontenegroMediterraneanTourSeeder extends Seeder
                 'price_box_price' => $date['price'],
                 'price_box_displayed_price' => number_format($date['price'], 0, ',', '.').' Ft/fő-től',
                 'price_box_discount_badge' => null,
-                'price_box_min_participants' => null,
                 'status' => 'available',
             ]);
         }
@@ -444,24 +410,6 @@ class MontenegroMediterraneanTourSeeder extends Seeder
                 'name' => $name,
                 'active' => true,
                 'sort_order' => $sortOrder,
-            ],
-        );
-    }
-
-    private function ensureRegionGroup(): TourRegionGroup
-    {
-        return TourRegionGroup::query()->updateOrCreate(
-            ['seo_name' => 'balkan-korutak'],
-            [
-                'active' => true,
-                'featured_on_homepage' => false,
-                'type' => 'group',
-                'name' => 'Balkáni körutak',
-                'seo_auto_generate' => true,
-                'gallery_id' => Gallery::query()->value('id'),
-                'description' => 'Balkáni körutazások Montenegrótól Albániáig.',
-                'list_below_text' => 'Tengerparti pihenéssel és városnézéssel fűszerezett balkáni körutak.',
-                'travel_conditions_link' => '/utazas-feltetelek/balkan-korutak',
             ],
         );
     }

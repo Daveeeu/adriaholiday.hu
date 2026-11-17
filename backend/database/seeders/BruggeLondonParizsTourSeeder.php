@@ -6,13 +6,10 @@ use App\Models\BlogCategory;
 use App\Models\BlogCategoryTranslation;
 use App\Models\BlogTag;
 use App\Models\BlogTagTranslation;
-use App\Models\Gallery;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use App\Support\MediaCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -33,20 +30,6 @@ class BruggeLondonParizsTourSeeder extends Seeder
         $this->ensureReferenceOption('country', 'fr', 'Franciaország', 13);
         $this->ensureReferenceOption('travel-mode', 'bus', 'Busz', 1);
         $this->ensureReferenceOption('program-type', 'classic-tour', 'Klasszikus körút', 1);
-        $this->ensureReferenceOption('difficulty', 'medium', 'Közepes', 2);
-
-        $group = $this->ensureRegionGroup();
-        $seasonalGroup = TourSeasonalGroup::query()->updateOrCreate(
-            ['seo_name' => 'oszi-utazasok'],
-            [
-                'active' => true,
-                'menu_type' => 'travel',
-                'name' => 'Őszi utazások',
-                'seo_auto_generate' => true,
-                'box_text' => 'Őszi városlátogatások és körutazások.',
-                'has_offers' => true,
-            ],
-        );
 
         $categoryIds = array_values(array_filter([
             $this->ensureCategory('Körutazások', 'korutazasok'),
@@ -208,21 +191,12 @@ class BruggeLondonParizsTourSeeder extends Seeder
             'active' => true,
             'featured' => true,
             'recommended' => false,
-            'partner_offer' => false,
-            'image_offer' => true,
             'xml_enabled' => false,
-            'slider_image_enabled' => true,
-            'slider_text_enabled' => false,
             'name' => 'Brugge - London - Párizs',
             'seo_name' => 'brugge---london---parizs-2018',
             'seo_auto_generate' => false,
-            'action1' => 'Brugge - Calais - London - Greenwich - Párizs - Metz',
-            'action2' => 'Autóbuszos nyugat-európai körutazás',
             'list_description' => 'Nyugat-európai körutazás Brugge történelmi városával, több napos londoni városnézéssel és párizsi zárással, autóbusszal.',
             'short_description' => 'Brugge, London és Párizs ikonikus látnivalói egy 8 napos, buszos körutazásban, önellátásos és hoteles elhelyezéssel.',
-            'program_pdf_path' => null,
-            'program_pdf_file' => null,
-            'slider_image' => null,
             'program_before' => '<p>Brugge, London és Párizs klasszikus látnivalóit fűzi fel ez a 8 napos nyugat-európai körút, tranzitszállásokkal, londoni városnézéssel és párizsi zárónappal.</p>',
             'program' => '<p><strong>Útvonal:</strong> Metz - Brugge - Calais - London - Greenwich - Párizs - Metz.</p>',
             'inclusions' => '<p><strong>Csatlakozási lehetőségek:</strong> Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Tatabánya, Győr, Mosonmagyaróvár.</p><p><strong>Útiokmány:</strong> Az utazáshoz útlevél és beutazási vízum szükséges.</p>',
@@ -243,12 +217,8 @@ class BruggeLondonParizsTourSeeder extends Seeder
             'gallery_title' => 'Galéria',
             'gallery_subtitle' => 'Brugge, London és Párizs városképei egy nyugat-európai körúton.',
             'region_id' => $region->id,
-            'group_id' => $group->seo_name,
-            'seasonal_group_id' => $seasonalGroup->seo_name,
-            'fit_id' => null,
             'program_type_id' => 'classic-tour',
             'travel_mode_id' => 'bus',
-            'difficulty_id' => 'medium',
             'country_ids' => ['be', 'gb', 'fr'],
             'tag_ids' => $tagIds,
             'category_ids' => $categoryIds,
@@ -261,9 +231,6 @@ class BruggeLondonParizsTourSeeder extends Seeder
             'price_box_discount_text' => null,
             'price_box_urgency_text' => null,
             'price_box_rating_text' => null,
-            'price_box_min_participants' => null,
-            'price_box_cta_primary_label' => 'Ajánlatot kérek',
-            'price_box_cta_secondary_label' => null,
             'displayed_price' => '273.600,-Ft/fő-től',
             'slider_text' => null,
         ];
@@ -388,7 +355,6 @@ class BruggeLondonParizsTourSeeder extends Seeder
             'price_box_price' => 273600,
             'price_box_displayed_price' => '273.600,-Ft/fő-től',
             'price_box_discount_badge' => null,
-            'price_box_min_participants' => null,
             'status' => 'available',
         ]);
     }
@@ -401,24 +367,6 @@ class BruggeLondonParizsTourSeeder extends Seeder
                 'name' => $name,
                 'active' => true,
                 'sort_order' => $sortOrder,
-            ],
-        );
-    }
-
-    private function ensureRegionGroup(): TourRegionGroup
-    {
-        return TourRegionGroup::query()->updateOrCreate(
-            ['seo_name' => 'nyugat-europai-korutak'],
-            [
-                'active' => true,
-                'featured_on_homepage' => false,
-                'type' => 'group',
-                'name' => 'Nyugat-európai körutak',
-                'seo_auto_generate' => true,
-                'gallery_id' => Gallery::query()->value('id'),
-                'description' => 'Buszos és városlátogatós nyugat-európai körutazások.',
-                'list_below_text' => 'Brugge, London és Párizs klasszikus látnivalói egy útban.',
-                'travel_conditions_link' => '/utazas-feltetelek/nyugat-europai-korutak',
             ],
         );
     }

@@ -6,8 +6,6 @@ use App\Models\BlogCategory;
 use App\Models\BlogTag;
 use App\Models\Region;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use Illuminate\Support\Collection;
 
 class TourLabelResolver
@@ -21,16 +19,6 @@ class TourLabelResolver
      * @var array<string, string|null>
      */
     private static array $regionLabels = [];
-
-    /**
-     * @var array<string, string|null>
-     */
-    private static array $regionGroupLabels = [];
-
-    /**
-     * @var array<string, string|null>
-     */
-    private static array $seasonalGroupLabels = [];
 
     /**
      * @var array<string, string|null>
@@ -51,8 +39,6 @@ class TourLabelResolver
     {
         self::$referenceOptionLabels = [];
         self::$regionLabels = [];
-        self::$regionGroupLabels = [];
-        self::$seasonalGroupLabels = [];
         self::$blogTagLabels = [];
         self::$blogCategoryLabels = [];
     }
@@ -101,20 +87,6 @@ class TourLabelResolver
 
         return self::labelFromModelCache(self::$regionLabels, $regionId, fn (string $id): ?string => Region::query()
             ->whereKey($id)
-            ->value('name'));
-    }
-
-    public static function regionGroupLabel(?string $seoName): ?string
-    {
-        return self::labelFromModelCache(self::$regionGroupLabels, $seoName, fn (string $id): ?string => TourRegionGroup::query()
-            ->where('seo_name', $id)
-            ->value('name'));
-    }
-
-    public static function seasonalGroupLabel(?string $seoName): ?string
-    {
-        return self::labelFromModelCache(self::$seasonalGroupLabels, $seoName, fn (string $id): ?string => TourSeasonalGroup::query()
-            ->where('seo_name', $id)
             ->value('name'));
     }
 

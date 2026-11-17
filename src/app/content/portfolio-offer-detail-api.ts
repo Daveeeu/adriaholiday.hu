@@ -95,9 +95,6 @@ export type PortfolioPriceBox = {
   label?: string | null;
   urgencyText?: string | null;
   ratingText?: string | null;
-  minParticipants?: number | null;
-  ctaPrimaryLabel?: string | null;
-  ctaSecondaryLabel?: string | null;
 };
 
 export type PortfolioOfferProgramDay = {
@@ -190,12 +187,6 @@ export type PortfolioOfferDetail = {
     fee?: number | null;
     /** Overrides the general fee on this tour. */
     tourFee?: number | null;
-  }>;
-  partnerBonuses: Array<{
-    id: number | string;
-    sortOrder: number;
-    label: string;
-    value?: string | null;
   }>;
   tags: Array<Record<string, unknown>>;
   categories: Array<Record<string, unknown>>;

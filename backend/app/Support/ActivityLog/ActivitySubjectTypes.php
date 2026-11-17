@@ -31,7 +31,6 @@ use App\Models\Testimonial;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourDeparturePlace;
-use App\Models\TourPartnerBonus;
 use App\Models\TourPartnerOffer;
 use App\Models\TourReferenceOption;
 use App\Models\TourRegionGroup;
@@ -56,7 +55,6 @@ final class ActivitySubjectTypes
         'tour_seasonal_group' => ['class' => TourSeasonalGroup::class, 'label' => 'Szezonális csoport'],
         'tour_departure_place' => ['class' => TourDeparturePlace::class, 'label' => 'Felszállási hely'],
         'tour_partner_offer' => ['class' => TourPartnerOffer::class, 'label' => 'Partner ajánlat'],
-        'tour_partner_bonus' => ['class' => TourPartnerBonus::class, 'label' => 'Partner bónusz'],
         'tour_reference_option' => ['class' => TourReferenceOption::class, 'label' => 'Körutazás törzsadat'],
         'booking' => ['class' => Booking::class, 'label' => 'Foglalás'],
         'booking_form_template' => ['class' => BookingFormTemplate::class, 'label' => 'Foglalási űrlap sablon'],

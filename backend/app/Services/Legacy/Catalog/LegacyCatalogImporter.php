@@ -57,9 +57,6 @@ final class LegacyCatalogImporter
             $galleries[$collection] = $this->galleryItems($images, $offer->name, $notes);
         }
 
-        $sliderImage = $this->localFile($offer->sliderImageUrl, 'slider image', $notes);
-        $programPdf = $this->localFile($offer->programPdfUrl, 'program PDF', $notes);
-
         foreach (array_filter($offer->html) as $value) {
             foreach (LegacyHtmlContent::imageUrls($value, $legacyBaseUrl) as $url) {
                 if ($localUrl($url) === null) {
@@ -68,7 +65,7 @@ final class LegacyCatalogImporter
             }
         }
 
-        $tourId = DB::transaction(function () use ($offer, $rawOffer, $plan, $run, $taxonomy, $html, $galleries, $sliderImage, $programPdf, &$notes): int {
+        $tourId = DB::transaction(function () use ($offer, $rawOffer, $plan, $run, $taxonomy, $html, $galleries, &$notes): int {
             $existing = $plan['tour_id'] !== null ? Tour::withTrashed()->findOrFail($plan['tour_id']) : null;
             $tour = $existing ?? new Tour;
 
@@ -84,8 +81,6 @@ final class LegacyCatalogImporter
                 ...$offer->attributes,
                 ...$html,
                 'travel_mode_id' => $offer->travelMode !== null ? $this->references->travelMode($offer->travelMode) : null,
-                'slider_image' => $sliderImage,
-                'program_pdf_path' => $programPdf,
                 // Countries and categories found on the site stay unless the
                 // legacy offer names its own; categories the office added
                 // (e.g. "Repülős körutazások") are kept as well.
@@ -132,7 +127,6 @@ final class LegacyCatalogImporter
             );
             $this->tourContentSync->syncProgramDays($tour, []);
             $this->tourContentSync->syncPriceItems($tour, []);
-            $this->tourContentSync->syncPartnerBonuses($tour, $offer->partnerBonuses);
 
             foreach ([TourGalleryItem::MAIN, TourGalleryItem::PROGRAM, TourGalleryItem::INTRO] as $collection) {
                 $this->tourContentSync->syncGalleryItems($tour, $galleries[$collection] ?? [], $collection);
@@ -222,24 +216,6 @@ final class LegacyCatalogImporter
         }
 
         return $items;
-    }
-
-    /**
-     * @param  array<int, string>  $notes
-     */
-    private function localFile(?string $url, string $label, array &$notes): ?string
-    {
-        if ($url === null) {
-            return null;
-        }
-
-        $local = $this->media->localUrl($url);
-
-        if ($local === null) {
-            $notes[] = "The {$label} is not mirrored: {$url}";
-        }
-
-        return $local;
     }
 
     /**

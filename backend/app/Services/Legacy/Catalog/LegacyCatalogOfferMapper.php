@@ -89,10 +89,8 @@ final class LegacyCatalogOfferMapper
                 'featured_order' => $offer['featured'] && (int) ($offer['featured_position'] ?? 0) > 0 ? (int) $offer['featured_position'] : null,
                 'featured_subtitle' => LegacyText::line($offer['featured_subtitle'] ?? null),
                 'couponable' => (bool) $offer['coupon_enabled'],
-                'image_offer' => (bool) $offer['image_offer'],
                 'xml_enabled' => (bool) $offer['xml_enabled'],
                 'partner_xml' => LegacyPartnerXmlSettings::forTour($extraFields, array_values(array_filter((array) ($offer['regions'] ?? []), 'is_string'))),
-                'partner_offer' => (bool) ($offer['listed_in_partner_offer_list'] ?? false),
                 'short_description' => LegacyText::line($offer['cities_html'] ?? null),
                 'slider_text' => LegacyText::line($offer['slider_html'] ?? null),
                 'seo_title' => $this->seoText($extraFields['seo[title]'] ?? null, $notes),
@@ -130,8 +128,6 @@ final class LegacyCatalogOfferMapper
             dates: $dates->map(fn (array $date): array => $this->withoutTourStay($date, $stay))->map(fn (array $date): array => collect($date)->except('travel_mode')->all())->all(),
             departurePlaces: $dates->flatMap(fn (array $date): array => $date['departure_places'])->unique('legacy_id')->values()->all(),
             galleries: $this->galleries($offer),
-            sliderImageUrl: $offer['slider_image'] ?? null,
-            programPdfUrl: $offer['program_pdf'] ?? null,
             taxonomy: [
                 'legacy_id' => (int) $offer['legacy_id'],
                 'offer_groups' => $this->names($offer['offer_groups'] ?? []),
@@ -140,15 +136,6 @@ final class LegacyCatalogOfferMapper
                 // The legacy XML feed's destination, e.g. "Horvátország" or "Szeged".
                 'xml_city' => LegacyText::line($extraFields['xml[city]'] ?? null),
             ],
-            partnerBonuses: collect($offer['partner_bonuses'] ?? [])
-                ->values()
-                ->map(fn (array $bonus, int $index): array => [
-                    'legacy_id' => (int) $bonus['legacy_id'],
-                    'sort_order' => $index + 1,
-                    'label' => sprintf('%s: %d–%d fő', trim((string) ($bonus['section'] ?? 'Bónusz')), $bonus['min'], $bonus['max']),
-                    'value' => sprintf('%d ajándék hely', $bonus['free_places']),
-                ])
-                ->all(),
             notes: array_values(array_unique($notes)),
         );
     }

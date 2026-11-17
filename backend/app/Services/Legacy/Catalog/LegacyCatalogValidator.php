@@ -115,7 +115,6 @@ final class LegacyCatalogValidator
             'featured' => ['required', 'boolean'],
             'featured_position' => ['nullable', 'integer', 'min:0'],
             'coupon_enabled' => ['required', 'boolean'],
-            'image_offer' => ['required', 'boolean'],
             'xml_enabled' => ['required', 'boolean'],
             'listed_in_admin_offer_list' => ['nullable', 'boolean'],
             'listed_in_partner_offer_list' => ['nullable', 'boolean'],
@@ -172,11 +171,6 @@ final class LegacyCatalogValidator
             'departures.*.extra_prices.*.type' => ['present', 'nullable', 'string'],
             'departures.*.fields' => ['required', 'array'],
             'departures.*.fields.travel' => ['present', 'nullable', 'array'],
-            'partner_bonuses' => ['present', 'array'],
-            'partner_bonuses.*.legacy_id' => ['required', 'integer'],
-            'partner_bonuses.*.min' => ['required', 'integer', 'min:0'],
-            'partner_bonuses.*.max' => ['required', 'integer', 'min:0'],
-            'partner_bonuses.*.free_places' => ['required', 'integer', 'min:0'],
             'extra_fields' => ['present', 'array'],
         ];
     }

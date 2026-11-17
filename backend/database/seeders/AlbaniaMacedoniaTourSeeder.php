@@ -6,13 +6,10 @@ use App\Models\BlogCategory;
 use App\Models\BlogCategoryTranslation;
 use App\Models\BlogTag;
 use App\Models\BlogTagTranslation;
-use App\Models\Gallery;
 use App\Models\Region;
 use App\Models\Tour;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use App\Support\MediaCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -31,20 +28,6 @@ class AlbaniaMacedoniaTourSeeder extends Seeder
         $this->ensureReferenceOption('country', 'mk', 'Észak-Macedónia', 9);
         $this->ensureReferenceOption('travel-mode', 'bus', 'Busz', 1);
         $this->ensureReferenceOption('program-type', 'classic-tour', 'Klasszikus körút', 1);
-        $this->ensureReferenceOption('difficulty', 'easy', 'Könnyű', 1);
-
-        $group = $this->ensureRegionGroup();
-        $seasonalGroup = TourSeasonalGroup::query()->updateOrCreate(
-            ['seo_name' => 'oszi-utazasok'],
-            [
-                'active' => true,
-                'menu_type' => 'travel',
-                'name' => 'Őszi utazások',
-                'seo_auto_generate' => true,
-                'box_text' => 'Őszi körutazások és balkáni ajánlatok.',
-                'has_offers' => true,
-            ],
-        );
 
         $categoryIds = array_values(array_filter([
             $this->ensureCategory('Körutazások', 'korutazasok'),
@@ -219,21 +202,12 @@ class AlbaniaMacedoniaTourSeeder extends Seeder
             'active' => true,
             'featured' => true,
             'recommended' => false,
-            'partner_offer' => false,
-            'image_offer' => true,
             'xml_enabled' => false,
-            'slider_image_enabled' => true,
-            'slider_text_enabled' => false,
             'name' => 'Albania, a Balkán riviérája / Albánia Makedóniával fűszerezve',
             'seo_name' => 'albania-makedoniaval-fuszerezve',
             'seo_auto_generate' => false,
-            'action1' => 'Belgrád - Shkodër - Durres - Tirana - Berat - Ohrid - Skopje',
-            'action2' => 'Buszos körutazás Albániában és Észak-Macedóniában',
             'list_description' => 'Albánia egzotikus kultúrája, Durres homokos tengerpartja, Berat történelmi öröksége és az Ohridi-tó hangulata egy buszos körutazásban.',
             'short_description' => 'Albánia egzotikus kultúrája, Durres tengerpartja, Berat és Ohrid látnivalói, valamint skopjei kitérő egy buszos, félpanziós körutazásban.',
-            'program_pdf_path' => null,
-            'program_pdf_file' => null,
-            'slider_image' => null,
             'program_before' => '<p>Belgrád, Shkodër, Durres, Tirana, Berat, Ohrid és Skopje állomásait fűzi össze ez a 7 napos buszos körutazás, amelyben a tengerparti pihenés és a balkáni városnézés egyszerre kap szerepet.</p>',
             'program' => '<p><strong>Útvonal:</strong> Belgrád - Shkodër - Durres - Tirana - Berat - Ohrid - Skopje.</p>',
             'inclusions' => '<p><strong>Csatlakozási lehetőségek:</strong> Miskolc, Mezőkövesd, Gyöngyös, Hatvan, Budapest, Kecskemét, Kiskunfélegyháza, Szeged.</p><p><strong>Útiokmány:</strong> Albánia és Montenegró utazáshoz kártyás személyi igazolvány szükséges.</p><p><a href="https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/albania">Konzuli tájékoztató: Albánia</a><br /><a href="https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/montenegro">Konzuli tájékoztató: Montenegró</a></p>',
@@ -254,12 +228,8 @@ class AlbaniaMacedoniaTourSeeder extends Seeder
             'gallery_title' => 'Galéria',
             'gallery_subtitle' => 'Városnézés, tengerpart és balkáni hangulat egy útban.',
             'region_id' => $region->id,
-            'group_id' => $group->seo_name,
-            'seasonal_group_id' => $seasonalGroup->seo_name,
-            'fit_id' => null,
             'program_type_id' => 'classic-tour',
             'travel_mode_id' => 'bus',
-            'difficulty_id' => 'easy',
             'country_ids' => ['al', 'mk'],
             'tag_ids' => $tagIds,
             'category_ids' => $categoryIds,
@@ -272,9 +242,6 @@ class AlbaniaMacedoniaTourSeeder extends Seeder
             'price_box_discount_text' => null,
             'price_box_urgency_text' => null,
             'price_box_rating_text' => null,
-            'price_box_min_participants' => null,
-            'price_box_cta_primary_label' => 'Ajánlatot kérek',
-            'price_box_cta_secondary_label' => null,
             'displayed_price' => '269.600,-Ft/fő-től',
             'slider_text' => null,
         ];
@@ -403,7 +370,6 @@ class AlbaniaMacedoniaTourSeeder extends Seeder
             'price_box_price' => 269600,
             'price_box_displayed_price' => '269.600,-Ft/fő-től',
             'price_box_discount_badge' => null,
-            'price_box_min_participants' => null,
             'status' => 'available',
         ]);
     }
@@ -416,24 +382,6 @@ class AlbaniaMacedoniaTourSeeder extends Seeder
                 'name' => $name,
                 'active' => true,
                 'sort_order' => $sortOrder,
-            ],
-        );
-    }
-
-    private function ensureRegionGroup(): TourRegionGroup
-    {
-        return TourRegionGroup::query()->updateOrCreate(
-            ['seo_name' => 'balkan-korutak'],
-            [
-                'active' => true,
-                'featured_on_homepage' => false,
-                'type' => 'group',
-                'name' => 'Balkáni körutak',
-                'seo_auto_generate' => true,
-                'gallery_id' => Gallery::query()->value('id'),
-                'description' => 'Balkáni körutazások Albániától Észak-Macedóniáig.',
-                'list_below_text' => 'Körutazások tengerparti és kulturális megállókkal a Balkánon.',
-                'travel_conditions_link' => '/utazas-feltetelek/balkan-korutak',
             ],
         );
     }

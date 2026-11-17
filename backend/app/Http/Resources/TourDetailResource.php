@@ -12,7 +12,6 @@ class TourDetailResource extends TourResource
         return array_merge(parent::toArray($request), [
             'region' => $this->region ? new RegionResource($this->region) : null,
             'dates' => TourDateResource::collection($this->dates)->resolve(),
-            'partnerBonuses' => TourPartnerBonusResource::collection($this->partnerBonuses)->resolve(),
             // Admin only (the public offer leaves it out).
             'partnerXml' => PartnerXmlSettings::normalize($this->partner_xml),
             'departurePlaces' => TourDeparturePlaceResource::collection($this->departurePlaces)->resolve(),

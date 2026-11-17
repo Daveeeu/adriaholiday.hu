@@ -79,7 +79,7 @@ class PortfolioFeaturedToursTest extends TestCase
 
         $tour = Tour::query()
             ->where('seo_name', 'albania-makedoniaval-fuszerezve')
-            ->with(['dates', 'partnerBonuses', 'departurePlaces'])
+            ->with(['dates', 'departurePlaces'])
             ->firstOrFail();
 
         $payload = $this->tourPayload($tour, [
@@ -112,7 +112,7 @@ class PortfolioFeaturedToursTest extends TestCase
 
         $tour = Tour::query()
             ->where('seo_name', 'albania-makedoniaval-fuszerezve')
-            ->with(['dates', 'partnerBonuses', 'departurePlaces'])
+            ->with(['dates', 'departurePlaces'])
             ->firstOrFail();
 
         $payload = $this->tourPayload($tour, [
@@ -142,32 +142,17 @@ class PortfolioFeaturedToursTest extends TestCase
             'status' => $date->status,
         ])->all();
 
-        $partnerBonuses = $tour->partnerBonuses->map(fn ($bonus) => [
-            'sort_order' => $bonus->sort_order,
-            'label' => $bonus->label,
-            'value' => $bonus->value,
-        ])->all();
-
         $payload = array_merge([
             'sort_order' => $tour->sort_order,
             'active' => $tour->active,
             'featured' => $tour->featured,
             'recommended' => $tour->recommended,
-            'partner_offer' => $tour->partner_offer,
-            'image_offer' => $tour->image_offer,
             'xml_enabled' => $tour->xml_enabled,
-            'slider_image_enabled' => $tour->slider_image_enabled,
-            'slider_text_enabled' => $tour->slider_text_enabled,
             'name' => $tour->name,
             'seo_name' => $tour->seo_name,
             'seo_auto_generate' => $tour->seo_auto_generate,
-            'action1' => $tour->action1,
-            'action2' => $tour->action2,
             'list_description' => $tour->list_description,
             'short_description' => $tour->short_description,
-            'program_pdf_path' => $tour->program_pdf_path,
-            'program_pdf_file' => $tour->program_pdf_file,
-            'slider_image' => $tour->slider_image,
             'program_before' => $tour->program_before,
             'program' => $tour->program,
             'inclusions' => $tour->inclusions,
@@ -176,12 +161,8 @@ class PortfolioFeaturedToursTest extends TestCase
             'discounts' => $tour->discounts,
             'notes' => $tour->notes,
             'region_id' => $tour->region_id,
-            'group_id' => $tour->group_id,
-            'seasonal_group_id' => $tour->seasonal_group_id,
-            'fit_id' => $tour->fit_id,
             'program_type_id' => $tour->program_type_id,
             'travel_mode_id' => $tour->travel_mode_id,
-            'difficulty_id' => $tour->difficulty_id,
             'price' => $tour->price,
             'displayed_price' => $tour->displayed_price,
             'slider_text' => $tour->slider_text,
@@ -190,7 +171,6 @@ class PortfolioFeaturedToursTest extends TestCase
             'tag_ids' => $tour->tag_ids ?? [],
             'category_ids' => $tour->category_ids ?? [],
             'dates' => $dates,
-            'partner_bonuses' => $partnerBonuses,
         ], $overrides);
 
         return $payload;

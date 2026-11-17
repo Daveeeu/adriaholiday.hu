@@ -22,7 +22,6 @@ class TourRegionGroupResource extends JsonResource
             'description' => RichTextSanitizer::sanitize($this->description),
             'listBelowText' => RichTextSanitizer::sanitize($this->list_below_text),
             'travelConditionsLink' => $this->travel_conditions_link,
-            'relatedToursCount' => (int) ($this->tours_count ?? 0),
             'gallery' => $this->whenLoaded('gallery', fn () => new GalleryResource($this->gallery)),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),

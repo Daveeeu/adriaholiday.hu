@@ -19,7 +19,6 @@ class TourSeasonalGroupResource extends JsonResource
             'seoAutoGenerate' => (bool) $this->seo_auto_generate,
             'boxText' => RichTextSanitizer::sanitize($this->box_text),
             'hasOffers' => (bool) $this->has_offers,
-            'relatedToursCount' => (int) ($this->tours_count ?? 0),
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
         ];

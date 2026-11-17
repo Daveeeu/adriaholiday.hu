@@ -2,13 +2,13 @@
 
 ## Elrejtett, nem használt körutazás-mezők végleges törlése
 
-Felvéve: 2026-11-17. A mezők 2026-11-17 óta el vannak rejtve a körutazás-szerkesztőben és a részletek panelen.
-A tárolt értékek megmaradnak: a szerkesztő mentéskor változatlanul visszaküldi őket.
+Felvéve: 2026-11-17. A kód 2026-11-17-én elkészült (admin, backend, legacy importerek, publikus típus, útmutató),
+a `2026_11_17_180000_drop_unused_tour_fields` migráció törli az oszlopokat és a `tour_partner_bonuses` táblát.
+Még nincs élesítve.
 
-Ellenőrizve: sem a publikus oldal, sem a PDF, sem a partner XML feedek, sem az MCP, sem a sales asszisztens nem olvassa őket.
-Csak az admin saját listája, szűrői és részletnézete mutatja őket, illetve a régi importerek töltik.
+Ellenőrizve törlés előtt: sem a publikus oldal, sem a PDF, sem a partner XML feedek, sem az MCP, sem a sales asszisztens nem olvasta őket.
 
-| Mező (admin felirat) | Oszlop / kapcsolat |
+| Mező (régi admin felirat) | Törölt oszlop / kapcsolat |
 |---|---|
 | Képes ajánlat? | `tours.image_offer` |
 | Slider kép (kapcsoló), Slider szöveg (kapcsoló) | `tours.slider_image_enabled`, `tours.slider_text_enabled` |
@@ -16,28 +16,23 @@ Csak az admin saját listája, szűrői és részletnézete mutatja őket, illet
 | Akció 1, Akció 2 | `tours.action1`, `tours.action2` |
 | Program PDF, Program PDF fájlnév | `tours.program_pdf_path`, `tours.program_pdf_file` |
 | Elsődleges / Másodlagos gomb felirata | `tours.price_box_cta_primary_label`, `tours.price_box_cta_secondary_label` |
-| Csoportok | `tours.group_id`, `TourRegionGroup` |
-| Ajánlat csoportok | `tours.seasonal_group_id`, `TourSeasonalGroup` |
-| Főoldali ajánlat | `tours.homepage_offer_id`, `HomepageOffer::tours()` |
-| FIT | `tours.fit_id` |
-| Nehézségi szint | `tours.difficulty_id` |
+| Csoportok | `tours.group_id` (és `TourRegionGroup::tours()`) |
+| Ajánlat csoportok | `tours.seasonal_group_id` (és `TourSeasonalGroup::tours()`) |
+| Főoldali ajánlat | `tours.homepage_offer_id` (és `HomepageOffer::tours()`) |
+| FIT | `tours.fit_id`, a FIT választólista és létrehozó végpont |
+| Nehézségi szint | `tours.difficulty_id`, a nehézségi szint választólista és létrehozó végpont |
 | Kiemelés csempéző ajánlat | `tours.partner_offer` |
 | Partner bónuszok | `tour_partner_bonuses`, `TourPartnerBonus` |
-| Minimum fő (árdoboz és időpontok; elrejtve 2026-11-17 délután) | `tours.price_box_min_participants`, `tour_dates.price_box_min_participants` |
+| Minimum fő (árdoboz és időpontok) | `tours.price_box_min_participants`, `tour_dates.price_box_min_participants` |
 
-Nem törlendő:
-- **Kiemelés a pozitív kiemelt ajánlatok között (`recommended`):** a kiemelt ajánlatok sorrendjét adja.
+Megmaradt: a `recommended` jelölő (a kiemelt ajánlatok sorrendjét adja) és a `slider_text` oszlop.
 
-Törlés előtt:
-- [ ] Megerősíteni, hogy egyik mezőre sincs többé szükség.
-- [ ] Prod adatbázis mentése, és a kitöltött értékek számának ellenőrzése mezőnként.
-- [ ] A „slider” média-gyűjtemény (`Tour::mainImage()`) nem azonos a `slider_image` oszloppal. Csak a seederek töltik, az admin nem tudja beállítani; külön dönteni róla.
+Élesítéskor:
+- [ ] Prod adatbázis mentése a migráció előtt, és a kitöltött értékek számának feljegyzése mezőnként (a migráció után nem visszaállíthatók).
+- [ ] Deploy után: egy út szerkesztése és mentése az adminban, egy ajánlatoldal és a partner XML feedek ellenőrzése.
 
-Törlés lépései:
-- [ ] Admin: form-típusok és alapértékek (`tours.types.ts`, `ToursPage.tsx`), lista oszlopai és szűrői (Akció, Képes ajánlat, Csoport, Ajánlat csoport), választólisták API-ja.
-- [ ] Backend: `StoreTourRequest` / `UpdateTourRequest`, `TourController`, `TourResource` / `TourDetailResource`, `PriceBoxData`, `TourContentSyncService::syncPartnerBonuses`, `Tour` modell, a lista szűrő és rendező oszlopai.
-- [ ] Régiócsoport- és szezonális csoport-kezelő admin oldalak és API-k (ha a csoportok mennek).
-- [ ] Legacy importerek mezőleképezése.
-- [ ] Migráció az oszlopok és a `tour_partner_bonuses` tábla törlésére.
-- [ ] Publikus típus: `partnerBonuses`, `ctaPrimaryLabel`, `ctaSecondaryLabel`, `minParticipants` (`src/app/content/portfolio-offer-detail-api.ts`).
-- [ ] Felhasználói útmutató képernyőképei (`tour-form-*`): frissítés.
+Nyitott:
+- [ ] A „Régiók és csoportok” és a „Szezonális ajánlat csoportok” admin oldalak (táblák, API-k, jogosultságok) már egyetlen úthoz sem kötődnek; dönteni kell, törölhetők-e.
+- [ ] A „slider” média-gyűjtemény (`Tour::mainImage()`) nem azonos a törölt `slider_image` oszloppal. Csak a seederek töltik, az admin nem tudja beállítani; külön dönteni róla.
+- [ ] A `tour_reference_options` táblában maradt `fit` és `difficulty` típusú sorok már semmihez nem tartoznak; törölhetők.
+- [ ] Felhasználói útmutató képernyőképei (`tours-list`, `tour-detail`, `tour-form-*`): még a régi oldalpaneles szerkesztőt és a törölt mezőket mutatják, újra kell készíteni őket a teljes oldalas szerkesztőről.

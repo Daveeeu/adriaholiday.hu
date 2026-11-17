@@ -22,9 +22,6 @@ class PriceBoxData
             'discountText' => $tour->price_box_discount_text,
             'urgencyText' => $tour->price_box_urgency_text,
             'ratingText' => $tour->price_box_rating_text,
-            'minParticipants' => $tour->price_box_min_participants,
-            'ctaPrimaryLabel' => $tour->price_box_cta_primary_label,
-            'ctaSecondaryLabel' => $tour->price_box_cta_secondary_label,
         ]);
     }
 
@@ -36,7 +33,6 @@ class PriceBoxData
             'displayedPrice' => $date->price_box_displayed_price,
             'discountBadge' => $date->price_box_discount_badge,
             'label' => $date->price_box_label,
-            'minParticipants' => $date->price_box_min_participants,
         ]);
     }
 
@@ -62,13 +58,9 @@ class PriceBoxData
             'discountText',
             'urgencyText',
             'ratingText',
-            'ctaPrimaryLabel',
-            'ctaSecondaryLabel',
         ] as $field) {
             $data[$field] = self::normalizeString($data[$field] ?? null);
         }
-
-        $data['minParticipants'] = self::normalizeInt($data['minParticipants'] ?? null);
 
         if ($displayedPrice === null && $price !== null) {
             $displayedPrice = self::displayedPrice(
@@ -144,19 +136,6 @@ class PriceBoxData
         $trimmed = trim((string) $value);
 
         return $trimmed !== '' ? $trimmed : null;
-    }
-
-    private static function normalizeInt(mixed $value): ?int
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        if (! is_numeric($value)) {
-            return null;
-        }
-
-        return (int) $value;
     }
 
     private static function hasAnyValue(array $data): bool

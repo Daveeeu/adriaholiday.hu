@@ -14,7 +14,7 @@ use App\Support\Tour\TourExtraPriceUnit;
 use Illuminate\Support\Collection;
 
 /**
- * Persists the "child" records of a Tour (dates with their extras, partner bonuses, program days,
+ * Persists the "child" records of a Tour (dates with their extras, program days,
  * gallery items, price items, departure places). Dates are updated in place because bookings
  * reference them; the other records use a replace-and-recreate strategy.
  *
@@ -31,7 +31,6 @@ class TourContentSyncService
         'price_box_displayed_price',
         'price_box_discount_badge',
         'price_box_label',
-        'price_box_min_participants',
         'capacity',
         'status',
         'departure_place_ids',
@@ -239,19 +238,6 @@ class TourContentSyncService
                 ],
             ])
             ->all());
-    }
-
-    public function syncPartnerBonuses(Tour $tour, array $bonuses): void
-    {
-        $tour->partnerBonuses()->withTrashed()->get()->each->forceDelete();
-
-        foreach ($bonuses as $bonus) {
-            $tour->partnerBonuses()->make([
-                'sort_order' => $bonus['sort_order'] ?? 0,
-                'label' => $bonus['label'],
-                'value' => $bonus['value'] ?? null,
-            ])->forceFill(['legacy_id' => $bonus['legacy_id'] ?? null])->save();
-        }
     }
 
     public function syncProgramDays(Tour $tour, array $programDays): void

@@ -105,7 +105,6 @@ class LegacyCatalogImportCommand extends Command
             'gallery_images' => $valid->reduce(fn (array $carry, array $row): array => collect($row['gallery_images'])->reduce(fn (array $sum, int $count, string $collection): array => [...$sum, $collection => ($sum[$collection] ?? 0) + $count], $carry), []),
             'media_files' => $valid->sum('media_files'),
             'media_mirrored' => $valid->sum('media_mirrored'),
-            'partner_bonuses' => $valid->sum('partner_bonuses'),
             'unmapped' => collect(['offer_groups', 'regions', 'region_groups'])
                 ->mapWithKeys(fn (string $key): array => [$key => $valid->flatMap(fn (array $row): array => $row['unmapped'][$key])->countBy()->sortDesc()->all()])
                 ->all(),
@@ -133,7 +132,6 @@ class LegacyCatalogImportCommand extends Command
             ['Departure place links (new places)', sprintf('%d (%d)', $summary['departure_place_links'], count($summary['new_departure_places']))],
             ['Gallery images', collect($summary['gallery_images'])->map(fn (int $count, string $collection): string => "{$collection}: {$count}")->implode(', ')],
             ['Media files (mirrored)', "{$summary['media_files']} ({$summary['media_mirrored']})"],
-            ['Partner bonuses', $summary['partner_bonuses']],
             ['Without category / country', "{$summary['without_category']} / {$summary['without_country']}"],
             ['Orphan tours', count($summary['orphan_tours'])],
         ]);

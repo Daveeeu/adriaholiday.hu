@@ -60,7 +60,6 @@ class PortfolioOfferController extends Controller
                 'region',
                 'bookingFormTemplate.templateFields.field',
                 'dates' => fn ($query) => $query->upcoming()->withSeatsHeld()->with('extras'),
-                'partnerBonuses',
                 'departurePlaces' => fn ($query) => $query->where('active', true)->orderBy('name'),
                 'media',
                 'priceItems',

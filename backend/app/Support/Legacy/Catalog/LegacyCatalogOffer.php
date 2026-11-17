@@ -25,7 +25,6 @@ final readonly class LegacyCatalogOffer
      * @param  array<int, CatalogPlace>  $departurePlaces  every place of the offer's dates
      * @param  array<string, array<int, CatalogImage>>  $galleries  keyed by TourGalleryItem collection
      * @param  array{legacy_id: int, offer_groups: array<int, string>, regions: array<int, string>, region_groups: array<int, string>, xml_city: string|null}  $taxonomy
-     * @param  array<int, array{legacy_id: int, sort_order: int, label: string, value: string}>  $partnerBonuses
      * @param  array<int, string>  $notes  mapping decisions worth a look
      */
     public function __construct(
@@ -40,16 +39,13 @@ final readonly class LegacyCatalogOffer
         public array $dates,
         public array $departurePlaces,
         public array $galleries,
-        public ?string $sliderImageUrl,
-        public ?string $programPdfUrl,
         public array $taxonomy,
-        public array $partnerBonuses,
         public array $notes,
     ) {}
 
     /**
-     * Every legacy file the offer shows (gallery images, slider image, PDF,
-     * images in its texts), which the media mirror copies to our storage.
+     * Every legacy file the offer shows (gallery images and images in its
+     * texts), which the media mirror copies to our storage.
      *
      * @return array<int, string>
      */
@@ -58,7 +54,6 @@ final readonly class LegacyCatalogOffer
         return collect($this->galleries)
             ->flatten(1)
             ->pluck('url')
-            ->push($this->sliderImageUrl, $this->programPdfUrl)
             ->merge(collect($this->html)->flatMap(fn (?string $html): array => LegacyHtmlContent::imageUrls($html, $legacyBaseUrl)))
             ->filter()
             ->unique()

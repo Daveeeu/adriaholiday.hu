@@ -94,8 +94,6 @@ class LegacyCatalogImportTest extends TestCase
         $this->assertStringStartsWith('<h2>Svájc</h2><p><strong>1. nap:</strong> <em>indulás</em></p><table border="1">', $tour->program);
         $this->assertStringNotContainsString('script', $tour->program);
         $this->assertMatchesRegularExpression('~<img src="/storage/\d+/terkep\.jpg" alt="Térkép" loading="lazy">~', $tour->program);
-        $this->assertMatchesRegularExpression('~^/storage/\d+/111000122345\.jpg$~', $tour->slider_image);
-        $this->assertMatchesRegularExpression('~^/storage/\d+/svajc\.pdf$~', $tour->program_pdf_path);
 
         // The original JSON is kept word for word, its script included.
         $record = LegacyImportRecord::query()->where('legacy_id', 10)->firstOrFail();
@@ -144,7 +142,6 @@ class LegacyCatalogImportTest extends TestCase
         $this->assertSame([601], $tour->galleryCollection(TourGalleryItem::INTRO)->pluck('legacy_image_id')->all());
         $this->assertSame(0, $tour->galleryCollection(TourGalleryItem::PROGRAM)->count());
 
-        $this->assertSame([['Alap bónuszok: 1–10 fő', '0 ajándék hely']], $tour->partnerBonuses()->get()->map(fn ($bonus): array => [$bonus->label, $bonus->value])->all());
         $this->assertSame(0, $tour->programDays()->count());
     }
 
@@ -275,7 +272,8 @@ class LegacyCatalogImportTest extends TestCase
         $this->artisan('adria:catalog:import', ['file' => self::CATALOG]);
 
         $this->assertSame(LegacyMediaFile::FAILED, LegacyMediaFile::query()->forUrl($missing)->value('status'));
-        $this->assertSame(6, LegacyMediaFile::query()->where('status', LegacyMediaFile::MIRRORED)->count());
+        // The gallery and text images; the legacy slider image and program PDF are not needed.
+        $this->assertSame(4, LegacyMediaFile::query()->where('status', LegacyMediaFile::MIRRORED)->count());
         $tour = Tour::query()->where('legacy_id', 10)->firstOrFail();
         $this->assertSame([501, 502], $tour->galleryItems()->pluck('legacy_image_id')->all());
         $this->assertContains("Gallery image not mirrored: {$missing}", LegacyImportRecord::query()->where('legacy_id', 10)->firstOrFail()->messages);
@@ -283,7 +281,7 @@ class LegacyCatalogImportTest extends TestCase
         // Mirroring again downloads only what is still missing.
         $this->missingLegacyImages = [];
         $this->artisan('adria:catalog:media', ['file' => self::CATALOG])->assertSuccessful();
-        $this->assertSame(7, LegacyMediaFile::query()->where('status', LegacyMediaFile::MIRRORED)->count());
+        $this->assertSame(5, LegacyMediaFile::query()->where('status', LegacyMediaFile::MIRRORED)->count());
     }
 
     public function test_verification_passes_after_the_import_and_catches_a_difference(): void

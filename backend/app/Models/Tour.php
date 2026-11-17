@@ -32,14 +32,10 @@ class Tour extends Model implements HasMedia
         'featured_order',
         'featured_subtitle',
         'recommended',
-        'partner_offer',
-        'image_offer',
         'xml_enabled',
         'partner_xml',
         'route_stops',
         'couponable',
-        'slider_image_enabled',
-        'slider_text_enabled',
         'name',
         'subtitle',
         'seo_name',
@@ -47,13 +43,8 @@ class Tour extends Model implements HasMedia
         'seo_title',
         'seo_description',
         'seo_robots',
-        'action1',
-        'action2',
         'list_description',
         'short_description',
-        'program_pdf_path',
-        'program_pdf_file',
-        'slider_image',
         'program_before',
         'program',
         'program_footer',
@@ -68,13 +59,8 @@ class Tour extends Model implements HasMedia
         'gallery_title',
         'gallery_subtitle',
         'region_id',
-        'homepage_offer_id',
-        'group_id',
-        'seasonal_group_id',
-        'fit_id',
         'program_type_id',
         'travel_mode_id',
-        'difficulty_id',
         'booking_form_template_id',
         'catering',
         'accommodation',
@@ -92,9 +78,6 @@ class Tour extends Model implements HasMedia
         'price_box_discount_text',
         'price_box_urgency_text',
         'price_box_rating_text',
-        'price_box_min_participants',
-        'price_box_cta_primary_label',
-        'price_box_cta_secondary_label',
         'displayed_price',
         'slider_text',
         'search_keywords',
@@ -108,18 +91,13 @@ class Tour extends Model implements HasMedia
         'featured' => 'boolean',
         'featured_order' => 'integer',
         'recommended' => 'boolean',
-        'partner_offer' => 'boolean',
-        'image_offer' => 'boolean',
         'xml_enabled' => 'boolean',
         'partner_xml' => 'array',
         'route_stops' => 'array',
         'couponable' => 'boolean',
-        'slider_image_enabled' => 'boolean',
-        'slider_text_enabled' => 'boolean',
         'seo_auto_generate' => 'boolean',
         'price' => 'decimal:2',
         'price_box_price' => 'decimal:2',
-        'price_box_min_participants' => 'integer',
         'country_ids' => 'array',
         'tag_ids' => 'array',
         'category_ids' => 'array',
@@ -170,7 +148,7 @@ class Tour extends Model implements HasMedia
     public function scopeAdminSearch(Builder $query, string $search): void
     {
         $query->where(function (Builder $builder) use ($search): void {
-            foreach (['name', 'seo_name', 'action1', 'action2', 'list_description', 'short_description', 'group_id', 'seasonal_group_id', 'fit_id', 'program_type_id', 'travel_mode_id', 'difficulty_id'] as $column) {
+            foreach (['name', 'seo_name', 'list_description', 'short_description', 'program_type_id', 'travel_mode_id'] as $column) {
                 $builder->orWhere($column, 'like', "%{$search}%");
             }
 
@@ -193,11 +171,6 @@ class Tour extends Model implements HasMedia
         return $this->belongsTo(Region::class);
     }
 
-    public function homepageOffer(): BelongsTo
-    {
-        return $this->belongsTo(HomepageOffer::class);
-    }
-
     public function bookingFormTemplate(): BelongsTo
     {
         return $this->belongsTo(BookingFormTemplate::class);
@@ -214,11 +187,6 @@ class Tour extends Model implements HasMedia
     public function dates(): HasMany
     {
         return $this->hasMany(TourDate::class)->orderBy('sort_order')->orderBy('id');
-    }
-
-    public function partnerBonuses(): HasMany
-    {
-        return $this->hasMany(TourPartnerBonus::class);
     }
 
     public function programDays(): HasMany

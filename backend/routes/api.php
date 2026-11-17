@@ -210,27 +210,20 @@ Route::prefix('admin')
         Route::prefix('select-options')->group(function (): void {
             Route::get('regions', [SelectOptionController::class, 'regions']);
             Route::get('partner-xml', [SelectOptionController::class, 'partnerXml']);
-            Route::get('groups', [SelectOptionController::class, 'groups']);
-            Route::get('offer-groups', [SelectOptionController::class, 'offerGroups']);
-            Route::get('homepage-offers', [SelectOptionController::class, 'homepageOffers']);
             Route::get('locations', [SelectOptionController::class, 'locations']);
             Route::get('galleries', [SelectOptionController::class, 'galleries']);
             Route::get('departure-places', [SelectOptionController::class, 'departurePlaces']);
             Route::get('apartment-types', [SelectOptionController::class, 'apartmentTypes']);
             Route::get('countries', [SelectOptionController::class, 'countries']);
-            Route::get('fits', [SelectOptionController::class, 'fits']);
             Route::get('program-types', [SelectOptionController::class, 'programTypes']);
             Route::get('travel-modes', [SelectOptionController::class, 'travelModes']);
-            Route::get('difficulties', [SelectOptionController::class, 'difficulties']);
             Route::get('blog-categories', [SelectOptionController::class, 'blogCategories']);
             Route::get('blog-tags', [SelectOptionController::class, 'blogTags']);
         });
 
         Route::post('countries', [TourReferenceOptionController::class, 'storeCountry']);
-        Route::post('fits', [TourReferenceOptionController::class, 'storeFit']);
         Route::post('program-types', [TourReferenceOptionController::class, 'storeProgramType']);
         Route::post('travel-modes', [TourReferenceOptionController::class, 'storeTravelMode']);
-        Route::post('difficulties', [TourReferenceOptionController::class, 'storeDifficulty']);
 
         Route::post('tours/search-keyword-suggestions', [TourController::class, 'searchKeywordSuggestions']);
         Route::get('tours/route-stop-places', [TourRouteMapController::class, 'places'])->middleware('throttle:30,1');

@@ -34,7 +34,7 @@ use Illuminate\Support\Str;
 
 class TourController extends Controller
 {
-    private const LIST_SORT_COLUMNS = ['id', 'sort_order', 'name', 'region_id', 'group_id', 'seasonal_group_id', 'displayed_price', 'active', 'featured', 'image_offer', 'xml_enabled', 'created_at', 'updated_at'];
+    private const LIST_SORT_COLUMNS = ['id', 'sort_order', 'name', 'region_id', 'displayed_price', 'active', 'featured', 'xml_enabled', 'created_at', 'updated_at'];
 
     use RespondsWithPagination;
 
@@ -53,19 +53,17 @@ class TourController extends Controller
 
     public function index(Request $request)
     {
-        $query = Tour::query()->with(['region', 'homepageOffer.translations', 'bookingFormTemplate.templateFields.field', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']);
+        $query = Tour::query()->with(['region', 'bookingFormTemplate.templateFields.field', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']);
 
         if ($search = trim((string) $request->query('search', ''))) {
             $query->adminSearch($search);
         }
 
-        foreach (['region_id' => 'regionId', 'group_id' => 'groupId', 'seasonal_group_id' => 'seasonalGroupId'] as $field => $camelField) {
-            if (($value = $request->query($field, $request->query($camelField))) !== null && $value !== '') {
-                $query->where($field, $value);
-            }
+        if (($regionId = $request->query('region_id', $request->query('regionId'))) !== null && $regionId !== '') {
+            $query->where('region_id', $regionId);
         }
 
-        foreach (['featured' => 'featured', 'active' => 'active', 'image_offer' => 'imageOffer', 'xml_enabled' => 'xmlEnabled'] as $field => $camelField) {
+        foreach (['featured' => 'featured', 'active' => 'active', 'xml_enabled' => 'xmlEnabled'] as $field => $camelField) {
             $value = $request->query($field, $request->query($camelField));
             if ($value !== null && $value !== '' && $value !== 'all') {
                 $query->where($field, filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? false);
@@ -121,23 +119,14 @@ class TourController extends Controller
                 'featured' => $validated['featured'] ?? false,
                 'featured_order' => $validated['featured_order'] ?? null,
                 'recommended' => $validated['recommended'] ?? false,
-                'partner_offer' => $validated['partner_offer'] ?? false,
-                'image_offer' => $validated['image_offer'] ?? false,
                 'xml_enabled' => $validated['xml_enabled'] ?? false,
                 'couponable' => $validated['couponable'] ?? false,
-                'slider_image_enabled' => $validated['slider_image_enabled'] ?? false,
-                'slider_text_enabled' => $validated['slider_text_enabled'] ?? false,
                 'name' => $validated['name'],
                 'subtitle' => $validated['subtitle'] ?? null,
                 'seo_name' => $validated['seo_name'] ?? null,
                 'seo_auto_generate' => $validated['seo_auto_generate'] ?? false,
-                'action1' => $validated['action1'] ?? null,
-                'action2' => $validated['action2'] ?? null,
                 'list_description' => RichTextSanitizer::sanitize($validated['list_description'] ?? null),
                 'short_description' => RichTextSanitizer::sanitize($validated['short_description'] ?? null),
-                'program_pdf_path' => $validated['program_pdf_path'] ?? null,
-                'program_pdf_file' => $validated['program_pdf_file'] ?? null,
-                'slider_image' => $validated['slider_image'] ?? null,
                 'program_before' => RichTextSanitizer::sanitize($validated['program_before'] ?? null),
                 'program' => RichTextSanitizer::sanitize($validated['program'] ?? null),
                 'teaser' => RichTextSanitizer::sanitize($validated['teaser'] ?? null),
@@ -151,13 +140,8 @@ class TourController extends Controller
                 'gallery_title' => $validated['gallery_title'] ?? null,
                 'gallery_subtitle' => $validated['gallery_subtitle'] ?? null,
                 'region_id' => $validated['region_id'] ?? null,
-                'homepage_offer_id' => $validated['homepage_offer_id'] ?? null,
-                'group_id' => $validated['group_id'] ?? null,
-                'seasonal_group_id' => $validated['seasonal_group_id'] ?? null,
-                'fit_id' => $validated['fit_id'] ?? null,
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
-                'difficulty_id' => $validated['difficulty_id'] ?? null,
                 ...$this->optionalContent($validated),
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
@@ -170,7 +154,6 @@ class TourController extends Controller
             ], $priceBox));
 
             $this->tourContentSync->syncDates($tour, $validated['dates'] ?? []);
-            $this->tourContentSync->syncPartnerBonuses($tour, $validated['partner_bonuses'] ?? []);
             $this->tourContentSync->syncProgramDays($tour, $validated['program_days'] ?? []);
             $this->tourContentSync->syncGalleryItems($tour, $validated['gallery'] ?? []);
             $this->tourContentSync->syncPriceItems($tour, $validated['price_items'] ?? []);
@@ -201,23 +184,14 @@ class TourController extends Controller
                 'featured' => $validated['featured'] ?? false,
                 'featured_order' => $validated['featured_order'] ?? null,
                 'recommended' => $validated['recommended'] ?? false,
-                'partner_offer' => $validated['partner_offer'] ?? false,
-                'image_offer' => $validated['image_offer'] ?? false,
                 'xml_enabled' => $validated['xml_enabled'] ?? false,
                 'couponable' => $validated['couponable'] ?? false,
-                'slider_image_enabled' => $validated['slider_image_enabled'] ?? false,
-                'slider_text_enabled' => $validated['slider_text_enabled'] ?? false,
                 'name' => $validated['name'],
                 'subtitle' => $validated['subtitle'] ?? null,
                 'seo_name' => $validated['seo_name'] ?? null,
                 'seo_auto_generate' => $validated['seo_auto_generate'] ?? false,
-                'action1' => $validated['action1'] ?? null,
-                'action2' => $validated['action2'] ?? null,
                 'list_description' => RichTextSanitizer::sanitize($validated['list_description'] ?? null),
                 'short_description' => RichTextSanitizer::sanitize($validated['short_description'] ?? null),
-                'program_pdf_path' => $validated['program_pdf_path'] ?? null,
-                'program_pdf_file' => $validated['program_pdf_file'] ?? null,
-                'slider_image' => $validated['slider_image'] ?? null,
                 'program_before' => RichTextSanitizer::sanitize($validated['program_before'] ?? null),
                 'program' => RichTextSanitizer::sanitize($validated['program'] ?? null),
                 'teaser' => RichTextSanitizer::sanitize($validated['teaser'] ?? null),
@@ -231,13 +205,8 @@ class TourController extends Controller
                 'gallery_title' => $validated['gallery_title'] ?? null,
                 'gallery_subtitle' => $validated['gallery_subtitle'] ?? null,
                 'region_id' => $validated['region_id'] ?? null,
-                'homepage_offer_id' => $validated['homepage_offer_id'] ?? null,
-                'group_id' => $validated['group_id'] ?? null,
-                'seasonal_group_id' => $validated['seasonal_group_id'] ?? null,
-                'fit_id' => $validated['fit_id'] ?? null,
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
-                'difficulty_id' => $validated['difficulty_id'] ?? null,
                 ...$this->optionalContent($validated),
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
@@ -250,7 +219,6 @@ class TourController extends Controller
             ], $priceBox));
 
             $this->tourContentSync->syncDates($tour, $validated['dates'] ?? []);
-            $this->tourContentSync->syncPartnerBonuses($tour, $validated['partner_bonuses'] ?? []);
             $this->tourContentSync->syncProgramDays($tour, $validated['program_days'] ?? []);
             $this->tourContentSync->syncGalleryItems($tour, $validated['gallery'] ?? []);
             $this->tourContentSync->syncPriceItems($tour, $validated['price_items'] ?? []);
@@ -289,7 +257,7 @@ class TourController extends Controller
 
         PublicContentCache::bump(PublicContentCache::OFFERS, PublicContentCache::PORTFOLIO_FILTERS, PublicContentCache::PORTFOLIO_COUNTRIES, PublicContentCache::SITEMAP);
 
-        return new TourResource($tour->refresh()->load(['homepageOffer.translations', 'departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
+        return new TourResource($tour->refresh()->load(['departurePlaces', 'media', 'priceItems', 'programDays', 'galleryItems.media']));
     }
 
     public function duplicate(Tour $tour)
@@ -304,7 +272,7 @@ class TourController extends Controller
             $copy->sort_order = $tour->sort_order + 1;
             $copy->push();
 
-            $tour->load(['dates.extras', 'partnerBonuses', 'departurePlaces', 'priceItems', 'programDays', 'galleryItems.media']);
+            $tour->load(['dates.extras', 'departurePlaces', 'priceItems', 'programDays', 'galleryItems.media']);
             $this->tourContentSync->syncDates($copy, $tour->dates->map(fn (TourDate $date): array => [
                 'start_date' => $date->start_date?->toDateString(),
                 'end_date' => $date->end_date?->toDateString(),
@@ -314,7 +282,6 @@ class TourController extends Controller
                 'price_box_discount_badge' => $date->price_box_discount_badge,
                 'price_box_original_price' => $date->price_box_original_price,
                 'price_box_label' => $date->price_box_label,
-                'price_box_min_participants' => $date->price_box_min_participants,
                 'capacity' => $date->capacity,
                 'status' => $date->status,
                 'departure_place_ids' => $date->departure_place_ids,
@@ -331,11 +298,6 @@ class TourController extends Controller
                     'choices' => $extra->choices ?? [],
                     'sort_order' => $extra->sort_order,
                 ])->all(),
-            ])->all());
-            $this->tourContentSync->syncPartnerBonuses($copy, $tour->partnerBonuses->map(fn ($bonus): array => [
-                'sort_order' => $bonus->sort_order,
-                'label' => $bonus->label,
-                'value' => $bonus->value,
             ])->all());
             $this->tourContentSync->syncProgramDays($copy, $tour->programDays->map(fn (TourProgramDay $day): array => [
                 'sort_order' => $day->sort_order,
@@ -459,10 +421,8 @@ class TourController extends Controller
     {
         return new TourDetailResource($tour->load([
             'region',
-            'homepageOffer.translations',
             'bookingFormTemplate.templateFields.field',
             'dates' => fn ($dates) => $dates->withSeatsHeld()->with('extras'),
-            'partnerBonuses',
             'departurePlaces',
             'media',
             'priceItems',
@@ -487,9 +447,6 @@ class TourController extends Controller
             'price_box_discount_text' => $validated['price_box_discount_text'] ?? null,
             'price_box_urgency_text' => $validated['price_box_urgency_text'] ?? null,
             'price_box_rating_text' => $validated['price_box_rating_text'] ?? null,
-            'price_box_min_participants' => $validated['price_box_min_participants'] ?? null,
-            'price_box_cta_primary_label' => $validated['price_box_cta_primary_label'] ?? null,
-            'price_box_cta_secondary_label' => $validated['price_box_cta_secondary_label'] ?? null,
         ];
     }
 }

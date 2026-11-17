@@ -98,7 +98,7 @@ class LegacyCatalogOfferMapperTest extends TestCase
         $this->assertContains('Date 12446: the resort fee is listed as an extra too; it is charged once.', $mapped->notes);
     }
 
-    public function test_every_file_the_offer_shows_is_listed_for_the_media_mirror(): void
+    public function test_every_image_the_offer_shows_is_listed_for_the_media_mirror(): void
     {
         $offer = (new LegacyCatalogOfferMapper)->map($this->offer(10), Carbon::parse('2026-10-15'));
 
@@ -107,8 +107,6 @@ class LegacyCatalogOfferMapperTest extends TestCase
             'https://adriaholiday.hu/uploads/gallery/77/502.jpg',
             'https://adriaholiday.hu/uploads/gallery/77/503.jpg',
             'https://adriaholiday.hu/uploads/gallery/6303/601.jpg',
-            'https://adriaholiday.hu/files/111000122345.jpg',
-            'https://adriaholiday.hu/files/svajc.pdf',
             'https://adriaholiday.hu/files/svajc/terkep.jpg',
         ], $offer->mediaUrls('https://adriaholiday.hu'));
     }

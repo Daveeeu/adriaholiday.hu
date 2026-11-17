@@ -91,7 +91,6 @@ final class LegacyAdminExportCatalogAdapter
             'featured' => $record->listValue('Kiemelt?') === 'Kiemelt',
             'featured_position' => $base['featured_position'] ?? null,
             'coupon_enabled' => (bool) ($base['coupon_enabled'] ?? false),
-            'image_offer' => $record->listValue('Képes ajánlat?') === 'Képes ajánlat',
             'xml_enabled' => $record->listValue('XML-ben szerepel?') === 'Igen' || isset($record->raw['fields']['xml']['travel_type']),
             'listed_in_admin_offer_list' => ! $partner,
             'listed_in_partner_offer_list' => $partner,
@@ -114,7 +113,6 @@ final class LegacyAdminExportCatalogAdapter
             'slider_image' => $export->fileUrl($record->field('slide_image')),
             'program_pdf' => $export->fileUrl($record->selected('program_pdf')),
             'departures' => $this->departures($export->relation('roundtrip_offer_dates', $legacyId), $boardingPoints),
-            'partner_bonuses' => $base['partner_bonuses'] ?? [],
             'extra_fields' => array_filter([
                 'seo[title]' => $record->field('seo.title'),
                 'seo[description]' => $record->field('seo.description'),

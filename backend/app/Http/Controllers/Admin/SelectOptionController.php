@@ -7,13 +7,10 @@ use App\Models\ApartmentType;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
 use App\Models\Gallery;
-use App\Models\HomepageOffer;
 use App\Models\Location;
 use App\Models\Region;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use Illuminate\Http\Request;
 
 class SelectOptionController extends Controller
@@ -69,66 +66,6 @@ class SelectOptionController extends Controller
             ->orderBy('name')
             ->get(['id', 'name'])
             ->map(fn (Region $region): array => $this->option($region->id, $region->name))
-            ->all();
-    }
-
-    public function groups(Request $request): array
-    {
-        return TourRegionGroup::query()
-            ->where('active', true)
-            ->where('type', 'group')
-            ->whereNotNull('seo_name')
-            ->when($search = trim((string) $request->query('search', '')), function ($query) use ($search): void {
-                $query->where(function ($builder) use ($search): void {
-                    $builder->where('name', 'like', "%{$search}%")
-                        ->orWhere('seo_name', 'like', "%{$search}%");
-                });
-            })
-            ->orderBy('name')
-            ->get(['seo_name', 'name'])
-            ->map(fn (TourRegionGroup $group): array => $this->option($group->seo_name, $group->name))
-            ->all();
-    }
-
-    public function offerGroups(Request $request): array
-    {
-        return TourSeasonalGroup::query()
-            ->where('active', true)
-            ->whereNotNull('seo_name')
-            ->when($search = trim((string) $request->query('search', '')), function ($query) use ($search): void {
-                $query->where(function ($builder) use ($search): void {
-                    $builder->where('name', 'like', "%{$search}%")
-                        ->orWhere('seo_name', 'like', "%{$search}%");
-                });
-            })
-            ->orderBy('name')
-            ->get(['seo_name', 'name'])
-            ->map(fn (TourSeasonalGroup $group): array => $this->option($group->seo_name, $group->name))
-            ->all();
-    }
-
-    public function homepageOffers(Request $request): array
-    {
-        return HomepageOffer::query()
-            ->where('active', true)
-            ->with('translations')
-            ->when($search = trim((string) $request->query('search', '')), function ($query) use ($search): void {
-                $query->where(function ($builder) use ($search): void {
-                    $builder->where('image_title', 'like', "%{$search}%")
-                        ->orWhere('link', 'like', "%{$search}%")
-                        ->orWhereHas('translations', function ($translationQuery) use ($search): void {
-                            $translationQuery->where('name', 'like', "%{$search}%")
-                                ->orWhere('seo_name', 'like', "%{$search}%");
-                        });
-                });
-            })
-            ->orderBy('sort_order')
-            ->orderBy('image_title')
-            ->get()
-            ->map(fn (HomepageOffer $offer): array => $this->option(
-                $offer->id,
-                $this->translationLabel($offer->translations, $offer->image_title),
-            ))
             ->all();
     }
 
@@ -249,11 +186,6 @@ class SelectOptionController extends Controller
             ->all();
     }
 
-    public function fits(Request $request): array
-    {
-        return $this->referenceOptions($request, 'fit');
-    }
-
     public function programTypes(Request $request): array
     {
         return $this->referenceOptions($request, 'program-type');
@@ -262,11 +194,6 @@ class SelectOptionController extends Controller
     public function travelModes(Request $request): array
     {
         return $this->referenceOptions($request, 'travel-mode');
-    }
-
-    public function difficulties(Request $request): array
-    {
-        return $this->referenceOptions($request, 'difficulty');
     }
 
     /**

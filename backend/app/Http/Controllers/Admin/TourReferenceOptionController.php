@@ -40,11 +40,6 @@ class TourReferenceOptionController extends Controller
         return $this->store($request, 'country');
     }
 
-    public function storeFit(Request $request): array
-    {
-        return $this->store($request, 'fit');
-    }
-
     public function storeProgramType(Request $request): array
     {
         return $this->store($request, 'program-type');
@@ -53,11 +48,6 @@ class TourReferenceOptionController extends Controller
     public function storeTravelMode(Request $request): array
     {
         return $this->store($request, 'travel-mode');
-    }
-
-    public function storeDifficulty(Request $request): array
-    {
-        return $this->store($request, 'difficulty');
     }
 
     private function store(Request $request, string $type): array
