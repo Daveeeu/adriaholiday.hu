@@ -774,8 +774,8 @@
                 },
                 {
                   "name": "Sürgető felirat",
-                  "description": "Sürgető, figyelemfelkeltő rövid szöveg (pl. „18 fő érdeklődött az elmúlt 72 órában”). Csak valós adatot írj!",
-                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), az árdoboz alatt."
+                  "description": "Sürgető, figyelemfelkeltő rövid szöveg (pl. „18 fő érdeklődött az elmúlt 72 órában”). Csak valós adatot írj! Ha a kiválasztott időpontra már csak a férőhelyek legfeljebb 35%-a szabad, a felugró üzenet helyette magától azt írja ki, hány hely maradt.",
+                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), kis felugró üzenetként a képernyő bal alsó sarkában, pár másodperccel az oldal megnyitása után."
                 },
                 {
                   "name": "Értékelés szöveg",

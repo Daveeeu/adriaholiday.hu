@@ -50,10 +50,12 @@ class PortfolioOfferDetailResource extends TourDetailResource
         };
 
         // A date's own stay, shown as the tour's is (null: the tour's); a
-        // date with no seat left is sold out. Only the free seats are public.
+        // date with no seat left is sold out. Only the free seats are public,
+        // and whether they are running low, not the capacity.
         $data['dates'] = array_map(fn (array $date, TourDate $model): array => [
             ...Arr::except($date, ['xmlEnabled', 'partnerXml', 'capacity', 'seatsHeld']),
             'status' => $model->effectiveStatus(),
+            'seatsRunningLow' => $model->seatsRunningLow(),
             'accommodation' => TourMeta::accommodationLabel($date['accommodation'] ?? null),
             'catering' => TourMeta::mealsLabel($date['catering'] ?? null),
         ], $data['dates'] ?? [], $tour->dates->values()->all());

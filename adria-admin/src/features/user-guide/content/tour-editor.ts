@@ -231,8 +231,8 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Sürgető felirat',
-          'Sürgető, figyelemfelkeltő rövid szöveg (pl. „18 fő érdeklődött az elmúlt 72 órában”). Csak valós adatot írj!',
-          `${TOUR_PAGE}, az árdoboz alatt.`,
+          'Sürgető, figyelemfelkeltő rövid szöveg (pl. „18 fő érdeklődött az elmúlt 72 órában”). Csak valós adatot írj! Ha a kiválasztott időpontra már csak a férőhelyek legfeljebb 35%-a szabad, a felugró üzenet helyette magától azt írja ki, hány hely maradt.',
+          `${TOUR_PAGE}, kis felugró üzenetként a képernyő bal alsó sarkában, pár másodperccel az oldal megnyitása után.`,
         ),
         field(
           'Értékelés szöveg',

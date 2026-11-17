@@ -19,6 +19,9 @@ class TourDate extends Model
     /** @use HasFactory<TourDateFactory> */
     use HasFactory, LogsModelActivity, SoftDeletes;
 
+    /** The share of a date's capacity at or below which its seats are running low. */
+    public const RUNNING_LOW_SHARE = 0.35;
+
     protected $fillable = [
         'tour_id',
         'sort_order',
@@ -98,6 +101,17 @@ class TourDate extends Model
     public function freeSeats(): ?int
     {
         return $this->capacity === null ? null : max(0, $this->capacity - $this->seatsHeld());
+    }
+
+    /**
+     * Whether so few seats are left that the trip page urges the visitor to
+     * book: some, but at most RUNNING_LOW_SHARE of the capacity.
+     */
+    public function seatsRunningLow(): bool
+    {
+        $free = $this->freeSeats();
+
+        return $free !== null && $free > 0 && $free <= $this->capacity * self::RUNNING_LOW_SHARE;
     }
 
     /**

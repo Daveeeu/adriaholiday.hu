@@ -65,6 +65,8 @@ export type PortfolioOfferDetailDate = {
   status?: string | null;
   /** Seats still free on the date; null when it has no limit. */
   freeSeats?: number | null;
+  /** Some seats are left, at most 35% of the date's capacity. */
+  seatsRunningLow?: boolean;
   /** The trip price share of the deposit if booked today (100: paid in full). */
   depositPercent?: number | null;
   /** A booking whose trip price is below this is paid in full. */

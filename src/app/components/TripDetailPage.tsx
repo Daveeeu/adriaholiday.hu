@@ -54,6 +54,8 @@ import GroupInquirySection, {
 } from "../booking/GroupInquirySection";
 import { parseDiscountPercent } from "../content/discount-badge";
 import { responsiveImage } from "../lib/responsiveImage";
+import { urgencyMessage } from "../lib/urgencyMessage";
+import UrgencyToast from "./UrgencyToast";
 
 interface TripDetailPageProps {
   trip: TripDetail;
@@ -173,6 +175,13 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
   return (
     <div className="min-h-screen bg-[#f5f9fc]">
+      <UrgencyToast
+        message={urgencyMessage({
+          seatsRunningLow: selectedDate.seatsRunningLow,
+          seatsLeft: selectedSeats,
+          urgencyText: priceBox?.urgencyText,
+        })}
+      />
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img
@@ -223,12 +232,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
               <Pill>
                 <Star className="w-4 h-4 text-[#00c389]" />
                 {priceBox.ratingText}
-              </Pill>
-            ) : null}
-            {priceBox?.urgencyText ? (
-              <Pill>
-                <Users className="w-4 h-4 text-[#00c389]" />
-                {priceBox.urgencyText}
               </Pill>
             ) : null}
           </div>
