@@ -120,6 +120,14 @@ class PartnerXmlFeedTest extends TestCase
         $this->assertSame('leírás', (string) $descriptions[3]['name']);
         $this->assertSame($expected, (string) $descriptions[3]);
 
+        // A place without a fee of its own on the tour charges its general fee, as a booking does.
+        $szeged = TourDeparturePlace::factory()->create(['name' => 'Szeged', 'active' => true, 'fee' => 3000]);
+        $this->tour->departurePlaces()->attach($szeged->id, ['fee' => null]);
+        $this->tour->touch();
+        $tour = $this->feed('/xmltravel')->tour[0];
+        $this->assertStringContainsString('Szeged (+3.000 Ft/fő)</p>', (string) $tour->description->paragraph[3]);
+        $this->assertContains(['Felszállási díj-Szeged', '0', '3', 'Ft', 'fő', '2.8', '3000'], $this->prices($tour->travel[0]->hotelandroomgroup->flight->roomtype[5]));
+
         // A tour boarding nowhere keeps its description as it is; saving the tour refreshes the feeds.
         $this->tour->departurePlaces()->detach();
         $this->tour->touch();

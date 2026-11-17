@@ -93,7 +93,7 @@ final class PartnerXmlCatalog
             'description' => (string) $tour->list_description,
             'departure_places' => $places->map(fn (TourDeparturePlace $place): array => [
                 'name' => (string) $place->name,
-                'fee' => (float) ($place->pivot->fee ?? 0),
+                'fee' => $place->tourFee(),
                 'currency' => $currency,
             ])->all(),
             'catering' => trim((string) $tour->catering),
@@ -141,7 +141,8 @@ final class PartnerXmlCatalog
             ...$date->offeredDeparturePlaces($places)->map(fn (TourDeparturePlace $place): array => [
                 'kind' => self::DEPARTURE_PLACE,
                 'name' => 'Felszállási díj-'.$place->name,
-                'price' => (float) ($place->pivot->fee ?? 0),
+                // The fee a booking charges: the tour's own, else the place's general one.
+                'price' => $place->tourFee(),
                 'currency' => $currency,
                 'unit' => 'fő',
                 'per_booking' => false,
