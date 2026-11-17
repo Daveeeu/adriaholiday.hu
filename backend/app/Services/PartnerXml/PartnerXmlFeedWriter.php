@@ -2,6 +2,7 @@
 
 namespace App\Services\PartnerXml;
 
+use App\Support\HufPrice;
 use App\Support\PartnerXml\PartnerXmlSettings;
 use XMLWriter;
 
@@ -16,6 +17,7 @@ use XMLWriter;
  *
  * @phpstan-import-type FeedTour from PartnerXmlCatalog
  * @phpstan-import-type FeedDate from PartnerXmlCatalog
+ * @phpstan-import-type FeedDeparturePlace from PartnerXmlCatalog
  */
 final class PartnerXmlFeedWriter
 {
@@ -345,7 +347,9 @@ final class PartnerXmlFeedWriter
     }
 
     /**
-     * The description blocks each feed lists, in its order.
+     * The description blocks each feed lists, in its order. The description
+     * ends with the places the bus boards at, as not every partner shows the
+     * departure place fees among the prices.
      *
      * @param  FeedTour  $tour
      * @return array<string, string>
@@ -356,7 +360,7 @@ final class PartnerXmlFeedWriter
             'A program' => $tour['program'],
             'fakultatív program' => $tour['optional_programs'],
             'belépők' => $tour['tickets'],
-            'leírás' => $tour['description'],
+            'leírás' => $tour['description'].$this->departurePlaces($tour['departure_places']),
         ];
 
         return match ($feed) {
@@ -364,6 +368,33 @@ final class PartnerXmlFeedWriter
             PartnerXmlFeed::General => [...$paragraphs, 'elhelyezés' => ''],
             default => $paragraphs,
         };
+    }
+
+    /**
+     * "Felszállási helyek:" and each place on its own line, with its fee
+     * when it has one; nothing for a tour without places.
+     *
+     * @param  list<FeedDeparturePlace>  $places
+     */
+    private function departurePlaces(array $places): string
+    {
+        if ($places === []) {
+            return '';
+        }
+
+        $lines = array_map(function (array $place): string {
+            $name = htmlspecialchars($place['name'], ENT_QUOTES);
+
+            if ($place['fee'] <= 0) {
+                return $name;
+            }
+
+            $fee = $place['currency'] === 'Ft' ? HufPrice::amount($place['fee']) : str_replace('.', ',', $this->number($place['fee']));
+
+            return "{$name} (+{$fee} {$place['currency']}/fő)";
+        }, $places);
+
+        return "<p><strong>Felszállási helyek:</strong><br />\n".implode("<br />\n", $lines)."</p>\n";
     }
 
     /**

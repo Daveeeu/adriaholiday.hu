@@ -107,6 +107,25 @@ class PartnerXmlFeedTest extends TestCase
         ], $this->prices($party));
     }
 
+    public function test_every_feed_lists_the_departure_places_at_the_end_of_the_description(): void
+    {
+        $this->tour->update(['list_description' => '<p>Rövid leírás</p>']);
+        $expected = "<p>Rövid leírás</p><p><strong>Felszállási helyek:</strong><br />\nBudapest BOK Csarnok<br />\nMiskolc, Centrum (+2.000 Ft/fő)</p>\n";
+
+        foreach (['/xmltravel', '/xmltravelmax', '/xmlcesys'] as $path) {
+            $this->assertSame($expected, (string) $this->feed($path)->tour[0]->description->paragraph[3], $path);
+        }
+
+        $descriptions = $this->feed('/xml')->traveloffer[0]->descriptions->description;
+        $this->assertSame('leírás', (string) $descriptions[3]['name']);
+        $this->assertSame($expected, (string) $descriptions[3]);
+
+        // A tour boarding nowhere keeps its description as it is; saving the tour refreshes the feeds.
+        $this->tour->departurePlaces()->detach();
+        $this->tour->touch();
+        $this->assertSame('<p>Rövid leírás</p>', (string) $this->feed('/xmltravel')->tour[0]->description->paragraph[3]);
+    }
+
     public function test_the_travelmax_feed_adds_its_categories_the_travel_insurance_and_the_accommodation_description(): void
     {
         $tour = $this->feed('/xmltravelmax')->tour[0];

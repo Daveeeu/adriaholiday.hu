@@ -26,7 +26,8 @@ use Illuminate\Support\Str;
  *
  * @phpstan-type PriceItem array{kind: string, name: string, price: float, currency: string, unit: string, per_booking: bool, mandatory: bool}
  * @phpstan-type FeedDate array{id: int, start: string, end: string, days: int, nights: int, board: string, accommodation: string, transport: string, price: float, sale_price: float|null, label: string, currency: string, price_items: list<PriceItem>, cesys_accommodation: string, cesys_room: string}
- * @phpstan-type FeedTour array{id: int, title: string, settings: array<string, mixed>, country_id: string, country_name: string, place: string, program: string, optional_programs: string, tickets: string, description: string, catering: string, accommodation: string, photos: list<array{url: string, primary: bool}>, dates: list<FeedDate>}
+ * @phpstan-type FeedDeparturePlace array{name: string, fee: float, currency: string}
+ * @phpstan-type FeedTour array{id: int, title: string, settings: array<string, mixed>, country_id: string, country_name: string, place: string, program: string, optional_programs: string, tickets: string, description: string, departure_places: list<FeedDeparturePlace>, catering: string, accommodation: string, photos: list<array{url: string, primary: bool}>, dates: list<FeedDate>}
  */
 final class PartnerXmlCatalog
 {
@@ -76,6 +77,7 @@ final class PartnerXmlCatalog
         $countryName = $settings['country_name'] ?? $tour->region?->name ?? '';
         $mainImageId = $tour->mainImage()?->id;
         $places = $tour->departurePlaces->where('active', true)->values();
+        $currency = $this->currencyLabel($tour->price_box_currency ?: TourExtraCurrency::HUF);
 
         return [
             'id' => $this->id($tour->legacy_id, $tour->id),
@@ -89,6 +91,11 @@ final class PartnerXmlCatalog
             'optional_programs' => (string) $tour->optional_programs,
             'tickets' => (string) $tour->tickets,
             'description' => (string) $tour->list_description,
+            'departure_places' => $places->map(fn (TourDeparturePlace $place): array => [
+                'name' => (string) $place->name,
+                'fee' => (float) ($place->pivot->fee ?? 0),
+                'currency' => $currency,
+            ])->all(),
             'catering' => trim((string) $tour->catering),
             'accommodation' => trim((string) $tour->accommodation),
             'photos' => $tour->galleryItems
