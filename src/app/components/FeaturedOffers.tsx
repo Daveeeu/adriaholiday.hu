@@ -8,6 +8,10 @@ import {
   buildFeaturedOfferFilters,
 } from "../content/featured-offer-filters";
 import {
+  FEATURED_OFFERS_SHOWN,
+  rotateFeaturedOffers,
+} from "../content/featured-offer-rotation";
+import {
   fetchPortfolioFeaturedTours,
   type PortfolioFeaturedTour,
 } from "../content/portfolio-featured-tours-api";
@@ -17,9 +21,11 @@ import {
 } from "../content/portfolio-offer-card-model";
 import FeaturedCard from "./FeaturedCard";
 import MotionLink from "./MotionLink";
-import FeaturedHeroCard from "./FeaturedHeroCard";
 
-/** Every featured offer, as on the legacy homepage (the API allows 24). */
+/**
+ * Every featured offer (the API allows 24): the filter chips are built from
+ * all of them, and the homepage shows today's four of each selection.
+ */
 const FEATURED_OFFER_LIMIT = 24;
 
 export default function FeaturedOffers() {
@@ -65,7 +71,11 @@ export default function FeaturedOffers() {
     filters.find((filter) => filter.key === selectedFilterKey) ?? ALL_OFFERS_FILTER;
 
   const filteredOffers = useMemo<UnifiedOfferCardModel[]>(
-    () => (tours ?? []).filter(selectedFilter.matches).map(toUnifiedOfferCardModel),
+    () =>
+      rotateFeaturedOffers(tours ?? [])
+        .filter(selectedFilter.matches)
+        .slice(0, FEATURED_OFFERS_SHOWN)
+        .map(toUnifiedOfferCardModel),
     [selectedFilter, tours],
   );
 
@@ -147,7 +157,7 @@ export default function FeaturedOffers() {
             {filteredOffers.length > 0 ? (
               <motion.div
                 key={selectedFilter.key}
-                className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+                className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -14 }}
@@ -156,17 +166,12 @@ export default function FeaturedOffers() {
                 {filteredOffers.map((offer, index) => (
                   <motion.div
                     key={offer.id}
-                    className={index === 0 ? "md:col-span-2 lg:col-span-2" : undefined}
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.45, delay: index * 0.06 }}
                   >
-                    {index === 0 ? (
-                      <FeaturedHeroCard offer={offer} />
-                    ) : (
-                      <FeaturedCard offer={offer} />
-                    )}
+                    <FeaturedCard offer={offer} />
                   </motion.div>
                 ))}
               </motion.div>

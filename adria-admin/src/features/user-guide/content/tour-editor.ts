@@ -692,7 +692,7 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Kiemelt?',
-          'Bekapcsolva az út a főoldal kiemelt ajánlatai között szerepel.',
+          'Bekapcsolva az út a főoldal kiemelt ajánlatai között szerepel. A főoldal egyszerre legfeljebb 4 kiemelt utat mutat, és naponta a következő négyre vált, így minden kiemelt út sorra kerül.',
           'A főoldal kiemelt ajánlatok blokkjában.',
           shown(
             'field-home-featured',
@@ -702,7 +702,7 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Kiemelt sorrend',
-          'A főoldali kiemelt ajánlatok sorrendje (kisebb szám előrébb). Üresen az út a kiemeltek végére kerül.',
+          'A főoldali kiemelt ajánlatok sorrendje (kisebb szám előrébb); a napi váltás is ebben a sorrendben halad. Üresen az út a kiemeltek végére kerül.',
           'A főoldal kiemelt ajánlatok blokkjában.',
           shown(
             'field-home-featured',

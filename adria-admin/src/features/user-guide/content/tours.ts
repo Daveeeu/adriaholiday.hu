@@ -183,11 +183,7 @@ export const toursChapter: GuideChapter = {
           'Egy régió vagy csoport szerkesztő panelje a leírásokkal, a galériával és a beutazási feltételek linkjével.',
         ),
         fields('Mezők', [
-          field(
-            'Név',
-            'A régió vagy csoport megnevezése.',
-            ADMIN_ONLY,
-          ),
+          field('Név', 'A régió vagy csoport megnevezése.', ADMIN_ONLY),
           field(
             'Típus',
             '„Régió”: földrajzi terület. „Csoport”: tematikus csoport (pl. adventi utak).',
@@ -378,7 +374,7 @@ export const toursChapter: GuideChapter = {
           'Ha egy elmentett sorrendű listára új út kerül (pl. új utat sorolsz a kategóriába), az a lista végén jelenik meg „Új a listán” jelöléssel, amíg el nem helyezed és nem mented. A látogató saját rendezése (Legolcsóbb, Legmelegebb) mindig felülírja a kézi sorrendet.',
         ),
         tip(
-          'A főoldali „Kiemelt utak” blokk sorrendje a Sorrend listánként oldalon (vagy utanként a „Kiemelt sorrend” mezőben) állítható; a csempék egymás közti sorrendje a Főoldali ajánlatok oldalon.',
+          'A főoldali „Kiemelt utak” blokk sorrendje a Sorrend listánként oldalon (vagy utanként a „Kiemelt sorrend” mezőben) állítható. A blokk egyszerre legfeljebb 4 utat mutat, és naponta ebben a sorrendben a következő négyre vált. A csempék egymás közti sorrendje a Főoldali ajánlatok oldalon.',
         ),
       ],
     },
