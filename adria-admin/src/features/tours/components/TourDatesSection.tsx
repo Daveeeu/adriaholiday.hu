@@ -225,24 +225,6 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
             <TourDateCapacityField form={form} index={index} storedDates={tour?.dates} />
             <FormField
               control={form.control}
-              name={`dates.${index}.priceBox.minParticipants`}
-              render={({ field: dateField }) => (
-                <FormItem>
-                  <FormLabel>Minimum fő</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      placeholder="1"
-                      {...dateField}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name={`dates.${index}.priceBox.discountBadge`}
               render={({ field: dateField }) => (
                 <FormItem>

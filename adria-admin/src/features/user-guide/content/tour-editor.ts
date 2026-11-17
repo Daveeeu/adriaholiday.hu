@@ -239,11 +239,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'Rövid értékelés (pl. „4.9/5 utasértékelés”).',
           `${TOUR_PAGE}, az árdobozban.`,
         ),
-        field(
-          'Minimum fő',
-          'A csoport tervezett minimális létszáma. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.',
-          ADMIN_ONLY,
-        ),
       ]),
       tip(
         'Akciónál (pl. előfoglalási árnál) egyszerűbb időpontonként megadni az „Eredeti ár (áthúzva)” értéket az Időpontok szekcióban: így csak az adott indulásnál látszik áthúzott ár.',
@@ -616,11 +611,6 @@ export const tourEditorTopics: GuideTopic[] = [
           'Maximum létszám',
           'Hány utast visz ez az indulás. Alatta látod, hány fő foglalt már rá és hány hely szabad. A foglalt létszámot a nem lemondott, nem lejárt foglalások utasai adják, a weboldalon, az irodában és importtal rögzítettek egyaránt. A szabad helyet nem kell beírni, a rendszer számolja. A mező nem állítható a már foglalt létszám alá; üresen hagyva nincs létszámkorlát.',
           `${TOUR_PAGE}: a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt.`,
-        ),
-        field(
-          'Minimum fő',
-          'Az indulás tervezett minimális létszáma, belső tájékoztatásként.',
-          ADMIN_ONLY,
         ),
         field(
           'Megjelenített ár',

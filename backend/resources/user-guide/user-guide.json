@@ -781,11 +781,6 @@
                   "name": "Értékelés szöveg",
                   "description": "Rövid értékelés (pl. „4.9/5 utasértékelés”).",
                   "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), az árdobozban."
-                },
-                {
-                  "name": "Minimum fő",
-                  "description": "A csoport tervezett minimális létszáma. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 }
               ]
             },
@@ -1225,11 +1220,6 @@
                   "name": "Maximum létszám",
                   "description": "Hány utast visz ez az indulás. Alatta látod, hány fő foglalt már rá és hány hely szabad. A foglalt létszámot a nem lemondott, nem lejárt foglalások utasai adják, a weboldalon, az irodában és importtal rögzítettek egyaránt. A szabad helyet nem kell beírni, a rendszer számolja. A mező nem állítható a már foglalt létszám alá; üresen hagyva nincs létszámkorlát.",
                   "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>): a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt."
-                },
-                {
-                  "name": "Minimum fő",
-                  "description": "Az indulás tervezett minimális létszáma, belső tájékoztatásként.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 },
                 {
                   "name": "Megjelenített ár",

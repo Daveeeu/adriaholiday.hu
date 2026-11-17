@@ -386,19 +386,6 @@ export function TourForm({ form, tour }: TourFormProps) {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="priceBox.minParticipants"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Minimum fő</FormLabel>
-                <FormControl>
-                  <Input type="number" min={0} placeholder="1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
       </TourPanelSection>
 

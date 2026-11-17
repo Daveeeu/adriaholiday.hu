@@ -23,9 +23,9 @@ Csak az admin saját listája, szűrői és részletnézete mutatja őket, illet
 | Nehézségi szint | `tours.difficulty_id` |
 | Kiemelés csempéző ajánlat | `tours.partner_offer` |
 | Partner bónuszok | `tour_partner_bonuses`, `TourPartnerBonus` |
+| Minimum fő (árdoboz és időpontok; elrejtve 2026-11-17 délután) | `tours.price_box_min_participants`, `tour_dates.price_box_min_participants` |
 
 Nem törlendő:
-- **Minimum fő:** kell.
 - **Kiemelés a pozitív kiemelt ajánlatok között (`recommended`):** a kiemelt ajánlatok sorrendjét adja.
 
 Törlés előtt:
@@ -39,5 +39,5 @@ Törlés lépései:
 - [ ] Régiócsoport- és szezonális csoport-kezelő admin oldalak és API-k (ha a csoportok mennek).
 - [ ] Legacy importerek mezőleképezése.
 - [ ] Migráció az oszlopok és a `tour_partner_bonuses` tábla törlésére.
-- [ ] Publikus típus: `partnerBonuses`, `ctaPrimaryLabel`, `ctaSecondaryLabel` (`src/app/content/portfolio-offer-detail-api.ts`).
+- [ ] Publikus típus: `partnerBonuses`, `ctaPrimaryLabel`, `ctaSecondaryLabel`, `minParticipants` (`src/app/content/portfolio-offer-detail-api.ts`).
 - [ ] Felhasználói útmutató képernyőképei (`tour-form-*`): frissítés.
