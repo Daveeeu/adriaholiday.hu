@@ -551,7 +551,7 @@
                 "Név és webcím – név, alcím, webcím, keresőben megjelenő szöveg",
                 "Galéria és média – képek",
                 "Árdoboz – az árdoboz tartalma",
-                "Tartalmi blokkok – leírások, program, keresési kulcsszavak, PDF",
+                "Tartalmi blokkok – leírások, program, keresési kulcsszavak",
                 "Program napok – napokra bontott program",
                 "Útvonal térkép – a megállókból rajzolt térkép",
                 "Szállás és ellátás",
@@ -559,8 +559,7 @@
                 "Szűrők és kapcsolatok – régió, kategória, ország, közlekedés, felszállási helyek",
                 "Időpontok – indulások, időpontonkénti ár, felárak",
                 "Partnerportálok – partnerportálok feedjei",
-                "Foglalási űrlap beállításai – melyik űrlapsablont használja a foglalás",
-                "Partner bónuszok"
+                "Foglalási űrlap beállításai – melyik űrlapsablont használja a foglalás"
               ],
               "title": "A szekciók sorrendben"
             },
@@ -613,16 +612,6 @@
                   "name": "Kuponozható?",
                   "description": "Bekapcsolva a foglaláskor beváltható kuponkód (pl. a hírlevél-feliratkozás kuponja) erre az útra. Kikapcsolva a kupon nem csökkenti az árat.",
                   "appearsAt": "A foglalási űrlap kupon mezőjénél és az árösszesítőben."
-                },
-                {
-                  "name": "Képes ajánlat?",
-                  "description": "A régi rendszerből átvett jelölő; a listában szűrni lehet rá.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
-                },
-                {
-                  "name": "Slider kép / Slider szöveg",
-                  "description": "A régi rendszer sliderjéhez tartozó jelölők; az új weboldal nem használja őket.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 }
               ]
             }
@@ -640,7 +629,7 @@
               "image": {
                 "file": "tour-form-seo",
                 "alt": "Név és webcím szekció",
-                "caption": "A név, alcím, akciók, Webcím, Keresőben megjelenő cím, robots és Keresőben megjelenő leírás mezői."
+                "caption": "A név, alcím, Webcím, Keresőben megjelenő cím, robots és Keresőben megjelenő leírás mezői."
               }
             },
             {
@@ -656,11 +645,6 @@
                   "name": "Alcím",
                   "description": "Opcionális kiegészítő cím a név alatt.",
                   "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), a név alatt."
-                },
-                {
-                  "name": "Akció 1 / Akció 2",
-                  "description": "Belső akciócímkék (pl. „Előfoglalás”). Az admin listában és keresőjében látszanak.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 },
                 {
                   "name": "Webcím",
@@ -784,9 +768,9 @@
                   "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>) az árdobozban és a foglalás árösszesítőjében."
                 },
                 {
-                  "name": "Kedvezmény szöveg",
-                  "description": "A kedvezmény neve (pl. „Előfoglalási kedvezmény”). Ezzel a névvel jelenik meg a foglalás árösszesítőjében.",
-                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), az árdobozban és a foglalás árösszesítőjében."
+                  "name": "Ár alatti szöveg",
+                  "description": "Rövid szöveg közvetlenül az ár alatt (pl. „Előfoglalási kedvezmény”); ha ki van töltve, mindig megjelenik. Ha a kedvezmény címke százalékot ad, ezzel a névvel jelenik meg a kedvezmény a foglalás árösszesítőjében.",
+                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), az árdobozban az ár alatt, és a foglalás árösszesítőjében."
                 },
                 {
                   "name": "Sürgető felirat",
@@ -799,18 +783,8 @@
                   "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), az árdobozban."
                 },
                 {
-                  "name": "Minimum fő / Maximum fő",
-                  "description": "A csoport tervezett minimális és maximális létszáma.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
-                },
-                {
-                  "name": "Szabad férőhely / Kapacitás",
-                  "description": "Tájékoztató férőhely adatok.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
-                },
-                {
-                  "name": "Elsődleges / Másodlagos gomb felirata",
-                  "description": "A régi árdoboz gombfeliratai. A weboldal gombjainak szövegét az oldal maga határozza meg.",
+                  "name": "Minimum fő",
+                  "description": "A csoport tervezett minimális létszáma. A férőhelyet nem itt, hanem időpontonként, az Időpontok szekció „Maximum létszám” mezőjében adod meg.",
                   "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 }
               ]
@@ -833,7 +807,7 @@
               "image": {
                 "file": "tour-form-content",
                 "alt": "Tartalmi blokkok szekció",
-                "caption": "A leírások, a keresési kulcsszavak és a program PDF mezői."
+                "caption": "A leírások és a keresési kulcsszavak mezői."
               }
             },
             {
@@ -854,16 +828,6 @@
                   "name": "Keresési kulcsszavak",
                   "description": "Azok a szavak, amelyekre a weboldal keresője megtalálja az utat (pl. „Róma, Vatikán, Firenze”). Enterrel vagy vesszővel adhatsz hozzá újat, az X-szel törölhetsz. A „Javaslat az ismertető szövegből” gomb kigyűjti a szövegben szereplő helyszíneket. Az út neve, országai és régiója magától is kereshető.",
                   "appearsAt": "A weboldal keresőjében (fejléc kereső és ajánlatkereső). Egész szavakra keres: a „Róma” megtalálja az utat, a „Románia” nem."
-                },
-                {
-                  "name": "Program PDF / Program PDF fájlnév",
-                  "description": "A régi rendszerből átvett PDF program adatai. A weboldal letölthető programját a rendszer mindig a fenti szövegekből és a programból generálja, ezt a mezőt nem használja.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
-                },
-                {
-                  "name": "Slider kép",
-                  "description": "A régi slider nézet képe; ha nincs borítókép, ez lesz az út fő képe.",
-                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>), tartalék főképként."
                 },
                 {
                   "name": "Program előtti szöveg",
@@ -1146,21 +1110,6 @@
                   "appearsAt": "A listák szűrőiben, az út adatai között és a partnerportálok adataiban."
                 },
                 {
-                  "name": "Csoportok",
-                  "description": "Tematikus csoport (Körutazások › Régiók és csoportok).",
-                  "appearsAt": "Az admin szűrőiben és az út besorolásában."
-                },
-                {
-                  "name": "Ajánlat csoportok",
-                  "description": "Szezonális ajánlat csoport (Körutazások › Szezonális ajánlat csoportok).",
-                  "appearsAt": "Az admin szűrőiben."
-                },
-                {
-                  "name": "Főoldali ajánlat",
-                  "description": "Az a főoldali ajánlatblokk (Tartalom › Főoldali ajánlatok), amelyhez az út tartozik.",
-                  "appearsAt": "A publikus listában az itt kiválasztott főoldali blokk alatt."
-                },
-                {
                   "name": "Kiemelt?",
                   "description": "Bekapcsolva az út a főoldal kiemelt ajánlatai között szerepel.",
                   "appearsAt": "A főoldal kiemelt ajánlatok blokkjában."
@@ -1171,9 +1120,9 @@
                   "appearsAt": "A főoldal kiemelt ajánlatok blokkjában."
                 },
                 {
-                  "name": "Kiemelés a pozitív kiemelt ajánlatok között / Kiemelés csempéző ajánlat",
-                  "description": "A régi rendszer kiemelési jelölői.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
+                  "name": "Kiemelés a pozitív kiemelt ajánlatok között",
+                  "description": "Bekapcsolva az út előrébb kerül a kiemelt ajánlatok között (a „Kiemelt?” utak után).",
+                  "appearsAt": "Az ajánlatlista és a kategóriaoldalak tetején kiemelt három ajánlat kiválasztásában."
                 },
                 {
                   "name": "Kategóriák",
@@ -1181,9 +1130,9 @@
                   "appearsAt": "A kategóriaoldalakon (adriaholiday.hu/kategoriak/<kategória>), az ajánlatkártyák címkéiben és az „Ezek is érdekelhetnek” ajánlóban."
                 },
                 {
-                  "name": "FIT / Program típus / Nehézségi szint",
+                  "name": "Program típus",
                   "description": "Az út jellegének besorolása.",
-                  "appearsAt": "Az ajánlatkártyákon és a szűrőkben, ahol a weboldal használja."
+                  "appearsAt": "Az ajánlatkártyákon."
                 },
                 {
                   "name": "Közlekedés",
@@ -1269,7 +1218,17 @@
                 },
                 {
                   "name": "Státusz",
-                  "description": "„Elérhető” vagy „Betelt”. Jelenleg csak az adminban tájékoztat: a weboldal minden jövőbeli időpontot foglalhatóként kínál, a státusztól függetlenül.",
+                  "description": "„Elérhető” vagy „Betelt”. A „Betelt” időpont a weboldalon „Betelt” felirattal látszik, nem foglalható, és kimarad a partnerportálok adataiból. Ha az időpont férőhelyei elfogytak, a rendszer magától betöltnek mutatja, akkor is, ha itt „Elérhető” áll.",
+                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>) az időpontválasztóban, valamint a partnerportálok adataiban."
+                },
+                {
+                  "name": "Maximum létszám",
+                  "description": "Hány utast visz ez az indulás. Alatta látod, hány fő foglalt már rá és hány hely szabad. A foglalt létszámot a nem lemondott, nem lejárt foglalások utasai adják, a weboldalon, az irodában és importtal rögzítettek egyaránt. A szabad helyet nem kell beírni, a rendszer számolja. A mező nem állítható a már foglalt létszám alá; üresen hagyva nincs létszámkorlát.",
+                  "appearsAt": "Az utazás saját oldalán (adriaholiday.hu/ajanlat/<Webcím>): a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt."
+                },
+                {
+                  "name": "Minimum fő",
+                  "description": "Az indulás tervezett minimális létszáma, belső tájékoztatásként.",
                   "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 },
                 {
@@ -1345,7 +1304,7 @@
             },
             {
               "type": "warning",
-              "text": "A betelt időpontot a „Betelt” státusz nem veszi le a weboldalról. Ha egy indulásra már nem lehet foglalni, töröld az időpontot. A rá érkezett foglalások megmaradnak, de a foglalás adatlapján ezután nem látszik a foglalt időpont – ezért törlés előtt jegyezd fel vagy ellenőrizd őket a Foglalások menüben."
+              "text": "Ha egy indulásra már nem lehet foglalni, ne töröld az időpontot, hanem állítsd „Betelt” státuszra. A törölt időpont foglalásai megmaradnak, de a foglalás adatlapján ezután nem látszik a foglalt időpont, és a férőhelyek sem számolhatók tovább."
             }
           ]
         },
@@ -1420,11 +1379,6 @@
                   "name": "Foglalási űrlap sablon",
                   "description": "Pl. „Buszos út”, „Repülős út” vagy egyedi sablon. Csak aktív sablon választható. Üresen az alapértelmezett sablon érvényes. A sablonokat a Foglalások › Foglalási űrlap sablonok oldalon lehet szerkeszteni.",
                   "appearsAt": "A weboldal foglalási űrlapján: mely adatokat kell megadni (pl. útlevélszám, születési dátum)."
-                },
-                {
-                  "name": "Partner bónuszok (Bónusz neve, Érték)",
-                  "description": "A partnereknek járó bónuszok listája és értéke.",
-                  "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 }
               ]
             }
@@ -1487,7 +1441,7 @@
         {
           "id": "tour-region-groups",
           "title": "Régiók és csoportok (körutazás)",
-          "summary": "A körutazások besorolására szolgáló régiók (pl. Erdély, Balkán) és csoportok (pl. Klasszikus körutak). Az út szerkesztőjében a „Régiók” és „Csoportok” mezőben választhatók ki.",
+          "summary": "A körutazások besorolására szolgáló régiók (pl. Erdély, Balkán) és csoportok (pl. Klasszikus körutak). Az út szerkesztőjében a „Régiók” mezőben választható ki a régió; a csoportokat az új weboldal nem használja.",
           "path": "/tours/region-groups",
           "menu": "Körutazások › Régiók és csoportok",
           "access": "Körutazások megtekintése (a módosításhoz szerkesztési jog is kell)",
@@ -3172,10 +3126,6 @@
                   "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 }
               ]
-            },
-            {
-              "type": "paragraph",
-              "text": "A körutazás szerkesztőben a „Főoldali ajánlat” mezőben választható ki, melyik csempéhez tartozik egy út."
             }
           ]
         },
@@ -4373,7 +4323,7 @@
                 },
                 {
                   "name": "Új jelszó / Jelszó megerősítése",
-                  "description": "Új felhasználónál kötelező, meglévőnél csak akkor töltsd ki, ha jelszót cserélsz.",
+                  "description": "Új felhasználónál hagyd üresen: a munkatárs meghívó e-mailt kap, és maga állítja be a jelszavát. Meglévőnél csak akkor töltsd ki, ha jelszót cserélsz.",
                   "appearsAt": "Csak az adminban, a publikus oldalon nem látszik."
                 },
                 {
@@ -4402,9 +4352,10 @@
               "type": "steps",
               "items": [
                 "Kattints az „Új felhasználó” gombra.",
-                "Add meg a nevet, az e-mail címet és egy ideiglenes jelszót.",
+                "Add meg a nevet és az e-mail címet; a jelszó mezőket hagyd üresen.",
                 "Jelöld be a munkakörnek megfelelő szerepkört (pl. Sales, Marketing).",
-                "Ments, majd juttasd el a belépési adatokat biztonságos módon a munkatársnak, és kérd meg, hogy változtassa meg a jelszavát."
+                "Ments: a munkatárs e-mailben kap egy linket, amellyel 7 napon belül beállítja a jelszavát.",
+                "Ha a link lejárt vagy elveszett, a listában a levél ikonnal küldhetsz újat; a korábbi link ekkor érvénytelen lesz."
               ],
               "title": "Új munkatárs felvétele"
             },
