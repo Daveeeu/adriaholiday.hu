@@ -329,6 +329,19 @@ class AdminBookingTest extends TestCase
         $this->assertNotEmpty($response->json('data'));
     }
 
+    public function test_a_booking_keeps_showing_its_tour_once_the_tour_is_deleted(): void
+    {
+        $this->actingAsBookingAdmin(['bookings.viewAny', 'bookings.view']);
+
+        $tour = Tour::factory()->create(['name' => 'Régi adventi út', 'active' => false]);
+        $booking = Booking::factory()->create(['booking_type' => 'tour_booking', 'tour_id' => $tour->id]);
+        $tour->delete();
+
+        $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}")
+            ->assertOk()
+            ->assertJsonPath('data.tour.name', 'Régi adventi út');
+    }
+
     public function test_bookings_export_requires_permission(): void
     {
         $user = User::factory()->create();

@@ -292,7 +292,7 @@ final class LegacyCatalogImportService
         return [
             'with_tour' => Booking::query()->whereNotNull('tour_id')->count(),
             'with_date' => Booking::query()->whereNotNull('tour_date_id')->count(),
-            'tour_missing' => Booking::query()->whereNotNull('tour_id')->whereDoesntHave('tour', fn ($query) => $query->withTrashed())->count(),
+            'tour_missing' => Booking::query()->whereNotNull('tour_id')->whereDoesntHave('tour')->count(),
             'date_missing' => Booking::query()->whereNotNull('tour_date_id')->whereDoesntHave('tourDate')->count(),
         ];
     }

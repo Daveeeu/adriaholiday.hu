@@ -118,9 +118,13 @@ class Booking extends Model
         return $this->belongsTo(Apartment::class);
     }
 
+    /**
+     * The booked tour, also once the tour is deleted: a booking keeps showing
+     * what was booked.
+     */
     public function tour(): BelongsTo
     {
-        return $this->belongsTo(Tour::class);
+        return $this->belongsTo(Tour::class)->withTrashed();
     }
 
     /**
