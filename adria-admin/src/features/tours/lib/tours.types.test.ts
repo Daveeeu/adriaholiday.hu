@@ -14,11 +14,66 @@ describe('mapTourToFormValues', () => {
   });
 
   it("keeps a date's maximum passengers through loading and saving", () => {
-    const date = { id: '186', startDate: '2026-12-19', endDate: '2026-12-21', price: '', status: 'available' as const, capacity: 50 };
+    const date = {
+      id: '186',
+      startDate: '2026-12-19',
+      endDate: '2026-12-21',
+      price: '',
+      status: 'available' as const,
+      capacity: 50,
+    };
     const values = mapTourToFormValues({ dates: [date] });
 
     expect(values.dates[0].capacity).toBe('50');
     expect(normalizeTourFormValues(values).dates[0].capacity).toBe('50');
+  });
+});
+
+describe('partner settings', () => {
+  const defaults = {
+    country_id: 6,
+    country_name: 'Horvátország',
+    accommodation_name: 'Hotel',
+    city: 'Horvátország',
+    insurance_value: 540,
+    accommodation_description_travelmax: 'Medencés szálloda',
+    travel_types: { general: 1, travelgate: 1, cesys: 1, travelmax: [1] },
+  };
+
+  it("fills the empty ones with the tour's defaults and keeps the stored ones", () => {
+    const values = mapTourToFormValues({
+      partnerXml: {
+        ...defaults,
+        country_id: null,
+        country_name: null,
+        accommodation_name: null,
+        city: 'Makarska',
+        insurance_value: null,
+        accommodation_description_travelmax: null,
+        travel_types: {
+          general: null,
+          travelgate: 2,
+          cesys: null,
+          travelmax: [],
+        },
+      },
+      partnerXmlDefaults: defaults,
+    });
+
+    expect(values.partnerXml).toEqual({
+      country_id: '6',
+      country_name: 'Horvátország',
+      accommodation_name: 'Hotel',
+      city: 'Makarska',
+      insurance_value: '540',
+      accommodation_description_travelmax: 'Medencés szálloda',
+      travel_types: {
+        general: '1',
+        travelgate: '2',
+        cesys: '1',
+        travelmax: ['1'],
+      },
+    });
   });
 });
 
@@ -35,21 +90,40 @@ describe('normalizeTourFormValues', () => {
   });
 
   it('drops a gallery row the user added but chose no image for', () => {
-    const values = { ...mapTourToFormValues(), gallery: [galleryRow(''), galleryRow('4573')] };
+    const values = {
+      ...mapTourToFormValues(),
+      gallery: [galleryRow(''), galleryRow('4573')],
+    };
 
-    expect(normalizeTourFormValues(values).gallery.map((item) => item.mediaId)).toEqual(['4573']);
+    expect(
+      normalizeTourFormValues(values).gallery.map((item) => item.mediaId),
+    ).toEqual(['4573']);
   });
 
   it('drops empty price items but keeps the filled ones', () => {
     const values = {
       ...mapTourToFormValues(),
       priceItems: [
-        { clientId: 'a', type: 'included' as const, text: '  ', sortOrder: 1, active: true },
-        { clientId: 'b', type: 'included' as const, text: 'Szállás 3 éjszakára', sortOrder: 2, active: true },
+        {
+          clientId: 'a',
+          type: 'included' as const,
+          text: '  ',
+          sortOrder: 1,
+          active: true,
+        },
+        {
+          clientId: 'b',
+          type: 'included' as const,
+          text: 'Szállás 3 éjszakára',
+          sortOrder: 2,
+          active: true,
+        },
       ],
     };
 
-    expect(normalizeTourFormValues(values).priceItems.map((item) => item.text)).toEqual(['Szállás 3 éjszakára']);
+    expect(
+      normalizeTourFormValues(values).priceItems.map((item) => item.text),
+    ).toEqual(['Szállás 3 éjszakára']);
   });
 
   it('keeps a partly filled program day so the server can say what is missing', () => {
@@ -65,8 +139,13 @@ describe('normalizeTourFormValues', () => {
       badges: [],
       active: true,
     };
-    const values = { ...mapTourToFormValues(), programDays: [day, { ...day, clientId: 'day-2', description: '' }] };
+    const values = {
+      ...mapTourToFormValues(),
+      programDays: [day, { ...day, clientId: 'day-2', description: '' }],
+    };
 
-    expect(normalizeTourFormValues(values).programDays.map((item) => item.clientId)).toEqual(['day-1']);
+    expect(
+      normalizeTourFormValues(values).programDays.map((item) => item.clientId),
+    ).toEqual(['day-1']);
   });
 });

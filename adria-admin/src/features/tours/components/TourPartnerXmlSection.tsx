@@ -49,6 +49,14 @@ export function TourPartnerXmlSection({ form }: TourPartnerXmlSectionProps) {
         amelyeknél az időpont saját „XML-ben szerepel” jelölése is be van
         kapcsolva.
       </p>
+      <p className="text-sm text-muted-foreground">
+        Az üres mezőket az út adataiból töltjük ki: régió és ország az út
+        régiójából, szállás a „Szállás” mezőből (a csillagok nélkül), város a
+        szállás megállójából vagy az országból, biztosítás a foglalási
+        beállításokból, a Travelmax szállásleírás a „Szállás információ”
+        mezőből, utazástípus: körutazás. Amíg nem írod át őket, az út adataival
+        együtt változnak; új útnál az első mentés után jelennek meg.
+      </p>
 
       <div className="grid gap-4 md:grid-cols-2">
         <FormField

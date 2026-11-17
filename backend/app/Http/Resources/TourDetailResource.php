@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\PartnerXml\PartnerXmlDefaults;
 use App\Support\PartnerXml\PartnerXmlSettings;
 use Illuminate\Http\Request;
 
@@ -14,6 +15,8 @@ class TourDetailResource extends TourResource
             'dates' => TourDateResource::collection($this->dates)->resolve(),
             // Admin only (the public offer leaves it out).
             'partnerXml' => PartnerXmlSettings::normalize($this->partner_xml),
+            // Admin only: what each empty partner setting follows from the tour.
+            'partnerXmlDefaults' => PartnerXmlDefaults::for($this->resource),
             'departurePlaces' => TourDeparturePlaceResource::collection($this->departurePlaces)->resolve(),
             'priceItems' => TourPriceItemResource::collection($this->priceItems)->resolve(),
             'galleryTitle' => $this->gallery_title ? trim((string) $this->gallery_title) : null,

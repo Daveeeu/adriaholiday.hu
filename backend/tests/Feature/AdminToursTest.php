@@ -512,6 +512,38 @@ class AdminToursTest extends TestCase
         $this->assertNotSame($firstDay->id, $newDay?->id);
     }
 
+    public function test_partner_settings_left_at_the_tour_defaults_keep_following_the_tour(): void
+    {
+        $this->actingAsTourAdmin();
+
+        $tour = Tour::factory()->create([
+            'region_id' => Region::factory()->create(['name' => 'Horvátország'])->id,
+            'accommodation' => 'Hotel***',
+            'accommodation_info' => 'Medencés szálloda',
+            'partner_xml' => null,
+        ]);
+
+        $defaults = $this->getJson("/api/admin/tours/{$tour->id}")
+            ->assertOk()
+            ->assertJsonPath('data.partnerXmlDefaults.accommodation_name', 'Hotel')
+            ->assertJsonPath('data.partnerXmlDefaults.country_id', 6)
+            ->json('data.partnerXmlDefaults');
+
+        // The editor shows the defaults; the office changes only the city.
+        $this->patchJson("/api/admin/tours/{$tour->id}", $this->payload([
+            'seo_name' => 'horvat-tengerpart',
+            'region_id' => $tour->region_id,
+            'accommodation' => 'Apartman',
+            'partnerXml' => [...$defaults, 'city' => 'Makarska', 'accommodation_description_travelmax' => '<p>Medencés szálloda</p>'],
+        ]))->assertOk()
+            ->assertJsonPath('data.partnerXml.city', 'Makarska')
+            ->assertJsonPath('data.partnerXml.accommodation_name', null)
+            ->assertJsonPath('data.partnerXml.accommodation_description_travelmax', null)
+            ->assertJsonPath('data.partnerXml.travel_types.travelmax', [])
+            // The accommodation changed with it: the default follows.
+            ->assertJsonPath('data.partnerXmlDefaults.accommodation_name', 'Apartman');
+    }
+
     private function payload(array $overrides = []): array
     {
         return array_merge([

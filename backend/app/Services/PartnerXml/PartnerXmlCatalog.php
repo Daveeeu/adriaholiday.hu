@@ -8,6 +8,7 @@ use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
 use App\Support\Booking\BookingInsuranceSettings;
 use App\Support\Legacy\LegacyBookingOptionRules;
+use App\Support\PartnerXml\PartnerXmlDefaults;
 use App\Support\PartnerXml\PartnerXmlSettings;
 use App\Support\Tour\TourDateStatus;
 use App\Support\Tour\TourExtraChargeRule;
@@ -73,8 +74,8 @@ final class PartnerXmlCatalog
      */
     private function tour(Tour $tour): array
     {
-        $settings = PartnerXmlSettings::normalize($tour->partner_xml);
-        $countryName = $settings['country_name'] ?? $tour->region?->name ?? '';
+        $settings = PartnerXmlDefaults::effective($tour);
+        $countryName = $settings['country_name'] ?? '';
         $mainImageId = $tour->mainImage()?->id;
         $places = $tour->departurePlaces->where('active', true)->values();
         $currency = $this->currencyLabel($tour->price_box_currency ?: TourExtraCurrency::HUF);

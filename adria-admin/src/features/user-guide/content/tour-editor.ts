@@ -961,7 +961,7 @@ export const tourEditorTopics: GuideTopic[] = [
     id: 'tour-partner-xml',
     title: 'Partnerportálok (Travelgate, Travelmax, Cesys)',
     summary:
-      'Amit az út a partnerportálokon mutat. Csak akkor számít, ha az Alapadatoknál a „Partnerportálokon megjelenik?” be van kapcsolva.',
+      'Amit az út a partnerportálokon mutat. Csak akkor számít, ha az Alapadatoknál a „Partnerportálokon megjelenik?” be van kapcsolva. A mezők alapból az út adataiból töltődnek ki; csak azt kell átírni, ami eltér.',
     menu: EDITOR_MENU,
     access: EDITOR_ACCESS,
     blocks: [
@@ -969,6 +969,9 @@ export const tourEditorTopics: GuideTopic[] = [
         'tour-form-partner-xml',
         'Partnerportálok szekció',
         'A partnerportálokon használt régió, utazástípusok, szállás és biztosítás adatai.',
+      ),
+      tip(
+        'Alapértékek: régió és ország az út régiójából (vagy az első országából), szállás neve a „Szállás” mezőből csillagok nélkül, város a szállás megállójából (Útvonal térkép) vagy az országból, biztosítás díja a foglalási beállítások napi díjából, Travelmax szállásleírás a „Szállás információ” mezőből, utazástípus: körutazás (City break program típusnál városlátogatás). Amíg nem írod át, az érték az út adataival együtt változik; az átírt érték marad. Új útnál az első mentés után jelennek meg.',
       ),
       fields('Mezők', [
         field(

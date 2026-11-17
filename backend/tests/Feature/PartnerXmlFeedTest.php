@@ -212,6 +212,34 @@ class PartnerXmlFeedTest extends TestCase
         $this->assertSame(['20', (string) (100000 + $new->id)], $ids);
     }
 
+    public function test_a_tour_without_its_own_partner_settings_is_listed_with_its_own_data(): void
+    {
+        $this->tour->delete();
+        $tour = $this->tour([
+            'legacy_id' => 21,
+            'name' => 'Horvát tengerpart',
+            'region_id' => Region::factory()->create(['name' => 'Horvátország'])->id,
+            'accommodation' => 'Hotel***',
+            'accommodation_info' => 'Medencés szálloda a parton',
+            'partner_xml' => null,
+        ]);
+        $this->date($tour, ['start_date' => '2027-05-26', 'end_date' => '2027-05-30']);
+
+        $offer = $this->feed('/xml')->traveloffer[0];
+
+        $this->assertSame('Horvátország', (string) $offer->destination->country);
+        $this->assertSame('6', (string) $offer->destination->country['id']);
+        $this->assertSame('Horvátország', (string) $offer->destination->city);
+        $this->assertSame('Hotel', (string) $offer->accommodation);
+        $this->assertSame('3', (string) $offer->accommodation['stars']);
+        $this->assertSame('Körutazás', (string) $offer->travel_type);
+        $this->assertSame('540', (string) $offer->prices->insurance_value);
+
+        $travelmax = $this->feed('/xmltravelmax')->tour[0];
+        $this->assertSame('Körutazás', (string) $travelmax->tour_category['name']);
+        $this->assertSame('Medencés szálloda a parton', (string) $travelmax->description->paragraph[4]);
+    }
+
     /**
      * @param  array<string, mixed>  $attributes
      */

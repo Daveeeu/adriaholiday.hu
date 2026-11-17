@@ -20,6 +20,7 @@ use App\Models\TourPriceItem;
 use App\Models\TourProgramDay;
 use App\Services\Tour\TourContentSyncService;
 use App\Services\Tour\TourPdfService;
+use App\Support\PartnerXml\PartnerXmlDefaults;
 use App\Support\PartnerXml\PartnerXmlSettings;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
@@ -176,7 +177,10 @@ class TourController extends Controller
         $validated = $request->validated();
         $priceBox = $this->tourPriceBoxAttributes($validated);
 
-        DB::transaction(function () use ($tour, $validated, $priceBox): void {
+        // The partner settings the editor showed as the tour's defaults.
+        $partnerXmlDefaults = PartnerXmlDefaults::for($tour->loadMissing('region'));
+
+        DB::transaction(function () use ($tour, $validated, $priceBox, $partnerXmlDefaults): void {
             $tour->update(array_merge([
                 'sort_order' => $validated['sort_order'] ?? 0,
                 'active' => $validated['active'] ?? true,
@@ -206,7 +210,7 @@ class TourController extends Controller
                 'region_id' => $validated['region_id'] ?? null,
                 'program_type_id' => $validated['program_type_id'] ?? null,
                 'travel_mode_id' => $validated['travel_mode_id'] ?? null,
-                ...$this->optionalContent($validated),
+                ...$this->optionalContent($validated, $partnerXmlDefaults),
                 'booking_form_template_id' => $validated['booking_form_template_id'] ?? null,
                 'country_ids' => $validated['country_ids'] ?? [],
                 'tag_ids' => $validated['tag_ids'] ?? [],
@@ -385,12 +389,15 @@ class TourController extends Controller
 
     /**
      * The optional content fields the request sent (see
-     * ValidatesOptionalTourContent); left out, the stored values stay.
+     * ValidatesOptionalTourContent); left out, the stored values stay. A
+     * partner setting left at the default the editor showed is stored empty,
+     * so it keeps following the tour.
      *
      * @param  array<string, mixed>  $validated
+     * @param  array<string, mixed>|null  $partnerXmlDefaults  the defaults the editor showed (none for a new tour)
      * @return array<string, mixed>
      */
-    private function optionalContent(array $validated): array
+    private function optionalContent(array $validated, ?array $partnerXmlDefaults = null): array
     {
         $content = Arr::only($validated, ['listed', 'catering', 'catering_info', 'accommodation', 'accommodation_info', 'seo_title', 'seo_description', 'seo_robots']);
 
@@ -405,7 +412,7 @@ class TourController extends Controller
         if (array_key_exists('partner_xml', $validated)) {
             $settings = PartnerXmlSettings::normalize($validated['partner_xml']);
             $settings['accommodation_description_travelmax'] = RichTextSanitizer::sanitize($settings['accommodation_description_travelmax']) ?: null;
-            $content['partner_xml'] = $settings;
+            $content['partner_xml'] = $partnerXmlDefaults !== null ? PartnerXmlDefaults::withoutDefaults($settings, $partnerXmlDefaults) : $settings;
         }
 
         return $content;

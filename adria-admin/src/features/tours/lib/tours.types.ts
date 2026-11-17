@@ -230,6 +230,8 @@ export type Tour = {
   recommended: boolean;
   xmlEnabled: boolean;
   partnerXml?: TourPartnerXml | null;
+  /** What each empty partner setting follows from the tour (saved tours only). */
+  partnerXmlDefaults?: TourPartnerXml | null;
   couponable: boolean;
   name: string;
   subtitle?: string | null;
@@ -484,22 +486,48 @@ function optionalNumber(value: number | null | undefined): string {
   return value != null ? String(value) : '';
 }
 
+/**
+ * The partner settings as the editor shows them: each stored one, else the
+ * default the API derives from the tour (stored empty again on save while
+ * left unchanged, so it keeps following the tour).
+ */
 function partnerXmlFormValues(
   settings?: TourPartnerXml | null,
+  defaults?: TourPartnerXml | null,
 ): TourFormValues['partnerXml'] {
+  const pick = <T>(
+    stored: T | null | undefined,
+    fallback: T | null | undefined,
+  ) => stored ?? fallback ?? null;
+  const types = settings?.travel_types;
+  const defaultTypes = defaults?.travel_types;
+  const travelmax = types?.travelmax?.length
+    ? types.travelmax
+    : (defaultTypes?.travelmax ?? []);
+
   return {
-    country_id: optionalNumber(settings?.country_id),
-    country_name: settings?.country_name ?? '',
-    accommodation_name: settings?.accommodation_name ?? '',
-    city: settings?.city ?? '',
-    insurance_value: optionalNumber(settings?.insurance_value),
+    country_id: optionalNumber(
+      pick(settings?.country_id, defaults?.country_id),
+    ),
+    country_name: pick(settings?.country_name, defaults?.country_name) ?? '',
+    accommodation_name:
+      pick(settings?.accommodation_name, defaults?.accommodation_name) ?? '',
+    city: pick(settings?.city, defaults?.city) ?? '',
+    insurance_value: optionalNumber(
+      pick(settings?.insurance_value, defaults?.insurance_value),
+    ),
     accommodation_description_travelmax:
-      settings?.accommodation_description_travelmax ?? '',
+      pick(
+        settings?.accommodation_description_travelmax,
+        defaults?.accommodation_description_travelmax,
+      ) ?? '',
     travel_types: {
-      general: optionalNumber(settings?.travel_types.general),
-      travelgate: optionalNumber(settings?.travel_types.travelgate),
-      cesys: optionalNumber(settings?.travel_types.cesys),
-      travelmax: (settings?.travel_types.travelmax ?? []).map(String),
+      general: optionalNumber(pick(types?.general, defaultTypes?.general)),
+      travelgate: optionalNumber(
+        pick(types?.travelgate, defaultTypes?.travelgate),
+      ),
+      cesys: optionalNumber(pick(types?.cesys, defaultTypes?.cesys)),
+      travelmax: travelmax.map(String),
     },
   };
 }
@@ -566,7 +594,10 @@ export function mapTourToFormValues(
     featuredOrder: tour?.featuredOrder?.toString() ?? '',
     recommended: tour?.recommended ?? false,
     xmlEnabled: tour?.xmlEnabled ?? true,
-    partnerXml: partnerXmlFormValues(tour?.partnerXml),
+    partnerXml: partnerXmlFormValues(
+      tour?.partnerXml,
+      tour?.partnerXmlDefaults,
+    ),
     couponable: tour?.couponable ?? false,
     name: tour?.name ?? '',
     subtitle: tour?.subtitle ?? '',

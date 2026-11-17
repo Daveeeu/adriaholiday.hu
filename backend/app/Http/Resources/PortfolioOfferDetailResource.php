@@ -26,7 +26,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
         $priceItems = $tour->priceItems->where('active', true)->sortBy('sort_order')->values();
 
         $data = parent::toArray($request);
-        unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate'], $data['partnerXml'], $data['routeStops']);
+        unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate'], $data['partnerXml'], $data['partnerXmlDefaults'], $data['routeStops']);
         $routeMapUrl = app(TourRouteMapService::class)->url($tour);
 
         $sanitizeContent = function (?string $value, bool $jsonAsNull = false): ?string {

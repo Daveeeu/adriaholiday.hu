@@ -132,7 +132,7 @@ class PortfolioOffersTest extends TestCase
             'categories',
         ]);
 
-        foreach (['partnerBonuses', 'action1', 'groupId', 'priceBox.minParticipants', 'priceBox.ctaPrimaryLabel'] as $removed) {
+        foreach (['partnerBonuses', 'partnerXmlDefaults', 'action1', 'groupId', 'priceBox.minParticipants', 'priceBox.ctaPrimaryLabel'] as $removed) {
             $response->assertJsonMissingPath($removed);
         }
 
