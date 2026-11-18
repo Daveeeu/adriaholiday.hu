@@ -29,10 +29,6 @@ class LegacyImportRecord extends Model
 
     public const HOMEPAGE_OFFER = 'homepage_offer';
 
-    public const TOUR_REGION_GROUP = 'tour_region_group';
-
-    public const TOUR_SEASONAL_GROUP = 'tour_seasonal_group';
-
     public const PARTNER_FINANCE = 'partner_finance';
 
     public const PARTNER_BONUS_PLACE = 'partner_bonus_place';

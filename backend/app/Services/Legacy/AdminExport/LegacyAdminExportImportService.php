@@ -20,8 +20,6 @@ use App\Services\Legacy\AdminExport\Steps\TextBlockStep;
 use App\Services\Legacy\AdminExport\Steps\TourBookingStep;
 use App\Services\Legacy\AdminExport\Steps\TourDeparturePlaceStep;
 use App\Services\Legacy\AdminExport\Steps\TourInquiryStep;
-use App\Services\Legacy\AdminExport\Steps\TourRegionGroupStep;
-use App\Services\Legacy\AdminExport\Steps\TourSeasonalGroupStep;
 use App\Services\Legacy\AdminExport\Steps\TourStep;
 use App\Support\Legacy\AdminExport\LegacyAdminExport;
 use App\Support\Legacy\AdminExport\LegacyAdminExportContext;
@@ -47,8 +45,6 @@ final class LegacyAdminExportImportService
      */
     private const STEPS = [
         TourDeparturePlaceStep::class,
-        TourRegionGroupStep::class,
-        TourSeasonalGroupStep::class,
         TourStep::class,
         ApartmentStep::class,
         BusStep::class,

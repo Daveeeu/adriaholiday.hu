@@ -36,11 +36,8 @@ use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialControll
 use App\Http\Controllers\Admin\TourController;
 use App\Http\Controllers\Admin\TourDeparturePlaceController;
 use App\Http\Controllers\Admin\TourListOrderController;
-use App\Http\Controllers\Admin\TourPartnerOfferController;
 use App\Http\Controllers\Admin\TourReferenceOptionController;
-use App\Http\Controllers\Admin\TourRegionGroupController;
 use App\Http\Controllers\Admin\TourRouteMapController;
-use App\Http\Controllers\Admin\TourSeasonalGroupController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AnalyticsEventController;
 use App\Http\Controllers\Auth\AuthController;
@@ -245,25 +242,10 @@ Route::prefix('admin')
                 Route::delete('/', [TourListOrderController::class, 'destroy']);
             });
 
-        Route::apiResource('tour-region-groups', TourRegionGroupController::class)->parameters([
-            'tour-region-groups' => 'tourRegionGroup',
-        ]);
-        Route::patch('tour-region-groups/{tourRegionGroup}/status', [TourRegionGroupController::class, 'status']);
-
-        Route::apiResource('tour-seasonal-groups', TourSeasonalGroupController::class)->parameters([
-            'tour-seasonal-groups' => 'tourSeasonalGroup',
-        ]);
-        Route::patch('tour-seasonal-groups/{tourSeasonalGroup}/status', [TourSeasonalGroupController::class, 'status']);
-
         Route::apiResource('tour-departure-places', TourDeparturePlaceController::class)->parameters([
             'tour-departure-places' => 'tourDeparturePlace',
         ]);
         Route::patch('tour-departure-places/{tourDeparturePlace}/status', [TourDeparturePlaceController::class, 'status']);
-
-        Route::apiResource('tour-partner-offers', TourPartnerOfferController::class)->parameters([
-            'tour-partner-offers' => 'tourPartnerOffer',
-        ]);
-        Route::patch('tour-partner-offers/{tourPartnerOffer}/status', [TourPartnerOfferController::class, 'status']);
 
         Route::apiResource('bookings', BookingController::class)->whereNumber('booking');
         Route::patch('bookings/{booking}/status', [BookingController::class, 'status'])->whereNumber('booking');

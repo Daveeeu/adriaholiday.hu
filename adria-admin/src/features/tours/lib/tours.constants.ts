@@ -8,24 +8,6 @@ export const TOUR_MAIN_NAV_ITEMS = [
     permission: 'tours.viewAny',
   },
   {
-    label: 'Szervezés alatt partner ajánlatok',
-    labelKey: 'nav.tours.partnerOffers',
-    route: '/tours/partner-offers',
-    permission: 'tour-partner-offers.viewAny',
-  },
-  {
-    label: 'Régiók és csoportok',
-    labelKey: 'nav.tours.regionGroups',
-    route: '/tours/region-groups',
-    permission: 'tour-region-groups.viewAny',
-  },
-  {
-    label: 'Szezonális ajánlat csoportok',
-    labelKey: 'nav.tours.seasonalGroups',
-    route: '/tours/seasonal-groups',
-    permission: 'tour-seasonal-groups.viewAny',
-  },
-  {
     label: 'Felszállási helyek',
     labelKey: 'nav.tours.departurePlaces',
     route: '/tours/departure-places',
@@ -39,19 +21,6 @@ export const TOUR_MAIN_NAV_ITEMS = [
   },
 ] as const;
 
-export const TOUR_REGION_GROUP_TYPES = [
-  { value: 'region', label: 'Régió' },
-  { value: 'group', label: 'Csoport' },
-] as const;
-
-export const TOUR_SEASONAL_MENU_TYPES = [
-  { value: 'intro', label: 'Bevezető utak' },
-  { value: 'request', label: 'Ajánlatkérő utak' },
-  { value: 'featured', label: 'Híres menüben' },
-  { value: 'travel', label: 'Utazási ajánlatok' },
-  { value: 'icon', label: 'Ikonalapúakat' },
-] as const;
-
 export const TOUR_PROGRAM_TYPE_OPTIONS = [
   { value: 'classic-tour', label: 'Klasszikus körút' },
   { value: 'city-break', label: 'City break' },
@@ -62,14 +31,6 @@ export const TOUR_TRAVEL_MODE_OPTIONS = [
   { value: 'bus', label: 'Busz' },
   { value: 'plane', label: 'Repülő' },
   { value: 'train', label: 'Vonat' },
-] as const;
-
-export const TOUR_PARTNER_OFFER_STATUSES = [
-  { value: 'new', label: 'Új' },
-  { value: 'contacted', label: 'Felvett kapcsolat' },
-  { value: 'offer_sent', label: 'Ajánlat elküldve' },
-  { value: 'won', label: 'Megnyert' },
-  { value: 'lost', label: 'Elvesztett' },
 ] as const;
 
 export const TOUR_DATE_STATUSES = [

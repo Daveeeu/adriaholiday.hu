@@ -188,24 +188,9 @@ const BlogTagsPage = lazy(() =>
     default: module.BlogTagsPage,
   })),
 );
-const TourPartnerOffersPage = lazy(() =>
-  import('@/features/tours/pages/TourPartnerOffersPage').then((module) => ({
-    default: module.TourPartnerOffersPage,
-  })),
-);
-const TourRegionGroupsPage = lazy(() =>
-  import('@/features/tours/pages/TourRegionGroupsPage').then((module) => ({
-    default: module.TourRegionGroupsPage,
-  })),
-);
 const TourListOrderPage = lazy(() =>
   import('@/features/tours/pages/TourListOrderPage').then((module) => ({
     default: module.TourListOrderPage,
-  })),
-);
-const TourSeasonalGroupsPage = lazy(() =>
-  import('@/features/tours/pages/TourSeasonalGroupsPage').then((module) => ({
-    default: module.TourSeasonalGroupsPage,
   })),
 );
 const TourDeparturePlacesPage = lazy(() =>
@@ -504,30 +489,6 @@ const router = createBrowserRouter(
                 </RequirePermission>,
               ),
               handle: { crumbKey: 'nav.tours.edit' },
-            },
-            {
-              path: 'partner-offers',
-              element: withPermission(
-                '/tours/partner-offers',
-                <TourPartnerOffersPage />,
-              ),
-              handle: { crumbKey: 'nav.tours.partnerOffers' },
-            },
-            {
-              path: 'region-groups',
-              element: withPermission(
-                '/tours/region-groups',
-                <TourRegionGroupsPage />,
-              ),
-              handle: { crumbKey: 'nav.tours.regionGroups' },
-            },
-            {
-              path: 'seasonal-groups',
-              element: withPermission(
-                '/tours/seasonal-groups',
-                <TourSeasonalGroupsPage />,
-              ),
-              handle: { crumbKey: 'nav.tours.seasonalGroups' },
             },
             {
               path: 'departure-places',

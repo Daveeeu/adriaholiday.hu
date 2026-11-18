@@ -9,19 +9,10 @@ import type { MediaAsset } from '@/services/media-service';
 
 import type {
   TOUR_DATE_STATUSES,
-  TOUR_PARTNER_OFFER_STATUSES,
-  TOUR_REGION_GROUP_TYPES,
-  TOUR_SEASONAL_MENU_TYPES,
 } from './tours.constants';
 import { slugifyTourText } from './tours.constants';
 
 export type TourDateStatus = (typeof TOUR_DATE_STATUSES)[number]['value'];
-export type TourPartnerOfferStatus =
-  (typeof TOUR_PARTNER_OFFER_STATUSES)[number]['value'];
-export type TourRegionGroupType =
-  (typeof TOUR_REGION_GROUP_TYPES)[number]['value'];
-export type TourSeasonalMenuType =
-  (typeof TOUR_SEASONAL_MENU_TYPES)[number]['value'];
 
 export type TourExtraPriceUnit = 'per_person' | 'per_booking';
 
@@ -743,93 +734,6 @@ export type TourListQuery = {
 
 export type TourListResponse = {
   items: Tour[];
-  totalCount: number;
-  page: number;
-  perPage: number;
-};
-
-export type TourPartnerOffer = {
-  id: string;
-  name: string;
-  partnerName: string;
-  partnerEmail: string;
-  inquiryDate: string;
-  status: TourPartnerOfferStatus;
-  note: string;
-  active: boolean;
-};
-
-export type TourPartnerOfferFormValues = Omit<TourPartnerOffer, 'id'>;
-
-export type TourPartnerOfferListQuery = {
-  page: number;
-  perPage: number;
-  search?: string;
-  sortBy?: keyof TourPartnerOffer;
-  sortDirection?: 'asc' | 'desc';
-};
-
-export type TourPartnerOfferListResponse = {
-  items: TourPartnerOffer[];
-  totalCount: number;
-  page: number;
-  perPage: number;
-};
-
-export type TourRegionGroup = {
-  id: string;
-  active: boolean;
-  featuredOnHomepage: boolean;
-  type: TourRegionGroupType;
-  name: string;
-  seoName: string;
-  seoAutoGenerate: boolean;
-  galleryId: string;
-  description: string;
-  listBelowText: string;
-  travelConditionsLink: string;
-};
-
-export type TourRegionGroupFormValues = Omit<TourRegionGroup, 'id'>;
-
-export type TourRegionGroupListQuery = {
-  page: number;
-  perPage: number;
-  search?: string;
-  sortBy?: keyof TourRegionGroup;
-  sortDirection?: 'asc' | 'desc';
-};
-
-export type TourRegionGroupListResponse = {
-  items: TourRegionGroup[];
-  totalCount: number;
-  page: number;
-  perPage: number;
-};
-
-export type TourSeasonalGroup = {
-  id: string;
-  active: boolean;
-  menuType: TourSeasonalMenuType;
-  name: string;
-  seoName: string;
-  seoAutoGenerate: boolean;
-  boxText: string;
-  hasOffers: boolean;
-};
-
-export type TourSeasonalGroupFormValues = Omit<TourSeasonalGroup, 'id'>;
-
-export type TourSeasonalGroupListQuery = {
-  page: number;
-  perPage: number;
-  search?: string;
-  sortBy?: keyof TourSeasonalGroup;
-  sortDirection?: 'asc' | 'desc';
-};
-
-export type TourSeasonalGroupListResponse = {
-  items: TourSeasonalGroup[];
   totalCount: number;
   page: number;
   perPage: number;

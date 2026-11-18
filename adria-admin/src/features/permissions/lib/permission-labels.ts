@@ -33,10 +33,7 @@ const GROUP_LABELS: Record<string, string> = {
   'site-settings': 'Weboldal beállításai',
   testimonials: 'Rólunk írták',
   'tour-departure-places': 'Felszállási helyek',
-  'tour-partner-offers': 'Partner ajánlatok',
   'tour-reference-options': 'Körutazás törzsadatok',
-  'tour-region-groups': 'Régiók és csoportok',
-  'tour-seasonal-groups': 'Szezonális csoportok',
   tours: 'Körutazások',
   users: 'Felhasználók',
 };

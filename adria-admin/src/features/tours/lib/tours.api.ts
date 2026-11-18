@@ -13,19 +13,7 @@ import type {
   TourFormValues,
   TourListQuery,
   TourListResponse,
-  TourPartnerOffer,
-  TourPartnerOfferFormValues,
-  TourPartnerOfferListQuery,
-  TourPartnerOfferListResponse,
-  TourRegionGroup,
-  TourRegionGroupFormValues,
-  TourRegionGroupListQuery,
-  TourRegionGroupListResponse,
   TourRouteStop,
-  TourSeasonalGroup,
-  TourSeasonalGroupFormValues,
-  TourSeasonalGroupListQuery,
-  TourSeasonalGroupListResponse,
   Tour,
 } from './tours.types';
 import { normalizeTourFormValues } from './tours.types';
@@ -170,123 +158,6 @@ export function resetOrderedTourList(
   return apiClient
     .delete<ResourceEnvelope<OrderedTourListItem[]>>(orderedTourListPath(list))
     .then(unwrapResource);
-}
-
-export async function getTourPartnerOffers(
-  query: TourPartnerOfferListQuery,
-): Promise<TourPartnerOfferListResponse> {
-  return apiClient.get<TourPartnerOfferListResponse>(
-    '/api/admin/tour-partner-offers',
-    { query },
-  );
-}
-
-export function createTourPartnerOffer(values: TourPartnerOfferFormValues) {
-  return apiClient.post<TourPartnerOffer>(
-    '/api/admin/tour-partner-offers',
-    values,
-  );
-}
-
-export function updateTourPartnerOffer(
-  id: string,
-  values: TourPartnerOfferFormValues,
-) {
-  return apiClient.patch<TourPartnerOffer>(
-    `/api/admin/tour-partner-offers/${id}`,
-    values,
-  );
-}
-
-export function deleteTourPartnerOffer(id: string) {
-  return apiClient.delete<{ id: string }>(
-    `/api/admin/tour-partner-offers/${id}`,
-  );
-}
-
-export function setTourPartnerOfferActive(id: string, active: boolean) {
-  return apiClient.patch<TourPartnerOffer>(
-    `/api/admin/tour-partner-offers/${id}/status`,
-    { active },
-  );
-}
-
-export async function getTourRegionGroups(
-  query: TourRegionGroupListQuery,
-): Promise<TourRegionGroupListResponse> {
-  return apiClient.get<TourRegionGroupListResponse>(
-    '/api/admin/tour-region-groups',
-    { query },
-  );
-}
-
-export function createTourRegionGroup(values: TourRegionGroupFormValues) {
-  return apiClient.post<TourRegionGroup>(
-    '/api/admin/tour-region-groups',
-    values,
-  );
-}
-
-export function updateTourRegionGroup(
-  id: string,
-  values: TourRegionGroupFormValues,
-) {
-  return apiClient.patch<TourRegionGroup>(
-    `/api/admin/tour-region-groups/${id}`,
-    values,
-  );
-}
-
-export function deleteTourRegionGroup(id: string) {
-  return apiClient.delete<{ id: string }>(
-    `/api/admin/tour-region-groups/${id}`,
-  );
-}
-
-export function setTourRegionGroupActive(id: string, active: boolean) {
-  return apiClient.patch<TourRegionGroup>(
-    `/api/admin/tour-region-groups/${id}/status`,
-    { active },
-  );
-}
-
-export async function getTourSeasonalGroups(
-  query: TourSeasonalGroupListQuery,
-): Promise<TourSeasonalGroupListResponse> {
-  return apiClient.get<TourSeasonalGroupListResponse>(
-    '/api/admin/tour-seasonal-groups',
-    { query },
-  );
-}
-
-export function createTourSeasonalGroup(values: TourSeasonalGroupFormValues) {
-  return apiClient.post<TourSeasonalGroup>(
-    '/api/admin/tour-seasonal-groups',
-    values,
-  );
-}
-
-export function updateTourSeasonalGroup(
-  id: string,
-  values: TourSeasonalGroupFormValues,
-) {
-  return apiClient.patch<TourSeasonalGroup>(
-    `/api/admin/tour-seasonal-groups/${id}`,
-    values,
-  );
-}
-
-export function deleteTourSeasonalGroup(id: string) {
-  return apiClient.delete<{ id: string }>(
-    `/api/admin/tour-seasonal-groups/${id}`,
-  );
-}
-
-export function setTourSeasonalGroupActive(id: string, active: boolean) {
-  return apiClient.patch<TourSeasonalGroup>(
-    `/api/admin/tour-seasonal-groups/${id}/status`,
-    { active },
-  );
 }
 
 export async function getTourDeparturePlaces(

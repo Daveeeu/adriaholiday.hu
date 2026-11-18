@@ -31,10 +31,7 @@ use App\Models\Testimonial;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourDeparturePlace;
-use App\Models\TourPartnerOffer;
 use App\Models\TourReferenceOption;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 
@@ -51,10 +48,7 @@ final class ActivitySubjectTypes
     private const TYPES = [
         'tour' => ['class' => Tour::class, 'label' => 'Körutazás'],
         'tour_date' => ['class' => TourDate::class, 'label' => 'Körutazás időpont'],
-        'tour_region_group' => ['class' => TourRegionGroup::class, 'label' => 'Régiócsoport'],
-        'tour_seasonal_group' => ['class' => TourSeasonalGroup::class, 'label' => 'Szezonális csoport'],
         'tour_departure_place' => ['class' => TourDeparturePlace::class, 'label' => 'Felszállási hely'],
-        'tour_partner_offer' => ['class' => TourPartnerOffer::class, 'label' => 'Partner ajánlat'],
         'tour_reference_option' => ['class' => TourReferenceOption::class, 'label' => 'Körutazás törzsadat'],
         'booking' => ['class' => Booking::class, 'label' => 'Foglalás'],
         'booking_form_template' => ['class' => BookingFormTemplate::class, 'label' => 'Foglalási űrlap sablon'],

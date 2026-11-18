@@ -26,8 +26,6 @@ class ProductionSeeder extends Seeder
             RegionSeeder::class,
             LocationSeeder::class,
             ApartmentTypeSeeder::class,
-            TourRegionGroupSeeder::class,
-            TourSeasonalGroupSeeder::class,
             TourReferenceOptionSeeder::class,
             BlogCategorySeeder::class,
             BlogTagSeeder::class,

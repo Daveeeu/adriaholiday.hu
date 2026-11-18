@@ -18,8 +18,6 @@ use App\Models\Testimonial;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Models\TourDeparturePlace;
-use App\Models\TourRegionGroup;
-use App\Models\TourSeasonalGroup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -75,8 +73,6 @@ class LegacyFullAdminExportImportTest extends TestCase
         $this->assertSame('2026-08-02', $apartmentBooking->check_in->toDateString());
 
         $this->assertSame(2500, (int) TourDeparturePlace::query()->where('legacy_id', 51)->value('fee'));
-        $this->assertFalse(TourRegionGroup::query()->where('seo_name', 'svajc')->sole()->active);
-        $this->assertTrue(TourSeasonalGroup::query()->where('seo_name', 'korutazas')->exists());
         $this->assertSame('NZB-791', Bus::query()->sole()->vehicle_code);
 
         $offer = HomepageOffer::query()->sole();
@@ -123,13 +119,10 @@ class LegacyFullAdminExportImportTest extends TestCase
 
     public function test_records_the_office_already_made_keep_their_own_values(): void
     {
-        $group = TourRegionGroup::factory()->create(['seo_name' => 'svajc', 'name' => 'Svájc', 'description' => '<p>Saját leírás</p>', 'active' => true]);
         SeoRedirect::factory()->create(['source_path' => 'buszaink', 'target' => '/rolunk']);
 
         $this->import();
 
-        $this->assertSame('<p>Saját leírás</p>', $group->refresh()->description);
-        $this->assertTrue($group->active);
         $this->assertSame('/rolunk', SeoRedirect::query()->where('source_path', 'buszaink')->value('target'));
     }
 

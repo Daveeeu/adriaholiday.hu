@@ -133,8 +133,8 @@ describe('admin navigation', () => {
     expect(getRoutePermission('/bookings/tour-inquiries')).toBe(
       'bookings.viewAny',
     );
-    expect(getRoutePermission('/tours/region-groups')).toBe(
-      'tour-region-groups.viewAny',
+    expect(getRoutePermission('/tours/departure-places')).toBe(
+      'tour-departure-places.viewAny',
     );
     expect(getRoutePermission('/tours/list-order')).toBe('tours.reorder');
   });
