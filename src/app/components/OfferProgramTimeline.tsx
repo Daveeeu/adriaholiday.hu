@@ -139,13 +139,13 @@ export default function OfferProgramTimeline({
                     </div>
 
                     {/* A fixed-size tile, so every day's picture is the same size whatever its text's length. */}
-                    <div className="group/preview relative isolate flex h-56 flex-col justify-between overflow-hidden rounded-[26px] p-4 ring-1 ring-black/5 shadow-[0_18px_40px_rgba(15,23,42,0.18)] lg:h-[260px] lg:self-start">
+                    <div className="group/preview relative isolate flex h-56 flex-col justify-between overflow-hidden rounded-[26px] p-4 ring-1 ring-black/5 shadow-[0_18px_40px_rgba(15,23,42,0.18)] lg:h-[260px] lg:self-center">
                       {day.image ? (
                         <img
                           {...responsiveImage(day.image)}
                           sizes="(min-width: 1024px) 220px, 100vw"
                           alt={day.title}
-                          className="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-700 ease-out group-hover/preview:scale-110"
+                          className="absolute inset-0 -z-10 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover/preview:scale-110"
                           loading="lazy"
                           decoding="async"
                         />
@@ -153,7 +153,14 @@ export default function OfferProgramTimeline({
                         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(0,195,137,0.35),transparent_45%),radial-gradient(circle_at_85%_80%,rgba(22,184,255,0.3),transparent_45%),linear-gradient(145deg,#07111f,#0d2240_58%,#12315d)]" />
                       )}
 
-                      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#07111f]/90 via-[#07111f]/25 to-[#07111f]/10" />
+                      {/* The dark fade only backs the experience type text; without it the picture stays clear. */}
+                      <div
+                        className={`absolute inset-0 -z-10 ${
+                          experienceType
+                            ? "bg-gradient-to-t from-[#07111f]/90 via-[#07111f]/25 to-[#07111f]/10"
+                            : "bg-gradient-to-b from-[#07111f]/25 via-transparent to-transparent"
+                        }`}
+                      />
 
                       <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/15 text-[#00f0a8] shadow-[0_8px_20px_rgba(0,0,0,0.2)] backdrop-blur-md">
                         {renderContentIcon(day.icon, "w-5 h-5")}
