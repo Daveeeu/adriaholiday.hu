@@ -3,6 +3,7 @@ import { Check, CreditCard, Flame, Mail, Minus, Plus, ShieldCheck } from "lucide
 
 import SimplePayLogo from "../components/SimplePayLogo";
 import { useInView } from "../hooks/useInView";
+import { moveToNextFieldOnEnter } from "../lib/enterToNextField";
 import { bringIntoView } from "../lib/bringIntoView";
 import { transportLabel } from "../lib/transport";
 import BookingFieldInput from "./BookingFieldInput";
@@ -60,6 +61,7 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
       id="foglalas"
       ref={booking.formRef}
       onFocusCapture={booking.trackFieldFocus}
+      onKeyDown={moveToNextFieldOnEnter}
       data-clarity-mask="true"
       className="@container scroll-mt-[92px] rounded-[30px] bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.06)] md:p-8"
     >
