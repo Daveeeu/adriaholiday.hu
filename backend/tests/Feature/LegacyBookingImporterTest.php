@@ -184,6 +184,34 @@ class LegacyBookingImporterTest extends TestCase
         $this->assertSame(['Teszt Elek', 'Másik Utas'], Booking::query()->whereKeyNot($own->id)->orderBy('id')->pluck('customer_name')->all());
     }
 
+    public function test_a_booking_of_an_earlier_run_of_a_reused_legacy_date_gets_no_date_or_seats(): void
+    {
+        // The legacy row 12089 now names the 2026-10-24 run; this booking was
+        // made in 2023 for the run the row named then.
+        $this->tourDate->forceFill(['legacy_id' => 12089])->save();
+
+        $this->runImport([$this->record(['createdAt' => '2023-08-25 10:00:00'])]);
+
+        $booking = Booking::query()->sole();
+        $this->assertSame($this->tour->id, $booking->tour_id);
+        $this->assertNull($booking->tour_date_id);
+        $this->assertNull($booking->departure_date);
+        $this->assertSame(40, $this->tourDate->fresh()->freeSeats());
+    }
+
+    public function test_a_rerun_takes_an_earlier_run_booking_off_the_later_run(): void
+    {
+        $this->runImport([$this->record(['createdAt' => '2023-08-25 10:00:00'])]);
+        $booking = Booking::query()->sole();
+        $booking->forceFill(['tour_date_id' => $this->tourDate->id, 'departure_date' => '2026-10-24'])->save();
+
+        $this->runImport([$this->record(['createdAt' => '2023-08-25 10:00:00'])]);
+
+        $booking->refresh();
+        $this->assertNull($booking->tour_date_id);
+        $this->assertNull($booking->departure_date);
+    }
+
     public function test_a_price_no_real_booking_has_is_left_out_and_noted(): void
     {
         $this->runImport([$this->record(['price' => '133931600', 'adults' => '998'])]);

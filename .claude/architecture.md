@@ -251,6 +251,13 @@ import). Load `TourDate::scopeWithSeatsHeld()` wherever dates are listed.
 booking checks the free seats under a row lock on the date, in the same transaction
 that creates the booking.
 
+The legacy admin reused a date row year after year, so a legacy booking names the
+row's latest run, not the one it was made for. `LegacyDateRun` tells them apart (a
+booking made more than a year before the date belongs to an earlier run): the
+legacy booking import links such a booking to no date, and
+`adria:legacy-bookings:detach-earlier-runs` takes the ones imported before off
+their dates, lowering each date's capacity by their seats so its free seats stay.
+
 ---
 
 # React Architecture

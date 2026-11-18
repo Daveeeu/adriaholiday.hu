@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Tour;
 use App\Models\TourDate;
 use App\Support\Booking\TourBookingStatus;
+use App\Support\Legacy\LegacyDateRun;
 use App\Support\Legacy\LegacyPassengerList;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -18,8 +19,9 @@ use Illuminate\Support\Str;
  * Imported bookings keep their legacy id in the payload, so a booking is
  * imported once however often the import runs (a re-run refreshes it from the
  * legacy admin), and their legacy position number (or "legacy-{id}" when they
- * have none) as offer_code. They hold no seats (the
- * imported tour dates' free seats already account for them) and send no e-mails.
+ * have none) as offer_code. They send no e-mails. A booking holds seats on the
+ * date it is linked to, so one made for an earlier run of a reused legacy date
+ * is linked to no date (see LegacyDateRun).
  */
 class LegacyBookingImporter
 {
@@ -62,15 +64,20 @@ class LegacyBookingImporter
         $existing = Booking::withTrashed()->where('booking_type', 'tour_booking')->where('payload->legacy->id', $legacyId)->first();
 
         $offerName = trim((string) ($record['offerName'] ?? ''));
+        $createdAt = $this->dateTime((string) ($record['createdAt'] ?? ''));
         [$start] = $this->dateRange((string) ($record['offerDate'] ?? ''), (string) ($record['customDate'] ?? ''));
+        // A booking of an earlier run of a reused legacy date gets neither
+        // that date's later run nor its seats (see LegacyDateRun).
+        $earlierRun = $start !== null && $createdAt !== null && LegacyDateRun::isEarlierRun($createdAt, $start);
+        $start = $earlierRun ? null : $start;
         $tour = $this->legacyTour($record) ?? $this->tourNamed($offerName);
-        $tourDate = $tour !== null ? $this->legacyDate($record, $tour, $start) : null;
+        $tourDate = $tour !== null && ! $earlierRun ? $this->legacyDate($record, $tour, $start) : null;
         $passengers = $this->passengers((string) ($record['passengers'] ?? ''));
         $cancelled = (string) ($record['canceled'] ?? '0') === '1';
         $attributes = [
             'cancelled' => $cancelled,
             'tour_id' => $tour?->id ?? $existing?->tour_id,
-            'tour_date_id' => $tourDate?->id ?? $existing?->tour_date_id,
+            'tour_date_id' => $earlierRun ? null : ($tourDate?->id ?? $existing?->tour_date_id),
             'offer_name_snapshot' => $tour?->name ?? $offerName,
             'customer_name' => $this->nullable($record['name'] ?? null),
             'email' => $this->nullable($record['email'] ?? null),
@@ -111,7 +118,7 @@ class LegacyBookingImporter
         }
 
         if (! $dryRun) {
-            $createdAt = $this->dateTime((string) ($record['createdAt'] ?? '')) ?? now();
+            $createdAt ??= now();
 
             $booking = new Booking([
                 ...$attributes,
