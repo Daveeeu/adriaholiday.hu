@@ -36,8 +36,8 @@ type BookingSectionProps = {
 };
 
 /**
- * The tour booking form on one page, without steps: trip, passengers,
- * supplements and contact details one under the other. Below the trip page's
+ * The tour booking form on one page, without steps: trip, supplements and
+ * insurance (apart), passengers and contact details one under the other. Below the trip page's
  * sidebar breakpoint (xl) the live price and the button stick to the bottom
  * of the screen; from xl the sidebar shows them instead.
  */
@@ -47,11 +47,10 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
   }
 
   const bookingExtras = tripStepExtras(booking.extras);
-  const hasExtras =
-    bookingExtras.length > 0 ||
-    booking.cardExtras.length > 0 ||
-    booking.travelInsuranceAvailable ||
-    booking.cancellationInsuranceAvailable;
+  const hasSupplements = bookingExtras.length > 0 || booking.cardExtras.length > 0;
+  const hasInsurances = booking.travelInsuranceAvailable || booking.cancellationInsuranceAvailable;
+  // Supplements and insurance come right after the trip; the passengers' details after them.
+  const sectionAfterOptions = hasSupplements || hasInsurances ? 3 : 2;
 
   return (
     <section
@@ -99,54 +98,80 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
         </div>
       </FormSection>
 
-      <FormSection number={2} title="Utasok" hint="a név a személyi igazolvány szerint" onReach={booking.reachSection}>
-        <PassengerFields booking={booking} />
-      </FormSection>
+      {hasSupplements || hasInsurances ? (
+        <FormSection number={2} title="Felárak és biztosítás" onReach={booking.reachSection}>
+          <div className="space-y-6">
+            {hasSupplements ? (
+              <OptionGroup title="Felárak">
+                <BookingLevelExtras
+                  extras={bookingExtras}
+                  passengers={booking.passengerCount}
+                  selectedIds={booking.selectedExtraIds}
+                  onToggle={booking.toggleExtra}
+                  choices={booking.extraChoices}
+                  onChoiceChange={booking.changeExtraChoice}
+                  choiceError={booking.extraChoiceError}
+                />
+                <PassengerOptionsList {...passengerOptionsProps(booking)} insurances={null} />
+              </OptionGroup>
+            ) : null}
 
-      {hasExtras ? (
-        <FormSection number={3} title="Felárak és biztosítás" onReach={booking.reachSection}>
-          <div className="space-y-4">
-            <BookingLevelExtras
-              extras={bookingExtras}
-              passengers={booking.passengerCount}
-              selectedIds={booking.selectedExtraIds}
-              onToggle={booking.toggleExtra}
-              choices={booking.extraChoices}
-              onChoiceChange={booking.changeExtraChoice}
-              choiceError={booking.extraChoiceError}
-            />
-            <PassengerOptionsList
-              passengerNames={passengerNames(booking)}
-              extras={booking.cardExtras}
-              options={booking.passengerOptions}
-              onChange={booking.changePassengerOptions}
-              choiceErrors={booking.passengerChoiceErrors}
-              insurances={booking.insurances}
-              travelInsuranceAvailable={booking.travelInsuranceAvailable}
-              cancellationInsuranceAvailable={booking.cancellationInsuranceAvailable}
-              travelDays={booking.travelDays}
-              passengerShares={booking.priceEstimate.passengerShares}
-            />
-            {booking.travelInsuranceAvailable || booking.cancellationInsuranceAvailable ? (
-              <p className="text-sm text-gray-500">
-                A biztosítások szolgáltatásait, díjait és feltételeit a{" "}
-                <a href={INSURANCE_PATH} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
-                  Biztosítások
-                </a>{" "}
-                oldalon találod.
-              </p>
+            {hasInsurances ? (
+              <OptionGroup title="Biztosítás" note="külön számlázzuk">
+                <PassengerOptionsList {...passengerOptionsProps(booking)} extras={[]} />
+                <p className="text-sm text-gray-500">
+                  A biztosítások szolgáltatásait, díjait és feltételeit a{" "}
+                  <a href={INSURANCE_PATH} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
+                    Biztosítások
+                  </a>{" "}
+                  oldalon találod.
+                </p>
+              </OptionGroup>
             ) : null}
           </div>
         </FormSection>
       ) : null}
 
-      <FormSection number={hasExtras ? 4 : 3} title="Elérhetőség és véglegesítés" onReach={booking.reachSection}>
+      <FormSection number={sectionAfterOptions} title="Utasok" hint="a név a személyi igazolvány szerint" onReach={booking.reachSection}>
+        <PassengerFields booking={booking} />
+      </FormSection>
+
+      <FormSection number={sectionAfterOptions + 1} title="Elérhetőség és véglegesítés" onReach={booking.reachSection}>
         <ContactAndFinalFields booking={booking} couponable={Boolean(trip.couponable)} />
       </FormSection>
 
       <BookingSubmitBar {...summaryProps(booking)} className="-mx-5 -mb-5 xl:hidden md:-mx-8 md:-mb-8" />
     </section>
   );
+}
+
+/** A titled block of option rows inside a form section, e.g. the supplements apart from the insurance. */
+function OptionGroup({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-baseline gap-2">
+        <h4 className="text-base font-extrabold text-[#0f172a]">{title}</h4>
+        {note ? <span className="text-sm text-gray-400">{note}</span> : null}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/** What both option lists share; the supplements list leaves out the insurances and the other way round. */
+function passengerOptionsProps(booking: TourBookingForm) {
+  return {
+    passengerNames: passengerNames(booking),
+    extras: booking.cardExtras,
+    options: booking.passengerOptions,
+    onChange: booking.changePassengerOptions,
+    choiceErrors: booking.passengerChoiceErrors,
+    insurances: booking.insurances,
+    travelInsuranceAvailable: booking.travelInsuranceAvailable,
+    cancellationInsuranceAvailable: booking.cancellationInsuranceAvailable,
+    travelDays: booking.travelDays,
+    passengerShares: booking.priceEstimate.passengerShares,
+  };
 }
 
 /** The booking's summary panel for the trip page's sidebar, shown there while the form is on screen and not yet sent. */

@@ -59,9 +59,11 @@ const COVERAGE_LABELS: Record<Coverage, string> = {
 };
 
 /**
- * The per-person supplements ("felár") and insurances. With one passenger a
+ * The per-person supplements ("felár") or the insurances. With one passenger a
  * row is a tick box; in a group a row is given to nobody, everyone, or picked
  * passenger by passenger, so a group does not tick the same box for everyone.
+ * The passengers always show under the row: green who has it, red when nobody
+ * does, and a tap on one changes just that passenger.
  */
 export default function PassengerOptionsList({
   passengerNames,
@@ -158,32 +160,20 @@ export default function PassengerOptionsList({
               <CoverageSwitch name={`coverage-${id}`} label={row.title} value={coverage} onChange={(value) => changeCoverage(row, value)} />
             </div>
 
-            {coverage === "custom" ? (
-              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-dashed border-gray-300 pt-3">
-                <span className="mr-1 text-sm text-gray-500">Kinek?</span>
-                {passengerNames.map((name, index) => {
-                  const on = ticked.includes(index);
-
-                  return (
-                    <button
-                      key={index}
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => onChange(togglePassengerOption(options, row.key, index))}
-                      className={`rounded-full border px-3.5 py-1.5 text-sm font-bold transition-colors ${
-                        on
-                          ? "border-[#00c389] bg-[#00c389] text-white"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-[#00c389]"
-                      }`}
-                    >
-                      {on ? "✓ " : ""}
-                      {name}
-                    </button>
-                  );
-                })}
-                <span className="ml-auto text-sm font-bold text-[#00865f]">{ticked.length} főnek</span>
-              </div>
-            ) : null}
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-dashed border-gray-300 pt-3">
+              <span className="mr-1 text-sm text-gray-500">Kinek?</span>
+              {passengerNames.map((name, index) => (
+                <PassengerChip
+                  key={index}
+                  name={name}
+                  state={ticked.includes(index) ? "on" : coverage === "none" ? "off" : "idle"}
+                  onClick={() => onChange(togglePassengerOption(options, row.key, index))}
+                />
+              ))}
+              <span className={`ml-auto text-sm font-bold ${coverage === "none" ? "text-red-500" : "text-[#00865f]"}`}>
+                {coverage === "none" ? "senkinek" : coverage === "all" ? "mindenkinek" : `${ticked.length} főnek`}
+              </span>
+            </div>
 
             {extra && extra.choices.length > 0 && ticked.length > 0 ? (
               <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
@@ -318,5 +308,29 @@ function ExtraChoice({
       </div>
       {!choice && error ? <span data-booking-error className="mt-1 block text-sm font-medium text-red-500">{error}</span> : null}
     </fieldset>
+  );
+}
+
+/**
+ * One passenger under a supplement or insurance row. on: has it (green);
+ * off: the row is given to nobody (red); idle: picked one by one, not this one.
+ */
+function PassengerChip({ name, state, onClick }: { name: string; state: "on" | "off" | "idle"; onClick: () => void }) {
+  const styles = {
+    on: "border-[#00c389] bg-[#00c389] text-white",
+    off: "border-red-200 bg-red-50 text-red-600 hover:border-red-300",
+    idle: "border-gray-200 bg-white text-gray-600 hover:border-[#00c389]",
+  };
+
+  return (
+    <button
+      type="button"
+      aria-pressed={state === "on"}
+      onClick={onClick}
+      className={`rounded-full border px-3.5 py-1.5 text-sm font-bold transition-colors ${styles[state]}`}
+    >
+      {state === "on" ? "✓ " : state === "off" ? "✕ " : ""}
+      {name}
+    </button>
   );
 }
