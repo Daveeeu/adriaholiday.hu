@@ -22,7 +22,9 @@ class ExpiredTourService
     {
         $deactivated = Tour::query()
             ->where('active', true)
-            ->whereHas('dates', fn (Builder $dates) => $dates->whereNotNull('start_date'))
+            // Departed dates are soft deleted, so they count here too: without
+            // them a tour whose every date departed would look like an on-request one.
+            ->whereHas('dates', fn (Builder $dates) => $dates->withTrashed()->whereNotNull('start_date'))
             ->whereDoesntHave('dates', fn (Builder $dates) => $dates->upcoming())
             ->get()
             ->each(fn (Tour $tour) => $tour->forceFill(['active' => false, 'expired_at' => now()])->save());

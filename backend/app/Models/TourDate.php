@@ -62,13 +62,23 @@ class TourDate extends Model
 
     /**
      * Dates not yet departed (or not scheduled yet): the ones the public site
-     * shows and takes bookings for. Departed dates stay stored as history.
+     * shows and takes bookings for.
      */
     public function scopeUpcoming(Builder $query): void
     {
         $query->where(fn (Builder $dates) => $dates
             ->whereNull('start_date')
             ->orWhereDate('start_date', '>=', today()));
+    }
+
+    /**
+     * Dates whose departure day has passed: the opposite of scopeUpcoming().
+     * They are soft deleted nightly (see DepartedTourDatePruner), so bookings
+     * still reach them as history.
+     */
+    public function scopeDeparted(Builder $query): void
+    {
+        $query->whereDate('start_date', '<', today());
     }
 
     /**

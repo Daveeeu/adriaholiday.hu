@@ -99,7 +99,7 @@ class TourController extends Controller
             )->orderBy('last_booking_at', $direction),
             'bookings_count' => $query->orderBy('bookings_count', $direction),
             'next_departure_date' => $query->orderByRaw(
-                '(select min(d.start_date) from tour_dates d where d.tour_id = tours.id and d.start_date >= ?) is null',
+                '(select min(d.start_date) from tour_dates d where d.tour_id = tours.id and d.deleted_at is null and d.start_date >= ?) is null',
                 [today()->toDateString()],
             )->orderBy('next_departure_date', $direction),
             default => $query->orderBy(

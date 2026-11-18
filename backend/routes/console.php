@@ -14,3 +14,6 @@ Schedule::command('backup:run')->dailyAt('02:00')->withoutOverlapping();
 
 // A tour whose last date departed leaves the public site the next night.
 Schedule::command('tours:sync-expired')->dailyAt('00:10')->withoutOverlapping();
+
+// Departed dates leave the tour editor right after (soft deleted, bookings keep them).
+Schedule::command('tours:prune-departed-dates --force')->dailyAt('00:20')->withoutOverlapping();
