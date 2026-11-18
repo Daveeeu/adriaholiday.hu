@@ -76,6 +76,7 @@ export default function OfferProgramTimeline({
             const badges = (day.badges ?? []).filter(
               (badge) => typeof badge === "string" && badge.trim() !== "",
             );
+            const experienceType = day.experienceType?.trim();
 
             return (
               <motion.div
@@ -158,15 +159,17 @@ export default function OfferProgramTimeline({
                         {renderContentIcon(day.icon, "w-5 h-5")}
                       </div>
 
-                      <div>
-                        <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">
-                          Élmény típusa
+                      {experienceType ? (
+                        <div>
+                          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">
+                            Élmény típusa
+                          </div>
+                          <div className="text-lg font-bold leading-tight text-white">
+                            {experienceType}
+                          </div>
+                          <div className="mt-3 h-1 w-10 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff] transition-all duration-500 group-hover/preview:w-16" />
                         </div>
-                        <div className="text-lg font-bold leading-tight text-white">
-                          {day.experienceType?.trim() || "Program"}
-                        </div>
-                        <div className="mt-3 h-1 w-10 rounded-full bg-gradient-to-r from-[#00c389] to-[#16b8ff] transition-all duration-500 group-hover/preview:w-16" />
-                      </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>
