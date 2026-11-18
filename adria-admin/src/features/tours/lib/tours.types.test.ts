@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { mapTourToFormValues, normalizeTourFormValues } from './tours.types';
+import {
+  mapTourToFormValues,
+  normalizeTourFormValues,
+  tourFormSchema,
+} from './tours.types';
 
 describe('mapTourToFormValues', () => {
   it('turns the API numeric departure place ids into the string ids the form looks names up by', () => {
@@ -26,6 +30,39 @@ describe('mapTourToFormValues', () => {
 
     expect(values.dates[0].capacity).toBe('50');
     expect(normalizeTourFormValues(values).dates[0].capacity).toBe('50');
+  });
+});
+
+describe('the form of a saved tour', () => {
+  it('passes the form validation with the numbers the API sends as ids and prices', () => {
+    const values = mapTourToFormValues({
+      name: 'Montenegró',
+      regionId: 7 as unknown as string,
+      price: 259900 as unknown as string,
+      countryIds: [3 as unknown as string],
+      tagIds: [12 as unknown as string],
+      categoryIds: [5 as unknown as string],
+      dates: [
+        {
+          id: 186 as unknown as string,
+          startDate: '2027-07-04',
+          endDate: '2027-07-11',
+          price: 289900 as unknown as string,
+          status: 'available',
+        },
+      ],
+    });
+
+    const result = tourFormSchema.safeParse(values);
+
+    expect(
+      result.success
+        ? []
+        : result.error.issues.map((issue) => issue.path.join('.')),
+    ).toEqual([]);
+    expect(values.regionId).toBe('7');
+    expect(values.dates[0].id).toBe('186');
+    expect(values.dates[0].price).toBe('289900');
   });
 });
 

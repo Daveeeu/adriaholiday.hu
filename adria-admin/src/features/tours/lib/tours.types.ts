@@ -482,6 +482,14 @@ export const tourFormSchema = z.object({
 
 export type TourFormValues = z.infer<typeof tourFormSchema>;
 
+/**
+ * A value of the API as the form's text: the API sends ids and prices as
+ * numbers, the form keeps every field as text.
+ */
+function optionalText(value: string | number | null | undefined): string {
+  return value != null ? String(value) : '';
+}
+
 function optionalNumber(value: number | null | undefined): string {
   return value != null ? String(value) : '';
 }
@@ -536,10 +544,10 @@ export function mapTourToFormValues(
   tour?: Partial<Tour> | null,
 ): TourFormValues {
   const dates = (tour?.dates ?? []).map((date) => ({
-    id: date.id ?? createClientId(),
+    id: date.id != null ? String(date.id) : createClientId(),
     startDate: date.startDate ?? '',
     endDate: date.endDate ?? '',
-    price: date.price ?? '',
+    price: optionalText(date.price),
     status: date.status ?? 'available',
     departurePlaceIds: (date.departurePlaceIds ?? []).map(String),
     accommodation: date.accommodation ?? '',
@@ -642,7 +650,7 @@ export function mapTourToFormValues(
       sortOrder: item.sortOrder ?? 0,
       active: item.active ?? true,
     })),
-    regionId: tour?.regionId ?? '',
+    regionId: optionalText(tour?.regionId),
     departurePlaceIds: (tour?.departurePlaceIds ?? []).map(String),
     departurePlaceFees: Object.fromEntries(
       (tour?.departurePlaces ?? []).map((place) => [
@@ -652,9 +660,9 @@ export function mapTourToFormValues(
           : '',
       ]),
     ),
-    countryIds: tour?.countryIds ?? [],
-    tagIds: tour?.tagIds ?? [],
-    categoryIds: tour?.categoryIds ?? [],
+    countryIds: (tour?.countryIds ?? []).map(String),
+    tagIds: (tour?.tagIds ?? []).map(String),
+    categoryIds: (tour?.categoryIds ?? []).map(String),
     programTypeId: tour?.programTypeId ?? '',
     travelModeId: tour?.travelModeId ?? '',
     catering: tour?.catering ?? '',
@@ -664,7 +672,7 @@ export function mapTourToFormValues(
     bookingFormTemplateId: tour?.bookingFormTemplateId
       ? String(tour.bookingFormTemplateId)
       : '',
-    price: tour?.price ?? '',
+    price: optionalText(tour?.price),
     sliderText: tour?.sliderText ?? '',
     dates,
   };
