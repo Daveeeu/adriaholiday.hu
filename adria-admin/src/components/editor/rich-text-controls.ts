@@ -14,6 +14,7 @@ export type RichTextControl =
   | 'textAlign'
   | 'fontFamily'
   | 'fontSize'
+  | 'table'
   | 'undo'
   | 'redo';
 
@@ -33,14 +34,16 @@ export const DEFAULT_CONTROLS: RichTextControl[] = [
   'textAlign',
   'fontFamily',
   'fontSize',
+  'table',
   'undo',
   'redo',
 ];
 
 /**
  * The fixed formats of trip texts, so every trip looks the same: headings,
- * bold, italics, lists and links, but no fonts, sizes, colours or underlines
- * of their own (the site and the program PDF drop them too).
+ * bold, italics, lists, links and tables (a price list lines up in one), but
+ * no fonts, sizes, colours or underlines of their own (the site and the
+ * program PDF drop them too).
  */
 export const FIXED_FORMAT_CONTROLS: RichTextControl[] = [
   'bold',
@@ -52,6 +55,7 @@ export const FIXED_FORMAT_CONTROLS: RichTextControl[] = [
   'blockquote',
   'link',
   'textAlign',
+  'table',
   'undo',
   'redo',
 ];

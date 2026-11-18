@@ -96,7 +96,9 @@ export function sanitizeRichTextHtml(value?: string | null): string {
     const tag = element.tagName.toLowerCase();
 
     if (!ALLOWED_TAGS.has(tag)) {
-      Array.from(element.childNodes).forEach((child) => appendNode(child, target));
+      Array.from(element.childNodes).forEach((child) =>
+        appendNode(child, target),
+      );
       return;
     }
 
@@ -118,7 +120,10 @@ export function sanitizeRichTextHtml(value?: string | null): string {
         return;
       }
 
-      if ((tag === 'td' || tag === 'th') && (name === 'colspan' || name === 'rowspan')) {
+      if (
+        (tag === 'td' || tag === 'th') &&
+        (name === 'colspan' || name === 'rowspan')
+      ) {
         if (/^[1-9]\d?$/.test(attributeValue)) {
           next.setAttribute(name, attributeValue);
         }
@@ -192,7 +197,9 @@ function sanitizeStyleValue(property: string, value: string): string | null {
   }
 
   if (property === 'text-align') {
-    return ALLOWED_TEXT_ALIGN.has(value.toLowerCase()) ? value.toLowerCase() : null;
+    return ALLOWED_TEXT_ALIGN.has(value.toLowerCase())
+      ? value.toLowerCase()
+      : null;
   }
 
   if (property === 'font-size') {
@@ -203,7 +210,9 @@ function sanitizeStyleValue(property: string, value: string): string | null {
     return /^[a-z0-9\s,"'-]+$/i.test(value) ? value : null;
   }
 
-  return /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z][a-z-]*)$/i.test(value)
+  return /^(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|[a-z][a-z-]*)$/i.test(
+    value,
+  )
     ? value
     : null;
 }
@@ -211,10 +220,7 @@ function sanitizeStyleValue(property: string, value: string): string | null {
 function sanitizeHref(value: string): string | null {
   const trimmed = value.trim();
 
-  if (
-    trimmed === '' ||
-    /^(javascript|vbscript|data):/i.test(trimmed)
-  ) {
+  if (trimmed === '' || /^(javascript|vbscript|data):/i.test(trimmed)) {
     return null;
   }
 
@@ -229,7 +235,9 @@ function sanitizeHref(value: string): string | null {
 
   try {
     const url = new URL(trimmed);
-    return ['http:', 'https:', 'mailto:', 'tel:'].includes(url.protocol) ? trimmed : null;
+    return ['http:', 'https:', 'mailto:', 'tel:'].includes(url.protocol)
+      ? trimmed
+      : null;
   } catch {
     return null;
   }
@@ -267,6 +275,10 @@ export function richTextBlockClassName(className = ''): string {
     '[&_h2]:my-4 [&_h2]:text-xl [&_h2]:font-semibold',
     '[&_h3]:my-3 [&_h3]:text-lg [&_h3]:font-semibold',
     '[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4',
+    '[&_table]:my-3 [&_table]:w-full [&_table]:border-collapse',
+    '[&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:align-top',
+    '[&_th]:border [&_th]:border-border [&_th]:px-2 [&_th]:py-1 [&_th]:text-left',
+    '[&_td_p]:mb-0 [&_th_p]:mb-0',
     className,
   ]
     .filter(Boolean)

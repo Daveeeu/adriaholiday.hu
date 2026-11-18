@@ -30,6 +30,7 @@ import {
   Redo2,
   Quote,
   Strikethrough,
+  Table,
   Type,
   Underline as UnderlineIcon,
   Undo2,
@@ -46,7 +47,6 @@ import { DEFAULT_CONTROLS, type RichTextControl } from './rich-text-controls';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-
 type RichTextEditorProps = {
   value: string;
   onChange: (value: string) => void;
@@ -59,10 +59,14 @@ type RichTextEditorProps = {
   className?: string;
 };
 
-
 const TYPOGRAPHY_TYPES = ['textStyle', 'heading', 'paragraph'];
 
-const TYPOGRAPHY_CONTROLS: RichTextControl[] = ['color', 'backgroundColor', 'fontFamily', 'fontSize'];
+const TYPOGRAPHY_CONTROLS: RichTextControl[] = [
+  'color',
+  'backgroundColor',
+  'fontFamily',
+  'fontSize',
+];
 
 function hasTypographyControls(controls: Set<RichTextControl>): boolean {
   return TYPOGRAPHY_CONTROLS.some((control) => controls.has(control));
@@ -121,6 +125,83 @@ function ControlGroup({ children }: { children: ReactNode }) {
   return <div className="flex flex-wrap items-center gap-1.5">{children}</div>;
 }
 
+/**
+ * A table lines up a list of names and amounts (entrance fees, optional
+ * programs) wherever it is shown; spaces never do. A new one has two columns,
+ * name and amount; the row and column buttons work in the table the cursor
+ * is in.
+ */
+function TableControls({
+  editor,
+  disabled,
+}: {
+  editor: Editor;
+  disabled: boolean;
+}) {
+  const inTable = editor.isActive('table');
+  const run = (
+    command: (
+      chain: ReturnType<Editor['chain']>,
+    ) => ReturnType<Editor['chain']>,
+  ) => command(editor.chain().focus()).run();
+
+  return (
+    <ControlGroup>
+      <ToolbarButton
+        title="Táblázat beszúrása (pl. belépők és áraik)"
+        onClick={() =>
+          run((chain) =>
+            chain.insertTable({ rows: 3, cols: 2, withHeaderRow: false }),
+          )
+        }
+        disabled={disabled || inTable}
+      >
+        <Table className="size-4" />
+        <span className="ml-1.5 text-xs">Táblázat</span>
+      </ToolbarButton>
+      {inTable ? (
+        <>
+          <ToolbarButton
+            title="Új sor az aktuális alá"
+            onClick={() => run((chain) => chain.addRowAfter())}
+            disabled={disabled}
+          >
+            <span className="text-xs">+ sor</span>
+          </ToolbarButton>
+          <ToolbarButton
+            title="Az aktuális sor törlése"
+            onClick={() => run((chain) => chain.deleteRow())}
+            disabled={disabled}
+          >
+            <span className="text-xs">− sor</span>
+          </ToolbarButton>
+          <ToolbarButton
+            title="Új oszlop az aktuális mellé"
+            onClick={() => run((chain) => chain.addColumnAfter())}
+            disabled={disabled}
+          >
+            <span className="text-xs">+ oszlop</span>
+          </ToolbarButton>
+          <ToolbarButton
+            title="Az aktuális oszlop törlése"
+            onClick={() => run((chain) => chain.deleteColumn())}
+            disabled={disabled}
+          >
+            <span className="text-xs">− oszlop</span>
+          </ToolbarButton>
+          <ToolbarButton
+            title="A teljes táblázat törlése"
+            onClick={() => run((chain) => chain.deleteTable())}
+            disabled={disabled}
+          >
+            <span className="text-xs">Táblázat törlése</span>
+          </ToolbarButton>
+        </>
+      ) : null}
+    </ControlGroup>
+  );
+}
+
 export function RichTextEditor({
   value,
   onChange,
@@ -149,10 +230,18 @@ export function RichTextEditor({
       // Typography extensions only with their controls: without them the
       // editor drops inline colours, fonts and sizes, so a save cleans them.
       ...(hasTypographyControls(controls) ? [TextStyle] : []),
-      ...(controls.has('color') ? [Color.configure({ types: TYPOGRAPHY_TYPES })] : []),
-      ...(controls.has('backgroundColor') ? [BackgroundColor.configure({ types: TYPOGRAPHY_TYPES })] : []),
-      ...(controls.has('fontFamily') ? [FontFamily.configure({ types: TYPOGRAPHY_TYPES })] : []),
-      ...(controls.has('fontSize') ? [FontSize.configure({ types: TYPOGRAPHY_TYPES })] : []),
+      ...(controls.has('color')
+        ? [Color.configure({ types: TYPOGRAPHY_TYPES })]
+        : []),
+      ...(controls.has('backgroundColor')
+        ? [BackgroundColor.configure({ types: TYPOGRAPHY_TYPES })]
+        : []),
+      ...(controls.has('fontFamily')
+        ? [FontFamily.configure({ types: TYPOGRAPHY_TYPES })]
+        : []),
+      ...(controls.has('fontSize')
+        ? [FontSize.configure({ types: TYPOGRAPHY_TYPES })]
+        : []),
       ...(controls.has('underline') ? [Underline] : []),
       Link.configure({
         openOnClick: false,
@@ -166,8 +255,8 @@ export function RichTextEditor({
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      // Imported content (e.g. entrance fee lists) contains tables; keeping
-      // them in the schema stops a save from flattening them.
+      // Always in the schema, so a save keeps imported tables (e.g. entrance
+      // fee lists) even where the table control is off.
       TableKit.configure({ table: { resizable: false } }),
       Placeholder.configure({
         placeholder: placeholder ?? 'Tartalom',
@@ -599,6 +688,10 @@ function RichTextToolbar({
           </>
         ) : null}
       </ControlGroup>
+
+      {controls.has('table') ? (
+        <TableControls editor={editor} disabled={disabled} />
+      ) : null}
     </div>
   );
 }
