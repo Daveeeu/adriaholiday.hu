@@ -89,14 +89,7 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
   const categoryFallbackOptions = buildOptions(tour?.categories);
 
   return (
-    <section className="space-y-4 rounded-2xl border bg-card p-4">
-      <div>
-        <h3 className="font-semibold">Szűrők / kapcsolatok</h3>
-        <p className="text-sm text-muted-foreground">
-          Kapcsolódó régió, címkék, országok és program besorolások.
-        </p>
-      </div>
-
+    <div className="space-y-5">
       <div className="grid gap-4 md:grid-cols-2">
         <TourCreatableSelectField
           control={form.control}
@@ -239,6 +232,6 @@ export function TourFilterSections({ form, tour }: TourFilterSectionsProps) {
           )}
         />
       </div>
-    </section>
+    </div>
   );
 }

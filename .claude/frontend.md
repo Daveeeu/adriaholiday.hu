@@ -301,9 +301,15 @@ read-only side panel for viewing and links to the editor page.
 
 A full-page editor
 
+- shows one section at a time, picked from a grouped menu beside the form
+  (a scrolling row of buttons on narrow screens), the open section kept in the
+  address (`?szakasz=`); a long list inside a section (e.g. the information
+  blocks) gets its own row of buttons instead of stacked editors, and rarely
+  used fields fold away under "További beállítások"
 - validates with the form's zod schema (`zodResolver`) and shows the server's
-  422 messages at their fields too, opening the collapsed section that holds an
-  error
+  422 messages at their fields too, opening the section that holds an error
+  and marking it in the menu; the form turns the API's numeric ids and prices
+  into text on load, or the schema rejects them
 - keeps its save actions in a sticky header
 - asks before leaving with unsaved changes: `useUnsavedChangesGuard(form.formState.isDirty)`
   from `src/lib/use-unsaved-changes-guard.ts` (router navigation and the

@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
+import { useForm, type FieldErrors, type Resolver } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -14,10 +13,7 @@ import {
   collectFormErrorMessages,
   setTourServerErrors,
 } from '../lib/tour-form-errors';
-import {
-  DEFAULT_OPEN_TOUR_FORM_SECTIONS,
-  tourFormSectionsWithErrors,
-} from '../lib/tour-form-sections';
+import { tourFormSectionsWithErrors } from '../lib/tour-form-sections';
 import {
   TOURS_LIST_PATH,
   TOURS_QUERY_KEY,
@@ -25,6 +21,7 @@ import {
   tourEditPath,
 } from '../lib/tour-routes';
 import { createTour, deleteTour, updateTour } from '../lib/tours.api';
+import { useTourEditorSection } from '../lib/use-tour-editor-section';
 import {
   getTourFormDefaults,
   tourFormSchema,
@@ -32,7 +29,7 @@ import {
   type TourFormValues,
 } from '../lib/tours.types';
 import { TourEditorHeader } from './TourEditorHeader';
-import { TourForm } from './TourForm';
+import { TourEditorBody } from './TourEditorBody';
 
 const FORM_ID = 'tour-editor-form';
 
@@ -51,9 +48,7 @@ export function TourEditor({ tour }: TourEditorProps) {
   const canDelete = useAuthStore((state) =>
     state.hasPermission('tours.delete'),
   );
-  const [openSections, setOpenSections] = useState(
-    DEFAULT_OPEN_TOUR_FORM_SECTIONS,
-  );
+  const [section, setSection] = useTourEditorSection();
 
   const form = useForm<TourFormValues>({
     defaultValues: getTourFormDefaults(tour),
@@ -62,13 +57,13 @@ export function TourEditor({ tour }: TourEditorProps) {
 
   const allowNavigation = useUnsavedChangesGuard(form.formState.isDirty);
 
-  const revealErrors = () => {
-    const sections = tourFormSectionsWithErrors(form.formState.errors);
+  // Opens the first section with an error, unless the open one has one.
+  const revealErrors = (errors: FieldErrors<TourFormValues> | string[]) => {
+    const sections = tourFormSectionsWithErrors(errors);
 
-    setOpenSections((current) => ({
-      ...current,
-      ...Object.fromEntries(sections.map((section) => [section, true])),
-    }));
+    if (sections.length > 0 && !sections.includes(section)) {
+      setSection(sections[0]);
+    }
   };
 
   const saveMutation = useMutation({
@@ -94,8 +89,7 @@ export function TourEditor({ tour }: TourEditorProps) {
       navigate(tourEditPath(saved.id), { replace: true });
     },
     onError: (error) => {
-      setTourServerErrors(form, error);
-      revealErrors();
+      revealErrors(setTourServerErrors(form, error));
       toast.error(
         tour
           ? 'Nem sikerült menteni a körutazást.'
@@ -127,7 +121,7 @@ export function TourEditor({ tour }: TourEditorProps) {
   const handleSubmit = form.handleSubmit(
     (values) => saveMutation.mutate(values),
     (errors) => {
-      revealErrors();
+      revealErrors(errors);
       const messages = collectFormErrorMessages(errors);
       const rest = messages.length - MAX_LISTED_ERRORS;
 
@@ -164,11 +158,11 @@ export function TourEditor({ tour }: TourEditorProps) {
 
       <Form {...form}>
         <form id={FORM_ID} noValidate onSubmit={handleSubmit}>
-          <TourForm
+          <TourEditorBody
             form={form}
             tour={tour}
-            openSections={openSections}
-            onOpenSectionsChange={setOpenSections}
+            section={section}
+            onSectionChange={setSection}
           />
         </form>
       </Form>

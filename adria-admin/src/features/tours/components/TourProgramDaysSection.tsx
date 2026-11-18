@@ -416,15 +416,7 @@ export function TourProgramDaysSection({ form }: TourProgramDaysSectionProps) {
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border bg-card p-4">
-      <div>
-        <h3 className="font-semibold">Program napok</h3>
-        <p className="text-sm text-muted-foreground">
-          Napokra bontott timeline, amely a publikus oldal részletes programját
-          adja.
-        </p>
-      </div>
-
+    <div className="space-y-4">
       <div className="space-y-3">
         {rows.map((row) => {
           const isDragging = draggingId === row.clientId;
@@ -465,6 +457,6 @@ export function TourProgramDaysSection({ form }: TourProgramDaysSectionProps) {
         <Plus className="size-4" />
         Új programnap
       </Button>
-    </section>
+    </div>
   );
 }

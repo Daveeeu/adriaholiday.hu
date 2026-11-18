@@ -449,7 +449,6 @@ export const tourFormSchema = z.object({
         cesysRoom: z.string().trim().max(255, 'Legfeljebb 255 karakter.'),
       }),
       priceBox: z.object({
-        price: z.string(),
         discountBadge: z.string(),
         originalPrice: z
           .string()
@@ -560,7 +559,6 @@ export function mapTourToFormValues(
       cesysRoom: date.partnerXml?.cesysRoom ?? '',
     },
     priceBox: {
-      price: date.priceBox?.price?.toString() ?? '',
       discountBadge: date.priceBox?.discountBadge ?? '',
       originalPrice: date.priceBox?.originalPrice?.toString() ?? '',
       label: date.priceBox?.label ?? '',

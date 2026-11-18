@@ -110,7 +110,7 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
     const items = sortPriceRows(rows.filter((row) => row.type === type));
 
     return (
-      <section className="space-y-4 rounded-2xl border bg-card p-4">
+      <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-1.5">
@@ -230,14 +230,6 @@ export function TourPriceItemsSection({ form }: TourPriceItemsSectionProps) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="font-semibold">Ár tartalma</h3>
-        <p className="text-sm text-muted-foreground">
-          Az árban szereplő és az árban nem szereplő tételek külön, rendezhető
-          listákban.
-        </p>
-      </div>
-
       <div className="grid gap-4 xl:grid-cols-2">
         {renderList(
           'included',

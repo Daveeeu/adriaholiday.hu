@@ -24,18 +24,22 @@ export function tourFormPathForServerKey(key: string): string {
     );
 }
 
-/** Shows the server's validation messages (422) at the fields they are about. */
+/**
+ * Shows the server's validation messages (422) at the fields they are about;
+ * returns the fields it marked.
+ */
 export function setTourServerErrors(
   form: UseFormReturn<TourFormValues>,
   error: unknown,
-): void {
+): FieldPath<TourFormValues>[] {
   if (!(error instanceof ApiError) || error.status !== 422) {
-    return;
+    return [];
   }
 
   const errors =
     (error.payload as { errors?: Record<string, unknown> } | null)?.errors ??
     {};
+  const marked: FieldPath<TourFormValues>[] = [];
 
   for (const [key, messages] of Object.entries(errors)) {
     const path = tourFormPathForServerKey(key) as FieldPath<TourFormValues>;
@@ -45,8 +49,11 @@ export function setTourServerErrors(
 
     if (message && form.getValues(path) !== undefined) {
       form.setError(path, { type: 'server', message });
+      marked.push(path);
     }
   }
+
+  return marked;
 }
 
 /** Every distinct message of the form's errors, nested fields included. */

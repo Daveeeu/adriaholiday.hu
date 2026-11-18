@@ -19,18 +19,15 @@ type TourGallerySectionProps = {
 
 export function TourGallerySection({ form }: TourGallerySectionProps) {
   return (
-    <section className="space-y-4 rounded-2xl border bg-card p-4">
-      <div>
-        <div className="flex items-center gap-1.5">
-          <h3 className="font-semibold">Galéria</h3>
-          <TourFieldHelp name="gallery" />
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Az út képei a publikus oldalon ebben a sorrendben jelennek meg; az
-          első aktív kép a borítókép. A sorrendet a fogantyúval húzva vagy a
-          fel–le nyilakkal állíthatod.
-        </p>
-      </div>
+    <div className="space-y-5">
+      <p className="flex items-start gap-1.5 text-sm text-muted-foreground">
+        <span>
+          A képek ebben a sorrendben jelennek meg az utazás oldalán; az első
+          aktív kép a borítókép. A sorrendet a fogantyúval húzva vagy a fel–le
+          nyilakkal állíthatod.
+        </span>
+        <TourFieldHelp name="gallery" />
+      </p>
 
       <div className="space-y-3">
         <FormField
@@ -70,6 +67,6 @@ export function TourGallerySection({ form }: TourGallerySectionProps) {
         defaultCategory="tours"
         sourceContext="tour_gallery"
       />
-    </section>
+    </div>
   );
 }

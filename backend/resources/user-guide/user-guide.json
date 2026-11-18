@@ -531,7 +531,7 @@
         {
           "id": "tour-editor",
           "title": "A körutazás szerkesztő felépítése",
-          "summary": "A szerkesztő külön oldalon nyílik (új útnál az „Új körutazás” gombbal, meglévőnél a ceruza ikonnal), és lenyitható szekciókra tagolódik. Mindig csak azt nyisd le, amin dolgozol; az „Összes lenyitása” / „Összes csukása” gombokkal egyszerre is nyithatod-zárhatod őket.",
+          "summary": "A szerkesztő külön oldalon nyílik (új útnál az „Új körutazás” gombbal, meglévőnél a ceruza ikonnal). Bal oldalt a szakaszok menüje, jobb oldalt mindig csak a kiválasztott szakasz látszik; keskeny képernyőn a menü a szerkesztő felett, vízszintesen görgethető gombsorként jelenik meg.",
           "path": "/tours",
           "menu": "Körutazások › Ajánlatok › ceruza ikon",
           "access": "Körutazások szerkesztése",
@@ -541,31 +541,22 @@
               "image": {
                 "file": "tour-form-overview",
                 "alt": "A körutazás szerkesztő",
-                "caption": "A szerkesztő teteje: a vissza nyíl, az út neve és állapota, a Törlés, Mégse és Mentés gombok, alattuk a szekciók. A szekciók fejlécében lévő szám (pl. „10 elem”) a már felvitt elemek számát mutatja."
+                "caption": "Felül a vissza nyíl, az út neve és állapota, a Törlés, Mégse és Mentés gombok; bal oldalt a szakaszok menüje. A menüpont melletti szám (pl. „3”) a felvitt elemek (időpontok, képek, napok) számát, a piros pötty hibás mezőt jelez."
               }
             },
             {
               "type": "list",
               "items": [
-                "Alapadatok – láthatóság és alapkapcsolók",
-                "Név és webcím – név, alcím, webcím, keresőben megjelenő szöveg",
-                "Galéria és média – képek",
-                "Árdoboz – az árdoboz tartalma",
-                "Tartalmi blokkok – leírások, program, keresési kulcsszavak",
-                "Program napok – napokra bontott program",
-                "Útvonal térkép – a megállókból rajzolt térkép",
-                "Szállás és ellátás",
-                "Ár tartalma – mit tartalmaz és mit nem az ár",
-                "Szűrők és kapcsolatok – régió, kategória, ország, közlekedés, felszállási helyek",
-                "Időpontok – indulások, időpontonkénti ár, felárak",
-                "Partnerportálok – partnerportálok feedjei",
-                "Foglalási űrlap beállításai – melyik űrlapsablont használja a foglalás"
+                "Alapok: Alapadatok (láthatóság, sorrend), Név és webcím, Képek",
+                "Ár és időpontok: Árdoboz, Időpontok (a ritkábban kellő mezők, pl. akció, saját szállás, felárak, egy időpont „További beállítások” részében), Ár tartalma",
+                "Tartalom: Leírások (lista leírás, ismertető, keresési kulcsszavak), Program szövege, Program napok, Útvonal térkép, Szállás és ellátás, Tudnivalók (kedvcsináló, fakultatív programok, belépők, fizetés, árak, kedvezmények, jegyzet; fent a gombokkal választod, melyiket szerkeszted, a zöld pötty a kitöltötteket jelzi)",
+                "Beállítások: Besorolás és kiemelés (régió, kategóriák, országok, címkék, felszállási helyek, főoldali kiemelés), Partnerportálok, Foglalási űrlap"
               ],
-              "title": "A szekciók sorrendben"
+              "title": "A szakaszok menüje"
             },
             {
               "type": "tip",
-              "text": "A „Mentés” gomb az oldal tetején görgetés közben is látszik. Egyszerre több szekciót is módosíthatsz, a mentés mindet rögzíti; mentés után a szerkesztő nyitva marad, a „Mégse” vagy a vissza nyíl visz vissza a listához."
+              "text": "A „Mentés” gomb az oldal tetején görgetés közben is látszik. Szakaszt váltani mentés nélkül is lehet: egyszerre több szakaszt is módosíthatsz, a mentés mindet rögzíti; mentés után a szerkesztő nyitva marad, a „Mégse” vagy a vissza nyíl visz vissza a listához."
             },
             {
               "type": "tip",
@@ -573,7 +564,7 @@
             },
             {
               "type": "tip",
-              "text": "Ha egy mező hibás (pl. hiányzik a név), a mentés nem történik meg: a szerkesztő lenyitja az érintett szekciót, a mező alatt pirossal kiírja a hibát, és felugró üzenetben is összefoglalja."
+              "text": "Ha egy mező hibás (pl. hiányzik a név), a mentés nem történik meg: a szerkesztő megnyitja a hibás szakaszt, a menüben piros pötty jelzi, a mező alatt pirossal kiírja a hibát, és felugró üzenetben is összefoglalja."
             }
           ]
         },

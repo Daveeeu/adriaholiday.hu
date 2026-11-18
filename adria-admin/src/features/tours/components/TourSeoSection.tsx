@@ -43,14 +43,8 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
   }, [form, name, seoAutoGenerate]);
 
   return (
-    <section className="space-y-4 rounded-2xl border bg-card p-4">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h3 className="font-semibold">Név és keresők</h3>
-          <p className="text-sm text-muted-foreground">
-            Név, alcím, webcím, valamint a keresőben megjelenő cím és leírás.
-          </p>
-        </div>
+    <div className="space-y-5">
+      <div className="flex justify-end">
         <Button
           type="button"
           variant="outline"
@@ -194,6 +188,6 @@ export function TourSeoSection({ form }: TourSeoSectionProps) {
           </FormItem>
         )}
       />
-    </section>
+    </div>
   );
 }
