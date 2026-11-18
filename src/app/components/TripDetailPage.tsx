@@ -402,7 +402,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                       priceBox={priceBox}
                       datePicker={
                         bookableDates.length > 1 ? (
-                          <TripDatePicker dates={bookableDates} selectedId={selectedDateId} onSelect={selectDate} />
+                          <TripDatePicker dates={bookableDates} selectedId={selectedDateId} onSelect={selectDate} variant="tiles" />
                         ) : null
                       }
                     />

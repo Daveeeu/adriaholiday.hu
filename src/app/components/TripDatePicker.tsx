@@ -8,16 +8,35 @@ type TripDatePickerProps = {
   dates: TripDate[];
   selectedId: TripDate["id"];
   onSelect: (date: TripDate) => void;
+  /** list: one under the other (the side panel); tiles: a grid sized by the surrounding container (the booking form). */
+  variant?: "list" | "tiles";
   className?: string;
 };
 
+const VARIANT_CLASSES = {
+  list: {
+    list: "divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100",
+    button: "",
+    active: "bg-[#00c389]/10",
+    idle: "bg-white hover:bg-[#f5f9fc]",
+  },
+  tiles: {
+    list: "grid grid-cols-1 gap-2 @md:grid-cols-2 @3xl:grid-cols-3",
+    button: "rounded-2xl border",
+    active: "border-[#00c389] bg-[#00c389]/10",
+    idle: "border-gray-200 bg-white hover:border-[#00c389]/50",
+  },
+};
+
 /**
- * A trip's departures one under the other, each with only its dates and
- * price; the selected date's promotions show at the top of the page.
+ * A trip's departures, each with only its dates and price; the selected
+ * date's promotions show at the top of the page.
  */
-export default function TripDatePicker({ dates, selectedId, onSelect, className = "" }: TripDatePickerProps) {
+export default function TripDatePicker({ dates, selectedId, onSelect, variant = "list", className = "" }: TripDatePickerProps) {
+  const classes = VARIANT_CLASSES[variant];
+
   return (
-    <ul className={`divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 ${className}`}>
+    <ul className={`${classes.list} ${className}`}>
       {dates.map((date) => {
         const active = date.id === selectedId;
         const price = date.displayedPrice || date.priceBox?.displayedPrice;
@@ -29,8 +48,8 @@ export default function TripDatePicker({ dates, selectedId, onSelect, className 
               type="button"
               aria-pressed={active}
               onClick={() => onSelect(date)}
-              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
-                active ? "bg-[#00c389]/10" : "bg-white hover:bg-[#f5f9fc]"
+              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${classes.button} ${
+                active ? classes.active : classes.idle
               }`}
             >
               <span

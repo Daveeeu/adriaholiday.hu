@@ -4,6 +4,7 @@ import { Menu, X, Phone, ArrowRight } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import { trackEvent } from "../analytics/trackEvent";
+import { useMobileBottomBarClaimed } from "./mobile/mobileBottomBar";
 import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 
@@ -16,6 +17,7 @@ export default function MobileNav() {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
   const { settings } = useSiteSettings();
+  const bottomBarClaimed = useMobileBottomBarClaimed();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -151,7 +153,7 @@ export default function MobileNav() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {isVisible && !isOpen && settings.primaryCtaText && settings.primaryCtaLink ? (
+        {isVisible && !isOpen && !bottomBarClaimed && settings.primaryCtaText && settings.primaryCtaLink ? (
           <motion.div
             className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
             initial={{ y: 100 }}
