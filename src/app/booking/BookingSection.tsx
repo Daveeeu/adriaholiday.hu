@@ -14,6 +14,8 @@ import PassengerOptionsList from "./PassengerOptionsList";
 import { tripStepExtras } from "./booking-pricing";
 import type { BookingFormField } from "./booking-form-fields";
 import { INSURANCE_PATH } from "./insurance";
+import type { LastSeatsCoupon } from "./bookings-api";
+import { lastSeatsCouponDeadline } from "./last-seats-coupon";
 import { type BookingDateOption, type BookingTrip, type TourBookingForm } from "./useTourBookingForm";
 
 const COUPON_FIELD: BookingFormField = {
@@ -39,7 +41,8 @@ type BookingSectionProps = {
  * The tour booking form on one page, without steps: trip, supplements and
  * insurance (apart), passengers and contact details one under the other. Below the trip page's
  * sidebar breakpoint (xl) the live price and the button stick to the bottom
- * of the screen; from xl the sidebar shows them instead.
+ * of the screen; from xl the sidebar shows them while scrolling, and the
+ * same bar closes the form in place.
  */
 export default function BookingSection({ booking, trip, datePicker }: BookingSectionProps) {
   if (booking.completed) {
@@ -70,10 +73,12 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
       {booking.urgency ? (
         <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#ff7a45]/30 bg-[#ff7a45]/10 p-4 text-sm text-[#0f172a]">
           <Flame className="mt-0.5 h-5 w-5 shrink-0 text-[#ff5a3c]" />
-          <p>
-            <span className="font-bold">{booking.urgency.title}</span> {booking.urgency.text}
-            {booking.appliedLastSeatsPercent ? " Más kedvezménnyel és kuponnal nem vonható össze." : null}
-          </p>
+          <div>
+            <p>
+              <span className="font-bold">{booking.urgency.title}</span> {booking.urgency.text}
+            </p>
+            {booking.lastSeatsCoupon ? <LastSeatsCouponNote booking={booking} coupon={booking.lastSeatsCoupon} /> : null}
+          </div>
         </div>
       ) : null}
 
@@ -137,10 +142,12 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
       </FormSection>
 
       <FormSection number={sectionAfterOptions + 1} title="Elérhetőség és véglegesítés" onReach={booking.reachSection}>
-        <ContactAndFinalFields booking={booking} couponable={Boolean(trip.couponable)} />
+        <ContactAndFinalFields booking={booking} couponable={Boolean(trip.couponable) || booking.lastSeatsCoupon !== null} />
       </FormSection>
 
-      <BookingSubmitBar {...summaryProps(booking)} className="-mx-5 -mb-5 xl:hidden md:-mx-8 md:-mb-8" />
+      {/* Narrow screens: stuck to the bottom of the screen. Wide screens, where the sidebar
+          shows the summary while scrolling: in place at the end of the form, so the button is there too. */}
+      <BookingSubmitBar {...summaryProps(booking)} className="-mx-5 -mb-5 md:-mx-8 md:-mb-8 xl:static xl:rounded-b-[30px]" />
     </section>
   );
 }
@@ -322,6 +329,26 @@ function passengerNames(booking: TourBookingForm): string[] {
   return booking.passengers.map((passenger, index) => (nameKey && passenger[nameKey]?.trim()) || `${index + 1}. utas`);
 }
 
+/** The visitor's last seats coupon, and a way to use it when it is not entered yet. */
+function LastSeatsCouponNote({ booking, coupon }: { booking: TourBookingForm; coupon: LastSeatsCoupon }) {
+  return (
+    <p className="mt-1.5">
+      {booking.lastSeatsCouponApplied ? "Beváltva: " : "A kuponod: "}
+      <span className="font-mono font-bold">{coupon.code}</span> – {coupon.percent}% a részvételi díjból,{" "}
+      {lastSeatsCouponDeadline(coupon)}-ig érvényes.{" "}
+      {booking.lastSeatsCouponApplied ? null : (
+        <button
+          type="button"
+          onClick={() => booking.setCouponCode(coupon.code)}
+          className="font-bold text-[#ff5a3c] underline underline-offset-2 hover:text-[#e0412a]"
+        >
+          Beváltom
+        </button>
+      )}
+    </p>
+  );
+}
+
 function ContactAndFinalFields({ booking, couponable }: { booking: TourBookingForm; couponable: boolean }) {
   return (
     <div className="space-y-5">
@@ -356,11 +383,6 @@ function ContactAndFinalFields({ booking, couponable }: { booking: TourBookingFo
             A kupon értékét a foglalás beküldésekor vonjuk le a végösszegből. Ha foglaláskor nem adod meg a kuponkódodat,
             utólag sajnos nem tudjuk érvényesíteni.
           </p>
-          {booking.lastSeatsDiscountDropped ? (
-            <p className="mt-2 text-xs font-semibold text-[#b45309]">
-              Kuponnal az utolsó helyek kedvezménye ({booking.lastSeatsDiscountPercent}%) nem jár, a kettő nem vonható össze.
-            </p>
-          ) : null}
         </div>
       ) : null}
 
@@ -376,7 +398,7 @@ function ContactAndFinalFields({ booking, couponable }: { booking: TourBookingFo
 
       <NewsletterConsent checked={booking.newsletterSubscribe} onChange={booking.setNewsletterSubscribe} />
 
-      {booking.onlinePayment ? <SimplePayLogo className="xl:hidden" /> : null}
+      {booking.onlinePayment ? <SimplePayLogo /> : null}
 
       <p className="rounded-2xl bg-[#f5f9fc] p-4 text-sm text-gray-600">
         Indulás előtt kb. 1 héttel írásos értesítőt (levélben vagy e-mailben) küldünk az indulással kapcsolatos
