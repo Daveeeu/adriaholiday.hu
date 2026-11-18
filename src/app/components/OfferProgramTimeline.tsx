@@ -69,7 +69,7 @@ export default function OfferProgramTimeline({
       </p>
 
       <div className="relative">
-        <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-[#00c389] via-[#16b8ff] to-transparent" />
+        <div className="absolute left-6 top-0 bottom-0 hidden w-px md:block bg-gradient-to-b from-[#00c389] via-[#16b8ff] to-transparent" />
 
         <div className="space-y-7">
           {days.map((day, index) => {
@@ -80,7 +80,7 @@ export default function OfferProgramTimeline({
             return (
               <motion.div
                 key={day.id}
-                className="relative pl-20"
+                className="relative md:pl-20"
                 onViewportEnter={() => {
                   trackEvent("program_day_open", {
                     entity: {
@@ -98,14 +98,14 @@ export default function OfferProgramTimeline({
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.45, delay: index * 0.05 }}
               >
-                <div className="absolute left-0 top-8 w-12 h-12 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white flex items-center justify-center text-sm font-bold shadow-[0_12px_30px_rgba(0,195,137,0.25)]">
+                <div className="absolute left-0 top-8 hidden w-12 h-12 rounded-2xl md:flex bg-gradient-to-r from-[#00c389] to-[#16b8ff] text-white items-center justify-center text-sm font-bold shadow-[0_12px_30px_rgba(0,195,137,0.25)]">
                   {day.dayNumber}
                 </div>
 
                 <div className="group relative overflow-hidden rounded-[34px] bg-white border border-gray-100 shadow-[0_12px_42px_rgba(15,23,42,0.05)]">
                   <div className="absolute top-0 right-0 w-56 h-56 bg-[#00c389]/8 blur-3xl rounded-full" />
 
-                  <div className="relative grid grid-cols-1 gap-6 p-7 md:p-8 lg:grid-cols-[1fr_220px]">
+                  <div className="relative grid grid-cols-1 gap-6 p-5 sm:p-7 md:p-8 lg:grid-cols-[1fr_220px]">
                     <div>
                       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00c389]/8 text-[#00a878] text-xs font-bold mb-4">
                         <MapPin className="w-3.5 h-3.5" />

@@ -103,7 +103,7 @@ export default function TripSectionNav({ children }: { children: ReactNode }) {
           ref={navRef}
           {...stickyTop}
           aria-label="Az utazás részletei"
-          className="sticky top-0 z-30 -mx-8 mb-12 border-b border-gray-100 bg-white/90 px-8 py-3 backdrop-blur-md md:top-[77px] md:-mx-0 md:rounded-[24px] md:border md:px-3 md:shadow-[0_12px_40px_rgba(15,23,42,0.06)]"
+          className="sticky top-0 z-30 -mx-4 mb-12 border-b border-gray-100 bg-white/90 px-4 py-3 sm:-mx-8 sm:px-8 backdrop-blur-md md:top-[77px] md:-mx-0 md:rounded-[24px] md:border md:px-3 md:shadow-[0_12px_40px_rgba(15,23,42,0.06)]"
         >
           <ul ref={listRef} className="relative flex gap-2 overflow-x-auto pr-16 [scrollbar-width:none] md:pr-0 [&::-webkit-scrollbar]:hidden">
             {sections.map((section, index) => (

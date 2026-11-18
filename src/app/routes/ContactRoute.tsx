@@ -24,6 +24,22 @@ type ContactCard = {
   external?: boolean;
 };
 
+/** Lets a long address break after the @ on narrow screens instead of mid-word. */
+function breakableEmail(email: string): ReactNode {
+  const at = email.indexOf("@");
+
+  if (at < 0) {
+    return email;
+  }
+
+  return (
+    <>
+      {email.slice(0, at)}
+      <wbr />@{email.slice(at + 1)}
+    </>
+  );
+}
+
 export default function ContactRoute() {
   const { settings } = useSiteSettings();
   const socials = socialLinks(settings);
@@ -46,7 +62,7 @@ export default function ContactRoute() {
         }
       : null,
     settings.email
-      ? { icon: <Mail className="size-5" />, label: "E-mail", value: settings.email, href: `mailto:${settings.email}`, action: "Levél írása" }
+      ? { icon: <Mail className="size-5" />, label: "E-mail", value: breakableEmail(settings.email), href: `mailto:${settings.email}`, action: "Levél írása" }
       : null,
     settings.whatsapp
       ? { icon: <MessageCircle className="size-5" />, label: "WhatsApp", value: settings.whatsapp, href: `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`, action: "Üzenet", external: true }
@@ -110,7 +126,7 @@ export default function ContactRoute() {
       </section>
 
       <section className="relative -mt-28 pb-24">
-        <div className="mx-auto grid max-w-6xl gap-6 px-6 md:px-10 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 md:px-10 lg:grid-cols-[0.85fr_1.15fr]">
           <motion.div
             className="space-y-4"
             initial={{ opacity: 0, y: 30 }}
@@ -125,7 +141,7 @@ export default function ContactRoute() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">{card.label}</span>
-                    <span className="mt-1 block whitespace-pre-line break-words text-lg font-semibold text-[#0f172a]">{card.value}</span>
+                    <span className="mt-1 block whitespace-pre-line text-lg [overflow-wrap:anywhere] font-semibold text-[#0f172a]">{card.value}</span>
                     {card.action ? (
                       <span className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#00a878] transition-colors group-hover:text-[#0f8fc9]">
                         {card.action}

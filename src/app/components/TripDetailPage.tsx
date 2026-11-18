@@ -199,7 +199,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
           <div className="absolute inset-0 bg-gradient-to-b from-[#07111f]/80 via-[#07111f]/55 to-[#07111f]/90" />
         </div>
 
-        <div className="relative z-10 max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20 pt-10 pb-28">
+        <div className="relative z-10 max-w-[1500px] mx-auto px-4 sm:px-8 md:px-12 lg:px-20 pt-10 pb-28">
           <nav aria-label="Morzsamenü" className="mb-8 text-sm font-medium text-white/70">
             <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <li>
@@ -295,8 +295,8 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
       </section>
 
       <section className="relative z-20 -mt-12">
-        <div className="max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
-          <div className="bg-white rounded-[36px] border border-gray-100 shadow-[0_20px_70px_rgba(15,23,42,0.08)] p-6 md:p-7">
+        <div className="max-w-[1500px] mx-auto px-4 sm:px-8 md:px-12 lg:px-20">
+          <div className="bg-white rounded-[36px] border border-gray-100 shadow-[0_20px_70px_rgba(15,23,42,0.08)] p-5 md:p-7">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-7 lg:gap-10 items-center">
               <SelectedDepartureSummary
                 dateLabel={selectedDate.label}
@@ -339,7 +339,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
       </section>
 
       <section className="py-20">
-        <div className="max-w-[1500px] mx-auto px-8 md:px-12 lg:px-20">
+        <div className="max-w-[1500px] mx-auto px-4 sm:px-8 md:px-12 lg:px-20">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-10">
             <div>
               <OfferGallerySection
@@ -347,8 +347,6 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 subtitle={trip.gallerySubtitle}
                 gallery={trip.gallery}
               />
-
-              <OfferContentSection title="Kedvcsináló" content={trip.teaser} className="xl:hidden" />
 
               <TripSectionNav>
                 <OfferProgramTimeline
@@ -367,6 +365,9 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
                 ) : (
                   <OfferContentSection title="Tudnivalók a programhoz" content={trip.programFooter} />
                 )}
+
+                {/* Below the program on narrow screens, so the program is the first thing to read; wide screens show it in the sidebar. */}
+                <OfferContentSection title="Kedvcsináló" content={trip.teaser} className="xl:hidden" />
 
                 {trip.routeMap ? <OfferRouteMap url={trip.routeMap.url} alt={trip.routeMap.alt} /> : null}
 

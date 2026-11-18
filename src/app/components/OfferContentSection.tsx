@@ -88,7 +88,7 @@ export default function OfferContentSection({
       </h2>
 
       <div className="rounded-[34px] border border-[#e7eef5] bg-white shadow-[0_12px_42px_rgba(15,23,42,0.05)]">
-        <div className="p-6 md:p-8 lg:p-9">
+        <div className="p-5 md:p-8 lg:p-9">
           {parts.map((part, index) => (
             <Fragment key={index}>
               {index > 0 ? <ProgramPhoto item={photos[index - 1]} /> : null}
