@@ -88,7 +88,32 @@
     <div class="header-accent"></div>
 
     <div class="content">
-        {{-- First page: the price, then the trip and the person who booked. --}}
+        {{-- First page: the trip and the person who booked, the price, then the insurance. --}}
+        <table class="two-col"><tr>
+            <td class="col" style="padding-right: 8px;">
+                <div class="section">
+                    <p class="section-title">Az utazás</p>
+                    <table>
+                        @foreach ($tripRows as $row)
+                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
+                        @endforeach
+                    </table>
+                </div>
+            </td>
+            <td class="col" style="padding-left: 8px;">
+                <div class="section">
+                    <p class="section-title">Megrendelő</p>
+                    <table>
+                        @forelse ($contactRows as $row)
+                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
+                        @empty
+                            <tr><td class="label">Név</td><td class="value">{{ $customerName }}</td></tr>
+                        @endforelse
+                    </table>
+                </div>
+            </td>
+        </tr></table>
+
         @if ($priceRows !== [] || $insuranceRows !== [] || $extraRows !== [] || $total)
             <div class="section">
                 <p class="section-title">Részvételi díj</p>
@@ -121,31 +146,6 @@
         @else
             <div class="insured">Megrendelt biztosítás: <strong>{{ implode(', ', $insuranceNames) }}</strong></div>
         @endif
-
-        <table class="two-col"><tr>
-            <td class="col" style="padding-right: 8px;">
-                <div class="section">
-                    <p class="section-title">Az utazás</p>
-                    <table>
-                        @foreach ($tripRows as $row)
-                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
-                        @endforeach
-                    </table>
-                </div>
-            </td>
-            <td class="col" style="padding-left: 8px;">
-                <div class="section">
-                    <p class="section-title">Megrendelő</p>
-                    <table>
-                        @forelse ($contactRows as $row)
-                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
-                        @empty
-                            <tr><td class="label">Név</td><td class="value">{{ $customerName }}</td></tr>
-                        @endforelse
-                    </table>
-                </div>
-            </td>
-        </tr></table>
 
         {{-- The passengers, the payment and the notes start on the second page. --}}
         <div class="page-two">
