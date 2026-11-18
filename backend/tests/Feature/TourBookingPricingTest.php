@@ -316,6 +316,71 @@ class TourBookingPricingTest extends TestCase
         $this->assertEquals(152020, $pricing['total']);
     }
 
+    /** Leaves 3 of 10 seats free: running low (at most 35% free), with room for a booking of two. */
+    private function runSeatsLow(): void
+    {
+        $this->tourDate->update(['capacity' => 10]);
+        Booking::factory()->create([
+            'booking_type' => 'tour_booking',
+            'status' => 'confirmed',
+            'cancelled' => false,
+            'tour_id' => $this->tour->id,
+            'tour_date_id' => $this->tourDate->id,
+            'passenger_count' => 7,
+        ]);
+    }
+
+    public function test_a_date_running_low_on_seats_gives_the_last_seats_discount(): void
+    {
+        $this->runSeatsLow();
+
+        $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload()));
+
+        $this->assertSame('Utolsó helyek kedvezmény', $pricing['discount']['label']);
+        $this->assertEquals(5, $pricing['discount']['percent']);
+        $this->assertEquals(4590, $pricing['discount']['amount']);
+        // 91 800 − 4 590 + 9 400 + 60 000
+        $this->assertEquals(156610, $pricing['total']);
+    }
+
+    public function test_the_last_seats_discount_does_not_stack_with_an_offer_or_a_coupon(): void
+    {
+        $this->runSeatsLow();
+        $this->tourDate->update(['price_box_discount_badge' => '-10%']);
+
+        $onOffer = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload()));
+
+        $this->assertEquals(10, $onOffer['discount']['percent']);
+
+        $this->tourDate->update(['price_box_discount_badge' => null]);
+        Coupon::query()->create(['active' => true, 'name' => 'Hírlevél', 'code' => 'HIR-ABC123', 'value' => 5000, 'used' => false]);
+
+        // One passenger (who then needs the single room): the booking above took two of the three free seats.
+        $withCoupon = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload([
+            'couponCode' => 'HIR-ABC123',
+            'extraChoices' => [$this->singleRoom->id => self::ALONE],
+        ], 1)));
+
+        $this->assertNull($withCoupon['discount']);
+        $this->assertEquals(5000, $withCoupon['coupon']['amount']);
+    }
+
+    public function test_the_trip_page_shows_which_dates_give_the_last_seats_discount(): void
+    {
+        $plenty = TourDate::factory()->for($this->tour)->create(['start_date' => today()->addDays(90), 'end_date' => today()->addDays(91), 'capacity' => 40]);
+        $this->runSeatsLow();
+
+        $dates = collect($this->getJson("/api/portfolio/offers/{$this->tour->seo_name}")->assertOk()->json('dates'))->keyBy('id');
+
+        $this->assertEquals(5, $dates[$this->tourDate->id]['lastSeatsDiscountPercent']);
+        $this->assertNull($dates[$plenty->id]['lastSeatsDiscountPercent']);
+
+        $this->tour->update(['price_box_discount_badge' => 'Last Minute -15%']);
+        $dates = collect($this->getJson("/api/portfolio/offers/{$this->tour->seo_name}")->assertOk()->json('dates'))->keyBy('id');
+
+        $this->assertNull($dates[$this->tourDate->id]['lastSeatsDiscountPercent']);
+    }
+
     public function test_valid_coupon_is_deducted_and_redeemed_once(): void
     {
         Coupon::query()->create(['active' => true, 'name' => 'Hírlevél', 'code' => 'HIR-ABC123', 'value' => 5000, 'used' => false]);
@@ -429,6 +494,9 @@ class TourBookingPricingTest extends TestCase
         // The deposit is 40% of the 89 400 Ft trip price plus the 1 080 Ft insurance, each with its amount.
         $this->assertStringContainsString('40%: 35.760 Ft + biztosítás: 1.080 Ft', $html);
         $this->assertStringContainsString('ALFA Compass utasbiztosítás', $html);
+        // The insurance is invoiced apart: the trip and the insurance each with its own subtotal.
+        $this->assertMatchesRegularExpression('#>Utazás díja</td>\s*<td[^>]*>89.400 Ft</td>#', $html);
+        $this->assertMatchesRegularExpression('#>Biztosítás díja \(külön számlázandó\)</td>\s*<td[^>]*>1.080 Ft</td>#', $html);
         // 45 900 + 4 700 + 30 000 + 13 800 − 5 000 + 540 × 2 days
         $this->assertMatchesRegularExpression('#>Végösszeg</td>\s*<td[^>]*>90.480 Ft</td>#', $html);
     }

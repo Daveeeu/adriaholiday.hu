@@ -41,18 +41,6 @@ export function BookingPricingCard({
     });
   }
 
-  if (pricing.departurePlace) {
-    rows.push({
-      key: 'departure',
-      label: `Felszállás: ${pricing.departurePlace.name}`,
-      detail:
-        pricing.departurePlace.fee > 0
-          ? `${pricing.passengers} fő × ${format(pricing.departurePlace.fee)}`
-          : null,
-      amount: pricing.departurePlace.total,
-    });
-  }
-
   pricing.extras.forEach((extra) => {
     rows.push({
       key: `extra-${extra.id}`,
@@ -67,6 +55,19 @@ export function BookingPricingCard({
     });
   });
 
+  // After the supplements, which the server lists in its fixed order.
+  if (pricing.departurePlace) {
+    rows.push({
+      key: 'departure',
+      label: `Felszállás: ${pricing.departurePlace.name}`,
+      detail:
+        pricing.departurePlace.fee > 0
+          ? `${pricing.passengers} fő × ${format(pricing.departurePlace.fee)}`
+          : null,
+      amount: pricing.departurePlace.total,
+    });
+  }
+
   if (pricing.coupon) {
     rows.push({
       key: 'coupon',
@@ -76,14 +77,13 @@ export function BookingPricingCard({
     });
   }
 
-  pricing.insurances.forEach((insurance) => {
-    rows.push({
-      key: `insurance-${insurance.key}`,
-      label: insurance.name,
-      detail: insurance.detail,
-      amount: insurance.total,
-    });
-  });
+  // Insurances are always invoiced apart from the trip.
+  const insuranceRows: PriceRow[] = pricing.insurances.map((insurance) => ({
+    key: `insurance-${insurance.key}`,
+    label: insurance.name,
+    detail: insurance.detail,
+    amount: insurance.total,
+  }));
 
   return (
     <FormSection
@@ -91,21 +91,26 @@ export function BookingPricingCard({
       description="A foglalás pillanatában a szerver által számolt tételes ár."
     >
       <div className="space-y-2 text-sm">
-        {rows.map((row) => (
-          <div key={row.key} className="flex items-start justify-between gap-4">
-            <div>
-              <div className="font-medium text-foreground">{row.label}</div>
-              {row.detail ? (
-                <div className="text-xs text-muted-foreground">
-                  {row.detail}
-                </div>
-              ) : null}
+        <PriceRows rows={rows} format={format} />
+
+        {insuranceRows.length > 0 ? (
+          <>
+            {pricing.tripTotal !== null ? (
+              <SubtotalRow
+                label="Utazás díja"
+                amount={format(pricing.tripTotal)}
+              />
+            ) : null}
+            <div className="pt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Biztosítás – külön számlázandó
             </div>
-            <div className="whitespace-nowrap font-medium">
-              {format(row.amount)}
-            </div>
-          </div>
-        ))}
+            <PriceRows rows={insuranceRows} format={format} />
+            <SubtotalRow
+              label="Biztosítás díja"
+              amount={format(pricing.insuranceTotal)}
+            />
+          </>
+        ) : null}
 
         {pricing.total !== null ? (
           <div className="flex items-center justify-between gap-4 border-t pt-2 font-semibold">
@@ -138,5 +143,34 @@ export function BookingPricingCard({
         ))}
       </div>
     </FormSection>
+  );
+}
+
+function PriceRows({
+  rows,
+  format,
+}: {
+  rows: PriceRow[];
+  format: (amount: number) => string;
+}) {
+  return rows.map((row) => (
+    <div key={row.key} className="flex items-start justify-between gap-4">
+      <div>
+        <div className="font-medium text-foreground">{row.label}</div>
+        {row.detail ? (
+          <div className="text-xs text-muted-foreground">{row.detail}</div>
+        ) : null}
+      </div>
+      <div className="whitespace-nowrap font-medium">{format(row.amount)}</div>
+    </div>
+  ));
+}
+
+function SubtotalRow({ label, amount }: { label: string; amount: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-t pt-2 font-medium">
+      <span>{label}</span>
+      <span className="whitespace-nowrap">{amount}</span>
+    </div>
   );
 }

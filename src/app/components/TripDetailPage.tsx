@@ -184,6 +184,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
         message={urgencyMessage({
           seatsRunningLow: selectedDate.seatsRunningLow,
           seatsLeft: selectedSeats,
+          discountPercent: selectedDate.lastSeatsDiscountPercent,
         })}
       />
       <section className="relative overflow-hidden">

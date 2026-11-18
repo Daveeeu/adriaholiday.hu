@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useRef } from "react";
-import { Check, CreditCard, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
+import { BadgePercent, Check, CreditCard, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
 
 import SimplePayLogo from "../components/SimplePayLogo";
 import { useInView } from "../hooks/useInView";
@@ -67,6 +67,16 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
       </div>
       <h2 className="text-3xl font-extrabold tracking-tight text-[#0f172a] md:text-4xl">Foglalás</h2>
       <p className="mt-1 text-gray-500">Töltsd ki, és a végén egyben elküldöd.</p>
+
+      {booking.lastSeatsDiscountPercent ? (
+        <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#00c389]/40 bg-[#00c389]/10 p-4 text-sm text-[#0f172a]">
+          <BadgePercent className="mt-0.5 h-5 w-5 shrink-0 text-[#00a878]" />
+          <p>
+            <span className="font-bold">Fogynak a helyek, most {booking.lastSeatsDiscountPercent}% kedvezménnyel foglalhatsz.</span>{" "}
+            A kedvezményt levonjuk a részvételi díjból; más kedvezménnyel és kuponnal nem vonható össze.
+          </p>
+        </div>
+      ) : null}
 
       <FormSection number={1} title="Utazás" onReach={booking.reachSection}>
         {datePicker ? (
@@ -321,6 +331,11 @@ function ContactAndFinalFields({ booking, couponable }: { booking: TourBookingFo
             A kupon értékét a foglalás beküldésekor vonjuk le a végösszegből. Ha foglaláskor nem adod meg a kuponkódodat,
             utólag sajnos nem tudjuk érvényesíteni.
           </p>
+          {booking.lastSeatsDiscountDropped ? (
+            <p className="mt-2 text-xs font-semibold text-[#b45309]">
+              Kuponnal az utolsó helyek kedvezménye ({booking.lastSeatsDiscountPercent}%) nem jár, a kettő nem vonható össze.
+            </p>
+          ) : null}
         </div>
       ) : null}
 

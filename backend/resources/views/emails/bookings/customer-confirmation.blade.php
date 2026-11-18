@@ -54,9 +54,28 @@
                                 <td align="right" style="{{ $font }}padding:7px 0;color:#0f172a;font-size:14px;font-weight:600;border-bottom:1px solid #f1f5f9;">{{ $row['value'] }}</td>
                             </tr>
                         @endforeach
+                        @if ($insuranceRows !== [])
+                            {{-- Insurances are invoiced apart from the trip. --}}
+                            @if ($tripTotal)
+                                <tr>
+                                    <td style="{{ $font }}padding:9px 12px 7px 0;color:#0f172a;font-size:14px;font-weight:700;border-bottom:1px solid #f1f5f9;">Utazás díja</td>
+                                    <td align="right" style="{{ $font }}padding:9px 0 7px;color:#0f172a;font-size:14px;font-weight:700;white-space:nowrap;border-bottom:1px solid #f1f5f9;">{{ $tripTotal }}</td>
+                                </tr>
+                            @endif
+                            @foreach ($insuranceRows as $row)
+                                <tr>
+                                    <td style="{{ $font }}padding:7px 12px 7px 0;color:#334155;font-size:14px;border-bottom:1px solid #f1f5f9;">{{ $row['label'] }}</td>
+                                    <td align="right" style="{{ $font }}padding:7px 0;color:#0f172a;font-size:14px;font-weight:600;white-space:nowrap;border-bottom:1px solid #f1f5f9;">{{ $row['amount'] }}</td>
+                                </tr>
+                            @endforeach
+                            <tr>
+                                <td style="{{ $font }}padding:9px 12px 7px 0;color:#0f172a;font-size:14px;font-weight:700;">Biztosítás díja <span style="font-weight:400;color:#64748b;">(külön számlázzuk)</span></td>
+                                <td align="right" style="{{ $font }}padding:9px 0 7px;color:#0f172a;font-size:14px;font-weight:700;white-space:nowrap;">{{ $insuranceTotal }}</td>
+                            </tr>
+                        @endif
                         @if ($total)
                             <tr>
-                                <td style="{{ $font }}padding:14px 12px 0 0;color:#0f172a;font-size:16px;font-weight:800;">Utazás teljes összege</td>
+                                <td style="{{ $font }}padding:14px 12px 0 0;color:#0f172a;font-size:16px;font-weight:800;">{{ $insuranceRows !== [] ? 'Fizetendő összesen' : 'Utazás teljes összege' }}</td>
                                 <td align="right" style="{{ $font }}padding:14px 0 0;color:#00a878;font-size:20px;font-weight:800;white-space:nowrap;">{{ $total }}</td>
                             </tr>
                         @endif

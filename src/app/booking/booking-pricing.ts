@@ -49,6 +49,8 @@ export const EMPTY_PASSENGER_OPTIONS: PassengerOptions = {
 type EstimateInput = {
   basePrice: number | null;
   discountPercent: number | null;
+  /** What the discount line is called; "Kedvezmény" unless it is e.g. the last seats discount. */
+  discountLabel?: string;
   departurePlace: BookingDeparturePlace | null;
   extras: BookingExtra[];
   /** Extras charged once per booking that the customer selected. */
@@ -183,6 +185,7 @@ export function isCancellationInsuranceAvailable(
 export function estimateBookingPrice({
   basePrice,
   discountPercent,
+  discountLabel = "Kedvezmény",
   departurePlace,
   extras,
   bookingExtraIds,
@@ -205,16 +208,7 @@ export function estimateBookingPrice({
   ];
 
   if (discount > 0) {
-    lines.push({ key: "discount", label: `Kedvezmény (-${discountPercent}%)`, amount: -discount });
-  }
-
-  if (departurePlace && departureFee > 0) {
-    lines.push({
-      key: "departure",
-      label: `Felszállás: ${departurePlace.name}`,
-      amount: departureFee * travellers,
-      perPerson: { count: travellers, unitPrice: departureFee },
-    });
+    lines.push({ key: "discount", label: `${discountLabel} (-${discountPercent}%)`, amount: -discount });
   }
 
   const bookingExtras = chargedBookingExtras(extras, bookingExtraIds, travellers);
@@ -237,6 +231,16 @@ export function estimateBookingPrice({
       });
     }
   });
+
+  // After the supplements, which come in the server's fixed order (local tax first, see TourExtraOrder).
+  if (departurePlace && departureFee > 0) {
+    lines.push({
+      key: "departure",
+      label: `Felszállás: ${departurePlace.name}`,
+      amount: departureFee * travellers,
+      perPerson: { count: travellers, unitPrice: departureFee },
+    });
+  }
 
   const tripTotal = lines.reduce((sum, line) => sum + line.amount, 0);
   const bookingExtrasTotal = bookingExtras.reduce((sum, extra) => sum + extra.price, 0);

@@ -8,12 +8,14 @@ use App\Models\TourDate;
 use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
 use App\Support\Booking\BookingInsuranceSettings;
+use App\Support\Booking\LastSeatsDiscount;
 use App\Support\Booking\TourBookingPassengerOptions;
 use App\Support\Booking\TourBookingSelection;
 use App\Support\DiscountBadge;
 use App\Support\HufPrice;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraCurrency;
+use App\Support\Tour\TourExtraOrder;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -21,7 +23,8 @@ use Illuminate\Validation\ValidationException;
  * Prices a public tour booking on the server, so the stored total never
  * depends on what the browser calculated:
  *
- *   base price × passengers − discount (the price box's discount badge)
+ *   base price × passengers − discount (the price box's discount badge, or
+ *     else the last seats discount when no coupon code is used)
  *   + departure place fee × passengers
  *   + charged extras (for each passenger who has them, or once per booking;
  *     extras in another currency are paid on site and listed apart)
@@ -53,7 +56,7 @@ class TourBookingPriceCalculator
         $passengers = $selection->passengers;
         $basePrice = $this->basePrice($tour, $tourDate);
         $baseTotal = $basePrice !== null ? $basePrice * $passengers : null;
-        $discount = $this->discount($tour, $tourDate, $baseTotal);
+        $discount = $this->discount($tour, $tourDate, $baseTotal, $selection->couponCode !== null);
         $departurePlace = $this->departurePlace($tour, $tourDate, $selection->departurePlaceId, $passengers);
         // Fees in another currency (e.g. a city tax in euros) are paid on
         // site: listed, never added to the forint total.
@@ -103,24 +106,35 @@ class TourBookingPriceCalculator
 
     /**
      * The discount badge the public price box applies (the date's badge
-     * overrides the tour's), e.g. a Last Minute discount.
+     * overrides the tour's), e.g. a Last Minute discount. A date without one
+     * whose seats are running low gives the last seats discount instead,
+     * unless a coupon is used: discounts never stack.
      *
      * @return array{label: string, percent: float, amount: float}|null
      */
-    private function discount(Tour $tour, ?TourDate $tourDate, ?float $baseTotal): ?array
+    private function discount(Tour $tour, ?TourDate $tourDate, ?float $baseTotal, bool $couponUsed): ?array
     {
-        $badge = filled($tourDate?->price_box_discount_badge) ? $tourDate->price_box_discount_badge : $tour->price_box_discount_badge;
-        $percent = DiscountBadge::percent($badge);
-
-        if ($percent === null || $baseTotal === null) {
+        if ($baseTotal === null) {
             return null;
         }
 
-        return [
-            'label' => $tour->price_box_discount_text ?: 'Kedvezmény',
-            'percent' => $percent,
-            'amount' => round($baseTotal * $percent / 100),
-        ];
+        $badgePercent = DiscountBadge::percent(DiscountBadge::of($tour, $tourDate));
+
+        if ($badgePercent !== null) {
+            return [
+                'label' => $tour->price_box_discount_text ?: 'Kedvezmény',
+                'percent' => $badgePercent,
+                'amount' => round($baseTotal * $badgePercent / 100),
+            ];
+        }
+
+        $lastSeatsPercent = $tourDate !== null && ! $couponUsed ? LastSeatsDiscount::percentFor($tour, $tourDate) : null;
+
+        return $lastSeatsPercent !== null ? [
+            'label' => LastSeatsDiscount::LABEL,
+            'percent' => $lastSeatsPercent,
+            'amount' => round($baseTotal * $lastSeatsPercent / 100),
+        ] : null;
     }
 
     /**
@@ -171,7 +185,7 @@ class TourBookingPriceCalculator
             ]);
         }
 
-        return $extras
+        return collect(TourExtraOrder::sort($extras->all(), fn (TourDateExtra $extra): string => $extra->name))
             ->map(fn (TourDateExtra $extra): ?array => TourExtraChargeRule::chargedPerPassenger($extra->charge_rule, $extra->price_unit)
                 ? $this->passengerExtra($extra, $selection)
                 : $this->bookingExtra($extra, $selection))

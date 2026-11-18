@@ -5,7 +5,7 @@ import SimplePayLogo from "../components/SimplePayLogo";
 import { useClaimMobileBottomBar } from "../components/mobile/mobileBottomBar";
 import { useInView } from "../hooks/useInView";
 import { formatHuf } from "../lib/price";
-import type { BookingPriceEstimate } from "./booking-pricing";
+import type { BookingPriceEstimate, BookingPriceLine } from "./booking-pricing";
 
 type BookingPriceSummaryProps = {
   estimate: BookingPriceEstimate;
@@ -95,13 +95,33 @@ export function BookingSubmitBar({ className = "", ...summary }: BookingPriceSum
   );
 }
 
+/**
+ * The price line by line: the trip's own fees first, then, apart, the
+ * insurances, which are always invoiced separately, each with its subtotal.
+ */
 function PriceLines({ estimate }: { estimate: BookingPriceEstimate }) {
-  const lines = [...estimate.lines, ...estimate.insuranceLines];
-
-  if (lines.length === 0) {
+  if (estimate.lines.length === 0) {
     return null;
   }
 
+  if (estimate.insuranceLines.length === 0) {
+    return <LineList lines={estimate.lines} />;
+  }
+
+  return (
+    <div className="space-y-3">
+      <LineList lines={estimate.lines} />
+      {estimate.tripTotal !== null ? <Subtotal label="Utazás díja" amount={estimate.tripTotal} /> : null}
+      <div className="pt-1 text-xs font-bold uppercase tracking-wide text-white/45">Biztosítás – külön számlázzuk</div>
+      <LineList lines={estimate.insuranceLines} />
+      {estimate.total !== null && estimate.tripTotal !== null ? (
+        <Subtotal label="Biztosítás díja" amount={estimate.total - estimate.tripTotal} />
+      ) : null}
+    </div>
+  );
+}
+
+function LineList({ lines }: { lines: BookingPriceLine[] }) {
   return (
     <ul className="space-y-2 text-sm">
       {lines.map((line) => (
@@ -118,6 +138,15 @@ function PriceLines({ estimate }: { estimate: BookingPriceEstimate }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+function Subtotal({ label, amount }: { label: string; amount: number }) {
+  return (
+    <div className="flex justify-between gap-4 border-t border-white/10 pt-2 text-sm font-bold text-white">
+      <span>{label}</span>
+      <span className="whitespace-nowrap">{formatHuf(amount)}</span>
+    </div>
   );
 }
 

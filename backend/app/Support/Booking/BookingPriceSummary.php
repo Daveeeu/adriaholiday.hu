@@ -25,7 +25,8 @@ final class BookingPriceSummary
     }
 
     /**
-     * The charged items as label/amount pairs for a price table; free items are left out.
+     * The trip's charged items as label/amount pairs for a price table, without
+     * the insurances (see insuranceRows()); free items are left out.
      *
      * @return array<int, array{label: string, amount: string}>
      */
@@ -41,10 +42,6 @@ final class BookingPriceSummary
             $rows[] = ['label' => sprintf('%s (-%s%%)', $this->pricing['discount']['label'], $this->pricing['discount']['percent']), 'amount' => '-'.$this->format($this->pricing['discount']['amount'])];
         }
 
-        if (($this->pricing['departurePlace']['total'] ?? 0) > 0) {
-            $rows[] = ['label' => 'Felszállási díj ('.$this->pricing['departurePlace']['name'].')', 'amount' => $this->format($this->pricing['departurePlace']['total'])];
-        }
-
         foreach ($this->pricing['extras'] as $extra) {
             $rows[] = [
                 'label' => sprintf('%s (%d × %s)', self::withChoice($extra['name'], $extra['choice']), $extra['quantity'], $this->format($extra['price'])),
@@ -52,15 +49,44 @@ final class BookingPriceSummary
             ];
         }
 
+        // After the supplements, which the calculator lists in the fixed order (TourExtraOrder).
+        if (($this->pricing['departurePlace']['total'] ?? 0) > 0) {
+            $rows[] = ['label' => 'Felszállási díj ('.$this->pricing['departurePlace']['name'].')', 'amount' => $this->format($this->pricing['departurePlace']['total'])];
+        }
+
         if ($this->pricing['coupon'] !== null) {
             $rows[] = ['label' => 'Kupon ('.$this->pricing['coupon']['code'].')', 'amount' => '-'.$this->format($this->pricing['coupon']['amount'])];
         }
 
-        foreach ($this->pricing['insurances'] as $insurance) {
-            $rows[] = ['label' => $insurance['name'].' ('.$insurance['detail'].')', 'amount' => $this->format($insurance['total'])];
-        }
-
         return $rows;
+    }
+
+    /**
+     * The insurances as label/amount pairs, listed apart from the trip: they
+     * are always invoiced separately.
+     *
+     * @return array<int, array{label: string, amount: string}>
+     */
+    public function insuranceRows(): array
+    {
+        return array_map(fn (array $insurance): array => [
+            'label' => $insurance['name'].' ('.$insurance['detail'].')',
+            'amount' => $this->format($insurance['total']),
+        ], $this->pricing['insurances']);
+    }
+
+    /** The trip price without the insurances, formatted, or null when the trip has no price. */
+    public function tripTotal(): ?string
+    {
+        $total = $this->tripTotalAmount();
+
+        return $total !== null ? $this->format($total) : null;
+    }
+
+    /** The insurances' price, formatted, or null when none was ordered. */
+    public function insuranceTotal(): ?string
+    {
+        return $this->pricing['insurances'] !== [] ? $this->format($this->insuranceTotalAmount()) : null;
     }
 
     /**

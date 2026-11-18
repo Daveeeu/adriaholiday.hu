@@ -54,6 +54,8 @@ export type BookingDateOption = {
   label: string;
   status?: string | null;
   seatsLeft?: number | null;
+  /** Given by the server while the seats run low and the date is not on offer (see LastSeatsDiscount). */
+  lastSeatsDiscountPercent?: number | null;
   extras?: BookingExtra[];
   depositPercent?: number | null;
   instalmentsMinTripTotal?: number | null;
@@ -78,6 +80,9 @@ export type BookingStatus = "idle" | "submitting" | "redirecting" | "success" | 
 const NO_ERRORS: FieldErrorState = { form: {}, passengers: {} };
 const NO_EXTRAS: BookingExtra[] = [];
 const NO_DEPARTURE_PLACES: BookingDeparturePlace[] = [];
+
+/** As the server names it on the booking (LastSeatsDiscount::LABEL). */
+const LAST_SEATS_DISCOUNT_LABEL = "Utolsó helyek kedvezmény";
 
 /** As many passengers as one booking takes; a larger group asks for a group quote. */
 const MAX_PASSENGERS = 20;
@@ -220,11 +225,17 @@ export function useTourBookingForm({
   }, [passengers, passengerOptions, extras, travelInsuranceAvailable, cancellationInsuranceAvailable]);
   const cardExtras = useMemo(() => passengerCardExtras(extras, passengerCount), [extras, passengerCount]);
   const selectedDeparturePlace = departurePlaces.find((place) => String(place.id) === departurePlaceId) ?? null;
+  const offerPercent = parseDiscountPercent(priceBox?.discountBadge);
+  const lastSeatsDiscountPercent = offerPercent === null ? selectedDate.lastSeatsDiscountPercent ?? null : null;
+  // Discounts never stack: a coupon code takes the place of the last seats discount, as the server prices it.
+  const couponUsed = couponCode.trim() !== "";
+  const appliedLastSeatsPercent = couponUsed ? null : lastSeatsDiscountPercent;
   const priceEstimate = useMemo(
     () =>
       estimateBookingPrice({
         basePrice: priceBox?.price ?? null,
-        discountPercent: parseDiscountPercent(priceBox?.discountBadge),
+        discountPercent: offerPercent ?? appliedLastSeatsPercent,
+        discountLabel: offerPercent === null && appliedLastSeatsPercent !== null ? LAST_SEATS_DISCOUNT_LABEL : undefined,
         departurePlace: selectedDeparturePlace,
         extras,
         bookingExtraIds: selectedExtraIds,
@@ -235,7 +246,8 @@ export function useTourBookingForm({
       }),
     [
       priceBox?.price,
-      priceBox?.discountBadge,
+      offerPercent,
+      appliedLastSeatsPercent,
       selectedDeparturePlace,
       extras,
       selectedExtraIds,
@@ -685,6 +697,8 @@ export function useTourBookingForm({
 
     couponCode,
     setCouponCode,
+    lastSeatsDiscountPercent,
+    lastSeatsDiscountDropped: lastSeatsDiscountPercent !== null && couponUsed,
     termsAccepted,
     termsError,
     acceptTerms,

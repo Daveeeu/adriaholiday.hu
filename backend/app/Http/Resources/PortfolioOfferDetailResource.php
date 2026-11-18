@@ -8,8 +8,10 @@ use App\Services\Booking\BookingFormFieldResolver;
 use App\Services\Booking\BookingPaymentService;
 use App\Services\Tour\RouteMap\TourRouteMapService;
 use App\Support\Booking\BookingInsuranceSettings;
+use App\Support\Booking\LastSeatsDiscount;
 use App\Support\RichTextSanitizer;
 use App\Support\Seo\RobotsDirective;
+use App\Support\Tour\TourExtraOrder;
 use App\Support\Tour\TourRouteStops;
 use App\Support\TourMeta;
 use Illuminate\Http\Request;
@@ -50,12 +52,16 @@ class PortfolioOfferDetailResource extends TourDetailResource
         };
 
         // A date's own stay, shown as the tour's is (null: the tour's); a
-        // date with no seat left is sold out. Only the free seats are public,
-        // and whether they are running low, not the capacity.
+        // date with no seat left is sold out; its supplements in the fixed
+        // order (TourExtraOrder), not the order they were entered in. Only
+        // the free seats are public, and whether they are running low, not
+        // the capacity.
         $data['dates'] = array_map(fn (array $date, TourDate $model): array => [
             ...Arr::except($date, ['xmlEnabled', 'partnerXml', 'capacity', 'seatsHeld']),
             'status' => $model->effectiveStatus(),
+            'extras' => TourExtraOrder::sort($date['extras'] ?? [], fn (array $extra): string => (string) $extra['name']),
             'seatsRunningLow' => $model->seatsRunningLow(),
+            'lastSeatsDiscountPercent' => LastSeatsDiscount::percentFor($tour, $model),
             'accommodation' => TourMeta::accommodationLabel($date['accommodation'] ?? null),
             'catering' => TourMeta::mealsLabel($date['catering'] ?? null),
         ], $data['dates'] ?? [], $tour->dates->values()->all());

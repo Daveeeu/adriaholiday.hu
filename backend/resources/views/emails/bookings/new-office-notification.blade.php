@@ -84,6 +84,25 @@
                     <td align="right" style="{{ $cell }}white-space:nowrap;">{{ $row['amount'] }}</td>
                 </tr>
             @endforeach
+            @if ($insuranceRows !== [])
+                {{-- Insurances are invoiced apart from the trip. --}}
+                @if ($tripTotal)
+                    <tr>
+                        <td style="{{ $cell }}font-weight:bold;">Utazás díja</td>
+                        <td align="right" style="{{ $cell }}font-weight:bold;white-space:nowrap;">{{ $tripTotal }}</td>
+                    </tr>
+                @endif
+                @foreach ($insuranceRows as $row)
+                    <tr>
+                        <td style="{{ $cell }}">{{ $row['label'] }}</td>
+                        <td align="right" style="{{ $cell }}white-space:nowrap;">{{ $row['amount'] }}</td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td style="{{ $cell }}font-weight:bold;">Biztosítás díja (külön számlázandó)</td>
+                    <td align="right" style="{{ $cell }}font-weight:bold;white-space:nowrap;">{{ $insuranceTotal }}</td>
+                </tr>
+            @endif
             @if ($total)
                 <tr>
                     <td style="{{ $cell }}font-weight:bold;">Végösszeg</td>

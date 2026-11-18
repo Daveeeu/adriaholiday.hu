@@ -44,3 +44,21 @@ test("extra price labels show HUF extras with Ft and on-site extras in their own
   const entryTicket = { id: 3, name: "Belépőjegy", price: 1250, currency: "EUR", priceUnit: "per_person", chargeRule: "optional" };
   assert.equal(extraPriceLabel(entryTicket), "1.250 EUR / fő, helyszínen fizetendő");
 });
+
+test("a named discount, such as the last seats discount, keeps its name on the price line", () => {
+  const estimate = estimateBookingPrice({
+    basePrice: 100000,
+    discountPercent: 5,
+    discountLabel: "Utolsó helyek kedvezmény",
+    departurePlace: null,
+    extras: [],
+    bookingExtraIds: [],
+    passengerOptions: [EMPTY_PASSENGER_OPTIONS, EMPTY_PASSENGER_OPTIONS],
+    insurances: null,
+    startDate: null,
+    endDate: null,
+  });
+
+  assert.deepEqual(estimate.lines[1], { key: "discount", label: "Utolsó helyek kedvezmény (-5%)", amount: -10000 });
+  assert.equal(estimate.total, 190000);
+});

@@ -123,7 +123,7 @@
             </div>
         @endif
 
-        @if ($priceRows !== [] || $extraRows !== [] || $total)
+        @if ($priceRows !== [] || $insuranceRows !== [] || $extraRows !== [] || $total)
             <div class="section">
                 <p class="section-title">Részvételi díj</p>
                 <table>
@@ -133,8 +133,18 @@
                     @foreach ($extraRows as $row)
                         <tr class="line"><td>{{ $row['label'] }}</td><td class="amount">{{ $row['value'] }}</td></tr>
                     @endforeach
+                    @if ($insuranceRows !== [])
+                        {{-- Insurances are invoiced apart from the trip. --}}
+                        @if ($tripTotal)
+                            <tr class="line"><td><strong>Utazás díja</strong></td><td class="amount"><strong>{{ $tripTotal }}</strong></td></tr>
+                        @endif
+                        @foreach ($insuranceRows as $row)
+                            <tr class="line"><td>{{ $row['label'] }}</td><td class="amount">{{ $row['amount'] }}</td></tr>
+                        @endforeach
+                        <tr class="line"><td><strong>Biztosítás díja</strong> <span class="muted">(külön számlázzuk)</span></td><td class="amount"><strong>{{ $insuranceTotal }}</strong></td></tr>
+                    @endif
                     @if ($total)
-                        <tr class="total"><td>Utazás teljes összege</td><td class="amount">{{ $total }}</td></tr>
+                        <tr class="total"><td>{{ $insuranceRows !== [] ? 'Fizetendő összesen' : 'Utazás teljes összege' }}</td><td class="amount">{{ $total }}</td></tr>
                     @endif
                 </table>
             </div>
