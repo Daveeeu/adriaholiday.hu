@@ -28,16 +28,6 @@
             </x-email.card>
         @endif
 
-        {{-- Passengers --}}
-        @if ($passengers !== [])
-            <x-email.card title="👥 Utasok">
-                @foreach ($passengers as $index => $passengerRows)
-                    <div style="{{ $font }}display:inline-block;background:#e6faf3;color:#00a878;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;margin:{{ $index === 0 ? '0' : '14px' }} 0 6px;">{{ $index + 1 }}. utas</div>
-                    <x-email.rows :rows="$passengerRows" />
-                @endforeach
-            </x-email.card>
-        @endif
-
         {{-- Price --}}
         @if ($priceRows !== [] || $extraRows !== [])
             <x-email.card title="💳 Részvételi díj">
@@ -130,9 +120,20 @@
             </x-email.card>
         @endif
 
+        {{-- Passengers --}}
+        @if ($passengers !== [])
+            <x-email.card title="👥 Utasok">
+                @foreach ($passengers as $index => $passengerRows)
+                    <div style="{{ $font }}display:inline-block;background:#e6faf3;color:#00a878;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;margin:{{ $index === 0 ? '0' : '14px' }} 0 6px;">{{ $index + 1 }}. utas</div>
+                    <x-email.rows :rows="$passengerRows" />
+                @endforeach
+            </x-email.card>
+        @endif
+
         {{-- Entry requirements & terms --}}
         <x-email.card title="📋 Fontos tudnivalók">
-                <p style="{{ $font }}margin:0 0 14px;color:#0f172a;font-size:14px;font-weight:700;line-height:1.6;">Az utazással kapcsolatos részletes információkat az utazás előtt megkapod tőlünk.</p>
+                <p style="{{ $font }}margin:0 0 8px;color:#0f172a;font-size:14px;font-weight:700;line-height:1.6;">Az utazással kapcsolatos részleteket (pontos indulás, találkozási hely stb.) az indulás előtt néhány nappal küldjük erre az e-mail címre.</p>
+                <p style="{{ $font }}margin:0 0 14px;color:#0f172a;font-size:14px;font-weight:700;line-height:1.6;">Utazás előtt kérjük, ellenőrizd az úti okmányod érvényességét!</p>
                 @if ($entryRequirementLinks !== [])
                     <p style="{{ $font }}margin:0 0 6px;color:#334155;font-size:14px;line-height:1.6;">Aktuális beutazási feltételek:</p>
                     @foreach ($entryRequirementLinks as $link)

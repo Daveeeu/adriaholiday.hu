@@ -89,6 +89,24 @@ class RichTextSanitizer
     }
 
     /**
+     * A trip text (program, notes, entrance fees…) as the trip page and the
+     * travel book show it: in the uniform typography, null when empty. With
+     * $jsonAsNull, a field holding structured JSON instead of text is empty.
+     */
+    public static function tripText(?string $value, bool $jsonAsNull = false): ?string
+    {
+        $trimmed = trim((string) $value);
+
+        if ($trimmed === '' || ($jsonAsNull && is_array(json_decode($trimmed, true)))) {
+            return null;
+        }
+
+        $sanitized = self::sanitizeUniform($trimmed);
+
+        return $sanitized !== '' ? $sanitized : null;
+    }
+
+    /**
      * @param  array<int, string>  $tags
      * @param  array<int, string>  $styles
      */

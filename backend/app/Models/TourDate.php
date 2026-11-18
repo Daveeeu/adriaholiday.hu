@@ -111,6 +111,18 @@ class TourDate extends Model
     }
 
     /**
+     * Whether the date is sold below its pre-promotion price, which the price
+     * box shows struck through ("Előfoglalási akció").
+     */
+    public function hasStruckPrice(): bool
+    {
+        $price = $this->price_box_price ?? $this->price;
+
+        return $this->price_box_original_price !== null && $price !== null
+            && (float) $this->price_box_original_price > (float) $price;
+    }
+
+    /**
      * Whether so few seats are left that the trip page urges the visitor to
      * book: some, but at most RUNNING_LOW_SHARE of the capacity.
      */

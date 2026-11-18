@@ -403,6 +403,18 @@ class TourBookingPricingTest extends TestCase
         $this->assertSame(0, Coupon::query()->count());
     }
 
+    public function test_a_date_sold_below_its_struck_price_offers_no_last_seats_coupon(): void
+    {
+        $this->runSeatsLow();
+        // "Előfoglalási akció": the date is already sold at a promotion price.
+        $this->tourDate->update(['price_box_original_price' => (float) ($this->tourDate->price_box_price ?? $this->tourDate->price) + 10000]);
+
+        $dates = collect($this->getJson("/api/portfolio/offers/{$this->tour->seo_name}")->assertOk()->json('dates'))->keyBy('id');
+
+        $this->assertNull($dates[$this->tourDate->id]['lastSeatsDiscountPercent']);
+        $this->postJson($this->lastSeatsCouponUrl())->assertStatus(422);
+    }
+
     public function test_the_trip_page_shows_which_dates_offer_the_last_seats_coupon(): void
     {
         $plenty = TourDate::factory()->for($this->tour)->create(['start_date' => today()->addDays(90), 'end_date' => today()->addDays(91), 'capacity' => 40]);

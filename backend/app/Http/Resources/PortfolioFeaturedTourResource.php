@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Tour;
+use App\Models\TourDate;
 use App\Support\PriceBoxData;
 use App\Support\TourLabelResolver;
 use App\Support\TourMeta;
@@ -60,7 +61,7 @@ class PortfolioFeaturedTourResource extends JsonResource
     {
         $date = $tour->dates
             ->sortBy('start_date')
-            ->first(fn ($date): bool => filled($date->price_box_discount_badge) || ($date->price_box_original_price !== null && (float) $date->price_box_original_price > (float) $date->price));
+            ->first(fn (TourDate $date): bool => filled($date->price_box_discount_badge) || $date->hasStruckPrice());
 
         if ($date === null) {
             return $priceBox['discountBadge'] ?? null;

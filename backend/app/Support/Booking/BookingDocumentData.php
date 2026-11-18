@@ -29,6 +29,18 @@ final class BookingDocumentData
 
     private const ENTRY_REQUIREMENTS_URL = 'https://konzinfo.mfa.gov.hu/utazasi-tanacsok-orszagonkent/';
 
+    /**
+     * Countries whose konzinfo page is not named after the slug of their name
+     * here ("Skandinávia" leads to Norway's page); a domestic trip has none.
+     */
+    private const ENTRY_REQUIREMENTS_SLUGS = [
+        'gb' => 'nagy-britannia',
+        'ge' => 'georgia-gruzia',
+        'no' => 'norvegia',
+    ];
+
+    private const HOME_COUNTRY = 'hu';
+
     private const TRAVEL_MODES = ['bus' => 'Autóbusszal', 'plane' => 'Repülővel', 'train' => 'Vonattal'];
 
     public function __construct(
@@ -213,13 +225,14 @@ final class BookingDocumentData
     {
         return TourReferenceOption::query()
             ->where('type', 'country')
-            ->whereIn('code', $this->tour?->country_ids ?? [])
+            ->whereIn('code', array_diff($this->tour?->country_ids ?? [], [self::HOME_COUNTRY]))
             ->orderBy('name')
-            ->get(['name'])
+            ->get(['code', 'name'])
             ->map(fn (TourReferenceOption $country): array => [
                 'country' => $country->name,
-                'url' => self::ENTRY_REQUIREMENTS_URL.Str::slug($country->name),
+                'url' => self::ENTRY_REQUIREMENTS_URL.(self::ENTRY_REQUIREMENTS_SLUGS[$country->code] ?? Str::slug($country->name)),
             ])
+            ->values()
             ->all();
     }
 }

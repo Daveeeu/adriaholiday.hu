@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Booking;
 use App\Models\Tour;
+use App\Models\TourReferenceOption;
 use App\Models\User;
+use App\Services\Booking\BookingTravelBook;
 use App\Support\Booking\TourBookingStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -44,6 +46,38 @@ class AdminBookingPdfTest extends TestCase
         $this->actingAsAdminWith(['bookings.viewAny']);
 
         $this->getJson("/api/admin/bookings/tour-bookings/{$booking->id}/pdf")->assertForbidden();
+    }
+
+    public function test_the_travel_book_lists_payment_passengers_then_the_travel_information(): void
+    {
+        foreach (['gb' => 'Egyesült Királyság', 'hu' => 'Magyarország', 'it' => 'Olaszország'] as $code => $name) {
+            TourReferenceOption::query()->create(['type' => 'country', 'code' => $code, 'name' => $name, 'active' => true]);
+        }
+        $tour = Tour::factory()->create([
+            'name' => 'London és Párizs',
+            'country_ids' => ['gb', 'hu', 'it'],
+            'program' => '<p><span style="font-family: Barlow, sans-serif; font-size: 18px;">Érkezés a szállodába, ő és ű betűkkel.</span></p>',
+            'tickets' => '<p>Louvre: 22 EUR</p>',
+            'optional_programs' => '<p>Hajózás a Szajnán</p>',
+            'payment_program' => null,
+        ]);
+
+        $html = app(BookingTravelBook::class)->html($this->booking(['tour_id' => $tour->id]));
+
+        $this->assertStringNotContainsString('font-family: Barlow', $html);
+        $this->assertStringContainsString('Érkezés a szállodába, ő és ű betűkkel.', $html);
+        $this->assertStringContainsString('Belépőjegyek', $html);
+        $this->assertStringContainsString('Louvre: 22 EUR', $html);
+        $this->assertStringContainsString('Fakultatív programok', $html);
+        $this->assertStringNotContainsString('Kiegészítő / fizető programok', $html);
+        $this->assertStringContainsString('utazasi-tanacsok-orszagonkent/nagy-britannia', $html);
+        $this->assertStringContainsString('utazasi-tanacsok-orszagonkent/olaszorszag', $html);
+        $this->assertStringNotContainsString('utazasi-tanacsok-orszagonkent/magyarorszag', $html);
+        $this->assertStringContainsString('Kérdés esetén állunk rendelkezésére.', $html);
+
+        $order = array_map(fn (string $title): int|false => strpos($html, $title), ['Részvételi díj</p>', 'Utasok (', 'Fontos tudnivalók', 'Belépőjegyek']);
+        $this->assertNotContains(false, $order);
+        $this->assertSame($order, collect($order)->sort()->values()->all());
     }
 
     /**

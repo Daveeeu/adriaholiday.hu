@@ -31,25 +31,7 @@ class PortfolioOfferDetailResource extends TourDetailResource
         unset($data['inclusions'], $data['bookingFormTemplateId'], $data['bookingFormTemplate'], $data['partnerXml'], $data['partnerXmlDefaults'], $data['routeStops']);
         $routeMapUrl = app(TourRouteMapService::class)->url($tour);
 
-        $sanitizeContent = function (?string $value, bool $jsonAsNull = false): ?string {
-            $trimmed = trim((string) $value);
-
-            if ($trimmed === '') {
-                return null;
-            }
-
-            if ($jsonAsNull) {
-                $decoded = json_decode($trimmed, true);
-
-                if (is_array($decoded)) {
-                    return null;
-                }
-            }
-
-            $sanitized = RichTextSanitizer::sanitizeUniform($trimmed);
-
-            return $sanitized !== '' ? $sanitized : null;
-        };
+        $sanitizeContent = RichTextSanitizer::tripText(...);
 
         // A date's own stay, shown as the tour's is (null: the tour's); a
         // date with no seat left is sold out; its supplements in the fixed

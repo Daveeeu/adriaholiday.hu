@@ -36,7 +36,6 @@
         .footer { position: fixed; bottom: -60px; left: 0; right: 0; height: 60px; background: #071321; color: #94a3b8; font-size: 8.5px; padding: 14px 40px 0; }
         .footer strong { color: #fff; }
         .program { page-break-before: always; }
-        .page-two { page-break-before: always; }
         /* No section, table row or passenger is cut in two by a page break; a long list (passengers) may run on. */
         .section, .keep-together, .day, tr { page-break-inside: avoid; }
         .section-flowing { page-break-inside: auto; }
@@ -44,8 +43,18 @@
         .day { margin-bottom: 12px; border-left: 3px solid #00c389; padding: 2px 0 2px 12px; }
         .day-title { font-size: 11.5px; font-weight: bold; margin-bottom: 3px; }
         .day-title .day-label { color: #00a878; }
-        .day-body, .trip-notes { color: #334155; line-height: 1.5; }
-        .day-body p, .trip-notes p { margin: 0 0 5px; }
+        /* Trip texts come in one typography: the body's font and size, whatever the tour's own HTML said. */
+        .rich { color: #334155; line-height: 1.5; }
+        .rich p { margin: 0 0 5px; }
+        .rich h2, .rich h3 { font-size: 11.5px; font-weight: bold; color: #0f172a; margin: 8px 0 3px; }
+        .rich ul, .rich ol { margin: 0 0 5px; padding-left: 16px; }
+        .rich img { max-width: 100%; }
+        .rich table { margin: 4px 0 6px; }
+        .rich td, .rich th { border: 1px solid #e2e8f0; padding: 3px 6px; text-align: left; }
+        .info p { margin: 0 0 6px; color: #334155; line-height: 1.5; }
+        .info .lead, .info .section-title { font-weight: bold; color: #0f172a; }
+        .info a { color: #00a878; text-decoration: none; }
+        .sign-off { margin: 4px 0 0; line-height: 1.6; }
         .price-columns td { width: 50%; vertical-align: top; padding: 0 8px 0 0; }
         .price-columns ul { margin: 4px 0 0; padding-left: 0; list-style: none; }
         .price-columns li { margin-bottom: 3px; }
@@ -88,7 +97,7 @@
     <div class="header-accent"></div>
 
     <div class="content">
-        {{-- First page: the trip and the person who booked, the price, then the insurance. --}}
+        {{-- The trip and the person who booked, the price, the insurance and how to pay; then the passengers and the travel information. --}}
         <table class="two-col"><tr>
             <td class="col" style="padding-right: 8px;">
                 <div class="section">
@@ -147,24 +156,6 @@
             <div class="insured">Megrendelt biztosítás: <strong>{{ implode(', ', $insuranceNames) }}</strong></div>
         @endif
 
-        {{-- The passengers, the payment and the notes start on the second page. --}}
-        <div class="page-two">
-        @if ($passengers !== [])
-            <div class="section section-flowing">
-                <p class="section-title">Utasok ({{ count($passengers) }} fő)</p>
-                @foreach ($passengers as $index => $passengerRows)
-                    <div class="keep-together">
-                        <div class="passenger">{{ $index + 1 }}. utas</div>
-                        <table>
-                            @foreach ($passengerRows as $row)
-                                <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
-                            @endforeach
-                        </table>
-                    </div>
-                @endforeach
-            </div>
-        @endif
-
         @if ($paymentSchedule !== [] || $paymentMethod || $bankTransfer)
             <div class="section">
                 <p class="section-title">Fizetés</p>
@@ -195,6 +186,23 @@
             </div>
         @endif
 
+        @if ($passengers !== [])
+            <div class="section section-flowing">
+                <p class="section-title">Utasok ({{ count($passengers) }} fő)</p>
+                @foreach ($passengers as $index => $passengerRows)
+                    <div class="keep-together">
+                        <div class="passenger">{{ $index + 1 }}. utas</div>
+                        <table>
+                            @foreach ($passengerRows as $row)
+                                <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
+                            @endforeach
+                        </table>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+
         @if ($note || ($internal && $booking->admin_note))
             <div class="section">
                 <p class="section-title">Megjegyzések</p>
@@ -209,9 +217,23 @@
             </div>
         @endif
 
+        <div class="section info">
+            <p class="section-title">Fontos tudnivalók</p>
+            <p class="lead">Az utazással kapcsolatos részleteket (pontos indulás, találkozási hely stb.) az indulás előtt néhány nappal küldjük a foglaláskor megadott e-mail címre.</p>
+            <p class="lead">Utazás előtt kérjük, ellenőrizze úti okmánya érvényességét!</p>
+            @if ($entryRequirementLinks !== [])
+                <p style="margin-bottom: 2px;">Aktuális beutazási feltételek:</p>
+                @foreach ($entryRequirementLinks as $link)
+                    <p style="margin-bottom: 2px;">{{ $link['country'] }}: <a href="{{ $link['url'] }}">{{ $link['url'] }}</a></p>
+                @endforeach
+                <p style="margin-top: 6px;">Kérjük, kövesse figyelemmel a fenti {{ count($entryRequirementLinks) > 1 ? 'linkeket' : 'linket' }} az aktuális szabályok ismerete végett. A célország beutazási és egészségügyi feltételeinek ismerete és a feltételek megléte az utazók felelőssége.</p>
+            @endif
+            <p>Általános Szerződési Feltételek: <a href="{{ $termsUrl }}">{{ $termsUrl }}</a></p>
+            <p>Kérdés esetén állunk rendelkezésére.</p>
+            <p class="sign-off">Üdvözlettel:<br><strong>{{ $company['name'] }}</strong></p>
         </div>
 
-        @if ($routeMap || $programDays->isNotEmpty() || $programHtml || $programFooterHtml || $includedItems->isNotEmpty() || $excludedItems->isNotEmpty() || $tripNotes)
+        @if ($routeMap || $programDays->isNotEmpty() || $programHtml || $programFooterHtml || $includedItems->isNotEmpty() || $excludedItems->isNotEmpty() || $tripSections !== [])
             <div class="program">
                 @if ($routeMap)
                     <p class="program-title">Útvonal</p>
@@ -219,21 +241,21 @@
                 @endif
                 @if ($programDays->isEmpty() && $programHtml)
                     <p class="program-title">Program</p>
-                    <div class="day-body">{!! $programHtml !!}</div>
+                    <div class="rich">{!! $programHtml !!}</div>
                 @endif
                 @if ($programDays->isNotEmpty())
                     <p class="program-title">Program napról napra</p>
                     @foreach ($programDays as $day)
                         <div class="day">
-                            <div class="day-title"><span class="day-label">{{ $day->day_number }}. nap</span>@if ($day->title && $day->title !== $day->day_number.'. nap') &ndash; {{ $day->title }}@endif</div>
-                            @if ($day->description)
-                                <div class="day-body">{!! $day->description !!}</div>
+                            <div class="day-title"><span class="day-label">{{ $day['number'] }}. nap</span>@if ($day['title']) &ndash; {{ $day['title'] }}@endif</div>
+                            @if ($day['html'])
+                                <div class="rich">{!! $day['html'] !!}</div>
                             @endif
                         </div>
                     @endforeach
                 @endif
                 @if ($programFooterHtml)
-                    <div class="day-body">{!! $programFooterHtml !!}</div>
+                    <div class="rich">{!! $programFooterHtml !!}</div>
                 @endif
 
                 @if ($includedItems->isNotEmpty() || $excludedItems->isNotEmpty())
@@ -260,12 +282,12 @@
                     </div>
                 @endif
 
-                @if ($tripNotes)
+                @foreach ($tripSections as $section)
                     <div class="section section-flowing">
-                        <p class="section-title">Tudnivalók</p>
-                        <div class="trip-notes">{!! $tripNotes !!}</div>
+                        <p class="section-title">{{ $section['title'] }}</p>
+                        <div class="rich">{!! $section['html'] !!}</div>
                     </div>
-                @endif
+                @endforeach
             </div>
         @endif
     </div>
