@@ -4,10 +4,13 @@ import { getApartmentTypes } from '@/services/apartment-type-service';
 
 export const apartmentTypesQueryKey = ['apartment-types'];
 
-export function useApartmentTypes() {
+export function useApartmentTypes({
+  enabled = true,
+}: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: apartmentTypesQueryKey,
     queryFn: () => getApartmentTypes(),
     staleTime: 60_000,
+    enabled,
   });
 }

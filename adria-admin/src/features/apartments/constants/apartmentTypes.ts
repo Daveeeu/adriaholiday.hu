@@ -1,6 +1,8 @@
 export type ApartmentAdminRouteDefinition = {
   route: string;
   labelKey: string;
+  /** The backend policy permission for listing this screen's records. */
+  permission: string;
 };
 
 export const APARTMENT_LIST_ROUTE = '/apartments';
@@ -23,9 +25,21 @@ export const APARTMENT_RESERVED_TYPE_SLUGS = [
 ] as const;
 
 export const APARTMENT_ADMIN_ROUTES = [
-  { route: '/apartments/regions', labelKey: 'nav.apartments.regions' },
-  { route: '/apartments/places', labelKey: 'nav.apartments.places' },
-  { route: '/apartments/types', labelKey: 'nav.apartments.types' },
+  {
+    route: '/apartments/regions',
+    labelKey: 'nav.apartments.regions',
+    permission: 'regions.viewAny',
+  },
+  {
+    route: '/apartments/places',
+    labelKey: 'nav.apartments.places',
+    permission: 'locations.viewAny',
+  },
+  {
+    route: '/apartments/types',
+    labelKey: 'nav.apartments.types',
+    permission: 'apartment-types.viewAny',
+  },
 ] as const satisfies readonly ApartmentAdminRouteDefinition[];
 
 export function getApartmentListRoute(type?: string | null) {

@@ -2,11 +2,19 @@ import { Building2 } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { useApartmentTypes } from '@/features/apartments/lib/use-apartment-types';
+import { useAuthStore } from '@/store/auth-store';
 
 import { staticNavigationItems, type NavigationItem } from './navigation';
 
 export function useNavigationItems(): NavigationItem[] {
-  const { data: apartmentTypes } = useApartmentTypes();
+  // The per-type links need the type list; without the right to read it the
+  // request would only fail with 403 on every page.
+  const canListApartmentTypes = useAuthStore((state) =>
+    state.hasPermission('apartment-types.viewAny'),
+  );
+  const { data: apartmentTypes } = useApartmentTypes({
+    enabled: canListApartmentTypes,
+  });
 
   return useMemo(() => {
     const activeTypeChildren = (apartmentTypes ?? [])

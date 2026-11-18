@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { NavigationItem } from '@/config/navigation';
+import { filterNavigationItems } from '@/config/navigation-permissions';
 import { useNavigationItems } from '@/config/use-navigation-items';
 import { useNewTourBookingsCount } from '@/features/bookings/lib/use-new-tour-bookings-count';
 import { t } from '@/i18n';
@@ -35,10 +36,7 @@ function isRouteActive(pathname: string, to: string, exact?: boolean) {
     : pathname === to || pathname.startsWith(`${to}/`);
 }
 
-function getActiveGroupKey(
-  pathname: string,
-  items: NavigationItem[],
-) {
+function getActiveGroupKey(pathname: string, items: NavigationItem[]) {
   return (
     items
       .filter(
@@ -108,32 +106,7 @@ export function SidebarNav({
   const navigationItems = useNavigationItems();
 
   const visibleNavigationItems = useMemo(
-    () =>
-      navigationItems
-        .map((item) => {
-          if ('children' in item) {
-            const groupPermissions = item.permission;
-            const allowedChildren = item.children.filter((child) =>
-              child.permission ? hasPermission(child.permission) : true,
-            );
-
-            if (groupPermissions && !hasPermission(groupPermissions)) {
-              return null;
-            }
-
-            return allowedChildren.length > 0
-              ? {
-                  ...item,
-                  children: allowedChildren,
-                }
-              : null;
-          }
-
-          return item.permission && !hasPermission(item.permission)
-            ? null
-            : item;
-        })
-        .filter(Boolean) as NavigationItem[],
+    () => filterNavigationItems(navigationItems, hasPermission),
     [hasPermission, navigationItems],
   );
 
@@ -214,7 +187,9 @@ export function SidebarNav({
               key={item.labelKey}
               className={cn(
                 'space-y-2 rounded-2xl border border-transparent transition-colors',
-                isOpen && !collapsed && 'border-sidebar-border/60 bg-sidebar-accent/20',
+                isOpen &&
+                  !collapsed &&
+                  'border-sidebar-border/60 bg-sidebar-accent/20',
               )}
             >
               {item.to ? (
@@ -238,7 +213,9 @@ export function SidebarNav({
                   >
                     <item.icon className="size-4 shrink-0" />
                     {!collapsed ? (
-                      <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
+                      <span className="min-w-0 flex-1 truncate">
+                        {t(item.labelKey)}
+                      </span>
                     ) : null}
                   </NavLink>
                   {!collapsed ? (
@@ -270,7 +247,9 @@ export function SidebarNav({
                 >
                   <item.icon className="size-4 shrink-0" />
                   {!collapsed ? (
-                    <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {t(item.labelKey)}
+                    </span>
                   ) : null}
                   {!collapsed ? (
                     isOpen ? (
@@ -283,7 +262,9 @@ export function SidebarNav({
               )}
 
               {isOpen ? (
-                <div className={cn('space-y-1 pb-1', collapsed ? 'pl-0' : 'pl-4')}>
+                <div
+                  className={cn('space-y-1 pb-1', collapsed ? 'pl-0' : 'pl-4')}
+                >
                   {item.children.map((child) => (
                     <NavLink
                       key={child.to}
@@ -309,7 +290,9 @@ export function SidebarNav({
                     >
                       <child.icon className="size-4 shrink-0" />
                       {!collapsed ? (
-                        <span className="min-w-0 flex-1 truncate">{t(child.labelKey)}</span>
+                        <span className="min-w-0 flex-1 truncate">
+                          {t(child.labelKey)}
+                        </span>
                       ) : null}
                       {!collapsed && child.to === '/bookings/tour-bookings' ? (
                         <NavBadge count={newTourBookingsCount} />
@@ -344,7 +327,11 @@ export function SidebarNav({
             title={collapsed ? t(item.labelKey) : undefined}
           >
             <item.icon className="size-4 shrink-0" />
-            {!collapsed ? <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span> : null}
+            {!collapsed ? (
+              <span className="min-w-0 flex-1 truncate">
+                {t(item.labelKey)}
+              </span>
+            ) : null}
           </NavLink>
         );
       })}

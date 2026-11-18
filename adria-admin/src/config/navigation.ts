@@ -23,20 +23,26 @@ import {
 import { APARTMENT_ADMIN_ROUTES } from '@/features/apartments/constants/apartmentTypes';
 import { TOUR_MAIN_NAV_ITEMS } from '@/features/tours/lib/tours.constants';
 
+/** Any one of the listed permissions opens the item; none means open to all. */
+export type NavigationPermission = string | string[] | undefined;
+
 export type NavigationLink = {
   to: string;
   labelKey: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
-  permission?: string | string[];
+  permission?: NavigationPermission;
 };
 
+/**
+ * A group has no permission of its own: it is shown when at least one child
+ * is, and its overview page (`to`) opens for anyone who may open a child.
+ */
 export type NavigationGroup = {
   labelKey: string;
   icon: typeof LayoutDashboard;
   to?: string;
   children: NavigationLink[];
-  permission?: string | string[];
 };
 
 export type NavigationItem = NavigationLink | NavigationGroup;
@@ -52,7 +58,6 @@ export const staticNavigationItems: NavigationItem[] = [
   {
     labelKey: 'nav.apartments',
     icon: Building2,
-    permission: 'apartments.viewAny',
     children: [
       {
         to: '/apartments',
@@ -65,7 +70,7 @@ export const staticNavigationItems: NavigationItem[] = [
         to: item.route,
         labelKey: item.labelKey,
         icon: Building2,
-        permission: 'apartments.viewAny',
+        permission: item.permission,
       })),
     ],
   },
@@ -108,11 +113,6 @@ export const staticNavigationItems: NavigationItem[] = [
   {
     labelKey: 'nav.blog',
     icon: Newspaper,
-    permission: [
-      'blog-articles.viewAny',
-      'blog-categories.viewAny',
-      'blog-tags.viewAny',
-    ],
     children: [
       {
         to: '/blog',
@@ -139,7 +139,6 @@ export const staticNavigationItems: NavigationItem[] = [
     labelKey: 'nav.bookings',
     icon: CalendarDays,
     to: '/bookings',
-    permission: 'bookings.viewAny',
     children: [
       {
         to: '/bookings/tour-bookings',
@@ -152,7 +151,7 @@ export const staticNavigationItems: NavigationItem[] = [
         to: '/bookings/tour-inquiries',
         labelKey: 'nav.bookings.tourInquiries',
         icon: Mail,
-        permission: 'messages.viewAny',
+        permission: 'bookings.viewAny',
       },
       {
         to: '/bookings/apartment-bookings',
@@ -213,13 +212,12 @@ export const staticNavigationItems: NavigationItem[] = [
   {
     labelKey: 'nav.tours',
     icon: Ticket,
-    permission: 'tours.viewAny',
     children: TOUR_MAIN_NAV_ITEMS.map((item) => ({
       to: item.route,
       labelKey: item.labelKey ?? 'nav.tours.offers',
       icon: Ticket,
       exact: item.route === '/tours',
-      permission: 'permission' in item ? item.permission : 'tours.viewAny',
+      permission: item.permission,
     })),
   },
   {
@@ -243,12 +241,6 @@ export const staticNavigationItems: NavigationItem[] = [
   {
     labelKey: 'nav.administration',
     icon: ShieldCheck,
-    permission: [
-      'users.viewAny',
-      'roles.viewAny',
-      'permissions.viewAny',
-      'activity.viewAny',
-    ],
     children: [
       {
         to: '/users',

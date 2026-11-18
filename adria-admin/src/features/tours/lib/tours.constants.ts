@@ -1,26 +1,35 @@
 export const TOURS_ROUTE = '/tours';
 
 export const TOUR_MAIN_NAV_ITEMS = [
-  { label: 'Ajánlatok', labelKey: 'nav.tours.offers', route: '/tours' },
+  {
+    label: 'Ajánlatok',
+    labelKey: 'nav.tours.offers',
+    route: '/tours',
+    permission: 'tours.viewAny',
+  },
   {
     label: 'Szervezés alatt partner ajánlatok',
     labelKey: 'nav.tours.partnerOffers',
     route: '/tours/partner-offers',
+    permission: 'tour-partner-offers.viewAny',
   },
   {
     label: 'Régiók és csoportok',
     labelKey: 'nav.tours.regionGroups',
     route: '/tours/region-groups',
+    permission: 'tour-region-groups.viewAny',
   },
   {
     label: 'Szezonális ajánlat csoportok',
     labelKey: 'nav.tours.seasonalGroups',
     route: '/tours/seasonal-groups',
+    permission: 'tour-seasonal-groups.viewAny',
   },
   {
     label: 'Felszállási helyek',
     labelKey: 'nav.tours.departurePlaces',
     route: '/tours/departure-places',
+    permission: 'tour-departure-places.viewAny',
   },
   {
     label: 'Sorrend listánként',

@@ -245,41 +245,47 @@ const basename =
     ? '/admin'
     : '/';
 
+function apartmentsPage() {
+  return withPermission('/apartments', <ApartmentsPage />);
+}
+
 const apartmentModuleRoutes = [
   {
     path: 'apartments',
-    element: withPermission('/apartments', <Outlet />),
     handle: { crumbKey: 'nav.apartments' },
     children: [
-      { index: true, element: <ApartmentsPage /> },
+      {
+        index: true,
+        element: apartmentsPage(),
+      },
       {
         path: 'new',
-        element: <ApartmentsPage />,
+        element: apartmentsPage(),
         handle: { crumbKey: 'nav.apartments.create' },
       },
       {
         path: 'detail/:apartmentId',
-        element: <ApartmentsPage />,
+        element: apartmentsPage(),
         handle: { crumbKey: 'nav.apartments.detail' },
       },
       {
         path: 'detail/:apartmentId/edit',
-        element: <ApartmentsPage />,
+        element: apartmentsPage(),
         handle: { crumbKey: 'nav.apartments.edit' },
       },
       {
         path: 'regions',
-        element: <RegionsPage />,
+        element: withPermission('/apartments/regions', <RegionsPage />),
         handle: { crumbKey: 'nav.apartments.regions' },
       },
       {
         path: 'places',
-        element: <LocationsPage />,
+        element: withPermission('/apartments/places', <LocationsPage />),
         handle: { crumbKey: 'nav.apartments.places' },
       },
       {
         path: 'types',
-        element: <ApartmentTypesPage />,
+        element: withPermission('/apartments/types', <ApartmentTypesPage />),
         handle: { crumbKey: 'nav.apartments.types' },
       },
       {
@@ -287,20 +293,23 @@ const apartmentModuleRoutes = [
         element: <Outlet />,
         handle: { crumbKey: 'nav.apartments.type' },
         children: [
-          { index: true, element: <ApartmentsPage /> },
+          {
+            index: true,
+            element: apartmentsPage(),
+          },
           {
             path: 'new',
-            element: <ApartmentsPage />,
+            element: apartmentsPage(),
             handle: { crumbKey: 'nav.apartments.create' },
           },
           {
             path: 'detail/:apartmentId',
-            element: <ApartmentsPage />,
+            element: apartmentsPage(),
             handle: { crumbKey: 'nav.apartments.detail' },
           },
           {
             path: 'detail/:apartmentId/edit',
-            element: <ApartmentsPage />,
+            element: apartmentsPage(),
             handle: { crumbKey: 'nav.apartments.edit' },
           },
         ],
@@ -335,52 +344,66 @@ const router = createBrowserRouter(
         },
         {
           path: 'regions',
-          element: withPermission('/regions', <RegionsPage />),
+          element: withPermission('/apartments/regions', <RegionsPage />),
           handle: { crumbKey: 'nav.regions' },
         },
         {
           path: 'locations',
-          element: withPermission('/locations', <LocationsPage />),
+          element: withPermission('/apartments/places', <LocationsPage />),
           handle: { crumbKey: 'nav.locations' },
         },
         ...apartmentModuleRoutes,
         {
           path: 'bookings',
-          element: withPermission('/bookings', <Outlet />),
           handle: { crumbKey: 'nav.bookings' },
           children: [
             {
               index: true,
-              element: <BookingsOverviewPage />,
+              element: withPermission('/bookings', <BookingsOverviewPage />),
             },
             {
               path: 'tour-bookings',
-              element: <TourBookingsPage />,
+              element: withPermission(
+                '/bookings/tour-bookings',
+                <TourBookingsPage />,
+              ),
               handle: { crumbKey: 'nav.bookings.tourBookings' },
             },
             {
               path: 'tour-inquiries',
-              element: <TourInquiriesPage />,
+              element: withPermission(
+                '/bookings/tour-inquiries',
+                <TourInquiriesPage />,
+              ),
               handle: { crumbKey: 'nav.bookings.tourInquiries' },
             },
             {
               path: 'apartment-bookings',
-              element: <ApartmentBookingsPage />,
+              element: withPermission(
+                '/bookings/apartment-bookings',
+                <ApartmentBookingsPage />,
+              ),
               handle: { crumbKey: 'nav.bookings.apartmentBookings' },
             },
             {
               path: 'partner-finances',
-              element: <PartnerFinancesPage />,
+              element: withPermission(
+                '/bookings/partner-finances',
+                <PartnerFinancesPage />,
+              ),
               handle: { crumbKey: 'nav.bookings.partnerFinances' },
             },
             {
               path: 'banner-generator',
-              element: <BannerGeneratorPage />,
+              element: withPermission(
+                '/bookings/banner-generator',
+                <BannerGeneratorPage />,
+              ),
               handle: { crumbKey: 'nav.bookings.bannerGenerator' },
             },
             {
               path: 'messages',
-              element: <MessagesPage />,
+              element: withPermission('/bookings/messages', <MessagesPage />),
               handle: { crumbKey: 'nav.bookings.messages' },
             },
             {
@@ -390,17 +413,23 @@ const router = createBrowserRouter(
             },
             {
               path: 'coupons',
-              element: <CouponsPage />,
+              element: withPermission('/bookings/coupons', <CouponsPage />),
               handle: { crumbKey: 'nav.bookings.coupons' },
             },
             {
               path: 'promotions',
-              element: <PromotionsPage />,
+              element: withPermission(
+                '/bookings/promotions',
+                <PromotionsPage />,
+              ),
               handle: { crumbKey: 'nav.bookings.promotions' },
             },
             {
               path: 'email-csv-export',
-              element: <EmailCsvExportPage />,
+              element: withPermission(
+                '/bookings/email-csv-export',
+                <EmailCsvExportPage />,
+              ),
               handle: { crumbKey: 'nav.bookings.emailCsvExport' },
             },
             {
@@ -449,50 +478,63 @@ const router = createBrowserRouter(
         },
         {
           path: 'tours',
-          element: withPermission('/tours', <Outlet />),
           handle: { crumbKey: 'nav.tours' },
           children: [
             {
               index: true,
-              element: <ToursPage />,
+              element: withPermission('/tours', <ToursPage />),
               handle: { crumbKey: 'nav.tours.offers' },
             },
             {
               path: 'new',
-              element: (
+              element: withPermission(
+                '/tours',
                 <RequirePermission permission="tours.create">
                   <TourEditorPage />
-                </RequirePermission>
+                </RequirePermission>,
               ),
               handle: { crumbKey: 'nav.tours.create' },
             },
             {
               path: ':tourId/edit',
-              element: (
+              element: withPermission(
+                '/tours',
                 <RequirePermission permission="tours.update">
                   <TourEditorPage />
-                </RequirePermission>
+                </RequirePermission>,
               ),
               handle: { crumbKey: 'nav.tours.edit' },
             },
             {
               path: 'partner-offers',
-              element: <TourPartnerOffersPage />,
+              element: withPermission(
+                '/tours/partner-offers',
+                <TourPartnerOffersPage />,
+              ),
               handle: { crumbKey: 'nav.tours.partnerOffers' },
             },
             {
               path: 'region-groups',
-              element: <TourRegionGroupsPage />,
+              element: withPermission(
+                '/tours/region-groups',
+                <TourRegionGroupsPage />,
+              ),
               handle: { crumbKey: 'nav.tours.regionGroups' },
             },
             {
               path: 'seasonal-groups',
-              element: <TourSeasonalGroupsPage />,
+              element: withPermission(
+                '/tours/seasonal-groups',
+                <TourSeasonalGroupsPage />,
+              ),
               handle: { crumbKey: 'nav.tours.seasonalGroups' },
             },
             {
               path: 'departure-places',
-              element: <TourDeparturePlacesPage />,
+              element: withPermission(
+                '/tours/departure-places',
+                <TourDeparturePlacesPage />,
+              ),
               handle: { crumbKey: 'nav.tours.departurePlaces' },
             },
             {
@@ -525,22 +567,24 @@ const router = createBrowserRouter(
         },
         {
           path: 'blog',
-          element: withPermission('/blog', <Outlet />),
           handle: { crumbKey: 'nav.blog' },
           children: [
             {
               index: true,
-              element: <BlogPage />,
+              element: withPermission('/blog', <BlogPage />),
               handle: { crumbKey: 'nav.blog.articles' },
             },
             {
               path: 'categories',
-              element: <BlogCategoriesPage />,
+              element: withPermission(
+                '/blog/categories',
+                <BlogCategoriesPage />,
+              ),
               handle: { crumbKey: 'nav.blog.categories' },
             },
             {
               path: 'tags',
-              element: <BlogTagsPage />,
+              element: withPermission('/blog/tags', <BlogTagsPage />),
               handle: { crumbKey: 'nav.blog.tags' },
             },
           ],
