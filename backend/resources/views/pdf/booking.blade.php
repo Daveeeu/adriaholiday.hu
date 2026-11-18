@@ -141,7 +141,7 @@
                         @foreach ($insuranceRows as $row)
                             <tr class="line"><td>{{ $row['label'] }}</td><td class="amount">{{ $row['amount'] }}</td></tr>
                         @endforeach
-                        <tr class="line"><td><strong>Biztosítás díja</strong> <span class="muted">(külön számlázzuk)</span></td><td class="amount"><strong>{{ $insuranceTotal }}</strong></td></tr>
+                        <tr class="line"><td><strong>Biztosítás díja</strong>@if ($internal) <span class="muted">(külön számlázandó)</span>@endif</td><td class="amount"><strong>{{ $insuranceTotal }}</strong></td></tr>
                     @endif
                     @if ($total)
                         <tr class="total"><td>{{ $insuranceRows !== [] ? 'Fizetendő összesen' : 'Utazás teljes összege' }}</td><td class="amount">{{ $total }}</td></tr>

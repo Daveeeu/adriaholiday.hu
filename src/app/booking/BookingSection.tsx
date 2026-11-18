@@ -124,7 +124,7 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
             ) : null}
 
             {hasInsurances ? (
-              <OptionGroup title="Biztosítás" note="külön számlázzuk">
+              <OptionGroup title="Biztosítás">
                 <PassengerOptionsList {...passengerOptionsProps(booking)} extras={[]} />
                 <p className="text-sm text-gray-500">
                   A biztosítások szolgáltatásait, díjait és feltételeit a{" "}
@@ -155,13 +155,10 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
 }
 
 /** A titled block of option rows inside a form section, e.g. the supplements apart from the insurance. */
-function OptionGroup({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
+function OptionGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="space-y-3">
-      <div className="flex items-baseline gap-2">
-        <h4 className="text-base font-extrabold text-[#0f172a]">{title}</h4>
-        {note ? <span className="text-sm text-gray-400">{note}</span> : null}
-      </div>
+      <h4 className="text-base font-extrabold text-[#0f172a]">{title}</h4>
       {children}
     </div>
   );

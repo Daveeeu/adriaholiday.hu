@@ -112,7 +112,7 @@ function PriceLines({ estimate }: { estimate: BookingPriceEstimate }) {
     <div className="space-y-3">
       <LineList lines={estimate.lines} />
       {estimate.tripTotal !== null ? <Subtotal label="Utazás díja" amount={estimate.tripTotal} /> : null}
-      <div className="pt-1 text-xs font-bold uppercase tracking-wide text-white/45">Biztosítás – külön számlázzuk</div>
+      <div className="pt-1 text-xs font-bold uppercase tracking-wide text-white/45">Biztosítás</div>
       <LineList lines={estimate.insuranceLines} />
       {estimate.total !== null && estimate.tripTotal !== null ? (
         <Subtotal label="Biztosítás díja" amount={estimate.total - estimate.tripTotal} />

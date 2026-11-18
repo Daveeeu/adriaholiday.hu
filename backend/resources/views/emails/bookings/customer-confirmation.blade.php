@@ -59,7 +59,7 @@
                                 </tr>
                             @endforeach
                             <tr>
-                                <td style="{{ $font }}padding:9px 12px 7px 0;color:#0f172a;font-size:14px;font-weight:700;">Biztosítás díja <span style="font-weight:400;color:#64748b;">(külön számlázzuk)</span></td>
+                                <td style="{{ $font }}padding:9px 12px 7px 0;color:#0f172a;font-size:14px;font-weight:700;">Biztosítás díja</td>
                                 <td align="right" style="{{ $font }}padding:9px 0 7px;color:#0f172a;font-size:14px;font-weight:700;white-space:nowrap;">{{ $insuranceTotal }}</td>
                             </tr>
                         @endif
