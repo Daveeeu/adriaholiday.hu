@@ -301,6 +301,8 @@ export default function TripRoute() {
       />
       <KeywordHighlightProvider keywords={offer.searchKeywords}>
         <TripDetailPage
+          // A new trip starts a fresh page: chosen date, booking form and its draft all belong to one trip.
+          key={offer.slug}
           trip={offer}
           relatedTrips={relatedTrips}
           onBack={() => {

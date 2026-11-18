@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 import { Check, CreditCard, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
 
 import SimplePayLogo from "../components/SimplePayLogo";
+import { useInView } from "../hooks/useInView";
 import { bringIntoView } from "../lib/bringIntoView";
 import { transportLabel } from "../lib/transport";
 import BookingFieldInput from "./BookingFieldInput";
@@ -13,7 +14,7 @@ import PassengerOptionsList from "./PassengerOptionsList";
 import { tripStepExtras } from "./booking-pricing";
 import type { BookingFormField } from "./booking-form-fields";
 import { INSURANCE_PATH } from "./insurance";
-import { MAX_PASSENGERS, type BookingDateOption, type BookingTrip, type TourBookingForm } from "./useTourBookingForm";
+import { type BookingDateOption, type BookingTrip, type TourBookingForm } from "./useTourBookingForm";
 
 const COUPON_FIELD: BookingFormField = {
   key: "coupon_code",
@@ -67,7 +68,7 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
       <h2 className="text-3xl font-extrabold tracking-tight text-[#0f172a] md:text-4xl">Foglalás</h2>
       <p className="mt-1 text-gray-500">Töltsd ki, és a végén egyben elküldöd.</p>
 
-      <FormSection number={1} title="Utazás">
+      <FormSection number={1} title="Utazás" onReach={booking.reachSection}>
         {datePicker ? (
           <div className="mb-5">
             <div className="mb-2 text-sm font-bold text-[#0f172a]">Időpont</div>
@@ -76,7 +77,7 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <PassengerCountField count={booking.passengerCount} onChange={booking.changePassengerCount} />
+          <PassengerCountField booking={booking} />
           {booking.departurePlaces.length > 0 ? (
             <DeparturePlaceSelect
               places={booking.departurePlaces}
@@ -88,12 +89,12 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
         </div>
       </FormSection>
 
-      <FormSection number={2} title="Utasok" hint="a név a személyi igazolvány szerint">
+      <FormSection number={2} title="Utasok" hint="a név a személyi igazolvány szerint" onReach={booking.reachSection}>
         <PassengerFields booking={booking} />
       </FormSection>
 
       {hasExtras ? (
-        <FormSection number={3} title="Felárak és biztosítás">
+        <FormSection number={3} title="Felárak és biztosítás" onReach={booking.reachSection}>
           <div className="space-y-4">
             <BookingLevelExtras
               extras={bookingExtras}
@@ -129,7 +130,7 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
         </FormSection>
       ) : null}
 
-      <FormSection number={hasExtras ? 4 : 3} title="Elérhetőség és véglegesítés">
+      <FormSection number={hasExtras ? 4 : 3} title="Elérhetőség és véglegesítés" onReach={booking.reachSection}>
         <ContactAndFinalFields booking={booking} couponable={Boolean(trip.couponable)} />
       </FormSection>
 
@@ -171,9 +172,30 @@ function summaryProps(booking: TourBookingForm) {
   };
 }
 
-function FormSection({ number, title, hint, children }: { number: number; title: string; hint?: string; children: ReactNode }) {
+function FormSection({
+  number,
+  title,
+  hint,
+  onReach,
+  children,
+}: {
+  number: number;
+  title: string;
+  hint?: string;
+  /** Reports the section once it scrolls into view, so the funnel shows how far visitors get. */
+  onReach: (step: number, stepName: string) => void;
+  children: ReactNode;
+}) {
+  const [ref, inView] = useInView<HTMLDivElement>();
+
+  useEffect(() => {
+    if (inView) {
+      onReach(number, title);
+    }
+  }, [inView, onReach, number, title]);
+
   return (
-    <div className="mt-6 border-t border-gray-100 pt-6">
+    <div ref={ref} className="mt-6 border-t border-gray-100 pt-6">
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e6faf3] text-sm font-extrabold text-[#00a878]">
           {number}
@@ -186,16 +208,28 @@ function FormSection({ number, title, hint, children }: { number: number; title:
   );
 }
 
-/** The head count, asked first so the price and the supplements (a single room) follow it. */
-function PassengerCountField({ count, onChange }: { count: number; onChange: (count: number) => void }) {
+/**
+ * The head count, asked first so the price and the supplements (a single room)
+ * follow it; held to the free seats when the date has only a few left.
+ */
+function PassengerCountField({ booking }: { booking: TourBookingForm }) {
+  const { passengerCount: count, maxPassengers, seatsLeftNote, passengerCountError: error } = booking;
   const buttonClass =
     "flex h-9 w-9 items-center justify-center rounded-xl bg-[#f1f5f9] text-[#0f172a] transition-colors hover:bg-[#e6faf3] disabled:opacity-40";
 
   return (
-    <div>
-      <div className="mb-2 text-sm font-bold text-[#0f172a]">Utasok száma</div>
-      <div className="flex h-14 items-center justify-between rounded-2xl border border-gray-200 bg-white px-3">
-        <button type="button" aria-label="Eggyel kevesebb utas" disabled={count <= 1} onClick={() => onChange(count - 1)} className={buttonClass}>
+    <fieldset>
+      <legend className="mb-2 text-sm font-bold text-[#0f172a]">Utasok száma</legend>
+      <div
+        className={`flex h-14 items-center justify-between rounded-2xl border bg-white px-3 ${error ? "border-red-300" : "border-gray-200"}`}
+      >
+        <button
+          type="button"
+          aria-label="Eggyel kevesebb utas"
+          disabled={count <= 1}
+          onClick={() => booking.changePassengerCount(count - 1)}
+          className={buttonClass}
+        >
           <Minus className="h-4 w-4" />
         </button>
         <span className="text-lg font-bold text-[#0f172a]" aria-live="polite">
@@ -204,14 +238,21 @@ function PassengerCountField({ count, onChange }: { count: number; onChange: (co
         <button
           type="button"
           aria-label="Eggyel több utas"
-          disabled={count >= MAX_PASSENGERS}
-          onClick={() => onChange(count + 1)}
+          disabled={count >= maxPassengers}
+          onClick={() => booking.changePassengerCount(count + 1)}
           className={buttonClass}
         >
           <Plus className="h-4 w-4" />
         </button>
       </div>
-    </div>
+      {error ? (
+        <span data-booking-error className="mt-1.5 block text-sm font-medium text-red-500">
+          {error}
+        </span>
+      ) : seatsLeftNote ? (
+        <span className="mt-1.5 block text-sm font-semibold text-[#00865f]">{seatsLeftNote}</span>
+      ) : null}
+    </fieldset>
   );
 }
 

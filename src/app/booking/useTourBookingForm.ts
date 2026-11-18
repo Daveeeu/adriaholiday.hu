@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { tourItem } from "../analytics/analytics-items";
 import type { AnalyticsEcommerce } from "../analytics/event-catalog";
@@ -8,6 +8,7 @@ import { parseDiscountPercent } from "../content/discount-badge";
 import type { PortfolioBookingPayment, PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import { bringIntoView } from "../lib/bringIntoView";
 import { formatHuf } from "../lib/price";
+import { seatsLeftLabel } from "../lib/seatsLeft";
 import {
   EMPTY_PASSENGER_OPTIONS,
   chargedBookingExtras,
@@ -32,6 +33,7 @@ import {
   type BookingFormField,
 } from "./booking-form-fields";
 import { BookingApiError, BookingValidationError, submitBooking } from "./bookings-api";
+import { clearBookingDraft, readBookingDraft, saveBookingDraft } from "./booking-draft";
 
 export type BookingTrip = {
   id: number | string;
@@ -78,13 +80,13 @@ const NO_EXTRAS: BookingExtra[] = [];
 const NO_DEPARTURE_PLACES: BookingDeparturePlace[] = [];
 
 /** As many passengers as one booking takes; a larger group asks for a group quote. */
-export const MAX_PASSENGERS = 20;
+const MAX_PASSENGERS = 20;
 
 const TERMS_REQUIRED_MESSAGE = "Az ÁSZF és az adatkezelési tájékoztató elfogadása kötelező.";
 const DATA_TRANSFER_REQUIRED_MESSAGE = "Az adattovábbítási nyilatkozat elfogadása kötelező.";
 
-/** The form is one page: the funnel reports it as a single step. */
-const FUNNEL_STEP = { step: 1, stepName: "Foglalás" };
+/** The furthest form section the visitor has scrolled to, reported to the funnel as its step. */
+type ReachedSection = { step: number; stepName: string };
 
 function passengerErrorsOf(
   passengerFields: BookingFormField[],
@@ -143,6 +145,11 @@ export function useTourBookingForm({
   priceBox: PortfolioPriceBox | null;
 }) {
   const { trackEvent } = useAnalytics();
+  // A date with few seats left takes no more passengers than it has seats.
+  const seatsLeft = selectedDate.seatsLeft ?? null;
+  const maxPassengers = seatsLeft !== null && seatsLeft > 0 ? Math.min(MAX_PASSENGERS, seatsLeft) : MAX_PASSENGERS;
+  // The head count and supplements of an earlier visit in this tab, so a reload does not wipe them.
+  const [draft] = useState(() => readBookingDraft(trip.slug, maxPassengers));
   const [hasStarted, setHasStarted] = useState(false);
   const [formValues, setFormValues] = useState<BookingFieldValues>(() =>
     initialValues((trip.bookingFormFields ?? []).filter((field) => field.inputGroup !== "passenger")),
@@ -153,15 +160,27 @@ export function useTourBookingForm({
   const [dataTransferError, setDataTransferError] = useState<string | null>(null);
   const [newsletterSubscribe, setNewsletterSubscribe] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
-  const [passengers, setPassengers] = useState<BookingFieldValues[]>([]);
+  const [passengers, setPassengers] = useState<BookingFieldValues[]>(() =>
+    draft
+      ? Array.from({ length: draft.passengerCount }, () => initialValues(fieldsOfGroup(trip.bookingFormFields ?? [], "passenger")))
+      : [],
+  );
+  const [passengerCountError, setPassengerCountError] = useState<string | null>(null);
   const [status, setStatus] = useState<BookingStatus>("idle");
   const [fieldErrors, setFieldErrors] = useState<FieldErrorState>(NO_ERRORS);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [departurePlaceId, setDeparturePlaceId] = useState("");
+  const [departurePlaceId, setDeparturePlaceId] = useState(draft?.departurePlaceId ?? "");
   const [departurePlaceError, setDeparturePlaceError] = useState<string | null>(null);
-  const [extraSelection, setExtraSelection] = useState<ExtraSelection>({ dateId: selectedDate.id, ids: [], choices: {} });
+  const [extraSelection, setExtraSelection] = useState<ExtraSelection>(
+    draft
+      ? { dateId: draft.dateId, ids: draft.bookingExtraIds, choices: draft.bookingExtraChoices }
+      : { dateId: selectedDate.id, ids: [], choices: {} },
+  );
   const [extraChoiceError, setExtraChoiceError] = useState<string | null>(null);
-  const [passengerOptions, setPassengerOptions] = useState<PassengerOptions[]>([EMPTY_PASSENGER_OPTIONS]);
+  const [passengerOptions, setPassengerOptions] = useState<PassengerOptions[]>(
+    draft?.passengerOptions ?? [EMPTY_PASSENGER_OPTIONS],
+  );
+  const [reachedSection, setReachedSection] = useState<ReachedSection>({ step: 1, stepName: "Utazás" });
   const [passengerChoiceErrors, setPassengerChoiceErrors] = useState<Record<number, string>>({});
 
   // A date may offer only some of the tour's departure places.
@@ -270,9 +289,30 @@ export function useTourBookingForm({
     entity: { type: "tour", slug: trip.slug },
     bookingType: "tour_booking",
     started: hasStarted,
-    ...FUNNEL_STEP,
+    ...reachedSection,
     completed,
   });
+
+  /** Called as each form section scrolls into view; only a further one moves the funnel on. */
+  const reachSection = useCallback((step: number, stepName: string) => {
+    setReachedSection((current) => (step > current.step ? { step, stepName } : current));
+  }, []);
+
+  // Kept from the first change on, until the booking is sent.
+  useEffect(() => {
+    if (!hasStarted || completed) {
+      return;
+    }
+
+    saveBookingDraft(trip.slug, {
+      dateId: extraSelection.dateId,
+      passengerCount: passengers.length,
+      departurePlaceId,
+      bookingExtraIds: extraSelection.ids,
+      bookingExtraChoices: extraSelection.choices,
+      passengerOptions,
+    });
+  }, [hasStarted, completed, trip.slug, extraSelection, passengers.length, departurePlaceId, passengerOptions]);
 
   function markStarted() {
     if (hasStarted) {
@@ -378,13 +418,14 @@ export function useTourBookingForm({
 
   /** Sets the head count: passengers are added empty or taken off the end. */
   function changePassengerCount(count: number) {
-    const next = Math.min(MAX_PASSENGERS, Math.max(1, count));
+    const next = Math.min(maxPassengers, Math.max(1, count));
 
     if (next === passengers.length) {
       return;
     }
 
     markStarted();
+    setPassengerCountError(null);
 
     if (next < passengers.length) {
       setPassengerChoiceErrors({});
@@ -444,8 +485,18 @@ export function useTourBookingForm({
     return valid;
   }
 
+  /** A date with few seats left can't take more passengers than it has seats. */
+  function validatePassengerCount(): boolean {
+    const valid = passengers.length <= maxPassengers;
+
+    setPassengerCountError(valid ? null : `Erre az időpontra már csak ${maxPassengers} szabad hely van.`);
+
+    return valid;
+  }
+
   /** Checks the whole form at once, so every error shows together. */
   function validateBeforeSubmit(): boolean {
+    const passengerCountValid = validatePassengerCount();
     const departureValid = validateDeparturePlace();
     const extraChoicesValid = validateExtraChoices();
     const passengerChoicesValid = validatePassengerChoices();
@@ -460,6 +511,7 @@ export function useTourBookingForm({
     setDataTransferError(dataTransferValid ? null : DATA_TRANSFER_REQUIRED_MESSAGE);
 
     const failed = [
+      ...(passengerCountValid ? [] : ["participants"]),
       ...(departureValid ? [] : ["departure_place"]),
       ...(extraChoicesValid ? [] : ["extra_choices"]),
       ...(passengerChoicesValid ? [] : ["passenger_options"]),
@@ -500,6 +552,8 @@ export function useTourBookingForm({
     setExtraChoiceError(submitError.errors.extraChoices?.[0] ?? null);
     setTermsError(submitError.errors.terms_accepted?.[0] ?? submitError.errors.termsAccepted?.[0] ?? null);
     setDataTransferError(submitError.errors.payment_data_transfer_accepted?.[0] ?? null);
+    // The seats are checked again when the booking is saved; someone may have booked them meanwhile.
+    setPassengerCountError(submitError.errors.tour_date_id?.[0] ?? submitError.errors.tourDateId?.[0] ?? null);
     setErrorMessage(submitError.message);
   }
 
@@ -555,6 +609,8 @@ export function useTourBookingForm({
         ecommerce: bookingEcommerce(response.id),
       });
 
+      clearBookingDraft(trip.slug);
+
       if (response.paymentUrl) {
         setStatus("redirecting");
         window.location.assign(response.paymentUrl);
@@ -606,6 +662,10 @@ export function useTourBookingForm({
     setPassengerValue,
     checkPassengerValue,
     changePassengerCount,
+    maxPassengers,
+    seatsLeftNote: seatsLeftLabel(seatsLeft),
+    passengerCountError,
+    reachSection,
 
     cardExtras,
     passengerOptions: currentPassengerOptions,
