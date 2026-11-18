@@ -85,6 +85,30 @@ class DetachLegacyEarlierRunBookingsCommandTest extends TestCase
         $this->assertSame($freeBefore, $date->freeSeats());
     }
 
+    public function test_a_booking_whose_first_import_named_an_earlier_run_leaves_the_date(): void
+    {
+        // Booked within a year of the date, but imported while the legacy row
+        // still named the run before; the departure day was rewritten since.
+        $earlierRun = $this->booking([
+            'booking_date' => '2026-09-01 09:00:00',
+            'passenger_count' => 4,
+            'admin_note' => "Áthozva a régi rendszerből (#8710).\nIdőpont: 2026-09-07 — 2026-09-13\nBiztosítás: nem kért",
+        ]);
+        $dayMoved = $this->booking([
+            'booking_date' => '2026-10-01 09:00:00',
+            'passenger_count' => 2,
+            'departure_date' => '2027-09-01',
+            'admin_note' => "Áthozva a régi rendszerből (#8800).\nIdőpont: 2027-08-30 — 2027-09-05",
+        ]);
+
+        $this->artisan('adria:legacy-bookings:detach-earlier-runs', ['--force' => true])
+            ->expectsOutputToContain('99 → 95')
+            ->assertSuccessful();
+
+        $this->assertNull($earlierRun->fresh()->tour_date_id);
+        $this->assertSame($this->tourDate->id, $dayMoved->fresh()->tour_date_id);
+    }
+
     public function test_a_second_run_changes_nothing(): void
     {
         $this->booking(['booking_date' => '2023-08-25 10:00:00', 'passenger_count' => 54]);

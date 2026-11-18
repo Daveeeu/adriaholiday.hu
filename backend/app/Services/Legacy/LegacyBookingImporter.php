@@ -68,7 +68,8 @@ class LegacyBookingImporter
         [$start] = $this->dateRange((string) ($record['offerDate'] ?? ''), (string) ($record['customDate'] ?? ''));
         // A booking of an earlier run of a reused legacy date gets neither
         // that date's later run nor its seats (see LegacyDateRun).
-        $earlierRun = $start !== null && $createdAt !== null && LegacyDateRun::isEarlierRun($createdAt, $start);
+        $earlierRun = $start !== null && $createdAt !== null
+            && LegacyDateRun::isEarlierRun($createdAt, $start, LegacyDateRun::recordedDeparture($existing?->admin_note));
         $start = $earlierRun ? null : $start;
         $tour = $this->legacyTour($record) ?? $this->tourNamed($offerName);
         $tourDate = $tour !== null && ! $earlierRun ? $this->legacyDate($record, $tour, $start) : null;
@@ -273,7 +274,7 @@ class LegacyBookingImporter
         $lines = array_filter([
             "Áthozva a régi rendszerből (#{$legacyId}).",
             $tourMissing ? 'A régi ajánlat ('.($record['offerName'] ?? '-').') nem található az új rendszerben.' : null,
-            ($record['offerDate'] ?? '') !== '' ? 'Időpont: '.$record['offerDate'] : null,
+            ($record['offerDate'] ?? '') !== '' ? LegacyDateRun::NOTE_DATE_LABEL.$record['offerDate'] : null,
             ($record['departure'] ?? '') !== '' ? 'Felszállás: '.$record['departure'] : null,
             'Biztosítás: '.($insurances !== [] ? implode(', ', $insurances) : 'nem kért'),
             $this->amount($record) === null && ($record['price'] ?? '') !== '' ? 'A régi ár ('.$record['price'].') nem valós összeg; ár nélkül áthozva.' : null,

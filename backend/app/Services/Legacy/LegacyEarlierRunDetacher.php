@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Takes legacy bookings made for an earlier run of a reused legacy date (see
- * LegacyDateRun) off the later run they were imported onto: they lose that
+ * LegacyDateRun, judged against the date a booking is linked to) off the later
+ * run they were imported onto: they lose that
  * run's date and departure day, so they no longer hold its seats.
  *
  * The 2026-11-16 capacity migration counted those bookings as held seats and
@@ -66,8 +67,13 @@ class LegacyEarlierRunDetacher
             ->whereNotNull('payload->legacy->id')
             ->whereNotNull('departure_date')
             ->whereNotNull('booking_date')
-            ->get(['id', 'tour_date_id', 'departure_date', 'booking_date'])
-            ->filter(fn (Booking $booking): bool => LegacyDateRun::isEarlierRun($booking->booking_date, $booking->departure_date))
+            ->with('tourDate:id,start_date')
+            ->get(['id', 'tour_date_id', 'departure_date', 'booking_date', 'admin_note'])
+            ->filter(fn (Booking $booking): bool => LegacyDateRun::isEarlierRun(
+                $booking->booking_date,
+                $booking->tourDate?->start_date ?? $booking->departure_date,
+                LegacyDateRun::recordedDeparture($booking->admin_note),
+            ))
             ->values();
     }
 

@@ -212,6 +212,23 @@ class LegacyBookingImporterTest extends TestCase
         $this->assertNull($booking->departure_date);
     }
 
+    public function test_a_rerun_after_the_legacy_row_moved_on_takes_the_booking_off_the_next_run(): void
+    {
+        $this->tourDate->forceFill(['legacy_id' => 12089])->save();
+        $this->runImport([$this->record(['createdAt' => '2026-10-20 09:00:00'])]);
+        $this->assertSame($this->tourDate->id, Booking::query()->sole()->tour_date_id);
+
+        // The run departed and the office moved row 12089 to the next year's
+        // run: the booking, made less than a year before it, still belongs to
+        // the run its first import recorded.
+        $this->runImport([$this->record(['createdAt' => '2026-10-20 09:00:00', 'offerDate' => '2027-10-16 — 2027-10-17'])]);
+
+        $booking = Booking::query()->sole();
+        $this->assertNull($booking->tour_date_id);
+        $this->assertNull($booking->departure_date);
+        $this->assertStringContainsString('Időpont: 2026-10-24', $booking->admin_note);
+    }
+
     public function test_a_price_no_real_booking_has_is_left_out_and_noted(): void
     {
         $this->runImport([$this->record(['price' => '133931600', 'adults' => '998'])]);
