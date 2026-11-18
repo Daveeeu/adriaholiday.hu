@@ -167,6 +167,21 @@ export async function fetchPendingBookingDetails(token: string): Promise<Pending
   return response.data;
 }
 
+/** A one-day coupon for the last seats of a date running low on seats (see LastSeatsCouponIssuer). */
+export type LastSeatsCoupon = {
+  code: string;
+  percent: number;
+  /** ISO 8601 moment it expires at. */
+  expiresAt: string;
+};
+
+export function claimLastSeatsCoupon(tourSlug: string, tourDateId: number | string): Promise<LastSeatsCoupon> {
+  return request(
+    'POST',
+    `/portfolio/offers/${encodeURIComponent(tourSlug)}/dates/${encodeURIComponent(String(tourDateId))}/last-seats-coupon`,
+  );
+}
+
 /** Gives the pending details; passengers are keyed by their position in the booking. */
 export async function completeBookingDetails(
   token: string,

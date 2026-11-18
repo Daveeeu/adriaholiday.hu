@@ -56,6 +56,9 @@ import GroupInquirySection, {
 import { parseDiscountPercent } from "../content/discount-badge";
 import { responsiveImage } from "../lib/responsiveImage";
 import UrgencyToast from "./UrgencyToast";
+import LastSeatsCouponOffer from "../booking/LastSeatsCouponOffer";
+import type { LastSeatsCoupon } from "../booking/bookings-api";
+import { useLastSeatsCoupon } from "../booking/useLastSeatsCoupon";
 
 interface TripDetailPageProps {
   trip: TripDetail;
@@ -150,7 +153,13 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   }, [hash]);
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
-  const booking = useTourBookingForm({ trip, selectedDate, priceBox });
+  const lastSeats = useLastSeatsCoupon(trip.slug, selectedDate);
+  const booking = useTourBookingForm({ trip, selectedDate, priceBox, lastSeatsCoupon: lastSeats.coupon });
+
+  function applyLastSeatsCoupon(coupon: LastSeatsCoupon) {
+    booking.setCouponCode(coupon.code);
+    document.getElementById("foglalas")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   // While the booking form is on screen the sidebar shows only its summary.
   const [bookingRef, bookingInView] = useInView<HTMLDivElement>();
   const showBookingSummary = canBook && bookingInView && !booking.completed;
@@ -179,7 +188,16 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
   return (
     <div className="min-h-screen bg-[#f5f9fc]">
-      <UrgencyToast message={booking.urgency} />
+      {/* A date offering the last seats coupon says it in the offer instead. */}
+      <UrgencyToast message={lastSeats.offeredPercent === null ? booking.urgency : null} />
+      {canBook ? (
+        <LastSeatsCouponOffer
+          lastSeats={lastSeats}
+          dateId={selectedDate.id}
+          seatsLeft={selectedSeats}
+          onUse={applyLastSeatsCoupon}
+        />
+      ) : null}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img

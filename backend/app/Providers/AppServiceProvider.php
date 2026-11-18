@@ -187,6 +187,9 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('payments', fn ($request) => Limit::perMinute(30)->by($request->ip()));
 
+        // A visitor gets one last seats coupon per date they read about; a few spare for other dates and browsers.
+        RateLimiter::for('last-seats-coupons', fn ($request) => Limit::perHour(10)->by($request->ip()));
+
         RateLimiter::for('newsletter', fn ($request) => Limit::perMinute(5)->by($request->ip()));
 
         RateLimiter::for('contact', fn ($request) => Limit::perMinute(5)->by($request->ip()));

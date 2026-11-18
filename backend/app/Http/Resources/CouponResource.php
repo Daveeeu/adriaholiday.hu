@@ -16,6 +16,8 @@ class CouponResource extends JsonResource
             'email' => $this->email,
             'code' => $this->code,
             'value' => $this->value !== null ? (float) $this->value : null,
+            'percent' => $this->percent !== null ? (float) $this->percent : null,
+            'tourDateId' => $this->tour_date_id !== null ? (string) $this->tour_date_id : null,
             'expiresAt' => $this->expires_at?->toDateString(),
             'used' => (bool) $this->used,
             'status' => $this->derivedStatus(),

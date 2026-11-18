@@ -28,12 +28,17 @@ function initialDraft(record?: Coupon | null): CouponFormValues {
   };
 }
 
+/** A last seats coupon is worth a percentage of the base price, any other a fixed amount. */
+function couponWorth(coupon: Coupon): string {
+  return coupon.percent !== null ? `${coupon.percent}%` : formatMoney(coupon.value);
+}
+
 const columns = [
   { key: 'id', label: 'Sorszám', sortable: true, render: (item: Coupon) => `#${item.id}` },
   { key: 'name', label: 'Név', sortable: true, render: (item: Coupon) => item.name },
   { key: 'email', label: 'Email', sortable: true, render: (item: Coupon) => item.email },
   { key: 'code', label: 'Kupon', sortable: true, render: (item: Coupon) => item.code },
-  { key: 'value', label: 'Érték', sortable: true, render: (item: Coupon) => formatMoney(item.value) },
+  { key: 'value', label: 'Érték', sortable: true, render: (item: Coupon) => couponWorth(item) },
   { key: 'createdAt', label: 'Létrehozva', sortable: true, render: (item: Coupon) => formatDateTime(item.createdAt) },
   { key: 'expiresAt', label: 'Lejárat', sortable: true, render: (item: Coupon) => formatDate(item.expiresAt) },
   {
@@ -97,7 +102,7 @@ export function CouponsPage() {
       panelDescription: (mode: 'create' | 'edit' | 'detail', record: Coupon | null) => {
         if (mode === 'create') return 'Hozz létre új kuponkódot és állítsd be az értékét.';
         if (mode === 'edit') return 'Frissítsd a kupon adatait.';
-        return record ? `${formatMoney(record.value)} • ${formatDateTime(record.createdAt)}` : 'Válassz egy elemet a listából.';
+        return record ? `${couponWorth(record)} • ${formatDateTime(record.createdAt)}` : 'Válassz egy elemet a listából.';
       },
       renderPanel: ({
         mode,
@@ -124,8 +129,8 @@ export function CouponsPage() {
                   <DetailItem label="Név" value={record.name} />
                   <DetailItem label="Email" value={record.email} />
                   <DetailItem label="Kuponkód" value={record.code} />
-                  <DetailItem label="Érték" value={formatMoney(record.value)} />
-                  <DetailItem label="Lejárat" value={record.expiresAt} />
+                  <DetailItem label="Érték" value={couponWorth(record)} />
+                  <DetailItem label="Lejárat" value={formatDate(record.expiresAt)} />
                   <DetailItem label="Felhasználva" value={<StatusBadge label={record.used ? 'Igen' : 'Nem'} tone={record.used ? 'info' : 'success'} />} />
                   <DetailItem label="Létrehozva" value={formatDateTime(record.createdAt)} />
                 </div>

@@ -45,7 +45,7 @@ class NewsletterSubscriptionService
                     'active' => true,
                     'name' => 'Hírlevél feliratkozás',
                     'email' => $email,
-                    'code' => $this->generateCouponCode(),
+                    'code' => Coupon::uniqueCode('HIR'),
                     'value' => $this->couponValue(),
                     'used' => false,
                 ]);
@@ -101,14 +101,5 @@ class NewsletterSubscriptionService
             ?->decodedValue();
 
         return is_numeric($value) ? (float) $value : 0.0;
-    }
-
-    private function generateCouponCode(): string
-    {
-        do {
-            $code = 'HIR-'.strtoupper(Str::random(6));
-        } while (Coupon::query()->where('code', $code)->exists());
-
-        return $code;
     }
 }

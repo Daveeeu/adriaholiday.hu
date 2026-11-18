@@ -48,6 +48,7 @@ use App\Http\Controllers\PortfolioContentController;
 use App\Http\Controllers\PortfolioFeaturedTourController;
 use App\Http\Controllers\PortfolioFilterChipController;
 use App\Http\Controllers\PortfolioHomepageOfferController;
+use App\Http\Controllers\PortfolioLastSeatsCouponController;
 use App\Http\Controllers\PortfolioOfferController;
 use App\Http\Controllers\PortfolioOfferPdfController;
 use App\Http\Controllers\PortfolioPageController;
@@ -95,6 +96,9 @@ Route::get('portfolio/offers/{slug}/pdf', PortfolioOfferPdfController::class)->m
 Route::get('portfolio/offers/{slug}/related', PortfolioRelatedOfferController::class);
 Route::post('analytics/events', AnalyticsEventController::class);
 Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('throttle:bookings');
+Route::post('portfolio/offers/{slug}/dates/{tourDate}/last-seats-coupon', PortfolioLastSeatsCouponController::class)
+    ->whereNumber('tourDate')
+    ->middleware('throttle:last-seats-coupons');
 Route::middleware('throttle:bookings')->group(function (): void {
     Route::get('booking-details/{token}', [PublicBookingDetailsController::class, 'show'])->where('token', '[A-Za-z0-9]{48}');
     Route::post('booking-details/{token}', [PublicBookingDetailsController::class, 'complete'])->where('token', '[A-Za-z0-9]{48}');

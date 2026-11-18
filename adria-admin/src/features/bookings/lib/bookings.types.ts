@@ -305,6 +305,10 @@ export interface Coupon {
   email: string;
   code: string;
   value: number;
+  /** A last seats coupon's percentage off the base price; it then has no value. */
+  percent: number | null;
+  /** The tour date a last seats coupon is good for. */
+  tourDateId: string | null;
   expiresAt: string;
   used: boolean;
   createdAt: string;
@@ -352,7 +356,7 @@ export type PartnerBannerFormValues = Omit<
 
 export type ContactMessageFormValues = Omit<ContactMessage, 'id'>;
 
-export type CouponFormValues = Omit<Coupon, 'id' | 'createdAt'>;
+export type CouponFormValues = Omit<Coupon, 'id' | 'createdAt' | 'percent' | 'tourDateId'>;
 
 export type PromotionFormValues = Omit<Promotion, 'id' | 'createdAt'>;
 

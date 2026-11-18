@@ -7,19 +7,20 @@ use App\Models\TourDate;
 use App\Support\DiscountBadge;
 
 /**
- * A small discount off the base price that nudges the visitor to book a date
- * whose seats are running low (the trip page's "Fogynak a helyek!" notice).
- * It never stacks with another discount: a date already on offer (a price
- * box discount badge) gets none, and the booking price drops it when a
- * coupon code is used.
+ * A small discount that nudges a visitor reading about a date whose seats are
+ * running low to book it: the trip page offers it as a one-day coupon (see
+ * LastSeatsCouponIssuer), the price itself stays full. A date already on
+ * offer (a price box discount badge) gets none, as discounts never stack.
  */
 final class LastSeatsDiscount
 {
     public const PERCENT = 5.0;
 
-    public const LABEL = 'Utolsó helyek kedvezmény';
+    public const LABEL = 'Utolsó helyek kupon';
 
-    /** The percentage the date gives off now, or null when it gives none. */
+    public const VALID_HOURS = 24;
+
+    /** The percentage the date's coupon gives off now, or null when it offers none. */
     public static function percentFor(Tour $tour, TourDate $tourDate): ?float
     {
         $onOffer = DiscountBadge::percent(DiscountBadge::of($tour, $tourDate)) !== null;

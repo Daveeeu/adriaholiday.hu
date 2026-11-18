@@ -330,42 +330,80 @@ class TourBookingPricingTest extends TestCase
         ]);
     }
 
-    public function test_a_date_running_low_on_seats_gives_the_last_seats_discount(): void
+    private function lastSeatsCouponUrl(?TourDate $date = null): string
+    {
+        return "/api/portfolio/offers/{$this->tour->seo_name}/dates/".($date ?? $this->tourDate)->id.'/last-seats-coupon';
+    }
+
+    public function test_a_date_running_low_on_seats_keeps_its_full_price(): void
     {
         $this->runSeatsLow();
 
         $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload()));
 
-        $this->assertSame('Utolsó helyek kedvezmény', $pricing['discount']['label']);
-        $this->assertEquals(5, $pricing['discount']['percent']);
-        $this->assertEquals(4590, $pricing['discount']['amount']);
-        // 91 800 − 4 590 + 9 400 + 60 000
-        $this->assertEquals(156610, $pricing['total']);
+        $this->assertNull($pricing['discount']);
+        // 91 800 + 9 400 + 60 000
+        $this->assertEquals(161200, $pricing['total']);
     }
 
-    public function test_the_last_seats_discount_does_not_stack_with_an_offer_or_a_coupon(): void
+    public function test_a_visitor_gets_a_one_day_coupon_for_a_date_running_low_on_seats(): void
     {
         $this->runSeatsLow();
-        $this->tourDate->update(['price_box_discount_badge' => '-10%']);
+        $this->freezeTime();
 
-        $onOffer = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload()));
+        $response = $this->postJson($this->lastSeatsCouponUrl())->assertCreated();
 
-        $this->assertEquals(10, $onOffer['discount']['percent']);
-
-        $this->tourDate->update(['price_box_discount_badge' => null]);
-        Coupon::query()->create(['active' => true, 'name' => 'Hírlevél', 'code' => 'HIR-ABC123', 'value' => 5000, 'used' => false]);
-
-        // One passenger (who then needs the single room): the booking above took two of the three free seats.
-        $withCoupon = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload([
-            'couponCode' => 'HIR-ABC123',
-            'extraChoices' => [$this->singleRoom->id => self::ALONE],
-        ], 1)));
-
-        $this->assertNull($withCoupon['discount']);
-        $this->assertEquals(5000, $withCoupon['coupon']['amount']);
+        $this->assertEquals(5, $response->json('percent'));
+        $this->assertSame(now()->addDay()->toIso8601String(), $response->json('expiresAt'));
+        $coupon = Coupon::query()->where('code', $response->json('code'))->sole();
+        $this->assertSame($this->tourDate->id, $coupon->tour_date_id);
+        $this->assertNull($coupon->value);
     }
 
-    public function test_the_trip_page_shows_which_dates_give_the_last_seats_discount(): void
+    public function test_the_last_seats_coupon_takes_its_percentage_off_the_base_price_once(): void
+    {
+        $this->runSeatsLow();
+        $this->tour->update(['couponable' => false]);
+        $code = $this->postJson($this->lastSeatsCouponUrl())->json('code');
+
+        $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload(['couponCode' => $code])));
+
+        $this->assertNull($pricing['discount']);
+        $this->assertEquals(4590, $pricing['coupon']['amount']);
+        // 91 800 − 4 590 + 9 400 + 60 000
+        $this->assertEquals(156610, $pricing['total']);
+        $this->assertTrue(Coupon::query()->where('code', $code)->value('used'));
+    }
+
+    public function test_the_last_seats_coupon_is_good_for_its_own_date_within_a_day_only(): void
+    {
+        $other = TourDate::factory()->for($this->tour)->create(['start_date' => today()->addDays(90), 'end_date' => today()->addDays(91), 'price' => 45900, 'departure_place_ids' => null]);
+        $this->runSeatsLow();
+        $code = $this->postJson($this->lastSeatsCouponUrl())->json('code');
+
+        $this->postJson('/api/bookings', $this->bookingPayload(['couponCode' => $code, 'tourDateId' => $other->id]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['couponCode']);
+
+        $this->travel(25)->hours();
+
+        $this->postJson('/api/bookings', $this->bookingPayload(['couponCode' => $code]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['couponCode']);
+    }
+
+    public function test_no_coupon_is_given_for_a_date_with_plenty_of_seats_or_on_offer(): void
+    {
+        $this->postJson($this->lastSeatsCouponUrl())->assertStatus(422);
+
+        $this->runSeatsLow();
+        $this->tour->update(['price_box_discount_badge' => 'Last Minute -15%']);
+
+        $this->postJson($this->lastSeatsCouponUrl())->assertStatus(422);
+        $this->assertSame(0, Coupon::query()->count());
+    }
+
+    public function test_the_trip_page_shows_which_dates_offer_the_last_seats_coupon(): void
     {
         $plenty = TourDate::factory()->for($this->tour)->create(['start_date' => today()->addDays(90), 'end_date' => today()->addDays(91), 'capacity' => 40]);
         $this->runSeatsLow();

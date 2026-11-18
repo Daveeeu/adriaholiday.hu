@@ -36,11 +36,7 @@ class DashboardController extends Controller
             'tours' => Tour::query()->where('active', true)->count(),
             'bookings' => Booking::query()->count(),
             'messages' => ContactMessage::query()->count(),
-            'coupons' => Coupon::query()
-                ->where('active', true)
-                ->where('used', false)
-                ->where(fn ($query) => $query->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))
-                ->count(),
+            'coupons' => Coupon::query()->redeemable()->count(),
             'homepageOffers' => HomepageOffer::query()->count(),
             'blogArticles' => BlogArticle::query()->count(),
             'buses' => Bus::query()->count(),

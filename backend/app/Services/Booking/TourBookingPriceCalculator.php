@@ -8,7 +8,6 @@ use App\Models\TourDate;
 use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
 use App\Support\Booking\BookingInsuranceSettings;
-use App\Support\Booking\LastSeatsDiscount;
 use App\Support\Booking\TourBookingPassengerOptions;
 use App\Support\Booking\TourBookingSelection;
 use App\Support\DiscountBadge;
@@ -23,12 +22,11 @@ use Illuminate\Validation\ValidationException;
  * Prices a public tour booking on the server, so the stored total never
  * depends on what the browser calculated:
  *
- *   base price × passengers − discount (the price box's discount badge, or
- *     else the last seats discount when no coupon code is used)
+ *   base price × passengers − discount (the price box's discount badge)
  *   + departure place fee × passengers
  *   + charged extras (for each passenger who has them, or once per booking;
  *     extras in another currency are paid on site and listed apart)
- *   − coupon
+ *   − coupon (a fixed amount, or a percentage of the base price × passengers)
  *   = trip total
  *   + travel insurance (daily fee × insured passengers × travel days)
  *   + cancellation insurance (percentage of each insured passenger's share of the trip total)
@@ -56,7 +54,7 @@ class TourBookingPriceCalculator
         $passengers = $selection->passengers;
         $basePrice = $this->basePrice($tour, $tourDate);
         $baseTotal = $basePrice !== null ? $basePrice * $passengers : null;
-        $discount = $this->discount($tour, $tourDate, $baseTotal, $selection->couponCode !== null);
+        $discount = $this->discount($tour, $tourDate, $baseTotal);
         $departurePlace = $this->departurePlace($tour, $tourDate, $selection->departurePlaceId, $passengers);
         // Fees in another currency (e.g. a city tax in euros) are paid on
         // site: listed, never added to the forint total.
@@ -68,7 +66,7 @@ class TourBookingPriceCalculator
         $subtotal = $baseTotal !== null
             ? $baseTotal - ($discount['amount'] ?? 0) + ($departurePlace['total'] ?? 0) + array_sum(array_column($extras, 'total'))
             : null;
-        $coupon = $this->coupon($tour, $selection->couponCode, $subtotal);
+        $coupon = $this->coupon($tour, $tourDate, $selection->couponCode, $baseTotal, $subtotal);
         $tripTotal = $subtotal !== null ? $subtotal - ($coupon['amount'] ?? 0) : null;
         $passengerShares = $basePrice !== null
             ? $this->passengerShares($passengers, $basePrice, $discount, $departurePlace, $extras, $coupon)
@@ -106,34 +104,18 @@ class TourBookingPriceCalculator
 
     /**
      * The discount badge the public price box applies (the date's badge
-     * overrides the tour's), e.g. a Last Minute discount. A date without one
-     * whose seats are running low gives the last seats discount instead,
-     * unless a coupon is used: discounts never stack.
+     * overrides the tour's), e.g. a Last Minute discount.
      *
      * @return array{label: string, percent: float, amount: float}|null
      */
-    private function discount(Tour $tour, ?TourDate $tourDate, ?float $baseTotal, bool $couponUsed): ?array
+    private function discount(Tour $tour, ?TourDate $tourDate, ?float $baseTotal): ?array
     {
-        if ($baseTotal === null) {
-            return null;
-        }
-
         $badgePercent = DiscountBadge::percent(DiscountBadge::of($tour, $tourDate));
 
-        if ($badgePercent !== null) {
-            return [
-                'label' => $tour->price_box_discount_text ?: 'Kedvezmény',
-                'percent' => $badgePercent,
-                'amount' => round($baseTotal * $badgePercent / 100),
-            ];
-        }
-
-        $lastSeatsPercent = $tourDate !== null && ! $couponUsed ? LastSeatsDiscount::percentFor($tour, $tourDate) : null;
-
-        return $lastSeatsPercent !== null ? [
-            'label' => LastSeatsDiscount::LABEL,
-            'percent' => $lastSeatsPercent,
-            'amount' => round($baseTotal * $lastSeatsPercent / 100),
+        return $baseTotal !== null && $badgePercent !== null ? [
+            'label' => $tour->price_box_discount_text ?: 'Kedvezmény',
+            'percent' => $badgePercent,
+            'amount' => round($baseTotal * $badgePercent / 100),
         ] : null;
     }
 
@@ -286,36 +268,39 @@ class TourBookingPriceCalculator
     }
 
     /**
-     * An active, unused, unexpired coupon reduces the trip total by its
-     * value (never below zero) on tours that accept coupons.
+     * A redeemable coupon (see Coupon::scopeRedeemable()) reduces the trip
+     * total by its value, or by its percentage of the base price ×
+     * passengers, never below zero. One bound to a date (a last seats
+     * coupon) is good for that date only; any other on tours that accept
+     * coupons.
      *
      * @return array{id: int, code: string, amount: float}|null
      */
-    private function coupon(Tour $tour, ?string $code, ?float $subtotal): ?array
+    private function coupon(Tour $tour, ?TourDate $tourDate, ?string $code, ?float $baseTotal, ?float $subtotal): ?array
     {
         if ($code === null) {
             return null;
         }
 
-        $coupon = $tour->couponable
-            ? Coupon::query()
-                ->where('code', $code)
-                ->where('active', true)
-                ->where('used', false)
-                ->where(fn ($query) => $query->whereNull('expires_at')->orWhereDate('expires_at', '>=', today()))
-                ->first()
-            : null;
+        $coupon = Coupon::query()->redeemable()->where('code', $code)->first();
+        $fits = $coupon !== null && ($coupon->tour_date_id !== null
+            ? (int) $coupon->tour_date_id === $tourDate?->id
+            : $tour->couponable);
 
-        if ($coupon === null) {
+        if (! $fits) {
             throw ValidationException::withMessages([
                 'couponCode' => 'A megadott kuponkód érvénytelen, lejárt vagy már fel lett használva.',
             ]);
         }
 
+        $amount = $coupon->percent !== null
+            ? round((float) $baseTotal * (float) $coupon->percent / 100)
+            : (float) $coupon->value;
+
         return [
             'id' => $coupon->id,
             'code' => $coupon->code,
-            'amount' => min((float) $coupon->value, max(0.0, (float) $subtotal)),
+            'amount' => min($amount, max(0.0, (float) $subtotal)),
         ];
     }
 
