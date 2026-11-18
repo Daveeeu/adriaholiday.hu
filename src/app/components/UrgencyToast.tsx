@@ -4,14 +4,13 @@ import { Flame, X } from "lucide-react";
 
 import type { UrgencyMessage } from "../lib/urgencyMessage";
 
-/** Shown this long after the page opens or the date changes, then for VISIBLE_MS. */
+/** Shown this long after the page opens or the date changes. */
 const SHOW_DELAY_MS = 3000;
-const VISIBLE_MS = 12000;
 
 /**
  * A small toast in the corner urging the visitor to book: it slides in a
  * moment after the trip page opens, again when another date brings another
- * message, and hides by itself; a message the visitor closed stays closed.
+ * message, and stays until the visitor closes it; a closed message stays closed.
  */
 export default function UrgencyToast({ message }: { message: UrgencyMessage | null }) {
   const [visible, setVisible] = useState(false);
@@ -27,12 +26,8 @@ export default function UrgencyToast({ message }: { message: UrgencyMessage | nu
     }
 
     const show = setTimeout(() => setVisible(true), SHOW_DELAY_MS);
-    const hide = setTimeout(() => setVisible(false), SHOW_DELAY_MS + VISIBLE_MS);
 
-    return () => {
-      clearTimeout(show);
-      clearTimeout(hide);
-    };
+    return () => clearTimeout(show);
   }, [key, dismissed]);
 
   function dismiss() {

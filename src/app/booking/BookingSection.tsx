@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useRef } from "react";
-import { BadgePercent, Check, CreditCard, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
+import { Check, CreditCard, Flame, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
 
 import SimplePayLogo from "../components/SimplePayLogo";
 import { useInView } from "../hooks/useInView";
@@ -67,12 +67,12 @@ export default function BookingSection({ booking, trip, datePicker }: BookingSec
       <h2 className="text-3xl font-extrabold tracking-tight text-[#0f172a] md:text-4xl">Foglalás</h2>
       <p className="mt-1 text-gray-500">Töltsd ki, és a végén egyben elküldöd.</p>
 
-      {booking.lastSeatsDiscountPercent ? (
-        <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#00c389]/40 bg-[#00c389]/10 p-4 text-sm text-[#0f172a]">
-          <BadgePercent className="mt-0.5 h-5 w-5 shrink-0 text-[#00a878]" />
+      {booking.urgency ? (
+        <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#ff7a45]/30 bg-[#ff7a45]/10 p-4 text-sm text-[#0f172a]">
+          <Flame className="mt-0.5 h-5 w-5 shrink-0 text-[#ff5a3c]" />
           <p>
-            <span className="font-bold">Fogynak a helyek, most {booking.lastSeatsDiscountPercent}% kedvezménnyel foglalhatsz.</span>{" "}
-            A kedvezményt levonjuk a részvételi díjból; más kedvezménnyel és kuponnal nem vonható össze.
+            <span className="font-bold">{booking.urgency.title}</span> {booking.urgency.text}
+            {booking.appliedLastSeatsPercent ? " Más kedvezménnyel és kuponnal nem vonható össze." : null}
           </p>
         </div>
       ) : null}

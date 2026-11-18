@@ -9,6 +9,7 @@ import type { PortfolioBookingPayment, PortfolioPriceBox } from "../content/port
 import { bringIntoView } from "../lib/bringIntoView";
 import { formatHuf } from "../lib/price";
 import { seatsLeftLabel } from "../lib/seatsLeft";
+import { urgencyMessage } from "../lib/urgencyMessage";
 import {
   EMPTY_PASSENGER_OPTIONS,
   chargedBookingExtras,
@@ -54,6 +55,8 @@ export type BookingDateOption = {
   label: string;
   status?: string | null;
   seatsLeft?: number | null;
+  /** At most 35% of the seats are free (TourDate::seatsRunningLow). */
+  seatsRunningLow?: boolean;
   /** Given by the server while the seats run low and the date is not on offer (see LastSeatsDiscount). */
   lastSeatsDiscountPercent?: number | null;
   extras?: BookingExtra[];
@@ -230,6 +233,12 @@ export function useTourBookingForm({
   // Discounts never stack: a coupon code takes the place of the last seats discount, as the server prices it.
   const couponUsed = couponCode.trim() !== "";
   const appliedLastSeatsPercent = couponUsed ? null : lastSeatsDiscountPercent;
+  // Seats running low are always pointed out, with a coupon too; only the discount it no longer gets is left out.
+  const urgency = urgencyMessage({
+    seatsRunningLow: selectedDate.seatsRunningLow ?? false,
+    seatsLeft,
+    discountPercent: appliedLastSeatsPercent,
+  });
   const priceEstimate = useMemo(
     () =>
       estimateBookingPrice({
@@ -697,7 +706,9 @@ export function useTourBookingForm({
 
     couponCode,
     setCouponCode,
+    urgency,
     lastSeatsDiscountPercent,
+    appliedLastSeatsPercent,
     lastSeatsDiscountDropped: lastSeatsDiscountPercent !== null && couponUsed,
     termsAccepted,
     termsError,
