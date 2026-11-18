@@ -244,7 +244,7 @@ export function useTourBookingForm({
 
   // After a failed check the first error on the page is brought to the middle
   // of the screen, with focus on its field.
-  const formRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLElement>(null);
   const [errorFocusRequest, setErrorFocusRequest] = useState(0);
 
   useEffect(() => {
@@ -264,12 +264,14 @@ export function useTourBookingForm({
 
   const focusFirstError = () => setErrorFocusRequest((current) => current + 1);
 
+  // The booking is in: the form gives way to the confirmation.
+  const completed = status === "success" || status === "redirecting";
   const funnel = useBookingFunnelTracking({
     entity: { type: "tour", slug: trip.slug },
     bookingType: "tour_booking",
     started: hasStarted,
     ...FUNNEL_STEP,
-    completed: status === "success" || status === "redirecting",
+    completed,
   });
 
   function markStarted() {
@@ -583,6 +585,7 @@ export function useTourBookingForm({
     formRef,
     trackFieldFocus: funnel.trackFieldFocus,
     status,
+    completed,
     errorMessage,
 
     departurePlaces,

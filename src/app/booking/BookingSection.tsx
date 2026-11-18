@@ -1,7 +1,6 @@
 import { type ReactNode, useEffect, useRef } from "react";
 import { Check, CreditCard, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
 
-import type { PortfolioPriceBox } from "../content/portfolio-offer-detail-api";
 import SimplePayLogo from "../components/SimplePayLogo";
 import { bringIntoView } from "../lib/bringIntoView";
 import { transportLabel } from "../lib/transport";
@@ -14,13 +13,7 @@ import PassengerOptionsList from "./PassengerOptionsList";
 import { tripStepExtras } from "./booking-pricing";
 import type { BookingFormField } from "./booking-form-fields";
 import { INSURANCE_PATH } from "./insurance";
-import {
-  MAX_PASSENGERS,
-  useTourBookingForm,
-  type BookingDateOption,
-  type BookingTrip,
-  type TourBookingForm,
-} from "./useTourBookingForm";
+import { MAX_PASSENGERS, type BookingDateOption, type BookingTrip, type TourBookingForm } from "./useTourBookingForm";
 
 const COUPON_FIELD: BookingFormField = {
   key: "coupon_code",
@@ -34,23 +27,21 @@ const COUPON_FIELD: BookingFormField = {
 };
 
 type BookingSectionProps = {
-  selectedDate: BookingDateOption;
+  /** The form's state, kept by the trip page so its sidebar can show the summary (see BookingSidebarSummary). */
+  booking: TourBookingForm;
   trip: BookingTrip;
-  priceBox: PortfolioPriceBox | null;
   /** Lets the date be changed in the form; without it the date is only shown in the summary. */
   datePicker?: ReactNode;
 };
 
 /**
  * The tour booking form on one page, without steps: trip, passengers,
- * supplements and contact details one under the other. Next to it on wide
- * screens, and stuck to the bottom of the screen on narrow ones, the live
- * price with the booking button.
+ * supplements and contact details one under the other. Below the trip page's
+ * sidebar breakpoint (xl) the live price and the button stick to the bottom
+ * of the screen; from xl the sidebar shows them instead.
  */
-export default function BookingSection({ selectedDate, trip, priceBox, datePicker }: BookingSectionProps) {
-  const booking = useTourBookingForm({ trip, selectedDate, priceBox });
-
-  if (booking.status === "redirecting" || booking.status === "success") {
+export default function BookingSection({ booking, trip, datePicker }: BookingSectionProps) {
+  if (booking.completed) {
     return <BookingConfirmation redirecting={booking.status === "redirecting"} email={booking.formValues.contact_email} />;
   }
 
@@ -60,15 +51,104 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
     booking.cardExtras.length > 0 ||
     booking.travelInsuranceAvailable ||
     booking.cancellationInsuranceAvailable;
+
+  return (
+    <section
+      id="foglalas"
+      ref={booking.formRef}
+      onFocusCapture={booking.trackFieldFocus}
+      data-clarity-mask="true"
+      className="@container scroll-mt-[92px] rounded-[30px] bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.06)] md:p-8"
+    >
+      <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#e6faf3] px-3 py-1.5 text-xs font-bold text-[#00865f]">
+        <ShieldCheck className="h-4 w-4" />
+        Biztonságos online foglalás
+      </div>
+      <h2 className="text-3xl font-extrabold tracking-tight text-[#0f172a] md:text-4xl">Foglalás</h2>
+      <p className="mt-1 text-gray-500">Töltsd ki, és a végén egyben elküldöd.</p>
+
+      <FormSection number={1} title="Utazás">
+        {datePicker ? (
+          <div className="mb-5">
+            <div className="mb-2 text-sm font-bold text-[#0f172a]">Időpont</div>
+            {datePicker}
+          </div>
+        ) : null}
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <PassengerCountField count={booking.passengerCount} onChange={booking.changePassengerCount} />
+          {booking.departurePlaces.length > 0 ? (
+            <DeparturePlaceSelect
+              places={booking.departurePlaces}
+              value={booking.departurePlaceId}
+              onChange={booking.changeDeparturePlace}
+              error={booking.departurePlaceError}
+            />
+          ) : null}
+        </div>
+      </FormSection>
+
+      <FormSection number={2} title="Utasok" hint="a név a személyi igazolvány szerint">
+        <PassengerFields booking={booking} />
+      </FormSection>
+
+      {hasExtras ? (
+        <FormSection number={3} title="Felárak és biztosítás">
+          <div className="space-y-4">
+            <BookingLevelExtras
+              extras={bookingExtras}
+              passengers={booking.passengerCount}
+              selectedIds={booking.selectedExtraIds}
+              onToggle={booking.toggleExtra}
+              choices={booking.extraChoices}
+              onChoiceChange={booking.changeExtraChoice}
+              choiceError={booking.extraChoiceError}
+            />
+            <PassengerOptionsList
+              passengerNames={passengerNames(booking)}
+              extras={booking.cardExtras}
+              options={booking.passengerOptions}
+              onChange={booking.changePassengerOptions}
+              choiceErrors={booking.passengerChoiceErrors}
+              insurances={booking.insurances}
+              travelInsuranceAvailable={booking.travelInsuranceAvailable}
+              cancellationInsuranceAvailable={booking.cancellationInsuranceAvailable}
+              travelDays={booking.travelDays}
+              passengerShares={booking.priceEstimate.passengerShares}
+            />
+            {booking.travelInsuranceAvailable || booking.cancellationInsuranceAvailable ? (
+              <p className="text-sm text-gray-500">
+                A biztosítások szolgáltatásait, díjait és feltételeit a{" "}
+                <a href={INSURANCE_PATH} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
+                  Biztosítások
+                </a>{" "}
+                oldalon találod.
+              </p>
+            ) : null}
+          </div>
+        </FormSection>
+      ) : null}
+
+      <FormSection number={hasExtras ? 4 : 3} title="Elérhetőség és véglegesítés">
+        <ContactAndFinalFields booking={booking} couponable={Boolean(trip.couponable)} />
+      </FormSection>
+
+      <BookingSubmitBar {...summaryProps(booking)} className="-mx-5 -mb-5 xl:hidden md:-mx-8 md:-mb-8" />
+    </section>
+  );
+}
+
+/** The booking's summary panel for the trip page's sidebar, shown there while the form is on screen and not yet sent. */
+export function BookingSidebarSummary({
+  booking,
+  trip,
+  selectedDate,
+}: {
+  booking: TourBookingForm;
+  trip: BookingTrip;
+  selectedDate: BookingDateOption;
+}) {
   const departurePlace = booking.departurePlaces.find((place) => String(place.id) === booking.departurePlaceId);
-  const summary = {
-    estimate: booking.priceEstimate,
-    displayedTotal: booking.displayedTotal,
-    deposit: booking.onlineDeposit,
-    onlinePayment: booking.onlinePayment !== null,
-    submitting: booking.status === "submitting",
-    onSubmit: booking.submit,
-  };
   const facts = [
     selectedDate.label,
     transportLabel(trip.transport),
@@ -77,96 +157,18 @@ export default function BookingSection({ selectedDate, trip, priceBox, datePicke
     `${booking.passengerCount} fő`,
   ].filter((fact): fact is string => typeof fact === "string" && fact.trim() !== "");
 
-  return (
-    <section id="foglalas" data-clarity-mask="true" className="@container/booking scroll-mt-[92px]">
-      <div className="grid gap-6 @3xl/booking:grid-cols-[minmax(0,1fr)_320px] @3xl/booking:items-start">
-        <div
-          ref={booking.formRef}
-          onFocusCapture={booking.trackFieldFocus}
-          className="@container rounded-[30px] bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.06)] md:p-8"
-        >
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#e6faf3] px-3 py-1.5 text-xs font-bold text-[#00865f]">
-            <ShieldCheck className="h-4 w-4" />
-            Biztonságos online foglalás
-          </div>
-          <h2 className="text-3xl font-extrabold tracking-tight text-[#0f172a] md:text-4xl">Foglalás</h2>
-          <p className="mt-1 text-gray-500">Töltsd ki, és a végén egyben elküldöd.</p>
+  return <BookingSummaryPanel title={trip.title} facts={facts} {...summaryProps(booking)} />;
+}
 
-          <FormSection number={1} title="Utazás">
-            {datePicker ? (
-              <div className="mb-5">
-                <div className="mb-2 text-sm font-bold text-[#0f172a]">Időpont</div>
-                {datePicker}
-              </div>
-            ) : null}
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <PassengerCountField count={booking.passengerCount} onChange={booking.changePassengerCount} />
-              {booking.departurePlaces.length > 0 ? (
-                <DeparturePlaceSelect
-                  places={booking.departurePlaces}
-                  value={booking.departurePlaceId}
-                  onChange={booking.changeDeparturePlace}
-                  error={booking.departurePlaceError}
-                />
-              ) : null}
-            </div>
-          </FormSection>
-
-          <FormSection number={2} title="Utasok" hint="a név a személyi igazolvány szerint">
-            <PassengerFields booking={booking} />
-          </FormSection>
-
-          {hasExtras ? (
-            <FormSection number={3} title="Felárak és biztosítás">
-              <div className="space-y-4">
-                <BookingLevelExtras
-                  extras={bookingExtras}
-                  passengers={booking.passengerCount}
-                  selectedIds={booking.selectedExtraIds}
-                  onToggle={booking.toggleExtra}
-                  choices={booking.extraChoices}
-                  onChoiceChange={booking.changeExtraChoice}
-                  choiceError={booking.extraChoiceError}
-                />
-                <PassengerOptionsList
-                  passengerNames={passengerNames(booking)}
-                  extras={booking.cardExtras}
-                  options={booking.passengerOptions}
-                  onChange={booking.changePassengerOptions}
-                  choiceErrors={booking.passengerChoiceErrors}
-                  insurances={booking.insurances}
-                  travelInsuranceAvailable={booking.travelInsuranceAvailable}
-                  cancellationInsuranceAvailable={booking.cancellationInsuranceAvailable}
-                  travelDays={booking.travelDays}
-                  passengerShares={booking.priceEstimate.passengerShares}
-                />
-                {booking.travelInsuranceAvailable || booking.cancellationInsuranceAvailable ? (
-                  <p className="text-sm text-gray-500">
-                    A biztosítások szolgáltatásait, díjait és feltételeit a{" "}
-                    <a href={INSURANCE_PATH} target="_blank" rel="noreferrer" className="font-bold text-[#00a878] underline">
-                      Biztosítások
-                    </a>{" "}
-                    oldalon találod.
-                  </p>
-                ) : null}
-              </div>
-            </FormSection>
-          ) : null}
-
-          <FormSection number={hasExtras ? 4 : 3} title="Elérhetőség és véglegesítés">
-            <ContactAndFinalFields booking={booking} couponable={Boolean(trip.couponable)} />
-          </FormSection>
-
-          <BookingSubmitBar {...summary} className="-mx-5 -mb-5 @3xl/booking:hidden md:-mx-8 md:-mb-8" />
-        </div>
-
-        <aside className="sticky top-[155px] hidden @3xl/booking:block">
-          <BookingSummaryPanel title={trip.title} facts={facts} {...summary} />
-        </aside>
-      </div>
-    </section>
-  );
+function summaryProps(booking: TourBookingForm) {
+  return {
+    estimate: booking.priceEstimate,
+    displayedTotal: booking.displayedTotal,
+    deposit: booking.onlineDeposit,
+    onlinePayment: booking.onlinePayment !== null,
+    submitting: booking.status === "submitting",
+    onSubmit: booking.submit,
+  };
 }
 
 function FormSection({ number, title, hint, children }: { number: number; title: string; hint?: string; children: ReactNode }) {
@@ -293,7 +295,7 @@ function ContactAndFinalFields({ booking, couponable }: { booking: TourBookingFo
 
       <NewsletterConsent checked={booking.newsletterSubscribe} onChange={booking.setNewsletterSubscribe} />
 
-      {booking.onlinePayment ? <SimplePayLogo className="@3xl/booking:hidden" /> : null}
+      {booking.onlinePayment ? <SimplePayLogo className="xl:hidden" /> : null}
 
       <p className="rounded-2xl bg-[#f5f9fc] p-4 text-sm text-gray-600">
         Indulás előtt kb. 1 héttel írásos értesítőt (levélben vagy e-mailben) küldünk az indulással kapcsolatos

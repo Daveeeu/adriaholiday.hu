@@ -45,7 +45,9 @@ import { seatsLeftLabel } from "../lib/seatsLeft";
 import { transportLabel } from "../lib/transport";
 import { routeNamedIn, routeStops } from "../lib/tripRoute";
 import { TRIP_SECTION_HEADING, TRIP_SECTION_SUBTITLE } from "../lib/tripTypography";
-import BookingSection from "../booking/BookingSection";
+import BookingSection, { BookingSidebarSummary } from "../booking/BookingSection";
+import { useTourBookingForm } from "../booking/useTourBookingForm";
+import { useInView } from "../hooks/useInView";
 import { formatAmount, formatHuf } from "../lib/price";
 import GroupInquirySection, {
   GROUP_INQUIRY_MIN_PASSENGERS,
@@ -149,6 +151,10 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   }, [hash]);
 
   const priceBox = mergePriceBoxes(trip.priceBox ?? null, selectedDate.priceBox ?? null);
+  const booking = useTourBookingForm({ trip, selectedDate, priceBox });
+  // While the booking form is on screen the sidebar shows only its summary.
+  const [bookingRef, bookingInView] = useInView<HTMLDivElement>();
+  const showBookingSummary = canBook && bookingInView && !booking.completed;
   const selectedSeats = selectedDate.seatsLeft ?? null;
   const offeredDeparturePlaces =
     selectedDate.departurePlaceIds.length > 0
@@ -396,16 +402,17 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
                 <div className="mb-20 space-y-8" {...tripSection(canBook ? "Foglalás" : "Ajánlatkérés")}>
                   {canBook ? (
-                    <BookingSection
-                      selectedDate={selectedDate}
-                      trip={trip}
-                      priceBox={priceBox}
-                      datePicker={
-                        bookableDates.length > 1 ? (
-                          <TripDatePicker dates={bookableDates} selectedId={selectedDateId} onSelect={selectDate} variant="tiles" />
-                        ) : null
-                      }
-                    />
+                    <div ref={bookingRef}>
+                      <BookingSection
+                        booking={booking}
+                        trip={trip}
+                        datePicker={
+                          bookableDates.length > 1 ? (
+                            <TripDatePicker dates={bookableDates} selectedId={selectedDateId} onSelect={selectDate} variant="tiles" />
+                          ) : null
+                        }
+                      />
+                    </div>
                   ) : trip.hasBookableDates ? (
                     <div className="rounded-[28px] border border-red-100 bg-red-50 p-6 text-[#0f172a]">
                       <div className="font-bold mb-1">
@@ -432,7 +439,13 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
             </div>
 
             <aside className="space-y-6">
-              <div className="sticky top-[92px] rounded-[34px] bg-white border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.08)] p-6 xl:max-h-[calc(100vh-110px)] xl:overflow-y-auto">
+              {showBookingSummary ? (
+                <div className="sticky top-[92px] hidden xl:block">
+                  <BookingSidebarSummary booking={booking} trip={trip} selectedDate={selectedDate} />
+                </div>
+              ) : null}
+
+              <div className={`sticky top-[92px] rounded-[34px]${showBookingSummary ? " xl:hidden" : ""} bg-white border border-gray-100 shadow-[0_16px_50px_rgba(15,23,42,0.08)] p-6 xl:max-h-[calc(100vh-110px)] xl:overflow-y-auto`}>
                 <div id={TRIP_DATES_ID} className="mb-6 scroll-mt-28">
                   <h2 className="text-[#0f172a] text-lg font-bold mb-3">
                     {dateOptions.length > 1 ? "Időpontok" : "Időpont"}

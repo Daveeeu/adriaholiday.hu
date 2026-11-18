@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { ArrowRight, ChevronUp, Lock } from "lucide-react";
 
 import SimplePayLogo from "../components/SimplePayLogo";
 import { useClaimMobileBottomBar } from "../components/mobile/mobileBottomBar";
+import { useInView } from "../hooks/useInView";
 import { formatHuf } from "../lib/price";
 import type { BookingPriceEstimate } from "./booking-pricing";
 
@@ -21,7 +22,7 @@ type BookingSummaryPanelProps = BookingPriceSummaryProps & {
   facts: string[];
 };
 
-/** The dark side panel next to the form on wide screens: what is booked, the price line by line, and the button. */
+/** The dark panel in the trip page's sidebar on wide screens: what is booked, the price line by line, and the button. */
 export function BookingSummaryPanel({ title, facts, ...summary }: BookingSummaryPanelProps) {
   return (
     <div className="relative overflow-hidden rounded-[30px] bg-[#07111f] p-6 text-white">
@@ -55,9 +56,9 @@ export function BookingSummaryPanel({ title, facts, ...summary }: BookingSummary
  */
 export function BookingSubmitBar({ className = "", ...summary }: BookingPriceSummaryProps & { className?: string }) {
   const [open, setOpen] = useState(false);
-  const barRef = useRef<HTMLDivElement>(null);
+  const [barRef, onScreen] = useInView<HTMLDivElement>();
 
-  useClaimMobileBottomBar(barRef);
+  useClaimMobileBottomBar(onScreen);
 
   return (
     <div

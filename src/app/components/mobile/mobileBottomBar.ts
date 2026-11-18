@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 /**
  * The bottom of a phone screen holds one bar at a time. The site-wide call to
@@ -35,30 +35,7 @@ export function useMobileBottomBarClaimed(): boolean {
   return useSyncExternalStore(subscribe, () => claims > 0, () => false);
 }
 
-/** Holds the bottom of the screen for as long as the given bar is on screen. */
-export function useClaimMobileBottomBar(barRef: RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    const bar = barRef.current;
-
-    if (!bar) {
-      return;
-    }
-
-    let release: (() => void) | null = null;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !release) {
-        release = claimMobileBottomBar();
-      } else if (!entry.isIntersecting && release) {
-        release();
-        release = null;
-      }
-    });
-
-    observer.observe(bar);
-
-    return () => {
-      observer.disconnect();
-      release?.();
-    };
-  }, [barRef]);
+/** Holds the bottom of the screen while `onScreen` is true, i.e. while the page's own bar is on screen. */
+export function useClaimMobileBottomBar(onScreen: boolean) {
+  useEffect(() => (onScreen ? claimMobileBottomBar() : undefined), [onScreen]);
 }
