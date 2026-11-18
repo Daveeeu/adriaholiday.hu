@@ -190,6 +190,9 @@ class AppServiceProvider extends ServiceProvider
         // A visitor gets one last seats coupon per date they read about; a few spare for other dates and browsers.
         RateLimiter::for('last-seats-coupons', fn ($request) => Limit::perHour(10)->by($request->ip()));
 
+        // The Christmas gift box gives a visitor one coupon; a few spare for other browsers on the same network.
+        RateLimiter::for('christmas-coupons', fn ($request) => Limit::perDay(3)->by($request->ip()));
+
         RateLimiter::for('newsletter', fn ($request) => Limit::perMinute(5)->by($request->ip()));
 
         RateLimiter::for('contact', fn ($request) => Limit::perMinute(5)->by($request->ip()));

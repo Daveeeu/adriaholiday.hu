@@ -11,6 +11,7 @@ import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import { socialLinks, type SocialLink } from "../site-settings/social-links";
 import SimplePayLogo from "./SimplePayLogo";
 import LogoBadge from "./LogoBadge";
+import ChristmasGiftBox from "../christmas/ChristmasGiftBox";
 
 const DEVELOPER_URL = "https://jandldavid.hu";
 
@@ -193,9 +194,10 @@ export default function Footer() {
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
         >
-          {settings.footerCopyright ? (
-            <p className="text-white/50 text-sm">{settings.footerCopyright}</p>
-          ) : <span />}
+          <div className="flex items-center gap-3">
+            {settings.footerCopyright ? <p className="text-white/50 text-sm">{settings.footerCopyright}</p> : null}
+            <ChristmasGiftBox />
+          </div>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/50">
             {legalLinks.map((link) => (
               <motion.div key={link.to} className="hover:text-[#00c389] transition-colors" whileHover={{ y: -2 }}>

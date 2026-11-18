@@ -8,6 +8,7 @@ import Header from "../components/Header";
 import { AnalyticsProvider } from "../analytics/analytics-provider";
 import { PortfolioContentProvider } from "../content/PortfolioContentProvider";
 import { SiteSettingsProvider } from "../site-settings/SiteSettingsProvider";
+import { ChristmasProvider } from "../christmas/ChristmasProvider";
 import LoadingScreen from "../components/LoadingScreen";
 import { SCROLL_POSITIONS_STORAGE_KEY } from "../lib/scrollRestoration";
 
@@ -21,19 +22,21 @@ export default function RootLayout() {
       <AnalyticsProvider>
         <SiteSettingsProvider>
           <PortfolioContentProvider>
-            <div className="hidden md:block">
-              <Header />
-            </div>
-            <MobileNav />
-            {/* At least a screen tall, so the footer never shows (and then jumps away) while a page loads. */}
-            <div className={`min-h-screen ${isHome ? "pt-0" : "pt-0 md:pt-[76px]"}`}>
-              <Suspense fallback={<LoadingScreen />}>
-                <Outlet />
-              </Suspense>
-            </div>
-            <Footer />
-            <CookieConsentBanner />
-            {isHome ? <PromotionToast /> : null}
+            <ChristmasProvider>
+              <div className="hidden md:block">
+                <Header />
+              </div>
+              <MobileNav />
+              {/* At least a screen tall, so the footer never shows (and then jumps away) while a page loads. */}
+              <div className={`min-h-screen ${isHome ? "pt-0" : "pt-0 md:pt-[76px]"}`}>
+                <Suspense fallback={<LoadingScreen />}>
+                  <Outlet />
+                </Suspense>
+              </div>
+              <Footer />
+              <CookieConsentBanner />
+              {isHome ? <PromotionToast /> : null}
+            </ChristmasProvider>
           </PortfolioContentProvider>
         </SiteSettingsProvider>
       </AnalyticsProvider>

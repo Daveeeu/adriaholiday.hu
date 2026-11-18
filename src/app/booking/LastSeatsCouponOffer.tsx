@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Flame, Ticket, X } from "lucide-react";
 
 import { useBrowsingEngagement } from "../hooks/useBrowsingEngagement";
-import type { LastSeatsCoupon } from "./bookings-api";
-import { lastSeatsCouponDeadline } from "./last-seats-coupon";
+import type { IssuedCoupon } from "./bookings-api";
+import { issuedCouponDeadline } from "./issued-coupon";
 import type { LastSeatsCouponState } from "./useLastSeatsCoupon";
 
 /** How long the visitor reads the trip page (and scrolls it) before the offer comes up. */
@@ -26,12 +26,12 @@ export default function LastSeatsCouponOffer({
   lastSeats: LastSeatsCouponState;
   dateId: string | number;
   seatsLeft: number | null;
-  onUse: (coupon: LastSeatsCoupon) => void;
+  onUse: (coupon: IssuedCoupon) => void;
 }) {
   const { offeredPercent, coupon, claim } = lastSeats;
   const [shownFor, setShownFor] = useState<ReadonlySet<string>>(() => new Set());
   const [open, setOpen] = useState(false);
-  const [offered, setOffered] = useState<LastSeatsCoupon | null>(null);
+  const [offered, setOffered] = useState<IssuedCoupon | null>(null);
   const dateKey = String(dateId);
   const due = offeredPercent !== null && coupon === null && !shownFor.has(dateKey);
   const engaged = useBrowsingEngagement(READING_MS, due);
@@ -130,7 +130,7 @@ export default function LastSeatsCouponOffer({
                 <span className="font-mono text-2xl font-extrabold tracking-wider text-[#0f172a]">{offered.code}</span>
               </div>
               <p className="mt-2 text-sm text-gray-500">
-                A kupon {lastSeatsCouponDeadline(offered)}-ig érvényes, erre az időpontra, a részvételi díjból.
+                A kupon {issuedCouponDeadline(offered)}-ig érvényes, erre az időpontra, a részvételi díjból.
               </p>
 
               <button

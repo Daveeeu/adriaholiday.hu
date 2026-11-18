@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { claimLastSeatsCoupon, type LastSeatsCoupon } from "./bookings-api";
+import { claimLastSeatsCoupon, type IssuedCoupon } from "./bookings-api";
 import { readLastSeatsCoupon, storeLastSeatsCoupon } from "./last-seats-coupon";
 import type { BookingDateOption } from "./useTourBookingForm";
 
@@ -11,7 +11,7 @@ import type { BookingDateOption } from "./useTourBookingForm";
  */
 export function useLastSeatsCoupon(tourSlug: string, date: BookingDateOption) {
   const offeredPercent = date.lastSeatsDiscountPercent ?? null;
-  const [claimed, setClaimed] = useState<Record<string, LastSeatsCoupon>>({});
+  const [claimed, setClaimed] = useState<Record<string, IssuedCoupon>>({});
   const dateKey = String(date.id);
 
   const coupon = useMemo(
@@ -19,7 +19,7 @@ export function useLastSeatsCoupon(tourSlug: string, date: BookingDateOption) {
     [claimed, dateKey, offeredPercent, tourSlug],
   );
 
-  const claim = useCallback(async (): Promise<LastSeatsCoupon> => {
+  const claim = useCallback(async (): Promise<IssuedCoupon> => {
     const given = await claimLastSeatsCoupon(tourSlug, dateKey);
 
     storeLastSeatsCoupon(tourSlug, dateKey, given);

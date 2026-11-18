@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\LogsModelActivity;
 use Carbon\CarbonImmutable;
 use Database\Factories\CouponFactory;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -70,12 +71,15 @@ class Coupon extends Model
 
     /**
      * An expiry given as a day (as the admin form sends it) holds all that
-     * day; a moment is kept as it is.
+     * day; a moment is kept as it is, in the application's time zone (the
+     * column keeps no zone of its own).
      */
     protected function expiresAt(): Attribute
     {
-        return Attribute::set(fn (mixed $value): mixed => is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1
-            ? CarbonImmutable::parse($value)->setTime(23, 59, 59)
-            : $value);
+        return Attribute::set(fn (mixed $value): mixed => match (true) {
+            is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1 => CarbonImmutable::parse($value)->setTime(23, 59, 59),
+            $value instanceof DateTimeInterface => CarbonImmutable::instance($value)->setTimezone(config('app.timezone')),
+            default => $value,
+        });
     }
 }

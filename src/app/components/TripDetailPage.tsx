@@ -57,7 +57,7 @@ import { parseDiscountPercent } from "../content/discount-badge";
 import { responsiveImage } from "../lib/responsiveImage";
 import UrgencyToast from "./UrgencyToast";
 import LastSeatsCouponOffer from "../booking/LastSeatsCouponOffer";
-import type { LastSeatsCoupon } from "../booking/bookings-api";
+import type { IssuedCoupon } from "../booking/bookings-api";
 import { useLastSeatsCoupon } from "../booking/useLastSeatsCoupon";
 
 interface TripDetailPageProps {
@@ -156,7 +156,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
   const lastSeats = useLastSeatsCoupon(trip.slug, selectedDate);
   const booking = useTourBookingForm({ trip, selectedDate, priceBox, lastSeatsCoupon: lastSeats.coupon });
 
-  function applyLastSeatsCoupon(coupon: LastSeatsCoupon) {
+  function applyLastSeatsCoupon(coupon: IssuedCoupon) {
     booking.setCouponCode(coupon.code);
     document.getElementById("foglalas")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }

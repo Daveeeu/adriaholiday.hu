@@ -375,6 +375,30 @@ class TourBookingPricingTest extends TestCase
         $this->assertTrue(Coupon::query()->where('code', $code)->value('used'));
     }
 
+    public function test_the_christmas_coupon_takes_its_percentage_off_the_base_price_of_a_trip_that_accepts_coupons(): void
+    {
+        $this->travelTo(now()->setDate(2026, 12, 10));
+        $code = $this->postJson('/api/portfolio/christmas-coupon')->json('code');
+
+        $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload(['couponCode' => $code])));
+
+        $this->assertEquals(2754, $pricing['coupon']['amount']);
+        // 91 800 − 2 754 + 9 400 + 60 000
+        $this->assertEquals(158446, $pricing['total']);
+        $this->assertTrue(Coupon::query()->where('code', $code)->value('used'));
+    }
+
+    public function test_the_christmas_coupon_is_refused_on_a_trip_that_accepts_no_coupons(): void
+    {
+        $this->travelTo(now()->setDate(2026, 12, 10));
+        $this->tour->update(['couponable' => false]);
+        $code = $this->postJson('/api/portfolio/christmas-coupon')->json('code');
+
+        $this->postJson('/api/bookings', $this->bookingPayload(['couponCode' => $code]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('couponCode');
+    }
+
     public function test_the_last_seats_coupon_is_good_for_its_own_date_within_a_day_only(): void
     {
         $other = TourDate::factory()->for($this->tour)->create(['start_date' => today()->addDays(90), 'end_date' => today()->addDays(91), 'price' => 45900, 'departure_place_ids' => null]);

@@ -44,6 +44,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\PortfolioApartmentController;
 use App\Http\Controllers\PortfolioBlogController;
+use App\Http\Controllers\PortfolioChristmasCouponController;
 use App\Http\Controllers\PortfolioContentController;
 use App\Http\Controllers\PortfolioFeaturedTourController;
 use App\Http\Controllers\PortfolioFilterChipController;
@@ -99,6 +100,7 @@ Route::post('bookings', [PublicBookingController::class, 'store'])->middleware('
 Route::post('portfolio/offers/{slug}/dates/{tourDate}/last-seats-coupon', PortfolioLastSeatsCouponController::class)
     ->whereNumber('tourDate')
     ->middleware('throttle:last-seats-coupons');
+Route::post('portfolio/christmas-coupon', PortfolioChristmasCouponController::class)->middleware('throttle:christmas-coupons');
 Route::middleware('throttle:bookings')->group(function (): void {
     Route::get('booking-details/{token}', [PublicBookingDetailsController::class, 'show'])->where('token', '[A-Za-z0-9]{48}');
     Route::post('booking-details/{token}', [PublicBookingDetailsController::class, 'complete'])->where('token', '[A-Za-z0-9]{48}');

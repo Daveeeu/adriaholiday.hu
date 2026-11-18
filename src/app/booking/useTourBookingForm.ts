@@ -10,7 +10,8 @@ import { bringIntoView } from "../lib/bringIntoView";
 import { formatHuf } from "../lib/price";
 import { seatsLeftLabel } from "../lib/seatsLeft";
 import { urgencyMessage } from "../lib/urgencyMessage";
-import type { LastSeatsCoupon } from "./bookings-api";
+import type { IssuedCoupon } from "./bookings-api";
+import { readChristmasCoupon } from "../christmas/christmas-coupon";
 import {
   EMPTY_PASSENGER_OPTIONS,
   chargedBookingExtras,
@@ -154,7 +155,7 @@ export function useTourBookingForm({
   selectedDate: BookingDateOption;
   priceBox: PortfolioPriceBox | null;
   /** The selected date's last seats coupon this browser was given (see useLastSeatsCoupon). */
-  lastSeatsCoupon?: LastSeatsCoupon | null;
+  lastSeatsCoupon?: IssuedCoupon | null;
 }) {
   const { trackEvent } = useAnalytics();
   // A date with few seats left takes no more passengers than it has seats.
@@ -166,7 +167,8 @@ export function useTourBookingForm({
   const [formValues, setFormValues] = useState<BookingFieldValues>(() =>
     initialValues((trip.bookingFormFields ?? []).filter((field) => field.inputGroup !== "passenger")),
   );
-  const [couponCode, setCouponCode] = useState("");
+  // The coupon of the Christmas gift box (see ChristmasGiftBox), on trips that take coupons.
+  const [couponCode, setCouponCode] = useState(() => (trip.couponable ? readChristmasCoupon()?.code ?? "" : ""));
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [dataTransferAccepted, setDataTransferAccepted] = useState(false);
   const [dataTransferError, setDataTransferError] = useState<string | null>(null);

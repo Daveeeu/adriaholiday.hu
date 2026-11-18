@@ -15,8 +15,8 @@ import PassengerOptionsList from "./PassengerOptionsList";
 import { tripStepExtras } from "./booking-pricing";
 import type { BookingFormField } from "./booking-form-fields";
 import { INSURANCE_PATH } from "./insurance";
-import type { LastSeatsCoupon } from "./bookings-api";
-import { lastSeatsCouponDeadline } from "./last-seats-coupon";
+import type { IssuedCoupon } from "./bookings-api";
+import { issuedCouponDeadline } from "./issued-coupon";
 import { type BookingDateOption, type BookingTrip, type TourBookingForm } from "./useTourBookingForm";
 
 const COUPON_FIELD: BookingFormField = {
@@ -332,12 +332,12 @@ function passengerNames(booking: TourBookingForm): string[] {
 }
 
 /** The visitor's last seats coupon, and a way to use it when it is not entered yet. */
-function LastSeatsCouponNote({ booking, coupon }: { booking: TourBookingForm; coupon: LastSeatsCoupon }) {
+function LastSeatsCouponNote({ booking, coupon }: { booking: TourBookingForm; coupon: IssuedCoupon }) {
   return (
     <p className="mt-1.5">
       {booking.lastSeatsCouponApplied ? "Beváltva: " : "A kuponod: "}
       <span className="font-mono font-bold">{coupon.code}</span> – {coupon.percent}% a részvételi díjból,{" "}
-      {lastSeatsCouponDeadline(coupon)}-ig érvényes.{" "}
+      {issuedCouponDeadline(coupon)}-ig érvényes.{" "}
       {booking.lastSeatsCouponApplied ? null : (
         <button
           type="button"

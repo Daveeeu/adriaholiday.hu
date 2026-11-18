@@ -6,6 +6,8 @@ import { trackEvent } from "../analytics/trackEvent";
 import { telHref } from "../site-settings/phone";
 import { useSiteSettings } from "../site-settings/SiteSettingsProvider";
 import LogoBadge from "./LogoBadge";
+import { useChristmas } from "../christmas/ChristmasProvider";
+import SantaHat from "../christmas/SantaHat";
 import { stickyTop } from "../lib/bringIntoView";
 
 function isInternalLink(value: string) {
@@ -14,10 +16,12 @@ function isInternalLink(value: string) {
 
 function Brand() {
   const { settings } = useSiteSettings();
+  const christmas = useChristmas();
 
   return (
-    <Link to="/" className="inline-flex items-center">
+    <Link to="/" className="relative inline-flex items-center" onClick={christmas.tapLogo}>
       {settings.siteName ? <span className="sr-only">{settings.siteName}</span> : null}
+      {christmas.hatOn ? <SantaHat /> : null}
       {settings.logo?.url ? (
         <LogoBadge
           logo={settings.logo}

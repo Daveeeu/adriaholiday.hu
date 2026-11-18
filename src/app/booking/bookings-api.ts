@@ -167,19 +167,25 @@ export async function fetchPendingBookingDetails(token: string): Promise<Pending
   return response.data;
 }
 
-/** A one-day coupon for the last seats of a date running low on seats (see LastSeatsCouponIssuer). */
-export type LastSeatsCoupon = {
+/** A single-use percentage coupon the site gives a visitor of its own (see issued-coupon.ts). */
+export type IssuedCoupon = {
   code: string;
   percent: number;
   /** ISO 8601 moment it expires at. */
   expiresAt: string;
 };
 
-export function claimLastSeatsCoupon(tourSlug: string, tourDateId: number | string): Promise<LastSeatsCoupon> {
+/** A one-day coupon for the last seats of a date running low on seats (see LastSeatsCouponIssuer). */
+export function claimLastSeatsCoupon(tourSlug: string, tourDateId: number | string): Promise<IssuedCoupon> {
   return request(
     'POST',
     `/portfolio/offers/${encodeURIComponent(tourSlug)}/dates/${encodeURIComponent(String(tourDateId))}/last-seats-coupon`,
   );
+}
+
+/** The coupon of the Christmas gift box, good on any trip taking coupons until Epiphany (see ChristmasCouponIssuer). */
+export function claimChristmasCoupon(): Promise<IssuedCoupon> {
+  return request('POST', '/portfolio/christmas-coupon');
 }
 
 /** Gives the pending details; passengers are keyed by their position in the booking. */
