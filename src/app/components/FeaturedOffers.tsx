@@ -19,9 +19,8 @@ import {
   toUnifiedOfferCardModel,
   type UnifiedOfferCardModel,
 } from "../content/portfolio-offer-card-model";
-import FeaturedCard from "./FeaturedCard";
 import MotionLink from "./MotionLink";
-import OfferCard from "./OfferCard";
+import OfferResultCard from "./OfferResultCard";
 
 /**
  * Every featured offer (the API allows 24): the filter chips are built from
@@ -158,7 +157,7 @@ export default function FeaturedOffers() {
             {filteredOffers.length > 0 ? (
               <motion.div
                 key={selectedFilter.key}
-                className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+                className="flex flex-wrap justify-center gap-6"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -14 }}
@@ -167,17 +166,13 @@ export default function FeaturedOffers() {
                 {filteredOffers.map((offer, index) => (
                   <motion.div
                     key={offer.id}
-                    className={index === 0 ? "md:col-span-2" : undefined}
+                    className="w-full md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.45, delay: index * 0.06 }}
                   >
-                    {index === 0 ? (
-                      <OfferCard offer={offer} variant="hero" />
-                    ) : (
-                      <FeaturedCard offer={offer} />
-                    )}
+                    <OfferResultCard offer={offer} />
                   </motion.div>
                 ))}
               </motion.div>

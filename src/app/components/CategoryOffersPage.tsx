@@ -1,22 +1,20 @@
 import {
   ArrowLeft,
   ArrowRight,
-  Bus,
   Calendar,
   Clock,
   Flame,
   Globe2,
   Hotel,
   Loader2,
-  Plane,
   SlidersHorizontal,
   Sparkles,
   Star,
   TrendingUp,
   Utensils,
 } from "lucide-react";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 
 import { offerCardTour, trackItemListView, trackItemSelect } from "../analytics/analytics-items";
 import { useAnalytics } from "../analytics/useAnalytics";
@@ -25,6 +23,7 @@ import { useInfiniteScrollTrigger } from "../hooks/useInfiniteScrollTrigger";
 import ActiveOfferSearch from "./ActiveOfferSearch";
 import CountryFlag from "./CountryFlag";
 import FilterChipIcon from "./FilterChipIcon";
+import OfferResultCard, { OfferLink } from "./OfferResultCard";
 import TripFinderDialog from "./TripFinderDialog";
 import { choiceHelpBannerIndex } from "../lib/choiceHelpPlacement";
 import { companyYears } from "../lib/companyYears";
@@ -53,7 +52,6 @@ import {
 } from "../content/portfolio-offer-card-model";
 import { tripFinderSearchState, type TripFinderAnswers, type TripFinderQuestion } from "../content/trip-finder";
 import { responsiveImage } from "../lib/responsiveImage";
-import { TRIP_DATES_ID } from "../lib/tripSection";
 
 type CategoryOffersPageProps = {
   /** Omit to list offers across all categories instead of scoping to one. */
@@ -123,38 +121,6 @@ function spotlightReasons(offer: OfferViewModel) {
     offer.card.mealsLabel,
     offer.raw.programTypeLabel,
   ].filter((value): value is string => Boolean(value && value.trim() !== ""));
-}
-
-/**
- * A real link to an offer, so crawlers can follow it and it opens in a new tab on
- * ctrl/middle click; a plain click goes through onSelect (tracking, scroll).
- */
-function OfferLink({
-  slug,
-  onSelect,
-  className,
-  children,
-}: {
-  slug: string;
-  onSelect: (slug: string) => void;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <Link
-      to={`/ajanlat/${slug}`}
-      className={className}
-      onClick={(event) => {
-        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-          return;
-        }
-        event.preventDefault();
-        onSelect(slug);
-      }}
-    >
-      {children}
-    </Link>
-  );
 }
 
 export default function CategoryOffersPage({
@@ -826,7 +792,7 @@ export default function CategoryOffersPage({
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                   {itemCards.map((offer, index) => (
                     <Fragment key={`result-${offer.card.id}`}>
-                      <ResultOfferCard offer={offer} onOfferSelect={selectOffer} />
+                      <OfferResultCard offer={offer.card} onSelect={selectOffer} />
                       {index === choiceHelpBannerAfterIndex ? (
                         <div className="col-span-full">
                           <ChoiceHelpBanner
@@ -1131,125 +1097,6 @@ function RecommendedOfferCard({
         </div>
       </div>
     </OfferLink>
-  );
-}
-
-function ResultOfferCard({
-  offer,
-  onOfferSelect,
-}: {
-  offer: OfferViewModel;
-  onOfferSelect: (slug: string) => void;
-}) {
-  const metaItems = [
-    {
-      key: "departure",
-      icon: <Calendar className="h-4 w-4" />,
-      value: offer.card.departureLabel ?? INQUIRE_LABEL,
-    },
-    {
-      key: "duration",
-      icon: <Clock className="h-4 w-4" />,
-      value: offer.card.durationLabel ?? "Többnapos út",
-    },
-    {
-      key: "transport",
-      icon: offer.card.transportLabel?.includes("Repül") ? <Plane className="h-4 w-4" /> : <Bus className="h-4 w-4" />,
-      value: offer.card.transportLabel ?? "Szervezett út",
-    },
-    {
-      key: "meals",
-      icon: <Utensils className="h-4 w-4" />,
-      value: offer.card.mealsLabel ?? "Információ később",
-    },
-  ];
-
-  return (
-    <div className="group overflow-hidden rounded-[30px] border border-gray-100 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)] transition-all hover:shadow-[0_18px_60px_rgba(0,195,137,0.12)]">
-      <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="relative block h-[240px] w-full overflow-hidden text-left">
-        {offer.card.imageUrl ? (
-          <img
-{...responsiveImage(offer.card.imageUrl)}
-            sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
-            alt={offer.card.imageAlt ?? offer.card.name}
-            className="h-full w-full object-cover"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <div className="h-full w-full bg-gradient-to-br from-slate-300 via-slate-200 to-slate-100" />
-        )}
-        {/* Darkened only behind the title, so the photo stays clear. */}
-        <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-        {offer.card.primaryBadge ? (
-          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-            <span className="rounded-full border border-white/15 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
-              {offer.card.primaryBadge}
-            </span>
-          </div>
-        ) : null}
-        <div className="absolute bottom-5 left-5 right-5">
-          <h3 className="max-w-xl text-2xl font-bold leading-tight text-white">{offer.card.name}</h3>
-          {offer.card.description ? (
-            <p className="mt-2 line-clamp-2 text-sm text-white/75">{offer.card.description}</p>
-          ) : null}
-        </div>
-      </OfferLink>
-
-      <div className="p-6">
-        <div className="mb-6 grid grid-cols-2 gap-3">
-          {metaItems.map((item) => (
-            <ResultMetaItem key={item.key} icon={item.icon} value={item.value}>
-              {item.key === "departure" && offer.card.otherDepartureCount > 0 ? (
-                <Link
-                  to={`/ajanlat/${offer.card.seoName}#${TRIP_DATES_ID}`}
-                  className="block text-xs font-bold text-[#00a878] hover:text-[#00c389]"
-                >
-                  +{offer.card.otherDepartureCount} további időpont
-                </Link>
-              ) : null}
-            </ResultMetaItem>
-          ))}
-        </div>
-
-        <div className="flex items-end justify-between gap-4">
-          <div className="min-w-0">
-            <div className="mb-1 text-xs text-gray-500">Induló ár</div>
-            <div className="bg-gradient-to-r from-[#00c389] to-[#16b8ff] bg-clip-text text-3xl font-bold text-transparent">
-              {offer.card.displayedPrice ?? "Ár hamarosan"}
-            </div>
-          </div>
-
-          <OfferLink slug={offer.card.seoName} onSelect={onOfferSelect} className="inline-block group/btn shrink-0 rounded-2xl bg-gradient-to-r from-[#00c389] to-[#16b8ff] px-5 py-3 text-white shadow-lg">
-            <span className="flex items-center gap-2 text-sm font-semibold">
-              Részletek
-              <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-            </span>
-          </OfferLink>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ResultMetaItem({
-  icon,
-  value,
-  children,
-}: {
-  icon: React.ReactNode;
-  value: string;
-  /** A line under the value, e.g. the link to the trip's other dates. */
-  children?: ReactNode;
-}) {
-  return (
-    <div className="flex min-w-0 items-center gap-2 rounded-xl bg-[#f5f9fc] px-3 py-2 text-gray-700">
-      <span className="shrink-0 text-[#00c389]">{icon}</span>
-      <span className="min-w-0">
-        <span className="block truncate text-xs font-semibold">{value}</span>
-        {children}
-      </span>
-    </div>
   );
 }
 

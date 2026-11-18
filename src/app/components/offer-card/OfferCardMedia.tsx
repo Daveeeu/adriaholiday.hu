@@ -1,17 +1,13 @@
 import type { UnifiedOfferCardModel } from "../../content/portfolio-offer-card-model";
-import type { OfferCardVariant } from "./offer-card-variant";
 import { responsiveImage } from "../../lib/responsiveImage";
 
 type OfferCardMediaProps = {
   offer: UnifiedOfferCardModel;
-  variant: OfferCardVariant;
 };
 
-export default function OfferCardMedia({ offer, variant }: OfferCardMediaProps) {
-  const isHero = variant === "hero";
-
+export default function OfferCardMedia({ offer }: OfferCardMediaProps) {
   return (
-    <div className={`overflow-hidden ${isHero ? "h-56" : "h-52"}`}>
+    <div className="h-52 overflow-hidden">
       {offer.imageUrl ? (
         <img
           {...responsiveImage(offer.imageUrl)}

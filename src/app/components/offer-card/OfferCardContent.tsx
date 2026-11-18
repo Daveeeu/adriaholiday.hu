@@ -1,23 +1,13 @@
 import type { UnifiedOfferCardModel } from "../../content/portfolio-offer-card-model";
-import type { OfferCardVariant } from "./offer-card-variant";
 
 type OfferCardContentProps = {
   offer: UnifiedOfferCardModel;
-  variant: OfferCardVariant;
 };
 
-export default function OfferCardContent({ offer, variant }: OfferCardContentProps) {
-  const isHero = variant === "hero";
-
+export default function OfferCardContent({ offer }: OfferCardContentProps) {
   return (
     <>
-      <h3
-        className={`mb-2 font-bold leading-tight tracking-[-0.02em] text-gray-900 ${
-          isHero ? "text-[1.8rem]" : "text-[1.35rem]"
-        }`}
-      >
-        {offer.name}
-      </h3>
+      <h3 className="mb-2 text-[1.35rem] font-bold leading-tight tracking-[-0.02em] text-gray-900">{offer.name}</h3>
 
       {offer.description ? (
         <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-500">{offer.description}</p>

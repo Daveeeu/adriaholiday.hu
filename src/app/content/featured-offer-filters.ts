@@ -13,6 +13,12 @@ export const ALL_OFFERS_FILTER: FeaturedOfferFilter = {
 };
 
 /**
+ * Categories that get no chip: a label meant for one group of travellers
+ * (e.g. school classes) would put the others off the whole selection.
+ */
+const CATEGORIES_WITHOUT_CHIP = new Set(["osztálykirándulások"]);
+
+/**
  * The filter chips of the featured offers: travel modes, the tours'
  * categories (as set in the admin) and discounted tours, after "Összes
  * ajánlat". A chip shows only when it selects at least one tour and not the
@@ -24,7 +30,9 @@ export function buildFeaturedOfferFilters(
   const categories = new Map<string, string>();
 
   tours.forEach((tour) =>
-    (tour.categories ?? []).forEach((category) => categories.set(category.id, category.label)),
+    (tour.categories ?? [])
+      .filter((category) => !CATEGORIES_WITHOUT_CHIP.has(category.label.trim().toLocaleLowerCase("hu")))
+      .forEach((category) => categories.set(category.id, category.label)),
   );
 
   const candidates: FeaturedOfferFilter[] = [
