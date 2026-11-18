@@ -58,6 +58,20 @@ const COVERAGE_LABELS: Record<Coverage, string> = {
   custom: "Egyénileg",
 };
 
+/** The outer options' hints open inwards, so they stay inside the screen on phones. */
+const TOOLTIP_POSITION: Record<Coverage, string> = {
+  none: "left-0 text-left",
+  all: "left-1/2 -translate-x-1/2 text-center",
+  custom: "right-0 text-right",
+};
+
+/** What each option does, shown on hover or keyboard focus. */
+const COVERAGE_HINTS: Record<Coverage, string> = {
+  none: "Egyik utas sem kéri ezt a tételt.",
+  all: "Minden utasnak kérjük ezt a tételt, egy kattintással.",
+  custom: "Utasonként döntöd el: a lenti nevekre kattintva jelölöd, kinek kérjük.",
+};
+
 /**
  * The per-person supplements ("felár") or the insurances. With one passenger a
  * row is a tick box; in a group a row is given to nobody, everyone, or picked
@@ -261,20 +275,32 @@ function CoverageSwitch({
 }) {
   return (
     <div role="radiogroup" aria-label={label} className="grid shrink-0 grid-cols-3 rounded-xl bg-[#f1f5f9] p-1 @2xl:w-[330px]">
-      {(Object.keys(COVERAGE_LABELS) as Coverage[]).map((coverage) => (
-        <label key={coverage} className="cursor-pointer">
-          <input
-            type="radio"
-            name={name}
-            checked={value === coverage}
-            onChange={() => onChange(coverage)}
-            className="peer sr-only"
-          />
-          <span className="block rounded-lg px-0.5 py-2 text-center text-xs font-bold @md:text-[13px] text-gray-500 transition-colors peer-checked:bg-white peer-checked:text-[#00865f] peer-checked:shadow-sm peer-focus-visible:ring-2 peer-focus-visible:ring-[#00c389]">
-            {COVERAGE_LABELS[coverage]}
-          </span>
-        </label>
-      ))}
+      {(Object.keys(COVERAGE_LABELS) as Coverage[]).map((coverage) => {
+        const hintId = `${name}-${coverage}-hint`;
+
+        return (
+          <label key={coverage} className="group/coverage relative cursor-pointer">
+            <input
+              type="radio"
+              name={name}
+              checked={value === coverage}
+              onChange={() => onChange(coverage)}
+              aria-describedby={hintId}
+              className="peer sr-only"
+            />
+            <span className="block rounded-lg px-0.5 py-2 text-center text-xs font-bold @md:text-[13px] text-gray-500 transition-colors peer-checked:bg-white peer-checked:text-[#00865f] peer-checked:shadow-sm peer-focus-visible:ring-2 peer-focus-visible:ring-[#00c389]">
+              {COVERAGE_LABELS[coverage]}
+            </span>
+            <span
+              id={hintId}
+              role="tooltip"
+              className={`pointer-events-none invisible absolute bottom-full z-20 mb-2 w-52 rounded-xl bg-[#0f172a] px-3 py-2 text-xs font-medium leading-snug text-white opacity-0 shadow-lg transition-opacity group-hover/coverage:visible group-hover/coverage:opacity-100 peer-focus-visible:visible peer-focus-visible:opacity-100 ${TOOLTIP_POSITION[coverage]}`}
+            >
+              {COVERAGE_HINTS[coverage]}
+            </span>
+          </label>
+        );
+      })}
     </div>
   );
 }
