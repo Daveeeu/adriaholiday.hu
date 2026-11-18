@@ -830,7 +830,7 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Maximum létszám',
-          'Hány utast visz ez az indulás. Alatta látod, hány fő foglalt már rá és hány hely szabad. A foglalt létszámot a nem lemondott, nem lejárt foglalások utasai adják, a weboldalon, az irodában és importtal rögzítettek egyaránt. A szabad helyet nem kell beírni, a rendszer számolja. A mező nem állítható a már foglalt létszám alá; üresen hagyva nincs létszámkorlát.',
+          'Hány utast visz ez az indulás. Új időpontnál alapból 45 fő, repülős utaknál 22 fő; átírható. Alatta látod, hány fő foglalt már rá és hány hely szabad. A foglalt létszámot a nem lemondott, nem lejárt foglalások utasai adják, a weboldalon, az irodában és importtal rögzítettek egyaránt. A szabad helyet nem kell beírni, a rendszer számolja. A mező nem állítható a már foglalt létszám alá; üresen hagyva nincs létszámkorlát.',
           `${TOUR_PAGE}: a foglalási űrlap legfeljebb a szabad helyek számáig enged foglalni, a megtelt időpont betelt. Ha már csak a helyek legfeljebb 35%-a szabad, pár másodperccel az oldal megnyitása után felugró üzenet jelzi, hány hely maradt.`,
           shown(
             'field-seats-running-low',

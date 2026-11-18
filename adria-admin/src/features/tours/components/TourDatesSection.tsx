@@ -14,6 +14,7 @@ import { createClientId } from '@/lib/client-id';
 import { useDragReorder } from '@/lib/use-drag-reorder';
 import { cn } from '@/lib/utils';
 
+import { defaultTourDateCapacity } from '../lib/tour-date-capacity';
 import { TOUR_DATE_STATUSES } from '../lib/tours.constants';
 import type { Tour, TourFormValues } from '../lib/tours.types';
 import { TourDateCapacityField } from './TourDateCapacityField';
@@ -27,7 +28,7 @@ type TourDatesSectionProps = {
   tour?: Partial<Tour>;
 };
 
-function emptyTourDate(): TourDateFormValue {
+function emptyTourDate(travelModeId: string): TourDateFormValue {
   return {
     id: createClientId(),
     startDate: '',
@@ -46,7 +47,7 @@ function emptyTourDate(): TourDateFormValue {
       originalPrice: '',
       label: '',
     },
-    capacity: '',
+    capacity: defaultTourDateCapacity(travelModeId).toString(),
     extras: [],
   };
 }
@@ -208,7 +209,9 @@ export function TourDatesSection({ form, tour }: TourDatesSectionProps) {
         <Button
           type="button"
           variant="outline"
-          onClick={() => dates.append(emptyTourDate())}
+          onClick={() =>
+            dates.append(emptyTourDate(form.getValues('travelModeId')))
+          }
         >
           <Plus className="size-4" />
           Időpont hozzáadása

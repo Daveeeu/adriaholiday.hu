@@ -7,6 +7,7 @@ use App\Models\TourDate;
 use App\Models\TourGalleryItem;
 use App\Models\TourProgramDay;
 use App\Support\RichTextSanitizer;
+use App\Support\Tour\TourDateCapacity;
 use App\Support\Tour\TourDateStatus;
 use App\Support\Tour\TourExtraChargeRule;
 use App\Support\Tour\TourExtraCurrency;
@@ -49,7 +50,8 @@ class TourContentSyncService
      * legacy id, by id, else by its start and end date), so bookings keep
      * pointing at their date; stored dates nobody asked for are removed and
      * the rest created. Fields a requested date leaves out keep their stored
-     * value. With $keepDeparted, stored dates already departed stay even when
+     * value; a new date sent without a capacity gets its travel mode's default
+     * (TourDateCapacity). With $keepDeparted, stored dates already departed stay even when
      * not asked for (a source that lists only upcoming dates, like the legacy
      * site); with $keepBooked, so do dates a booking was made for. A new
      * date without a sort_order goes after the stored ones.
@@ -73,6 +75,10 @@ class TourContentSyncService
             }
 
             $tourDate->status ??= TourDateStatus::AVAILABLE;
+
+            if (! $tourDate->exists && ! array_key_exists('capacity', $date)) {
+                $tourDate->capacity = TourDateCapacity::defaultFor($tour->travel_mode_id);
+            }
 
             if (! $tourDate->exists && ! array_key_exists('sort_order', $date)) {
                 $tourDate->sort_order = $nextSortOrder++;
