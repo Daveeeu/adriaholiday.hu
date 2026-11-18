@@ -10,7 +10,7 @@ import { TourForm } from './TourForm';
 
 type TourEditorBodyProps = {
   form: UseFormReturn<TourFormValues>;
-  tour?: Tour;
+  tour?: Partial<Tour>;
   section: TourFormSectionKey;
   onSectionChange: (section: TourFormSectionKey) => void;
 };

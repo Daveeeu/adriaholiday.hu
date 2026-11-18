@@ -51,8 +51,14 @@ export async function getTours(
 }
 
 /** Downloads the tour's branded program PDF (the one visitors get on the offer page). */
-export function downloadTourPdf(tour: { id: string | number; seoName?: string | null }) {
-  return apiClient.download(`/api/admin/tours/${tour.id}/pdf`, `${tour.seoName || `ut-${tour.id}`}-program.pdf`);
+export function downloadTourPdf(tour: {
+  id: string | number;
+  seoName?: string | null;
+}) {
+  return apiClient.download(
+    `/api/admin/tours/${tour.id}/pdf`,
+    `${tour.seoName || `ut-${tour.id}`}-program.pdf`,
+  );
 }
 
 export async function getTourById(id: string): Promise<TourDetail> {
@@ -73,16 +79,26 @@ export async function getAllTourOffers(): Promise<Tour[]> {
   return response.items;
 }
 
+/** What a new tour starts with in the editor (the round trips category). */
+export function getNewTourDefaults(): Promise<Partial<Tour>> {
+  return apiClient
+    .get<ResourceEnvelope<Partial<Tour>>>('/api/admin/tours/defaults')
+    .then((response) => response.data);
+}
+
 export function createTour(values: TourFormValues) {
-  return apiClient.post<Tour | ResourceEnvelope<Tour>>('/api/admin/tours', normalizeTourFormValues(values)).then(unwrapResource);
+  return apiClient
+    .post<
+      Tour | ResourceEnvelope<Tour>
+    >('/api/admin/tours', normalizeTourFormValues(values))
+    .then(unwrapResource);
 }
 
 export function updateTour(id: string, values: TourFormValues) {
   return apiClient
-    .patch<Tour | ResourceEnvelope<Tour>>(
-      `/api/admin/tours/${id}`,
-      normalizeTourFormValues(values),
-    )
+    .patch<
+      Tour | ResourceEnvelope<Tour>
+    >(`/api/admin/tours/${id}`, normalizeTourFormValues(values))
     .then(unwrapResource);
 }
 
@@ -92,7 +108,9 @@ export function deleteTour(id: string) {
 
 export function setTourActive(id: string, active: boolean) {
   return apiClient
-    .patch<Tour | ResourceEnvelope<Tour>>(`/api/admin/tours/${id}/status`, { active })
+    .patch<
+      Tour | ResourceEnvelope<Tour>
+    >(`/api/admin/tours/${id}/status`, { active })
     .then(unwrapResource);
 }
 
@@ -110,7 +128,9 @@ export function duplicateTourOffer(id: string) {
 
 export function moveTourOffer(id: string, direction: 'up' | 'down') {
   return apiClient
-    .post<Tour | ResourceEnvelope<Tour>>(`/api/admin/tours/${id}/move`, { direction })
+    .post<
+      Tour | ResourceEnvelope<Tour>
+    >(`/api/admin/tours/${id}/move`, { direction })
     .then(unwrapResource);
 }
 
@@ -124,13 +144,18 @@ function orderedTourListPath(list: Pick<OrderedTourList, 'type' | 'key'>) {
   return `/api/admin/tour-list-orders/${list.type}/${encodeURIComponent(list.key)}`;
 }
 
-export function getOrderedTourListItems(list: Pick<OrderedTourList, 'type' | 'key'>) {
+export function getOrderedTourListItems(
+  list: Pick<OrderedTourList, 'type' | 'key'>,
+) {
   return apiClient
     .get<ResourceEnvelope<OrderedTourListItem[]>>(orderedTourListPath(list))
     .then(unwrapResource);
 }
 
-export function saveOrderedTourList(list: Pick<OrderedTourList, 'type' | 'key'>, orderedIds: string[]) {
+export function saveOrderedTourList(
+  list: Pick<OrderedTourList, 'type' | 'key'>,
+  orderedIds: string[],
+) {
   return apiClient
     .put<ResourceEnvelope<OrderedTourListItem[]>>(orderedTourListPath(list), {
       ids: orderedIds.map(Number),
@@ -139,7 +164,9 @@ export function saveOrderedTourList(list: Pick<OrderedTourList, 'type' | 'key'>,
 }
 
 /** Returns the list to the global tour order. */
-export function resetOrderedTourList(list: Pick<OrderedTourList, 'type' | 'key'>) {
+export function resetOrderedTourList(
+  list: Pick<OrderedTourList, 'type' | 'key'>,
+) {
   return apiClient
     .delete<ResourceEnvelope<OrderedTourListItem[]>>(orderedTourListPath(list))
     .then(unwrapResource);
@@ -155,7 +182,10 @@ export async function getTourPartnerOffers(
 }
 
 export function createTourPartnerOffer(values: TourPartnerOfferFormValues) {
-  return apiClient.post<TourPartnerOffer>('/api/admin/tour-partner-offers', values);
+  return apiClient.post<TourPartnerOffer>(
+    '/api/admin/tour-partner-offers',
+    values,
+  );
 }
 
 export function updateTourPartnerOffer(
@@ -169,7 +199,9 @@ export function updateTourPartnerOffer(
 }
 
 export function deleteTourPartnerOffer(id: string) {
-  return apiClient.delete<{ id: string }>(`/api/admin/tour-partner-offers/${id}`);
+  return apiClient.delete<{ id: string }>(
+    `/api/admin/tour-partner-offers/${id}`,
+  );
 }
 
 export function setTourPartnerOfferActive(id: string, active: boolean) {
@@ -189,7 +221,10 @@ export async function getTourRegionGroups(
 }
 
 export function createTourRegionGroup(values: TourRegionGroupFormValues) {
-  return apiClient.post<TourRegionGroup>('/api/admin/tour-region-groups', values);
+  return apiClient.post<TourRegionGroup>(
+    '/api/admin/tour-region-groups',
+    values,
+  );
 }
 
 export function updateTourRegionGroup(
@@ -203,7 +238,9 @@ export function updateTourRegionGroup(
 }
 
 export function deleteTourRegionGroup(id: string) {
-  return apiClient.delete<{ id: string }>(`/api/admin/tour-region-groups/${id}`);
+  return apiClient.delete<{ id: string }>(
+    `/api/admin/tour-region-groups/${id}`,
+  );
 }
 
 export function setTourRegionGroupActive(id: string, active: boolean) {
@@ -240,7 +277,9 @@ export function updateTourSeasonalGroup(
 }
 
 export function deleteTourSeasonalGroup(id: string) {
-  return apiClient.delete<{ id: string }>(`/api/admin/tour-seasonal-groups/${id}`);
+  return apiClient.delete<{ id: string }>(
+    `/api/admin/tour-seasonal-groups/${id}`,
+  );
 }
 
 export function setTourSeasonalGroupActive(id: string, active: boolean) {
@@ -259,9 +298,7 @@ export async function getTourDeparturePlaces(
   );
 }
 
-export function createTourDeparturePlace(
-  values: TourDeparturePlaceFormValues,
-) {
+export function createTourDeparturePlace(values: TourDeparturePlaceFormValues) {
   return apiClient.post<TourDeparturePlace>(
     '/api/admin/tour-departure-places',
     values,
@@ -279,7 +316,9 @@ export function updateTourDeparturePlace(
 }
 
 export function deleteTourDeparturePlace(id: string) {
-  return apiClient.delete<{ id: string }>(`/api/admin/tour-departure-places/${id}`);
+  return apiClient.delete<{ id: string }>(
+    `/api/admin/tour-departure-places/${id}`,
+  );
 }
 
 export function setTourDeparturePlaceActive(id: string, active: boolean) {
@@ -290,27 +329,45 @@ export function setTourDeparturePlaceActive(id: string, active: boolean) {
 }
 
 /** Search keywords to start from: the places the short description lists. */
-export function suggestTourSearchKeywords(shortDescription: string): Promise<string[]> {
+export function suggestTourSearchKeywords(
+  shortDescription: string,
+): Promise<string[]> {
   return apiClient
-    .post<ResourceEnvelope<string[]>>('/api/admin/tours/search-keyword-suggestions', { shortDescription })
+    .post<
+      ResourceEnvelope<string[]>
+    >('/api/admin/tours/search-keyword-suggestions', { shortDescription })
     .then((response) => response.data);
 }
 
 /** Places matching the name, to add as route map stops. */
-export function searchRouteStopPlaces(query: string, signal?: AbortSignal): Promise<RouteStopPlace[]> {
+export function searchRouteStopPlaces(
+  query: string,
+  signal?: AbortSignal,
+): Promise<RouteStopPlace[]> {
   return apiClient
-    .get<ResourceEnvelope<RouteStopPlace[]>>('/api/admin/tours/route-stop-places', { query: { q: query }, signal })
+    .get<
+      ResourceEnvelope<RouteStopPlace[]>
+    >('/api/admin/tours/route-stop-places', { query: { q: query }, signal })
     .then((response) => response.data);
 }
 
 /** Place names the saved program's day headings mention, to start the route from. */
 export function getRouteStopSuggestions(tourId: string): Promise<string[]> {
   return apiClient
-    .get<ResourceEnvelope<string[]>>(`/api/admin/tours/${tourId}/route-stop-suggestions`)
+    .get<
+      ResourceEnvelope<string[]>
+    >(`/api/admin/tours/${tourId}/route-stop-suggestions`)
     .then((response) => response.data);
 }
 
 /** The route map of stops not saved yet, as a PNG. */
-export function previewRouteMap(routeStops: TourRouteStop[], signal?: AbortSignal): Promise<Blob> {
-  return apiClient.postForFile('/api/admin/tours/route-map-preview', { routeStops }, { signal });
+export function previewRouteMap(
+  routeStops: TourRouteStop[],
+  signal?: AbortSignal,
+): Promise<Blob> {
+  return apiClient.postForFile(
+    '/api/admin/tours/route-map-preview',
+    { routeStops },
+    { signal },
+  );
 }

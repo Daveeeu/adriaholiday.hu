@@ -39,10 +39,12 @@ const MAX_LISTED_ERRORS = 3;
 type TourEditorProps = {
   /** The saved tour to edit; none: a new tour. */
   tour?: Tour;
+  /** What a new tour starts with (e.g. its default category). */
+  initialValues?: Partial<Tour>;
 };
 
 /** The full-page tour editor: every section of the tour, saved together. */
-export function TourEditor({ tour }: TourEditorProps) {
+export function TourEditor({ tour, initialValues }: TourEditorProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const canDelete = useAuthStore((state) =>
@@ -51,7 +53,7 @@ export function TourEditor({ tour }: TourEditorProps) {
   const [section, setSection] = useTourEditorSection();
 
   const form = useForm<TourFormValues>({
-    defaultValues: getTourFormDefaults(tour),
+    defaultValues: getTourFormDefaults(tour ?? initialValues),
     resolver: zodResolver(tourFormSchema) as Resolver<TourFormValues>,
   });
 
@@ -160,7 +162,7 @@ export function TourEditor({ tour }: TourEditorProps) {
         <form id={FORM_ID} noValidate onSubmit={handleSubmit}>
           <TourEditorBody
             form={form}
-            tour={tour}
+            tour={tour ?? initialValues}
             section={section}
             onSectionChange={setSection}
           />

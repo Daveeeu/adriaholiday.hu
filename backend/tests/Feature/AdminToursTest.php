@@ -512,6 +512,26 @@ class AdminToursTest extends TestCase
         $this->assertNotSame($firstDay->id, $newDay?->id);
     }
 
+    public function test_a_new_tour_starts_in_the_round_trips_category(): void
+    {
+        $this->actingAsTourAdmin();
+
+        $category = BlogCategory::query()->create(['active' => true, 'column' => '1', 'seo_name' => 'korutazasok', 'sort_order' => 1]);
+        BlogCategoryTranslation::query()->create(['blog_category_id' => $category->id, 'locale' => 'hu', 'name' => 'Körutazások', 'seo_name' => 'korutazasok', 'seo_auto_generate' => true]);
+
+        $this->getJson('/api/admin/tours/defaults')
+            ->assertOk()
+            ->assertJsonPath('data.categoryIds', [(string) $category->id])
+            ->assertJsonPath('data.categories.0.label', 'Körutazások');
+    }
+
+    public function test_only_who_may_create_tours_gets_the_new_tour_defaults(): void
+    {
+        Sanctum::actingAs(User::query()->create(['name' => 'Viewer', 'email' => 'viewer@example.com', 'password' => 'password']));
+
+        $this->getJson('/api/admin/tours/defaults')->assertForbidden();
+    }
+
     public function test_partner_settings_left_at_the_tour_defaults_keep_following_the_tour(): void
     {
         $this->actingAsTourAdmin();

@@ -709,7 +709,7 @@ export const tourEditorTopics: GuideTopic[] = [
         ),
         field(
           'Kategóriák',
-          'Az út kategóriái (pl. Körutazások, Adventi barangolások). A kategóriákat a Blog › Kategóriák oldalon lehet kezelni. A legördülőben új kategória is létrehozható.',
+          'Az út kategóriái (pl. Körutazások, Adventi barangolások). Új útnál a „Körutazások” alapból ki van választva; ha nem illik, vedd le vagy cseréld. A kategóriákat a Blog › Kategóriák oldalon lehet kezelni. A legördülőben új kategória is létrehozható.',
           'A kategóriaoldalakon (adriaholiday.hu/kategoriak/<kategória>), az ajánlatkártyák címkéiben és az „Ezek is érdekelhetnek” ajánlóban.',
           forms('categoryIds'),
         ),

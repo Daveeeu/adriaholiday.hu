@@ -5,15 +5,19 @@ import { PageLoader } from '@/components/common/page-loader';
 import { Button } from '@/components/ui/button';
 
 import { TourEditor } from '../components/TourEditor';
-import { TOURS_LIST_PATH, tourDetailQueryKey } from '../lib/tour-routes';
-import { getTourById } from '../lib/tours.api';
+import {
+  TOURS_LIST_PATH,
+  TOURS_QUERY_KEY,
+  tourDetailQueryKey,
+} from '../lib/tour-routes';
+import { getNewTourDefaults, getTourById } from '../lib/tours.api';
 
 /** `/tours/new` and `/tours/:tourId/edit`: the full-page tour editor. */
 export function TourEditorPage() {
   const { tourId } = useParams<{ tourId: string }>();
 
   if (!tourId) {
-    return <TourEditor />;
+    return <NewTourEditor />;
   }
 
   return <SavedTourEditor key={tourId} tourId={tourId} />;
@@ -45,4 +49,19 @@ function SavedTourEditor({ tourId }: { tourId: string }) {
   }
 
   return <TourEditor tour={tour} />;
+}
+
+/** A new tour, starting with the defaults the API gives (an empty form if they fail to load). */
+function NewTourEditor() {
+  const { data: defaults, isLoading } = useQuery({
+    queryKey: [...TOURS_QUERY_KEY, 'new-defaults'],
+    queryFn: getNewTourDefaults,
+    staleTime: Infinity,
+  });
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  return <TourEditor initialValues={defaults} />;
 }

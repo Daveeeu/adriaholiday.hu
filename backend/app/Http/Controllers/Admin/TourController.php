@@ -24,6 +24,7 @@ use App\Support\PartnerXml\PartnerXmlDefaults;
 use App\Support\PartnerXml\PartnerXmlSettings;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
+use App\Support\Tour\NewTourDefaults;
 use App\Support\Tour\TourRouteStops;
 use App\Support\TourSearchIndex;
 use Illuminate\Database\Eloquent\Builder;
@@ -44,7 +45,7 @@ class TourController extends Controller
         $this->authorizeResource(Tour::class, 'tour');
         $this->middleware('permission:tours.viewAny')->only('index');
         $this->middleware('permission:tours.view')->only(['show', 'pdf']);
-        $this->middleware('permission:tours.create')->only('store');
+        $this->middleware('permission:tours.create')->only(['store', 'defaults']);
         $this->middleware('permission:tours.update')->only('update');
         $this->middleware('permission:tours.delete')->only('destroy');
         $this->middleware('permission:tours.status')->only('status');
@@ -106,6 +107,16 @@ class TourController extends Controller
                 $direction,
             ),
         };
+    }
+
+    /**
+     * What the editor fills in for a new tour.
+     */
+    public function defaults()
+    {
+        $this->authorize('create', Tour::class);
+
+        return response()->json(['data' => NewTourDefaults::get()]);
     }
 
     public function store(StoreTourRequest $request)
