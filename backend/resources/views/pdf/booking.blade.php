@@ -36,6 +36,10 @@
         .footer { position: fixed; bottom: -60px; left: 0; right: 0; height: 60px; background: #071321; color: #94a3b8; font-size: 8.5px; padding: 14px 40px 0; }
         .footer strong { color: #fff; }
         .program { page-break-before: always; }
+        .page-two { page-break-before: always; }
+        /* No section, table row or passenger is cut in two by a page break; a long list (passengers) may run on. */
+        .section, .keep-together, .day, tr { page-break-inside: avoid; }
+        .section-flowing { page-break-inside: auto; }
         .program-title { font-size: 15px; font-weight: bold; margin: 0 0 12px; }
         .day { margin-bottom: 12px; border-left: 3px solid #00c389; padding: 2px 0 2px 12px; }
         .day-title { font-size: 11.5px; font-weight: bold; margin-bottom: 3px; }
@@ -84,45 +88,7 @@
     <div class="header-accent"></div>
 
     <div class="content">
-        <table class="two-col"><tr>
-            <td class="col" style="padding-right: 8px;">
-                <div class="section">
-                    <p class="section-title">Az utazás</p>
-                    <table>
-                        @foreach ($tripRows as $row)
-                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
-                        @endforeach
-                    </table>
-                </div>
-            </td>
-            <td class="col" style="padding-left: 8px;">
-                <div class="section">
-                    <p class="section-title">Megrendelő</p>
-                    <table>
-                        @forelse ($contactRows as $row)
-                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
-                        @empty
-                            <tr><td class="label">Név</td><td class="value">{{ $customerName }}</td></tr>
-                        @endforelse
-                    </table>
-                </div>
-            </td>
-        </tr></table>
-
-        @if ($passengers !== [])
-            <div class="section">
-                <p class="section-title">Utasok ({{ count($passengers) }} fő)</p>
-                @foreach ($passengers as $index => $passengerRows)
-                    <div class="passenger">{{ $index + 1 }}. utas</div>
-                    <table>
-                        @foreach ($passengerRows as $row)
-                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
-                        @endforeach
-                    </table>
-                @endforeach
-            </div>
-        @endif
-
+        {{-- First page: the price, then the trip and the person who booked. --}}
         @if ($priceRows !== [] || $insuranceRows !== [] || $extraRows !== [] || $total)
             <div class="section">
                 <p class="section-title">Részvételi díj</p>
@@ -154,6 +120,49 @@
             <div class="warning">Az utas/utasok a foglaláshoz biztosítást nem rendelt(ek).</div>
         @else
             <div class="insured">Megrendelt biztosítás: <strong>{{ implode(', ', $insuranceNames) }}</strong></div>
+        @endif
+
+        <table class="two-col"><tr>
+            <td class="col" style="padding-right: 8px;">
+                <div class="section">
+                    <p class="section-title">Az utazás</p>
+                    <table>
+                        @foreach ($tripRows as $row)
+                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
+                        @endforeach
+                    </table>
+                </div>
+            </td>
+            <td class="col" style="padding-left: 8px;">
+                <div class="section">
+                    <p class="section-title">Megrendelő</p>
+                    <table>
+                        @forelse ($contactRows as $row)
+                            <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
+                        @empty
+                            <tr><td class="label">Név</td><td class="value">{{ $customerName }}</td></tr>
+                        @endforelse
+                    </table>
+                </div>
+            </td>
+        </tr></table>
+
+        {{-- The passengers, the payment and the notes start on the second page. --}}
+        <div class="page-two">
+        @if ($passengers !== [])
+            <div class="section section-flowing">
+                <p class="section-title">Utasok ({{ count($passengers) }} fő)</p>
+                @foreach ($passengers as $index => $passengerRows)
+                    <div class="keep-together">
+                        <div class="passenger">{{ $index + 1 }}. utas</div>
+                        <table>
+                            @foreach ($passengerRows as $row)
+                                <tr><td class="label">{{ $row['label'] }}</td><td class="value">{{ $row['value'] }}</td></tr>
+                            @endforeach
+                        </table>
+                    </div>
+                @endforeach
+            </div>
         @endif
 
         @if ($paymentSchedule !== [] || $paymentMethod || $bankTransfer)
@@ -199,6 +208,8 @@
                 @endif
             </div>
         @endif
+
+        </div>
 
         @if ($routeMap || $programDays->isNotEmpty() || $programHtml || $programFooterHtml || $includedItems->isNotEmpty() || $excludedItems->isNotEmpty() || $tripNotes)
             <div class="program">
@@ -250,7 +261,7 @@
                 @endif
 
                 @if ($tripNotes)
-                    <div class="section">
+                    <div class="section section-flowing">
                         <p class="section-title">Tudnivalók</p>
                         <div class="trip-notes">{!! $tripNotes !!}</div>
                     </div>
