@@ -8,6 +8,7 @@ use App\Models\TourDate;
 use App\Models\TourDateExtra;
 use App\Models\TourDeparturePlace;
 use App\Support\Booking\BookingInsuranceSettings;
+use App\Support\Booking\TourBasePrice;
 use App\Support\Booking\TourBookingPassengerOptions;
 use App\Support\Booking\TourBookingSelection;
 use App\Support\DiscountBadge;
@@ -52,7 +53,7 @@ class TourBookingPriceCalculator
     public function calculate(Tour $tour, ?TourDate $tourDate, TourBookingSelection $selection): array
     {
         $passengers = $selection->passengers;
-        $basePrice = $this->basePrice($tour, $tourDate);
+        $basePrice = TourBasePrice::of($tour, $tourDate);
         $baseTotal = $basePrice !== null ? $basePrice * $passengers : null;
         $discount = $this->discount($tour, $tourDate, $baseTotal);
         $departurePlace = $this->departurePlace($tour, $tourDate, $selection->departurePlaceId, $passengers);
@@ -90,16 +91,6 @@ class TourBookingPriceCalculator
             'insuranceTotal' => $insuranceTotal,
             'total' => $tripTotal !== null ? $tripTotal + $insuranceTotal : null,
         ];
-    }
-
-    /**
-     * Same precedence as the public price box: the date's price, else the tour's.
-     */
-    private function basePrice(Tour $tour, ?TourDate $tourDate): ?float
-    {
-        $price = $tourDate?->price_box_price ?? $tourDate?->price ?? $tour->price_box_price ?? $tour->price;
-
-        return $price !== null ? (float) $price : null;
     }
 
     /**

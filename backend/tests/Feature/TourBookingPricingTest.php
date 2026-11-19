@@ -316,10 +316,13 @@ class TourBookingPricingTest extends TestCase
         $this->assertEquals(152020, $pricing['total']);
     }
 
-    /** Leaves 3 of 10 seats free: running low (at most 35% free), with room for a booking of two. */
+    /**
+     * Leaves 3 of 10 seats free: running low (at most 35% free), with room for
+     * a booking of two; priced from the last seats coupon's lowest base price.
+     */
     private function runSeatsLow(): void
     {
-        $this->tourDate->update(['capacity' => 10]);
+        $this->tourDate->update(['capacity' => 10, 'price' => 65000, 'price_box_price' => 65000]);
         Booking::factory()->create([
             'booking_type' => 'tour_booking',
             'status' => 'confirmed',
@@ -342,8 +345,8 @@ class TourBookingPricingTest extends TestCase
         $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload()));
 
         $this->assertNull($pricing['discount']);
-        // 91 800 + 9 400 + 60 000
-        $this->assertEquals(161200, $pricing['total']);
+        // 130 000 + 9 400 + 60 000
+        $this->assertEquals(199400, $pricing['total']);
     }
 
     public function test_a_visitor_gets_a_one_day_coupon_for_a_date_running_low_on_seats(): void
@@ -369,9 +372,9 @@ class TourBookingPricingTest extends TestCase
         $pricing = $this->pricingOf($this->postJson('/api/bookings', $this->bookingPayload(['couponCode' => $code])));
 
         $this->assertNull($pricing['discount']);
-        $this->assertEquals(4590, $pricing['coupon']['amount']);
-        // 91 800 − 4 590 + 9 400 + 60 000
-        $this->assertEquals(156610, $pricing['total']);
+        $this->assertEquals(6500, $pricing['coupon']['amount']);
+        // 130 000 − 6 500 + 9 400 + 60 000
+        $this->assertEquals(192900, $pricing['total']);
         $this->assertTrue(Coupon::query()->where('code', $code)->value('used'));
     }
 
@@ -401,6 +404,26 @@ class TourBookingPricingTest extends TestCase
 
         $this->postJson($this->lastSeatsCouponUrl())->assertStatus(422);
         $this->assertSame(0, Coupon::query()->count());
+    }
+
+    public function test_a_trip_under_sixty_thousand_forints_a_person_offers_no_last_seats_coupon(): void
+    {
+        $this->runSeatsLow();
+        $this->tourDate->update(['price' => 59900, 'price_box_price' => 59900]);
+
+        $this->postJson($this->lastSeatsCouponUrl())->assertStatus(422);
+
+        $this->tourDate->update(['price' => 60000, 'price_box_price' => 60000]);
+
+        $this->postJson($this->lastSeatsCouponUrl())->assertCreated();
+    }
+
+    public function test_a_trip_priced_in_another_currency_offers_no_last_seats_coupon(): void
+    {
+        $this->runSeatsLow();
+        $this->tour->update(['price_box_currency' => 'EUR']);
+
+        $this->postJson($this->lastSeatsCouponUrl())->assertStatus(422);
     }
 
     public function test_a_date_sold_below_its_struck_price_offers_no_last_seats_coupon(): void
