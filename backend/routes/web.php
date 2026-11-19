@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\LegacyCatalogRedirectController;
+use App\Http\Controllers\LlmsTxtController;
 use App\Http\Controllers\Mcp\McpLoginController;
 use App\Http\Controllers\PartnerXmlFeedController;
 use App\Http\Controllers\PortfolioSpaController;
@@ -16,6 +18,7 @@ Route::get('/health', HealthController::class);
 Route::get('/mcp/login', [McpLoginController::class, 'show'])->name('mcp.login');
 Route::post('/mcp/login', [McpLoginController::class, 'store'])->middleware('throttle:login')->name('mcp.login.store');
 Route::get('/robots.txt', RobotsController::class);
+Route::get('/llms.txt', LlmsTxtController::class);
 Route::get('/sitemap.xml', SitemapController::class);
 // The partner XML feeds travel portals read, at the legacy site's addresses.
 foreach (PartnerXmlFeed::cases() as $partnerFeed) {
@@ -27,16 +30,9 @@ Route::get('/img/{width}/{path}.webp', ResizedImageController::class)
     ->where('path', '.+');
 Route::redirect('/korutazasok', '/utazasok', 301);
 // Legacy adriaholiday.hu URLs, so links and search results keep working after the switch.
-Route::get('/korutazasok/csoport/{group}/{country?}', function (string $group) {
-    $categories = ['korutazas' => 'korutazasok', 'tengerparti-udulesek' => 'tengerpartok', 'advent' => 'adventi-barangolasok'];
-
-    return redirect(isset($categories[$group]) ? "/kategoriak/{$categories[$group]}" : '/utazasok', 301);
-})->where('country', '.*');
-Route::get('/korutazasok/regio/{region}', function (string $region) {
-    $categories = ['havas-kalandok' => 'havas-kalandok', 'repulos-utak' => 'repulos-korutazasok'];
-
-    return redirect(isset($categories[$region]) ? "/kategoriak/{$categories[$region]}" : '/utazasok', 301);
-})->where('region', '.*');
+Route::get('/korutazasok/csoport/{group}/{country?}', [LegacyCatalogRedirectController::class, 'group'])->where('country', '.*');
+Route::get('/korutazasok/regio/{region}', [LegacyCatalogRedirectController::class, 'region'])->where('region', '.*');
+Route::get('/egyeni-szallasfoglalas/{country}/{place?}', [LegacyCatalogRedirectController::class, 'accommodation'])->where('place', '.*');
 Route::redirect('/korutazasok/akcio', '/utazasok', 301);
 Route::redirect('/altalanos-szerzodesi-feltetelek', '/aszf', 301);
 Route::redirect('/adatkezelesi-szabalyzat', '/adatvedelem', 301);

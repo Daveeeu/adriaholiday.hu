@@ -23,7 +23,29 @@ final class SeoPage
         public readonly ?string $redirectTo = null,
         // The page's own restrictive robots directive (see RobotsDirective).
         public readonly ?string $robots = null,
+        // The page's crawlable text and links, written into the app's root element.
+        public readonly ?SeoBody $body = null,
     ) {}
+
+    /**
+     * The same page with the given crawlable content.
+     */
+    public function withBody(SeoBody $body): self
+    {
+        return new self(
+            $this->title,
+            $this->description,
+            $this->canonicalPath,
+            $this->image,
+            $this->ogType,
+            $this->jsonLd,
+            $this->noIndex,
+            $this->status,
+            $this->redirectTo,
+            $this->robots,
+            $body,
+        );
+    }
 
     /**
      * A moved page: answered with a permanent redirect instead of the app.

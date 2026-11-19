@@ -13,6 +13,15 @@ final class CompanyContact
     public const GROUP = 'contact';
 
     /**
+     * The office's location (3530 Miskolc, Városház tér 22.) for maps and
+     * structured data. The address is an editable setting: update this with it
+     * when the office moves.
+     *
+     * @var array{latitude: float, longitude: float}
+     */
+    public const OFFICE_COORDINATES = ['latitude' => 48.10275, 'longitude' => 20.77946];
+
+    /**
      * @var array<string, array{type: string, value: string}>
      */
     public const DEFAULTS = [

@@ -11,18 +11,28 @@ use App\Models\Page;
 use App\Models\Region;
 use App\Models\SiteSetting;
 use App\Models\Tour;
+use App\Models\TourDate;
+use App\Services\PortfolioContent\PortfolioFaq;
 use App\Support\CompanyContact;
 use App\Support\CompanyYears;
+use App\Support\Seo\OpeningHoursSpecification;
 use App\Support\Seo\PublicSiteUrl;
 use App\Support\Seo\RobotsDirective;
+use App\Support\Seo\SeoBody;
+use App\Support\Seo\SeoLink;
+use App\Support\Seo\SeoLinkSection;
 use App\Support\Seo\SeoPage;
+use App\Support\Tour\TourDateStatus;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
  * The SEO head of each public route, rendered into index.html by the server so
  * crawlers and link previews get the page's own title, description, canonical
  * URL and structured data, and unknown pages answer 404. It mirrors the titles
- * and descriptions the app's routes pass to their Seo component.
+ * and descriptions the app's routes pass to their Seo component. Each page also
+ * carries its crawlable text and links (see SeoBody), closed by the site's
+ * menu and the office's contact details.
  */
 class PortfolioSeoResolver
 {
@@ -54,9 +64,25 @@ class PortfolioSeoResolver
      */
     private ?array $settings = null;
 
+    /**
+     * The site's main pages, linked from every page: the header's menu and the blog.
+     *
+     * @var array<int, array{0: string, 1: string}> [name, path]
+     */
+    private const MENU = [
+        ['Főoldal', '/'],
+        ['Utazások', '/utazasok'],
+        ['Rólunk', '/rolunk'],
+        ['Utazási Klub', '/utazasi-klub'],
+        ['Utazó Blog', '/blog'],
+        ['Kapcsolat', '/kapcsolat'],
+    ];
+
     public function __construct(
         private readonly SeoRedirectResolver $redirects,
         private readonly RetiredContentRedirects $retiredContent,
+        private readonly PortfolioSeoBodies $bodies,
+        private readonly PortfolioFaq $faq,
     ) {}
 
     public function siteName(): string
@@ -84,6 +110,10 @@ class PortfolioSeoResolver
             count($segments) === 1 => $this->page($segments[0]),
             default => SeoPage::notFound('/'.$path),
         };
+
+        if ($page->status === 200) {
+            return $page->withBody(($page->body ?? $this->bodies->text($page->title, $page->description))->withSections(...$this->siteSections()));
+        }
 
         if ($page->status !== 404) {
             return $page;
@@ -113,16 +143,21 @@ class PortfolioSeoResolver
             image: $this->defaultImage(),
             jsonLd: [$this->breadcrumb([[$page->title, $path]])],
             robots: RobotsDirective::restrictive($page->seo_robots),
+            body: $this->bodies->page($page),
         );
     }
 
     private function home(): SeoPage
     {
         $name = $this->siteName();
+        $title = $this->setting('seo.default_title') ?: $name;
+        $description = $this->setting('seo.default_description');
+        $questions = $this->faq->items();
 
         return new SeoPage(
-            title: $this->setting('seo.default_title') ?: $name,
-            description: $this->setting('seo.default_description'),
+            title: $title,
+            description: $description,
+            body: $this->bodies->home($title, $description, $questions),
             canonicalPath: '/',
             image: $this->defaultImage(),
             jsonLd: [
@@ -133,12 +168,17 @@ class PortfolioSeoResolver
                     'url' => PublicSiteUrl::to('/'),
                     'logo' => $this->setting('brand.logo'),
                     'email' => $this->setting('contact.email'),
+                    'image' => $this->defaultImage(),
                     'telephone' => $this->setting('contact.phone'),
-                    'address' => $this->setting('contact.address'),
+                    'address' => $this->postalAddress($this->setting('contact.address')),
+                    'geo' => ['@type' => 'GeoCoordinates', ...CompanyContact::OFFICE_COORDINATES],
+                    'openingHoursSpecification' => OpeningHoursSpecification::fromText($this->setting('contact.opening_hours')),
+                    'areaServed' => ['@type' => 'Country', 'name' => 'Magyarország'],
                     'foundingDate' => CompanyYears::FOUNDED_ON,
                     'sameAs' => array_values(array_filter([$this->setting('social.facebook'), $this->setting('social.instagram'), $this->setting('social.tiktok')])),
                 ]),
                 ['@context' => 'https://schema.org', '@type' => 'WebSite', 'name' => $name, 'url' => PublicSiteUrl::to('/')],
+                ...($questions !== [] ? [$this->faqPage($questions)] : []),
             ],
         );
     }
@@ -146,8 +186,13 @@ class PortfolioSeoResolver
     private function staticPage(string $slug): SeoPage
     {
         [$title, $description] = self::STATIC_PAGES[$slug];
+        $body = match ($slug) {
+            'utazasok' => $this->bodies->tours($title, $description),
+            'blog' => $this->bodies->blog($title, $description),
+            default => null,
+        };
 
-        return new SeoPage($title, $description, "/{$slug}", image: $this->defaultImage(), jsonLd: [$this->breadcrumb([[$title, "/{$slug}"]])]);
+        return new SeoPage($title, $description, "/{$slug}", image: $this->defaultImage(), jsonLd: [$this->breadcrumb([[$title, "/{$slug}"]])], body: $body);
     }
 
     /**
@@ -173,6 +218,7 @@ class PortfolioSeoResolver
         $path = "/ajanlat/{$tour->seo_name}";
         $image = $tour->mainImage()?->getUrl();
         $description = trim((string) $tour->seo_description) ?: $this->plain($tour->short_description) ?: $this->plain($tour->list_description) ?: $tour->name;
+        $dates = $tour->dates()->upcoming()->whereNotNull('start_date')->where('status', '!=', TourDateStatus::CANCELLED)->orderBy('start_date')->get();
 
         return new SeoPage(
             title: trim((string) $tour->seo_title) ?: $tour->name,
@@ -181,6 +227,7 @@ class PortfolioSeoResolver
             canonicalPath: $path,
             image: $image ?: $this->defaultImage(),
             ogType: 'product',
+            body: $this->bodies->offer($tour, $dates),
             jsonLd: [
                 $this->breadcrumb([['Utazások', '/utazasok'], [$tour->name, $path]]),
                 array_filter([
@@ -191,13 +238,7 @@ class PortfolioSeoResolver
                     'image' => $image ? [$image] : null,
                     'url' => PublicSiteUrl::to($path),
                     'provider' => ['@type' => 'TravelAgency', 'name' => $this->siteName(), 'url' => PublicSiteUrl::to('/')],
-                    'offers' => $tour->price ? [
-                        '@type' => 'Offer',
-                        'price' => (float) $tour->price,
-                        'priceCurrency' => 'HUF',
-                        'availability' => 'https://schema.org/InStock',
-                        'url' => PublicSiteUrl::to($path),
-                    ] : null,
+                    'offers' => $this->tripOffers($tour, $dates, PublicSiteUrl::to($path)),
                 ]),
             ],
         );
@@ -229,6 +270,7 @@ class PortfolioSeoResolver
             canonicalPath: $path,
             image: $image ?: $this->defaultImage(),
             ogType: 'article',
+            body: $translation !== null ? $this->bodies->article($translation, $title) : null,
             jsonLd: [
                 $this->breadcrumb([['Blog', '/blog'], [$title, $path]]),
                 array_filter([
@@ -264,13 +306,15 @@ class PortfolioSeoResolver
         $categoryTranslation = $category->translations->firstWhere('locale', 'hu');
         $title = (string) ($cardTranslation?->name ?: $categoryTranslation?->name ?: Str::headline($slug));
         $path = "/kategoriak/{$slug}";
+        $description = $this->plain($cardTranslation?->short_description) ?: "{$title}: válogass az Adria Holiday aktuális ajánlatai közül.";
 
         return new SeoPage(
             title: $title,
-            description: $this->plain($cardTranslation?->short_description) ?: "{$title}: válogass az Adria Holiday aktuális ajánlatai közül.",
+            description: $description,
             canonicalPath: $path,
             image: $card?->getFirstMedia('image')?->getUrl() ?: $this->defaultImage(),
             jsonLd: [$this->breadcrumb([['Utazások', '/utazasok'], [$title, $path]])],
+            body: $this->bodies->category($category, $title, $description),
         );
     }
 
@@ -290,6 +334,7 @@ class PortfolioSeoResolver
             canonicalPath: $path,
             image: $region->getFirstMedia('portfolio-image')?->getUrl() ?: $this->defaultImage(),
             jsonLd: [$this->breadcrumb([['Utazások', '/utazasok'], [$region->name, $path]])],
+            body: $this->bodies->region($region),
         );
     }
 
@@ -311,6 +356,7 @@ class PortfolioSeoResolver
             canonicalPath: $path,
             image: $this->defaultImage(),
             jsonLd: [$this->breadcrumb([["{$location->name} apartmanok", $path]])],
+            body: $this->bodies->apartmentLocation($location, $title),
         );
     }
 
@@ -334,6 +380,7 @@ class PortfolioSeoResolver
             robots: RobotsDirective::restrictive($apartment->seo_robots),
             canonicalPath: $path,
             image: $image ?: $this->defaultImage(),
+            body: $this->bodies->apartment($apartment),
             jsonLd: [
                 $this->breadcrumb([...$trail, [$apartment->name, $path]]),
                 array_filter([
@@ -348,6 +395,101 @@ class PortfolioSeoResolver
                 ]),
             ],
         );
+    }
+
+    /**
+     * The menu and the office's contact details that close every page's crawlable content.
+     *
+     * @return array<int, SeoLinkSection>
+     */
+    private function siteSections(): array
+    {
+        $phones = CompanyContact::phoneNumbers($this->setting('contact.phones'), $this->setting('contact.phone'));
+        $email = $this->setting('contact.email');
+        $openingHours = array_values(array_filter(array_map('trim', preg_split('/\R/u', $this->setting('contact.opening_hours')) ?: [])));
+
+        return [
+            new SeoLinkSection('Menü', array_map(fn (array $item): SeoLink => new SeoLink($item[0], $item[1]), self::MENU)),
+            new SeoLinkSection("Kapcsolat – {$this->siteName()}", [
+                new SeoLink($this->setting('contact.address'), '', 'iroda'),
+                ...array_map(fn (string $phone): SeoLink => new SeoLink($phone, 'tel:'.preg_replace('/[^\d+]/', '', $phone)), $phones),
+                ...($email !== '' ? [new SeoLink($email, "mailto:{$email}")] : []),
+                ...array_map(fn (string $line): SeoLink => new SeoLink($line, '', 'nyitvatartás'), $openingHours),
+            ]),
+        ];
+    }
+
+    /**
+     * A trip's offers: one per upcoming date with its own price, bookable until
+     * departure, or the trip's starting price while no date is set.
+     *
+     * @param  Collection<int, TourDate>  $dates
+     * @return array<int|string, mixed>|null
+     */
+    private function tripOffers(Tour $tour, Collection $dates, string $url): ?array
+    {
+        $offers = $dates
+            ->filter(fn (TourDate $date): bool => (bool) ($date->price ?: $tour->price))
+            ->map(fn (TourDate $date): array => [
+                '@type' => 'Offer',
+                'price' => (float) ($date->price ?: $tour->price),
+                'priceCurrency' => 'HUF',
+                'availability' => TourDateStatus::isBookable($date->status) ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
+                'validThrough' => $date->start_date?->toDateString(),
+                'url' => $url,
+            ])
+            ->values()
+            ->all();
+
+        if ($offers !== []) {
+            return $offers;
+        }
+
+        return $tour->price ? [
+            '@type' => 'Offer',
+            'price' => (float) $tour->price,
+            'priceCurrency' => 'HUF',
+            'availability' => 'https://schema.org/InStock',
+            'url' => $url,
+        ] : null;
+    }
+
+    /**
+     * @param  array<int, array{question: string, answer: string}>  $questions
+     * @return array<string, mixed>
+     */
+    private function faqPage(array $questions): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => array_map(fn (array $item): array => [
+                '@type' => 'Question',
+                'name' => $item['question'],
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item['answer']],
+            ], $questions),
+        ];
+    }
+
+    /**
+     * The office address as a schema.org PostalAddress when it reads "3530 Miskolc, Városház tér 22.",
+     * otherwise as the text itself.
+     *
+     * @return array<string, string>|string
+     */
+    private function postalAddress(string $address): array|string
+    {
+        if (preg_match('/^(\d{4})\s+([^,]+),\s*(.+)$/u', $address, $match) !== 1) {
+            return $address;
+        }
+
+        return [
+            '@type' => 'PostalAddress',
+            'streetAddress' => trim($match[3]),
+            'postalCode' => $match[1],
+            'addressLocality' => trim($match[2]),
+            'addressCountry' => 'HU',
+        ];
     }
 
     /**
@@ -404,7 +546,7 @@ class PortfolioSeoResolver
         }
 
         return CompanyYears::fill($this->settings[$key] ?? null) ?? match ($key) {
-            'contact.email', 'contact.phone', 'contact.address' => CompanyContact::DEFAULTS[Str::after($key, '.')]['value'],
+            'contact.email', 'contact.phone', 'contact.phones', 'contact.address', 'contact.opening_hours' => CompanyContact::DEFAULTS[Str::after($key, '.')]['value'],
             default => '',
         };
     }

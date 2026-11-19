@@ -16,4 +16,19 @@ final class PlainText
 
         return $text !== '' ? $text : null;
     }
+
+    /**
+     * The text of an HTML fragment as paragraphs: one per block element or line break.
+     *
+     * @return array<int, string>
+     */
+    public static function paragraphs(mixed $value): array
+    {
+        $blocks = (string) preg_replace('~<(?:br\s*/?|/(?:p|div|li|h[1-6]|tr|blockquote))>~i', "\n", (string) $value);
+
+        return array_values(array_filter(array_map(
+            fn (string $line): ?string => self::line($line),
+            preg_split('/\R/u', $blocks) ?: [],
+        )));
+    }
 }

@@ -7,6 +7,20 @@
 
 These redirects are handled in Laravel web routes so legacy links do not land on the SPA 404 page.
 
+## Legacy catalogue listings
+
+`LegacyCatalogRedirectController` answers the legacy site's listing addresses with one `301` each:
+
+| Address | Target |
+| --- | --- |
+| `/korutazasok/regio/{country}` | the country's region page (`/regiok/{slug}`), otherwise `/utazasok`; the theme listings `havas-kalandok` and `repulos-utak` lead to their category |
+| `/korutazasok/csoport/korutazas/{country}`, `/korutazasok/csoport/tengerparti-udulesek/{country}` | the country's region page, otherwise the group's category |
+| `/korutazasok/csoport/advent/{country}` | the advent category (it matches what the listing was searched for) |
+| `/korutazasok/csoport/{group}` | the group's category, otherwise `/utazasok` |
+| `/egyeni-szallasfoglalas/{country}/{place?}` (Pula, Rovinj, …) | the place's apartments page (`/apartmanok/{area}/{place}`) while it has public apartments, otherwise the country's region page, otherwise `/utazasok` |
+
+The legacy site named countries in Hungarian ("horvatorszag", "Szlovákia"), while regions have a Hungarian or an English slug ("lengyelorszag", "croatia"). `LegacyCatalogPages` matches an active region by slug first, then by its ISO country code (`regions.country_code`). These routes come before the redirect table, so the table's older rows for the same addresses (`egyeni-szallasfoglalas/horvatorszag` → `/korutazasok/regio/horvatorszag`) no longer cause a second hop.
+
 ## Recommended server-level rules
 
 For production, keep the same mapping at the reverse proxy level as well, so crawlers and users are redirected before the app boots:

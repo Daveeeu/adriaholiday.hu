@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Seo\PortfolioSeoResolver;
 use App\Support\Seo\PublicSiteUrl;
+use App\Support\Seo\SeoBodyRenderer;
 use App\Support\Seo\SeoHeadRenderer;
 use App\Support\Seo\SeoPage;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +15,7 @@ use Throwable;
 /**
  * Serves the public site's single-page app for every non-API path, with the
  * page's own SEO head (title, description, canonical, Open Graph, structured
- * data) and status code.
+ * data), its crawlable text and links, and its status code.
  */
 class PortfolioSpaController extends Controller
 {
@@ -34,6 +35,7 @@ class PortfolioSpaController extends Controller
         Request $request,
         PortfolioSeoResolver $seo,
         SeoHeadRenderer $head,
+        SeoBodyRenderer $body,
     ): Response|RedirectResponse {
         abort_if($request->is(...self::RESERVED_PATHS), 404);
 
@@ -53,6 +55,10 @@ class PortfolioSpaController extends Controller
 
         $indexable = PublicSiteUrl::isCanonicalHost($request);
         $html = $head->render((string) file_get_contents(public_path('portfolio/index.html')), $page, $siteName, $indexable);
+
+        if ($page->body !== null) {
+            $html = $body->render($html, $page->body);
+        }
 
         $headers = [
             'Content-Type' => 'text/html; charset=UTF-8',
