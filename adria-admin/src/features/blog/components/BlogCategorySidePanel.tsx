@@ -12,7 +12,7 @@ import { EntitySidePanel } from '@/components/admin/entity-side-panel';
 
 import { BlogLanguageTabs } from './BlogLanguageTabs';
 import { BLOG_CATEGORY_COLUMNS, BLOG_LANGUAGE_LABELS, slugifyBlogText } from '../lib/blog.constants';
-import type { BlogLanguage } from '../lib/blog.types';
+import type { BlogCategoryTranslation, BlogLanguage } from '../lib/blog.types';
 import {
   blogCategoryFormSchema,
   getBlogCategoryFormDefaults,
@@ -59,8 +59,7 @@ function BlogCategoryDetailView({ category }: { category: BlogCategory }) {
       <section className="rounded-2xl border bg-card p-4">
         <h4 className="font-semibold">Nyelvi tartalmak</h4>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {(Object.keys(category.translations) as BlogLanguage[]).map((language) => {
-            const translation = category.translations[language];
+          {(Object.entries(category.translations) as Array<[BlogLanguage, BlogCategoryTranslation]>).map(([language, translation]) => {
             return (
               <div key={language} className="rounded-xl border bg-background p-3">
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">

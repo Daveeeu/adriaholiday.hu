@@ -16,7 +16,7 @@ import { RichTextEditor, RichTextPreview } from '@/components/editor/rich-text-e
 import { BlogLanguageTabs } from './BlogLanguageTabs';
 import { BlogImageField } from './BlogImageField';
 import { BLOG_LANGUAGE_LABELS, slugifyBlogText } from '../lib/blog.constants';
-import type { BlogLanguage } from '../lib/blog.types';
+import type { BlogArticleTranslation, BlogLanguage } from '../lib/blog.types';
 import {
   blogArticleFormSchema,
   getBlogArticleFormDefaults,
@@ -100,9 +100,7 @@ function BlogArticleDetailView({ article }: { article: BlogArticle }) {
       <section className="space-y-3 rounded-2xl border bg-card p-4">
         <h4 className="font-semibold">Nyelvi tartalmak</h4>
         <div className="grid gap-3 md:grid-cols-3">
-          {(Object.keys(article.translations) as BlogLanguage[]).map((language) => {
-            const translation = article.translations[language];
-
+          {(Object.entries(article.translations) as Array<[BlogLanguage, BlogArticleTranslation]>).map(([language, translation]) => {
             return (
               <div key={language} className="rounded-xl border bg-background p-3">
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">

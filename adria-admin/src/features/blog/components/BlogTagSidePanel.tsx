@@ -11,7 +11,7 @@ import { EntitySidePanel } from '@/components/admin/entity-side-panel';
 
 import { BlogLanguageTabs } from './BlogLanguageTabs';
 import { BLOG_LANGUAGE_LABELS } from '../lib/blog.constants';
-import type { BlogLanguage } from '../lib/blog.types';
+import type { BlogLanguage, BlogTagTranslation } from '../lib/blog.types';
 import {
   blogTagFormSchema,
   getBlogTagFormDefaults,
@@ -45,12 +45,12 @@ function BlogTagDetailView({ tag }: { tag: BlogTag }) {
         </span>
       </div>
       <div className="grid gap-3 md:grid-cols-3">
-        {(Object.keys(tag.translations) as BlogLanguage[]).map((language) => (
+        {(Object.entries(tag.translations) as Array<[BlogLanguage, BlogTagTranslation]>).map(([language, translation]) => (
           <div key={language} className="rounded-xl border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
               {BLOG_LANGUAGE_LABELS[language]}
             </div>
-            <div className="mt-2 text-sm font-medium">{tag.translations[language].name || '—'}</div>
+            <div className="mt-2 text-sm font-medium">{translation.name || '—'}</div>
           </div>
         ))}
       </div>
