@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <title>Utazási könyv – {{ $tripName }}</title>
     <style>
+        @include('pdf.partials.fonts')
         @page { margin: 34px 0 60px 0; }
         @page :first { margin-top: 0; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 10.5px; color: #0f172a; margin: 0; }
+        body { font-family: 'Inter', sans-serif; font-size: 10.5px; color: #0f172a; margin: 0; }
         .header { background: #071321; color: #fff; padding: 26px 40px 22px; }
         .header-accent { height: 5px; background: #00c389; }
         .logo-wrap { display: inline-block; background: #fff; border-radius: 8px; padding: 6px 10px; margin-bottom: 14px; }

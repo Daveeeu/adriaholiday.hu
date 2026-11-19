@@ -22,6 +22,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
+    <link rel="stylesheet" href="{{ EmailStyle::FONT_STYLESHEET }}">
     <title>{{ $title }}</title>
 </head>
 <body style="margin:0;padding:0;background:#f1f5f9;">

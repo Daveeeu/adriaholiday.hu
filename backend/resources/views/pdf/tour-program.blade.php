@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>{{ $tour->name }}</title>
     <style>
+        @include('pdf.partials.fonts')
         @page {
             margin: 28px 0 54px;
         }
@@ -13,7 +14,7 @@
         }
 
         body {
-            font-family: 'DejaVu Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: #1f2937;
             font-size: 11.5px;
             line-height: 1.5;

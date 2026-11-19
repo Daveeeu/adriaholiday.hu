@@ -9,7 +9,10 @@ namespace App\Support\Mail;
  */
 final class EmailStyle
 {
-    public const FONT = "font-family:'Segoe UI',Helvetica,Arial,sans-serif;";
+    /** Inter, the site's typeface, where the mail app loads it (see the layout's font link); Arial where it does not. */
+    public const FONT = "font-family:Inter,'Segoe UI',Helvetica,Arial,sans-serif;";
+
+    public const FONT_STYLESHEET = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap';
 
     public const TEXT = self::FONT.'margin:0 0 16px;color:#334155;font-size:15px;line-height:1.6;';
 

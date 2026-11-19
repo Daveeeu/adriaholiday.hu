@@ -266,7 +266,8 @@ function sanitizeRel(value: string, source: HTMLElement): string | null {
 
 export function richTextBlockClassName(className = ''): string {
   return [
-    'space-y-3 leading-6',
+    // The site's trip text size (OfferContentSection), so the editor shows a text as it is published.
+    'space-y-3 text-[0.95rem] leading-7',
     '[&_p]:mb-3 [&_p:last-child]:mb-0',
     '[&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6',
     '[&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6',

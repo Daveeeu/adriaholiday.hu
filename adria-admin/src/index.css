@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* Inter, the public site's typeface, bundled so the admin shows texts as they are published. */
+@import '@fontsource-variable/inter';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -104,7 +106,7 @@
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
     font-family:
-      'Instrument Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+      'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
 
   #root {
@@ -119,7 +121,17 @@
  * e-mail and password fields keep their own look.
  */
 @layer utilities {
-  :where(form) :is(input:not([type='search'], [type='email'], [type='password'], [type='checkbox'], [type='radio']), textarea):placeholder-shown {
+  :where(form)
+    :is(
+      input:not(
+        [type='search'],
+        [type='email'],
+        [type='password'],
+        [type='checkbox'],
+        [type='radio']
+      ),
+      textarea
+    ):placeholder-shown {
     background-color: var(--empty-field);
     border-style: dashed;
     border-color: color-mix(in oklch, var(--placeholder) 55%, transparent);
