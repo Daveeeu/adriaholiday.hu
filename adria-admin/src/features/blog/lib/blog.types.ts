@@ -27,6 +27,12 @@ export type BlogArticleTranslations = Record<BlogLanguage, BlogArticleTranslatio
 export type BlogCategoryTranslations = Record<BlogLanguage, BlogCategoryTranslation>;
 export type BlogTagTranslations = Record<BlogLanguage, BlogTagTranslation>;
 
+/**
+ * Translations as the API returns them: the Hungarian one always, the other
+ * languages only once written (legacy posts often have none).
+ */
+export type StoredBlogTranslations<T> = { hu: T } & Partial<Record<Exclude<BlogLanguage, 'hu'>, T>>;
+
 export type BlogArticle = {
   id: string | number;
   active: boolean;
@@ -45,13 +51,13 @@ export type BlogArticle = {
   categoryIds: Array<string | number>;
   tagIds: Array<string | number>;
   views: number;
-  translations: BlogArticleTranslations;
+  translations: StoredBlogTranslations<BlogArticleTranslation>;
 };
 
 export type BlogCategory = {
   id: string | number;
   active: boolean;
-  translations: BlogCategoryTranslations;
+  translations: StoredBlogTranslations<BlogCategoryTranslation>;
   column: BlogCategoryColumn;
   seoName: string;
 };
@@ -59,7 +65,7 @@ export type BlogCategory = {
 export type BlogTag = {
   id: string | number;
   active: boolean;
-  translations: BlogTagTranslations;
+  translations: StoredBlogTranslations<BlogTagTranslation>;
 };
 
 export type BlogArticleFormValues = {
@@ -307,28 +313,20 @@ export function getBlogArticleFormDefaults(
     categoryIds: article?.categoryIds.map(String) ?? [],
     tagIds: article?.tagIds.map(String) ?? [],
     translations: {
-      hu: {
-        title: article?.translations.hu.title ?? '',
-        seoName: article?.translations.hu.seoName ?? '',
-        seoAutoGenerate: article?.translations.hu.seoAutoGenerate ?? true,
-        excerpt: article?.translations.hu.excerpt ?? '',
-        content: article?.translations.hu.content ?? '',
-      },
-      en: {
-        title: article?.translations.en.title ?? '',
-        seoName: article?.translations.en.seoName ?? '',
-        seoAutoGenerate: article?.translations.en.seoAutoGenerate ?? true,
-        excerpt: article?.translations.en.excerpt ?? '',
-        content: article?.translations.en.content ?? '',
-      },
-      de: {
-        title: article?.translations.de.title ?? '',
-        seoName: article?.translations.de.seoName ?? '',
-        seoAutoGenerate: article?.translations.de.seoAutoGenerate ?? true,
-        excerpt: article?.translations.de.excerpt ?? '',
-        content: article?.translations.de.content ?? '',
-      },
+      hu: articleTranslationDefaults(article?.translations.hu),
+      en: articleTranslationDefaults(article?.translations.en),
+      de: articleTranslationDefaults(article?.translations.de),
     },
+  };
+}
+
+function articleTranslationDefaults(translation?: BlogArticleTranslation): BlogArticleTranslation {
+  return {
+    title: translation?.title ?? '',
+    seoName: translation?.seoName ?? '',
+    seoAutoGenerate: translation?.seoAutoGenerate ?? true,
+    excerpt: translation?.excerpt ?? '',
+    content: translation?.content ?? '',
   };
 }
 
@@ -339,22 +337,18 @@ export function getBlogCategoryFormDefaults(
     active: category?.active ?? true,
     column: category?.column ?? '1',
     translations: {
-      hu: {
-        name: category?.translations.hu.name ?? '',
-        seoName: category?.translations.hu.seoName ?? '',
-        seoAutoGenerate: category?.translations.hu.seoAutoGenerate ?? true,
-      },
-      en: {
-        name: category?.translations.en.name ?? '',
-        seoName: category?.translations.en.seoName ?? '',
-        seoAutoGenerate: category?.translations.en.seoAutoGenerate ?? true,
-      },
-      de: {
-        name: category?.translations.de.name ?? '',
-        seoName: category?.translations.de.seoName ?? '',
-        seoAutoGenerate: category?.translations.de.seoAutoGenerate ?? true,
-      },
+      hu: categoryTranslationDefaults(category?.translations.hu),
+      en: categoryTranslationDefaults(category?.translations.en),
+      de: categoryTranslationDefaults(category?.translations.de),
     },
+  };
+}
+
+function categoryTranslationDefaults(translation?: BlogCategoryTranslation): BlogCategoryTranslation {
+  return {
+    name: translation?.name ?? '',
+    seoName: translation?.seoName ?? '',
+    seoAutoGenerate: translation?.seoAutoGenerate ?? true,
   };
 }
 
@@ -363,8 +357,8 @@ export function getBlogTagFormDefaults(tag?: BlogTag): BlogTagFormValues {
     active: tag?.active ?? true,
     translations: {
       hu: { name: tag?.translations.hu.name ?? '' },
-      en: { name: tag?.translations.en.name ?? '' },
-      de: { name: tag?.translations.de.name ?? '' },
+      en: { name: tag?.translations.en?.name ?? '' },
+      de: { name: tag?.translations.de?.name ?? '' },
     },
   };
 }
