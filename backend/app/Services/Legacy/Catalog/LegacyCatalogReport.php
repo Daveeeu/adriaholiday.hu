@@ -2,7 +2,7 @@
 
 namespace App\Services\Legacy\Catalog;
 
-use Illuminate\Support\Facades\Storage;
+use App\Support\PrivateReport;
 
 /**
  * Writes a legacy import report next to the application's private files
@@ -21,6 +21,8 @@ final class LegacyCatalogReport
         'categories', 'countries', 'country_source', 'unmapped', 'review_reasons',
     ];
 
+    public function __construct(private readonly PrivateReport $report) {}
+
     /**
      * @param  array<string, mixed>  $summary
      * @param  array<int, array<string, mixed>>  $rows
@@ -30,43 +32,6 @@ final class LegacyCatalogReport
      */
     public function write(string $name, array $summary, array $rows, array $columns = self::OFFER_COLUMNS, string $rowsKey = 'offers'): array
     {
-        $disk = Storage::disk('local');
-        $base = self::DIRECTORY.'/'.now()->format('Y-m-d_His').'-'.$name;
-
-        $disk->put("{$base}.json", json_encode(['summary' => $summary, $rowsKey => $rows], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-        $disk->put("{$base}.csv", $this->csv($rows, $columns));
-
-        return ['json' => $disk->path("{$base}.json"), 'csv' => $disk->path("{$base}.csv")];
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $rows
-     * @param  array<int, string>  $columns
-     */
-    private function csv(array $rows, array $columns): string
-    {
-        $handle = fopen('php://temp', 'r+');
-        // A BOM so spreadsheet apps read the accents as UTF-8.
-        fwrite($handle, "\xEF\xBB\xBF");
-        fputcsv($handle, $columns, ';');
-
-        foreach ($rows as $row) {
-            fputcsv($handle, array_map(fn (string $column): string => $this->cell($row[$column] ?? null), $columns), ';');
-        }
-
-        rewind($handle);
-        $csv = (string) stream_get_contents($handle);
-        fclose($handle);
-
-        return $csv;
-    }
-
-    private function cell(mixed $value): string
-    {
-        return match (true) {
-            is_bool($value) => $value ? 'igen' : 'nem',
-            is_array($value) => json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            default => (string) $value,
-        };
+        return $this->report->write(self::DIRECTORY, $name, $summary, $rows, $columns, $rowsKey);
     }
 }

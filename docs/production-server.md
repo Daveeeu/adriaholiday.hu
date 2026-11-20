@@ -110,3 +110,9 @@ $C exec -T app php artisan <command>
 
 - **Health:** `https://adriaholiday.hu/health`.
 - **Disk:** `df -h /`. `docker builder prune -f` reclaims the build cache after deploys.
+
+## After the cutover
+
+The VPS gets a fresh dump of the old host's database at the cutover. Data fixes run on the VPS before that are lost, so run them again on the live data once the VPS is serving:
+
+- `adria:tours:structure-program`: splits the legacy one-block tour programs into program days and price items. Run the dry run first, then `--apply`. See `docs/tour-program-structure.md`.
