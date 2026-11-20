@@ -33,7 +33,7 @@ services:
       - local
 
   redis:
-    image: redis:7.4-alpine
+    image: redis:8.10-alpine
     restart: unless-stopped
     volumes:
       - redis-data:/data
