@@ -265,6 +265,8 @@ class StructureTourProgramsCommandTest extends TestCase
         $log = Activity::query()->where('event', 'program_structured')->sole();
         $this->assertSame($tour->id, $log->subject_id);
         $this->assertSame(3, $log->properties['days']);
+        $this->assertSame($program, $log->properties['original']['program']);
+        $this->assertArrayHasKey('program_footer', $log->properties['original']);
 
         // The original program is in the tour's own change log and in the report.
         $change = Activity::query()->where('subject_id', $tour->id)->where('event', 'updated')->latest('id')->first();

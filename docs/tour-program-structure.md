@@ -14,7 +14,13 @@ Tours imported from the legacy admin keep their whole program in one HTML block,
   - everything else after the days (departure towns, travel documents, "A program tartalmaz…" notes): `program_footer`, before what the field already held.
   The h2 that only repeats the tour's name is left out.
 
-The program itself is emptied. Its original HTML stays in the tour's activity log (the `updated` entry's old values) and in the run's JSON report (`originals`). Each tour also gets a `program_structured` activity log entry.
+The program itself is emptied. The columns the split changes (`program` and the fields text was added to) are kept as they were, in three places:
+
+- the tour's `program_structured` activity log entry, under `properties.original`;
+- the old values of its `updated` entry;
+- the run's JSON report, under `originals`.
+
+To restore a tour, put those values back and remove its program days and price items.
 
 ## Safety rules
 

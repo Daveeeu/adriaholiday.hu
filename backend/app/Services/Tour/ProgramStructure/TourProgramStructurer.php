@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\DB;
  * replaced), and a program that cannot be split with confidence is never
  * changed, only reported for manual review.
  *
- * The program itself is emptied once split; its original HTML stays in the
- * tour's activity log and in the run's report.
+ * The program itself is emptied once split. The columns it changes are kept
+ * as they were in the tour's program_structured activity log entry
+ * (properties.original), in its updated entry and in the run's JSON report.
  */
 final class TourProgramStructurer
 {
@@ -52,9 +53,9 @@ final class TourProgramStructurer
         $originals = [];
 
         foreach ($tours as $tour) {
-            // Kept before the split, as the run's backup of what it changed.
+            // Kept before the split, as the backup of what it changes.
             $original = array_intersect_key($tour->getRawOriginal(), array_flip(self::CHANGED_COLUMNS));
-            $row = $this->structure($tour, $apply, $force);
+            $row = $this->structure($tour, $apply, $force, $original);
 
             if ($row['status'] === self::STRUCTURED) {
                 $originals[$tour->id] = $original;
@@ -67,9 +68,10 @@ final class TourProgramStructurer
     }
 
     /**
+     * @param  array<string, ?string>  $original  the columns the split changes, as they are
      * @return array{tour_id: int, name: string, status: string, days: int, included: int, excluded: int, moved_to: list<string>, manual_review: bool, reasons: string}
      */
-    private function structure(Tour $tour, bool $apply, bool $force): array
+    private function structure(Tour $tour, bool $apply, bool $force, array $original): array
     {
         $row = ['tour_id' => $tour->id, 'name' => (string) $tour->name, 'days' => 0, 'included' => 0, 'excluded' => 0, 'moved_to' => [], 'manual_review' => false];
 
@@ -98,12 +100,15 @@ final class TourProgramStructurer
             return [...$row, 'status' => self::WOULD_STRUCTURE, 'reasons' => ''];
         }
 
-        DB::transaction(fn () => $this->apply($tour, $program));
+        DB::transaction(fn () => $this->apply($tour, $program, $original));
 
         return [...$row, 'status' => self::STRUCTURED, 'reasons' => ''];
     }
 
-    private function apply(Tour $tour, StructuredProgram $program): void
+    /**
+     * @param  array<string, ?string>  $original
+     */
+    private function apply(Tour $tour, StructuredProgram $program, array $original): void
     {
         $this->content->syncProgramDays($tour, array_map(
             fn (array $day, int $index): array => [...$day, 'sort_order' => $index + 1, 'active' => true],
@@ -128,6 +133,8 @@ final class TourProgramStructurer
                 'included' => $program->priceItemCount(TourProgramParser::INCLUDED),
                 'excluded' => $program->priceItemCount(TourProgramParser::EXCLUDED),
                 'moved_to' => array_keys($program->fields),
+                // What the split changed, as it was: the whole program and the fields text was added to.
+                'original' => $original,
             ])
             ->log('A program napokra és ártételekre bontva (adria:tours:structure-program)');
     }
