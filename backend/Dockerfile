@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM composer:2.8 AS composer-deps
+FROM composer:2.10 AS composer-deps
 WORKDIR /app/backend
 COPY backend/composer.json backend/composer.lock ./
 # The composer:2.8 image's bundled PHP doesn't have ext-exif (spatie/image and
