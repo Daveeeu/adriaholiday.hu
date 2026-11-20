@@ -75,6 +75,9 @@ final class TourProgramParser
 
     private const NOTE_HEADING = '/^(felszállás|csatlakozás|útiokmány|úti okmány|beutazás|az utazáshoz|a program tartalmaz|a programváltoztatás|a programok sorrendje|a program sorrendje|figyelem|kérje ajánlat|kérjék ajánlat|kérjen ajánlat|csoportot szervez|dunántúli|hazafelé|fedezzük fel|megjegyzés|fontos tudnivaló)/u';
 
+    /** Articles and conjunctions, lower case inside a title. */
+    private const LOWER_CASE_WORDS = ['a', 'az', 'és', 's', 'vagy', 'egy', 'de', 'meg', 'is', 'mint', 'with', 'and', 'the'];
+
     private const OPTION = '/^([a-h]\s*[.,)]|[-•–])/u';
 
     private const BULLET = '/^[-–•*·]+\s*/u';
@@ -119,6 +122,9 @@ final class TourProgramParser
 
     /** @var list<string> */
     private array $originalTexts = [];
+
+    /** @var ?list<array{0: string, 1: bool}> the program's words, read once a title needs them */
+    private ?array $programWords = null;
 
     public function __construct(private readonly ProgramHtmlReader $reader) {}
 
@@ -173,6 +179,7 @@ final class TourProgramParser
         $this->reviewReasons = [];
         $this->dropped = [];
         $this->originalTexts = [];
+        $this->programWords = null;
     }
 
     private function readWholeBlock(ProgramBlock $block): void
@@ -673,29 +680,98 @@ final class TourProgramParser
 
     /**
      * The day's title from its heading without the day number: "1. NAP
-     * DURRES - TIRANA: tengerparti pihenés" → "Durres – Tirana: tengerparti pihenés".
+     * DURRES - TIRANA: tengerparti pihenés" → "DURRES – TIRANA: tengerparti
+     * pihenés" (writtenCase() then fixes the capitals).
      */
     private function headingTitle(string $heading, string $prefix): string
     {
         $title = $this->trimSeparators(mb_substr($heading, mb_strlen($prefix)));
-        // Words in capitals are written as names: "OHRIDI-TÓ" → "Ohridi-tó".
+
+        return $this->trimSeparators((string) preg_replace('/\s+-\s+/u', ' – ', $title));
+    }
+
+    /**
+     * A title's words in capitals as they are written: "RÓMA ÉS A VATIKÁN
+     * KINCSE" → "Róma és a Vatikán kincse". A word goes as the program
+     * itself writes it mid-sentence ("kincseit", "Vatikáni"); one it does not
+     * use is a name where a part of the title starts ("PERAST - KOTOR"), else
+     * lower case. Articles and conjunctions are lower case, as is the part
+     * after a hyphen ("OHRIDI-TÓ" → "Ohridi-tó"). The title starts with a
+     * capital.
+     */
+    private function writtenCase(string $title): string
+    {
         $title = (string) preg_replace_callback(
-            '/(?<![\p{L}\p{N}])\p{Lu}{2,}(?![\p{L}\p{N}])/u',
+            '/(?<![\p{L}\p{N}])\p{Lu}+(?![\p{L}\p{N}])/u',
             function (array $word) use ($title): string {
                 [$text, $offset] = $word[0];
                 $lower = mb_strtolower($text);
 
                 return match (true) {
+                    mb_strlen($text) === 1 => in_array($lower, self::LOWER_CASE_WORDS, true) ? $lower : $text,
                     preg_match('/^[IVXLCDM]+$/', $text) === 1 => $text,
                     $offset > 0 && $title[$offset - 1] === '-' => $lower,
-                    default => mb_convert_case($lower, MB_CASE_TITLE),
+                    in_array($lower, self::LOWER_CASE_WORDS, true) => $lower,
+                    default => match ($this->programWriting($lower)) {
+                        'lower' => $lower,
+                        'capitalised' => Str::ucfirst($lower),
+                        // Not in the program: a name where a part of the title starts, else lower case.
+                        default => preg_match('/(^|[–:,\/]|\p{L}\.)\s*$/u', substr($title, 0, $offset)) === 1 ? Str::ucfirst($lower) : $lower,
+                    },
                 };
             },
             $title,
             flags: PREG_OFFSET_CAPTURE,
         );
 
-        return $this->trimSeparators((string) preg_replace('/\s+-\s+/u', ' – ', $title));
+        return Str::ucfirst($title);
+    }
+
+    /**
+     * How the program writes the word (or a suffixed form of it: "kastély"
+     * in "kastélyba") mid-sentence: 'lower', 'capitalised', or null when it
+     * does not use it.
+     */
+    private function programWriting(string $lowerWord): ?string
+    {
+        $this->programWords ??= $this->programWords();
+
+        // "városa" / "londontól": without a match, the stem ("város", "london").
+        for ($length = mb_strlen($lowerWord); $length >= max(4, mb_strlen($lowerWord) - 4); $length--) {
+            $stem = mb_substr($lowerWord, 0, $length);
+            $lower = 0;
+            $capitalised = 0;
+
+            foreach ($this->programWords as [$word, $startsSentence]) {
+                if (! str_starts_with(mb_strtolower($word), $stem) || $word === mb_strtoupper($word)) {
+                    continue;
+                }
+
+                if (mb_strtolower(mb_substr($word, 0, 1)) === mb_substr($word, 0, 1)) {
+                    $lower++;
+                } elseif (! $startsSentence) {
+                    $capitalised++;
+                }
+            }
+
+            if ($lower + $capitalised > 0) {
+                return $lower > $capitalised ? 'lower' : 'capitalised';
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The program's words, each with whether it starts a sentence or line.
+     *
+     * @return list<array{0: string, 1: bool}>
+     */
+    private function programWords(): array
+    {
+        preg_match_all('/(^|[.!?:]\s+|\n)?([\p{L}]+)/u', implode("\n", $this->originalTexts), $matches, PREG_SET_ORDER);
+
+        return array_map(fn (array $match): array => [$match[2], $match[1] !== ''], $matches);
     }
 
     private function trimSeparators(string $text): string
@@ -743,7 +819,7 @@ final class TourProgramParser
     private function dayResult(array $day): array
     {
         $paragraphs = $day['paragraphs'];
-        $title = $day['heading'];
+        $title = $this->writtenCase($day['heading']);
 
         // A long heading is shortened as the title and kept whole in the description.
         if (mb_strlen($title) > self::TITLE_MAX_LENGTH) {

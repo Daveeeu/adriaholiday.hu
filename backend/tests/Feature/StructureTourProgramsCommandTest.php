@@ -147,6 +147,24 @@ class StructureTourProgramsCommandTest extends TestCase
         $this->assertCount(0, $tour->priceItems);
     }
 
+    public function test_day_titles_in_capitals_are_written_as_the_program_writes_the_words(): void
+    {
+        $tour = $this->tour('numbered-days-price-block', 'Itália', [
+            'program' => '<p><strong>1. NAP RÓMA ÉS A VATIKÁN KINCSE</strong><br>Délelőtt a Vatikáni Múzeumok, a pápák kincseit őrző termek.</p>'
+                .'<p><strong>2. NAP OHRIDI-TÓ - HELLBRUNN KASTÉLY</strong><br>Séta a tóparton, majd a kastélyban.</p>'
+                .'<p><strong>3. NAP ST. GILGEN - ANTIK BIRODALOM</strong><br>Hazautazás.</p>',
+        ]);
+
+        $this->artisan(self::COMMAND, ['--apply' => true])->assertSuccessful();
+
+        $this->assertSame([
+            'Róma és a Vatikán kincse',
+            'Ohridi-tó – Hellbrunn kastély',
+            // Words the program does not use: a name where a part of the title starts.
+            'St. Gilgen – Antik birodalom',
+        ], $tour->programDays()->pluck('title')->all());
+    }
+
     public function test_a_program_without_day_headings_is_only_reported_for_manual_review(): void
     {
         $tour = $this->tour('no-day-headings', 'Vendégház a borvidéken');
