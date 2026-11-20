@@ -385,7 +385,7 @@ export default function TripDetailPage({ trip, onBack, relatedTrips = [] }: Trip
 
                 <DeparturePlacesSection places={offeredDeparturePlaces} />
 
-                <PriceInformationSection priceInformation={trip.priceInformation} />
+                <PriceInformationSection priceBox={priceBox} priceInformation={trip.priceInformation} />
 
                 <OfferContentSection title="Belépőjegyek" content={trip.tickets} navLabel="Belépőjegyek" />
 
@@ -546,6 +546,34 @@ function formatDiscountedDisplayedPrice(
   return `${formattedAmount} Ft`;
 }
 
+/** The price a traveller pays, with the price it replaces when the offer is discounted. */
+function resolveDisplayedPrice(priceBox: PortfolioPriceBox): {
+  price?: string | null;
+  struckPrice?: string | null;
+  badge?: string | null;
+} {
+  const discountPercent = parseDiscountPercent(priceBox.discountBadge);
+  const discountedPrice =
+    discountPercent !== null && priceBox.price !== null && priceBox.price !== undefined
+      ? priceBox.price * (1 - discountPercent / 100)
+      : null;
+
+  if (discountedPrice !== null) {
+    return {
+      price: formatDiscountedDisplayedPrice(discountedPrice, priceBox.displayedPrice, priceBox.priceSuffix),
+      struckPrice: priceBox.displayedPrice,
+      badge: priceBox.discountBadge,
+    };
+  }
+
+  // A promotion stored with its pre-promotion price ("Előfoglalási akció") already has the lower price.
+  return {
+    price: priceBox.displayedPrice,
+    struckPrice: priceBox.originalDisplayedPrice,
+    badge: priceBox.label,
+  };
+}
+
 function PriceBox({
   priceBox,
   bookLabel,
@@ -561,25 +589,7 @@ function PriceBox({
     return null;
   }
 
-  const discountPercent = parseDiscountPercent(priceBox.discountBadge);
-  const discountedPrice =
-    discountPercent !== null && priceBox.price !== null && priceBox.price !== undefined
-      ? priceBox.price * (1 - discountPercent / 100)
-      : null;
-  const discountedDisplayedPrice =
-    discountedPrice !== null
-      ? formatDiscountedDisplayedPrice(
-          discountedPrice,
-          priceBox.displayedPrice,
-          priceBox.priceSuffix,
-        )
-      : null;
-  // A percentage badge discounts the price here; a promotion stored with its
-  // pre-promotion price ("Előfoglalási akció") already has the lower price.
-  const struckPrice = discountedDisplayedPrice
-    ? priceBox.displayedPrice
-    : priceBox.originalDisplayedPrice;
-  const badge = discountedDisplayedPrice ? priceBox.discountBadge : priceBox.label;
+  const { price, struckPrice, badge } = resolveDisplayedPrice(priceBox);
   const hasDiscount = Boolean(struckPrice);
   const priceLabel = hasDiscount ? "Akciós ár" : "Ár";
 
@@ -604,7 +614,7 @@ function PriceBox({
       ) : null}
 
       <div className="text-5xl font-bold tracking-tight">
-        {discountedDisplayedPrice ?? priceBox.displayedPrice}
+        {price}
       </div>
 
       {priceBox.discountText ? (
@@ -812,47 +822,53 @@ function DeparturePlacesSection({ places }: { places: TripDetail["departurePlace
   );
 }
 
-function PriceInformationSection({ priceInformation }: { priceInformation?: { included?: Array<{ id: string; text: string }>; excluded?: Array<{ id: string; text: string }>; } | null }) {
+type PriceInformationItem = { id: string; text: string };
+
+/** "Részvételi díj": the price of the chosen date, then what it includes and what it does not. */
+function PriceInformationSection({
+  priceBox,
+  priceInformation,
+}: {
+  priceBox: PortfolioPriceBox | null;
+  priceInformation?: { included?: PriceInformationItem[]; excluded?: PriceInformationItem[] } | null;
+}) {
   const included = priceInformation?.included ?? [];
   const excluded = priceInformation?.excluded ?? [];
+  const { price, struckPrice } = priceBox ? resolveDisplayedPrice(priceBox) : {};
 
-  if (included.length === 0 && excluded.length === 0) {
+  if (!price && included.length === 0 && excluded.length === 0) {
     return null;
   }
 
   return (
-    <div className="mb-20" {...tripSection("Mit tartalmaz az ár?")}>
+    <div className="mb-20" {...tripSection("Részvételi díj")}>
       <SectionEyebrow title="ÁRINFORMÁCIÓ" />
 
-      <h2 className={`${TRIP_SECTION_HEADING} mb-4`}>
-        Mit tartalmaz az ár?
-      </h2>
+      <h2 className={`${TRIP_SECTION_HEADING} mb-4`}>Részvételi díj</h2>
 
-      <p className={`${TRIP_SECTION_SUBTITLE} mb-10`}>
-        Átlátható információk a foglalás előtt.
-      </p>
+      {price ? (
+        <p className="mb-10 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <span className="text-3xl font-bold tracking-tight text-[#00a878] md:text-4xl">{price}</span>
+          {struckPrice ? (
+            <span className="text-xl font-semibold text-gray-400 line-through decoration-red-500 decoration-2">
+              {struckPrice}
+            </span>
+          ) : null}
+        </p>
+      ) : null}
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {included.length > 0 ? (
-          <PriceInformationCard
-            title="Az ár tartalmazza"
-            items={included}
-            positive
-          />
-        ) : null}
+      {included.length > 0 || excluded.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {included.length > 0 ? <PriceInformationCard title="Az ár tartalmazza" items={included} positive /> : null}
 
-        {excluded.length > 0 ? (
-          <PriceInformationCard
-            title="Milyen további költségek merülhetnek fel?"
-            items={excluded}
-          />
-        ) : null}
-      </div>
+          {excluded.length > 0 ? <PriceInformationCard title="Az ár nem tartalmazza" items={excluded} /> : null}
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function PriceInformationCard({ title, items, positive = false }: { title: string; items: Array<{ id: string; text: string }>; positive?: boolean; }) {
+function PriceInformationCard({ title, items, positive = false }: { title: string; items: PriceInformationItem[]; positive?: boolean }) {
   return (
     <div className="bg-white rounded-[30px] border border-gray-100 p-8">
       <h3 className="text-xl font-bold text-[#0f172a] mb-6">{title}</h3>
