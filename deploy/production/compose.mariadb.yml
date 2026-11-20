@@ -3,7 +3,7 @@
 # Used by deploy/production/bootstrap.sh.
 services:
   db:
-    image: mariadb:11.4
+    image: mariadb:13.0
     restart: unless-stopped
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
