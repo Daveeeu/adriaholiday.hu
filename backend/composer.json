@@ -12,7 +12,7 @@
         "laravel/mcp": "^1.2",
         "laravel/passport": "^13.0",
         "laravel/sanctum": "^4.3",
-        "laravel/tinker": "^2.10.1",
+        "laravel/tinker": "^3.2.0",
         "spatie/laravel-activitylog": "^5.0",
         "spatie/laravel-medialibrary": "^11.23",
         "spatie/laravel-permission": "^8.0"
