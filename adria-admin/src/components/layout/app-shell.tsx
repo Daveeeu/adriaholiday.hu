@@ -1,7 +1,11 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, type MouseEvent } from 'react';
 
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import {
+  MAIN_CONTENT_ID,
+  focusMainContent,
+} from '@/components/layout/main-content';
 import { TopBar } from '@/components/layout/top-bar';
 import {
   Sheet,
@@ -14,6 +18,12 @@ import { cn } from '@/lib/utils';
 import { LoginPage } from '@/features/auth/routes/login-page';
 import { useAuthStore } from '@/store/auth-store';
 import { useUiStore } from '@/store/ui-store';
+
+/** The skip link moves the focus too, so the next Tab continues in the page. */
+function handleSkipLinkClick(event: MouseEvent<HTMLAnchorElement>) {
+  event.preventDefault();
+  focusMainContent();
+}
 
 export function AppShell() {
   const location = useLocation();
@@ -53,6 +63,13 @@ export function AppShell() {
 
   return (
     <div className="h-screen overflow-hidden bg-muted/30">
+      <a
+        href={`#${MAIN_CONTENT_ID}`}
+        onClick={handleSkipLinkClick}
+        className="sr-only z-50 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Ugrás a tartalomra
+      </a>
       <div className="mx-auto flex h-full max-w-[1680px] overflow-hidden">
         <aside
           className={cn(
@@ -79,7 +96,11 @@ export function AppShell() {
               <TopBar onOpenMobileMenu={() => setMobileSidebarOpen(true)} />
             </div>
           </header>
-          <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 lg:px-6">
+          <main
+            id={MAIN_CONTENT_ID}
+            tabIndex={-1}
+            className="min-h-0 flex-1 overflow-y-auto px-4 py-6 outline-none lg:px-6"
+          >
             <Suspense
               fallback={
                 <div className="flex min-h-[40vh] items-center justify-center">

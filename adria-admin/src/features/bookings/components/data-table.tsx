@@ -157,20 +157,20 @@ export function DataTable<T>({
             {totalCount === 0 ? null : `${start}-${end} / ${totalCount} találat`}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <label className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Sorok
+              <select
+                value={perPage}
+                onChange={(event) => onPerPageChange(Number(event.target.value))}
+                className="h-9 rounded-xl border bg-background px-3 text-sm normal-case tracking-normal text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {[5, 10, 20, 50].map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
             </label>
-            <select
-              value={perPage}
-              onChange={(event) => onPerPageChange(Number(event.target.value))}
-              className="h-9 rounded-xl border bg-background px-3 text-sm text-foreground outline-none"
-            >
-              {[5, 10, 20, 50].map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
             <div className="flex items-center gap-2">
               <Button
                 type="button"

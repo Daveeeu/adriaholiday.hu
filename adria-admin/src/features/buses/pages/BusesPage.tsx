@@ -294,10 +294,10 @@ export function BusesPage() {
               <span className="text-sm text-muted-foreground">
                 {pagination.pageIndex + 1} / {table.getPageCount() || 1}
               </span>
-              <Button variant="outline" size="icon" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+              <Button title="Előző" aria-label="Előző" variant="outline" size="icon" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
                 <ArrowUpDown className="size-4 rotate-90" />
               </Button>
-              <Button variant="outline" size="icon" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+              <Button title="Következő" aria-label="Következő" variant="outline" size="icon" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
                 <ArrowUpDown className="size-4 -rotate-90" />
               </Button>
             </div>

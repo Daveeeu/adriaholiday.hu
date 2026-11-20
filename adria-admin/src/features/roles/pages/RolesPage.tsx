@@ -112,6 +112,8 @@ export function RolesPage() {
           ) : null}
           {canDelete && !row.original.isSystemRole ? (
             <Button
+              title="Törlés"
+              aria-label="Törlés"
               variant="destructive"
               size="icon"
               onClick={() => {

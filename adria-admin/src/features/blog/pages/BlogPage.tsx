@@ -412,6 +412,8 @@ export function BlogPage() {
                 {pagination.pageIndex + 1} / {table.getPageCount() || 1}
               </span>
               <Button
+                title="Előző"
+                aria-label="Előző"
                 variant="outline"
                 size="icon"
                 onClick={() => table.previousPage()}
@@ -420,6 +422,8 @@ export function BlogPage() {
                 <ArrowUpDown className="size-4 rotate-90" />
               </Button>
               <Button
+                title="Következő"
+                aria-label="Következő"
                 variant="outline"
                 size="icon"
                 onClick={() => table.nextPage()}

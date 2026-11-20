@@ -136,6 +136,8 @@ export function ApartmentPriceSeasonsSection({
                 <Button
                   type="button"
                   variant="destructive"
+                  title="Időszak törlése"
+                  aria-label="Időszak törlése"
                   onClick={() => remove(index)}
                 >
                   <Trash2 className="size-4" />

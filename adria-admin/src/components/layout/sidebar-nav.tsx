@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import type { NavigationItem } from '@/config/navigation';
 import { filterNavigationItems } from '@/config/navigation-permissions';
@@ -104,6 +104,7 @@ export function SidebarNav({
   );
   const newTourBookingsCount = useNewTourBookingsCount();
   const navigationItems = useNavigationItems();
+  const groupIdPrefix = useId();
 
   const visibleNavigationItems = useMemo(
     () => filterNavigationItems(navigationItems, hasPermission),
@@ -174,13 +175,22 @@ export function SidebarNav({
   }
 
   return (
-    <nav className="space-y-1 overflow-x-hidden px-3 py-4">
+    <nav
+      aria-label={t('layout.mainNavigation')}
+      className="space-y-1 overflow-x-hidden px-3 py-4"
+    >
       {visibleNavigationItems.map((item) => {
         if ('children' in item) {
           const isGroupActive =
             activeGroupKey === item.labelKey ||
             (item.to ? isRouteActive(location.pathname, item.to) : false);
           const isOpen = isGroupOpen(item.labelKey);
+          const groupLabel = t(item.labelKey);
+          const childrenId = `${groupIdPrefix}-${item.labelKey}`;
+          const toggleLabel = t(
+            isOpen ? 'layout.collapseGroup' : 'layout.expandGroup',
+            { group: groupLabel },
+          );
 
           return (
             <div
@@ -209,12 +219,13 @@ export function SidebarNav({
                           : 'text-sidebar-foreground/90 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground',
                       )
                     }
-                    title={collapsed ? t(item.labelKey) : undefined}
+                    title={collapsed ? groupLabel : undefined}
+                    aria-label={collapsed ? groupLabel : undefined}
                   >
                     <item.icon className="size-4 shrink-0" />
                     {!collapsed ? (
                       <span className="min-w-0 flex-1 truncate">
-                        {t(item.labelKey)}
+                        {groupLabel}
                       </span>
                     ) : null}
                   </NavLink>
@@ -223,7 +234,9 @@ export function SidebarNav({
                       type="button"
                       onClick={() => toggleGroup(item.labelKey)}
                       className="rounded-xl p-3 text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
-                      aria-label={isOpen ? 'Collapse group' : 'Expand group'}
+                      aria-label={toggleLabel}
+                      aria-expanded={isOpen}
+                      aria-controls={isOpen ? childrenId : undefined}
                     >
                       {isOpen ? (
                         <ChevronDown className="size-4 opacity-70" />
@@ -243,12 +256,15 @@ export function SidebarNav({
                       ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                       : 'text-sidebar-foreground/90 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground',
                   )}
-                  title={collapsed ? t(item.labelKey) : undefined}
+                  title={collapsed ? groupLabel : undefined}
+                  aria-label={collapsed ? toggleLabel : undefined}
+                  aria-expanded={isOpen}
+                  aria-controls={isOpen ? childrenId : undefined}
                 >
                   <item.icon className="size-4 shrink-0" />
                   {!collapsed ? (
                     <span className="min-w-0 flex-1 truncate">
-                      {t(item.labelKey)}
+                      {groupLabel}
                     </span>
                   ) : null}
                   {!collapsed ? (
@@ -263,6 +279,7 @@ export function SidebarNav({
 
               {isOpen ? (
                 <div
+                  id={childrenId}
                   className={cn('space-y-1 pb-1', collapsed ? 'pl-0' : 'pl-4')}
                 >
                   {item.children.map((child) => (
@@ -287,6 +304,7 @@ export function SidebarNav({
                         )
                       }
                       title={collapsed ? t(child.labelKey) : undefined}
+                      aria-label={collapsed ? t(child.labelKey) : undefined}
                     >
                       <child.icon className="size-4 shrink-0" />
                       {!collapsed ? (
@@ -325,6 +343,7 @@ export function SidebarNav({
               )
             }
             title={collapsed ? t(item.labelKey) : undefined}
+            aria-label={collapsed ? t(item.labelKey) : undefined}
           >
             <item.icon className="size-4 shrink-0" />
             {!collapsed ? (

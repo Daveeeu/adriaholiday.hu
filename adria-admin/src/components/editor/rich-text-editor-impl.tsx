@@ -110,6 +110,8 @@ function ToolbarButton({
       size="sm"
       className="h-8 px-2.5"
       title={title}
+      aria-label={title}
+      aria-pressed={active}
       disabled={disabled}
       onMouseDown={(event) => {
         event.preventDefault();
@@ -532,6 +534,7 @@ function RichTextToolbar({
             <Palette className="size-4" />
             <input
               type="color"
+              aria-label="Szövegszín"
               defaultValue="#111827"
               disabled={disabled}
               className="size-6 cursor-pointer rounded border border-border bg-transparent p-0"
@@ -547,6 +550,7 @@ function RichTextToolbar({
               type="button"
               className="text-muted-foreground hover:text-foreground"
               disabled={disabled}
+              aria-label="Szövegszín visszaállítása"
               onClick={() => editor.chain().focus().unsetColor().run()}
             >
               Visszaállítás
@@ -558,6 +562,7 @@ function RichTextToolbar({
             <Highlighter className="size-4" />
             <input
               type="color"
+              aria-label="Háttérszín"
               defaultValue="#fef08a"
               disabled={disabled}
               className="size-6 cursor-pointer rounded border border-border bg-transparent p-0"
@@ -577,6 +582,7 @@ function RichTextToolbar({
               type="button"
               className="text-muted-foreground hover:text-foreground"
               disabled={disabled}
+              aria-label="Háttérszín visszaállítása"
               onClick={() =>
                 editor.chain().focus().unsetBackgroundColor().run()
               }
@@ -589,9 +595,10 @@ function RichTextToolbar({
 
       <ControlGroup>
         {controls.has('fontFamily') ? (
-          <label className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1 text-xs">
+          <label className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1 text-xs focus-within:ring-2 focus-within:ring-ring">
             <ChevronDown className="size-4" />
             <select
+              aria-label="Betűtípus"
               className="h-8 bg-transparent text-xs outline-none"
               defaultValue=""
               disabled={disabled}
@@ -617,9 +624,10 @@ function RichTextToolbar({
           </label>
         ) : null}
         {controls.has('fontSize') ? (
-          <label className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1 text-xs">
+          <label className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1 text-xs focus-within:ring-2 focus-within:ring-ring">
             <ChevronDown className="size-4" />
             <select
+              aria-label="Betűméret"
               className="h-8 bg-transparent text-xs outline-none"
               defaultValue=""
               disabled={disabled}

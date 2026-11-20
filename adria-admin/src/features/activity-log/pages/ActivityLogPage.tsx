@@ -136,8 +136,16 @@ export function ActivityLogPage() {
                 data.items.map((entry) => (
                   <TableRow
                     key={entry.id}
-                    className="cursor-pointer"
+                    tabIndex={0}
+                    aria-haspopup="dialog"
+                    className="cursor-pointer focus-visible:bg-muted/50"
                     onClick={() => setSelected(entry)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setSelected(entry);
+                      }
+                    }}
                   >
                     <TableCell className="whitespace-nowrap tabular-nums">
                       {formatDateTime(entry.createdAt)}

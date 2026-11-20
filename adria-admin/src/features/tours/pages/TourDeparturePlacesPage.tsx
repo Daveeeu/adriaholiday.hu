@@ -72,15 +72,16 @@ function DeparturePlacePanel({
 
   if (!open) return null;
 
+  const title =
+    mode === 'create' ? 'Felszállási hely hozzáadása' : mode === 'edit' ? 'Felszállási hely szerkesztése' : 'Felszállási hely részletei';
+
   return (
-    <SidePanelPortal>
+    <SidePanelPortal label={title} onClose={() => onOpenChange(false)}>
       <div className="fixed inset-0 z-50">
-        <button className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
+        <button type="button" tabIndex={-1} aria-label="Bezárás" className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
         <aside className="absolute right-0 top-0 flex h-full w-full max-w-2xl flex-col bg-background shadow-2xl">
           <div className="shrink-0 border-b bg-background px-6 py-5">
-            <h2 className="text-lg font-semibold">
-              {mode === 'create' ? 'Felszállási hely hozzáadása' : mode === 'edit' ? 'Felszállási hely szerkesztése' : 'Felszállási hely részletei'}
-            </h2>
+            <h2 className="text-lg font-semibold">{title}</h2>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
             {mode === 'detail' && item ? (

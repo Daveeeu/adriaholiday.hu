@@ -90,6 +90,9 @@ export const hu = {
 
   'layout.openNavigation': 'Navigáció megnyitása',
   'layout.toggleSidebar': 'Oldalsáv váltása',
+  'layout.mainNavigation': 'Fő menü',
+  'layout.expandGroup': '{{group}} menü kinyitása',
+  'layout.collapseGroup': '{{group}} menü becsukása',
   'layout.notifications': 'Értesítések',
   'layout.toggleTheme': 'Téma váltása',
   'layout.searchPlaceholder':

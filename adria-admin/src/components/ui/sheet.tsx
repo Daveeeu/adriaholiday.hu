@@ -3,6 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
 import type { ComponentProps, ComponentPropsWithoutRef } from 'react';
 
+import { useReturnFocus } from '@/lib/use-return-focus';
 import { cn } from '@/lib/utils';
 
 const Sheet = DialogPrimitive.Root;
@@ -46,8 +47,12 @@ function SheetContent({
   side = 'right',
   className,
   children,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   ...props
 }: SheetContentProps) {
+  const returnFocus = useReturnFocus(onOpenAutoFocus, onCloseAutoFocus);
+
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -55,6 +60,7 @@ function SheetContent({
       <DialogPrimitive.Content
         className={cn(sheetVariants({ side }), className)}
         {...props}
+        {...returnFocus}
       >
         {children}
 

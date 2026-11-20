@@ -112,6 +112,15 @@
   #root {
     @apply min-h-screen;
   }
+
+  /*
+   * Every link, button and field shows where the keyboard focus is.
+   * Components with their own focus ring switch this off with outline-none.
+   */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
 
 /*

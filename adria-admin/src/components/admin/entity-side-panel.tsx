@@ -35,7 +35,7 @@ export function EntitySidePanel({
   }
 
   return (
-    <SidePanelPortal>
+    <SidePanelPortal label={title} onClose={() => onOpenChange(false)}>
       <div
         className={cn(
           'fixed inset-y-0 right-0 z-50 flex h-dvh w-full transform-gpu flex-col border-l bg-background shadow-2xl transition-transform duration-300',

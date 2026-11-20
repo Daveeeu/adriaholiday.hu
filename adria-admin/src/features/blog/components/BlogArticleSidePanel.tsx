@@ -212,10 +212,11 @@ export function BlogArticleSidePanel({
   }
 
   return (
-    <SidePanelPortal>
+    <SidePanelPortal label={title} onClose={() => onOpenChange(false)}>
       <div className="fixed inset-0 z-50">
         <button
           type="button"
+          tabIndex={-1}
           aria-label="Bezárás"
           className="absolute inset-0 bg-black/40"
           onClick={() => onOpenChange(false)}

@@ -475,6 +475,15 @@ Use buttons as buttons.
 
 Use links as links.
 
+In the admin:
+
+- A side panel renders through `SidePanelPortal` (or `EntitySidePanel`, which uses it) with a `label` and `onClose`: it moves the focus in, keeps Tab inside, closes on Escape and gives the focus back.
+- A custom panel's dark backdrop button gets `tabIndex={-1}`, so it is not a Tab stop.
+- `Dialog` and `Sheet` return the focus to whatever had it before they opened, also when opened from state without a trigger.
+- An icon-only button gets an `aria-label` (and the same `title`).
+- A clickable non-button element (a table row) gets `tabIndex={0}` and opens on Enter and Space.
+- Every focusable element shows the global `:focus-visible` outline unless it draws its own ring.
+
 ---
 
 # Performance
