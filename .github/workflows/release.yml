@@ -1,0 +1,98 @@
+# Release pipeline (docs/release-pipeline.md): pushing a tag vX.Y.Z that points
+# at a commit on main runs the checks, builds the two images into GHCR and
+# deploys them to the VPS. "Run workflow" with an existing tag only redeploys
+# it, which is also how a release is rolled back.
+name: Release
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to deploy again (vX.Y.Z)
+        required: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_REPOSITORY: ghcr.io/daveeeu/adriaholiday
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  verify:
+    name: Tag is on main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: refs/tags/${{ env.TAG }}
+      - name: Check
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Not a release tag: $TAG"; exit 1; }
+          git merge-base --is-ancestor HEAD origin/main || { echo "$TAG is not on main"; exit 1; }
+
+  checks:
+    name: Checks
+    needs: verify
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/checks.yml
+
+  images:
+    name: Images
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      APP_IMAGE_REPOSITORY: ghcr.io/daveeeu/adriaholiday
+      APP_IMAGE_TAG: ${{ github.ref_name }}
+      # Only the build reads the compose file here; the runtime env file is not needed.
+      LARAVEL_ENV_FILE: ./backend/.env.example
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # The build arguments come from docker-compose.prod.yml, the same as a build on the server.
+      - name: Build
+        run: docker compose -f docker-compose.prod.yml build nginx app
+      - name: Push
+        run: docker compose -f docker-compose.prod.yml push nginx app
+
+  deploy:
+    name: Deploy to the VPS
+    needs: [verify, images]
+    if: always() && needs.verify.result == 'success' && (needs.images.result == 'success' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://adriaholiday.hu
+    steps:
+      - name: SSH key
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" >~/.ssh/id_ed25519
+          printf '%s\n' "$VPS_KNOWN_HOSTS" >~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519
+      # The key's forced command turns this into "sudo adriaholiday-deploy <tag>" on the VPS.
+      - name: Deploy
+        run: ssh -o BatchMode=yes -o ConnectTimeout=20 adriadeploy@217.144.53.32 "deploy $TAG"
+      # Through Traefik on the VPS, whatever public DNS points to.
+      - name: Health check through Traefik
+        run: |
+          curl -fsS --retry 5 --retry-delay 10 --retry-all-errors \
+            --resolve adriaholiday.hu:443:217.144.53.32 https://adriaholiday.hu/health | grep -q '"status":"ok"'
