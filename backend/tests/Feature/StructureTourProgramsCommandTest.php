@@ -165,6 +165,17 @@ class StructureTourProgramsCommandTest extends TestCase
         ], $tour->programDays()->pluck('title')->all());
     }
 
+    public function test_an_opening_heading_saying_more_than_the_tour_name_is_kept(): void
+    {
+        $tour = $this->tour('numbered-days-price-block', 'Toszkán impressziók', [
+            'program' => '<h2>Toszkán impressziók – Firenze és a mesés Cinque Terre</h2><p><strong>1. NAP</strong><br>Indulás.</p>',
+        ]);
+
+        $this->artisan(self::COMMAND, ['--apply' => true])->assertSuccessful();
+
+        $this->assertStringContainsString('Firenze és a mesés Cinque Terre', $tour->fresh()->program_before);
+    }
+
     public function test_a_program_without_day_headings_is_only_reported_for_manual_review(): void
     {
         $tour = $this->tour('no-day-headings', 'Vendégház a borvidéken');

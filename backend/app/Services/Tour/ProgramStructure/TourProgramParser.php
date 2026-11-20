@@ -663,7 +663,9 @@ final class TourProgramParser
         $title = $this->comparable($block->text);
         $name = $this->comparable($tourName);
 
-        return $isTitle && $title !== '' && $name !== '' && (str_starts_with($name, $title) || str_starts_with($title, $name));
+        // Only when it says nothing more than the name: "Toszkán impressziók –
+        // Firenze és a mesés Cinque Terre" keeps its subtitle.
+        return $isTitle && $title !== '' && $name !== '' && str_starts_with($name, $title);
     }
 
     private function comparable(string $text): string
