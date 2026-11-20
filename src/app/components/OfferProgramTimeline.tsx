@@ -18,14 +18,9 @@ type OfferProgramTimelineProps = {
   intro?: string | null;
 };
 
-function descriptionHtml(description?: string | null, intro?: string | null) {
+function descriptionHtml(description?: string | null) {
   const sanitizedDescription = sanitizeRichTextHtml(description);
-  if (sanitizedDescription.trim() !== "") {
-    return sanitizedDescription;
-  }
-
-  const sanitizedIntro = sanitizeRichTextHtml(intro);
-  return sanitizedIntro.trim() !== "" ? sanitizedIntro : "<p></p>";
+  return sanitizedDescription.trim() !== "" ? sanitizedDescription : "<p></p>";
 }
 
 export default function OfferProgramTimeline({
@@ -33,6 +28,8 @@ export default function OfferProgramTimeline({
   intro,
 }: OfferProgramTimelineProps) {
   const highlight = useKeywordHighlight();
+  // The text before the days (an opening note, the program's own subtitle).
+  const introHtml = sanitizeRichTextHtml(intro);
   const days = (programDays ?? [])
     .filter((day) => day.active !== false)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.dayNumber - b.dayNumber);
@@ -67,6 +64,13 @@ export default function OfferProgramTimeline({
       <p className={`${TRIP_SECTION_SUBTITLE} mb-12`}>
         Napokra bontott áttekintés az utazás főbb élményeiről.
       </p>
+
+      {introHtml.trim() !== "" ? (
+        <div
+          className={`mb-10 rounded-[34px] bg-white border border-gray-100 p-6 md:p-8 shadow-[0_12px_42px_rgba(15,23,42,0.05)] text-[0.95rem] text-gray-600 leading-relaxed [&_p]:mb-0 [&_p+p]:mt-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-[#0f172a] [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-[#0f172a] ${JUSTIFIED_TEXT}`}
+          dangerouslySetInnerHTML={{ __html: highlight(introHtml) }}
+        />
+      ) : null}
 
       <div className="relative">
         <div className="absolute left-6 top-0 bottom-0 hidden w-px md:block bg-gradient-to-b from-[#00c389] via-[#16b8ff] to-transparent" />
@@ -120,7 +124,7 @@ export default function OfferProgramTimeline({
                       <div
                         className={`text-[0.95rem] text-gray-600 leading-relaxed max-w-3xl [&_p]:mb-0 [&_p]:leading-relaxed [&_p+p]:mt-3 ${JUSTIFIED_TEXT}`}
                         dangerouslySetInnerHTML={{
-                          __html: highlight(descriptionHtml(day.description, intro)),
+                          __html: highlight(descriptionHtml(day.description)),
                         }}
                       />
 
