@@ -49,10 +49,10 @@ class UpdateBlogCategoryRequest extends FormRequest
             'translations.hu.name' => ['required', 'string', 'max:255'],
             'translations.hu.seo_name' => ['nullable', 'string', 'max:255'],
             'translations.hu.seo_auto_generate' => ['boolean'],
-            'translations.en.name' => ['required', 'string', 'max:255'],
+            'translations.en.name' => ['nullable', 'string', 'max:255'],
             'translations.en.seo_name' => ['nullable', 'string', 'max:255'],
             'translations.en.seo_auto_generate' => ['boolean'],
-            'translations.de.name' => ['required', 'string', 'max:255'],
+            'translations.de.name' => ['nullable', 'string', 'max:255'],
             'translations.de.seo_name' => ['nullable', 'string', 'max:255'],
             'translations.de.seo_auto_generate' => ['boolean'],
         ];

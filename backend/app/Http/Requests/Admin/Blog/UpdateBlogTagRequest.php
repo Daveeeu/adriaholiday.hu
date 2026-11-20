@@ -42,8 +42,8 @@ class UpdateBlogTagRequest extends FormRequest
             'sort_order' => ['integer', 'min:0'],
             'translations' => ['required', 'array'],
             'translations.hu.name' => ['required', 'string', 'max:255'],
-            'translations.en.name' => ['required', 'string', 'max:255'],
-            'translations.de.name' => ['required', 'string', 'max:255'],
+            'translations.en.name' => ['nullable', 'string', 'max:255'],
+            'translations.de.name' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

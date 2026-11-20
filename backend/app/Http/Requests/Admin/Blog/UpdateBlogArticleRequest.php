@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Admin\Blog;
 
+use App\Support\Blog\BlogTranslations;
+use App\Support\PlainText;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -14,8 +16,8 @@ class UpdateBlogArticleRequest extends FormRequest
                 'title' => $translation['title'] ?? '',
                 'seo_name' => $translation['seo_name'] ?? $translation['seoName'] ?? '',
                 'seo_auto_generate' => $translation['seo_auto_generate'] ?? $translation['seoAutoGenerate'] ?? true,
-                'excerpt' => $translation['excerpt'] ?? '',
-                'content' => $translation['content'] ?? '',
+                'excerpt' => self::optionalText($locale, $translation['excerpt'] ?? ''),
+                'content' => self::optionalText($locale, $translation['content'] ?? ''),
             ]];
         })->all();
 
@@ -31,6 +33,16 @@ class UpdateBlogArticleRequest extends FormRequest
             'tag_ids' => $this->input('tag_ids', $this->input('tagIds', [])),
             'translations' => $translations,
         ]);
+    }
+
+    /**
+     * In an optional language, rich text that holds nothing a reader sees
+     * ("<p></p>" from an untouched editor) counts as empty, so the language
+     * stays unwritten (see BlogTranslations).
+     */
+    private static function optionalText(string $locale, mixed $html): mixed
+    {
+        return $locale === BlogTranslations::REQUIRED_LOCALE || PlainText::line($html) !== null ? $html : '';
     }
 
     /**
@@ -67,16 +79,16 @@ class UpdateBlogArticleRequest extends FormRequest
             'translations.hu.seo_auto_generate' => ['boolean'],
             'translations.hu.excerpt' => ['nullable', 'string'],
             'translations.hu.content' => ['required', 'string'],
-            'translations.en.title' => ['required', 'string', 'max:255'],
+            'translations.en.title' => ['nullable', 'required_with:translations.en.excerpt,translations.en.content', 'string', 'max:255'],
             'translations.en.seo_name' => ['nullable', 'string', 'max:255'],
             'translations.en.seo_auto_generate' => ['boolean'],
             'translations.en.excerpt' => ['nullable', 'string'],
-            'translations.en.content' => ['required', 'string'],
-            'translations.de.title' => ['required', 'string', 'max:255'],
+            'translations.en.content' => ['nullable', 'string'],
+            'translations.de.title' => ['nullable', 'required_with:translations.de.excerpt,translations.de.content', 'string', 'max:255'],
             'translations.de.seo_name' => ['nullable', 'string', 'max:255'],
             'translations.de.seo_auto_generate' => ['boolean'],
             'translations.de.excerpt' => ['nullable', 'string'],
-            'translations.de.content' => ['required', 'string'],
+            'translations.de.content' => ['nullable', 'string'],
         ];
     }
 }

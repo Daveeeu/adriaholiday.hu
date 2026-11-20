@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\Blog\StoreBlogCategoryRequest;
 use App\Http\Requests\Admin\Blog\UpdateBlogCategoryRequest;
 use App\Http\Resources\BlogCategoryResource;
 use App\Models\BlogCategory;
+use App\Support\Blog\BlogTranslations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -117,15 +118,10 @@ class BlogCategoryController extends Controller
      */
     private function syncTranslations(BlogCategory $category, array $translations): void
     {
-        foreach ($translations as $locale => $translation) {
-            $category->translations()->updateOrCreate(
-                ['locale' => $locale],
-                [
-                    'name' => $translation['name'],
-                    'seo_name' => $translation['seo_name'],
-                    'seo_auto_generate' => (bool) ($translation['seo_auto_generate'] ?? true),
-                ],
-            );
-        }
+        BlogTranslations::sync($category->translations(), $translations, 'name', fn (array $translation): array => [
+            'name' => $translation['name'],
+            'seo_name' => $translation['seo_name'],
+            'seo_auto_generate' => (bool) ($translation['seo_auto_generate'] ?? true),
+        ]);
     }
 }

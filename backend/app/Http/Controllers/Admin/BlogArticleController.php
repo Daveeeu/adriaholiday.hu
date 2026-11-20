@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\Blog\UpdateBlogArticleRequest;
 use App\Http\Resources\BlogArticleDetailResource;
 use App\Http\Resources\BlogArticleResource;
 use App\Models\BlogArticle;
+use App\Support\Blog\BlogTranslations;
 use App\Support\PublicContentCache;
 use App\Support\RichTextSanitizer;
 use Illuminate\Http\Request;
@@ -140,17 +141,12 @@ class BlogArticleController extends Controller
      */
     private function syncTranslations(BlogArticle $article, array $translations): void
     {
-        foreach ($translations as $locale => $translation) {
-            $article->translations()->updateOrCreate(
-                ['locale' => $locale],
-                [
-                    'title' => $translation['title'],
-                    'seo_name' => $translation['seo_name'],
-                    'seo_auto_generate' => (bool) ($translation['seo_auto_generate'] ?? true),
-                    'excerpt' => RichTextSanitizer::sanitize($translation['excerpt'] ?? null),
-                    'content' => RichTextSanitizer::sanitize($translation['content'] ?? null),
-                ],
-            );
-        }
+        BlogTranslations::sync($article->translations(), $translations, 'title', fn (array $translation): array => [
+            'title' => $translation['title'],
+            'seo_name' => $translation['seo_name'],
+            'seo_auto_generate' => (bool) ($translation['seo_auto_generate'] ?? true),
+            'excerpt' => RichTextSanitizer::sanitize($translation['excerpt'] ?? null),
+            'content' => RichTextSanitizer::sanitize($translation['content'] ?? null),
+        ]);
     }
 }

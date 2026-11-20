@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  blogArticleFormSchema,
+  blogCategoryFormSchema,
+  blogTagFormSchema,
   getBlogArticleFormDefaults,
   getBlogCategoryFormDefaults,
   getBlogTagFormDefaults,
@@ -42,5 +45,25 @@ describe('blog form defaults', () => {
 
     expect(getBlogCategoryFormDefaults(category).translations.en).toEqual({ name: '', seoName: '', seoAutoGenerate: true });
     expect(getBlogTagFormDefaults(tag).translations.de).toEqual({ name: '' });
+  });
+
+  it('saves a post, category or tag with its Hungarian text only', () => {
+    const article = getBlogArticleFormDefaults(hungarianOnlyArticle);
+    article.categoryIds = ['1'];
+    article.translations.en.content = '<p></p>';
+
+    expect(blogArticleFormSchema.safeParse(article).success).toBe(true);
+    expect(blogCategoryFormSchema.safeParse({ active: true, column: '1', translations: { hu: { name: 'Célpontban', seoName: '', seoAutoGenerate: true }, en: { name: '', seoName: '', seoAutoGenerate: true }, de: { name: '', seoName: '', seoAutoGenerate: true } } }).success).toBe(true);
+    expect(blogTagFormSchema.safeParse({ active: true, translations: { hu: { name: 'Advent' }, en: { name: '' }, de: { name: '' } } }).success).toBe(true);
+  });
+
+  it('asks for a title once a language has text', () => {
+    const article = getBlogArticleFormDefaults(hungarianOnlyArticle);
+    article.translations.de.content = '<p>Nur Text</p>';
+
+    const result = blogArticleFormSchema.safeParse(article);
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join('.'))).toContain('translations.de.title');
   });
 });

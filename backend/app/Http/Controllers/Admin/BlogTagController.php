@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\Blog\StoreBlogTagRequest;
 use App\Http\Requests\Admin\Blog\UpdateBlogTagRequest;
 use App\Http\Resources\BlogTagResource;
 use App\Models\BlogTag;
+use App\Support\Blog\BlogTranslations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -109,13 +110,8 @@ class BlogTagController extends Controller
      */
     private function syncTranslations(BlogTag $tag, array $translations): void
     {
-        foreach ($translations as $locale => $translation) {
-            $tag->translations()->updateOrCreate(
-                ['locale' => $locale],
-                [
-                    'name' => $translation['name'],
-                ],
-            );
-        }
+        BlogTranslations::sync($tag->translations(), $translations, 'name', fn (array $translation): array => [
+            'name' => $translation['name'],
+        ]);
     }
 }

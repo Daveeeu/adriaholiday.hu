@@ -181,6 +181,25 @@ export const blogArticleTranslationSchema = z.object({
   content: z.string().trim(),
 });
 
+/** Whether rich text holds anything a reader sees (an untouched editor gives "<p></p>"). */
+export function hasVisibleText(html: string): boolean {
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim() !== '';
+}
+
+/**
+ * English and German are optional: a language without a title is not
+ * written. Text in it still needs its title.
+ */
+export const optionalBlogArticleTranslationSchema = blogArticleTranslationSchema
+  .extend({ title: z.string().trim() })
+  .superRefine((translation, context) => {
+    const hasText = hasVisibleText(translation.excerpt) || hasVisibleText(translation.content);
+
+    if (hasText && translation.title.length < 2) {
+      context.addIssue({ code: 'custom', path: ['title'], message: 'A szöveghez cím is kell.' });
+    }
+  });
+
 export const blogArticleFormSchema = z.object({
   active: z.boolean(),
   showOnHomepage: z.boolean(),
@@ -193,8 +212,8 @@ export const blogArticleFormSchema = z.object({
   tagIds: z.array(z.string()),
   translations: z.object({
     hu: blogArticleTranslationSchema,
-    en: blogArticleTranslationSchema,
-    de: blogArticleTranslationSchema,
+    en: optionalBlogArticleTranslationSchema,
+    de: optionalBlogArticleTranslationSchema,
   }),
 });
 
@@ -204,13 +223,15 @@ export const blogCategoryTranslationSchema = z.object({
   seoAutoGenerate: z.boolean(),
 });
 
+const optionalBlogCategoryTranslationSchema = blogCategoryTranslationSchema.extend({ name: z.string().trim() });
+
 export const blogCategoryFormSchema = z.object({
   active: z.boolean(),
   column: z.enum(['1', '2', '3']),
   translations: z.object({
     hu: blogCategoryTranslationSchema,
-    en: blogCategoryTranslationSchema,
-    de: blogCategoryTranslationSchema,
+    en: optionalBlogCategoryTranslationSchema,
+    de: optionalBlogCategoryTranslationSchema,
   }),
 });
 
@@ -218,12 +239,14 @@ export const blogTagTranslationSchema = z.object({
   name: z.string().trim().min(2, 'A név megadása kötelező.'),
 });
 
+const optionalBlogTagTranslationSchema = blogTagTranslationSchema.extend({ name: z.string().trim() });
+
 export const blogTagFormSchema = z.object({
   active: z.boolean(),
   translations: z.object({
     hu: blogTagTranslationSchema,
-    en: blogTagTranslationSchema,
-    de: blogTagTranslationSchema,
+    en: optionalBlogTagTranslationSchema,
+    de: optionalBlogTagTranslationSchema,
   }),
 });
 
