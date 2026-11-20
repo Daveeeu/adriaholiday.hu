@@ -117,7 +117,7 @@ cp backend/.env.production.example backend/.env.production
 Állítsd be a valós secret értékeket, majd:
 
 ```bash
-docker compose --env-file .env.production -f docker-compose.prod.yml build
+docker compose --env-file .env.production -f docker-compose.prod.yml build --pull
 docker compose --env-file .env.production -f docker-compose.prod.yml up -d
 ```
 

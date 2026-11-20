@@ -9,7 +9,7 @@ COPY backend/composer.json backend/composer.lock ./
 # copied in, so it's safe to skip this stage's platform check for it.
 RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --no-scripts --ignore-platform-req=ext-exif
 
-FROM node:20-alpine AS portfolio-build
+FROM node:24-alpine AS portfolio-build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -28,7 +28,7 @@ ENV VITE_ANALYTICS_SESSION_COOKIE=${PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE}
 ENV VITE_GTM_ID=${PORTFOLIO_VITE_GTM_ID}
 RUN npm run build
 
-FROM node:20-alpine AS admin-build
+FROM node:24-alpine AS admin-build
 WORKDIR /app
 COPY adria-admin/package.json adria-admin/package-lock.json ./adria-admin/
 RUN npm ci --prefix ./adria-admin
