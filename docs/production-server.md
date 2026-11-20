@@ -69,3 +69,9 @@ docker compose --project-name adriaholiday --env-file .env.production -f docker-
 
 - **Logs on the web:** https://logs.jandldavid.hu
 - **Monitoring:** add `https://adriaholiday.hu/health` to Uptime Kuma.
+
+## After the move to the dedicated VPS
+
+The dedicated VPS (`217.144.53.32`) gets a fresh dump of this host's database at the cutover. Data fixes run on the VPS before that are lost, so run them again on the live data once the VPS is serving:
+
+- `adria:tours:structure-program`: splits the legacy one-block tour programs into program days and price items. Run the dry run first, then `--apply`. See `docs/tour-program-structure.md`.
