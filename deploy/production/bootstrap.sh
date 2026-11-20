@@ -216,7 +216,7 @@ elif grep -q '^MAIL_HOST=smtp.example.com' "${LARAVEL_ENV}"; then
 fi
 
 log "Build (a few minutes on the first run)"
-compose build
+compose build --pull
 
 log "Start"
 compose up -d --remove-orphans
