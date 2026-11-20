@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:24-alpine AS portfolio-build
+FROM node:26-alpine AS portfolio-build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -19,7 +19,7 @@ ENV VITE_ANALYTICS_SESSION_COOKIE=${PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE}
 ENV VITE_GTM_ID=${PORTFOLIO_VITE_GTM_ID}
 RUN npm run build
 
-FROM node:24-alpine AS admin-build
+FROM node:26-alpine AS admin-build
 WORKDIR /app
 COPY adria-admin/package.json adria-admin/package-lock.json ./adria-admin/
 RUN npm ci --prefix ./adria-admin
