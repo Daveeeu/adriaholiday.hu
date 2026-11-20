@@ -10,7 +10,9 @@ set -euo pipefail
 
 APP_NAME=adriaholiday
 TRIVY_IMAGE=${TRIVY_IMAGE:-aquasec/trivy:0.76.2}
-IMAGES=${IMAGES:-"${APP_NAME}/app:latest ${APP_NAME}/nginx:latest"}
+# The images the stack actually runs (a GHCR release tag or a local build).
+running=$(docker inspect -f '{{.Config.Image}}' "${APP_NAME}-app-1" "${APP_NAME}-nginx-1" 2>/dev/null | tr '\n' ' ' || true)
+IMAGES=${IMAGES:-${running:-"${APP_NAME}/app:latest ${APP_NAME}/nginx:latest"}}
 OUT_DIR=${OUT_DIR:-/srv/backups/${APP_NAME}/health}
 CACHE_DIR=/var/cache/trivy
 

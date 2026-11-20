@@ -1,8 +1,7 @@
 # Dependency update PRs (see docs/operations.md, "Havi rutin"). Security updates
 # come as soon as an advisory appears (enable "Dependabot security updates" in the
 # repository settings); version updates are batched monthly so they fit the
-# monthly maintenance window. There are no GitHub Actions workflows yet, so the
-# github-actions ecosystem is not listed.
+# monthly maintenance window.
 version: 2
 
 updates:
@@ -52,3 +51,10 @@ updates:
     commit-message:
       prefix: chore
       include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci

@@ -11,7 +11,7 @@ services:
         PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE: ${PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE:-ah_session_id}
         PORTFOLIO_VITE_GTM_ID: ${PORTFOLIO_VITE_GTM_ID:-GTM-NTC5QFRN}
         ADMIN_VITE_API_BASE_URL: ${ADMIN_VITE_API_BASE_URL:-/api/admin}
-    image: adriaholiday/nginx:${APP_IMAGE_TAG:-latest}
+    image: ${APP_IMAGE_REPOSITORY:-adriaholiday}/nginx:${APP_IMAGE_TAG:-latest}
     restart: unless-stopped
     depends_on:
       app:
@@ -42,7 +42,7 @@ services:
         PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE: ${PORTFOLIO_VITE_ANALYTICS_SESSION_COOKIE:-ah_session_id}
         PORTFOLIO_VITE_GTM_ID: ${PORTFOLIO_VITE_GTM_ID:-GTM-NTC5QFRN}
         ADMIN_VITE_API_BASE_URL: ${ADMIN_VITE_API_BASE_URL:-/api/admin}
-    image: adriaholiday/app:${APP_IMAGE_TAG:-latest}
+    image: ${APP_IMAGE_REPOSITORY:-adriaholiday}/app:${APP_IMAGE_TAG:-latest}
     restart: unless-stopped
     env_file:
       - ${LARAVEL_ENV_FILE:-./backend/.env.production}
@@ -81,7 +81,7 @@ services:
       - internal
 
   queue:
-    image: adriaholiday/app:${APP_IMAGE_TAG:-latest}
+    image: ${APP_IMAGE_REPOSITORY:-adriaholiday}/app:${APP_IMAGE_TAG:-latest}
     restart: unless-stopped
     entrypoint: ["run-queue"]
     env_file:
@@ -130,7 +130,7 @@ services:
       - internal
 
   scheduler:
-    image: adriaholiday/app:${APP_IMAGE_TAG:-latest}
+    image: ${APP_IMAGE_REPOSITORY:-adriaholiday}/app:${APP_IMAGE_TAG:-latest}
     restart: unless-stopped
     entrypoint: ["run-scheduler"]
     env_file:

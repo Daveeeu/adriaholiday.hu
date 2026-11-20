@@ -99,7 +99,9 @@ echo "restrict,command=\"/usr/bin/rrsync -ro ${BACKUP_DIR}\" ${BACKUP_PULL_KEY}"
 sudo chown "${BACKUP_USER}:${BACKUP_USER}" "/home/${BACKUP_USER}/.ssh/authorized_keys"
 sudo chmod 600 "/home/${BACKUP_USER}/.ssh/authorized_keys"
 
-sudo sed -i "s/^AllowUsers .*/AllowUsers ${ADMIN_USER} ${BACKUP_USER}/" /etc/ssh/sshd_config.d/01-hardening.conf
+if ! sudo grep -qE "^AllowUsers .*\b${BACKUP_USER}\b" /etc/ssh/sshd_config.d/01-hardening.conf; then
+    sudo sed -i "s/^AllowUsers .*/& ${BACKUP_USER}/" /etc/ssh/sshd_config.d/01-hardening.conf
+fi
 sudo sshd -t
 sudo systemctl reload ssh
 

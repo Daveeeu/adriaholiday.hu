@@ -49,6 +49,9 @@ Unattended-Upgrade::Remove-Unused-Dependencies "true";
 EOF
 
 log "SSH: keys only, no root login"
+# Keep the users backup-host.sh and deploy-host.sh added on an earlier run.
+ALLOW_USERS=$(sudo sed -n 's/^AllowUsers //p' /etc/ssh/sshd_config.d/01-hardening.conf 2>/dev/null || true)
+case " ${ALLOW_USERS} " in *" ${ADMIN_USER} "*) ;; *) ALLOW_USERS="${ADMIN_USER} ${ALLOW_USERS}" ;; esac
 sudo tee /etc/ssh/sshd_config.d/01-hardening.conf >/dev/null <<EOF
 PasswordAuthentication no
 KbdInteractiveAuthentication no
@@ -57,7 +60,7 @@ PubkeyAuthentication yes
 MaxAuthTries 3
 LoginGraceTime 30
 X11Forwarding no
-AllowUsers ${ADMIN_USER}
+AllowUsers ${ALLOW_USERS% }
 EOF
 sudo sshd -t
 sudo systemctl reload ssh

@@ -129,7 +129,7 @@ again (`ssh server1.jandldavid.hu 'cat > ~/bin/<name>' < <file>`).
 Automated on the 1st:
 
 - 03:30 on the VPS: `adriaholiday-image-scan` (`deploy/production/image-scan.sh`)
-  scans `adriaholiday/app` and `adriaholiday/nginx` with Trivy (HIGH/CRITICAL).
+  scans the images the app and nginx containers run with Trivy (HIGH/CRITICAL).
 - 07:00 on server1: `adriaholiday-monthly-audit` (`deploy/monitoring/monthly-audit.sh`)
   runs `composer audit` and `npm audit` (site, adria-admin) on `origin/main`,
   collects the Trivy report, checks the security headers, scans the VPS for open
@@ -152,8 +152,9 @@ By hand:
    packages come with the base images, so rebuilding the images is the update.
    Fixable Trivy findings disappear after a rebuild; if not, bump the base image
    tag in `Dockerfile` / `backend/Dockerfile`.
-4. **Deploy** (production-server.md): pull `main` on the VPS, rebuild the images,
-   `docker compose … up -d`, check `/health` and the Kuma dashboard.
+4. **Release:** merge to `main`, then tag it (`git tag v1.5.0 && git push origin v1.5.0`).
+   The release workflow tests, builds and deploys it (docs/release-pipeline.md).
+   Check the Kuma dashboard afterwards.
 5. **Rerun the audit** to confirm and clear the monitor:
    `ssh server1.jandldavid.hu ~/bin/adriaholiday-monthly-audit`.
 6. **SEO report** (below), sent to the client together with a short note on the
