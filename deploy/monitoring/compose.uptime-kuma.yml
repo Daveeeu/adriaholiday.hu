@@ -1,0 +1,20 @@
+# Uptime Kuma on server1 (see docs/operations.md). Listens on localhost only;
+# open it through an SSH tunnel:
+#
+#   ssh -L 3012:localhost:3012 server1.jandldavid.hu   →   http://localhost:3012
+#
+#   docker compose -p uptime-kuma -f compose.uptime-kuma.yml up -d
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:2.5.12
+    restart: unless-stopped
+    environment:
+      UPTIME_KUMA_DB_TYPE: sqlite
+      TZ: Europe/Budapest
+    ports:
+      - "127.0.0.1:3012:3001"
+    volumes:
+      - uptime-kuma-data:/app/data
+
+volumes:
+  uptime-kuma-data:

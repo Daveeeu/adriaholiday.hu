@@ -1,0 +1,54 @@
+# Dependency update PRs (see docs/operations.md, "Havi rutin"). Security updates
+# come as soon as an advisory appears (enable "Dependabot security updates" in the
+# repository settings); version updates are batched monthly so they fit the
+# monthly maintenance window. There are no GitHub Actions workflows yet, so the
+# github-actions ecosystem is not listed.
+version: 2
+
+updates:
+  - package-ecosystem: composer
+    directory: /backend
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      composer-minor-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: npm
+    directories:
+      - /
+      - /adria-admin
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: docker
+    directories:
+      - /
+      - /backend
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: docker-compose
+    directories:
+      - /
+      - /deploy/production
+      - /deploy/monitoring
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+      include: scope

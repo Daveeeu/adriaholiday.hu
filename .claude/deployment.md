@@ -374,6 +374,9 @@ After deployment verify:
 
 Deployment is not finished until verification succeeds.
 
+Continuous monitoring, alerting and the monthly security routine are described in
+`docs/operations.md` (Uptime Kuma on server1, VPS health checks, backup alerts).
+
 ---
 
 # Backups
