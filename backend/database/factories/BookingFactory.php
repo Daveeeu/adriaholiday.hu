@@ -80,8 +80,8 @@ class BookingFactory extends Factory
             'total_amount' => $this->faker->optional()->randomFloat(2, 1000, 6000),
             'paid_amount' => $this->faker->optional()->randomFloat(2, 0, 5000),
             'currency' => 'EUR',
-            'credited' => $this->faker->boolean(),
-            'cancelled' => $this->faker->boolean(15),
+            'credited' => false,
+            'cancelled' => false,
             'notes' => $this->faker->optional()->sentence(12),
             'message' => $this->faker->optional()->paragraph(),
             'payload' => [

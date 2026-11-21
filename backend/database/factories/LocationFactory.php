@@ -27,7 +27,7 @@ class LocationFactory extends Factory
             'longitude' => fake()->longitude(),
             'transfer_minutes_from_airport' => fake()->numberBetween(10, 180),
             'description' => fake()->paragraph(),
-            'featured' => fake()->boolean(),
+            'featured' => false,
             'is_active' => true,
             'sort_order' => fake()->numberBetween(1, 100),
         ];

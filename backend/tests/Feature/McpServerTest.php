@@ -47,6 +47,26 @@ class McpServerTest extends TestCase
         Storage::fake('public');
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         $this->seed(RolePermissionSeeder::class);
+        config(self::passportKeys());
+    }
+
+    /**
+     * A key pair of the tests' own, made once per run: a fresh checkout or CI
+     * has no storage/oauth-*.key, and the tests must not depend on them.
+     *
+     * @return array{'passport.private_key': string, 'passport.public_key': string}
+     */
+    private static function passportKeys(): array
+    {
+        static $keys = null;
+
+        if ($keys === null) {
+            $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
+            openssl_pkey_export($key, $privateKey);
+            $keys = ['passport.private_key' => $privateKey, 'passport.public_key' => openssl_pkey_get_details($key)['key']];
+        }
+
+        return $keys;
     }
 
     public function test_every_tool_is_read_only(): void
@@ -250,9 +270,6 @@ class McpServerTest extends TestCase
 
     public function test_an_assistant_connects_through_sign_in_consent_and_token_exchange(): void
     {
-        $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
-        openssl_pkey_export($key, $privateKey);
-        config(['passport.private_key' => $privateKey, 'passport.public_key' => openssl_pkey_get_details($key)['key']]);
         $callback = 'https://claude.ai/api/mcp/auth_callback';
         $clientId = $this->postJson('/oauth/register', ['client_name' => 'Claude', 'redirect_uris' => [$callback]])->assertCreated()->json('client_id');
         $verifier = Str::random(64);

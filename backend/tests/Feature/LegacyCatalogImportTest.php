@@ -258,7 +258,8 @@ class LegacyCatalogImportTest extends TestCase
         $pricing = Booking::query()->findOrFail($response->json('id'))->payload['pricing'];
         // 2 × 229 900 + 2 × 6 800 resort fee; the euro fees are paid on site.
         $this->assertEquals(473400, $pricing['total']);
-        $this->assertSame(['Városbelépési díj', 'Üdülőhelyi illeték'], array_column($pricing['onSiteExtras'], 'name'));
+        // The local tax always comes first (TourExtraOrder).
+        $this->assertSame(['Üdülőhelyi illeték', 'Városbelépési díj'], array_column($pricing['onSiteExtras'], 'name'));
     }
 
     public function test_media_are_mirrored_once_and_a_missing_file_is_recorded_not_lost(): void

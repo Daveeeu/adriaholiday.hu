@@ -17,9 +17,9 @@ class TourFactory extends Factory
         return [
             'sort_order' => fake()->numberBetween(1, 1000),
             'active' => true,
-            'featured' => fake()->boolean(),
-            'recommended' => fake()->boolean(),
-            'xml_enabled' => fake()->boolean(),
+            'featured' => false,
+            'recommended' => false,
+            'xml_enabled' => false,
             'name' => $name,
             'seo_name' => Str::slug($name),
             'seo_auto_generate' => true,
