@@ -40,6 +40,12 @@ The stack is `docker-compose.prod.yml` plus two files from `deploy/production`:
 
 ## Deploys
 
+Code changes reach production as releases: push a `vX.Y.Z` tag on `main`, and
+the release pipeline tests, builds and deploys it (`docs/release-pipeline.md`;
+live since `v1.0.1` on 2026-11-21). `bootstrap.sh` below is for a first install
+and for infrastructure changes. It builds on the server; the next release
+switches the stack back to the GHCR images.
+
 On the server, as the admin user:
 
 ```bash

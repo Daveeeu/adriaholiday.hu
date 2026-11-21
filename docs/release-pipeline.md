@@ -55,19 +55,19 @@ deploy) before or after deploying the old tag, depending on the migration.
 
 ## One-time setup
 
-Steps 2 and 3 were done on 2026-11-21: `adriadeploy` exists on the VPS and its
-key accepts nothing but `deploy vX.Y.Z` (no shell, no port forwarding).
+All of this was done on 2026-11-21, and `v1.0.1` was the first release deployed
+by the pipeline. `adriadeploy`'s key accepts nothing but `deploy vX.Y.Z` (no
+shell, no port forwarding). The steps stay here for a rebuilt server or a new
+deploy key.
 
-1. **GHCR visibility.** GitHub creates both packages (`adriaholiday/app`,
-   `adriaholiday/nginx`) as private on the first release, so that release's
-   deploy job fails at the pull and changes nothing. Set both to *public* under
-   the repository's Packages, then Run workflow with the same tag. The images
-   contain only the public repository's code and public build settings (the
-   compose defaults, the same as `.env.production` on the VPS); runtime secrets
-   live in `.env.production` on the server. If they stay private, log the VPS in
-   once as root with a read-only token: `sudo docker login ghcr.io -u <github user>`.
-   The first release has no previous one to roll back to: if it is unhealthy,
-   `bootstrap.sh` rebuilds `main` on the server.
+1. **GHCR visibility.** The packages (`adriaholiday/app`, `adriaholiday/nginx`)
+   belong to the public repository, and the VPS pulls them without a registry
+   login. The images contain only the repository's code and public build
+   settings (the compose defaults, the same as `.env.production` on the VPS);
+   runtime secrets live in `.env.production` on the server. If a pull ever fails
+   with "denied", set both packages to *public* under the repository's Packages,
+   or log the VPS in once as root with a read-only token:
+   `sudo docker login ghcr.io -u <github user>`. A failed pull changes nothing.
 2. **Deploy key.** Create a key used only by the workflow:
 
    ```bash
