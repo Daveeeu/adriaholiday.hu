@@ -64,4 +64,7 @@ Statuses:
 
 ## After the move to the dedicated VPS
 
-At the cutover on 2026-11-20 the command ran on the fresh live data: 96 tours split into 391 program days and 704 price items. Five tours are left for manual review in the admin: 118, 157, 191, 206 and 374.
+At the cutover on 2026-11-20 the command ran on the fresh live data: 96 tours split into 391 program days and 704 price items. The five tours left for manual review were finished on 2026-11-21:
+
+- 157, 191, 206, 374: the program text was brought into the recognised shape (bold day headings, the price contents as "Az ár tartalmazza:" / "Az ár nem tartalmazza:" lists), then the command split them with `--tour`.
+- 118 (Aranydukát Vendégház) is a guest house, not a trip, so it has no program days. Its price list and cancellation terms moved to the price field.
