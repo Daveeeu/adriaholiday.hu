@@ -5,8 +5,8 @@ A release is a git tag. Pushing `vMAJOR.MINOR.PATCH` on a commit that is on
 
 1. **verify**: the tag has the release format and its commit is on `main`.
 2. **checks** (`.github/workflows/checks.yml`, which also runs on every pull
-   request to `main`): `pint --test` and the full PHPUnit suite (PHP 8.4, SQLite
-   in memory, ~30 minutes), and `npm ci`, lint, tests and build for the site and
+   request to `main`): `pint --test` and the full PHPUnit suite (PHP 8.4, its own
+   SQLite file, about 5 minutes), and `npm ci`, lint, tests and build for the site and
    `adria-admin`.
 3. **images**: `docker compose -f docker-compose.prod.yml build nginx app`, so the
    build arguments are the ones in the compose file, then pushes

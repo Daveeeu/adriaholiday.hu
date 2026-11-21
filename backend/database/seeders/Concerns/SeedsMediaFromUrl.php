@@ -3,10 +3,16 @@
 namespace Database\Seeders\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 trait SeedsMediaFromUrl
 {
+    /**
+     * Attaches a demo photo downloaded from the given address. The photo is
+     * optional: when it cannot be downloaded the record is seeded without it.
+     */
     protected function attachMediaFromUrl(
         Model $model,
         string $collection,
@@ -14,15 +20,15 @@ trait SeedsMediaFromUrl
         ?string $fileName = null,
         ?string $name = null,
         array $metadata = [],
-    ): void {
+    ): ?Media {
         if (! method_exists($model, 'addMediaFromString')) {
-            return;
+            return null;
         }
 
-        $contents = @file_get_contents($url);
+        $contents = $this->downloadSeedImage($url);
 
-        if ($contents === false) {
-            return;
+        if ($contents === null) {
+            return null;
         }
 
         $downloaded = $model->addMediaFromString($contents);
@@ -36,6 +42,8 @@ trait SeedsMediaFromUrl
             ->toMediaCollection($collection);
 
         $this->applyMediaMetadata($media, $metadata, $name);
+
+        return $media;
     }
 
     protected function applyMediaMetadata(Media $media, array $metadata, ?string $fallbackTitle = null): void
@@ -64,5 +72,39 @@ trait SeedsMediaFromUrl
         ], static fn ($value) => $value !== null && $value !== '');
 
         $media->save();
+    }
+
+    /**
+     * The tests get a generated photo instead: they never reach the network,
+     * and most of these addresses point at the live site.
+     */
+    private function downloadSeedImage(string $url): ?string
+    {
+        if (app()->runningUnitTests()) {
+            return $this->placeholderJpeg();
+        }
+
+        try {
+            $response = Http::timeout(10)->get($url);
+        } catch (ConnectionException) {
+            return null;
+        }
+
+        if (! $response->successful() || ! str_starts_with((string) $response->header('Content-Type'), 'image/')) {
+            return null;
+        }
+
+        return $response->body();
+    }
+
+    private function placeholderJpeg(): string
+    {
+        $image = imagecreatetruecolor(120, 80);
+        imagefill($image, 0, 0, (int) imagecolorallocate($image, 14, 116, 144));
+
+        ob_start();
+        imagejpeg($image);
+
+        return (string) ob_get_clean();
     }
 }

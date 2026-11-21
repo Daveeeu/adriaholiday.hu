@@ -11,12 +11,14 @@ use App\Models\Tour;
 use App\Models\TourDeparturePlace;
 use App\Models\TourReferenceOption;
 use App\Support\MediaCategory;
+use Database\Seeders\Concerns\SeedsMediaFromUrl;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class BruggeLondonParizsTourSeeder extends Seeder
 {
+    use SeedsMediaFromUrl;
+
     public function run(): void
     {
         $region = Region::query()->where('slug', 'france')->first();
@@ -253,7 +255,7 @@ class BruggeLondonParizsTourSeeder extends Seeder
         $tour->clearMediaCollection('tour-gallery');
         $tour->clearMediaCollection('tour-program-days');
 
-        $this->createMediaFromUrl(
+        $this->attachMediaFromUrl(
             $tour,
             'slider',
             $galleryItems[0]['url'],
@@ -269,7 +271,7 @@ class BruggeLondonParizsTourSeeder extends Seeder
         );
 
         foreach ($galleryItems as $index => $image) {
-            $media = $this->createMediaFromUrl(
+            $media = $this->attachMediaFromUrl(
                 $tour,
                 'tour-gallery',
                 $image['url'],
@@ -300,7 +302,7 @@ class BruggeLondonParizsTourSeeder extends Seeder
 
         foreach ($programDays as $index => $day) {
             $gallerySource = $galleryItems[$day['image_index']];
-            $media = $this->createMediaFromUrl(
+            $media = $this->attachMediaFromUrl(
                 $tour,
                 'tour-program-days',
                 $gallerySource['url'],
@@ -440,51 +442,5 @@ class BruggeLondonParizsTourSeeder extends Seeder
         }
 
         return (string) $category->id;
-    }
-
-    private function createMediaFromUrl(
-        Tour $tour,
-        string $collection,
-        string $url,
-        string $fileName,
-        ?string $name,
-        array $metadata = [],
-    ): ?Media {
-        $contents = @file_get_contents($url);
-
-        if ($contents === false) {
-            return null;
-        }
-
-        $download = $tour->addMediaFromString($contents);
-
-        if ($name) {
-            $download->usingName($name);
-        }
-
-        $media = $download
-            ->usingFileName($fileName)
-            ->toMediaCollection($collection);
-
-        $media->forceFill(array_filter([
-            'category' => $metadata['category'] ?? null,
-            'source_context' => $metadata['source_context'] ?? null,
-            'source_id' => $metadata['source_id'] ?? null,
-            'alt' => $metadata['alt'] ?? null,
-            'title' => $metadata['title'] ?? $name,
-        ], static fn ($value) => $value !== null && $value !== ''));
-
-        $media->custom_properties = array_filter([
-            ...($media->custom_properties ?? []),
-            'category' => $metadata['category'] ?? null,
-            'source_context' => $metadata['source_context'] ?? null,
-            'source_id' => $metadata['source_id'] ?? null,
-            'alt' => $metadata['alt'] ?? null,
-            'title' => $metadata['title'] ?? $name,
-        ], static fn ($value) => $value !== null && $value !== '');
-
-        $media->save();
-
-        return $media;
     }
 }

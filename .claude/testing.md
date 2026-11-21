@@ -137,6 +137,30 @@ Never ignore backend failures.
 
 ---
 
+# Backend Test Suite Rules
+
+The full PHPUnit suite runs in about 5 minutes, locally and in CI
+(`.github/workflows/checks.yml`). Keep it that way:
+
+- **Own database file.** The tests use `backend/database/testing.sqlite`
+  (`phpunit.xml`, created by `tests/bootstrap.php`, gitignored), never the
+  development database. `RefreshDatabase` migrates it once per run and wraps
+  each test in a transaction. Do not switch back to `:memory:`: it re-runs all
+  migrations before every test.
+- **No network.** `Tests\TestCase` calls `Http::preventStrayRequests()`: fake
+  every HTTP call with `Http::fake()`. Code that fetches with
+  `file_get_contents()` or curl bypasses the fake, so use the `Http` client.
+  The demo seeders' photos (`SeedsMediaFromUrl`) are generated during tests,
+  never downloaded.
+- **No secrets from the machine.** A test must pass in a fresh checkout: no
+  `storage/oauth-*.key`, no `.env` values. Generate what it needs (see
+  `McpServerTest::passportKeys()`).
+- **Deterministic factories.** Factory flags (`featured`, `active`,
+  `cancelled`, …) have fixed defaults; a test that needs another value sets it.
+  A random flag makes every test that forgets it flaky.
+
+---
+
 # Manual Verification
 
 Always manually verify the implemented feature.
