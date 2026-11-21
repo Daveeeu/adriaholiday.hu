@@ -15,11 +15,13 @@ A release is a git tag. Pushing `vMAJOR.MINOR.PATCH` on a commit that is on
    `deploy <tag>`, which becomes `sudo adriaholiday-deploy <tag>`
    (`deploy/production/deploy.sh`):
    - takes a database dump (`adriaholiday-db-dump.service`);
+   - pulls the tag's images first. If they cannot be pulled (not built, or a
+     private package), it stops there and the running release is untouched;
    - checks out the tag in `/srv/apps/adriaholiday`, so the compose files and
      configuration match the images;
-   - writes `APP_IMAGE_REPOSITORY` and `APP_IMAGE_TAG` into `.env.production`,
-     pulls the images and runs `docker compose up -d --no-build` for the whole
-     stack, scheduler and queue included (the entrypoint runs the migrations);
+   - writes `APP_IMAGE_REPOSITORY` and `APP_IMAGE_TAG` into `.env.production` and
+     runs `docker compose up -d --no-build` for the whole stack, scheduler and
+     queue included (the entrypoint runs the migrations);
    - waits up to 5 minutes for healthy app and nginx containers and a `/health`
      with `"status":"ok"`. Otherwise it **rolls back** to the previous release
      and the job fails.
@@ -53,12 +55,19 @@ deploy) before or after deploying the old tag, depending on the migration.
 
 ## One-time setup
 
-1. **GHCR visibility.** After the first release, set both packages
-   (`adriaholiday/app`, `adriaholiday/nginx`) to *public* under the repository's
-   Packages. The images contain only the public repository's code and public
-   build settings; runtime secrets live in `.env.production` on the server. If they
-   stay private, log the VPS in once as root with a read-only token:
-   `sudo docker login ghcr.io -u <github user>`.
+Steps 2 and 3 were done on 2026-11-21: `adriadeploy` exists on the VPS and its
+key accepts nothing but `deploy vX.Y.Z` (no shell, no port forwarding).
+
+1. **GHCR visibility.** GitHub creates both packages (`adriaholiday/app`,
+   `adriaholiday/nginx`) as private on the first release, so that release's
+   deploy job fails at the pull and changes nothing. Set both to *public* under
+   the repository's Packages, then Run workflow with the same tag. The images
+   contain only the public repository's code and public build settings (the
+   compose defaults, the same as `.env.production` on the VPS); runtime secrets
+   live in `.env.production` on the server. If they stay private, log the VPS in
+   once as root with a read-only token: `sudo docker login ghcr.io -u <github user>`.
+   The first release has no previous one to roll back to: if it is unhealthy,
+   `bootstrap.sh` rebuilds `main` on the server.
 2. **Deploy key.** Create a key used only by the workflow:
 
    ```bash

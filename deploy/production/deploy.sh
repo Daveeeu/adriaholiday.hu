@@ -77,12 +77,15 @@ wait_healthy() {
     return 1
 }
 
+# The images are pulled before anything changes: a tag whose images cannot be
+# pulled (not built, or a private package) leaves the running release untouched.
 activate() {
+    docker pull --quiet "${IMAGE_REPOSITORY}/app:$1" >/dev/null
+    docker pull --quiet "${IMAGE_REPOSITORY}/nginx:$1" >/dev/null
     as_owner git fetch --quiet --force --tags origin
     as_owner git checkout --quiet --force "refs/tags/$1"
     set_env APP_IMAGE_REPOSITORY "${IMAGE_REPOSITORY}"
     set_env APP_IMAGE_TAG "$1"
-    compose pull --quiet nginx app queue scheduler
     compose up -d --no-build --remove-orphans
 }
 
