@@ -1,20 +1,20 @@
 # Production server
 
-adriaholiday.hu moves to its own VPS at SzerverPlex (prepared on 2026-11-20; the DNS cutover follows):
+adriaholiday.hu runs on its own VPS at SzerverPlex since the cutover on 2026-11-20 at 22:00:
 
 - **Host:** `217.144.53.32` (IPv6 `2a02:c647:0:fe::8e`), hostname `adriaholiday-prod`.
 - **Size:** 2 cores, 4 GB RAM, 40 GB disk, Ubuntu 26.04 LTS.
 - **SSH:** `ssh -i ~/.ssh/adriaholiday_vps jandldavid@217.144.53.32`. Keys only; the admin user has passwordless sudo.
 - **Panel and console:** the SzerverPlex client area (`ugyfelkapu.szerverplex.hu`), service "adriaholiday.hu". The noVNC console drops the Shift key, so type only lowercase there.
 
-Before that it ran on the shared Docker host `217.144.53.91`. That host still has the old stack (stopped) and its database volume for a rollback.
+Before that it ran on the shared Docker host `217.144.53.91`. That host still has the old stack (stopped) and its database volume for a rollback. Its Traefik forwards adriaholiday.hu to the VPS for resolvers that still have the old address.
 
 ## Layout
 
 | Path | What |
 | --- | --- |
 | `/srv/apps/traefik` | Traefik (`deploy/production/traefik/compose.yml`), routes in `dynamic/` |
-| `/srv/data/traefik` | `acme.json` and the certificates copied from the old host (`certs/`) |
+| `/srv/data/traefik` | `acme.json` (Let's Encrypt certificates, renewed by Traefik) |
 | `/srv/apps/adriaholiday` | Git checkout of `main`, `.env.production`, `backend/.env.production` |
 | `/srv/backups/adriaholiday` | Hourly database dumps (`db/`) and a read-only view of the media (`media/`) |
 
@@ -111,8 +111,15 @@ $C exec -T app php artisan <command>
 - **Health:** `https://adriaholiday.hu/health`.
 - **Disk:** `df -h /`. `docker builder prune -f` reclaims the build cache after deploys.
 
-## After the cutover
+## The cutover (2026-11-20)
 
-The VPS gets a fresh dump of the old host's database at the cutover. Data fixes run on the VPS before that are lost, so run them again on the live data once the VPS is serving:
+1. 22:00: the old host went into maintenance mode; its queue drained and its queue and scheduler stopped.
+2. A final database dump and the media changes were copied to the VPS. Then `adria:tours:structure-program --apply` ran on that data before the VPS took traffic (96 tours split, 5 left for manual review: 118, 157, 191, 206, 374).
+3. The VPS started the whole stack. The old host's Traefik forwards to `https://217.144.53.32`, and its app and nginx are stopped. The site was in maintenance mode for under a minute.
+4. 2026-11-21 01:00: the A records of `adriaholiday.hu` and `www` were switched to `217.144.53.32`. Traefik then got its own Let's Encrypt certificates.
 
-- `adria:tours:structure-program`: splits the legacy one-block tour programs into program days and price items. Run the dry run first, then `--apply`. See `docs/tour-program-structure.md`.
+### DNS
+
+The zone is edited at `vezerlopult.hu` → DNS-zóna, domain adriaholiday.hu. Names are relative there (`www`, not `www.adriaholiday.hu`). The whole zone is saved at once with "Beállítások mentése", so check every row before saving. `mail`, `webmail`, `admin` and the other legacy names point to the legacy server `193.201.188.155`. Mail goes through Google Workspace (MX).
+
+The redirect router's certificate names only `www.adriaholiday.hu` (`domains` in `traefik-route.yml.template`). The staging host `adriaholiday.jandldavid.hu` is behind Cloudflare and points to the old host, so its HTTP challenge would fail here and take the www certificate down with it.

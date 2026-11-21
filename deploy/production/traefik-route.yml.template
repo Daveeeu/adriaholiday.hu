@@ -13,6 +13,9 @@ http:
       tls:
         certResolver: __CERT_RESOLVER__
     # redirect:start
+    # The certificate only names www: the staging host sits behind Cloudflare
+    # and does not point to this server, so its HTTP challenge would fail and
+    # take the www certificate down with it.
     adriaholiday-hu-redirect:
       rule: "Host(`www.adriaholiday.hu`) || Host(`adriaholiday.jandldavid.hu`)"
       entryPoints:
@@ -22,6 +25,8 @@ http:
       service: adriaholiday-hu
       tls:
         certResolver: __CERT_RESOLVER__
+        domains:
+          - main: "www.adriaholiday.hu"
     # redirect:end
   middlewares:
     adriaholiday-hu-canonical-host:

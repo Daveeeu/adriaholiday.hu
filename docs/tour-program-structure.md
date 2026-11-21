@@ -64,4 +64,4 @@ Statuses:
 
 ## After the move to the dedicated VPS
 
-The VPS database is overwritten with a fresh dump of the old host at the cutover. That drops every change made on the VPS before it. **Run the command again on the live data after the cutover:** first the dry run, then `--apply`. Check the manual review list in the report and finish those tours in the admin by hand.
+At the cutover on 2026-11-20 the command ran on the fresh live data: 96 tours split into 391 program days and 704 price items. Five tours are left for manual review in the admin: 118, 157, 191, 206 and 374.
