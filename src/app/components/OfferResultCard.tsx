@@ -1,10 +1,11 @@
-import { ArrowRight, Bus, Calendar, Clock, Plane, Utensils } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
-import { INQUIRE_LABEL, type UnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
+import type { UnifiedOfferCardModel } from "../content/portfolio-offer-card-model";
 import { responsiveImage } from "../lib/responsiveImage";
 import { TRIP_DATES_ID } from "../lib/tripSection";
+import { offerMetaItems } from "./offer-card/offer-meta-items";
 
 /**
  * A real link to an offer, so crawlers can follow it and it opens in a new tab on
@@ -45,28 +46,7 @@ type OfferResultCardProps = {
 
 /** The trip tile of the offer lists and the homepage's featured offers. */
 export default function OfferResultCard({ offer, onSelect }: OfferResultCardProps) {
-  const metaItems = [
-    {
-      key: "departure",
-      icon: <Calendar className="h-4 w-4" />,
-      value: offer.departureLabel ?? INQUIRE_LABEL,
-    },
-    {
-      key: "duration",
-      icon: <Clock className="h-4 w-4" />,
-      value: offer.durationLabel ?? "Többnapos út",
-    },
-    {
-      key: "transport",
-      icon: offer.transportLabel?.includes("Repül") ? <Plane className="h-4 w-4" /> : <Bus className="h-4 w-4" />,
-      value: offer.transportLabel ?? "Szervezett út",
-    },
-    {
-      key: "meals",
-      icon: <Utensils className="h-4 w-4" />,
-      value: offer.mealsLabel ?? "Információ később",
-    },
-  ];
+  const metaItems = offerMetaItems(offer);
 
   return (
     <div className="group h-full overflow-hidden rounded-[30px] border border-gray-100 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)] transition-all hover:shadow-[0_18px_60px_rgba(0,195,137,0.12)]">
